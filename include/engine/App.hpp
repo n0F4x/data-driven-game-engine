@@ -20,134 +20,134 @@ class App;
 
 
 class AppBase {
-	friend App;
-	class Builder;
-	friend BuilderBase<AppBase>;
+    friend App;
+    class Builder;
+    friend BuilderBase<AppBase>;
 
 public:
-	[[nodiscard]] static auto create() noexcept;
+    [[nodiscard]] static auto create() noexcept;
 
 private:
-	[[nodiscard]] AppBase() noexcept = default;
-	[[nodiscard]] AppBase(AppBase&&) noexcept = default;
+    [[nodiscard]] AppBase() noexcept = default;
+    [[nodiscard]] AppBase(AppBase&&) noexcept = default;
 
 
 protected:
-	std::string name{ "App" };
+    std::string name{ "App" };
 
-	std::unordered_map<State::Id, State> states;
-	gsl::not_null<State*> nextState = &State::invalid_state();
-	gsl::not_null<State*> currentState = &State::invalid_state();
-	gsl::not_null<State*> prevState = &State::invalid_state();
+    std::unordered_map<State::Id, State> states;
+    gsl::not_null<State*> nextState = &State::invalid_state();
+    gsl::not_null<State*> currentState = &State::invalid_state();
+    gsl::not_null<State*> prevState = &State::invalid_state();
 
-	std::vector<Stage> stages;
+    std::vector<Stage> stages;
 };
 
 
 class AppBase::Builder final : public BuilderBase<AppBase> {
 public:
-	using BuilderBase<AppBase>::BuilderBase;
+    using BuilderBase<AppBase>::BuilderBase;
 
-	[[nodiscard]] explicit(false) operator App() noexcept;
-	[[nodiscard]] App build() noexcept;
+    [[nodiscard]] explicit(false) operator App() noexcept;
+    [[nodiscard]] App build() noexcept;
 
-	[[nodiscard]] auto add_name(auto new_name) noexcept {
-		draft().name = new_name;
+    [[nodiscard]] auto add_name(auto new_name) noexcept {
+        draft().name = new_name;
 
-		return std::move(*this);
-	}
+        return std::move(*this);
+    }
 
-	[[nodiscard]] auto add_state(State&& state) {
-		if (!is_valid(*draft().currentState))
-			draft().currentState = &draft().states.try_emplace(state.get_id(), std::move(state)).first->second;
-		else
-			draft().states.try_emplace(state.get_id(), std::move(state));
+    [[nodiscard]] auto add_state(State&& state) {
+        if (!is_valid(*draft().currentState))
+            draft().currentState = &draft().states.try_emplace(state.get_id(), std::move(state)).first->second;
+        else
+            draft().states.try_emplace(state.get_id(), std::move(state));
 
-		return std::move(*this);
-	}
+        return std::move(*this);
+    }
 
-	[[nodiscard]] auto add_stage(Stage&& stage) {
-		draft().stages.push_back(std::move(stage));
+    [[nodiscard]] auto add_stage(Stage&& stage) {
+        draft().stages.push_back(std::move(stage));
 
-		return std::move(*this);
-	}
+        return std::move(*this);
+    }
 };
 
 auto AppBase::create() noexcept {
-	return Builder{};
+    return Builder{};
 }
 
 
 class App final : public AppBase {
-	friend App::Builder;
-	friend Controller;
+    friend App::Builder;
+    friend Controller;
 
 public:
-	void run();
+    void run();
 
 private:
-	[[nodiscard]] App(AppBase&& base) noexcept : AppBase{ std::move(base) } {}
+    [[nodiscard]] App(AppBase&& base) noexcept : AppBase{ std::move(base) } {}
 
-	void transition() noexcept {
-		if (nextState != currentState) {
-			currentState->exited();
+    void transition() noexcept {
+        if (nextState != currentState) {
+            currentState->exited();
 
-			prevState = currentState;
-			currentState = nextState;
+            prevState = currentState;
+            currentState = nextState;
 
-			currentState->entered();
-		}
-	}
+            currentState->entered();
+        }
+    }
 
-	std::atomic<bool> running = false;
+    std::atomic<bool> running = false;
 };
 
 AppBase::Builder::operator App() noexcept {
-	return build();
+    return build();
 }
 
 App AppBase::Builder::build() noexcept {
-	return App{ BuilderBase::build() };
+    return App{ BuilderBase::build() };
 }
 
 
 class Controller final {
 public:
-	[[nodiscard]] explicit Controller(App& app) noexcept : app{ app } {}
+    [[nodiscard]] explicit Controller(App& app) noexcept : app{ app } {}
 
-	auto quit() noexcept {
-		app.running = false;
-		app.nextState = &State::invalid_state();
-	}
+    auto quit() noexcept {
+        app.running = false;
+        app.nextState = &State::invalid_state();
+    }
 
-	auto transition_to(State::Id to) noexcept {
-		if (app.nextState == app.currentState)
-			if (auto iter{ app.states.find(to) }; iter != app.states.end())
-				app.nextState = &iter->second;
-	}
+    auto transition_to(State::Id to) noexcept {
+        if (app.nextState == app.currentState)
+            if (auto iter{ app.states.find(to) }; iter != app.states.end())
+                app.nextState = &iter->second;
+    }
 
-	auto transition_to_prev() noexcept {
-		if (app.nextState == app.currentState)
-			app.nextState = app.prevState;
-	}
+    auto transition_to_prev() noexcept {
+        if (app.nextState == app.currentState)
+            app.nextState = app.prevState;
+    }
 
 private:
-	App& app;
+    App& app;
 };
 
 void App::run() {
-	running = true;
-	std::cout << std::format("{} is running...\n", name);
+    running = true;
+    std::cout << std::format("{} is running...\n", name);
 
-	if (std::ranges::any_of(stages, [](auto& stage) { return stage.has_system(); })) {
-		Controller controller{ *this };
+    if (std::ranges::any_of(stages, [](auto& stage) { return stage.has_system(); })) {
+        Controller controller{ *this };
 
-		currentState->entered();
+        currentState->entered();
 
-		while (running) {
-			std::ranges::for_each(stages, [&controller](auto& stage) { stage.run(controller); });
+        while (running) {
+            std::ranges::for_each(stages, [&controller](auto& stage) { stage.run(controller); });
 
-			transition();
-		}
-	}
+            transition();
+        }
+    }
 }
