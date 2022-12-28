@@ -1,6 +1,9 @@
 .vs
 .vscode
+build
 out
 
+build.bat
+CMakeSettings.json
 CMakePresets.json
 cpp.hint

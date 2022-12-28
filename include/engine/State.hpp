@@ -28,6 +28,7 @@ public:
 
     [[nodiscard]] static State& invalid_state() noexcept {
         static State invalid_state{};
+
         return invalid_state;
     }
 
