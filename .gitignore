@@ -1,0 +1,6 @@
+.vs
+.vscode
+out
+
+CMakePresets.json
+cpp.hint
