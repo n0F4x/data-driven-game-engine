@@ -20,11 +20,11 @@ int main() {
 		.add_stage(Stage::create()
 			.add_system([](Controller& controller) {
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	std::cout << "Stage 1 - first\n";
-	controller.quit(); })
+				std::cout << "Stage 1 - first\n";
+				controller.quit(); })
 			.add_system([](Controller& controller) {
-	std::cout << "Stage 1 - second\n";
-	controller.quit(); }))
+				std::cout << "Stage 1 - second\n";
+				controller.quit(); }))
 		.add_stage(Stage::create()
 			.add_system([](Controller& controller) { std::cout << "Stage 2\n"; controller.quit(); }))
 		.build().run();
