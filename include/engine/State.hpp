@@ -19,7 +19,7 @@ private:
     class Builder;
     friend BuilderBase<State>;
 
-    constexpr static auto empty_action() noexcept -> void {}
+    constexpr static auto empty_action() noexcept -> void { /*empty by default*/ }
 
 public:
     template<State::Id id>
@@ -61,14 +61,14 @@ class State::Builder final : public BuilderBase<State> {
 public:
     using BuilderBase<State>::BuilderBase;
 
-    [[nodiscard]] constexpr auto on_enter(Action&& callback) noexcept {
-        draft().onEnter = std::move(callback);
+    [[nodiscard]] constexpr auto on_enter(Action callback) noexcept {
+        draft().onEnter = callback;
 
         return std::move(*this);
     }
 
-    [[nodiscard]] constexpr auto on_exit(Action&& callback) noexcept {
-        draft().onExit = std::move(callback);
+    [[nodiscard]] constexpr auto on_exit(Action callback) noexcept {
+        draft().onExit = callback;
 
         return std::move(*this);
     }

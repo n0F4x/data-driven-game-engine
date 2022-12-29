@@ -8,13 +8,14 @@
 template<class Product>
 class BuilderBase {
     friend Product;
-    Product product;
-
+    
 protected:
     [[nodiscard]] constexpr BuilderBase() noexcept = default;
 
-    [[nodiscard]] constexpr explicit BuilderBase(auto&&... args) noexcept
-        : product{ std::forward<std::decay_t<decltype(args)>>(args)... } {}
+    template<typename... Args>
+        requires (!std::same_as<BuilderBase, std::remove_cvref_t<Args...>>)
+    [[nodiscard]] constexpr explicit BuilderBase(Args&&... args) noexcept
+        : product{ std::forward<Args>(args)... } {}
 
     [[nodiscard]] constexpr auto draft() -> Product& {
         return product;
@@ -27,4 +28,7 @@ public:
     [[nodiscard]] constexpr auto build() noexcept {
         return std::move(product);
     }
+
+private:
+    Product product;
 };

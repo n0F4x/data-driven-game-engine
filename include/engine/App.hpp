@@ -86,7 +86,7 @@ public:
     void run();
 
 private:
-    [[nodiscard]] App(AppBase&& base) noexcept : AppBase{ std::move(base) } {}
+    [[nodiscard]] explicit App(AppBase&& base) noexcept : AppBase{ std::move(base) } {}
 
     void transition() noexcept {
         if (nextState != currentState) {
