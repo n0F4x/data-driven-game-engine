@@ -12,8 +12,9 @@ class BuilderBase {
 protected:
     [[nodiscard]] constexpr BuilderBase() noexcept = default;
 
-    [[nodiscard]] constexpr explicit BuilderBase(auto&&... args) noexcept
-        : product{ std::forward<decltype(args)>(args)... } {}
+    template<typename... Args>
+    [[nodiscard]] constexpr explicit BuilderBase(Args&&... args) noexcept
+        : product{ std::forward<Args>(args)... } {}
 
     [[nodiscard]] constexpr auto draft() -> Product& {
         return product;
