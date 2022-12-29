@@ -30,10 +30,10 @@ class AppBase {
 
     std::string name{ "App" };
 
-    std::unordered_map<State::Id, State> states;
-    gsl::not_null<State*> nextState = &State::invalid_state();
-    gsl::not_null<State*> currentState = &State::invalid_state();
-    gsl::not_null<State*> prevState = &State::invalid_state();
+    std::unordered_map<State::Id, const State> states;
+    gsl::not_null<const State*> nextState = State::invalid_state();
+    gsl::not_null<const State*> currentState = State::invalid_state();
+    gsl::not_null<const State*> prevState = State::invalid_state();
 
     std::vector<Stage> stages;
 };
@@ -71,10 +71,10 @@ private:
 
     std::string name{ "App" };
 
-    std::unordered_map<State::Id, State> states;
-    gsl::not_null<State*> nextState = &State::invalid_state();
-    gsl::not_null<State*> currentState = &State::invalid_state();
-    gsl::not_null<State*> prevState = &State::invalid_state();
+    std::unordered_map<State::Id, const State> states;
+    gsl::not_null<const State*> nextState = State::invalid_state();
+    gsl::not_null<const State*> currentState = State::invalid_state();
+    gsl::not_null<const State*> prevState = State::invalid_state();
 
     std::vector<Stage> stages;
 };
@@ -98,7 +98,7 @@ public:
     }
 
     [[nodiscard]] auto add_state(State&& state) {
-        if (!is_valid(*draft().currentState))
+        if (State::invalid(*draft().currentState))
             draft().currentState = &draft().states.try_emplace(state.get_id(), std::move(state)).first->second;
         else
             draft().states.try_emplace(state.get_id(), std::move(state));
@@ -125,7 +125,7 @@ public:
 
     auto quit() noexcept {
         app.running = false;
-        app.nextState = &State::invalid_state();
+        app.nextState = State::invalid_state();
     }
 
     auto transition_to(State::Id to) noexcept {
@@ -148,15 +148,17 @@ void App::run() {
     running = true;
     std::cout << std::format("{} is running...\n", name);
 
-    if (std::ranges::any_of(stages, &Stage::has_system)) {
+    currentState->entered();
+
+    if (auto active_stages = std::ranges::partition(stages, &Stage::empty); not std::ranges::empty(active_stages)) {
         Controller controller{ *this };
 
-        currentState->entered();
-
         while (running) {
-            std::ranges::for_each(stages, std::bind_back(&Stage::run, controller));
+            std::ranges::for_each(active_stages, std::bind_back(&Stage::run, controller));
 
             transition();
         }
     }
+
+    currentState->exited();
 }

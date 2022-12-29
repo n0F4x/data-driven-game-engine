@@ -26,10 +26,16 @@ public:
         requires(id != 0)
     [[nodiscard]] constexpr static auto create() noexcept;
 
-    [[nodiscard]] static State& invalid_state() noexcept {
-        static State invalid_state{};
+    [[nodiscard]] constexpr static gsl::not_null<const State*> invalid_state() noexcept {
+        return &s_invalid_state;
+    }
 
-        return invalid_state;
+    [[nodiscard]] constexpr static auto invalid(const State& state) noexcept {
+        return state.id == 0;
+    }
+
+    [[nodiscard]] constexpr auto get_id() const noexcept {
+        return id;
     }
 
     constexpr auto entered() const noexcept {
@@ -39,12 +45,10 @@ public:
         onExit();
     }
 
-    [[nodiscard]] constexpr auto get_id() const noexcept {
-        return id;
-    }
-
 private:
     [[nodiscard]] constexpr explicit State(Id id = {}) noexcept : id{ id } {}
+
+    static const State s_invalid_state;
 
     Id id{};
 
@@ -52,9 +56,7 @@ private:
     Action onExit = empty_action;
 };
 
-[[nodiscard]] constexpr auto is_valid(const State& state) noexcept {
-    return state.get_id() != 0;
-}
+constexpr const State State::s_invalid_state;
 
 
 class State::Builder final : public BuilderBase<State> {
@@ -64,13 +66,13 @@ public:
     [[nodiscard]] constexpr auto on_enter(Action callback) noexcept {
         draft().onEnter = callback;
 
-        return std::move(*this);
+        return *this;
     }
 
     [[nodiscard]] constexpr auto on_exit(Action callback) noexcept {
         draft().onExit = callback;
 
-        return std::move(*this);
+        return *this;
     }
 };
 

@@ -29,8 +29,8 @@ public:
             futures.push_back(std::async(std::launch::async, system, std::ref(controller)));
     }
 
-    [[nodiscard]] constexpr auto has_system() const noexcept {
-        return !std::empty(systems);
+    [[nodiscard]] constexpr auto empty() const noexcept {
+        return std::empty(systems);
     }
 
 private:
@@ -47,7 +47,7 @@ public:
     [[nodiscard]] constexpr auto add_system(System&& system) {
         draft().systems.push_back(std::move(system));
 
-        return std::move(*this);
+        return *this;
     }
 };
 
