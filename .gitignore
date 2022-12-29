@@ -1,7 +1,9 @@
 .vs
 .vscode
-build
+.idea
 out
+build
+cmake-build-debug
 
 build.bat
 CMakeSettings.json

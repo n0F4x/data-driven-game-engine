@@ -7,6 +7,7 @@
 #include <format>
 #include <iostream>
 #include <ranges>
+#include <functional>
 
 #include <gsl/pointers>
 
@@ -21,18 +22,53 @@ class App;
 
 class AppBase {
     friend App;
-    class Builder;
     friend BuilderBase<AppBase>;
 
-public:
-    [[nodiscard]] static auto create() noexcept;
-
-private:
     [[nodiscard]] AppBase() noexcept = default;
     [[nodiscard]] AppBase(AppBase&&) noexcept = default;
 
 
-protected:
+    std::string name{ "App" };
+
+    std::unordered_map<State::Id, State> states;
+    gsl::not_null<State*> nextState = &State::invalid_state();
+    gsl::not_null<State*> currentState = &State::invalid_state();
+    gsl::not_null<State*> prevState = &State::invalid_state();
+
+    std::vector<Stage> stages;
+};
+
+class App final {
+    class Builder;
+    friend Controller;
+
+public:
+    [[nodiscard]] explicit App(AppBase&& base) noexcept :
+        name{ std::move(base.name) },
+        states{ std::move(base.states) },
+        nextState{ base.nextState },
+        currentState{ base.currentState },
+        prevState{ base.prevState },
+        stages{ std::move(base.stages) } {}
+
+    [[nodiscard]] static auto create() noexcept;
+
+    void run();
+
+private:
+    void transition() noexcept {
+        if (nextState != currentState) {
+            currentState->exited();
+
+            prevState = currentState;
+            currentState = nextState;
+
+            currentState->entered();
+        }
+    }
+
+    std::atomic<bool> running = false;
+
     std::string name{ "App" };
 
     std::unordered_map<State::Id, State> states;
@@ -44,12 +80,16 @@ protected:
 };
 
 
-class AppBase::Builder final : public BuilderBase<AppBase> {
+class App::Builder final : public BuilderBase<AppBase> {
 public:
     using BuilderBase<AppBase>::BuilderBase;
 
-    [[nodiscard]] explicit(false) operator App() noexcept;
-    [[nodiscard]] App build() noexcept;
+    [[nodiscard]] explicit(false) operator App() noexcept {
+        return build();
+    }
+    [[nodiscard]] App build() noexcept {
+        return App{ BuilderBase::build() };
+    }
 
     [[nodiscard]] auto add_name(auto new_name) noexcept {
         draft().name = new_name;
@@ -73,42 +113,10 @@ public:
     }
 };
 
-auto AppBase::create() noexcept {
+auto App::create() noexcept {
     return Builder{};
 }
 
-
-class App final : public AppBase {
-    friend App::Builder;
-    friend Controller;
-
-public:
-    void run();
-
-private:
-    [[nodiscard]] explicit App(AppBase&& base) noexcept : AppBase{ std::move(base) } {}
-
-    void transition() noexcept {
-        if (nextState != currentState) {
-            currentState->exited();
-
-            prevState = currentState;
-            currentState = nextState;
-
-            currentState->entered();
-        }
-    }
-
-    std::atomic<bool> running = false;
-};
-
-AppBase::Builder::operator App() noexcept {
-    return build();
-}
-
-App AppBase::Builder::build() noexcept {
-    return App{ BuilderBase::build() };
-}
 
 
 class Controller final {
@@ -135,17 +143,18 @@ private:
     App& app;
 };
 
+
 void App::run() {
     running = true;
     std::cout << std::format("{} is running...\n", name);
 
-    if (std::ranges::any_of(stages, [](auto& stage) { return stage.has_system(); })) {
+    if (std::ranges::any_of(stages, &Stage::has_system)) {
         Controller controller{ *this };
 
         currentState->entered();
 
         while (running) {
-            std::ranges::for_each(stages, [&controller](auto& stage) { stage.run(controller); });
+            std::ranges::for_each(stages, std::bind_back(&Stage::run, controller));
 
             transition();
         }
