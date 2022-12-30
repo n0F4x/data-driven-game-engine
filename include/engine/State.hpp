@@ -22,22 +22,22 @@ private:
     constexpr static void empty_action() noexcept { /*empty by default*/ }
 
 public:
-    [[nodiscard]] constexpr State(const State&) = delete;
-    [[nodiscard]] constexpr State(State&&) noexcept = default;
+    constexpr [[nodiscard]] State(const State&) = delete;
+    constexpr [[nodiscard]] State(State&&) noexcept = default;
 
     template<State::Id id>
         requires(id != 0)
-    [[nodiscard]] constexpr static auto create() noexcept;
+    constexpr static [[nodiscard]] auto create() noexcept;
 
-    [[nodiscard]] constexpr static gsl::not_null<const State*> invalid_state() noexcept {
+    constexpr static [[nodiscard]] gsl::not_null<const State*> invalid_state() noexcept {
         return &s_invalid_state;
     }
 
-    [[nodiscard]] constexpr static auto invalid(const State& state) noexcept {
+    constexpr static [[nodiscard]] auto invalid(const State& state) noexcept {
         return state.id == 0;
     }
 
-    [[nodiscard]] constexpr auto get_id() const noexcept {
+    constexpr [[nodiscard]] auto get_id() const noexcept {
         return id;
     }
 
@@ -49,7 +49,7 @@ public:
     }
 
 private:
-    [[nodiscard]] constexpr explicit State(Id id = {}) noexcept : id{ id } {}
+    constexpr explicit [[nodiscard]] State(Id id = {}) noexcept : id{ id } {}
 
     static const State s_invalid_state;
 
@@ -66,13 +66,13 @@ class State::Builder final : public BuilderBase<State> {
 public:
     using BuilderBase<State>::BuilderBase;
 
-    [[nodiscard]] constexpr auto on_enter(Action callback) noexcept {
+    constexpr [[nodiscard]] auto on_enter(Action callback) noexcept {
         draft().onEnter = callback;
 
         return std::move(*this);
     }
 
-    [[nodiscard]] constexpr auto on_exit(Action callback) noexcept {
+    constexpr [[nodiscard]] auto on_exit(Action callback) noexcept {
         draft().onExit = callback;
 
         return std::move(*this);
@@ -82,6 +82,6 @@ public:
 
 template<State::Id id>
     requires(id != 0)
-[[nodiscard]] constexpr auto State::create() noexcept {
+constexpr [[nodiscard]] auto State::create() noexcept {
     return Builder{ id };
 }

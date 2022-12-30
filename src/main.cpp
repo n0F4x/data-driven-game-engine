@@ -13,7 +13,7 @@ void exited() noexcept {
     std::cout << "Exited\n";
 }
 
-int main() {
+auto main() -> int {
     App::create()
         .add_name("My game engine")
         .add_state(State::create<"MyState"_hs>()

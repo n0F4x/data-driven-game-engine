@@ -48,7 +48,7 @@ public:
     [[nodiscard]] App(const App&) = delete;
     [[nodiscard]] App(App&&) noexcept = delete;
 
-    [[nodiscard]] explicit App(AppBase&& base) noexcept :
+    explicit [[nodiscard]] App(AppBase&& base) noexcept :
         name{ std::move(base.name) },
         states{ std::move(base.states) },
         nextState{ base.nextState },
@@ -56,7 +56,7 @@ public:
         prevState{ base.prevState },
         stages{ std::move(base.stages) } {}
 
-    [[nodiscard]] static auto create() noexcept;
+    static [[nodiscard]] auto create() noexcept;
 
     void run();
 
@@ -89,10 +89,10 @@ class App::Builder final : public BuilderBase<AppBase> {
 public:
     using BuilderBase<AppBase>::BuilderBase;
 
-    [[nodiscard]] explicit(false) operator App() noexcept {
+    explicit(false) [[nodiscard]] operator App() noexcept {
         return build();
     }
-    [[nodiscard]] App build() noexcept {
+    [[nodiscard]] auto build() noexcept -> App {
         return App{ BuilderBase::build() };
     }
 
@@ -119,7 +119,7 @@ public:
     }
 };
 
-auto App::create() noexcept {
+[[nodiscard]] auto App::create() noexcept {
     return Builder{};
 }
 
@@ -127,7 +127,7 @@ auto App::create() noexcept {
 
 class Controller final {
 public:
-    [[nodiscard]] explicit Controller(App& app) noexcept : app{ app } {}
+    explicit [[nodiscard]] Controller(App& app) noexcept : app{ app } {}
     [[nodiscard]] Controller(const Controller&) = delete;
     [[nodiscard]] Controller(Controller&&) noexcept = delete;
 
