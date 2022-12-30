@@ -131,18 +131,18 @@ public:
     [[nodiscard]] Controller(const Controller&) = delete;
     [[nodiscard]] Controller(Controller&&) noexcept = delete;
 
-    auto quit() noexcept {
+    void quit() noexcept {
         app.running = false;
         app.nextState = State::invalid_state();
     }
 
-    auto transition_to(State::Id to) noexcept {
+    void transition_to(State::Id to) noexcept {
         if (app.nextState == app.currentState)
             if (auto iter{ app.states.find(to) }; iter != app.states.end())
                 app.nextState = &iter->second;
     }
 
-    auto transition_to_prev() noexcept {
+    void transition_to_prev() noexcept {
         if (app.nextState == app.currentState)
             app.nextState = app.prevState;
     }

@@ -19,7 +19,7 @@ private:
     class Builder;
     friend BuilderBase<State>;
 
-    constexpr static auto empty_action() noexcept -> void { /*empty by default*/ }
+    constexpr static void empty_action() noexcept { /*empty by default*/ }
 
 public:
     [[nodiscard]] constexpr State(const State&) = delete;
@@ -41,10 +41,10 @@ public:
         return id;
     }
 
-    constexpr auto entered() const noexcept {
+    constexpr void entered() const noexcept {
         onEnter();
     }
-    constexpr auto exited() const noexcept {
+    constexpr void exited() const noexcept {
         onExit();
     }
 
