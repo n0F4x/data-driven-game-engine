@@ -11,6 +11,8 @@ class BuilderBase {
 
 protected:
     [[nodiscard]] constexpr BuilderBase() noexcept = default;
+    [[nodiscard]] constexpr BuilderBase(const BuilderBase&) = delete;
+    [[nodiscard]] constexpr BuilderBase(BuilderBase&&) noexcept = default;
 
     template<typename... Args>
     [[nodiscard]] constexpr explicit BuilderBase(Args&&... args) noexcept

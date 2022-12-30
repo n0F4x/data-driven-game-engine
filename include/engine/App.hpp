@@ -25,6 +25,7 @@ class AppBase {
     friend BuilderBase<AppBase>;
 
     [[nodiscard]] AppBase() noexcept = default;
+    [[nodiscard]] AppBase(const AppBase&) = delete;
     [[nodiscard]] AppBase(AppBase&&) noexcept = default;
 
 
@@ -43,6 +44,10 @@ class App final {
     friend Controller;
 
 public:
+    [[nodiscard]] App() noexcept = delete;
+    [[nodiscard]] App(const App&) = delete;
+    [[nodiscard]] App(App&&) noexcept = delete;
+
     [[nodiscard]] explicit App(AppBase&& base) noexcept :
         name{ std::move(base.name) },
         states{ std::move(base.states) },
@@ -107,7 +112,8 @@ public:
     }
 
     [[nodiscard]] auto add_stage(Stage&& stage) {
-        draft().stages.push_back(std::move(stage));
+        if (!Stage::empty(stage))
+            draft().stages.push_back(std::move(stage));
 
         return std::move(*this);
     }
@@ -122,6 +128,8 @@ auto App::create() noexcept {
 class Controller final {
 public:
     [[nodiscard]] explicit Controller(App& app) noexcept : app{ app } {}
+    [[nodiscard]] Controller(const Controller&) = delete;
+    [[nodiscard]] Controller(Controller&&) noexcept = delete;
 
     auto quit() noexcept {
         app.running = false;
@@ -150,11 +158,11 @@ void App::run() {
 
     currentState->entered();
 
-    if (auto active_stages = std::ranges::partition(stages, &Stage::empty); not std::ranges::empty(active_stages)) {
+    if (!std::ranges::empty(stages)) {
         Controller controller{ *this };
 
         while (running) {
-            std::ranges::for_each(active_stages, std::bind_back(&Stage::run, controller));
+            std::ranges::for_each(stages, std::bind_back(&Stage::run, std::ref(controller)));
 
             transition();
         }

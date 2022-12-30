@@ -22,6 +22,9 @@ private:
     constexpr static auto empty_action() noexcept -> void { /*empty by default*/ }
 
 public:
+    [[nodiscard]] constexpr State(const State&) = delete;
+    [[nodiscard]] constexpr State(State&&) noexcept = default;
+
     template<State::Id id>
         requires(id != 0)
     [[nodiscard]] constexpr static auto create() noexcept;
@@ -66,13 +69,13 @@ public:
     [[nodiscard]] constexpr auto on_enter(Action callback) noexcept {
         draft().onEnter = callback;
 
-        return *this;
+        return std::move(*this);
     }
 
     [[nodiscard]] constexpr auto on_exit(Action callback) noexcept {
         draft().onExit = callback;
 
-        return *this;
+        return std::move(*this);
     }
 };
 

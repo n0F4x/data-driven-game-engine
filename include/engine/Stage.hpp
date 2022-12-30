@@ -19,6 +19,9 @@ private:
     friend BuilderBase<Stage>;
 
 public:
+    [[nodiscard]] constexpr Stage(const Stage&) = delete;
+    [[nodiscard]] constexpr Stage(Stage&&) noexcept = default;
+
     [[nodiscard]] constexpr static auto create() noexcept;
 
     void run(Controller& controller) const {
@@ -29,8 +32,8 @@ public:
             futures.push_back(std::async(std::launch::async, system, std::ref(controller)));
     }
 
-    [[nodiscard]] constexpr auto empty() const noexcept {
-        return std::empty(systems);
+    [[nodiscard]] constexpr static auto empty(const Stage& stage) noexcept {
+        return std::ranges::empty(stage.systems);
     }
 
 private:
@@ -47,7 +50,7 @@ public:
     [[nodiscard]] constexpr auto add_system(System&& system) {
         draft().systems.push_back(std::move(system));
 
-        return *this;
+        return std::move(*this);
     }
 };
 
