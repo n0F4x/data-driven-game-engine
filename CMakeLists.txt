@@ -15,7 +15,7 @@ add_subdirectory(vendor/sfml)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-file(GLOB SRC CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/**.cpp)
+file(GLOB_RECURSE SRC src/*.cpp)
 
 
 add_executable(${PROJECT_NAME} ${SRC})

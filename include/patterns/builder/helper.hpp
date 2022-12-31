@@ -4,6 +4,8 @@
 #include <type_traits>
 #include <concepts>
 
+#define Self std::remove_reference_t<decltype(*this)>
+
 
 template<class Product>
 class BuilderBase {

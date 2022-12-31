@@ -16,40 +16,48 @@
 
 #include "patterns/builder/helper.hpp"
 #include "engine/State.hpp"
-#include "engine/Stage.hpp"
+
+class Stage;
 
 
 class App final {
+  ///----------------///
+ ///  Member types  ///
+///----------------///
     class Builder;
     friend BuilderBase<App>;
 
+public:
+    class Controller;
     friend Controller;
 
-public:
+  ///------------------------------///
+ ///  Constructors / Destructors  ///
+///------------------------------///
     [[nodiscard]] App(const App&) = delete;
     [[nodiscard]] App(App&&) noexcept = default;
 
-    static [[nodiscard]] auto create() noexcept;
-
+  ///--------------------///
+ ///  Member functions  ///
+///--------------------///
     void run();
+
+  ///------------------///
+ ///  Static helpers  ///
+///------------------///
+    static [[nodiscard]] auto create() noexcept -> Builder;
 
 private:
     [[nodiscard]] App() noexcept = default;
 
-    void transition() noexcept {
-        if (nextState != currentState) {
-            currentState->exited();
+    void transition() noexcept;
 
-            prevState = currentState;
-            currentState = nextState;
-
-            currentState->entered();
-        }
-    }
-
+  ///--------------------///
+ ///  Member variables  ///
+///--------------------///
     std::unique_ptr<std::atomic<bool>> running = std::make_unique<std::atomic<bool>>(false);
 
-    std::string name{ "App" };
+    std::string name = "App";
 
     std::unordered_map<State::Id, const State> states;
     gsl::not_null<const State*> nextState = State::invalid_state();
@@ -62,86 +70,39 @@ private:
 
 class App::Builder final : public BuilderBase<App> {
 public:
+  ///------------------------------///
+ ///  Constructors / Destructors  ///
+///------------------------------///
     using BuilderBase<App>::BuilderBase;
 
-    explicit(false) [[nodiscard]] operator App() noexcept {
-        return build();
-    }
-    [[nodiscard]] auto build() noexcept -> App {
-        return App{ BuilderBase::build() };
-    }
-
-    [[nodiscard]] auto add_name(auto new_name) noexcept {
-        draft().name = new_name;
-
-        return std::move(*this);
-    }
-
-    [[nodiscard]] auto add_state(State&& state) {
-        if (State::invalid(*draft().currentState))
-            draft().currentState = &draft().states.try_emplace(state.get_id(), std::move(state)).first->second;
-        else
-            draft().states.try_emplace(state.get_id(), std::move(state));
-
-        return std::move(*this);
-    }
-
-    [[nodiscard]] auto add_stage(Stage&& stage) {
-        if (!Stage::empty(stage))
-            draft().stages.push_back(std::move(stage));
-
-        return std::move(*this);
-    }
+  ///--------------------///
+ ///  Member functions  ///
+///--------------------///
+    [[nodiscard]] auto set_name(std::string_view new_name) noexcept -> Self;
+    [[nodiscard]] auto add_state(State&& state) -> Self;
+    [[nodiscard]] auto add_stage(Stage&& stage) -> Self;
 };
 
-[[nodiscard]] auto App::create() noexcept {
-    return Builder{};
-}
 
-
-
-class Controller final {
+class App::Controller final {
 public:
+  ///------------------------------///
+ ///  Constructors / Destructors  ///
+///------------------------------///
     explicit [[nodiscard]] Controller(App& app) noexcept : app{ app } {}
     [[nodiscard]] Controller(const Controller&) = delete;
     [[nodiscard]] Controller(Controller&&) noexcept = delete;
 
-    void quit() noexcept {
-        *app.running = false;
-        app.nextState = State::invalid_state();
-    }
-
-    void transition_to(State::Id to) noexcept {
-        if (app.nextState == app.currentState)
-            if (auto iter{ app.states.find(to) }; iter != app.states.end())
-                app.nextState = &iter->second;
-    }
-
-    void transition_to_prev() noexcept {
-        if (app.nextState == app.currentState)
-            app.nextState = app.prevState;
-    }
+  ///--------------------///
+ ///  Member functions  ///
+///--------------------///
+    void quit() noexcept;
+    void transition_to(State::Id to) noexcept;
+    void transition_to_prev() noexcept;
 
 private:
+  ///--------------------///
+ ///  Member variables  ///
+///--------------------///
     App& app;
 };
-
-
-void App::run() {
-    *running = true;
-    std::cout << std::format("{} is running...\n", name);
-
-    currentState->entered();
-
-    if (!std::ranges::empty(stages)) {
-        Controller controller{ *this };
-
-        while (*running) {
-            std::ranges::for_each(stages, std::bind_back(&Stage::run, std::ref(controller)));
-
-            transition();
-        }
-    }
-
-    currentState->exited();
-}
