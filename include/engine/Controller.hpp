@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/State.hpp"
+#include "config/id.hpp"
 
 class App;
 
@@ -18,7 +18,7 @@ public:
    ///  Member functions  ///
   ///--------------------///
     void quit() noexcept;
-    void transition_to(State::Id to) noexcept;
+    void transition_to(Id to) noexcept;
     void transition_to_prev() noexcept;
 
 private:

@@ -3,19 +3,13 @@
 #include <atomic>
 #include <unordered_map>
 #include <vector>
-#include <utility>
-#include <format>
-#include <iostream>
-#include <ranges>
-#include <functional>
 #include <memory>
 
 #include <gsl/pointers>
 
-#include <entt/entt.hpp>
-
-#include "engine/State.hpp"
+#include "config/id.hpp"
 #include "patterns/builder/helper.hpp"
+#include "engine/State.hpp"
 
 class Controller;
 class Stage;
@@ -59,7 +53,7 @@ private:
 
     std::string name = "App";
 
-    std::unordered_map<State::Id, const State> states;
+    std::unordered_map<Id, const State> states;
     gsl::not_null<const State*> nextState = State::invalid_state();
     gsl::not_null<const State*> currentState = State::invalid_state();
     gsl::not_null<const State*> prevState = State::invalid_state();
@@ -82,5 +76,4 @@ public:
     [[nodiscard]] auto add_state(State&& state) -> Self;
     [[nodiscard]] auto add_stage(Stage&& stage) -> Self;
 };
-
 

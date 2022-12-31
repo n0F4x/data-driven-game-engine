@@ -1,13 +1,13 @@
 #pragma once
 
-#include <type_traits>
 #include <utility>
 
 #include <gsl/pointers>
 
-#include <entt/entt.hpp>
-
+#include "config/id.hpp"
 #include "patterns/builder/helper.hpp"
+
+class App;
 
 
 class State final {
@@ -16,11 +16,12 @@ class State final {
 ///----------------///
 public:
     using Action = gsl::not_null<void(*)()>;
-    using Id = entt::hashed_string::hash_type;
 
 private:
     class Builder;
     friend BuilderBase<State>;
+
+    friend App;
 
     constexpr static void empty_action() noexcept { /*empty by default*/ }
 
@@ -41,7 +42,7 @@ public:
   ///------------------///
  ///  Static helpers  ///
 ///------------------///
-    template<State::Id id>
+    template<Id id>
         requires(id != 0)
     constexpr static [[nodiscard]] auto create() noexcept;
     constexpr static [[nodiscard]] gsl::not_null<const State*> invalid_state() noexcept;
@@ -83,7 +84,7 @@ public:
 constexpr inline const State State::s_invalid_state;
 
 
-template<State::Id id>
+template<Id id>
     requires(id != 0)
 constexpr [[nodiscard]] auto State::create() noexcept {
     return Builder{ id };

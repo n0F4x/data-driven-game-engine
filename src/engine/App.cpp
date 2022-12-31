@@ -1,6 +1,12 @@
 #include "engine/App.hpp"
 
+#include <iostream>
+#include <format>
+#include <algorithm>
+#include <functional>
+
 #include "engine/Controller.hpp"
+#include "engine/State.hpp"
 #include "engine/Stage.hpp"
 
 
