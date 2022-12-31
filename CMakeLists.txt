@@ -17,7 +17,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 file(GLOB SRC CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/**.cpp)
 
 
-add_executable (${PROJECT_NAME} ${SRC})
+add_executable(${PROJECT_NAME} ${SRC})
 
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)

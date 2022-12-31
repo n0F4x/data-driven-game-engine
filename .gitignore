@@ -1,10 +1,12 @@
 .vs
 .vscode
 .idea
+bin
 out
 build
 cmake-build-debug
 
+build.sh
 build.bat
 CMakeSettings.json
 CMakePresets.json
