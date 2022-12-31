@@ -4,3 +4,6 @@
 [submodule "vendor/sfml"]
 	path = vendor/sfml
 	url = https://github.com/SFML/SFML.git
+[submodule "vendor/gsl"]
+	path = vendor/gsl
+	url = https://github.com/microsoft/GSL.git
