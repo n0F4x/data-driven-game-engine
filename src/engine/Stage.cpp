@@ -2,10 +2,10 @@
 
 #include <future>
 
-#include "engine/App.hpp"
+#include "engine/Controller.hpp"
 
 
-void Stage::run(App::Controller& controller) const {
+void Stage::run(Controller& controller) const {
     std::vector<std::future<void>> futures;
     futures.resize(systems.size());
 

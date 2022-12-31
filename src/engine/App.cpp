@@ -1,5 +1,6 @@
 #include "engine/App.hpp"
 
+#include "engine/Controller.hpp"
 #include "engine/Stage.hpp"
 
 
@@ -60,21 +61,4 @@ void App::transition() noexcept {
         draft().stages.push_back(std::move(stage));
 
     return std::move(*this);
-}
-
-
-void App::Controller::quit() noexcept {
-    *app.running = false;
-    app.nextState = State::invalid_state();
-}
-
-void App::Controller::transition_to(State::Id to) noexcept {
-    if (app.nextState == app.currentState)
-        if (auto iter{ app.states.find(to) }; iter != app.states.end())
-            app.nextState = &iter->second;
-}
-
-void App::Controller::transition_to_prev() noexcept {
-    if (app.nextState == app.currentState)
-        app.nextState = app.prevState;
 }

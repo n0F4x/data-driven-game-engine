@@ -7,7 +7,7 @@
 
 #include <patterns/builder/helper.hpp>
 
-#include "engine/App.hpp"
+class Controller;
 
 
 class Stage {
@@ -15,7 +15,7 @@ class Stage {
  ///  Member types  ///
 ///----------------///
 public:
-    using System = gsl::not_null<void(*)(App::Controller&)>;
+    using System = gsl::not_null<void(*)(Controller&)>;
 
 private:
     class Builder;
@@ -31,7 +31,7 @@ public:
   ///--------------------///
  ///  Member functions  ///
 ///--------------------///
-    void run(App::Controller& controller) const;
+    void run(Controller& controller) const;
 
   ///------------------///
  ///  Static helpers  ///

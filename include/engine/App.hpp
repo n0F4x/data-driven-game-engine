@@ -14,9 +14,10 @@
 
 #include <entt/entt.hpp>
 
-#include "patterns/builder/helper.hpp"
 #include "engine/State.hpp"
+#include "patterns/builder/helper.hpp"
 
+class Controller;
 class Stage;
 
 
@@ -28,7 +29,6 @@ class App final {
     friend BuilderBase<App>;
 
 public:
-    class Controller;
     friend Controller;
 
   ///------------------------------///
@@ -84,25 +84,3 @@ public:
 };
 
 
-class App::Controller final {
-public:
-  ///------------------------------///
- ///  Constructors / Destructors  ///
-///------------------------------///
-    explicit [[nodiscard]] Controller(App& app) noexcept : app{ app } {}
-    [[nodiscard]] Controller(const Controller&) = delete;
-    [[nodiscard]] Controller(Controller&&) noexcept = delete;
-
-  ///--------------------///
- ///  Member functions  ///
-///--------------------///
-    void quit() noexcept;
-    void transition_to(State::Id to) noexcept;
-    void transition_to_prev() noexcept;
-
-private:
-  ///--------------------///
- ///  Member variables  ///
-///--------------------///
-    App& app;
-};
