@@ -8,6 +8,7 @@
 #include <iostream>
 #include <ranges>
 #include <functional>
+#include <memory>
 
 #include <gsl/pointers>
 
@@ -17,50 +18,24 @@
 #include "engine/State.hpp"
 #include "engine/Stage.hpp"
 
-class App;
-
-
-class AppBase {
-    friend App;
-    friend BuilderBase<AppBase>;
-
-    [[nodiscard]] AppBase() noexcept = default;
-    [[nodiscard]] AppBase(const AppBase&) = delete;
-    [[nodiscard]] AppBase(AppBase&&) noexcept = default;
-
-
-    std::string name{ "App" };
-
-    std::unordered_map<State::Id, const State> states;
-    gsl::not_null<const State*> nextState = State::invalid_state();
-    gsl::not_null<const State*> currentState = State::invalid_state();
-    gsl::not_null<const State*> prevState = State::invalid_state();
-
-    std::vector<Stage> stages;
-};
 
 class App final {
     class Builder;
+    friend BuilderBase<App>;
+
     friend Controller;
 
 public:
-    [[nodiscard]] App() noexcept = delete;
     [[nodiscard]] App(const App&) = delete;
-    [[nodiscard]] App(App&&) noexcept = delete;
-
-    explicit [[nodiscard]] App(AppBase&& base) noexcept :
-        name{ std::move(base.name) },
-        states{ std::move(base.states) },
-        nextState{ base.nextState },
-        currentState{ base.currentState },
-        prevState{ base.prevState },
-        stages{ std::move(base.stages) } {}
+    [[nodiscard]] App(App&&) noexcept = default;
 
     static [[nodiscard]] auto create() noexcept;
 
     void run();
 
 private:
+    [[nodiscard]] App() noexcept = default;
+
     void transition() noexcept {
         if (nextState != currentState) {
             currentState->exited();
@@ -72,7 +47,7 @@ private:
         }
     }
 
-    std::atomic<bool> running = false;
+    std::unique_ptr<std::atomic<bool>> running = std::make_unique<std::atomic<bool>>(false);
 
     std::string name{ "App" };
 
@@ -85,9 +60,9 @@ private:
 };
 
 
-class App::Builder final : public BuilderBase<AppBase> {
+class App::Builder final : public BuilderBase<App> {
 public:
-    using BuilderBase<AppBase>::BuilderBase;
+    using BuilderBase<App>::BuilderBase;
 
     explicit(false) [[nodiscard]] operator App() noexcept {
         return build();
@@ -132,7 +107,7 @@ public:
     [[nodiscard]] Controller(Controller&&) noexcept = delete;
 
     void quit() noexcept {
-        app.running = false;
+        *app.running = false;
         app.nextState = State::invalid_state();
     }
 
@@ -153,7 +128,7 @@ private:
 
 
 void App::run() {
-    running = true;
+    *running = true;
     std::cout << std::format("{} is running...\n", name);
 
     currentState->entered();
@@ -161,7 +136,7 @@ void App::run() {
     if (!std::ranges::empty(stages)) {
         Controller controller{ *this };
 
-        while (running) {
+        while (*running) {
             std::ranges::for_each(stages, std::bind_back(&Stage::run, std::ref(controller)));
 
             transition();
