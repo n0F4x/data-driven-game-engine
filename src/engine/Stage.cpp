@@ -14,5 +14,6 @@ void Stage::run(Controller& controller) const {
     std::ranges::for_each(systems, [&futures, &controller](auto system) {
         futures.push_back(std::async(std::launch::async, system, std::ref(controller))); });
 
+    // throw potential exception from threads
     std::ranges::for_each(futures, &std::future<void>::get);
 }

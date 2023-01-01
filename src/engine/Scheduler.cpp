@@ -19,6 +19,7 @@ void Scheduler::iterate(Controller& controller) {
     futures.push_back(std::async(std::launch::async, [this, &controller] {
         std::ranges::for_each(renderStages, std::bind_back(&Stage::run, std::ref(controller))); }));
 
+    // throw potential exception from threads
     std::ranges::for_each(futures, &std::future<void>::get);
 }
 
