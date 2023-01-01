@@ -14,7 +14,7 @@ public:
 ///------------------------------///
     [[nodiscard]] StateMachine() = default;
     [[nodiscard]] StateMachine(const StateMachine&) = delete;
-    [[nodiscard]] StateMachine(StateMachine&&) = default;
+    [[nodiscard]] StateMachine(StateMachine&&) noexcept = default;
 
   ///--------------------///
  ///  Member functions  ///
@@ -35,7 +35,7 @@ private:
   ///--------------------///
  ///  Member variables  ///
 ///--------------------///
-    std::unique_ptr<std::mutex> transitionLock;
+    std::unique_ptr<std::mutex> transitionLock = std::make_unique<std::mutex>();
     std::unordered_map<Id, const State> states;
     gsl::not_null<const State*> nextState = State::invalid_state();
     gsl::not_null<const State*> currentState = State::invalid_state();
