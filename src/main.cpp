@@ -1,8 +1,8 @@
+#include <chrono>
 #include <iostream>
 #include <thread>
-#include <chrono>
 
-#include <entt/entt.hpp>
+#include <entt/core/hashed_string.hpp>
 
 #include "prelude.hpp"
 
@@ -14,8 +14,7 @@ void exited() noexcept {
 }
 
 auto main() -> int {
-    try
-    {
+    try {
         App::create()
             .set_name("My game engine")
             .add_state(State::create<"MyState"_hs>()
@@ -27,14 +26,14 @@ auto main() -> int {
                     std::cout << "Stage 1 - first\n";
                     controller.quit(); })
                 .add_system(+[](Controller& controller) {
-                        std::cout << "Stage 1 - second\n";
-                        controller.quit(); }))
+                    std::cout << "Stage 1 - second\n";
+                    controller.quit(); }))
             .add_stage(Stage::create()
-                .add_system(+[](Controller& controller) { std::cout << "Stage 2\n"; controller.quit(); }))
-                            .build().run();
-    }
-    catch (const std::exception&)
-    {
+                .add_system(+[](Controller& controller) {
+                    std::cout << "Stage 2\n";
+                    controller.quit(); }))
+            .build().run();
+    } catch (const std::exception&) {
         std::cout << "Oops... Something went wrong!\n";
     }
 }
