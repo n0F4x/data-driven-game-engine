@@ -11,39 +11,26 @@
 
 
 void App::run() {
-    *running = true;
     std::cout << std::format("{} is running...\n", name);
 
-    currentState->entered();
+    stateMachine.start();
 
     if (!std::ranges::empty(stages)) {
-        Controller controller{ *this };
+        Controller controller{ stateMachine };
 
-        while (*running) {
+        while (StateMachine::running(stateMachine)) {
             std::ranges::for_each(stages, std::bind_back(&Stage::run, std::ref(controller)));
 
-            transition();
+            stateMachine.transition();
         }
     }
 
-    currentState->exited();
+    stateMachine.transition();
 }
 
 
 [[nodiscard]] auto App::create() noexcept -> Builder {
     return Builder{};
-}
-
-
-void App::transition() noexcept {
-    if (nextState != currentState) {
-        currentState->exited();
-
-        prevState = currentState;
-        currentState = nextState;
-
-        currentState->entered();
-    }
 }
 
 
@@ -54,10 +41,7 @@ void App::transition() noexcept {
 }
 
 [[nodiscard]] auto App::Builder::add_state(State&& state) -> Self {
-    if (State::invalid(*draft().currentState))
-        draft().currentState = &draft().states.try_emplace(state.get_id(), std::move(state)).first->second;
-    else
-        draft().states.try_emplace(state.get_id(), std::move(state));
+    draft().stateMachine.add_state(std::move(state));
 
     return std::move(*this);
 }

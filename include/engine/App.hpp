@@ -1,17 +1,15 @@
 #pragma once
 
-#include <atomic>
-#include <unordered_map>
 #include <vector>
-#include <memory>
 
 #include <gsl/pointers>
 
 #include "config/id.hpp"
 #include "patterns/builder/helper.hpp"
-#include "engine/State.hpp"
+#include "engine/StateMachine.hpp"
 
 class Controller;
+class StateMachine;
 class Stage;
 
 
@@ -23,8 +21,6 @@ class App final {
     friend BuilderBase<App>;
 
 public:
-    friend Controller;
-
   ///------------------------------///
  ///  Constructors / Destructors  ///
 ///------------------------------///
@@ -44,19 +40,13 @@ public:
 private:
     [[nodiscard]] App() noexcept = default;
 
-    void transition() noexcept;
-
   ///--------------------///
  ///  Member variables  ///
 ///--------------------///
-    std::unique_ptr<std::atomic<bool>> running = std::make_unique<std::atomic<bool>>(false);
 
     std::string name = "App";
 
-    std::unordered_map<Id, const State> states;
-    gsl::not_null<const State*> nextState = State::invalid_state();
-    gsl::not_null<const State*> currentState = State::invalid_state();
-    gsl::not_null<const State*> prevState = State::invalid_state();
+    StateMachine stateMachine;
 
     std::vector<Stage> stages;
 };
@@ -76,4 +66,3 @@ public:
     [[nodiscard]] auto add_state(State&& state) -> Self;
     [[nodiscard]] auto add_stage(Stage&& stage) -> Self;
 };
-

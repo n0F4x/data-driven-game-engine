@@ -2,7 +2,7 @@
 
 #include "config/id.hpp"
 
-class App;
+class StateMachine;
 
 
 class Controller final {
@@ -10,7 +10,7 @@ public:
     ///------------------------------///
    ///  Constructors / Destructors  ///
   ///------------------------------///
-    explicit [[nodiscard]] Controller(App& app) noexcept : app{ app } {}
+    explicit [[nodiscard]] Controller(StateMachine& stateMachine) noexcept : stateMachine{ stateMachine } {}
     [[nodiscard]] Controller(const Controller&) = delete;
     [[nodiscard]] Controller(Controller&&) noexcept = delete;
 
@@ -25,5 +25,5 @@ private:
     ///--------------------///
    ///  Member variables  ///
   ///--------------------///
-    App& app;
+    StateMachine& stateMachine;
 };
