@@ -18,6 +18,8 @@ void Scheduler::iterate(Controller& controller) {
         std::ranges::for_each(appStages, std::bind_back(&Stage::run, std::ref(controller))); }));
     futures.push_back(std::async(std::launch::async, [this, &controller] {
         std::ranges::for_each(renderStages, std::bind_back(&Stage::run, std::ref(controller))); }));
+
+    std::ranges::for_each(futures, &std::future<void>::get);
 }
 
 void Scheduler::add_stage(Stage&& stage) {
