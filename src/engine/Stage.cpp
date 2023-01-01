@@ -3,7 +3,6 @@
 #include <vector>
 #include <future>
 #include <algorithm>
-#include <iostream>
 
 #include "engine/Controller.hpp"
 

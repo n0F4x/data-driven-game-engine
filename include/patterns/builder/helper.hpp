@@ -2,7 +2,6 @@
 
 #include <utility>
 #include <type_traits>
-#include <concepts>
 
 #define Self std::remove_reference_t<decltype(*this)>
 
@@ -20,7 +19,7 @@ protected:
     constexpr explicit [[nodiscard]] BuilderBase(Args&&... args) noexcept
         : product{ std::forward<Args>(args)... } {}
 
-    [[nodiscard]] constexpr auto draft() -> Product& {
+    constexpr [[nodiscard]] auto draft() -> Product& {
         return product;
     }
 

@@ -4,7 +4,6 @@
 #include <future>
 #include <algorithm>
 #include <functional>
-#include <ranges>
 
 #include "engine/Stage.hpp"
 
