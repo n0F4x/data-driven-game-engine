@@ -6,6 +6,7 @@
 
 #include "config/id.hpp"
 #include "patterns/builder/helper.hpp"
+#include "engine/Scheduler.hpp"
 #include "engine/StateMachine.hpp"
 
 class Controller;
@@ -43,12 +44,9 @@ private:
   ///--------------------///
  ///  Member variables  ///
 ///--------------------///
-
     std::string name = "App";
-
     StateMachine stateMachine;
-
-    std::vector<Stage> stages;
+    Scheduler scheduler;
 };
 
 
@@ -65,4 +63,5 @@ public:
     [[nodiscard]] auto set_name(std::string_view new_name) noexcept -> Self;
     [[nodiscard]] auto add_state(State&& state) -> Self;
     [[nodiscard]] auto add_stage(Stage&& stage) -> Self;
+    [[nodiscard]] auto add_render_stage(Stage&& stage) -> Self;
 };

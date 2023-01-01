@@ -35,6 +35,6 @@ auto main() -> int {
     }
     catch (const std::exception&)
     {
-        std::cout << "Something went wrong...\n";
+        std::cout << "Oops... Something went wrong!\n";
     }
 }

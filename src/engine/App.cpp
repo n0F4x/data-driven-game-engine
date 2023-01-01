@@ -15,11 +15,11 @@ void App::run() {
 
     stateMachine.start();
 
-    if (!std::ranges::empty(stages)) {
+    if (!Scheduler::empty(scheduler)) {
         Controller controller{ stateMachine };
 
         while (StateMachine::running(stateMachine)) {
-            std::ranges::for_each(stages, std::bind_back(&Stage::run, std::ref(controller)));
+            scheduler.iterate(controller);
 
             stateMachine.transition();
         }
@@ -47,8 +47,13 @@ void App::run() {
 }
 
 [[nodiscard]] auto App::Builder::add_stage(Stage&& stage) -> Self {
-    if (!Stage::empty(stage))
-        draft().stages.push_back(std::move(stage));
+    draft().scheduler.add_stage(std::move(stage));
+
+    return std::move(*this);
+}
+
+[[nodiscard]] auto App::Builder::add_render_stage(Stage&& stage) -> Self {
+    draft().scheduler.add_render_stage(std::move(stage));
 
     return std::move(*this);
 }
