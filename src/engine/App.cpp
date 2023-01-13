@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "engine/Controller.hpp"
+#include "engine/Scene.hpp"
 #include "engine/State.hpp"
 #include "engine/Stage.hpp"
 
@@ -48,12 +49,6 @@ void App::run() {
 
 [[nodiscard]] auto App::Builder::add_stage(Stage&& stage) -> Self {
     draft().scheduler.add_stage(std::move(stage));
-
-    return std::move(*this);
-}
-
-[[nodiscard]] auto App::Builder::add_render_stage(Stage&& stage) -> Self {
-    draft().scheduler.add_render_stage(std::move(stage));
 
     return std::move(*this);
 }

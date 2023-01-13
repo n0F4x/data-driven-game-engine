@@ -6,11 +6,11 @@
 
 #include "config/id.hpp"
 #include "patterns/builder/helper.hpp"
+#include "engine/SceneGraph.hpp"
 #include "engine/Scheduler.hpp"
 #include "engine/StateMachine.hpp"
 
 class Controller;
-class StateMachine;
 class Stage;
 
 
@@ -46,7 +46,8 @@ private:
 ///--------------------///
     std::string name = "App";
     StateMachine stateMachine;
-    Scheduler scheduler;
+    SceneGraph sceneGraph;
+    Scheduler scheduler{ sceneGraph };
 };
 
 
@@ -63,5 +64,4 @@ public:
     [[nodiscard]] auto set_name(std::string_view new_name) noexcept -> Self;
     [[nodiscard]] auto add_state(State&& state) -> Self;
     [[nodiscard]] auto add_stage(Stage&& stage) -> Self;
-    [[nodiscard]] auto add_render_stage(Stage&& stage) -> Self;
 };

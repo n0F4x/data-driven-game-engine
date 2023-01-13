@@ -1,4 +1,9 @@
+#pragma once
+
 #include <vector>
+
+#include "engine/Scene.hpp"
+#include "engine/SceneGraph.hpp"
 
 class Controller;
 class Stage;
@@ -9,7 +14,7 @@ public:
   ///------------------------------///
  ///  Constructors / Destructors  ///
 ///------------------------------///
-    [[nodiscard]] Scheduler() = default;
+    [[nodiscard]] Scheduler(SceneGraph& sceneGraph);
     [[nodiscard]] Scheduler(const Scheduler&) = delete;
     [[nodiscard]] Scheduler(Scheduler&&) noexcept = default;
 
@@ -18,7 +23,6 @@ public:
 ///--------------------///
     void iterate(Controller& controller);
     void add_stage(Stage&& stage);
-    void add_render_stage(Stage&& stage);
 
   ///------------------///
  ///  Static helpers  ///
@@ -29,6 +33,8 @@ private:
   ///--------------------///
  ///  Member variables  ///
 ///--------------------///
-    std::vector<Stage> appStages;
-    std::vector<Stage> renderStages;
+    std::vector<Stage> stages;
+    SceneGraph& sceneGraph;
+    Scene prevScene;
+    Scene scene;
 };
