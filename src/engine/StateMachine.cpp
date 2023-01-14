@@ -1,4 +1,4 @@
-#include "engine/Statemachine.hpp"
+#include "engine/StateMachine.hpp"
 
 #include <ranges>
 
@@ -49,6 +49,6 @@ void StateMachine::add_state(State&& state) {
 }
 
 
-auto StateMachine::running(StateMachine& machine) noexcept -> bool {
+auto StateMachine::running(const StateMachine& machine) noexcept -> bool {
     return !State::invalid(*machine.currentState);
 }

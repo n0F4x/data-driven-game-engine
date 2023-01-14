@@ -10,7 +10,7 @@ class Scene;
 
 class SceneGraph {
 public:
-    [[nodiscard]] auto make_scene() -> Scene;
+    [[nodiscard]] auto make_scene() const -> Scene;
 
 private:
     std::vector<std::shared_ptr<SceneNode>> sceneNodes;

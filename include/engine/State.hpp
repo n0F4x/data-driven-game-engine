@@ -81,7 +81,7 @@ public:
 ///     IMPLEMENTATION     ///
 /// ////////////////////// ///
 
-constexpr inline const State State::s_invalid_state;
+constexpr inline State State::s_invalid_state;
 
 
 template<Id id>

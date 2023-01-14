@@ -1,6 +1,6 @@
 #include "engine/Scene.hpp"
 
 
-void Scene::render(Scene&) noexcept {
-
+void Scene::render(const Scene&) noexcept {
+    // TODO
 }

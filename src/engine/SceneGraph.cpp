@@ -3,6 +3,6 @@
 #include "engine/Scene.hpp"
 
 
-auto SceneGraph::make_scene() -> Scene {
+auto SceneGraph::make_scene() const -> Scene {
     return Scene{};
 }

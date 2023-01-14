@@ -5,11 +5,11 @@
 #include <algorithm>
 #include <functional>
 
-#include "engine/Scene.hpp"
+#include "engine/SceneGraph.hpp"
 #include "engine/Stage.hpp"
 
 
-Scheduler::Scheduler(SceneGraph& sceneGraph) : sceneGraph{ sceneGraph } {}
+Scheduler::Scheduler(std::function<Scene()>&& sceneMaker) : sceneMaker{ std::move(sceneMaker) } {}
 
 
 void Scheduler::iterate(Controller& controller) {
@@ -20,7 +20,7 @@ void Scheduler::iterate(Controller& controller) {
 
     auto renderFuture = std::async(std::launch::async, Scene::render, std::ref(prevScene));
 
-    scene = sceneGraph.make_scene();
+    scene = sceneMaker();
 
     // throw potential exception from threads
     stagesFuture.get();

@@ -3,5 +3,5 @@
 
 class Scene {
 public:
-    static void render(Scene& scene) noexcept;
+    static void render(const Scene& scene) noexcept;
 };

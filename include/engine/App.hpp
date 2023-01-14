@@ -47,7 +47,7 @@ private:
     std::string name = "App";
     StateMachine stateMachine;
     SceneGraph sceneGraph;
-    Scheduler scheduler{ sceneGraph };
+    Scheduler scheduler{ [this] { return sceneGraph.make_scene(); } };
 };
 
 

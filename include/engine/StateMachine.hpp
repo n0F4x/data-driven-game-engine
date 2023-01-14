@@ -29,7 +29,7 @@ public:
   ///------------------///
  ///  Static helpers  ///
 ///------------------///
-    static [[nodiscard]] auto running(StateMachine& machine) noexcept -> bool;
+    static [[nodiscard]] auto running(const StateMachine& machine) noexcept -> bool;
 
 private:
   ///--------------------///
