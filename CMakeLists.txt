@@ -12,6 +12,7 @@ add_subdirectory(vendor/gsl)
 add_subdirectory(vendor/entt)
 add_subdirectory(vendor/glfw)
 
+find_package(Vulkan REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
@@ -29,3 +30,4 @@ endif()
 target_link_libraries(${PROJECT_NAME} PUBLIC GSL)
 target_link_libraries(${PROJECT_NAME} PUBLIC EnTT)
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
