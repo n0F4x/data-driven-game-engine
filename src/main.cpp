@@ -22,7 +22,7 @@ auto main() -> int {
                 .on_exit(exited))
             .add_stage(Stage::create()
                 .add_system(+[](Controller& controller) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
                     std::cout << "Stage 1 - first\n";
                     controller.quit(); })
                 .add_system(+[](Controller& controller) {
