@@ -1,6 +1,0 @@
-[submodule "vendor/entt"]
-	path = vendor/entt
-	url = https://github.com/skypjack/entt
-[submodule "vendor/gsl"]
-	path = vendor/gsl
-	url = https://github.com/microsoft/GSL.git
