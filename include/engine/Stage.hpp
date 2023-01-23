@@ -25,8 +25,8 @@ public:
   ///------------------------------///
  ///  Constructors / Destructors  ///
 ///------------------------------///
-    constexpr [[nodiscard]] Stage(const Stage&) = delete;
-    constexpr [[nodiscard]] Stage(Stage&&) noexcept = default;
+    [[nodiscard]] constexpr Stage(const Stage&) = delete;
+    [[nodiscard]] constexpr Stage(Stage&&) noexcept = default;
 
   ///--------------------///
  ///  Member functions  ///
@@ -36,11 +36,11 @@ public:
   ///------------------///
  ///  Static helpers  ///
 ///------------------///
-    constexpr static [[nodiscard]] auto create() noexcept;
-    constexpr static [[nodiscard]] auto empty(const Stage& stage) noexcept;
+    [[nodiscard]] constexpr static auto create() noexcept;
+    [[nodiscard]] constexpr static auto empty(const Stage& stage) noexcept;
 
 private:
-    constexpr [[nodiscard]] Stage() noexcept = default;
+    [[nodiscard]] constexpr Stage() noexcept = default;
 
   ///--------------------///
  ///  Member variables  ///
@@ -59,7 +59,7 @@ public:
   ///--------------------///
  ///  Member functions  ///
 ///--------------------///
-    constexpr [[nodiscard]] auto add_system(Stage::System&& system);
+    [[nodiscard]] constexpr auto add_system(Stage::System&& system);
 };
 
 
@@ -67,16 +67,16 @@ public:
 ///     IMPLEMENTATION     ///
 /// ////////////////////// ///
 
-constexpr [[nodiscard]] auto Stage::create() noexcept {
+[[nodiscard]] constexpr auto Stage::create() noexcept {
     return Builder{};
 }
 
-constexpr [[nodiscard]] auto Stage::empty(const Stage& stage) noexcept {
+[[nodiscard]] constexpr auto Stage::empty(const Stage& stage) noexcept {
     return std::ranges::empty(stage.systems);
 }
 
 
-constexpr [[nodiscard]] auto Stage::Builder::add_system(System&& system) {
+[[nodiscard]] constexpr auto Stage::Builder::add_system(System&& system) {
     draft().systems.push_back(std::move(system));
 
     return std::move(*this);

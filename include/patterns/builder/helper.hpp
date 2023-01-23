@@ -11,23 +11,23 @@ class BuilderBase {
     friend Product;
 
 protected:
-    constexpr [[nodiscard]] BuilderBase() noexcept = default;
-    constexpr [[nodiscard]] BuilderBase(const BuilderBase&) = delete;
-    constexpr [[nodiscard]] BuilderBase(BuilderBase&&) noexcept = default;
+    [[nodiscard]] constexpr BuilderBase() noexcept = default;
+    [[nodiscard]] constexpr BuilderBase(const BuilderBase&) = delete;
+    [[nodiscard]] constexpr BuilderBase(BuilderBase&&) noexcept = default;
 
     template<typename... Args>
-    constexpr explicit [[nodiscard]] BuilderBase(Args&&... args) noexcept
+    [[nodiscard]] constexpr explicit BuilderBase(Args&&... args) noexcept
         : product{ std::forward<Args>(args)... } {}
 
-    constexpr [[nodiscard]] auto draft() -> Product& {
+    [[nodiscard]] constexpr auto draft() -> Product& {
         return product;
     }
 
 public:
-    constexpr explicit(false) [[nodiscard]] operator Product() noexcept {
+    [[nodiscard]] constexpr explicit(false) operator Product() noexcept {
         return build();
     }
-    constexpr [[nodiscard]] auto build() noexcept {
+    [[nodiscard]] constexpr auto build() noexcept {
         return std::move(product);
     }
 

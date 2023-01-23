@@ -10,7 +10,7 @@ public:
     ///------------------------------///
    ///  Constructors / Destructors  ///
   ///------------------------------///
-    explicit [[nodiscard]] Controller(StateMachine& stateMachine) noexcept : stateMachine{ stateMachine } {}
+    [[nodiscard]] explicit Controller(StateMachine& stateMachine) noexcept : stateMachine{ stateMachine } {}
     [[nodiscard]] Controller(const Controller&) = delete;
     [[nodiscard]] Controller(Controller&&) noexcept = delete;
 

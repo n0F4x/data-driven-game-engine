@@ -28,7 +28,7 @@ public:
   ///------------------///
  ///  Static helpers  ///
 ///------------------///
-    static [[nodiscard]] auto empty(Scheduler& scheduler) -> bool;
+    [[nodiscard]] static auto empty(Scheduler& scheduler) -> bool;
 
 private:
   ///--------------------///

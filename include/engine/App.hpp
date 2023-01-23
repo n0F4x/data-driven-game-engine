@@ -36,7 +36,7 @@ public:
   ///------------------///
  ///  Static helpers  ///
 ///------------------///
-    static [[nodiscard]] auto create() noexcept -> Builder;
+    [[nodiscard]] static auto create() noexcept -> Builder;
 
 private:
     [[nodiscard]] App() noexcept = default;

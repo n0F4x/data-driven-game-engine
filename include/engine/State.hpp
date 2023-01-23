@@ -29,13 +29,13 @@ public:
   ///------------------------------///
  ///  Constructors / Destructors  ///
 ///------------------------------///
-    constexpr [[nodiscard]] State(const State&) = delete;
-    constexpr [[nodiscard]] State(State&&) noexcept = default;
+    [[nodiscard]] constexpr State(const State&) = delete;
+    [[nodiscard]] constexpr State(State&&) noexcept = default;
 
   ///--------------------///
  ///  Member functions  ///
 ///--------------------///
-    constexpr [[nodiscard]] auto get_id() const noexcept;
+    [[nodiscard]] constexpr auto get_id() const noexcept;
     constexpr void entered() const noexcept;
     constexpr void exited() const noexcept;
 
@@ -44,12 +44,12 @@ public:
 ///------------------///
     template<Id id>
         requires(id != 0)
-    constexpr static [[nodiscard]] auto create() noexcept;
-    constexpr static [[nodiscard]] gsl::not_null<const State*> invalid_state() noexcept;
-    constexpr static [[nodiscard]] auto invalid(const State& state) noexcept;
+    [[nodiscard]] constexpr static auto create() noexcept;
+    [[nodiscard]] constexpr static gsl::not_null<const State*> invalid_state() noexcept;
+    [[nodiscard]] constexpr static auto invalid(const State& state) noexcept;
 
 private:
-    constexpr explicit [[nodiscard]] State(Id id = {}) noexcept : id{ id } {}
+    [[nodiscard]] constexpr explicit State(Id id = {}) noexcept : id{ id } {}
 
   ///--------------------///
  ///  Member variables  ///
@@ -72,8 +72,8 @@ public:
   ///--------------------///
  ///  Member functions  ///
 ///--------------------///
-    constexpr [[nodiscard]] auto on_enter(Action callback) noexcept;
-    constexpr [[nodiscard]] auto on_exit(Action callback) noexcept;
+    [[nodiscard]] constexpr auto on_enter(Action callback) noexcept;
+    [[nodiscard]] constexpr auto on_exit(Action callback) noexcept;
 };
 
 
@@ -86,20 +86,20 @@ constexpr inline State State::s_invalid_state;
 
 template<Id id>
     requires(id != 0)
-constexpr [[nodiscard]] auto State::create() noexcept {
+[[nodiscard]] constexpr auto State::create() noexcept {
     return Builder{ id };
 }
 
-constexpr [[nodiscard]] gsl::not_null<const State*> State::invalid_state() noexcept {
+[[nodiscard]] constexpr gsl::not_null<const State*> State::invalid_state() noexcept {
     return &s_invalid_state;
 }
 
-constexpr [[nodiscard]] auto State::invalid(const State& state) noexcept {
+[[nodiscard]] constexpr auto State::invalid(const State& state) noexcept {
     return state.id == 0;
 }
 
 
-constexpr [[nodiscard]] auto State::get_id() const noexcept {
+[[nodiscard]] constexpr auto State::get_id() const noexcept {
     return id;
 }
 
@@ -112,13 +112,13 @@ constexpr void State::exited() const noexcept {
 }
 
 
-constexpr [[nodiscard]] auto State::Builder::on_enter(Action callback) noexcept {
+[[nodiscard]] constexpr auto State::Builder::on_enter(Action callback) noexcept {
     draft().onEnter = callback;
 
     return std::move(*this);
 }
 
-constexpr [[nodiscard]] auto State::Builder::on_exit(Action callback) noexcept {
+[[nodiscard]] constexpr auto State::Builder::on_exit(Action callback) noexcept {
     draft().onExit = callback;
 
     return std::move(*this);
