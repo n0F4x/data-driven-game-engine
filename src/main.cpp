@@ -6,14 +6,14 @@
 
 #include "prelude.hpp"
 
-using namespace entt::literals;
-
-
 void exited() noexcept {
     std::cout << "Exited\n";
 }
 
 auto main() -> int {
+    using namespace entt::literals;
+    using namespace std::chrono;
+
     try {
         App::create()
             .set_name("My game engine")
@@ -22,7 +22,7 @@ auto main() -> int {
                 .on_exit(exited))
             .add_stage(Stage::create()
                 .add_system(+[](Controller& controller) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                    std::this_thread::sleep_for(500ms);
                     std::cout << "Stage 1 - first\n";
                     controller.quit(); })
                 .add_system(+[](Controller& controller) {
