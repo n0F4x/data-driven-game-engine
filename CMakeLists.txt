@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
-project (engine)
+project(engine)
 
 find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)

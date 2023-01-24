@@ -4,26 +4,27 @@
 
 class StateMachine;
 
-
 class Controller final {
-public:
+    public:
     ///------------------------------///
-   ///  Constructors / Destructors  ///
-  ///------------------------------///
-    [[nodiscard]] explicit Controller(StateMachine& stateMachine) noexcept : stateMachine{ stateMachine } {}
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    [[nodiscard]] explicit Controller(StateMachine& stateMachine) noexcept
+        : stateMachine{ stateMachine } {}
+
     [[nodiscard]] Controller(const Controller&) = delete;
     [[nodiscard]] Controller(Controller&&) noexcept = delete;
 
     ///--------------------///
-   ///  Member functions  ///
-  ///--------------------///
+    ///  Member functions  ///
+    ///--------------------///
     void quit() noexcept;
     void transition_to(Id to) noexcept;
     void transition_to_prev() noexcept;
 
-private:
+    private:
     ///--------------------///
-   ///  Member variables  ///
-  ///--------------------///
+    ///  Member variables  ///
+    ///--------------------///
     StateMachine& stateMachine;
 };

@@ -6,10 +6,10 @@
 
 using namespace entt::literals;
 
-
 void StateMachine::start() {
-    if (std::ranges::empty(states))
+    if (std::ranges::empty(states)) {
         add_state(State::create<"START"_hs>());
+    }
     currentState->entered();
 }
 
@@ -30,24 +30,28 @@ void StateMachine::transition() noexcept {
 
 void StateMachine::transition_to(Id state) noexcept {
     std::lock_guard guard{ *transitionLock };
-    if (nextState == currentState)
-        if (auto iter{ states.find(state) }; iter != states.end())
+    if (nextState == currentState) {
+        if (auto iter{ states.find(state) }; iter != states.end()) {
             nextState = &iter->second;
+        }
+    }
 }
 
 void StateMachine::transition_to_prev() noexcept {
     std::lock_guard guard{ *transitionLock };
-    if (nextState == currentState)
+    if (nextState == currentState) {
         nextState = prevState;
+    }
 }
 
 void StateMachine::add_state(State&& state) {
-    if (std::empty(states))
-        currentState = &states.try_emplace(state.get_id(), std::move(state)).first->second;
-    else
+    if (std::empty(states)) {
+        currentState =
+            &states.try_emplace(state.get_id(), std::move(state)).first->second;
+    } else {
         states.try_emplace(state.get_id(), std::move(state));
+    }
 }
-
 
 auto StateMachine::running(const StateMachine& machine) noexcept -> bool {
     return !State::invalid(*machine.currentState);

@@ -1,36 +1,32 @@
 #pragma once
 
-#include <utility>
 #include <type_traits>
+#include <utility>
 
 #define Self std::remove_reference_t<decltype(*this)>
 
-
-template<class Product>
+template <class Product>
 class BuilderBase {
     friend Product;
 
-protected:
+    protected:
     [[nodiscard]] constexpr BuilderBase() noexcept = default;
     [[nodiscard]] constexpr BuilderBase(const BuilderBase&) = delete;
     [[nodiscard]] constexpr BuilderBase(BuilderBase&&) noexcept = default;
 
-    template<typename... Args>
+    template <typename... Args>
     [[nodiscard]] constexpr explicit BuilderBase(Args&&... args) noexcept
         : product{ std::forward<Args>(args)... } {}
 
-    [[nodiscard]] constexpr auto draft() -> Product& {
-        return product;
-    }
+    [[nodiscard]] constexpr auto draft() -> Product& { return product; }
 
-public:
+    public:
     [[nodiscard]] constexpr explicit(false) operator Product() noexcept {
         return build();
     }
-    [[nodiscard]] constexpr auto build() noexcept {
-        return std::move(product);
-    }
 
-private:
+    [[nodiscard]] constexpr auto build() noexcept { return std::move(product); }
+
+    private:
     Product product;
 };

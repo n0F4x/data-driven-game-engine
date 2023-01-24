@@ -5,62 +5,61 @@
 #include <gsl/pointers>
 
 #include "config/id.hpp"
-#include "patterns/builder/helper.hpp"
 #include "engine/SceneGraph.hpp"
 #include "engine/Scheduler.hpp"
 #include "engine/StateMachine.hpp"
+#include "patterns/builder/helper.hpp"
 
 class Controller;
 class Stage;
 
-
 class App final {
-  ///----------------///
- ///  Member types  ///
-///----------------///
+    ///----------------///
+    ///  Member types  ///
+    ///----------------///
     class Builder;
     friend BuilderBase<App>;
 
-public:
-  ///------------------------------///
- ///  Constructors / Destructors  ///
-///------------------------------///
+    public:
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
     [[nodiscard]] App(const App&) = delete;
     [[nodiscard]] App(App&&) noexcept = default;
 
-  ///--------------------///
- ///  Member functions  ///
-///--------------------///
+    ///--------------------///
+    ///  Member functions  ///
+    ///--------------------///
     void run();
 
-  ///------------------///
- ///  Static helpers  ///
-///------------------///
+    ///------------------///
+    ///  Static helpers  ///
+    ///------------------///
     [[nodiscard]] static auto create() noexcept -> Builder;
 
-private:
+    private:
     [[nodiscard]] App() noexcept = default;
 
-  ///--------------------///
- ///  Member variables  ///
-///--------------------///
+    ///--------------------///
+    ///  Member variables  ///
+    ///--------------------///
     std::string name = "App";
     StateMachine stateMachine;
     SceneGraph sceneGraph;
     Scheduler scheduler{ [this] { return sceneGraph.make_scene(); } };
 };
 
-
 class App::Builder final : public BuilderBase<App> {
-public:
-  ///------------------------------///
- ///  Constructors / Destructors  ///
-///------------------------------///
+    public:
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
     using BuilderBase<App>::BuilderBase;
 
-  ///--------------------///
- ///  Member functions  ///
-///--------------------///
+
+    ///--------------------///
+    ///  Member functions  ///
+    ///--------------------///
     [[nodiscard]] auto set_name(std::string_view new_name) noexcept -> Self;
     [[nodiscard]] auto add_state(State&& state) -> Self;
     [[nodiscard]] auto add_stage(Stage&& stage) -> Self;

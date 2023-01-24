@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <functional>
+#include <vector>
 
 #include "engine/Scene.hpp"
 
@@ -9,31 +9,30 @@ class Controller;
 class SceneGraph;
 class Stage;
 
-
 class Scheduler {
-public:
-  ///------------------------------///
- ///  Constructors / Destructors  ///
-///------------------------------///
+    public:
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
     [[nodiscard]] explicit Scheduler(std::function<Scene()>&& sceneMaker);
     [[nodiscard]] Scheduler(const Scheduler&) = delete;
     [[nodiscard]] Scheduler(Scheduler&&) noexcept = default;
 
-  ///--------------------///
- ///  Member functions  ///
-///--------------------///
+    ///--------------------///
+    ///  Member functions  ///
+    ///--------------------///
     void iterate(Controller& controller);
     void add_stage(Stage&& stage);
 
-  ///------------------///
- ///  Static helpers  ///
-///------------------///
+    ///------------------///
+    ///  Static helpers  ///
+    ///------------------///
     [[nodiscard]] static auto empty(Scheduler& scheduler) -> bool;
 
-private:
-  ///--------------------///
- ///  Member variables  ///
-///--------------------///
+    private:
+    ///--------------------///
+    ///  Member variables  ///
+    ///--------------------///
     std::vector<Stage> stages;
     std::function<Scene()> sceneMaker;
     Scene prevScene;

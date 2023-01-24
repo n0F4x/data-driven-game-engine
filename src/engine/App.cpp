@@ -1,15 +1,14 @@
 #include "engine/App.hpp"
 
-#include <iostream>
-#include <format>
 #include <algorithm>
+#include <format>
 #include <functional>
+#include <iostream>
 
 #include "engine/Controller.hpp"
 #include "engine/Scene.hpp"
-#include "engine/State.hpp"
 #include "engine/Stage.hpp"
-
+#include "engine/State.hpp"
 
 void App::run() {
     std::cout << std::format("{} is running...\n", name);
@@ -29,13 +28,12 @@ void App::run() {
     stateMachine.transition();
 }
 
-
 [[nodiscard]] auto App::create() noexcept -> Builder {
     return Builder{};
 }
 
-
-[[nodiscard]] auto App::Builder::set_name(std::string_view new_name) noexcept -> Self {
+[[nodiscard]] auto App::Builder::set_name(std::string_view new_name) noexcept
+    -> Self {
     draft().name = new_name;
 
     return std::move(*this);

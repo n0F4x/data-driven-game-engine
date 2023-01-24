@@ -2,7 +2,6 @@
 
 #include "engine/StateMachine.hpp"
 
-
 void Controller::quit() noexcept {
     stateMachine.exit();
 }
@@ -14,4 +13,3 @@ void Controller::transition_to(Id state) noexcept {
 void Controller::transition_to_prev() noexcept {
     stateMachine.transition_to_prev();
 }
-
