@@ -15,8 +15,9 @@ void Scheduler::iterate(Controller& controller) {
     std::swap(prevScene, scene);
 
     auto stagesFuture = std::async(std::launch::async, [this, &controller] {
-        std::ranges::for_each(stages, std::bind_back(&Stage::run,
-                                                     std::ref(controller)));
+        std::ranges::for_each(stages, [&controller](auto& stage) {
+            stage.run(controller);
+        });
     });
 
     auto renderFuture =
