@@ -46,11 +46,11 @@ BraceWrapping:
   IndentBraces: false
   SplitEmptyFunction: true
   SplitEmptyNamespace: true
-BreakAfterAttributes: Leave
+# BreakAfterAttributes: Leave  coming in version 16.0
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 BreakBeforeConceptDeclarations: Always
-BreakBeforeInlineASMColon: Always
+# BreakBeforeInlineASMColon: Always  coming in version 16.0
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
@@ -98,14 +98,14 @@ IndentRequiresClause: true
 IndentWidth: 4
 IndentWrappedFunctionNames: false
 InsertBraces: true
-InsertNewlineAtEOF: true
-IntegerLiteralSeparator:
-  Binary: 4
-  Decimal: 3
-  Hex: 2
+# InsertNewlineAtEOF: true  coming in version 16.0
+# IntegerLiteralSeparator:  coming in version 16.0
+#   Binary: 4
+#   Decimal: 3
+#   Hex: 2
 KeepEmptyLinesAtTheStartOfBlocks: false
 LambdaBodyIndentation: Signature
-LineEnding: LF
+# LineEnding: LF  coming in version 16.0
 MacroBlockBegin: ''
 MacroBlockEnd: ''
 MaxEmptyLinesToKeep: 2
@@ -131,9 +131,9 @@ RawStringFormats:
 ReferenceAlignment: Pointer
 ReflowComments: true
 RemoveBracesLLVM: false
-RemoveSemicolon: true
+# RemoveSemicolon: true  coming in version 16.0
 RequiresClausePosition: OwnLine
-RequiresExpressionIndentation: Keyword
+# RequiresExpressionIndentation: Keyword  coming in version 16.0
 SeparateDefinitionBlocks: Always
 ShortNamespaceLines: 0
 SortIncludes: CaseInsensitive
