@@ -1,7 +1,6 @@
 #include "engine/App.hpp"
 
 #include <algorithm>
-#include <format>
 #include <functional>
 #include <iostream>
 
@@ -11,7 +10,7 @@
 #include "engine/State.hpp"
 
 void App::run() {
-    std::cout << std::format("{} is running...\n", name);
+    std::cout << name << " is running...\n";
 
     stateMachine.start();
 
