@@ -69,8 +69,8 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
-    [[nodiscard]] auto on_enter(Action&& t_callback) noexcept -> Self;
-    [[nodiscard]] auto on_exit(Action&& t_callback) noexcept -> Self;
+    [[nodiscard]] auto on_enter(Action&& t_callback) noexcept -> Builder&;
+    [[nodiscard]] auto on_exit(Action&& t_callback) noexcept -> Builder&;
 };
 
 template <config::Id t_id>

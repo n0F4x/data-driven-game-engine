@@ -30,16 +30,16 @@ void State::exited() const noexcept {
 
 State::State(config::Id t_id) noexcept : m_id{ t_id } {}
 
-auto State::Builder::on_enter(Action&& t_callback) noexcept -> Self {
+auto State::Builder::on_enter(Action&& t_callback) noexcept -> Builder& {
     draft().m_enterAction = std::move(t_callback);
 
-    return std::move(*this);
+    return *this;
 }
 
-auto State::Builder::on_exit(Action&& t_callback) noexcept -> Self {
+auto State::Builder::on_exit(Action&& t_callback) noexcept -> Builder& {
     draft().m_exitAction = std::move(t_callback);
 
-    return std::move(*this);
+    return *this;
 }
 
 }   // namespace fw

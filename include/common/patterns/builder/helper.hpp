@@ -3,15 +3,12 @@
 #include <type_traits>
 #include <utility>
 
-#define Self std::remove_reference_t<decltype(*this)>
-
 template <class Product>
 class BuilderBase {
     friend Product;
 
 protected:
     [[nodiscard]] constexpr BuilderBase() noexcept = default;
-    [[nodiscard]] constexpr BuilderBase(const BuilderBase&) = delete;
     [[nodiscard]] constexpr BuilderBase(BuilderBase&&) noexcept = default;
 
     template <typename... Args>
@@ -23,6 +20,8 @@ protected:
     }
 
 public:
+    [[nodiscard]] constexpr BuilderBase(const BuilderBase&) = delete;
+
     [[nodiscard]] constexpr explicit(false) operator Product() noexcept {
         return build();
     }

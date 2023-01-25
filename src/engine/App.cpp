@@ -34,22 +34,22 @@ void App::run() {
 }
 
 [[nodiscard]] auto App::Builder::set_name(std::string_view t_name) noexcept
-    -> Self {
+    -> Builder& {
     draft().m_name = t_name;
 
-    return std::move(*this);
+    return *this;
 }
 
-[[nodiscard]] auto App::Builder::add_state(fw::State&& t_state) -> Self {
+[[nodiscard]] auto App::Builder::add_state(fw::State&& t_state) -> Builder& {
     draft().m_stateMachine.add_state(std::move(t_state));
 
-    return std::move(*this);
+    return *this;
 }
 
-[[nodiscard]] auto App::Builder::add_stage(Stage&& t_stage) -> Self {
+[[nodiscard]] auto App::Builder::add_stage(Stage&& t_stage) -> Builder& {
     draft().m_scheduler.add_stage(std::move(t_stage));
 
-    return std::move(*this);
+    return *this;
 }
 
 }   // namespace engine

@@ -60,7 +60,8 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
-    [[nodiscard]] constexpr auto add_system(Stage::System&& t_system);
+    [[nodiscard]] constexpr auto add_system(Stage::System&& t_system)
+        -> Builder&;
 };
 
 /// ////////////////////// ///
@@ -75,10 +76,11 @@ public:
     return Builder{};
 }
 
-[[nodiscard]] constexpr auto Stage::Builder::add_system(System&& t_system) {
+[[nodiscard]] constexpr auto Stage::Builder::add_system(System&& t_system)
+    -> Builder& {
     draft().m_systems.push_back(std::move(t_system));
 
-    return std::move(*this);
+    return *this;
 }
 
 }   // namespace engine
