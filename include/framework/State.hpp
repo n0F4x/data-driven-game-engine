@@ -5,8 +5,6 @@
 
 #include <gsl/pointers>
 
-#include "common/patterns/builder/helper.hpp"
-
 namespace fw {
 
 template <typename Id>
@@ -20,67 +18,55 @@ public:
 
 private:
     class Builder;
-    friend BuilderBase<StateBase>;
+    friend Builder;
 
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] StateBase(const StateBase&) = delete;
+    [[nodiscard]] StateBase(const StateBase&) noexcept = default;
     [[nodiscard]] StateBase(StateBase&&) noexcept = default;
 
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
     [[nodiscard]] auto id() const noexcept -> Id;
-    [[nodiscard]] auto invalid() const noexcept -> bool;
-    void entered() const noexcept;
-    void exited() const noexcept;
+    void enter() const noexcept;
+    void exit() const noexcept;
 
     ///------------------///
     ///  Static helpers  ///
     ///------------------///
-    template <Id t_id>
-        requires(t_id != 0)
     [[nodiscard]] static auto create() noexcept -> Builder;
-    [[nodiscard]] static auto invalid_state() noexcept
-        -> gsl::not_null<const StateBase<Id>*>;
 
 private:
-    [[nodiscard]] explicit StateBase(Id t_id = {}) noexcept;
+    [[nodiscard]] explicit StateBase(Id t_id = {},
+                                     Action&& t_enterAction = {},
+                                     Action&& t_exitAction = {}) noexcept;
 
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
-    static const StateBase s_invalidStateBase;
-
-    Id m_id{};
-    Action m_enterAction;
-    Action m_exitAction;
+    const Id m_id{};
+    const Action m_enterAction;
+    const Action m_exitAction;
 };
 
 template <typename Id>
-class StateBase<Id>::Builder final : public BuilderBase<StateBase<Id>> {
+class StateBase<Id>::Builder final {
 public:
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    using BuilderBase<StateBase<Id>>::BuilderBase;
-
-    ///--------------------///
-    ///  Member functions  ///
-    ///--------------------///
+    [[nodiscard]] auto set_id(Id t_id) noexcept -> Builder&;
     [[nodiscard]] auto on_enter(Action&& t_callback) noexcept -> Builder&;
     [[nodiscard]] auto on_exit(Action&& t_callback) noexcept -> Builder&;
+
+    [[nodiscard]] explicit(false) operator StateBase<Id>() noexcept;
+    [[nodiscard]] auto build() noexcept -> StateBase<Id>;
+
+private:
+    Id m_id;
+    StateBase<Id>::Action m_enterAction;
+    StateBase<Id>::Action m_exitAction;
 };
-
-template <typename Id>
-inline const StateBase<Id> StateBase<Id>::s_invalidStateBase;
-
-template <typename Id>
-gsl::not_null<const StateBase<Id>*> StateBase<Id>::invalid_state() noexcept {
-    return &s_invalidStateBase;
-}
 
 template <typename Id>
 auto StateBase<Id>::id() const noexcept -> Id {
@@ -88,47 +74,61 @@ auto StateBase<Id>::id() const noexcept -> Id {
 }
 
 template <typename Id>
-auto StateBase<Id>::invalid() const noexcept -> bool {
-    return m_id == 0;
-}
-
-template <typename Id>
-void StateBase<Id>::entered() const noexcept {
+void StateBase<Id>::enter() const noexcept {
     if (m_enterAction) {
         m_enterAction();
     }
 }
 
 template <typename Id>
-void StateBase<Id>::exited() const noexcept {
+void StateBase<Id>::exit() const noexcept {
     if (m_exitAction) {
         m_exitAction();
     }
 }
 
 template <typename Id>
-template <Id t_id>
-    requires(t_id != 0)
-auto StateBase<Id>::create() noexcept -> StateBase<Id>::Builder {
-    return Builder{ t_id };
+auto StateBase<Id>::create() noexcept -> Builder {
+    return Builder{};
 }
 
 template <typename Id>
-StateBase<Id>::StateBase(Id t_id) noexcept : m_id{ t_id } {}
+StateBase<Id>::StateBase(const Id t_id,
+                         Action&& t_enterAction,
+                         Action&& t_exitAction) noexcept
+    : m_id{ t_id },
+      m_enterAction{ std::move(t_enterAction) },
+      m_exitAction{ std::move(t_exitAction) } {}
+
+template <typename Id>
+auto StateBase<Id>::Builder::set_id(Id t_id) noexcept -> Builder& {
+    m_id = t_id;
+    return *this;
+}
 
 template <typename Id>
 auto StateBase<Id>::Builder::on_enter(Action&& t_callback) noexcept
     -> Builder& {
-    BuilderBase<StateBase<Id>>::draft().m_enterAction = std::move(t_callback);
-
+    m_enterAction = std::move(t_callback);
     return *this;
 }
 
 template <typename Id>
 auto StateBase<Id>::Builder::on_exit(Action&& t_callback) noexcept -> Builder& {
-    BuilderBase<StateBase<Id>>::draft().m_exitAction = std::move(t_callback);
-
+    m_exitAction = std::move(t_callback);
     return *this;
+}
+
+template <typename Id>
+StateBase<Id>::Builder::operator StateBase<Id>() noexcept {
+    return build();
+}
+
+template <typename Id>
+auto StateBase<Id>::Builder::build() noexcept -> StateBase<Id> {
+    return StateBase<Id>{ m_id,
+                          std::move(m_enterAction),
+                          std::move(m_exitAction) };
 }
 
 using State = StateBase<uint32_t>;

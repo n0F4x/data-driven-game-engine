@@ -58,7 +58,6 @@ public:
     ///------------------------------///
     using BuilderBase<App>::BuilderBase;
 
-
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///

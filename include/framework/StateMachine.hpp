@@ -10,9 +10,13 @@ namespace fw {
 
 template <typename StateId>
 class StateMachineBase final {
-    using State = StateBase<StateId>;
+    ///----------------///
+    ///  Member types  ///
+    ///----------------///
 
 public:
+    using State = StateBase<StateId>;
+
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
@@ -36,22 +40,26 @@ private:
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
+    std::unique_ptr<std::mutex> m_containerLock =
+        std::make_unique<std::mutex>();
     std::unique_ptr<std::mutex> m_transitionLock =
         std::make_unique<std::mutex>();
     std::unordered_map<StateId, const State> m_states;
-    gsl::not_null<const State*> m_nextState = State::invalid_state();
-    gsl::not_null<const State*> m_currentState = State::invalid_state();
-    gsl::not_null<const State*> m_prevState = State::invalid_state();
+    const State m_invalidState = State::create();
+    gsl::not_null<const State*> m_nextState = &m_invalidState;
+    gsl::not_null<const State*> m_currentState = &m_invalidState;
+    gsl::not_null<const State*> m_previousState = &m_invalidState;
 };
 
 template <typename StateId>
 auto StateMachineBase<StateId>::running() const noexcept -> bool {
-    return !m_currentState->invalid();
+    return m_currentState != &m_invalidState;
 }
 
 template <typename StateId>
 void StateMachineBase<StateId>::add_state(State&& t_state,
                                           bool t_setAsInitialState) {
+    std::lock_guard guard{ *m_containerLock };
     if (auto [iter, success] =
             m_states.try_emplace(t_state.id(), std::move(t_state));
         success && t_setAsInitialState)
@@ -72,18 +80,20 @@ void StateMachineBase<StateId>::start() noexcept {
 
 template <typename StateId>
 void StateMachineBase<StateId>::exit() noexcept {
-    m_nextState = State::invalid_state();
+    std::lock_guard guard{ *m_transitionLock };
+    m_nextState = &m_invalidState;
 }
 
 template <typename StateId>
 void StateMachineBase<StateId>::transition() noexcept {
+    std::lock_guard guard{ *m_transitionLock };
     if (m_nextState != m_currentState) {
-        m_currentState->exited();
+        m_currentState->exit();
 
-        m_prevState = m_currentState;
+        m_previousState = m_currentState;
         m_currentState = m_nextState;
 
-        m_currentState->entered();
+        m_currentState->enter();
     }
 }
 
@@ -101,7 +111,7 @@ template <typename StateId>
 void StateMachineBase<StateId>::transition_to_previous() noexcept {
     std::lock_guard guard{ *m_transitionLock };
     if (m_nextState == m_currentState) {
-        m_nextState = m_prevState;
+        m_nextState = m_previousState;
     }
 }
 

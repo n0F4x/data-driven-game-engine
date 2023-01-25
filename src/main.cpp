@@ -17,7 +17,8 @@ auto main() -> int {
     try {
         engine::App::create()
             .set_name("My game framework")
-            .add_state(fw::State::create<"MyState"_hs>()
+            .add_state(fw::State::create()
+                           .set_id("MyState"_hs)
                            .on_enter(+[] { std::cout << "Entered\n"; })
                            .on_exit(exited),
                        true)
