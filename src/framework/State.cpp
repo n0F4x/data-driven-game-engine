@@ -28,7 +28,7 @@ void State::exited() const noexcept {
     }
 }
 
-State::State(config::Id t_id = {}) noexcept : m_id{ t_id } {}
+State::State(config::Id t_id) noexcept : m_id{ t_id } {}
 
 auto State::Builder::on_enter(Action&& t_callback) noexcept -> Self {
     draft().m_enterAction = std::move(t_callback);
