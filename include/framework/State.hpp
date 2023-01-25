@@ -6,7 +6,7 @@
 #include <gsl/pointers>
 
 #include "common/patterns/builder/helper.hpp"
-#include "engine/config/id.hpp"
+#include "engine/config/config.hpp"
 
 namespace fw {
 

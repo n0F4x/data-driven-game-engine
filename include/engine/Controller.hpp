@@ -1,6 +1,6 @@
 #pragma once
 
-#include "config/id.hpp"
+#include "config/config.hpp"
 
 namespace fw {
 class StateMachine;
