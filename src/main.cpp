@@ -4,7 +4,7 @@
 
 #include <entt/core/hashed_string.hpp>
 
-#include "prelude.hpp"
+#include "engine/prelude.hpp"
 
 void exited() noexcept {
     std::cout << "Exited\n";
@@ -16,7 +16,7 @@ auto main() -> int {
 
     try {
         App::create()
-            .set_name("My game engine")
+            .set_name("My game framework")
             .add_state(State::create<"MyState"_hs>()
                            .on_enter(+[] { std::cout << "Entered\n"; })
                            .on_exit(exited))

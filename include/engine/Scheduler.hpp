@@ -3,7 +3,7 @@
 #include <functional>
 #include <vector>
 
-#include "engine/Scene.hpp"
+#include "framework/Scene.hpp"
 
 class Controller;
 class SceneGraph;

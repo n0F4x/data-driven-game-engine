@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "engine/SceneNode.hpp"
+#include "framework/SceneNode.hpp"
 
 class Scene;
 

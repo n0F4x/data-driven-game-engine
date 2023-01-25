@@ -5,10 +5,10 @@
 #include <gsl/pointers>
 
 #include "config/id.hpp"
-#include "engine/SceneGraph.hpp"
-#include "engine/Scheduler.hpp"
-#include "engine/StateMachine.hpp"
-#include "patterns/builder/helper.hpp"
+#include "framework/SceneGraph.hpp"
+#include "framework/StateMachine.hpp"
+#include "common/patterns/builder/helper.hpp"
+#include "Scheduler.hpp"
 
 class Controller;
 class Stage;

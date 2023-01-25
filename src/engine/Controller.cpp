@@ -1,6 +1,6 @@
 #include "engine/Controller.hpp"
 
-#include "engine/StateMachine.hpp"
+#include "framework/StateMachine.hpp"
 
 void Controller::quit() noexcept {
     stateMachine.exit();

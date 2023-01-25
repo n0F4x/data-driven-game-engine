@@ -1,6 +1,6 @@
-#include "engine/SceneGraph.hpp"
+#include "framework/SceneGraph.hpp"
 
-#include "engine/Scene.hpp"
+#include "framework/Scene.hpp"
 
 auto SceneGraph::make_scene() const -> Scene {
     return Scene{};

@@ -5,9 +5,9 @@
 #include <iostream>
 
 #include "engine/Controller.hpp"
-#include "engine/Scene.hpp"
+#include "framework/Scene.hpp"
 #include "engine/Stage.hpp"
-#include "engine/State.hpp"
+#include "framework/State.hpp"
 
 void App::run() {
     std::cout << name << " is running...\n";

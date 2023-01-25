@@ -5,7 +5,7 @@
 #include <future>
 #include <vector>
 
-#include "engine/SceneGraph.hpp"
+#include "framework/SceneGraph.hpp"
 #include "engine/Stage.hpp"
 
 Scheduler::Scheduler(std::function<Scene()>&& sceneMaker)

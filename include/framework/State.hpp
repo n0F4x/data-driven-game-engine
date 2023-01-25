@@ -4,8 +4,8 @@
 
 #include <gsl/pointers>
 
-#include "config/id.hpp"
-#include "patterns/builder/helper.hpp"
+#include "engine/config/id.hpp"
+#include "common/patterns/builder/helper.hpp"
 
 class App;
 
