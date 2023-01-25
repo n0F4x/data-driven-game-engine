@@ -8,12 +8,12 @@ gsl::not_null<const State*> State::invalid_state() noexcept {
     return &s_invalidState;
 }
 
-auto State::invalid(const State& t_state) noexcept -> bool {
-    return t_state.m_id == 0;
-}
-
 auto State::id() const noexcept -> config::Id {
     return m_id;
+}
+
+auto State::invalid() const noexcept -> bool {
+    return m_id == 0;
 }
 
 void State::entered() const noexcept {

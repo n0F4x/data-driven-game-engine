@@ -33,6 +33,7 @@ public:
     ///  Member functions  ///
     ///--------------------///
     [[nodiscard]] auto id() const noexcept -> config::Id;
+    [[nodiscard]] auto invalid() const noexcept -> bool;
     void entered() const noexcept;
     void exited() const noexcept;
 
@@ -44,7 +45,6 @@ public:
     [[nodiscard]] static auto create() noexcept -> Builder;
     [[nodiscard]] static auto invalid_state() noexcept
         -> gsl::not_null<const State*>;
-    [[nodiscard]] static auto invalid(const State& t_state) noexcept -> bool;
 
 private:
     [[nodiscard]] explicit State(config::Id t_id = {}) noexcept;

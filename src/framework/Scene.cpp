@@ -2,7 +2,7 @@
 
 namespace fw {
 
-void Scene::render(const Scene&) noexcept {
+void Scene::render() const noexcept {
     // TODO
 }
 

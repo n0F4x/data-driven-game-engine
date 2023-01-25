@@ -13,6 +13,10 @@ namespace engine {
 Scheduler::Scheduler(std::function<fw::Scene()>&& t_sceneMaker)
     : m_sceneMaker{ std::move(t_sceneMaker) } {}
 
+[[nodiscard]] auto Scheduler::empty() const noexcept -> bool {
+    return std::ranges::empty(m_stages);
+}
+
 void Scheduler::iterate(Controller& t_controller) {
     std::swap(m_previousScene, m_scene);
 
@@ -22,7 +26,7 @@ void Scheduler::iterate(Controller& t_controller) {
         });
     });
 
-    auto renderFuture = std::async(std::launch::async, fw::Scene::render,
+    auto renderFuture = std::async(std::launch::async, &fw::Scene::render,
                                    std::ref(m_previousScene));
 
     m_scene = m_sceneMaker();
@@ -33,13 +37,9 @@ void Scheduler::iterate(Controller& t_controller) {
 }
 
 void Scheduler::add_stage(Stage&& t_stage) {
-    if (!Stage::empty(t_stage)) {
+    if (!t_stage.empty()) {
         m_stages.push_back(std::move(t_stage));
     }
-}
-
-[[nodiscard]] auto Scheduler::empty(Scheduler& t_scheduler) -> bool {
-    return std::ranges::empty(t_scheduler.m_stages);
 }
 
 }   // namespace engine

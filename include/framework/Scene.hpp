@@ -4,7 +4,7 @@ namespace fw {
 
 class Scene {
 public:
-    static void render(const Scene& t_scene) noexcept;
+    void render() const noexcept;
 };
 
 }   // namespace fw

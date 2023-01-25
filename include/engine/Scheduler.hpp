@@ -22,13 +22,9 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
+    [[nodiscard]] auto empty() const noexcept -> bool;
     void iterate(Controller& t_controller);
     void add_stage(Stage&& t_stage);
-
-    ///------------------///
-    ///  Static helpers  ///
-    ///------------------///
-    [[nodiscard]] static auto empty(Scheduler& t_scheduler) -> bool;
 
 private:
     ///--------------------///

@@ -8,6 +8,10 @@ using namespace entt::literals;
 
 namespace fw {
 
+auto StateMachine::running() const noexcept -> bool {
+    return !m_currentState->invalid();
+}
+
 void StateMachine::start() {
     if (std::ranges::empty(m_states)) {
         add_state(State::create<"START"_hs>());
@@ -53,11 +57,6 @@ void StateMachine::add_state(State&& t_state) {
     } else {
         m_states.try_emplace(t_state.id(), std::move(t_state));
     }
-}
-
-auto StateMachine::running(const StateMachine& t_stateMachine) noexcept
-    -> bool {
-    return !State::invalid(*t_stateMachine.m_currentState);
 }
 
 }   // namespace fw

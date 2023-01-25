@@ -16,10 +16,10 @@ void App::run() {
 
     m_stateMachine.start();
 
-    if (!Scheduler::empty(m_scheduler)) {
+    if (!m_scheduler.empty()) {
         Controller controller{ m_stateMachine };
 
-        while (fw::StateMachine::running(m_stateMachine)) {
+        while (m_stateMachine.running()) {
             m_scheduler.iterate(controller);
 
             m_stateMachine.transition();

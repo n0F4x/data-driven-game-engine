@@ -33,13 +33,13 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
+    [[nodiscard]] constexpr auto empty() noexcept;
     void run(Controller& t_controller) const;
 
     ///------------------///
     ///  Static helpers  ///
     ///------------------///
     [[nodiscard]] constexpr static auto create() noexcept;
-    [[nodiscard]] constexpr static auto empty(const Stage& t_stage) noexcept;
 
 private:
     [[nodiscard]] constexpr Stage() noexcept = default;
@@ -67,12 +67,12 @@ public:
 ///     IMPLEMENTATION     ///
 /// ////////////////////// ///
 
-[[nodiscard]] constexpr auto Stage::create() noexcept {
-    return Builder{};
+[[nodiscard]] constexpr auto Stage::empty() noexcept {
+    return std::ranges::empty(m_systems);
 }
 
-[[nodiscard]] constexpr auto Stage::empty(const Stage& t_stage) noexcept {
-    return std::ranges::empty(t_stage.m_systems);
+[[nodiscard]] constexpr auto Stage::create() noexcept {
+    return Builder{};
 }
 
 [[nodiscard]] constexpr auto Stage::Builder::add_system(System&& t_system) {

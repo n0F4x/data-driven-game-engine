@@ -20,18 +20,13 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
+    [[nodiscard]] auto running() const noexcept -> bool;
     void start();
     void exit() noexcept;
     void transition() noexcept;
     void transition_to(config::Id t_stateId) noexcept;
     void transition_to_previous() noexcept;
     void add_state(State&& t_state);
-
-    ///------------------///
-    ///  Static helpers  ///
-    ///------------------///
-    [[nodiscard]] static auto
-    running(const StateMachine& t_stateMachine) noexcept -> bool;
 
 private:
     ///--------------------///
