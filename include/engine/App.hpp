@@ -5,7 +5,7 @@
 #include <gsl/pointers>
 
 #include "common/patterns/builder/helper.hpp"
-#include "config/id.hpp"
+#include "config/config.hpp"
 #include "framework/SceneGraph.hpp"
 #include "framework/StateMachine.hpp"
 #include "Scheduler.hpp"
