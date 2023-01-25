@@ -105,6 +105,6 @@ void StateMachineBase<StateId>::transition_to_previous() noexcept {
     }
 }
 
-using StateMachine = StateMachineBase<unsigned>;
+using StateMachine = StateMachineBase<uint32_t>;
 
 }   // namespace fw

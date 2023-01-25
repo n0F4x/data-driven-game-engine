@@ -131,6 +131,6 @@ auto StateBase<Id>::Builder::on_exit(Action&& t_callback) noexcept -> Builder& {
     return *this;
 }
 
-using State = StateBase<unsigned>;
+using State = StateBase<uint32_t>;
 
 }   // namespace fw
