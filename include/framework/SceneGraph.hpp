@@ -9,7 +9,7 @@ namespace fw {
 
 class Scene;
 
-class SceneGraph {
+class SceneGraph final {
 public:
     [[nodiscard]] auto make_scene() const -> Scene;
 

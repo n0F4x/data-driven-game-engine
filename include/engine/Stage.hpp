@@ -10,7 +10,7 @@ namespace engine {
 
 class Controller;
 
-class Stage {
+class Stage final {
     ///----------------///
     ///  Member types  ///
     ///----------------///

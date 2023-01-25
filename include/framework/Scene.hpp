@@ -2,7 +2,7 @@
 
 namespace fw {
 
-class Scene {
+class Scene final {
 public:
     void render() const noexcept;
 };

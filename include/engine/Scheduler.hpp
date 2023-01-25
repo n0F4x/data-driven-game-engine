@@ -10,7 +10,7 @@ namespace engine {
 class Controller;
 class Stage;
 
-class Scheduler {
+class Scheduler final {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///

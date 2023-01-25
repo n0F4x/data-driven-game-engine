@@ -8,7 +8,7 @@
 
 namespace fw {
 
-class StateMachine {
+class StateMachine final {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///

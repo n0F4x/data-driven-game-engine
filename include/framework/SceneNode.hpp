@@ -5,7 +5,7 @@
 
 namespace fw {
 
-class SceneNode {
+class SceneNode final {
     std::vector<std::shared_ptr<SceneNode>> m_children;
 };
 
