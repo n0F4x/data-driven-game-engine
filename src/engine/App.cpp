@@ -40,8 +40,10 @@ void App::run() {
     return *this;
 }
 
-[[nodiscard]] auto App::Builder::add_state(fw::State&& t_state) -> Builder& {
-    draft().m_stateMachine.add_state(std::move(t_state));
+[[nodiscard]] auto
+App::Builder::add_state(fw::State&& t_state, bool t_setAsInitialState)
+    -> Builder& {
+    draft().m_stateMachine.add_state(std::move(t_state), t_setAsInitialState);
 
     return *this;
 }

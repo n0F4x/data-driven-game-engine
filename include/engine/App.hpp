@@ -63,7 +63,8 @@ public:
     ///  Member functions  ///
     ///--------------------///
     [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Builder&;
-    [[nodiscard]] auto add_state(fw::State&& t_state) -> Builder&;
+    [[nodiscard]] auto add_state(fw::State&& t_state,
+                                 bool t_setAsInitialState = false) -> Builder&;
     [[nodiscard]] auto add_stage(Stage&& t_stage) -> Builder&;
 };
 

@@ -1,10 +1,7 @@
 #pragma once
 
 #include "config/config.hpp"
-
-namespace fw {
-class StateMachine;
-}   // namespace fw
+#include "framework/StateMachine.hpp"
 
 namespace engine {
 

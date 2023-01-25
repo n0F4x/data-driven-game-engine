@@ -1,7 +1,5 @@
 #include "engine/Controller.hpp"
 
-#include "framework/StateMachine.hpp"
-
 namespace engine {
 
 void Controller::quit() noexcept {
