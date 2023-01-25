@@ -15,29 +15,29 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit Scheduler(std::function<fw::Scene()>&& sceneMaker);
+    [[nodiscard]] explicit Scheduler(std::function<fw::Scene()>&& t_sceneMaker);
     [[nodiscard]] Scheduler(const Scheduler&) = delete;
     [[nodiscard]] Scheduler(Scheduler&&) noexcept = default;
 
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
-    void iterate(Controller& controller);
-    void add_stage(Stage&& stage);
+    void iterate(Controller& t_controller);
+    void add_stage(Stage&& t_stage);
 
     ///------------------///
     ///  Static helpers  ///
     ///------------------///
-    [[nodiscard]] static auto empty(Scheduler& scheduler) -> bool;
+    [[nodiscard]] static auto empty(Scheduler& t_scheduler) -> bool;
 
 private:
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
-    std::vector<Stage> stages;
-    std::function<fw::Scene()> sceneMaker;
-    fw::Scene prevScene;
-    fw::Scene scene;
+    std::vector<Stage> m_stages;
+    std::function<fw::Scene()> m_sceneMaker;
+    fw::Scene m_previousScene;
+    fw::Scene m_scene;
 };
 
 }   // namespace engine

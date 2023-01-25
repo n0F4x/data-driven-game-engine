@@ -8,12 +8,12 @@
 
 namespace engine {
 
-void Stage::run(Controller& controller) const {
+void Stage::run(Controller& t_controller) const {
     std::vector<std::future<void>> futures;
 
-    std::ranges::for_each(systems, [&futures, &controller](auto system) {
+    std::ranges::for_each(m_systems, [&futures, &t_controller](auto t_system) {
         futures.push_back(
-            std::async(std::launch::async, system, std::ref(controller)));
+            std::async(std::launch::async, t_system, std::ref(t_controller)));
     });
 
     // throw potential exception from threads

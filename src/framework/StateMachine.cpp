@@ -9,54 +9,55 @@ using namespace entt::literals;
 namespace fw {
 
 void StateMachine::start() {
-    if (std::ranges::empty(states)) {
+    if (std::ranges::empty(m_states)) {
         add_state(State::create<"START"_hs>());
     }
-    currentState->entered();
+    m_currentState->entered();
 }
 
 void StateMachine::exit() noexcept {
-    nextState = State::invalid_state();
+    m_nextState = State::invalid_state();
 }
 
 void StateMachine::transition() noexcept {
-    if (nextState != currentState) {
-        currentState->exited();
+    if (m_nextState != m_currentState) {
+        m_currentState->exited();
 
-        prevState = currentState;
-        currentState = nextState;
+        m_prevState = m_currentState;
+        m_currentState = m_nextState;
 
-        currentState->entered();
+        m_currentState->entered();
     }
 }
 
-void StateMachine::transition_to(config::Id state) noexcept {
-    std::lock_guard guard{ *transitionLock };
-    if (nextState == currentState) {
-        if (auto iter{ states.find(state) }; iter != states.end()) {
-            nextState = &iter->second;
+void StateMachine::transition_to(config::Id t_state) noexcept {
+    std::lock_guard guard{ *m_transitionLock };
+    if (m_nextState == m_currentState) {
+        if (auto iter{ m_states.find(t_state) }; iter != m_states.end()) {
+            m_nextState = &iter->second;
         }
     }
 }
 
-void StateMachine::transition_to_prev() noexcept {
-    std::lock_guard guard{ *transitionLock };
-    if (nextState == currentState) {
-        nextState = prevState;
+void StateMachine::transition_to_previous() noexcept {
+    std::lock_guard guard{ *m_transitionLock };
+    if (m_nextState == m_currentState) {
+        m_nextState = m_prevState;
     }
 }
 
-void StateMachine::add_state(State&& state) {
-    if (std::empty(states)) {
-        currentState =
-            &states.try_emplace(state.get_id(), std::move(state)).first->second;
+void StateMachine::add_state(State&& t_state) {
+    if (std::empty(m_states)) {
+        m_currentState = &m_states.try_emplace(t_state.id(), std::move(t_state))
+                              .first->second;
     } else {
-        states.try_emplace(state.get_id(), std::move(state));
+        m_states.try_emplace(t_state.id(), std::move(t_state));
     }
 }
 
-auto StateMachine::running(const StateMachine& machine) noexcept -> bool {
-    return !State::invalid(*machine.currentState);
+auto StateMachine::running(const StateMachine& t_stateMachine) noexcept
+    -> bool {
+    return !State::invalid(*t_stateMachine.m_currentState);
 }
 
 }   // namespace fw

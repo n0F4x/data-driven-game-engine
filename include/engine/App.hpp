@@ -45,10 +45,10 @@ private:
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
-    std::string name = "App";
-    fw::StateMachine stateMachine;
-    fw::SceneGraph sceneGraph;
-    Scheduler scheduler{ [this] { return sceneGraph.make_scene(); } };
+    std::string m_name = "App";
+    fw::StateMachine m_stateMachine;
+    fw::SceneGraph m_sceneGraph;
+    Scheduler m_scheduler{ [this] { return m_sceneGraph.make_scene(); } };
 };
 
 class App::Builder final : public BuilderBase<App> {
@@ -62,9 +62,9 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
-    [[nodiscard]] auto set_name(std::string_view new_name) noexcept -> Self;
-    [[nodiscard]] auto add_state(fw::State&& state) -> Self;
-    [[nodiscard]] auto add_stage(Stage&& stage) -> Self;
+    [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Self;
+    [[nodiscard]] auto add_state(fw::State&& t_state) -> Self;
+    [[nodiscard]] auto add_stage(Stage&& t_stage) -> Self;
 };
 
 }   // namespace engine

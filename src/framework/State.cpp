@@ -2,40 +2,42 @@
 
 namespace fw {
 
-const State State::s_invalid_state;
+const State State::s_invalidState;
 
 gsl::not_null<const State*> State::invalid_state() noexcept {
-    return &s_invalid_state;
+    return &s_invalidState;
 }
 
-auto State::invalid(const State& state) noexcept -> bool {
-    return state.id == 0;
+auto State::invalid(const State& t_state) noexcept -> bool {
+    return t_state.m_id == 0;
 }
 
-auto State::get_id() const noexcept -> config::Id {
-    return id;
+auto State::id() const noexcept -> config::Id {
+    return m_id;
 }
 
 void State::entered() const noexcept {
-    if (onEnter) {
-        onEnter();
+    if (m_enterAction) {
+        m_enterAction();
     }
 }
 
 void State::exited() const noexcept {
-    if (onExit) {
-        onExit();
+    if (m_exitAction) {
+        m_exitAction();
     }
 }
 
-auto State::Builder::on_enter(Action&& callback) noexcept -> Self {
-    draft().onEnter = std::move(callback);
+State::State(config::Id t_id = {}) noexcept : m_id{ t_id } {}
+
+auto State::Builder::on_enter(Action&& t_callback) noexcept -> Self {
+    draft().m_enterAction = std::move(t_callback);
 
     return std::move(*this);
 }
 
-auto State::Builder::on_exit(Action&& callback) noexcept -> Self {
-    draft().onExit = std::move(callback);
+auto State::Builder::on_exit(Action&& t_callback) noexcept -> Self {
+    draft().m_exitAction = std::move(t_callback);
 
     return std::move(*this);
 }

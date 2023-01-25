@@ -32,31 +32,31 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
-    [[nodiscard]] auto get_id() const noexcept -> config::Id;
+    [[nodiscard]] auto id() const noexcept -> config::Id;
     void entered() const noexcept;
     void exited() const noexcept;
 
     ///------------------///
     ///  Static helpers  ///
     ///------------------///
-    template <config::Id id>
-        requires(id != 0)
+    template <config::Id t_id>
+        requires(t_id != 0)
     [[nodiscard]] static auto create() noexcept -> Builder;
     [[nodiscard]] static auto invalid_state() noexcept
         -> gsl::not_null<const State*>;
-    [[nodiscard]] static auto invalid(const State& state) noexcept -> bool;
+    [[nodiscard]] static auto invalid(const State& t_state) noexcept -> bool;
 
 private:
-    [[nodiscard]] explicit State(config::Id id = {}) noexcept : id{ id } {}
+    [[nodiscard]] explicit State(config::Id t_id = {}) noexcept;
 
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
-    static const State s_invalid_state;
+    static const State s_invalidState;
 
-    config::Id id{};
-    Action onEnter;
-    Action onExit;
+    config::Id m_id{};
+    Action m_enterAction;
+    Action m_exitAction;
 };
 
 class State::Builder final : public BuilderBase<State> {
@@ -69,14 +69,14 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
-    [[nodiscard]] auto on_enter(Action&& callback) noexcept -> Self;
-    [[nodiscard]] auto on_exit(Action&& callback) noexcept -> Self;
+    [[nodiscard]] auto on_enter(Action&& t_callback) noexcept -> Self;
+    [[nodiscard]] auto on_exit(Action&& t_callback) noexcept -> Self;
 };
 
-template <config::Id id>
-    requires(id != 0)
+template <config::Id t_id>
+    requires(t_id != 0)
 auto State::create() noexcept -> State::Builder {
-    return Builder{ id };
+    return Builder{ t_id };
 }
 
 }   // namespace fw

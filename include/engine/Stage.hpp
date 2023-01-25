@@ -33,13 +33,13 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
-    void run(Controller& controller) const;
+    void run(Controller& t_controller) const;
 
     ///------------------///
     ///  Static helpers  ///
     ///------------------///
     [[nodiscard]] constexpr static auto create() noexcept;
-    [[nodiscard]] constexpr static auto empty(const Stage& stage) noexcept;
+    [[nodiscard]] constexpr static auto empty(const Stage& t_stage) noexcept;
 
 private:
     [[nodiscard]] constexpr Stage() noexcept = default;
@@ -47,7 +47,7 @@ private:
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
-    std::vector<System> systems;
+    std::vector<System> m_systems;
 };
 
 class Stage::Builder : public BuilderBase<Stage> {
@@ -60,7 +60,7 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
-    [[nodiscard]] constexpr auto add_system(Stage::System&& system);
+    [[nodiscard]] constexpr auto add_system(Stage::System&& t_system);
 };
 
 /// ////////////////////// ///
@@ -71,12 +71,12 @@ public:
     return Builder{};
 }
 
-[[nodiscard]] constexpr auto Stage::empty(const Stage& stage) noexcept {
-    return std::ranges::empty(stage.systems);
+[[nodiscard]] constexpr auto Stage::empty(const Stage& t_stage) noexcept {
+    return std::ranges::empty(t_stage.m_systems);
 }
 
-[[nodiscard]] constexpr auto Stage::Builder::add_system(System&& system) {
-    draft().systems.push_back(std::move(system));
+[[nodiscard]] constexpr auto Stage::Builder::add_system(System&& t_system) {
+    draft().m_systems.push_back(std::move(t_system));
 
     return std::move(*this);
 }

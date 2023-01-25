@@ -12,42 +12,42 @@
 namespace engine {
 
 void App::run() {
-    std::cout << name << " is running...\n";
+    std::cout << m_name << " is running...\n";
 
-    stateMachine.start();
+    m_stateMachine.start();
 
-    if (!Scheduler::empty(scheduler)) {
-        Controller controller{ stateMachine };
+    if (!Scheduler::empty(m_scheduler)) {
+        Controller controller{ m_stateMachine };
 
-        while (fw::StateMachine::running(stateMachine)) {
-            scheduler.iterate(controller);
+        while (fw::StateMachine::running(m_stateMachine)) {
+            m_scheduler.iterate(controller);
 
-            stateMachine.transition();
+            m_stateMachine.transition();
         }
     }
 
-    stateMachine.transition();
+    m_stateMachine.transition();
 }
 
 [[nodiscard]] auto App::create() noexcept -> Builder {
     return Builder{};
 }
 
-[[nodiscard]] auto App::Builder::set_name(std::string_view new_name) noexcept
+[[nodiscard]] auto App::Builder::set_name(std::string_view t_name) noexcept
     -> Self {
-    draft().name = new_name;
+    draft().m_name = t_name;
 
     return std::move(*this);
 }
 
-[[nodiscard]] auto App::Builder::add_state(fw::State&& state) -> Self {
-    draft().stateMachine.add_state(std::move(state));
+[[nodiscard]] auto App::Builder::add_state(fw::State&& t_state) -> Self {
+    draft().m_stateMachine.add_state(std::move(t_state));
 
     return std::move(*this);
 }
 
-[[nodiscard]] auto App::Builder::add_stage(Stage&& stage) -> Self {
-    draft().scheduler.add_stage(std::move(stage));
+[[nodiscard]] auto App::Builder::add_stage(Stage&& t_stage) -> Self {
+    draft().m_scheduler.add_stage(std::move(t_stage));
 
     return std::move(*this);
 }

@@ -21,19 +21,20 @@ auto main() -> int {
                            .on_enter(+[] { std::cout << "Entered\n"; })
                            .on_exit(exited))
             .add_stage(engine::Stage::create()
-                           .add_system(+[](engine::Controller& controller) {
+                           .add_system(+[](engine::Controller& t_controller) {
                                std::this_thread::sleep_for(500ms);
                                std::cout << "Stage 1 - first\n";
-                               controller.quit();
+                               t_controller.quit();
                            })
-                           .add_system(+[](engine::Controller& controller) {
+                           .add_system(+[](engine::Controller& t_controller) {
                                std::cout << "Stage 1 - second\n";
-                               controller.quit();
+                               t_controller.quit();
                            }))
-            .add_stage(engine::Stage::create().add_system(+[](engine::Controller& controller) {
-                std::cout << "Stage 2\n";
-                controller.quit();
-            }))
+            .add_stage(engine::Stage::create().add_system(
+                +[](engine::Controller& t_controller) {
+                    std::cout << "Stage 2\n";
+                    t_controller.quit();
+                }))
             .build()
             .run();
     } catch (const std::exception&) {

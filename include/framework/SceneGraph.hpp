@@ -14,7 +14,7 @@ public:
     [[nodiscard]] auto make_scene() const -> Scene;
 
 private:
-    std::vector<std::shared_ptr<SceneNode>> sceneNodes;
+    std::vector<std::shared_ptr<SceneNode>> m_sceneNodes;
 };
 
 }   // namespace fw
