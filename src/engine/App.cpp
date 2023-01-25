@@ -5,8 +5,8 @@
 #include <iostream>
 
 #include "engine/Controller.hpp"
-#include "framework/Scene.hpp"
 #include "engine/Stage.hpp"
+#include "framework/Scene.hpp"
 #include "framework/State.hpp"
 
 void App::run() {

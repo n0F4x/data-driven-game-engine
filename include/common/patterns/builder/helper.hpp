@@ -9,7 +9,7 @@ template <class Product>
 class BuilderBase {
     friend Product;
 
-    protected:
+protected:
     [[nodiscard]] constexpr BuilderBase() noexcept = default;
     [[nodiscard]] constexpr BuilderBase(const BuilderBase&) = delete;
     [[nodiscard]] constexpr BuilderBase(BuilderBase&&) noexcept = default;
@@ -20,13 +20,13 @@ class BuilderBase {
 
     [[nodiscard]] constexpr auto draft() -> Product& { return product; }
 
-    public:
+public:
     [[nodiscard]] constexpr explicit(false) operator Product() noexcept {
         return build();
     }
 
     [[nodiscard]] constexpr auto build() noexcept { return std::move(product); }
 
-    private:
+private:
     Product product;
 };

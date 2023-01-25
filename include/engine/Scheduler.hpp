@@ -10,7 +10,7 @@ class SceneGraph;
 class Stage;
 
 class Scheduler {
-    public:
+public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
@@ -29,7 +29,7 @@ class Scheduler {
     ///------------------///
     [[nodiscard]] static auto empty(Scheduler& scheduler) -> bool;
 
-    private:
+private:
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///

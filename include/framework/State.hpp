@@ -4,8 +4,8 @@
 
 #include <gsl/pointers>
 
-#include "engine/config/id.hpp"
 #include "common/patterns/builder/helper.hpp"
+#include "engine/config/id.hpp"
 
 class App;
 
@@ -14,10 +14,10 @@ class State final {
     ///  Member types  ///
     ///----------------///
 
-    public:
+public:
     using Action = gsl::not_null<void (*)()>;
 
-    private:
+private:
     class Builder;
     friend BuilderBase<State>;
 
@@ -26,7 +26,7 @@ class State final {
     constexpr static void empty_action() noexcept { /*empty by default*/
     }
 
-    public:
+public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
@@ -50,7 +50,7 @@ class State final {
         -> gsl::not_null<const State*>;
     [[nodiscard]] constexpr static auto invalid(const State& state) noexcept;
 
-    private:
+private:
     [[nodiscard]] constexpr explicit State(Id id = {}) noexcept : id{ id } {}
 
     ///--------------------///
@@ -64,7 +64,7 @@ class State final {
 };
 
 class State::Builder final : public BuilderBase<State> {
-    public:
+public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///

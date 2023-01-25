@@ -7,7 +7,7 @@
 #include "framework/State.hpp"
 
 class StateMachine {
-    public:
+public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
@@ -31,7 +31,7 @@ class StateMachine {
     [[nodiscard]] static auto running(const StateMachine& machine) noexcept
         -> bool;
 
-    private:
+private:
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///

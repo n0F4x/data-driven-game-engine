@@ -5,7 +5,7 @@
 class StateMachine;
 
 class Controller final {
-    public:
+public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
@@ -22,7 +22,7 @@ class Controller final {
     void transition_to(Id to) noexcept;
     void transition_to_prev() noexcept;
 
-    private:
+private:
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///

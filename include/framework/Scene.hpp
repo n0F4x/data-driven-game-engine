@@ -1,6 +1,6 @@
 #pragma once
 
 class Scene {
-    public:
+public:
     static void render(const Scene& scene) noexcept;
 };

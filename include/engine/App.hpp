@@ -4,10 +4,10 @@
 
 #include <gsl/pointers>
 
+#include "common/patterns/builder/helper.hpp"
 #include "config/id.hpp"
 #include "framework/SceneGraph.hpp"
 #include "framework/StateMachine.hpp"
-#include "common/patterns/builder/helper.hpp"
 #include "Scheduler.hpp"
 
 class Controller;
@@ -20,7 +20,7 @@ class App final {
     class Builder;
     friend BuilderBase<App>;
 
-    public:
+public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
@@ -37,7 +37,7 @@ class App final {
     ///------------------///
     [[nodiscard]] static auto create() noexcept -> Builder;
 
-    private:
+private:
     [[nodiscard]] App() noexcept = default;
 
     ///--------------------///
@@ -50,7 +50,7 @@ class App final {
 };
 
 class App::Builder final : public BuilderBase<App> {
-    public:
+public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///

@@ -8,9 +8,9 @@
 class Scene;
 
 class SceneGraph {
-    public:
+public:
     [[nodiscard]] auto make_scene() const -> Scene;
 
-    private:
+private:
     std::vector<std::shared_ptr<SceneNode>> sceneNodes;
 };

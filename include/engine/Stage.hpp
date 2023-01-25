@@ -14,14 +14,14 @@ class Stage {
     ///  Member types  ///
     ///----------------///
 
-    public:
+public:
     using System = gsl::not_null<void (*)(Controller&)>;
 
-    private:
+private:
     class Builder;
     friend BuilderBase<Stage>;
 
-    public:
+public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
@@ -39,7 +39,7 @@ class Stage {
     [[nodiscard]] constexpr static auto create() noexcept;
     [[nodiscard]] constexpr static auto empty(const Stage& stage) noexcept;
 
-    private:
+private:
     [[nodiscard]] constexpr Stage() noexcept = default;
 
     ///--------------------///
@@ -49,7 +49,7 @@ class Stage {
 };
 
 class Stage::Builder : public BuilderBase<Stage> {
-    public:
+public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
