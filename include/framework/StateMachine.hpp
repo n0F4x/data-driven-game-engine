@@ -6,6 +6,8 @@
 
 #include "framework/State.hpp"
 
+namespace fw {
+
 class StateMachine {
 public:
     ///------------------------------///
@@ -21,7 +23,7 @@ public:
     void start();
     void exit() noexcept;
     void transition() noexcept;
-    void transition_to(Id state) noexcept;
+    void transition_to(config::Id state) noexcept;
     void transition_to_prev() noexcept;
     void add_state(State&& state);
 
@@ -36,8 +38,10 @@ private:
     ///  Member variables  ///
     ///--------------------///
     std::unique_ptr<std::mutex> transitionLock = std::make_unique<std::mutex>();
-    std::unordered_map<Id, const State> states;
+    std::unordered_map<config::Id, const State> states;
     gsl::not_null<const State*> nextState = State::invalid_state();
     gsl::not_null<const State*> currentState = State::invalid_state();
     gsl::not_null<const State*> prevState = State::invalid_state();
 };
+
+}   // namespace fw

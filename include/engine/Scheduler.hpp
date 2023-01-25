@@ -5,8 +5,9 @@
 
 #include "framework/Scene.hpp"
 
+namespace engine {
+
 class Controller;
-class SceneGraph;
 class Stage;
 
 class Scheduler {
@@ -14,7 +15,7 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit Scheduler(std::function<Scene()>&& sceneMaker);
+    [[nodiscard]] explicit Scheduler(std::function<fw::Scene()>&& sceneMaker);
     [[nodiscard]] Scheduler(const Scheduler&) = delete;
     [[nodiscard]] Scheduler(Scheduler&&) noexcept = default;
 
@@ -34,7 +35,9 @@ private:
     ///  Member variables  ///
     ///--------------------///
     std::vector<Stage> stages;
-    std::function<Scene()> sceneMaker;
-    Scene prevScene;
-    Scene scene;
+    std::function<fw::Scene()> sceneMaker;
+    fw::Scene prevScene;
+    fw::Scene scene;
 };
+
+}   // namespace engine

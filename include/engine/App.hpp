@@ -10,6 +10,8 @@
 #include "framework/StateMachine.hpp"
 #include "Scheduler.hpp"
 
+namespace engine {
+
 class Controller;
 class Stage;
 
@@ -44,8 +46,8 @@ private:
     ///  Member variables  ///
     ///--------------------///
     std::string name = "App";
-    StateMachine stateMachine;
-    SceneGraph sceneGraph;
+    fw::StateMachine stateMachine;
+    fw::SceneGraph sceneGraph;
     Scheduler scheduler{ [this] { return sceneGraph.make_scene(); } };
 };
 
@@ -61,6 +63,8 @@ public:
     ///  Member functions  ///
     ///--------------------///
     [[nodiscard]] auto set_name(std::string_view new_name) noexcept -> Self;
-    [[nodiscard]] auto add_state(State&& state) -> Self;
+    [[nodiscard]] auto add_state(fw::State&& state) -> Self;
     [[nodiscard]] auto add_stage(Stage&& stage) -> Self;
 };
+
+}   // namespace engine

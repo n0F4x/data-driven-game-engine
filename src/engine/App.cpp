@@ -9,6 +9,8 @@
 #include "framework/Scene.hpp"
 #include "framework/State.hpp"
 
+namespace engine {
+
 void App::run() {
     std::cout << name << " is running...\n";
 
@@ -17,7 +19,7 @@ void App::run() {
     if (!Scheduler::empty(scheduler)) {
         Controller controller{ stateMachine };
 
-        while (StateMachine::running(stateMachine)) {
+        while (fw::StateMachine::running(stateMachine)) {
             scheduler.iterate(controller);
 
             stateMachine.transition();
@@ -38,7 +40,7 @@ void App::run() {
     return std::move(*this);
 }
 
-[[nodiscard]] auto App::Builder::add_state(State&& state) -> Self {
+[[nodiscard]] auto App::Builder::add_state(fw::State&& state) -> Self {
     draft().stateMachine.add_state(std::move(state));
 
     return std::move(*this);
@@ -49,3 +51,5 @@ void App::run() {
 
     return std::move(*this);
 }
+
+}   // namespace engine

@@ -15,22 +15,22 @@ auto main() -> int {
     using namespace std::chrono;
 
     try {
-        App::create()
+        engine::App::create()
             .set_name("My game framework")
-            .add_state(State::create<"MyState"_hs>()
+            .add_state(fw::State::create<"MyState"_hs>()
                            .on_enter(+[] { std::cout << "Entered\n"; })
                            .on_exit(exited))
-            .add_stage(Stage::create()
-                           .add_system(+[](Controller& controller) {
+            .add_stage(engine::Stage::create()
+                           .add_system(+[](engine::Controller& controller) {
                                std::this_thread::sleep_for(500ms);
                                std::cout << "Stage 1 - first\n";
                                controller.quit();
                            })
-                           .add_system(+[](Controller& controller) {
+                           .add_system(+[](engine::Controller& controller) {
                                std::cout << "Stage 1 - second\n";
                                controller.quit();
                            }))
-            .add_stage(Stage::create().add_system(+[](Controller& controller) {
+            .add_stage(engine::Stage::create().add_system(+[](engine::Controller& controller) {
                 std::cout << "Stage 2\n";
                 controller.quit();
             }))

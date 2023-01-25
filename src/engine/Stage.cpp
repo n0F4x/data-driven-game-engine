@@ -6,6 +6,8 @@
 
 #include "engine/Controller.hpp"
 
+namespace engine {
+
 void Stage::run(Controller& controller) const {
     std::vector<std::future<void>> futures;
 
@@ -17,3 +19,5 @@ void Stage::run(Controller& controller) const {
     // throw potential exception from threads
     std::ranges::for_each(futures, &std::future<void>::get);
 }
+
+}   // namespace engine

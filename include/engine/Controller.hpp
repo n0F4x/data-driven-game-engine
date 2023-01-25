@@ -2,14 +2,18 @@
 
 #include "config/id.hpp"
 
+namespace fw {
 class StateMachine;
+}   // namespace fw
+
+namespace engine {
 
 class Controller final {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit Controller(StateMachine& stateMachine) noexcept
+    [[nodiscard]] explicit Controller(fw::StateMachine& stateMachine) noexcept
         : stateMachine{ stateMachine } {}
 
     [[nodiscard]] Controller(const Controller&) = delete;
@@ -19,12 +23,14 @@ public:
     ///  Member functions  ///
     ///--------------------///
     void quit() noexcept;
-    void transition_to(Id to) noexcept;
+    void transition_to(config::Id to) noexcept;
     void transition_to_prev() noexcept;
 
 private:
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
-    StateMachine& stateMachine;
+    fw::StateMachine& stateMachine;
 };
+
+}   // namespace engine

@@ -6,6 +6,8 @@
 
 using namespace entt::literals;
 
+namespace fw {
+
 void StateMachine::start() {
     if (std::ranges::empty(states)) {
         add_state(State::create<"START"_hs>());
@@ -28,7 +30,7 @@ void StateMachine::transition() noexcept {
     }
 }
 
-void StateMachine::transition_to(Id state) noexcept {
+void StateMachine::transition_to(config::Id state) noexcept {
     std::lock_guard guard{ *transitionLock };
     if (nextState == currentState) {
         if (auto iter{ states.find(state) }; iter != states.end()) {
@@ -56,3 +58,5 @@ void StateMachine::add_state(State&& state) {
 auto StateMachine::running(const StateMachine& machine) noexcept -> bool {
     return !State::invalid(*machine.currentState);
 }
+
+}   // namespace fw

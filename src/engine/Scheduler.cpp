@@ -8,7 +8,9 @@
 #include "engine/Stage.hpp"
 #include "framework/SceneGraph.hpp"
 
-Scheduler::Scheduler(std::function<Scene()>&& sceneMaker)
+namespace engine {
+
+Scheduler::Scheduler(std::function<fw::Scene()>&& sceneMaker)
     : sceneMaker{ std::move(sceneMaker) } {}
 
 void Scheduler::iterate(Controller& controller) {
@@ -21,7 +23,7 @@ void Scheduler::iterate(Controller& controller) {
     });
 
     auto renderFuture =
-        std::async(std::launch::async, Scene::render, std::ref(prevScene));
+        std::async(std::launch::async, fw::Scene::render, std::ref(prevScene));
 
     scene = sceneMaker();
 
@@ -39,3 +41,5 @@ void Scheduler::add_stage(Stage&& stage) {
 [[nodiscard]] auto Scheduler::empty(Scheduler& scheduler) -> bool {
     return std::ranges::empty(scheduler.stages);
 }
+
+}   // namespace engine

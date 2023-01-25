@@ -7,6 +7,8 @@
 
 #include "common/patterns/builder/helper.hpp"
 
+namespace engine {
+
 class Controller;
 
 class Stage {
@@ -78,3 +80,5 @@ public:
 
     return std::move(*this);
 }
+
+}   // namespace engine

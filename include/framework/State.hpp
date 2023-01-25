@@ -8,7 +8,7 @@
 #include "common/patterns/builder/helper.hpp"
 #include "engine/config/id.hpp"
 
-class App;
+namespace fw {
 
 class State final {
     ///----------------///
@@ -22,8 +22,6 @@ private:
     class Builder;
     friend BuilderBase<State>;
 
-    friend App;
-
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
@@ -34,14 +32,14 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
-    [[nodiscard]] auto get_id() const noexcept -> Id;
+    [[nodiscard]] auto get_id() const noexcept -> config::Id;
     void entered() const noexcept;
     void exited() const noexcept;
 
     ///------------------///
     ///  Static helpers  ///
     ///------------------///
-    template <Id id>
+    template <config::Id id>
         requires(id != 0)
     [[nodiscard]] static auto create() noexcept -> Builder;
     [[nodiscard]] static auto invalid_state() noexcept
@@ -49,14 +47,14 @@ public:
     [[nodiscard]] static auto invalid(const State& state) noexcept -> bool;
 
 private:
-    [[nodiscard]] explicit State(Id id = {}) noexcept : id{ id } {}
+    [[nodiscard]] explicit State(config::Id id = {}) noexcept : id{ id } {}
 
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
     static const State s_invalid_state;
 
-    Id id{};
+    config::Id id{};
     Action onEnter;
     Action onExit;
 };
@@ -75,8 +73,10 @@ public:
     [[nodiscard]] auto on_exit(Action&& callback) noexcept -> Self;
 };
 
-template <Id id>
+template <config::Id id>
     requires(id != 0)
 auto State::create() noexcept -> State::Builder {
     return Builder{ id };
 }
+
+}   // namespace fw

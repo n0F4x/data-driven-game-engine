@@ -5,6 +5,8 @@
 
 #include "framework/SceneNode.hpp"
 
+namespace fw {
+
 class Scene;
 
 class SceneGraph {
@@ -14,3 +16,5 @@ public:
 private:
     std::vector<std::shared_ptr<SceneNode>> sceneNodes;
 };
+
+}   // namespace fw

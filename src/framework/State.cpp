@@ -1,5 +1,6 @@
 #include "framework/State.hpp"
 
+namespace fw {
 
 const State State::s_invalid_state;
 
@@ -11,7 +12,7 @@ auto State::invalid(const State& state) noexcept -> bool {
     return state.id == 0;
 }
 
-auto State::get_id() const noexcept -> Id {
+auto State::get_id() const noexcept -> config::Id {
     return id;
 }
 
@@ -38,3 +39,5 @@ auto State::Builder::on_exit(Action&& callback) noexcept -> Self {
 
     return std::move(*this);
 }
+
+}   // namespace fw
