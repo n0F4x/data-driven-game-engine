@@ -10,14 +10,14 @@
 
 namespace engine {
 
-Scheduler::Scheduler(std::function<fw::Scene()>&& t_sceneMaker)
+Schedule::Schedule(std::function<fw::Scene()>&& t_sceneMaker)
     : m_sceneMaker{ std::move(t_sceneMaker) } {}
 
-[[nodiscard]] auto Scheduler::empty() const noexcept -> bool {
+[[nodiscard]] auto Schedule::empty() const noexcept -> bool {
     return std::ranges::empty(m_stages);
 }
 
-void Scheduler::iterate(Controller& t_controller) {
+void Schedule::iterate(Controller& t_controller) {
     std::swap(m_previousScene, m_scene);
 
     auto stagesFuture = std::async(std::launch::async, [this, &t_controller] {
@@ -26,8 +26,8 @@ void Scheduler::iterate(Controller& t_controller) {
         });
     });
 
-    auto renderFuture = std::async(std::launch::async, &fw::Scene::render,
-                                   std::ref(m_previousScene));
+    auto renderFuture = std::async(
+        std::launch::async, &fw::Scene::render, std::ref(m_previousScene));
 
     m_scene = m_sceneMaker();
 
@@ -36,7 +36,7 @@ void Scheduler::iterate(Controller& t_controller) {
     renderFuture.get();
 }
 
-void Scheduler::add_stage(Stage&& t_stage) {
+void Schedule::add_stage(Stage&& t_stage) {
     if (!t_stage.empty()) {
         m_stages.push_back(std::move(t_stage));
     }

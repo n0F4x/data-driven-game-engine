@@ -10,14 +10,14 @@ namespace engine {
 class Controller;
 class Stage;
 
-class Scheduler final {
+class Schedule final {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit Scheduler(std::function<fw::Scene()>&& t_sceneMaker);
-    [[nodiscard]] Scheduler(const Scheduler&) = delete;
-    [[nodiscard]] Scheduler(Scheduler&&) noexcept = default;
+    [[nodiscard]] explicit Schedule(std::function<fw::Scene()>&& t_sceneMaker);
+    [[nodiscard]] Schedule(const Schedule&) = delete;
+    [[nodiscard]] Schedule(Schedule&&) noexcept = default;
 
     ///--------------------///
     ///  Member functions  ///
