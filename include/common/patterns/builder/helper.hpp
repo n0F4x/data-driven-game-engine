@@ -5,22 +5,28 @@
 
 template <class Product>
 class BuilderBase {
-    friend Product;
-
-protected:
-    [[nodiscard]] constexpr BuilderBase() noexcept = default;
+public:
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    [[nodiscard]] constexpr BuilderBase() = default;
+    [[nodiscard]] constexpr BuilderBase(const BuilderBase&) noexcept = default;
     [[nodiscard]] constexpr BuilderBase(BuilderBase&&) noexcept = default;
+    BuilderBase& operator=(const BuilderBase&) noexcept = default;
+    BuilderBase& operator=(BuilderBase&&) noexcept = default;
 
     template <typename... Args>
-    [[nodiscard]] constexpr explicit BuilderBase(Args&&... t_args) noexcept
+        requires std::constructible_from<Product, Args...>
+    [[nodiscard]] constexpr explicit BuilderBase(std::in_place_t,
+                                                 Args&&... t_args)
         : m_draft{ std::forward<Args>(t_args)... } {}
 
+    ///--------------------///
+    ///  Member functions  ///
+    ///--------------------///
     [[nodiscard]] constexpr auto draft() -> Product& {
         return m_draft;
     }
-
-public:
-    [[nodiscard]] constexpr BuilderBase(const BuilderBase&) = delete;
 
     [[nodiscard]] constexpr explicit(false) operator Product() noexcept {
         return build();
@@ -31,5 +37,8 @@ public:
     }
 
 private:
+    ///--------------------///
+    ///  Member variables  ///
+    ///--------------------///
     Product m_draft;
 };

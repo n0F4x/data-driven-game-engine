@@ -29,10 +29,6 @@ void App::run() {
     m_stateMachine.transition();
 }
 
-[[nodiscard]] auto App::create() noexcept -> Builder {
-    return Builder{};
-}
-
 [[nodiscard]] auto App::Builder::set_name(std::string_view t_name) noexcept
     -> Builder& {
     draft().m_name = t_name;
@@ -49,7 +45,7 @@ App::Builder::add_state(fw::State&& t_state, bool t_setAsInitialState)
 }
 
 [[nodiscard]] auto App::Builder::add_stage(Stage&& t_stage) -> Builder& {
-    draft().m_scheduler.add_stage(std::move(t_stage));
+    draft().m_schedule.add_stage(std::move(t_stage));
 
     return *this;
 }

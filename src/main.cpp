@@ -15,7 +15,7 @@ auto main() -> int {
     using namespace std::chrono;
 
     try {
-        engine::App::create()
+        engine::App::Builder{}
             .set_name("My game framework")
             .add_state(fw::State::create()
                            .set_id("MyState"_hs)

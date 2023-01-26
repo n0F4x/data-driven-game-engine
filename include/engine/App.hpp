@@ -16,11 +16,11 @@ class Controller;
 class Stage;
 
 class App final {
+public:
     ///----------------///
     ///  Member types  ///
     ///----------------///
     class Builder;
-    friend BuilderBase<App>;
 
 public:
     ///------------------------------///
@@ -34,14 +34,7 @@ public:
     ///--------------------///
     void run();
 
-    ///------------------///
-    ///  Static helpers  ///
-    ///------------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
-
 private:
-    [[nodiscard]] App() noexcept = default;
-
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
