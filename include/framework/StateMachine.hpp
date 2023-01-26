@@ -10,19 +10,11 @@ namespace fw {
 
 template <typename StateId>
 class StateMachineBase final {
+public:
     ///----------------///
     ///  Member types  ///
     ///----------------///
-
-public:
     using State = StateBase<StateId>;
-
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    [[nodiscard]] StateMachineBase() = default;
-    [[nodiscard]] StateMachineBase(const StateMachineBase&) = delete;
-    [[nodiscard]] StateMachineBase(StateMachineBase&&) noexcept = default;
 
     ///--------------------///
     ///  Member functions  ///

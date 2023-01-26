@@ -9,11 +9,10 @@ namespace fw {
 
 template <typename Id>
 class StateBase final {
+public:
     ///----------------///
     ///  Member types  ///
     ///----------------///
-
-public:
     using Action = std::function<void()>;
 
 private:
