@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <mutex>
 #include <unordered_map>
 
 #include "framework/State.hpp"
@@ -32,10 +31,6 @@ private:
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
-    std::unique_ptr<std::mutex> m_containerLock =
-        std::make_unique<std::mutex>();
-    std::unique_ptr<std::mutex> m_transitionLock =
-        std::make_unique<std::mutex>();
     std::unordered_map<StateId, const State> m_states;
     const State m_invalidState = State::create();
     gsl::not_null<const State*> m_nextState = &m_invalidState;
@@ -51,7 +46,6 @@ auto StateMachineBase<StateId>::running() const noexcept -> bool {
 template <typename StateId>
 void StateMachineBase<StateId>::add_state(State&& t_state,
                                           bool t_setAsInitialState) {
-    std::lock_guard guard{ *m_containerLock };
     if (auto [iter, success] =
             m_states.try_emplace(t_state.id(), std::move(t_state));
         success && t_setAsInitialState)
@@ -72,13 +66,11 @@ void StateMachineBase<StateId>::start() noexcept {
 
 template <typename StateId>
 void StateMachineBase<StateId>::exit() noexcept {
-    std::lock_guard guard{ *m_transitionLock };
     m_nextState = &m_invalidState;
 }
 
 template <typename StateId>
 void StateMachineBase<StateId>::transition() noexcept {
-    std::lock_guard guard{ *m_transitionLock };
     if (m_nextState != m_currentState) {
         m_currentState->exit();
 
@@ -91,7 +83,6 @@ void StateMachineBase<StateId>::transition() noexcept {
 
 template <typename StateId>
 void StateMachineBase<StateId>::transition_to(StateId t_state) noexcept {
-    std::lock_guard guard{ *m_transitionLock };
     if (m_nextState == m_currentState) {
         if (auto iter{ m_states.find(t_state) }; iter != m_states.end()) {
             m_nextState = &iter->second;
@@ -101,7 +92,6 @@ void StateMachineBase<StateId>::transition_to(StateId t_state) noexcept {
 
 template <typename StateId>
 void StateMachineBase<StateId>::transition_to_previous() noexcept {
-    std::lock_guard guard{ *m_transitionLock };
     if (m_nextState == m_currentState) {
         m_nextState = m_previousState;
     }
