@@ -8,7 +8,7 @@
 #include "config/config.hpp"
 #include "framework/SceneGraph.hpp"
 #include "framework/StateMachine.hpp"
-#include "Scheduler.hpp"
+#include "Schedule.hpp"
 
 namespace engine {
 
@@ -48,7 +48,7 @@ private:
     std::string m_name = "App";
     fw::StateMachine m_stateMachine;
     fw::SceneGraph m_sceneGraph;
-    Scheduler m_scheduler{ [this] { return m_sceneGraph.make_scene(); } };
+    Schedule m_scheduler{ [this] { return m_sceneGraph.make_scene(); } };
 };
 
 class App::Builder final : public BuilderBase<App> {
