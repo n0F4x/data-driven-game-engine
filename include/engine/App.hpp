@@ -48,7 +48,7 @@ private:
     std::string m_name = "App";
     fw::StateMachine m_stateMachine;
     fw::SceneGraph m_sceneGraph;
-    Schedule m_scheduler{ [this] { return m_sceneGraph.make_scene(); } };
+    Schedule m_schedule{ [this] { return m_sceneGraph.make_scene(); } };
 };
 
 class App::Builder final : public BuilderBase<App> {
