@@ -22,12 +22,10 @@ public:
     ///----------------///
     class Builder;
 
-public:
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    [[nodiscard]] App(const App&) = delete;
-    [[nodiscard]] App(App&&) noexcept = default;
+    ///-----------///
+    ///  Friends  ///
+    ///-----------///
+    friend Schedule;
 
     ///--------------------///
     ///  Member functions  ///
@@ -41,7 +39,7 @@ private:
     std::string m_name = "App";
     fw::StateMachine m_stateMachine;
     fw::SceneGraph m_sceneGraph;
-    Schedule m_schedule{ [this] { return m_sceneGraph.make_scene(); } };
+    Schedule m_schedule{ *this };
 };
 
 class App::Builder final : public BuilderBase<App> {

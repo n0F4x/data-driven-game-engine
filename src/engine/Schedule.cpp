@@ -5,16 +5,27 @@
 #include <future>
 #include <vector>
 
+#include "engine/App.hpp"
+#include "engine/Controller.hpp"
 #include "engine/Stage.hpp"
 #include "framework/SceneGraph.hpp"
 
 namespace engine {
 
-Schedule::Schedule(std::function<fw::Scene()>&& t_sceneMaker)
-    : m_sceneMaker{ std::move(t_sceneMaker) } {}
+Schedule::Schedule(App& t_app) : m_app{ t_app } {}
 
-[[nodiscard]] auto Schedule::empty() const noexcept -> bool {
-    return std::ranges::empty(m_stages);
+void Schedule::run() {
+    m_app.m_stateMachine.start();
+
+    Controller controller{ m_app.m_stateMachine };
+
+    while (m_app.m_stateMachine.running()) {
+        iterate(controller);
+
+        m_app.m_stateMachine.transition();
+    }
+
+    m_app.m_stateMachine.transition();
 }
 
 void Schedule::iterate(Controller& t_controller) {
@@ -29,7 +40,7 @@ void Schedule::iterate(Controller& t_controller) {
     auto renderFuture = std::async(
         std::launch::async, &fw::Scene::render, std::ref(m_previousScene));
 
-    m_scene = m_sceneMaker();
+    m_scene = m_app.m_sceneGraph.make_scene();
 
     // throw potential exception from threads
     stagesFuture.get();

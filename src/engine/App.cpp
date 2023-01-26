@@ -14,19 +14,7 @@ namespace engine {
 void App::run() {
     std::cout << m_name << " is running...\n";
 
-    m_stateMachine.start();
-
-    if (!m_scheduler.empty()) {
-        Controller controller{ m_stateMachine };
-
-        while (m_stateMachine.running()) {
-            m_scheduler.iterate(controller);
-
-            m_stateMachine.transition();
-        }
-    }
-
-    m_stateMachine.transition();
+    m_schedule.run();
 }
 
 [[nodiscard]] auto App::Builder::set_name(std::string_view t_name) noexcept
