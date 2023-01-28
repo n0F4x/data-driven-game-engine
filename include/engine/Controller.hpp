@@ -9,7 +9,7 @@ class Controller final {
     ///----------------///
     ///  Member types  ///
     ///----------------///
-    using StateMachine = fw::StateMachine;
+    using StateMachine = fw::fsm::StateMachine;
 
 public:
     ///------------------------------///

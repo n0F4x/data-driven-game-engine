@@ -37,7 +37,7 @@ private:
     ///  Member variables  ///
     ///--------------------///
     std::string m_name = "App";
-    fw::StateMachine m_stateMachine;
+    fw::fsm::StateMachine m_stateMachine;
     fw::SceneGraph m_sceneGraph;
     Schedule m_schedule{ *this };
 };
