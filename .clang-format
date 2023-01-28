@@ -156,7 +156,7 @@ SpaceBeforeParensOptions:
   AfterIfMacros: false
   AfterOverloadedOperator: false
   AfterRequiresInClause: false
-  AfterRequiresInExpression: false
+  AfterRequiresInExpression: true
   BeforeNonEmptyParentheses: false
 SpaceBeforeRangeBasedForLoopColon: true
 SpaceBeforeSquareBrackets: false
