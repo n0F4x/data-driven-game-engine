@@ -24,10 +24,6 @@ void Stage::run(Controller& t_controller) const {
     std::ranges::for_each(futures, &std::future<void>::get);
 }
 
-[[nodiscard]] auto Stage::create() noexcept -> Builder {
-    return Builder{};
-}
-
 [[nodiscard]] auto Stage::Builder::add_system(System&& t_system) -> Builder& {
     draft().m_systems.push_back(std::move(t_system));
 

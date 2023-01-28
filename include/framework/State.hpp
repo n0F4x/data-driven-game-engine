@@ -37,11 +37,6 @@ public:
     void enter() const noexcept;
     void exit() const noexcept;
 
-    ///--------------------///
-    ///  Static functions  ///
-    ///--------------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
-
 private:
     ///-------------///
     ///  Variables  ///
@@ -90,11 +85,6 @@ void BasicState<Id>::exit() const noexcept {
     if (m_exitAction) {
         m_exitAction();
     }
-}
-
-template <typename Id>
-auto BasicState<Id>::create() noexcept -> Builder {
-    return Builder{};
 }
 
 template <typename Id>

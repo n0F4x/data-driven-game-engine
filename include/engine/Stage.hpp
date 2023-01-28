@@ -11,12 +11,12 @@ namespace engine {
 class Controller;
 
 class Stage final {
+public:
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
     class Builder;
 
-public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
@@ -41,11 +41,6 @@ public:
     ///-----------///
     [[nodiscard]] auto empty() const noexcept -> bool;
     void run(Controller& t_controller) const;
-
-    ///--------------------///
-    ///  Static functions  ///
-    ///--------------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
 
 private:
     ///-------------///
