@@ -28,23 +28,16 @@ auto main() -> int {
                 App::ScheduleType::Builder{}
                     .add_stage(
                         App::ScheduleType::StageType::Builder{}
-                            .add_system(
-                                +[](App::ScheduleType::StageType::ControllerType&
-                                        t_controller) {
-                                    std::this_thread::sleep_for(500ms);
-                                    std::cout << "Stage 1 - first\n";
-                                    t_controller.quit();
-                                })
-                            .add_system(
-                                +[](App::ScheduleType::StageType::ControllerType&
-                                        t_controller) {
-                                    std::cout << "Stage 1 - second\n";
-                                    t_controller.quit();
-                                }))
+                            .add_system([]([[maybe_unused]] auto t_controller) {
+                                std::this_thread::sleep_for(500ms);
+                                std::cout << "Stage 1 - first\n";
+                            })
+                            .add_system([]([[maybe_unused]] auto t_controller) {
+                                std::cout << "Stage 1 - second\n";
+                            }))
                     .add_stage(
                         App::ScheduleType::StageType::Builder{}.add_system(
-                            +[](App::ScheduleType::StageType::ControllerType&
-                                    t_controller) {
+                            [](auto t_controller) {
                                 std::cout << "Stage 2\n";
                                 t_controller.quit();
                             })))

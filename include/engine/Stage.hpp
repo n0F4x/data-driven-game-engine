@@ -49,8 +49,8 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] explicit(false) operator BasicStage() noexcept;
-    [[nodiscard]] auto build() noexcept -> BasicStage;
+    [[nodiscard]] explicit(false) operator BasicStage<Controller>() noexcept;
+    [[nodiscard]] auto build() noexcept -> BasicStage<Controller>;
 
     [[nodiscard]] auto add_system(BasicStage::SystemType&& t_system)
         -> Builder&;
@@ -90,7 +90,8 @@ BasicStage<Controller>::Builder::operator BasicStage<Controller>() noexcept {
 }
 
 template <class Controller>
-auto BasicStage<Controller>::Builder::build() noexcept -> BasicStage<Controller> {
+auto BasicStage<Controller>::Builder::build() noexcept
+    -> BasicStage<Controller> {
     return BasicStage{ std::move(m_systems) };
 }
 
