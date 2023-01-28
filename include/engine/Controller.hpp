@@ -22,17 +22,16 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto make_scene() const noexcept -> SceneGraphType::SceneType;
     [[nodiscard]] auto running() const noexcept -> bool;
     void quit() noexcept;
-    void transition() noexcept;
-    void transition_to(StateMachineType::StateIdType t_nextStateId) noexcept;
-    void transition_to_prev() noexcept;
+    [[nodiscard]] auto sceneGraph() noexcept -> SceneGraphType&;
+    [[nodiscard]] auto stateMachine() noexcept -> StateMachineType&;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
+    bool m_running = true;
     SceneGraphType& m_sceneGraph;
     StateMachineType& m_stateMachine;
 };

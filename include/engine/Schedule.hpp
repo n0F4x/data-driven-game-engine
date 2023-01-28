@@ -51,11 +51,16 @@ private:
 template <class Controller>
 class BasicSchedule<Controller>::Builder {
 public:
+    ///----------------///
+    ///  Type aliases  ///
+    ///----------------///
+    using ProductType = BasicSchedule<Controller>;
+
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] explicit(false) operator BasicSchedule<Controller>() noexcept;
-    [[nodiscard]] auto build() noexcept -> BasicSchedule<Controller>;
+    [[nodiscard]] explicit(false) operator ProductType() noexcept;
+    [[nodiscard]] auto build() noexcept -> ProductType;
 
     [[nodiscard]] auto add_stage(StageType&& t_stage) -> Builder&;
 
@@ -75,7 +80,7 @@ void BasicSchedule<Controller>::run(ControllerType& t_controller) {
     while (t_controller.running()) {
         iterate(t_controller);
 
-        t_controller.transition();
+        t_controller.stateMachine().transition();
     }
 }
 
@@ -92,7 +97,7 @@ void BasicSchedule<Controller>::iterate(ControllerType& t_controller) {
     auto renderFuture = std::async(
         std::launch::async, &fw::Scene::render, std::ref(m_previousScene));
 
-    m_scene = t_controller.make_scene();
+    m_scene = t_controller.sceneGraph().make_scene();
 
     // throw potential exception from threads
     stagesFuture.get();
@@ -100,12 +105,12 @@ void BasicSchedule<Controller>::iterate(ControllerType& t_controller) {
 }
 
 template <class Controller>
-BasicSchedule<Controller>::Builder::operator BasicSchedule<Controller>() noexcept {
+BasicSchedule<Controller>::Builder::operator ProductType() noexcept {
     return build();
 }
 
 template <class Controller>
-auto BasicSchedule<Controller>::Builder::build() noexcept -> BasicSchedule<Controller> {
+auto BasicSchedule<Controller>::Builder::build() noexcept -> ProductType {
     return BasicSchedule{ std::move(m_stages) };
 }
 
@@ -116,6 +121,6 @@ auto BasicSchedule<Controller>::Builder::add_stage(StageType&& t_stage)
     return *this;
 }
 
-using Schedule = BasicSchedule<Controller>;
+using Schedule = BasicSchedule<Controller&>;
 
 }   // namespace engine

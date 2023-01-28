@@ -22,7 +22,7 @@ public:
     ///  Type aliases  ///
     ///----------------///
     using ControllerType = Controller;
-    using SystemType = std::function<void(ControllerType&)>;
+    using SystemType = std::function<void(ControllerType)>;
     using SystemContainer = std::vector<SystemType>;
 
     ///------------------------------///
@@ -33,8 +33,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto empty() const noexcept -> bool;
-    void run(ControllerType& t_controller) const;
+    void run(ControllerType t_controller) const;
 
 private:
     ///-------------///
@@ -46,11 +45,16 @@ private:
 template <class Controller>
 class BasicStage<Controller>::Builder {
 public:
+    ///----------------///
+    ///  Type aliases  ///
+    ///----------------///
+    using ProductType = BasicStage<Controller>;
+
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] explicit(false) operator BasicStage<Controller>() noexcept;
-    [[nodiscard]] auto build() noexcept -> BasicStage<Controller>;
+    [[nodiscard]] explicit(false) operator ProductType() noexcept;
+    [[nodiscard]] auto build() noexcept -> ProductType;
 
     [[nodiscard]] auto add_system(BasicStage::SystemType&& t_system)
         -> Builder&;
@@ -67,12 +71,7 @@ BasicStage<Controller>::BasicStage(SystemContainer&& t_systems) noexcept
     : m_systems{ std::move(t_systems) } {}
 
 template <class Controller>
-auto BasicStage<Controller>::empty() const noexcept -> bool {
-    return std::ranges::empty(m_systems);
-}
-
-template <class Controller>
-void BasicStage<Controller>::run(Controller& t_controller) const {
+void BasicStage<Controller>::run(ControllerType t_controller) const {
     std::vector<std::future<void>> futures;
 
     std::ranges::for_each(m_systems, [&futures, &t_controller](auto t_system) {
@@ -85,13 +84,12 @@ void BasicStage<Controller>::run(Controller& t_controller) const {
 }
 
 template <class Controller>
-BasicStage<Controller>::Builder::operator BasicStage<Controller>() noexcept {
+BasicStage<Controller>::Builder::operator ProductType() noexcept {
     return build();
 }
 
 template <class Controller>
-auto BasicStage<Controller>::Builder::build() noexcept
-    -> BasicStage<Controller> {
+auto BasicStage<Controller>::Builder::build() noexcept -> ProductType {
     return BasicStage{ std::move(m_systems) };
 }
 

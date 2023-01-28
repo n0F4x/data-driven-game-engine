@@ -96,9 +96,11 @@ private:
     StateIdType m_initialStateId;
 };
 
+////////////////////////////////////////////
 ///--------------------------------------///
 ///  BasicStateMachine   IMPLEMENTATION  ///
 ///--------------------------------------///
+////////////////////////////////////////////
 template <typename StateId, StateConcept<StateId> State>
 BasicStateMachine<StateId, State>::BasicStateMachine(
     StateContainerType&& t_states, StateIdType t_initialStateId)
@@ -119,17 +121,21 @@ void BasicStateMachine<StateId, State>::start() noexcept {
 template <typename StateId, StateConcept<StateId> State>
 void BasicStateMachine<StateId, State>::exit() noexcept {
     m_nextState = &m_invalidState;
+    shouldTransition = true;
     transition();
 }
 
 template <typename StateId, StateConcept<StateId> State>
 void BasicStateMachine<StateId, State>::transition() noexcept {
-    m_currentState->exit();
+    if (shouldTransition) {
+        m_currentState->exit();
 
-    m_previousState = m_currentState;
-    m_currentState = m_nextState;
+        m_previousState = m_currentState;
+        m_currentState = m_nextState;
 
-    m_currentState->enter();
+        m_currentState->enter();
+    }
+    shouldTransition = false;
 }
 
 template <typename StateId, StateConcept<StateId> State>
@@ -137,17 +143,21 @@ void BasicStateMachine<StateId, State>::set_next_state(
     StateIdType t_stateId) noexcept {
     if (auto iter{ m_states.find(t_stateId) }; iter != m_states.end()) {
         m_nextState = &iter->second;
+        shouldTransition = true;
     }
 }
 
 template <typename StateId, StateConcept<StateId> State>
 void BasicStateMachine<StateId, State>::set_next_state_as_previous() noexcept {
     m_nextState = m_previousState;
+    shouldTransition = true;
 }
 
+/////////////////////////////////////////////////////
 ///-----------------------------------------------///
 ///  BasicStateMachine::Builder   IMPLEMENTATION  ///
 ///-----------------------------------------------///
+/////////////////////////////////////////////////////
 template <typename StateId, StateConcept<StateId> State>
 BasicStateMachine<StateId, State>::Builder::operator ProductType() {
     return build();

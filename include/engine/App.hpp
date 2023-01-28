@@ -23,7 +23,7 @@ public:
     ///  Type aliases  ///
     ///----------------///
     using SceneGraphType = fw::SceneGraph;
-    using ScheduleType = BasicSchedule<Controller>;
+    using ScheduleType = BasicSchedule<Controller&>;
     using StateMachineType = fw::fsm::StateMachine;
 
     ///------------------------------///

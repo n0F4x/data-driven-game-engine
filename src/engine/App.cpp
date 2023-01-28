@@ -1,12 +1,9 @@
 #include "engine/App.hpp"
 
 #include <algorithm>
-#include <functional>
 #include <iostream>
 
 #include "engine/Controller.hpp"
-#include "engine/Stage.hpp"
-#include "framework/Scene.hpp"
 #include "framework/State.hpp"
 
 namespace engine {
@@ -26,10 +23,9 @@ void App::run() {
     m_stateMachine.start();
 
     Controller controller{ m_sceneGraph, m_stateMachine };
-
     m_schedule.run(controller);
 
-    m_stateMachine.transition();
+    m_stateMachine.exit();
 }
 
 App::Builder::operator App() noexcept {

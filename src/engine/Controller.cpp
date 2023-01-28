@@ -7,29 +7,20 @@ Controller::Controller(SceneGraphType& t_sceneGraph,
     : m_sceneGraph{ t_sceneGraph },
       m_stateMachine{ t_stateMachine } {}
 
-auto Controller::make_scene() const noexcept -> SceneGraphType::SceneType {
-    return m_sceneGraph.make_scene();
-}
-
 auto Controller::running() const noexcept -> bool {
-    return m_stateMachine.running();
-};
+    return m_running;
+}
 
 void Controller::quit() noexcept {
-    m_stateMachine.exit();
+    m_running = false;
 }
 
-void Controller::transition() noexcept {
-    m_stateMachine.transition();
+auto Controller::sceneGraph() noexcept -> SceneGraphType& {
+    return m_sceneGraph;
 }
 
-void Controller::transition_to(
-    StateMachineType::StateIdType t_stateId) noexcept {
-    m_stateMachine.set_next_state(t_stateId);
-}
-
-void Controller::transition_to_prev() noexcept {
-    m_stateMachine.set_next_state_as_previous();
+auto Controller::stateMachine() noexcept -> StateMachineType& {
+    return m_stateMachine;
 }
 
 }   // namespace engine

@@ -4,7 +4,7 @@
 
 #include <entt/core/hashed_string.hpp>
 
-#include "engine/prelude.hpp"
+#include "engine/App.hpp"
 
 void exited() {
     std::cout << "Exited\n";
@@ -26,18 +26,19 @@ auto main() -> int {
                 true))
             .set_schedule(
                 App::ScheduleType::Builder{}
-                    .add_stage(
-                        App::ScheduleType::StageType::Builder{}
-                            .add_system([]([[maybe_unused]] auto t_controller) {
-                                std::this_thread::sleep_for(500ms);
-                                std::cout << "Stage 1 - first\n";
-                            })
-                            .add_system([]([[maybe_unused]] auto t_controller) {
-                                std::cout << "Stage 1 - second\n";
-                            }))
+                    .add_stage(App::ScheduleType::StageType::Builder{}
+                                   .add_system(
+                                       []([[maybe_unused]] auto& t_controller) {
+                                           std::this_thread::sleep_for(500ms);
+                                           std::cout << "Stage 1 - first\n";
+                                       })
+                                   .add_system(
+                                       []([[maybe_unused]] auto& t_controller) {
+                                           std::cout << "Stage 1 - second\n";
+                                       }))
                     .add_stage(
                         App::ScheduleType::StageType::Builder{}.add_system(
-                            [](auto t_controller) {
+                            [](auto& t_controller) {
                                 std::cout << "Stage 2\n";
                                 t_controller.quit();
                             })))
