@@ -13,6 +13,7 @@ public:
     ///----------------///
     ///  Member types  ///
     ///----------------///
+    using IdType = Id;
     using Action = std::function<void()>;
 
 private:
@@ -29,7 +30,7 @@ public:
     ///--------------------///
     ///  Member functions  ///
     ///--------------------///
-    [[nodiscard]] auto id() const noexcept -> Id;
+    [[nodiscard]] auto id() const noexcept -> IdType;
     void enter() const noexcept;
     void exit() const noexcept;
 
@@ -39,14 +40,14 @@ public:
     [[nodiscard]] static auto create() noexcept -> Builder;
 
 private:
-    [[nodiscard]] explicit StateBase(Id t_id = {},
+    [[nodiscard]] explicit StateBase(IdType t_id = {},
                                      Action&& t_enterAction = {},
                                      Action&& t_exitAction = {}) noexcept;
 
     ///--------------------///
     ///  Member variables  ///
     ///--------------------///
-    const Id m_id{};
+    const IdType m_id{};
     const Action m_enterAction;
     const Action m_exitAction;
 };
@@ -54,7 +55,7 @@ private:
 template <typename Id>
 class StateBase<Id>::Builder final {
 public:
-    [[nodiscard]] auto set_id(Id t_id) noexcept -> Builder&;
+    [[nodiscard]] auto set_id(IdType t_id) noexcept -> Builder&;
     [[nodiscard]] auto on_enter(Action&& t_callback) noexcept -> Builder&;
     [[nodiscard]] auto on_exit(Action&& t_callback) noexcept -> Builder&;
 
@@ -62,13 +63,13 @@ public:
     [[nodiscard]] auto build() noexcept -> StateBase<Id>;
 
 private:
-    Id m_id;
+    IdType m_id;
     StateBase<Id>::Action m_enterAction;
     StateBase<Id>::Action m_exitAction;
 };
 
 template <typename Id>
-auto StateBase<Id>::id() const noexcept -> Id {
+auto StateBase<Id>::id() const noexcept -> IdType {
     return m_id;
 }
 
@@ -92,7 +93,7 @@ auto StateBase<Id>::create() noexcept -> Builder {
 }
 
 template <typename Id>
-StateBase<Id>::StateBase(const Id t_id,
+StateBase<Id>::StateBase(const IdType t_id,
                          Action&& t_enterAction,
                          Action&& t_exitAction) noexcept
     : m_id{ t_id },
@@ -100,7 +101,7 @@ StateBase<Id>::StateBase(const Id t_id,
       m_exitAction{ std::move(t_exitAction) } {}
 
 template <typename Id>
-auto StateBase<Id>::Builder::set_id(Id t_id) noexcept -> Builder& {
+auto StateBase<Id>::Builder::set_id(IdType t_id) noexcept -> Builder& {
     m_id = t_id;
     return *this;
 }
