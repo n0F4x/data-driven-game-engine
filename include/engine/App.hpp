@@ -5,6 +5,7 @@
 
 #include <gsl/pointers>
 
+#include "engine/config/config.hpp"
 #include "engine/Controller.hpp"
 #include "engine/Schedule.hpp"
 #include "framework/SceneGraph.hpp"
@@ -24,7 +25,8 @@ public:
     ///----------------///
     using SceneGraphType = fw::SceneGraph;
     using ScheduleType = BasicSchedule<Controller&>;
-    using StateMachineType = fw::fsm::StateMachine;
+    using StateMachineType =
+        fw::fsm::BasicStateMachine<fw::BasicState<config::Id>>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///

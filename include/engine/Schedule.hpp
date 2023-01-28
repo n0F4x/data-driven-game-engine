@@ -35,10 +35,10 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    void run(ControllerType& t_controller);
+    void run(ControllerType t_controller);
 
 private:
-    void iterate(ControllerType& t_controller);
+    void iterate(ControllerType t_controller);
 
     ///-------------///
     ///  Variables  ///
@@ -76,7 +76,7 @@ BasicSchedule<Controller>::BasicSchedule(StageContainerType&& t_stages) noexcept
     : m_stages{ std::move(t_stages) } {}
 
 template <class Controller>
-void BasicSchedule<Controller>::run(ControllerType& t_controller) {
+void BasicSchedule<Controller>::run(ControllerType t_controller) {
     while (t_controller.running()) {
         iterate(t_controller);
 
@@ -85,7 +85,7 @@ void BasicSchedule<Controller>::run(ControllerType& t_controller) {
 }
 
 template <class Controller>
-void BasicSchedule<Controller>::iterate(ControllerType& t_controller) {
+void BasicSchedule<Controller>::iterate(ControllerType t_controller) {
     std::swap(m_previousScene, m_scene);
 
     auto stagesFuture = std::async(std::launch::async, [this, &t_controller] {

@@ -100,6 +100,6 @@ auto BasicStage<Controller>::Builder::add_system(SystemType&& t_system)
     return *this;
 }
 
-using Stage = BasicStage<Controller>;
+using Stage = BasicStage<Controller&>;
 
 }   // namespace engine

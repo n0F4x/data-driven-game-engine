@@ -2,7 +2,7 @@
 
 #include <entt/config/config.h>
 
-namespace config {
+namespace engine::config {
 
 using Id = ENTT_ID_TYPE;
 

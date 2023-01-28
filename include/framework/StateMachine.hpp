@@ -1,17 +1,17 @@
 #pragma once
 
-#include <memory>
+#include <type_traits>
 #include <unordered_map>
 
 #include "framework/State.hpp"
 
 namespace fw::fsm {
 
-template <class State, typename Id>
+template <class State>
 concept StateConcept = requires(State t) {
                            {
                                t.id()
-                               } -> std::convertible_to<Id>;
+                               } -> std::convertible_to<unsigned>;
                            {
                                t.enter()
                            };
@@ -23,7 +23,7 @@ concept StateConcept = requires(State t) {
 ///---------------------///
 ///  BasicStateMachine  ///
 ///---------------------///
-template <typename StateId, StateConcept<StateId> State>
+template <StateConcept State>
 class BasicStateMachine final {
 public:
     ///------------------///
@@ -34,7 +34,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using StateIdType = StateId;
+    using StateIdType = std::invoke_result_t<decltype(&State::id), State>;
     using StateType = State;
     using StateContainerType = std::unordered_map<StateIdType, StateType>;
 
@@ -69,13 +69,13 @@ private:
 ///------------------------------///
 ///  BasicStateMachine::Builder  ///
 ///------------------------------///
-template <typename StateId, StateConcept<StateId> State>
-class BasicStateMachine<StateId, State>::Builder final {
+template <StateConcept State>
+class BasicStateMachine<State>::Builder final {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using ProductType = BasicStateMachine<StateId, State>;
+    using ProductType = BasicStateMachine<State>;
 
     ///-----------///
     ///  Methods  ///
@@ -101,32 +101,32 @@ private:
 ///  BasicStateMachine   IMPLEMENTATION  ///
 ///--------------------------------------///
 ////////////////////////////////////////////
-template <typename StateId, StateConcept<StateId> State>
-BasicStateMachine<StateId, State>::BasicStateMachine(
-    StateContainerType&& t_states, StateIdType t_initialStateId)
+template <StateConcept State>
+BasicStateMachine<State>::BasicStateMachine(StateContainerType&& t_states,
+                                            StateIdType t_initialStateId)
     : m_states{ std::move(t_states) } {
     set_next_state(t_initialStateId);
 }
 
-template <typename StateId, StateConcept<StateId> State>
-auto BasicStateMachine<StateId, State>::running() const noexcept -> bool {
+template <StateConcept State>
+auto BasicStateMachine<State>::running() const noexcept -> bool {
     return m_currentState != &m_invalidState;
 }
 
-template <typename StateId, StateConcept<StateId> State>
-void BasicStateMachine<StateId, State>::start() noexcept {
+template <StateConcept State>
+void BasicStateMachine<State>::start() noexcept {
     transition();
 }
 
-template <typename StateId, StateConcept<StateId> State>
-void BasicStateMachine<StateId, State>::exit() noexcept {
+template <StateConcept State>
+void BasicStateMachine<State>::exit() noexcept {
     m_nextState = &m_invalidState;
     shouldTransition = true;
     transition();
 }
 
-template <typename StateId, StateConcept<StateId> State>
-void BasicStateMachine<StateId, State>::transition() noexcept {
+template <StateConcept State>
+void BasicStateMachine<State>::transition() noexcept {
     if (shouldTransition) {
         m_currentState->exit();
 
@@ -138,17 +138,16 @@ void BasicStateMachine<StateId, State>::transition() noexcept {
     shouldTransition = false;
 }
 
-template <typename StateId, StateConcept<StateId> State>
-void BasicStateMachine<StateId, State>::set_next_state(
-    StateIdType t_stateId) noexcept {
+template <StateConcept State>
+void BasicStateMachine<State>::set_next_state(StateIdType t_stateId) noexcept {
     if (auto iter{ m_states.find(t_stateId) }; iter != m_states.end()) {
         m_nextState = &iter->second;
         shouldTransition = true;
     }
 }
 
-template <typename StateId, StateConcept<StateId> State>
-void BasicStateMachine<StateId, State>::set_next_state_as_previous() noexcept {
+template <StateConcept State>
+void BasicStateMachine<State>::set_next_state_as_previous() noexcept {
     m_nextState = m_previousState;
     shouldTransition = true;
 }
@@ -158,19 +157,20 @@ void BasicStateMachine<StateId, State>::set_next_state_as_previous() noexcept {
 ///  BasicStateMachine::Builder   IMPLEMENTATION  ///
 ///-----------------------------------------------///
 /////////////////////////////////////////////////////
-template <typename StateId, StateConcept<StateId> State>
-BasicStateMachine<StateId, State>::Builder::operator ProductType() {
+template <StateConcept State>
+BasicStateMachine<State>::Builder::operator ProductType() {
     return build();
 }
 
-template <typename StateId, StateConcept<StateId> State>
-auto BasicStateMachine<StateId, State>::Builder::build() -> ProductType {
+template <StateConcept State>
+auto BasicStateMachine<State>::Builder::build() -> ProductType {
     return ProductType{ std::move(m_states), m_initialStateId };
 }
 
-template <typename StateId, StateConcept<StateId> State>
-auto BasicStateMachine<StateId, State>::Builder::add_state(
-    StateType&& t_state, bool t_setAsInitialState) -> Builder& {
+template <StateConcept State>
+auto BasicStateMachine<State>::Builder::add_state(StateType&& t_state,
+                                                  bool t_setAsInitialState)
+    -> Builder& {
     if (auto [iter, success] =
             m_states.try_emplace(t_state.id(), std::move(t_state));
         success && t_setAsInitialState)
@@ -180,13 +180,13 @@ auto BasicStateMachine<StateId, State>::Builder::add_state(
     return *this;
 }
 
-template <typename StateId, StateConcept<StateId> State>
-auto BasicStateMachine<StateId, State>::Builder::set_initial_state(
+template <StateConcept State>
+auto BasicStateMachine<State>::Builder::set_initial_state(
     StateIdType t_stateId) noexcept -> Builder& {
     m_initialStateId = t_stateId;
     return *this;
 }
 
-using StateMachine = BasicStateMachine<State::IdType, State>;
+using StateMachine = BasicStateMachine<State>;
 
 }   // namespace fw::fsm
