@@ -17,9 +17,9 @@ class Stage;
 
 class App final {
 public:
-    ///----------------///
-    ///  Member types  ///
-    ///----------------///
+    ///------------------///
+    ///  Nested classes  ///
+    ///------------------///
     class Builder;
 
     ///-----------///
@@ -27,15 +27,15 @@ public:
     ///-----------///
     friend Schedule;
 
-    ///--------------------///
-    ///  Member functions  ///
-    ///--------------------///
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
     void run();
 
 private:
-    ///--------------------///
-    ///  Member variables  ///
-    ///--------------------///
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
     std::string m_name = "App";
     fw::fsm::StateMachine m_stateMachine;
     fw::SceneGraph m_sceneGraph;
@@ -49,9 +49,9 @@ public:
     ///------------------------------///
     using BuilderBase<App>::BuilderBase;
 
-    ///--------------------///
-    ///  Member functions  ///
-    ///--------------------///
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
     [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Builder&;
     [[nodiscard]] auto add_state(fw::State&& t_state,
                                  bool t_setAsInitialState = false) -> Builder&;

@@ -21,9 +21,9 @@ public:
                                                  Args&&... t_args)
         : m_draft{ std::forward<Args>(t_args)... } {}
 
-    ///--------------------///
-    ///  Member functions  ///
-    ///--------------------///
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
     [[nodiscard]] constexpr auto draft() -> Product& {
         return m_draft;
     }
@@ -37,8 +37,8 @@ public:
     }
 
 private:
-    ///--------------------///
-    ///  Member variables  ///
-    ///--------------------///
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
     Product m_draft;
 };

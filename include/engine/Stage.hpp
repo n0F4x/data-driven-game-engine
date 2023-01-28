@@ -11,41 +11,46 @@ namespace engine {
 class Controller;
 
 class Stage final {
-    ///----------------///
-    ///  Member types  ///
-    ///----------------///
+    ///------------------///
+    ///  Nested classes  ///
+    ///------------------///
+    class Builder;
 
 public:
+    ///----------------///
+    ///  Type aliases  ///
+    ///----------------///
     using System = std::function<void(Controller&)>;
 
-private:
-    class Builder;
+    ///-----------///
+    ///  Friends  ///
+    ///-----------///
     friend BuilderBase<Stage>;
 
-public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] Stage(const Stage&) = delete;
     [[nodiscard]] Stage(Stage&&) noexcept = default;
-
-    ///--------------------///
-    ///  Member functions  ///
-    ///--------------------///
-    [[nodiscard]] auto empty() const noexcept -> bool;
-    void run(Controller& t_controller) const;
-
-    ///------------------///
-    ///  Static helpers  ///
-    ///------------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
 
 private:
     [[nodiscard]] Stage() noexcept = default;
 
+public:
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
+    [[nodiscard]] auto empty() const noexcept -> bool;
+    void run(Controller& t_controller) const;
+
     ///--------------------///
-    ///  Member variables  ///
+    ///  Static functions  ///
     ///--------------------///
+    [[nodiscard]] static auto create() noexcept -> Builder;
+
+private:
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
     std::vector<System> m_systems;
 };
 
@@ -56,9 +61,9 @@ public:
     ///------------------------------///
     using BuilderBase<Stage>::BuilderBase;
 
-    ///--------------------///
-    ///  Member functions  ///
-    ///--------------------///
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
     [[nodiscard]] auto add_system(Stage::System&& t_system) -> Builder&;
 };
 

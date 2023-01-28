@@ -10,37 +10,42 @@ namespace fw {
 template <typename Id>
 class BasicState final {
 public:
+    ///------------------///
+    ///  Nested classes  ///
+    ///------------------///
+    class Builder;
+
     ///----------------///
-    ///  Member types  ///
+    ///  Type aliases  ///
     ///----------------///
     using IdType = Id;
     using Action = std::function<void()>;
 
 private:
-    class Builder;
-    friend Builder;
-
-public:
-    ///--------------------///
-    ///  Member functions  ///
-    ///--------------------///
-    [[nodiscard]] auto id() const noexcept -> IdType;
-    void enter() const noexcept;
-    void exit() const noexcept;
-
-    ///------------------///
-    ///  Static helpers  ///
-    ///------------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
-
-private:
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
     [[nodiscard]] explicit BasicState(IdType t_id = {},
                                       Action&& t_enterAction = {},
                                       Action&& t_exitAction = {}) noexcept;
 
+public:
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
+    [[nodiscard]] auto id() const noexcept -> IdType;
+    void enter() const noexcept;
+    void exit() const noexcept;
+
     ///--------------------///
-    ///  Member variables  ///
+    ///  Static functions  ///
     ///--------------------///
+    [[nodiscard]] static auto create() noexcept -> Builder;
+
+private:
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
     const IdType m_id{};
     const Action m_enterAction;
     const Action m_exitAction;
@@ -49,14 +54,20 @@ private:
 template <typename Id>
 class BasicState<Id>::Builder final {
 public:
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
+    [[nodiscard]] explicit(false) operator BasicState<Id>() noexcept;
+    [[nodiscard]] auto build() noexcept -> BasicState<Id>;
+
     [[nodiscard]] auto set_id(IdType t_id) noexcept -> Builder&;
     [[nodiscard]] auto on_enter(Action&& t_callback) noexcept -> Builder&;
     [[nodiscard]] auto on_exit(Action&& t_callback) noexcept -> Builder&;
 
-    [[nodiscard]] explicit(false) operator BasicState<Id>() noexcept;
-    [[nodiscard]] auto build() noexcept -> BasicState<Id>;
-
 private:
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
     IdType m_id;
     BasicState<Id>::Action m_enterAction;
     BasicState<Id>::Action m_exitAction;

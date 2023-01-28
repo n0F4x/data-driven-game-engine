@@ -26,13 +26,13 @@ template <StateConcept State>
 class BasicStateMachine final {
 public:
     ///----------------///
-    ///  Member types  ///
+    ///  Type aliases  ///
     ///----------------///
     using StateType = State;
 
-    ///--------------------///
-    ///  Member functions  ///
-    ///--------------------///
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
     [[nodiscard]] auto running() const noexcept -> bool;
     void add_state(StateType&& t_state, bool t_setAsInitialState = false);
     void set_initial_state(StateType::IdType t_stateId) noexcept;
@@ -43,9 +43,9 @@ public:
     void transition_to_previous() noexcept;
 
 private:
-    ///--------------------///
-    ///  Member variables  ///
-    ///--------------------///
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
     std::unordered_map<typename StateType::IdType, StateType> m_states;
     StateType m_invalidState = StateType::create();
     gsl::not_null<State*> m_nextState = &m_invalidState;

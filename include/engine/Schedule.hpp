@@ -18,18 +18,18 @@ public:
     ///------------------------------///
     [[nodiscard]] explicit Schedule(App& t_app);
 
-    ///--------------------///
-    ///  Member functions  ///
-    ///--------------------///
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
     void run();
     void add_stage(Stage&& t_stage);
 
 private:
     void iterate(Controller& t_controller);
 
-    ///--------------------///
-    ///  Member variables  ///
-    ///--------------------///
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
     App& m_app;
     std::vector<Stage> m_stages;
     fw::Scene m_previousScene;

@@ -7,7 +7,7 @@ namespace engine {
 
 class Controller final {
     ///----------------///
-    ///  Member types  ///
+    ///  Type aliases  ///
     ///----------------///
     using StateMachine = fw::fsm::StateMachine;
 
@@ -21,17 +21,17 @@ public:
     [[nodiscard]] Controller(const Controller&) = delete;
     [[nodiscard]] Controller(Controller&&) noexcept = delete;
 
-    ///--------------------///
-    ///  Member functions  ///
-    ///--------------------///
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
     void quit() noexcept;
     void transition_to(StateMachine::StateType::IdType t_nextState) noexcept;
     void transition_to_prev() noexcept;
 
 private:
-    ///--------------------///
-    ///  Member variables  ///
-    ///--------------------///
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
     StateMachine& m_stateMachine;
 };
 
