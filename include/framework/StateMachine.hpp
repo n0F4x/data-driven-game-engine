@@ -7,27 +7,26 @@
 
 namespace fw::fsm {
 
-template <class T>
-concept StateConcept = requires(T t) {
-                           typename T::IdType;
-                           typename T::Action;
+template <class State, typename Id>
+concept StateConcept = requires(State t) {
                            {
                                t.id()
-                               } -> std::same_as<typename T::IdType>;
+                               } -> std::convertible_to<Id>;
                            {
                                t.enter()
                            };
                            {
                                t.exit()
                            };
-                       };
+                       } && std::destructible<State>;
 
-template <StateConcept State>
+template <typename StateId, StateConcept<StateId> State>
 class BasicStateMachine final {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
+    using StateIdType = StateId;
     using StateType = State;
 
     ///-----------///
@@ -35,32 +34,32 @@ public:
     ///-----------///
     [[nodiscard]] auto running() const noexcept -> bool;
     void add_state(StateType&& t_state, bool t_setAsInitialState = false);
-    void set_initial_state(StateType::IdType t_stateId) noexcept;
+    void set_initial_state(StateIdType t_stateId) noexcept;
     void start() noexcept;
     void exit() noexcept;
     void transition() noexcept;
-    void transition_to(StateType::IdType t_stateId) noexcept;
+    void transition_to(StateIdType t_stateId) noexcept;
     void transition_to_previous() noexcept;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    std::unordered_map<typename StateType::IdType, StateType> m_states;
+    std::unordered_map<StateIdType, StateType> m_states;
     StateType m_invalidState = StateType{};
     gsl::not_null<State*> m_nextState = &m_invalidState;
     gsl::not_null<State*> m_currentState = &m_invalidState;
     gsl::not_null<State*> m_previousState = &m_invalidState;
 };
 
-template <typename State>
-auto BasicStateMachine<State>::running() const noexcept -> bool {
+template <typename StateId, StateConcept<StateId> State>
+auto BasicStateMachine<StateId, State>::running() const noexcept -> bool {
     return m_currentState != &m_invalidState;
 }
 
-template <typename State>
-void BasicStateMachine<State>::add_state(StateType&& t_state,
-                                         bool t_setAsInitialState) {
+template <typename StateId, StateConcept<StateId> State>
+void BasicStateMachine<StateId, State>::add_state(StateType&& t_state,
+                                                  bool t_setAsInitialState) {
     if (auto [iter, success] =
             m_states.try_emplace(t_state.id(), std::move(t_state));
         success && t_setAsInitialState)
@@ -69,24 +68,24 @@ void BasicStateMachine<State>::add_state(StateType&& t_state,
     }
 }
 
-template <typename State>
-void BasicStateMachine<State>::set_initial_state(
-    StateType::IdType t_stateId) noexcept {
+template <typename StateId, StateConcept<StateId> State>
+void BasicStateMachine<StateId, State>::set_initial_state(
+    StateIdType t_stateId) noexcept {
     transition_to(t_stateId);
 }
 
-template <typename State>
-void BasicStateMachine<State>::start() noexcept {
+template <typename StateId, StateConcept<StateId> State>
+void BasicStateMachine<StateId, State>::start() noexcept {
     transition();
 }
 
-template <typename State>
-void BasicStateMachine<State>::exit() noexcept {
+template <typename StateId, StateConcept<StateId> State>
+void BasicStateMachine<StateId, State>::exit() noexcept {
     m_nextState = &m_invalidState;
 }
 
-template <typename State>
-void BasicStateMachine<State>::transition() noexcept {
+template <typename StateId, StateConcept<StateId> State>
+void BasicStateMachine<StateId, State>::transition() noexcept {
     if (m_nextState != m_currentState) {
         m_currentState->exit();
 
@@ -97,23 +96,23 @@ void BasicStateMachine<State>::transition() noexcept {
     }
 }
 
-template <typename State>
-void BasicStateMachine<State>::transition_to(
-    StateType::IdType t_state) noexcept {
+template <typename StateId, StateConcept<StateId> State>
+void BasicStateMachine<StateId, State>::transition_to(
+    StateIdType t_stateId) noexcept {
     if (m_nextState == m_currentState) {
-        if (auto iter{ m_states.find(t_state) }; iter != m_states.end()) {
+        if (auto iter{ m_states.find(t_stateId) }; iter != m_states.end()) {
             m_nextState = &iter->second;
         }
     }
 }
 
-template <typename State>
-void BasicStateMachine<State>::transition_to_previous() noexcept {
+template <typename StateId, StateConcept<StateId> State>
+void BasicStateMachine<StateId, State>::transition_to_previous() noexcept {
     if (m_nextState == m_currentState) {
         m_nextState = m_previousState;
     }
 }
 
-using StateMachine = BasicStateMachine<State>;
+using StateMachine = BasicStateMachine<State::IdType, State>;
 
 }   // namespace fw::fsm

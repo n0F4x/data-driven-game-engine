@@ -25,7 +25,7 @@ public:
     ///  Methods  ///
     ///-----------///
     void quit() noexcept;
-    void transition_to(StateMachine::StateType::IdType t_nextState) noexcept;
+    void transition_to(StateMachine::StateIdType t_nextStateId) noexcept;
     void transition_to_prev() noexcept;
 
 private:

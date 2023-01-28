@@ -6,8 +6,7 @@ void Controller::quit() noexcept {
     m_stateMachine.exit();
 }
 
-void Controller::transition_to(
-    StateMachine::StateType::IdType t_stateId) noexcept {
+void Controller::transition_to(StateMachine::StateIdType t_stateId) noexcept {
     m_stateMachine.transition_to(t_stateId);
 }
 
