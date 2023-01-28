@@ -47,7 +47,7 @@ private:
     ///  Variables  ///
     ///-------------///
     std::unordered_map<typename StateType::IdType, StateType> m_states;
-    StateType m_invalidState = StateType::create();
+    StateType m_invalidState = StateType{};
     gsl::not_null<State*> m_nextState = &m_invalidState;
     gsl::not_null<State*> m_currentState = &m_invalidState;
     gsl::not_null<State*> m_previousState = &m_invalidState;

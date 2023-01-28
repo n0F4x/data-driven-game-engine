@@ -27,15 +27,6 @@ public:
     ///-----------///
     friend BuilderBase<Stage>;
 
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    [[nodiscard]] Stage(Stage&&) noexcept = default;
-
-private:
-    [[nodiscard]] Stage() noexcept = default;
-
-public:
     ///-----------///
     ///  Methods  ///
     ///-----------///

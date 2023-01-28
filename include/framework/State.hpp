@@ -21,7 +21,6 @@ public:
     using IdType = Id;
     using Action = std::function<void()>;
 
-private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
@@ -29,7 +28,6 @@ private:
                                       Action&& t_enterAction = {},
                                       Action&& t_exitAction = {}) noexcept;
 
-public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
