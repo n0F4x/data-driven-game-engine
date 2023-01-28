@@ -1,6 +1,6 @@
 #pragma once
 
-#include "config/config.hpp"
+#include "framework/SceneGraph.hpp"
 #include "framework/StateMachine.hpp"
 
 namespace engine {
@@ -9,30 +9,32 @@ class Controller final {
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using StateMachine = fw::fsm::StateMachine;
+    using SceneGraphType = fw::SceneGraph;
+    using StateMachineType = fw::fsm::StateMachine;
 
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit Controller(StateMachine& t_stateMachine) noexcept
-        : m_stateMachine{ t_stateMachine } {}
-
-    [[nodiscard]] Controller(const Controller&) = delete;
-    [[nodiscard]] Controller(Controller&&) noexcept = delete;
+    [[nodiscard]] explicit Controller(SceneGraphType& t_sceneGraph,
+                                      StateMachineType& t_stateMachine) noexcept;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
+    [[nodiscard]] auto make_scene() const noexcept -> SceneGraphType::SceneType;
+    [[nodiscard]] auto running() const noexcept -> bool;
     void quit() noexcept;
-    void transition_to(StateMachine::StateIdType t_nextStateId) noexcept;
+    void transition() noexcept;
+    void transition_to(StateMachineType::StateIdType t_nextStateId) noexcept;
     void transition_to_prev() noexcept;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    StateMachine& m_stateMachine;
+    SceneGraphType& m_sceneGraph;
+    StateMachineType& m_stateMachine;
 };
 
 }   // namespace engine

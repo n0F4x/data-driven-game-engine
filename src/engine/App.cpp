@@ -11,30 +11,56 @@
 
 namespace engine {
 
+App::App(std::string_view t_name,
+         SceneGraphType&& t_sceneGraph,
+         ScheduleType&& t_schedule,
+         StateMachineType&& t_stateMachine) noexcept
+    : m_name{ t_name },
+      m_sceneGraph{ std::move(t_sceneGraph) },
+      m_schedule{ std::move(t_schedule) },
+      m_stateMachine{ std::move(t_stateMachine) } {}
+
 void App::run() {
     std::cout << m_name << " is running...\n";
 
-    m_schedule.run();
+    m_stateMachine.start();
+
+    Controller controller{ m_sceneGraph, m_stateMachine };
+
+    m_schedule.run(controller);
+
+    m_stateMachine.transition();
 }
 
-[[nodiscard]] auto App::Builder::set_name(std::string_view t_name) noexcept
-    -> Builder& {
-    draft().m_name = t_name;
+App::Builder::operator App() noexcept {
+    return build();
+}
 
+auto App::Builder::build() noexcept -> App {
+    return App{ m_name,
+                std::move(m_sceneGraph),
+                std::move(m_schedule),
+                std::move(m_stateMachine) };
+}
+
+auto App::Builder::set_name(std::string_view t_name) noexcept -> Builder& {
+    m_name = t_name;
     return *this;
 }
 
-[[nodiscard]] auto
-App::Builder::add_state(fw::State&& t_state, bool t_setAsInitialState)
-    -> Builder& {
-    draft().m_stateMachine.add_state(std::move(t_state), t_setAsInitialState);
-
+auto App::Builder::set_scene_graph(SceneGraphType&& t_sceneGraph) -> Builder& {
+    m_sceneGraph = std::move(t_sceneGraph);
     return *this;
 }
 
-[[nodiscard]] auto App::Builder::add_stage(Stage&& t_stage) -> Builder& {
-    draft().m_schedule.add_stage(std::move(t_stage));
+auto App::Builder::set_schedule(Schedule&& t_schedule) -> Builder& {
+    m_schedule = std::move(t_schedule);
+    return *this;
+}
 
+auto App::Builder::set_state_machine(StateMachineType&& t_stateMachine)
+    -> Builder& {
+    m_stateMachine = std::move(t_stateMachine);
     return *this;
 }
 

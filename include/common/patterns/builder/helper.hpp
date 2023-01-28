@@ -6,6 +6,11 @@
 template <class Product>
 class BuilderBase {
 public:
+    ///----------------///
+    ///  Type aliases  ///
+    ///----------------///
+    using ProductType = Product;
+
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///

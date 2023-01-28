@@ -1,16 +1,17 @@
 #pragma once
 
+#include <algorithm>
 #include <functional>
+#include <future>
 #include <ranges>
 #include <vector>
 
-#include "common/patterns/builder/helper.hpp"
+#include "engine/Controller.hpp"
 
 namespace engine {
 
-class Controller;
-
-class Stage final {
+template <class Controller>
+class BasicStage final {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -20,37 +21,86 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using System = std::function<void(Controller&)>;
+    using ControllerType = Controller;
+    using SystemType = std::function<void(ControllerType&)>;
+    using SystemContainer = std::vector<SystemType>;
 
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend BuilderBase<Stage>;
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    [[nodiscard]] explicit BasicStage(SystemContainer&& t_systems) noexcept;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto empty() const noexcept -> bool;
-    void run(Controller& t_controller) const;
+    void run(ControllerType& t_controller) const;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    std::vector<System> m_systems;
+    SystemContainer m_systems;
 };
 
-class Stage::Builder : public BuilderBase<Stage> {
+template <class Controller>
+class BasicStage<Controller>::Builder {
 public:
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    using BuilderBase<Stage>::BuilderBase;
-
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto add_system(Stage::System&& t_system) -> Builder&;
+    [[nodiscard]] explicit(false) operator BasicStage() noexcept;
+    [[nodiscard]] auto build() noexcept -> BasicStage;
+
+    [[nodiscard]] auto add_system(BasicStage::SystemType&& t_system)
+        -> Builder&;
+
+private:
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
+    SystemContainer m_systems;
 };
+
+template <class Controller>
+BasicStage<Controller>::BasicStage(SystemContainer&& t_systems) noexcept
+    : m_systems{ std::move(t_systems) } {}
+
+template <class Controller>
+auto BasicStage<Controller>::empty() const noexcept -> bool {
+    return std::ranges::empty(m_systems);
+}
+
+template <class Controller>
+void BasicStage<Controller>::run(Controller& t_controller) const {
+    std::vector<std::future<void>> futures;
+
+    std::ranges::for_each(m_systems, [&futures, &t_controller](auto t_system) {
+        futures.push_back(
+            std::async(std::launch::async, t_system, std::ref(t_controller)));
+    });
+
+    // throw potential exception from threads
+    std::ranges::for_each(futures, &std::future<void>::get);
+}
+
+template <class Controller>
+BasicStage<Controller>::Builder::operator BasicStage<Controller>() noexcept {
+    return build();
+}
+
+template <class Controller>
+auto BasicStage<Controller>::Builder::build() noexcept -> BasicStage<Controller> {
+    return BasicStage{ std::move(m_systems) };
+}
+
+template <class Controller>
+auto BasicStage<Controller>::Builder::add_system(SystemType&& t_system)
+    -> Builder& {
+    m_systems.push_back(std::move(t_system));
+    return *this;
+}
+
+using Stage = BasicStage<Controller>;
 
 }   // namespace engine

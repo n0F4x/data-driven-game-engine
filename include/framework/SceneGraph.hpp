@@ -3,14 +3,15 @@
 #include <memory>
 #include <vector>
 
+#include "framework/Scene.hpp"
 #include "framework/SceneNode.hpp"
 
 namespace fw {
 
-class Scene;
-
 class SceneGraph final {
 public:
+    using SceneType = Scene;
+
     [[nodiscard]] auto make_scene() const -> Scene;
 
 private:

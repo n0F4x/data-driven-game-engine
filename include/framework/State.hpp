@@ -39,9 +39,9 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    const IdType m_id{};
-    const Action m_enterAction;
-    const Action m_exitAction;
+    IdType m_id{};
+    Action m_enterAction;
+    Action m_exitAction;
 };
 
 template <typename Id>
@@ -67,6 +67,14 @@ private:
 };
 
 template <typename Id>
+BasicState<Id>::BasicState(const IdType t_id,
+                           Action&& t_enterAction,
+                           Action&& t_exitAction) noexcept
+    : m_id{ t_id },
+      m_enterAction{ std::move(t_enterAction) },
+      m_exitAction{ std::move(t_exitAction) } {}
+
+template <typename Id>
 auto BasicState<Id>::id() const noexcept -> IdType {
     return m_id;
 }
@@ -86,12 +94,16 @@ void BasicState<Id>::exit() const noexcept {
 }
 
 template <typename Id>
-BasicState<Id>::BasicState(const IdType t_id,
-                           Action&& t_enterAction,
-                           Action&& t_exitAction) noexcept
-    : m_id{ t_id },
-      m_enterAction{ std::move(t_enterAction) },
-      m_exitAction{ std::move(t_exitAction) } {}
+BasicState<Id>::Builder::operator BasicState<Id>() noexcept {
+    return build();
+}
+
+template <typename Id>
+auto BasicState<Id>::Builder::build() noexcept -> BasicState<Id> {
+    return BasicState<Id>{ m_id,
+                           std::move(m_enterAction),
+                           std::move(m_exitAction) };
+}
 
 template <typename Id>
 auto BasicState<Id>::Builder::set_id(IdType t_id) noexcept -> Builder& {
@@ -111,18 +123,6 @@ auto BasicState<Id>::Builder::on_exit(Action&& t_callback) noexcept
     -> Builder& {
     m_exitAction = std::move(t_callback);
     return *this;
-}
-
-template <typename Id>
-BasicState<Id>::Builder::operator BasicState<Id>() noexcept {
-    return build();
-}
-
-template <typename Id>
-auto BasicState<Id>::Builder::build() noexcept -> BasicState<Id> {
-    return BasicState<Id>{ m_id,
-                           std::move(m_enterAction),
-                           std::move(m_exitAction) };
 }
 
 using State = BasicState<uint32_t>;

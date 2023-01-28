@@ -1,19 +1,16 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include <gsl/pointers>
 
-#include "common/patterns/builder/helper.hpp"
-#include "config/config.hpp"
+#include "engine/Controller.hpp"
+#include "engine/Schedule.hpp"
 #include "framework/SceneGraph.hpp"
 #include "framework/StateMachine.hpp"
-#include "Schedule.hpp"
 
 namespace engine {
-
-class Controller;
-class Stage;
 
 class App final {
 public:
@@ -22,10 +19,20 @@ public:
     ///------------------///
     class Builder;
 
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend Schedule;
+    ///----------------///
+    ///  Type aliases  ///
+    ///----------------///
+    using SceneGraphType = fw::SceneGraph;
+    using ScheduleType = BasicSchedule<Controller>;
+    using StateMachineType = fw::fsm::StateMachine;
+
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    [[nodiscard]] explicit App(std::string_view t_name,
+                               SceneGraphType&& t_sceneGraph,
+                               ScheduleType&& t_schedule,
+                               StateMachineType&& t_stateMachine) noexcept;
 
     ///-----------///
     ///  Methods  ///
@@ -36,26 +43,35 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    std::string m_name = "App";
-    fw::fsm::StateMachine m_stateMachine;
-    fw::SceneGraph m_sceneGraph;
-    Schedule m_schedule{ *this };
+    std::string m_name;
+    SceneGraphType m_sceneGraph;
+    ScheduleType m_schedule;
+    StateMachineType m_stateMachine;
 };
 
-class App::Builder final : public BuilderBase<App> {
+class App::Builder final {
 public:
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    using BuilderBase<App>::BuilderBase;
-
     ///-----------///
     ///  Methods  ///
     ///-----------///
+    [[nodiscard]] explicit(false) operator App() noexcept;
+    [[nodiscard]] auto build() noexcept -> App;
+
     [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Builder&;
-    [[nodiscard]] auto add_state(fw::State&& t_state,
-                                 bool t_setAsInitialState = false) -> Builder&;
-    [[nodiscard]] auto add_stage(Stage&& t_stage) -> Builder&;
+    [[nodiscard]] auto set_scene_graph(SceneGraphType&& t_sceneGraph)
+        -> Builder&;
+    [[nodiscard]] auto set_schedule(Schedule&& t_schedule) -> Builder&;
+    [[nodiscard]] auto set_state_machine(StateMachineType&& t_stateMachine)
+        -> Builder&;
+
+private:
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
+    std::string_view m_name = "App";
+    SceneGraphType m_sceneGraph;
+    Schedule m_schedule;
+    StateMachineType m_stateMachine;
 };
 
 }   // namespace engine
