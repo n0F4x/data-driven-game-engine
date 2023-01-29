@@ -11,7 +11,7 @@
 
 namespace engine {
 
-template <class Controller>
+template <class TController>
 class BasicSchedule final {
 public:
     ///------------------///
@@ -22,61 +22,61 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using ControllerType = Controller;
-    using StageType = BasicStage<ControllerType>;
-    using StageContainerType = std::vector<StageType>;
+    using Controller = TController;
+    using Stage = BasicStage<Controller>;
+    using StageContainer = std::vector<Stage>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
     [[nodiscard]] explicit BasicSchedule(
-        StageContainerType&& t_stages = {}) noexcept;
+        StageContainer&& t_stages = {}) noexcept;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    void run(ControllerType t_controller);
+    void run(Controller t_controller);
 
 private:
-    void iterate(ControllerType t_controller);
+    void iterate(Controller t_controller);
 
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    StageContainerType m_stages;
+    StageContainer m_stages;
     fw::Scene m_previousScene;
     fw::Scene m_scene;
 };
 
-template <class Controller>
-class BasicSchedule<Controller>::Builder {
+template <class TController>
+class BasicSchedule<TController>::Builder {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using ProductType = BasicSchedule<Controller>;
+    using Product = BasicSchedule<TController>;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] explicit(false) operator ProductType() noexcept;
-    [[nodiscard]] auto build() noexcept -> ProductType;
+    [[nodiscard]] explicit(false) operator Product() noexcept;
+    [[nodiscard]] auto build() noexcept -> Product;
 
-    [[nodiscard]] auto add_stage(StageType&& t_stage) -> Builder&;
+    [[nodiscard]] auto add_stage(Stage&& t_stage) -> Builder&;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    StageContainerType m_stages;
+    StageContainer m_stages;
 };
 
-template <class Controller>
-BasicSchedule<Controller>::BasicSchedule(StageContainerType&& t_stages) noexcept
+template <class TController>
+BasicSchedule<TController>::BasicSchedule(StageContainer&& t_stages) noexcept
     : m_stages{ std::move(t_stages) } {}
 
-template <class Controller>
-void BasicSchedule<Controller>::run(ControllerType t_controller) {
+template <class TController>
+void BasicSchedule<TController>::run(Controller t_controller) {
     while (t_controller.running()) {
         iterate(t_controller);
 
@@ -84,8 +84,8 @@ void BasicSchedule<Controller>::run(ControllerType t_controller) {
     }
 }
 
-template <class Controller>
-void BasicSchedule<Controller>::iterate(ControllerType t_controller) {
+template <class TController>
+void BasicSchedule<TController>::iterate(Controller t_controller) {
     std::swap(m_previousScene, m_scene);
 
     auto stagesFuture = std::async(std::launch::async, [this, &t_controller] {
@@ -104,18 +104,18 @@ void BasicSchedule<Controller>::iterate(ControllerType t_controller) {
     renderFuture.get();
 }
 
-template <class Controller>
-BasicSchedule<Controller>::Builder::operator ProductType() noexcept {
+template <class TController>
+BasicSchedule<TController>::Builder::operator Product() noexcept {
     return build();
 }
 
-template <class Controller>
-auto BasicSchedule<Controller>::Builder::build() noexcept -> ProductType {
+template <class TController>
+auto BasicSchedule<TController>::Builder::build() noexcept -> Product {
     return BasicSchedule{ std::move(m_stages) };
 }
 
-template <class Controller>
-auto BasicSchedule<Controller>::Builder::add_stage(StageType&& t_stage)
+template <class TController>
+auto BasicSchedule<TController>::Builder::add_stage(Stage&& t_stage)
     -> Builder& {
     m_stages.push_back(std::move(t_stage));
     return *this;

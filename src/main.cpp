@@ -18,15 +18,15 @@ auto main() -> int {
     try {
         App::Builder{}
             .set_name("My game framework")
-            .set_state_machine(App::StateMachineType::Builder{}.add_state(
-                App::StateMachineType::StateType::Builder{}
+            .set_state_machine(App::StateMachine::Builder{}.add_state(
+                App::StateMachine::State::Builder{}
                     .set_id("MyState"_hs)
                     .on_enter(+[] { std::cout << "Entered\n"; })
                     .on_exit(exited),
                 true))
             .set_schedule(
-                App::ScheduleType::Builder{}
-                    .add_stage(App::ScheduleType::StageType::Builder{}
+                App::Schedule::Builder{}
+                    .add_stage(App::Schedule::Stage::Builder{}
                                    .add_system(
                                        []([[maybe_unused]] auto& t_controller) {
                                            std::this_thread::sleep_for(500ms);
@@ -37,7 +37,7 @@ auto main() -> int {
                                            std::cout << "Stage 1 - second\n";
                                        }))
                     .add_stage(
-                        App::ScheduleType::StageType::Builder{}.add_system(
+                        App::Schedule::Stage::Builder{}.add_system(
                             [](auto& t_controller) {
                                 std::cout << "Stage 2\n";
                                 t_controller.quit();

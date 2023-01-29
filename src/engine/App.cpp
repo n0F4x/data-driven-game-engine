@@ -9,9 +9,9 @@
 namespace engine {
 
 App::App(std::string_view t_name,
-         SceneGraphType&& t_sceneGraph,
-         ScheduleType&& t_schedule,
-         StateMachineType&& t_stateMachine) noexcept
+         SceneGraph&& t_sceneGraph,
+         Schedule&& t_schedule,
+         StateMachine&& t_stateMachine) noexcept
     : m_name{ t_name },
       m_sceneGraph{ std::move(t_sceneGraph) },
       m_schedule{ std::move(t_schedule) },
@@ -44,7 +44,7 @@ auto App::Builder::set_name(std::string_view t_name) noexcept -> Builder& {
     return *this;
 }
 
-auto App::Builder::set_scene_graph(SceneGraphType&& t_sceneGraph) -> Builder& {
+auto App::Builder::set_scene_graph(SceneGraph&& t_sceneGraph) -> Builder& {
     m_sceneGraph = std::move(t_sceneGraph);
     return *this;
 }
@@ -54,7 +54,7 @@ auto App::Builder::set_schedule(Schedule&& t_schedule) -> Builder& {
     return *this;
 }
 
-auto App::Builder::set_state_machine(StateMachineType&& t_stateMachine)
+auto App::Builder::set_state_machine(StateMachine&& t_stateMachine)
     -> Builder& {
     m_stateMachine = std::move(t_stateMachine);
     return *this;

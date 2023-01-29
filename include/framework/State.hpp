@@ -7,7 +7,7 @@
 
 namespace fw {
 
-template <typename Id>
+template <typename TId>
 class BasicState final {
 public:
     ///------------------///
@@ -18,20 +18,20 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using IdType = Id;
+    using Id = TId;
     using Action = std::function<void()>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit BasicState(IdType t_id = {},
+    [[nodiscard]] explicit BasicState(Id t_id = {},
                                       Action&& t_enterAction = {},
                                       Action&& t_exitAction = {}) noexcept;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto id() const noexcept -> IdType;
+    [[nodiscard]] auto id() const noexcept -> Id;
     void enter() const noexcept;
     void exit() const noexcept;
 
@@ -39,21 +39,25 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    IdType m_id{};
+    Id m_id{};
     Action m_enterAction;
     Action m_exitAction;
 };
 
-template <typename Id>
-class BasicState<Id>::Builder final {
+template <typename TId>
+class BasicState<TId>::Builder final {
 public:
+    ///----------------///
+    ///  Type aliases  ///
+    ///----------------///
+    using Product = BasicState<TId>;
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] explicit(false) operator BasicState<Id>() noexcept;
-    [[nodiscard]] auto build() noexcept -> BasicState<Id>;
+    [[nodiscard]] explicit(false) operator Product() noexcept;
+    [[nodiscard]] auto build() noexcept -> Product;
 
-    [[nodiscard]] auto set_id(IdType t_id) noexcept -> Builder&;
+    [[nodiscard]] auto set_id(Id t_id) noexcept -> Builder&;
     [[nodiscard]] auto on_enter(Action&& t_callback) noexcept -> Builder&;
     [[nodiscard]] auto on_exit(Action&& t_callback) noexcept -> Builder&;
 
@@ -61,65 +65,63 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    IdType m_id;
-    BasicState<Id>::Action m_enterAction;
-    BasicState<Id>::Action m_exitAction;
+    Id m_id;
+    Action m_enterAction;
+    Action m_exitAction;
 };
 
-template <typename Id>
-BasicState<Id>::BasicState(const IdType t_id,
-                           Action&& t_enterAction,
-                           Action&& t_exitAction) noexcept
+template <typename TId>
+BasicState<TId>::BasicState(const Id t_id,
+                            Action&& t_enterAction,
+                            Action&& t_exitAction) noexcept
     : m_id{ t_id },
       m_enterAction{ std::move(t_enterAction) },
       m_exitAction{ std::move(t_exitAction) } {}
 
-template <typename Id>
-auto BasicState<Id>::id() const noexcept -> IdType {
+template <typename TId>
+auto BasicState<TId>::id() const noexcept -> Id {
     return m_id;
 }
 
-template <typename Id>
-void BasicState<Id>::enter() const noexcept {
+template <typename TId>
+void BasicState<TId>::enter() const noexcept {
     if (m_enterAction) {
         m_enterAction();
     }
 }
 
-template <typename Id>
-void BasicState<Id>::exit() const noexcept {
+template <typename TId>
+void BasicState<TId>::exit() const noexcept {
     if (m_exitAction) {
         m_exitAction();
     }
 }
 
-template <typename Id>
-BasicState<Id>::Builder::operator BasicState<Id>() noexcept {
+template <typename TId>
+BasicState<TId>::Builder::operator Product() noexcept {
     return build();
 }
 
-template <typename Id>
-auto BasicState<Id>::Builder::build() noexcept -> BasicState<Id> {
-    return BasicState<Id>{ m_id,
-                           std::move(m_enterAction),
-                           std::move(m_exitAction) };
+template <typename TId>
+auto BasicState<TId>::Builder::build() noexcept -> Product {
+    return Product{ m_id, std::move(m_enterAction), std::move(m_exitAction) };
 }
 
-template <typename Id>
-auto BasicState<Id>::Builder::set_id(IdType t_id) noexcept -> Builder& {
+template <typename TId>
+auto BasicState<TId>::Builder::set_id(Id t_id) noexcept -> Builder& {
     m_id = t_id;
     return *this;
 }
 
-template <typename Id>
-auto BasicState<Id>::Builder::on_enter(Action&& t_callback) noexcept
+template <typename TId>
+auto BasicState<TId>::Builder::on_enter(Action&& t_callback) noexcept
     -> Builder& {
     m_enterAction = std::move(t_callback);
     return *this;
 }
 
-template <typename Id>
-auto BasicState<Id>::Builder::on_exit(Action&& t_callback) noexcept
+template <typename TId>
+auto BasicState<TId>::Builder::on_exit(Action&& t_callback) noexcept
     -> Builder& {
     m_exitAction = std::move(t_callback);
     return *this;

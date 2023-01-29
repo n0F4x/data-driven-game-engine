@@ -23,18 +23,17 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using SceneGraphType = fw::SceneGraph;
-    using ScheduleType = BasicSchedule<Controller&>;
-    using StateMachineType =
-        fw::fsm::BasicStateMachine<fw::BasicState<config::Id>>;
+    using SceneGraph = fw::SceneGraph;
+    using Schedule = BasicSchedule<Controller&>;
+    using StateMachine = fw::fsm::BasicStateMachine<fw::BasicState<config::Id>>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
     [[nodiscard]] explicit App(std::string_view t_name,
-                               SceneGraphType&& t_sceneGraph,
-                               ScheduleType&& t_schedule,
-                               StateMachineType&& t_stateMachine) noexcept;
+                               SceneGraph&& t_sceneGraph,
+                               Schedule&& t_schedule,
+                               StateMachine&& t_stateMachine) noexcept;
 
     ///-----------///
     ///  Methods  ///
@@ -46,9 +45,9 @@ private:
     ///  Variables  ///
     ///-------------///
     std::string m_name;
-    SceneGraphType m_sceneGraph;
-    ScheduleType m_schedule;
-    StateMachineType m_stateMachine;
+    SceneGraph m_sceneGraph;
+    Schedule m_schedule;
+    StateMachine m_stateMachine;
 };
 
 class App::Builder final {
@@ -60,10 +59,9 @@ public:
     [[nodiscard]] auto build() noexcept -> App;
 
     [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Builder&;
-    [[nodiscard]] auto set_scene_graph(SceneGraphType&& t_sceneGraph)
-        -> Builder&;
+    [[nodiscard]] auto set_scene_graph(SceneGraph&& t_sceneGraph) -> Builder&;
     [[nodiscard]] auto set_schedule(Schedule&& t_schedule) -> Builder&;
-    [[nodiscard]] auto set_state_machine(StateMachineType&& t_stateMachine)
+    [[nodiscard]] auto set_state_machine(StateMachine&& t_stateMachine)
         -> Builder&;
 
 private:
@@ -71,9 +69,9 @@ private:
     ///  Variables  ///
     ///-------------///
     std::string_view m_name = "App";
-    SceneGraphType m_sceneGraph;
+    SceneGraph m_sceneGraph;
     Schedule m_schedule;
-    StateMachineType m_stateMachine;
+    StateMachine m_stateMachine;
 };
 
 }   // namespace engine

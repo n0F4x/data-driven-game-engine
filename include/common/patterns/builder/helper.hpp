@@ -9,7 +9,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using ProductType = Product;
+    using Product = Product;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///

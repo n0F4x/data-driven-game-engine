@@ -9,31 +9,31 @@ class Controller final {
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using SceneGraphType = fw::SceneGraph;
-    using StateMachineType = fw::fsm::StateMachine;
+    using SceneGraph = fw::SceneGraph;
+    using StateMachine = fw::fsm::StateMachine;
 
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit Controller(SceneGraphType& t_sceneGraph,
-                                      StateMachineType& t_stateMachine) noexcept;
+    [[nodiscard]] explicit Controller(SceneGraph& t_sceneGraph,
+                                      StateMachine& t_stateMachine) noexcept;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto running() const noexcept -> bool;
     void quit() noexcept;
-    [[nodiscard]] auto sceneGraph() noexcept -> SceneGraphType&;
-    [[nodiscard]] auto stateMachine() noexcept -> StateMachineType&;
+    [[nodiscard]] auto sceneGraph() noexcept -> SceneGraph&;
+    [[nodiscard]] auto stateMachine() noexcept -> StateMachine&;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
     bool m_running = true;
-    SceneGraphType& m_sceneGraph;
-    StateMachineType& m_stateMachine;
+    SceneGraph& m_sceneGraph;
+    StateMachine& m_stateMachine;
 };
 
 }   // namespace engine
