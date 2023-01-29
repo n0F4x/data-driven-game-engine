@@ -3,13 +3,13 @@
 #include <type_traits>
 #include <utility>
 
-template <class Product>
+template <class TProduct>
 class BuilderBase {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = Product;
+    using Product = TProduct;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
