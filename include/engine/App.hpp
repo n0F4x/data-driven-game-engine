@@ -25,7 +25,8 @@ public:
     ///----------------///
     using SceneGraph = fw::SceneGraph;
     using Schedule = BasicSchedule<Controller&>;
-    using StateMachine = fw::fsm::BasicStateMachine<fw::BasicState<config::Id>>;
+    using StateMachine =
+        fw::fsm::BasicStateMachine<fw::BasicState<config::StateId>>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///

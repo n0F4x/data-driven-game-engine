@@ -32,10 +32,10 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    void run(Controller t_controller);
+    void execute(Controller t_controller);
 
 private:
-    void iterate(Controller t_controller);
+    void advance(Controller t_controller);
 
     ///-------------///
     ///  Variables  ///

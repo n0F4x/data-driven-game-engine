@@ -1,9 +1,8 @@
 #pragma once
 
-#include <entt/config/config.h>
-
 namespace engine::config {
 
-using Id = ENTT_ID_TYPE;
+using StateId = uint32_t;
+using SystemId = uint32_t;
 
-}   // namespace config
+}   // namespace engine::config

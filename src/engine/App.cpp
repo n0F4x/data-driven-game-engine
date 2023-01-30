@@ -23,7 +23,7 @@ void App::run() {
     m_stateMachine.start();
 
     Controller controller{ m_sceneGraph, m_stateMachine };
-    m_schedule.run(controller);
+    m_schedule.execute(controller);
 
     m_stateMachine.exit();
 }

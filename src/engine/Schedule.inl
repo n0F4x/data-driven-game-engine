@@ -9,16 +9,16 @@ BasicSchedule<TController>::BasicSchedule(StageContainer&& t_stages) noexcept
     : m_stages{ std::move(t_stages) } {}
 
 template <class TController>
-void BasicSchedule<TController>::run(Controller t_controller) {
+void BasicSchedule<TController>::execute(Controller t_controller) {
     while (t_controller.running()) {
-        iterate(t_controller);
+        advance(t_controller);
 
         t_controller.stateMachine().transition();
     }
 }
 
 template <class TController>
-void BasicSchedule<TController>::iterate(Controller t_controller) {
+void BasicSchedule<TController>::advance(Controller t_controller) {
     std::swap(m_previousScene, m_scene);
 
     auto stagesFuture = std::async(std::launch::async, [this, &t_controller] {
