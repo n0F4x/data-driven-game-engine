@@ -16,3 +16,6 @@ The following points take an attempt at describing each facet of a (simple) sing
     - create events & pass them to event queue
 - render
 - play audio
+
+# Comments
+TODO: Adapt parallelism

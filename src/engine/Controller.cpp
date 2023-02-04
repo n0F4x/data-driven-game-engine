@@ -2,10 +2,8 @@
 
 namespace engine {
 
-Controller::Controller(SceneGraph& t_sceneGraph,
-                       StateMachine& t_stateMachine) noexcept
-    : m_sceneGraph{ t_sceneGraph },
-      m_stateMachine{ t_stateMachine } {}
+Controller::Controller(StateMachine& t_stateMachine) noexcept
+    : m_stateMachine{ t_stateMachine } {}
 
 auto Controller::running() const noexcept -> bool {
     return m_running;
@@ -13,10 +11,6 @@ auto Controller::running() const noexcept -> bool {
 
 void Controller::quit() noexcept {
     m_running = false;
-}
-
-auto Controller::sceneGraph() noexcept -> SceneGraph& {
-    return m_sceneGraph;
 }
 
 auto Controller::stateMachine() noexcept -> StateMachine& {

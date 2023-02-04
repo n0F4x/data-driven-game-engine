@@ -9,11 +9,11 @@
 namespace engine {
 
 App::App(std::string_view t_name,
-         SceneGraph&& t_sceneGraph,
+         Renderer&& t_renderer,
          Schedule&& t_schedule,
          StateMachine&& t_stateMachine) noexcept
     : m_name{ t_name },
-      m_sceneGraph{ std::move(t_sceneGraph) },
+      m_renderer{ std::move(t_renderer) },
       m_schedule{ std::move(t_schedule) },
       m_stateMachine{ std::move(t_stateMachine) } {}
 
@@ -22,7 +22,7 @@ void App::run() {
 
     m_stateMachine.start();
 
-    Controller controller{ m_sceneGraph, m_stateMachine };
+    Controller controller{ m_stateMachine };
     m_schedule.execute(controller);
 
     m_stateMachine.exit();
@@ -34,7 +34,7 @@ App::Builder::operator App() noexcept {
 
 auto App::Builder::build() noexcept -> App {
     return App{ m_name,
-                std::move(m_sceneGraph),
+                std::move(m_renderer),
                 std::move(m_schedule),
                 std::move(m_stateMachine) };
 }
@@ -44,8 +44,8 @@ auto App::Builder::set_name(std::string_view t_name) noexcept -> Builder& {
     return *this;
 }
 
-auto App::Builder::set_scene_graph(SceneGraph&& t_sceneGraph) -> Builder& {
-    m_sceneGraph = std::move(t_sceneGraph);
+auto App::Builder::set_renderer(Renderer&& t_renderer) -> Builder& {
+    m_renderer = std::move(t_renderer);
     return *this;
 }
 

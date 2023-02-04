@@ -19,22 +19,14 @@ void BasicSchedule<TController>::execute(Controller t_controller) {
 
 template <class TController>
 void BasicSchedule<TController>::advance(Controller t_controller) {
-    std::swap(m_previousScene, m_scene);
-
     auto stagesFuture = std::async(std::launch::async, [this, &t_controller] {
         std::ranges::for_each(m_stages, [&t_controller](auto& t_stage) {
             t_stage.run(t_controller);
         });
     });
 
-    auto renderFuture = std::async(
-        std::launch::async, &fw::Scene::render, std::ref(m_previousScene));
-
-    m_scene = t_controller.sceneGraph().make_scene();
-
     // throw potential exception from threads
     stagesFuture.get();
-    renderFuture.get();
 }
 
 template <class TController>

@@ -4,7 +4,6 @@
 
 #include "engine/Controller.hpp"
 #include "engine/Stage.hpp"
-#include "framework/Scene.hpp"
 
 namespace engine {
 
@@ -41,8 +40,6 @@ private:
     ///  Variables  ///
     ///-------------///
     StageContainer m_stages;
-    fw::Scene m_previousScene;
-    fw::Scene m_scene;
 };
 
 template <class TController>
