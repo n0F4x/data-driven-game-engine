@@ -23,6 +23,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
+    using Renderer = Renderer;
     using Schedule = BasicSchedule<Controller&>;
     using StateMachine =
         fw::fsm::BasicStateMachine<fw::BasicState<config::StateId>>;

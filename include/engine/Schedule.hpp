@@ -7,7 +7,7 @@
 
 namespace engine {
 
-template <class TController>
+template <class ControllerType>
 class BasicSchedule final {
 public:
     ///------------------///
@@ -18,7 +18,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Controller = TController;
+    using Controller = ControllerType;
     using Stage = BasicStage<Controller>;
     using StageContainer = std::vector<Stage>;
 
@@ -42,13 +42,13 @@ private:
     StageContainer m_stages;
 };
 
-template <class TController>
-class BasicSchedule<TController>::Builder {
+template <class ControllerType>
+class BasicSchedule<ControllerType>::Builder {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = BasicSchedule<TController>;
+    using Product = BasicSchedule<ControllerType>;
 
     ///-----------///
     ///  Methods  ///

@@ -8,8 +8,8 @@
 
 namespace fw::fsm {
 
-template <class TState>
-concept StateConcept = requires(TState t) {
+template <class StateType>
+concept StateConcept = requires(StateType t) {
                            {
                                t.id()
                                } -> std::convertible_to<unsigned>;
@@ -19,12 +19,12 @@ concept StateConcept = requires(TState t) {
                            {
                                t.exit()
                            };
-                       } && std::destructible<TState>;
+                       } && std::destructible<StateType>;
 
 ///---------------------///
 ///  BasicStateMachine  ///
 ///---------------------///
-template <StateConcept TState>
+template <StateConcept StateType>
 class BasicStateMachine final {
 public:
     ///------------------///
@@ -36,7 +36,7 @@ public:
     ///  Type aliases  ///
     ///----------------///
     using StateId = std::invoke_result_t<decltype(&State::id), State>;
-    using State = TState;
+    using State = StateType;
     using StateContainer = std::unordered_map<StateId, State>;
 
     ///------------------------------///
@@ -61,8 +61,8 @@ private:
     ///-------------///
     StateContainer m_states;
     State m_invalidState = State{};
-    gsl::not_null<State*> m_nextState = &m_invalidState;
-    gsl::not_null<State*> m_currentState = &m_invalidState;
+    gsl::not_null<State*> m_nexStateType = &m_invalidState;
+    gsl::not_null<State*> m_currenStateType = &m_invalidState;
     gsl::not_null<State*> m_previousState = &m_invalidState;
     bool shouldTransition = true;
 };
@@ -70,13 +70,13 @@ private:
 ///------------------------------///
 ///  BasicStateMachine::Builder  ///
 ///------------------------------///
-template <StateConcept TState>
-class BasicStateMachine<TState>::Builder final {
+template <StateConcept StateType>
+class BasicStateMachine<StateType>::Builder final {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = BasicStateMachine<TState>;
+    using Product = BasicStateMachine<StateType>;
 
     ///-----------///
     ///  Methods  ///
@@ -84,8 +84,8 @@ public:
     [[nodiscard]] explicit(false) operator Product();
     [[nodiscard]] auto build() -> Product;
 
-    [[nodiscard]] auto add_state(State&& t_state,
-                                 bool t_setAsInitialState = false) -> Builder&;
+    [[nodiscard]] auto
+    add_state(State&& t_state, bool t_setAsInitialState = false) -> Builder&;
     [[nodiscard]] auto set_initial_state(StateId t_stateId) noexcept
         -> Builder&;
 

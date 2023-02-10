@@ -5,12 +5,12 @@
 
 namespace engine {
 
-template <class TController>
-BasicStage<TController>::BasicStage(SystemContainer&& t_systems) noexcept
+template <class ControllerType>
+BasicStage<ControllerType>::BasicStage(SystemContainer&& t_systems) noexcept
     : m_systems{ std::move(t_systems) } {}
 
-template <class TController>
-void BasicStage<TController>::run(Controller t_controller) const {
+template <class ControllerType>
+void BasicStage<ControllerType>::run(Controller t_controller) const {
     std::vector<std::future<void>> futures;
 
     std::ranges::for_each(m_systems, [&futures, &t_controller](auto t_system) {
@@ -22,18 +22,18 @@ void BasicStage<TController>::run(Controller t_controller) const {
     std::ranges::for_each(futures, &std::future<void>::get);
 }
 
-template <class TController>
-BasicStage<TController>::Builder::operator Product() noexcept {
+template <class ControllerType>
+BasicStage<ControllerType>::Builder::operator Product() noexcept {
     return build();
 }
 
-template <class TController>
-auto BasicStage<TController>::Builder::build() noexcept -> Product {
+template <class ControllerType>
+auto BasicStage<ControllerType>::Builder::build() noexcept -> Product {
     return BasicStage{ std::move(m_systems) };
 }
 
-template <class TController>
-auto BasicStage<TController>::Builder::add_system(System&& t_system)
+template <class ControllerType>
+auto BasicStage<ControllerType>::Builder::add_system(System&& t_system)
     -> Builder& {
     m_systems.push_back(std::move(t_system));
     return *this;

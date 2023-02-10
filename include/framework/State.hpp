@@ -4,7 +4,7 @@
 
 namespace fw {
 
-template <typename TId>
+template <typename IdType>
 class BasicState final {
 public:
     ///------------------///
@@ -15,7 +15,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Id = TId;
+    using Id = IdType;
     using Action = std::function<void()>;
 
     ///------------------------------///
@@ -41,13 +41,13 @@ private:
     Action m_exitAction;
 };
 
-template <typename TId>
-class BasicState<TId>::Builder final {
+template <typename IdType>
+class BasicState<IdType>::Builder final {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = BasicState<TId>;
+    using Product = BasicState<IdType>;
     ///-----------///
     ///  Methods  ///
     ///-----------///

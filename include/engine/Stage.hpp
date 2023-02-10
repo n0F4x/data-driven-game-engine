@@ -6,7 +6,7 @@
 
 namespace engine {
 
-template <class TController>
+template <class ControllerType>
 class BasicStage final {
 public:
     ///------------------///
@@ -17,7 +17,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Controller = TController;
+    using Controller = ControllerType;
     using System = std::function<void(Controller)>;
     using SystemContainer = std::vector<System>;
 
@@ -38,13 +38,13 @@ private:
     SystemContainer m_systems;
 };
 
-template <class TController>
-class BasicStage<TController>::Builder {
+template <class ControllerType>
+class BasicStage<ControllerType>::Builder {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = BasicStage<TController>;
+    using Product = BasicStage<ControllerType>;
 
     ///-----------///
     ///  Methods  ///
