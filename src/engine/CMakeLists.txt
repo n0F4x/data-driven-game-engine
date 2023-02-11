@@ -1,1 +1,2 @@
+add_subdirectory(renderer)
 add_subdirectory(state_machine)

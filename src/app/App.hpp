@@ -8,12 +8,12 @@
 #include "app/config/config.hpp"
 #include "Controller.hpp"
 #include "engine/state_machine/StateMachine.hpp"
-#include "Renderer.hpp"
 #include "Schedule.hpp"
 
 namespace app {
 
-class App final {
+template <class RendererType, class StateMachineType>
+class BasicApp final {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -23,15 +23,14 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Renderer = Renderer;
+    using Renderer = RendererType;
     using Schedule = BasicSchedule<Controller&>;
-    using StateMachine =
-        engine::BasicStateMachine<engine::BasicState<config::StateId>>;
+    using StateMachine = StateMachineType;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit App(std::string_view t_name,
+    [[nodiscard]] explicit BasicApp(std::string_view t_name,
                                Renderer&& t_renderer,
                                Schedule&& t_schedule,
                                StateMachine&& t_stateMachine) noexcept;
@@ -51,13 +50,14 @@ private:
     StateMachine m_stateMachine;
 };
 
-class App::Builder final {
+template <class RendererType, class StateMachineType>
+class BasicApp<RendererType, StateMachineType>::Builder final {
 public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] explicit(false) operator App() noexcept;
-    [[nodiscard]] auto build() noexcept -> App;
+    [[nodiscard]] explicit(false) operator BasicApp() noexcept;
+    [[nodiscard]] auto build() noexcept -> BasicApp;
 
     [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Builder&;
     [[nodiscard]] auto set_renderer(Renderer&& t_renderer) -> Builder&;
@@ -75,4 +75,8 @@ private:
     StateMachine m_stateMachine;
 };
 
+using App = BasicApp<config::Renderer, config::StateMachine>;
+
 }   // namespace app
+
+#include "App.inl"
