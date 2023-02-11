@@ -12,9 +12,17 @@ add_library(${PROJECT_NAME} INTERFACE)
 
 
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} INTERFACE /W4 /WX)
+  target_compile_options(${PROJECT_NAME} INTERFACE
+    /W4
+    /WX
+  )
 else()
-  target_compile_options(${PROJECT_NAME} INTERFACE -Wall -Wextra -Werror)
+  target_compile_options(${PROJECT_NAME} INTERFACE
+    -Wall
+    -Wextra
+    -Werror
+    -fconcepts-diagnostics-depth=3
+)
 endif()
 
 target_include_directories(${PROJECT_NAME} INTERFACE

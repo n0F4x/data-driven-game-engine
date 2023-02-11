@@ -2,13 +2,14 @@
 
 #include <vector>
 
+#include "app/core/schedule.hpp"
 #include "Controller.hpp"
 #include "Stage.hpp"
 
 namespace app {
 
 template <class AppViewType>
-class Schedule final {
+class Schedule final : public ScheduleInterface<Schedule, AppViewType> {
 public:
     ///------------------///
     ///  Nested classes  ///

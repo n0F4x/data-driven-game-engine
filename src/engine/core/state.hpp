@@ -8,7 +8,7 @@ template <class StateType>
 concept StateConcept = requires(StateType t) {
     {
         t.id()
-    } -> std::convertible_to<unsigned>;
+    } -> std::convertible_to<std::size_t>;
     t.enter();
     t.exit();
 } && std::destructible<StateType>;

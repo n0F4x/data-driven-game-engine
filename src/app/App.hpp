@@ -7,7 +7,23 @@
 
 namespace app {
 
-template <class RendererType, template<class> class ScheduleType>
+namespace internal {
+
+template <class RendererType, template <class> class ScheduleType>
+struct MockApp {
+    using AppView = AppView<MockApp<RendererType, ScheduleType>>;
+    using Renderer = RendererType;
+    using Schedule = ScheduleType<AppView>;
+};
+
+}   // namespace internal
+
+template <engine::RendererConcept RendererType,
+          template <class>
+          class ScheduleType>
+    requires ScheduleConcept<
+        ScheduleType,
+        AppView<internal::MockApp<RendererType, ScheduleType>>>
 class BasicApp final {
 public:
     ///------------------///
@@ -48,7 +64,12 @@ private:
     Schedule m_schedule;
 };
 
-template <class RendererType, template<class> class ScheduleType>
+template <engine::RendererConcept RendererType,
+          template <class>
+          class ScheduleType>
+    requires ScheduleConcept<
+        ScheduleType,
+        AppView<internal::MockApp<RendererType, ScheduleType>>>
 class BasicApp<RendererType, ScheduleType>::Builder final {
 public:
     ///----------------///
