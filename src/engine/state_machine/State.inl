@@ -1,6 +1,6 @@
 #include <utility>
 
-namespace fw {
+namespace engine {
 
 template <typename IdType>
 BasicState<IdType>::BasicState(const Id t_id,
@@ -59,4 +59,4 @@ auto BasicState<IdType>::Builder::on_exit(Action&& t_callback) noexcept
     return *this;
 }
 
-}   // namespace fw
+}   // namespace engine

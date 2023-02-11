@@ -1,11 +1,28 @@
 cmake_minimum_required (VERSION 3.21)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
 project(engine)
+
+
+add_library(${PROJECT_NAME})
+
+
+if(MSVC)
+  target_compile_options(${PROJECT_NAME} PUBLIC /W4 /WX)
+else()
+  target_compile_options(${PROJECT_NAME} PUBLIC -Wall -Wextra -Werror)
+endif()
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+  src
+)
+
+add_subdirectory(src/app)
+add_subdirectory(src/engine)
 
 find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
@@ -13,22 +30,14 @@ find_package(glm CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR}/src)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  Microsoft.GSL::GSL
+  Vulkan::Vulkan
+  glm::glm
+  glfw
+  EnTT::EnTT
+)
 
-file(GLOB_RECURSE SRC src/*.cpp)
 
-
-add_executable(${PROJECT_NAME} ${SRC})
-
-if(MSVC)
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
-else()
-  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
-endif()
-
-target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft.GSL::GSL)
-target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
-target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
-target_link_libraries(${PROJECT_NAME} PUBLIC EnTT::EnTT)
+add_executable(test examples/src/main.cpp)
+target_link_libraries(test ${PROJECT_NAME})

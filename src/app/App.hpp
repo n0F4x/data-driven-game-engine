@@ -5,13 +5,13 @@
 
 #include <gsl/pointers>
 
-#include "engine/config/config.hpp"
-#include "engine/Controller.hpp"
-#include "engine/Renderer.hpp"
-#include "engine/Schedule.hpp"
-#include "framework/StateMachine.hpp"
+#include "app/config/config.hpp"
+#include "Controller.hpp"
+#include "engine/state_machine/StateMachine.hpp"
+#include "Renderer.hpp"
+#include "Schedule.hpp"
 
-namespace engine {
+namespace app {
 
 class App final {
 public:
@@ -26,7 +26,7 @@ public:
     using Renderer = Renderer;
     using Schedule = BasicSchedule<Controller&>;
     using StateMachine =
-        fw::fsm::BasicStateMachine<fw::BasicState<config::StateId>>;
+        engine::BasicStateMachine<engine::BasicState<config::StateId>>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
@@ -75,4 +75,4 @@ private:
     StateMachine m_stateMachine;
 };
 
-}   // namespace engine
+}   // namespace app

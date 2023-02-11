@@ -1,12 +1,12 @@
-#include "engine/App.hpp"
+#include "App.hpp"
 
 #include <algorithm>
 #include <iostream>
 
-#include "engine/Controller.hpp"
-#include "framework/State.hpp"
+#include "Controller.hpp"
+#include "engine/state_machine/State.hpp"
 
-namespace engine {
+namespace app {
 
 App::App(std::string_view t_name,
          Renderer&& t_renderer,
@@ -60,4 +60,4 @@ auto App::Builder::set_state_machine(StateMachine&& t_stateMachine)
     return *this;
 }
 
-}   // namespace engine
+}   // namespace app

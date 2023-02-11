@@ -1,14 +1,14 @@
 #pragma once
 
-#include "framework/StateMachine.hpp"
+#include "engine/state_machine/StateMachine.hpp"
 
-namespace engine {
+namespace app {
 
 class Controller final {
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using StateMachine = fw::fsm::StateMachine;
+    using StateMachine = engine::StateMachine;
 
 public:
     ///------------------------------///
@@ -31,4 +31,4 @@ private:
     StateMachine& m_stateMachine;
 };
 
-}   // namespace engine
+}   // namespace app

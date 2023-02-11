@@ -2,10 +2,10 @@
 
 #include <vector>
 
-#include "engine/Controller.hpp"
-#include "engine/Stage.hpp"
+#include "Controller.hpp"
+#include "Stage.hpp"
 
-namespace engine {
+namespace app {
 
 template <class ControllerType>
 class BasicSchedule final {
@@ -67,6 +67,6 @@ private:
 
 using Schedule = BasicSchedule<Controller&>;
 
-}   // namespace engine
+}   // namespace app
 
-#include "engine/Schedule.inl"
+#include "app/Schedule.inl"

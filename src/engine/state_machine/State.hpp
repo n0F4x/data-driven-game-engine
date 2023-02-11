@@ -2,7 +2,7 @@
 
 #include <functional>
 
-namespace fw {
+namespace engine {
 
 template <typename IdType>
 class BasicState final {
@@ -69,6 +69,6 @@ private:
 
 using State = BasicState<uint32_t>;
 
-}   // namespace fw
+}   // namespace engine
 
-#include "framework/State.inl"
+#include "engine/state_machine/State.inl"

@@ -4,7 +4,7 @@
 
 #include <entt/core/hashed_string.hpp>
 
-#include "engine/App.hpp"
+#include "app/App.hpp"
 
 void exited() {
     std::cout << "Exited\n";
@@ -13,7 +13,7 @@ void exited() {
 auto main() -> int {
     using namespace entt::literals;
     using namespace std::chrono;
-    using App = engine::App;
+    using App = app::App;
 
     try {
         App::Builder{}

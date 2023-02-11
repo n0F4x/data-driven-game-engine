@@ -3,7 +3,7 @@
 #include <future>
 #include <ranges>
 
-namespace engine {
+namespace app {
 
 template <class ControllerType>
 BasicStage<ControllerType>::BasicStage(SystemContainer&& t_systems) noexcept
@@ -39,4 +39,4 @@ auto BasicStage<ControllerType>::Builder::add_system(System&& t_system)
     return *this;
 }
 
-}   // namespace engine
+}   // namespace app

@@ -4,21 +4,17 @@
 
 #include <gsl/pointers>
 
-#include "framework/State.hpp"
+#include "State.hpp"
 
-namespace fw::fsm {
+namespace engine {
 
 template <class StateType>
 concept StateConcept = requires(StateType t) {
                            {
                                t.id()
                                } -> std::convertible_to<unsigned>;
-                           {
-                               t.enter()
-                           };
-                           {
-                               t.exit()
-                           };
+                           t.enter();
+                           t.exit();
                        } && std::destructible<StateType>;
 
 ///---------------------///
@@ -99,6 +95,6 @@ private:
 
 using StateMachine = BasicStateMachine<State>;
 
-}   // namespace fw::fsm
+}   // namespace engine::fsm
 
-#include "framework/StateMachine.inl"
+#include "engine/state_machine/StateMachine.inl"

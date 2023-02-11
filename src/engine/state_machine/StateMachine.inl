@@ -1,4 +1,4 @@
-namespace fw::fsm {
+namespace engine {
 
 ////////////////////////////////////////////
 ///--------------------------------------///
@@ -91,4 +91,4 @@ auto BasicStateMachine<StateType>::Builder::set_initial_state(
     return *this;
 }
 
-}   // namespace fw::fsm
+}   // namespace engine::fsm

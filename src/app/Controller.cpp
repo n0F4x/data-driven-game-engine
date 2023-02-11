@@ -1,6 +1,6 @@
-#include "engine/Controller.hpp"
+#include "Controller.hpp"
 
-namespace engine {
+namespace app {
 
 Controller::Controller(StateMachine& t_stateMachine) noexcept
     : m_stateMachine{ t_stateMachine } {}
@@ -17,4 +17,4 @@ auto Controller::stateMachine() noexcept -> StateMachine& {
     return m_stateMachine;
 }
 
-}   // namespace engine
+}   // namespace app

@@ -2,7 +2,7 @@
 #include <functional>
 #include <future>
 
-namespace engine {
+namespace app {
 
 template <class ControllerType>
 BasicSchedule<ControllerType>::BasicSchedule(StageContainer&& t_stages) noexcept
@@ -46,4 +46,4 @@ auto BasicSchedule<ControllerType>::Builder::add_stage(Stage&& t_stage)
     return *this;
 }
 
-}   // namespace engine
+}   // namespace app
