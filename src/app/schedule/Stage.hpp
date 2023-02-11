@@ -1,14 +1,12 @@
 #pragma once
 
 #include <vector>
-
-#include "Controller.hpp"
-#include "Stage.hpp"
+#include <functional>
 
 namespace app {
 
 template <class ControllerType>
-class BasicSchedule final {
+class BasicStage final {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -19,36 +17,33 @@ public:
     ///  Type aliases  ///
     ///----------------///
     using Controller = ControllerType;
-    using Stage = BasicStage<Controller>;
-    using StageContainer = std::vector<Stage>;
+    using System = std::function<void(Controller)>;
+    using SystemContainer = std::vector<System>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit BasicSchedule(
-        StageContainer&& t_stages = {}) noexcept;
+    [[nodiscard]] explicit BasicStage(SystemContainer&& t_systems) noexcept;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    void execute(Controller t_controller);
+    void run(Controller t_controller) const;
 
 private:
-    void advance(Controller t_controller);
-
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    StageContainer m_stages;
+    SystemContainer m_systems;
 };
 
 template <class ControllerType>
-class BasicSchedule<ControllerType>::Builder {
+class BasicStage<ControllerType>::Builder {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = BasicSchedule<ControllerType>;
+    using Product = BasicStage<ControllerType>;
 
     ///-----------///
     ///  Methods  ///
@@ -56,17 +51,15 @@ public:
     [[nodiscard]] explicit(false) operator Product() noexcept;
     [[nodiscard]] auto build() noexcept -> Product;
 
-    [[nodiscard]] auto add_stage(Stage&& t_stage) -> Builder&;
+    [[nodiscard]] auto add_system(BasicStage::System&& t_system) -> Builder&;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    StageContainer m_stages;
+    SystemContainer m_systems;
 };
-
-using Schedule = BasicSchedule<Controller&>;
 
 }   // namespace app
 
-#include "app/Schedule.inl"
+#include "Stage.inl"

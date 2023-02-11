@@ -2,6 +2,9 @@
 
 namespace engine {
 
-class Renderer {};
+class Renderer {
+public:
+    void render() {}
+};
 
 }   // namespace engine

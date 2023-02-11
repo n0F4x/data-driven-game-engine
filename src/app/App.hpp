@@ -1,18 +1,13 @@
 #pragma once
 
-#include <memory>
-#include <vector>
+#include <string>
 
-#include <gsl/pointers>
-
-#include "app/config/config.hpp"
-#include "Controller.hpp"
-#include "engine/state_machine/StateMachine.hpp"
-#include "Schedule.hpp"
+#include "AppView.hpp"
+#include "config.hpp"
 
 namespace app {
 
-template <class RendererType, class StateMachineType>
+template <class RendererType, template<class> class ScheduleType>
 class BasicApp final {
 public:
     ///------------------///
@@ -23,17 +18,21 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
+    using AppView = AppView<BasicApp<RendererType, ScheduleType>>;
     using Renderer = RendererType;
-    using Schedule = BasicSchedule<Controller&>;
-    using StateMachine = StateMachineType;
+    using Schedule = ScheduleType<AppView>;
+
+    ///-----------///
+    ///  Friends  ///
+    ///-----------///
+    friend AppView;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
     [[nodiscard]] explicit BasicApp(std::string_view t_name,
-                               Renderer&& t_renderer,
-                               Schedule&& t_schedule,
-                               StateMachine&& t_stateMachine) noexcept;
+                                    Renderer&& t_renderer,
+                                    Schedule&& t_schedule) noexcept;
 
     ///-----------///
     ///  Methods  ///
@@ -47,23 +46,25 @@ private:
     std::string m_name;
     Renderer m_renderer;
     Schedule m_schedule;
-    StateMachine m_stateMachine;
 };
 
-template <class RendererType, class StateMachineType>
-class BasicApp<RendererType, StateMachineType>::Builder final {
+template <class RendererType, template<class> class ScheduleType>
+class BasicApp<RendererType, ScheduleType>::Builder final {
 public:
+    ///----------------///
+    ///  Type aliases  ///
+    ///----------------///
+    using Product = BasicApp<RendererType, ScheduleType>;
+
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] explicit(false) operator BasicApp() noexcept;
-    [[nodiscard]] auto build() noexcept -> BasicApp;
+    [[nodiscard]] explicit(false) operator Product() noexcept;
+    [[nodiscard]] auto build() noexcept -> Product;
 
     [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Builder&;
     [[nodiscard]] auto set_renderer(Renderer&& t_renderer) -> Builder&;
     [[nodiscard]] auto set_schedule(Schedule&& t_schedule) -> Builder&;
-    [[nodiscard]] auto set_state_machine(StateMachine&& t_stateMachine)
-        -> Builder&;
 
 private:
     ///-------------///
@@ -72,10 +73,9 @@ private:
     std::string_view m_name = "App";
     Renderer m_renderer;
     Schedule m_schedule;
-    StateMachine m_stateMachine;
 };
 
-using App = BasicApp<config::Renderer, config::StateMachine>;
+using App = BasicApp<config::Renderer, config::Schedule>;
 
 }   // namespace app
 

@@ -3,11 +3,12 @@
 #include <cstdint>
 
 #include "engine/renderer/Renderer.hpp"
-#include "engine/state_machine/StateMachine.hpp"
+#include "schedule/Schedule.hpp"
 
 namespace app::config {
 
 using Renderer = engine::Renderer;
-using StateMachine = engine::StateMachine;
+template <class AppViewType>
+using Schedule = Schedule<AppViewType>;
 
 }   // namespace app::config

@@ -3,48 +3,59 @@
 #include <vector>
 
 #include "Controller.hpp"
+#include "Stage.hpp"
 
 namespace app {
 
-template <class ControllerType>
-class BasicStage final {
+template <class AppViewType>
+class Schedule final {
 public:
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
     class Builder;
 
+private:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Controller = ControllerType;
-    using System = std::function<void(Controller)>;
-    using SystemContainer = std::vector<System>;
+    using Controller = Controller<Schedule<AppViewType>>;
+
+public:
+    using AppView = AppViewType;
+    using Stage = BasicStage<Controller>;
+    using StageContainer = std::vector<Stage>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit BasicStage(SystemContainer&& t_systems) noexcept;
+    [[nodiscard]] explicit Schedule(StageContainer&& t_stages = {}) noexcept;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    void run(Controller t_controller) const;
+    void execute(AppView t_app);
+
+    [[nodiscard]] auto running() const noexcept -> bool;
+    void quit() noexcept;
 
 private:
+    void advance(AppView t_app, Controller t_controller);
+
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    SystemContainer m_systems;
+    bool m_running = true;
+    StageContainer m_stages;
 };
 
-template <class ControllerType>
-class BasicStage<ControllerType>::Builder {
+template <class AppViewType>
+class Schedule<AppViewType>::Builder {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = BasicStage<ControllerType>;
+    using Product = Schedule<AppViewType>;
 
     ///-----------///
     ///  Methods  ///
@@ -52,17 +63,15 @@ public:
     [[nodiscard]] explicit(false) operator Product() noexcept;
     [[nodiscard]] auto build() noexcept -> Product;
 
-    [[nodiscard]] auto add_system(BasicStage::System&& t_system) -> Builder&;
+    [[nodiscard]] auto add_stage(Stage&& t_stage) -> Builder&;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    SystemContainer m_systems;
+    StageContainer m_stages;
 };
 
-using Stage = BasicStage<Controller&>;
+}   // namespace engine
 
-}   // namespace app
-
-#include "app/Stage.inl"
+#include "Schedule.inl"

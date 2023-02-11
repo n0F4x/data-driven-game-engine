@@ -4,24 +4,15 @@
 
 #include <gsl/pointers>
 
-#include "State.hpp"
+#include "engine/core/state.hpp"
 
 namespace engine {
-
-template <class StateType>
-concept StateConcept = requires(StateType t) {
-                           {
-                               t.id()
-                               } -> std::convertible_to<unsigned>;
-                           t.enter();
-                           t.exit();
-                       } && std::destructible<StateType>;
 
 ///---------------------///
 ///  BasicStateMachine  ///
 ///---------------------///
 template <StateConcept StateType>
-class BasicStateMachine final {
+class StateMachine final {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -31,14 +22,14 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using StateId = std::invoke_result_t<decltype(&State::id), State>;
     using State = StateType;
+    using StateId = std::invoke_result_t<decltype(&State::id), State>;
     using StateContainer = std::unordered_map<StateId, State>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit BasicStateMachine(StateContainer&& t_states = {},
+    [[nodiscard]] explicit StateMachine(StateContainer&& t_states = {},
                                              StateId t_initialStateId = {});
 
     ///-----------///
@@ -52,6 +43,8 @@ public:
     void set_next_state_as_previous() noexcept;
 
 private:
+    void set_next_state(gsl::not_null<State*> t_nextState) noexcept;
+    
     ///-------------///
     ///  Variables  ///
     ///-------------///
@@ -60,19 +53,19 @@ private:
     gsl::not_null<State*> m_nexStateType = &m_invalidState;
     gsl::not_null<State*> m_currenStateType = &m_invalidState;
     gsl::not_null<State*> m_previousState = &m_invalidState;
-    bool shouldTransition = true;
+    bool m_shouldTransition = true;
 };
 
 ///------------------------------///
 ///  BasicStateMachine::Builder  ///
 ///------------------------------///
 template <StateConcept StateType>
-class BasicStateMachine<StateType>::Builder final {
+class StateMachine<StateType>::Builder final {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = BasicStateMachine<StateType>;
+    using Product = StateMachine<StateType>;
 
     ///-----------///
     ///  Methods  ///
@@ -93,8 +86,6 @@ private:
     StateId m_initialStateId;
 };
 
-using StateMachine = BasicStateMachine<State>;
+}   // namespace engine
 
-}   // namespace engine::fsm
-
-#include "engine/state_machine/StateMachine.inl"
+#include "StateMachine.inl"

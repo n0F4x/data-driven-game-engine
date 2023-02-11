@@ -2,10 +2,12 @@
 
 #include <functional>
 
+#include "engine/core/state.hpp"
+
 namespace engine {
 
 template <typename IdType>
-class BasicState final {
+class BasicState final : public StateInterface<BasicState<IdType>> {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -71,4 +73,4 @@ using State = BasicState<uint32_t>;
 
 }   // namespace engine
 
-#include "engine/state_machine/State.inl"
+#include "State.inl"

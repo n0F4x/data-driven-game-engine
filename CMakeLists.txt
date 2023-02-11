@@ -8,16 +8,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(engine)
 
 
-add_library(${PROJECT_NAME})
+add_library(${PROJECT_NAME} INTERFACE)
 
 
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} PUBLIC /W4 /WX)
+  target_compile_options(${PROJECT_NAME} INTERFACE /W4 /WX)
 else()
-  target_compile_options(${PROJECT_NAME} PUBLIC -Wall -Wextra -Werror)
+  target_compile_options(${PROJECT_NAME} INTERFACE -Wall -Wextra -Werror)
 endif()
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(${PROJECT_NAME} INTERFACE
   src
 )
 
@@ -30,7 +30,7 @@ find_package(glm CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
+target_link_libraries(${PROJECT_NAME} INTERFACE
   Microsoft.GSL::GSL
   Vulkan::Vulkan
   glm::glm

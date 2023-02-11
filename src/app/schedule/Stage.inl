@@ -1,5 +1,3 @@
-#include <algorithm>
-#include <functional>
 #include <future>
 #include <ranges>
 
@@ -13,13 +11,15 @@ template <class ControllerType>
 void BasicStage<ControllerType>::run(Controller t_controller) const {
     std::vector<std::future<void>> futures;
 
-    std::ranges::for_each(m_systems, [&futures, &t_controller](auto t_system) {
+    for (const auto& system : m_systems) {
         futures.push_back(
-            std::async(std::launch::async, t_system, std::ref(t_controller)));
-    });
+            std::async(std::launch::async, system, std::ref(t_controller)));
+    }
 
     // throw potential exception from threads
-    std::ranges::for_each(futures, &std::future<void>::get);
+    for (auto& future : futures) {
+        future.get();
+    }
 }
 
 template <class ControllerType>
