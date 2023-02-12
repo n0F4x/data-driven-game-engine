@@ -7,13 +7,14 @@
 auto main() -> int {
     using namespace std::chrono;
     using App = app::App;
+    using Schedule = app::Schedule<App::AppView>;
 
     try {
         App::Builder{}
             .set_name("My game framework")
-            .set_schedule(
-                App::Schedule::Builder{}
-                    .add_stage(App::Schedule::Stage::Builder{}
+            .set_schedule<Schedule>(
+                Schedule::Builder{}
+                    .add_stage(Schedule::Stage::Builder{}
                                    .add_system([](auto t_controller) {
                                        std::this_thread::sleep_for(500ms);
                                        std::cout << "Stage 1 - first\n";
@@ -23,7 +24,7 @@ auto main() -> int {
                                        std::cout << "Stage 1 - second\n";
                                        t_controller.quit();
                                    }))
-                    .add_stage(App::Schedule::Stage::Builder{}.add_system(
+                    .add_stage(Schedule::Stage::Builder{}.add_system(
                         [](auto t_controller) {
                             std::cout << "Stage 2\n";
                             t_controller.quit();

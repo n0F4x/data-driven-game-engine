@@ -8,6 +8,7 @@
 namespace app::config {
 
 using Renderer = engine::Renderer;
+
 template <class AppViewType>
 using Schedule = Schedule<AppViewType>;
 

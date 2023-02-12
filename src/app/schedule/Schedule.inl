@@ -12,9 +12,11 @@ template <class AppViewType>
 void Schedule<AppViewType>::execute(AppView t_app) {
     std::cout << t_app.name() << " is running...\n";
 
-    Controller controller{ *this };
-    while (m_running) {
-        advance(t_app, controller);
+    if (!m_stages.empty()) {
+        Controller controller{ *this };
+        while (m_running) {
+            advance(t_app, controller);
+        }
     }
 }
 

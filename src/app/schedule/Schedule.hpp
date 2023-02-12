@@ -9,7 +9,7 @@
 namespace app {
 
 template <class AppViewType>
-class Schedule final : public ScheduleInterface<Schedule, AppViewType> {
+class Schedule final : public ScheduleInterface<AppViewType> {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -35,7 +35,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    void execute(AppView t_app);
+    void execute(AppView t_app) override;
 
     [[nodiscard]] auto running() const noexcept -> bool;
     void quit() noexcept;

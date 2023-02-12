@@ -1,23 +1,24 @@
 #pragma once
 
-#include <concepts>
-
 namespace app {
 
-template <template <class> class ScheduleType, class AppView>
-concept ScheduleConcept =
-    requires(ScheduleType<AppView> schedule, AppView appView) {
-        requires std::constructible_from<ScheduleType<AppView>>;
-        requires std::movable<ScheduleType<AppView>>;
-        schedule.execute(appView);
-    };
-
-template <template <class> class DerivedType, class AppView>
+template <class AppViewType>
 class ScheduleInterface {
 public:
-    ScheduleInterface()
-        requires(ScheduleConcept<DerivedType, AppView>)
-    = default;
+    ///----------------///
+    ///  Type aliases  ///
+    ///----------------///
+    using AppView = AppViewType;
+
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    virtual ~ScheduleInterface() = default;
+
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
+    virtual void execute(AppView) = 0;
 };
 
 }   // namespace app

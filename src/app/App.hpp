@@ -1,29 +1,14 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "AppView.hpp"
 #include "config.hpp"
 
 namespace app {
 
-namespace internal {
-
-template <class RendererType, template <class> class ScheduleType>
-struct MockApp {
-    using AppView = AppView<MockApp<RendererType, ScheduleType>>;
-    using Renderer = RendererType;
-    using Schedule = ScheduleType<AppView>;
-};
-
-}   // namespace internal
-
-template <engine::RendererConcept RendererType,
-          template <class>
-          class ScheduleType>
-    requires ScheduleConcept<
-        ScheduleType,
-        AppView<internal::MockApp<RendererType, ScheduleType>>>
+template <engine::RendererConcept RendererType>
 class BasicApp final {
 public:
     ///------------------///
@@ -34,9 +19,9 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using AppView = AppView<BasicApp<RendererType, ScheduleType>>;
+    using AppView = AppView<BasicApp<RendererType>>;
     using Renderer = RendererType;
-    using Schedule = ScheduleType<AppView>;
+    using ScheduleHandle = std::unique_ptr<ScheduleInterface<AppView>>;
 
     ///-----------///
     ///  Friends  ///
@@ -48,7 +33,7 @@ public:
     ///------------------------------///
     [[nodiscard]] explicit BasicApp(std::string_view t_name,
                                     Renderer&& t_renderer,
-                                    Schedule&& t_schedule) noexcept;
+                                    ScheduleHandle&& t_schedule) noexcept;
 
     ///-----------///
     ///  Methods  ///
@@ -61,21 +46,16 @@ private:
     ///-------------///
     std::string m_name;
     Renderer m_renderer;
-    Schedule m_schedule;
+    ScheduleHandle m_schedule;
 };
 
-template <engine::RendererConcept RendererType,
-          template <class>
-          class ScheduleType>
-    requires ScheduleConcept<
-        ScheduleType,
-        AppView<internal::MockApp<RendererType, ScheduleType>>>
-class BasicApp<RendererType, ScheduleType>::Builder final {
+template <engine::RendererConcept RendererType>
+class BasicApp<RendererType>::Builder final {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = BasicApp<RendererType, ScheduleType>;
+    using Product = BasicApp<RendererType>;
 
     ///-----------///
     ///  Methods  ///
@@ -85,7 +65,9 @@ public:
 
     [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Builder&;
     [[nodiscard]] auto set_renderer(Renderer&& t_renderer) -> Builder&;
-    [[nodiscard]] auto set_schedule(Schedule&& t_schedule) -> Builder&;
+    [[nodiscard]] auto set_schedule(ScheduleHandle&& t_schedule) -> Builder&;
+    template <class Schedule, typename... Args>
+    [[nodiscard]] auto set_schedule(Args&&... t_args) -> Builder&;
 
 private:
     ///-------------///
@@ -93,10 +75,10 @@ private:
     ///-------------///
     std::string_view m_name = "App";
     Renderer m_renderer;
-    Schedule m_schedule;
+    ScheduleHandle m_schedule = std::make_unique<config::Schedule<AppView>>();
 };
 
-using App = BasicApp<config::Renderer, config::Schedule>;
+using App = BasicApp<config::Renderer>;
 
 }   // namespace app
 
