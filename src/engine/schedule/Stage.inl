@@ -1,7 +1,7 @@
 #include <future>
 #include <ranges>
 
-namespace app {
+namespace engine {
 
 Stage::Stage(std::vector<System>&& t_systems) noexcept
     : m_systems{ std::move(t_systems) } {}
@@ -34,4 +34,4 @@ auto Stage::Builder::add_system(System&& t_system)
     return *this;
 }
 
-}   // namespace app
+}   // namespace engine

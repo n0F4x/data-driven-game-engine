@@ -3,7 +3,7 @@
 #include <thread>
 
 #include "app/App.hpp"
-#include "app/schedule/Schedule.hpp"
+#include "engine/schedule/Schedule.hpp"
 
 auto main() -> int {
     using namespace std::chrono;
@@ -12,8 +12,8 @@ auto main() -> int {
         app::App::Builder{}
             .set_name("My game framework")
             .set_schedule(
-                app::Schedule::Builder{}
-                    .add_stage(app::Stage::Builder{}
+                engine::Schedule::Builder{}
+                    .add_stage(engine::Stage::Builder{}
                                    .add_system([](auto t_controller) {
                                        std::this_thread::sleep_for(500ms);
                                        std::cout << "Stage 1 - first\n";
@@ -23,7 +23,7 @@ auto main() -> int {
                                        std::cout << "Stage 1 - second\n";
                                        t_controller.quit();
                                    }))
-                    .add_stage(app::Stage::Builder{}.add_system(
+                    .add_stage(engine::Stage::Builder{}.add_system(
                         [](auto t_controller) {
                             std::cout << "Stage 2\n";
                             t_controller.quit();

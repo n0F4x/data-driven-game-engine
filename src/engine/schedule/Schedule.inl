@@ -2,7 +2,7 @@
 #include <functional>
 #include <future>
 
-namespace app {
+namespace engine {
 
 Schedule::Schedule(std::vector<Stage>&& t_stages) noexcept
     : m_stages{ std::move(t_stages) } {}
@@ -49,4 +49,4 @@ auto Schedule::Builder::add_stage(Stage&& t_stage) -> Builder& {
     return *this;
 }
 
-}   // namespace app
+}   // namespace engine

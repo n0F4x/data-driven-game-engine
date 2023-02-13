@@ -1,6 +1,6 @@
 #pragma once
 
-namespace app {
+namespace engine {
 
 class Schedule;
 
@@ -20,4 +20,4 @@ private:
     Schedule& m_schedule;
 };
 
-}   // namespace app
+}   // namespace engine

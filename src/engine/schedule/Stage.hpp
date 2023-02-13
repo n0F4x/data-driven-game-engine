@@ -1,53 +1,47 @@
 #pragma once
 
-#include <functional>
 #include <vector>
+#include <functional>
 
-#include "Controller.hpp"
-#include "Stage.hpp"
+namespace engine {
 
-namespace app {
+class Controller;
 
-class Schedule final {
+class Stage final {
 public:
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
     class Builder;
 
+    ///----------------///
+    ///  Type aliases  ///
+    ///----------------///
+    using System = std::function<void(Controller)>;
+
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit Schedule(std::vector<Stage>&& t_stages = {}) noexcept;
+    [[nodiscard]] explicit Stage(std::vector<System>&& t_systems) noexcept;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    template<class AppView>
-    explicit(false) operator std::function<void(AppView)>();
-
-    template<class AppView>
-    void execute(AppView t_app);
-
-    void quit() noexcept;
+    void run(Controller t_controller) const;
 
 private:
-    template<class AppView>
-    void advance(AppView t_app, Controller t_controller);
-
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    bool m_running = true;
-    std::vector<Stage> m_stages;
+    std::vector<System> m_systems;
 };
 
-class Schedule::Builder {
+class Stage::Builder {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = Schedule;
+    using Product = Stage;
 
     ///-----------///
     ///  Methods  ///
@@ -55,18 +49,13 @@ public:
     [[nodiscard]] explicit(false) operator Product() noexcept;
     [[nodiscard]] auto build() noexcept -> Product;
 
-    [[nodiscard]] auto add_stage(Stage&& t_stage) -> Builder&;
+    [[nodiscard]] auto add_system(System&& t_system) -> Builder&;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    std::vector<Stage> m_stages;
+    std::vector<System> m_systems;
 };
 
-}   // namespace app
-
-#include "Controller.inl"
-#include "Stage.inl"
-
-#include "Schedule.inl"
+}   // namespace engine
