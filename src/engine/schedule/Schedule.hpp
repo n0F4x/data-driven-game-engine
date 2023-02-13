@@ -23,16 +23,16 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    template<class AppView>
+    template <class AppView>
     explicit(false) operator std::function<void(AppView)>();
 
-    template<class AppView>
+    template <class AppView>
     void execute(AppView t_app);
 
     void quit() noexcept;
 
 private:
-    template<class AppView>
+    template <class AppView>
     void advance(AppView t_app, Controller t_controller);
 
     ///-------------///
@@ -67,6 +67,5 @@ private:
 }   // namespace engine
 
 #include "Controller.inl"
-#include "Stage.inl"
-
 #include "Schedule.inl"
+#include "Stage.inl"

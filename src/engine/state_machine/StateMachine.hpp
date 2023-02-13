@@ -30,7 +30,7 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     [[nodiscard]] explicit StateMachine(StateContainer&& t_states = {},
-                                             StateId t_initialStateId = {});
+                                        StateId t_initialStateId = {});
 
     ///-----------///
     ///  Methods  ///
@@ -44,7 +44,7 @@ public:
 
 private:
     void set_next_state(gsl::not_null<State*> t_nextState) noexcept;
-    
+
     ///-------------///
     ///  Variables  ///
     ///-------------///

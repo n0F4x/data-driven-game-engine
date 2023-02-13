@@ -6,10 +6,10 @@ namespace engine {
 
 template <class RendererType>
 concept RendererConcept = requires(RendererType renderer) {
-    requires std::constructible_from<RendererType>;
-    requires std::movable<RendererType>;
-    renderer.render();
-};
+                              requires std::constructible_from<RendererType>;
+                              requires std::movable<RendererType>;
+                              renderer.render();
+                          };
 
 template <class DerivedType>
 class RendererInterface {
@@ -19,4 +19,4 @@ public:
     = default;
 };
 
-}
+}   // namespace engine

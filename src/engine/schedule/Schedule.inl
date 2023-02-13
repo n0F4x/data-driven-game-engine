@@ -7,12 +7,14 @@ namespace engine {
 Schedule::Schedule(std::vector<Stage>&& t_stages) noexcept
     : m_stages{ std::move(t_stages) } {}
 
-template<class AppView>
+template <class AppView>
 Schedule::operator std::function<void(AppView)>() {
-    return [schedule = std::move(*this)] (auto app) mutable { schedule.execute(app); };
+    return [schedule = std::move(*this)](auto app) mutable {
+        schedule.execute(app);
+    };
 }
 
-template<class AppView>
+template <class AppView>
 void Schedule::execute(AppView t_app) {
     std::cout << t_app.name() << " is running...\n";
 
@@ -28,7 +30,7 @@ void Schedule::quit() noexcept {
     m_running = false;
 }
 
-template<class AppView>
+template <class AppView>
 void Schedule::advance(AppView t_app, Controller t_controller) {
     for (auto& stage : m_stages) {
         stage.run(t_controller);
