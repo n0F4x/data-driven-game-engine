@@ -3,12 +3,10 @@
 
 namespace app {
 
-template <class ControllerType>
-BasicStage<ControllerType>::BasicStage(SystemContainer&& t_systems) noexcept
+Stage::Stage(std::vector<System>&& t_systems) noexcept
     : m_systems{ std::move(t_systems) } {}
 
-template <class ControllerType>
-void BasicStage<ControllerType>::run(Controller t_controller) const {
+void Stage::run(Controller t_controller) const {
     std::vector<std::future<void>> futures;
 
     for (const auto& system : m_systems) {
@@ -22,18 +20,15 @@ void BasicStage<ControllerType>::run(Controller t_controller) const {
     }
 }
 
-template <class ControllerType>
-BasicStage<ControllerType>::Builder::operator Product() noexcept {
+Stage::Builder::operator Product() noexcept {
     return build();
 }
 
-template <class ControllerType>
-auto BasicStage<ControllerType>::Builder::build() noexcept -> Product {
-    return BasicStage{ std::move(m_systems) };
+auto Stage::Builder::build() noexcept -> Product {
+    return Stage{ std::move(m_systems) };
 }
 
-template <class ControllerType>
-auto BasicStage<ControllerType>::Builder::add_system(System&& t_system)
+auto Stage::Builder::add_system(System&& t_system)
     -> Builder& {
     m_systems.push_back(std::move(t_system));
     return *this;

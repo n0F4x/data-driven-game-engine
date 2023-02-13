@@ -4,7 +4,7 @@
 
 namespace app {
 
-Schedule::Schedule(StageContainer&& t_stages) noexcept
+Schedule::Schedule(std::vector<Stage>&& t_stages) noexcept
     : m_stages{ std::move(t_stages) } {}
 
 template<class AppView>
@@ -22,10 +22,6 @@ void Schedule::execute(AppView t_app) {
             advance(t_app, controller);
         }
     }
-}
-
-auto Schedule::running() const noexcept -> bool {
-    return m_running;
 }
 
 void Schedule::quit() noexcept {

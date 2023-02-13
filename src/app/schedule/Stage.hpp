@@ -5,8 +5,9 @@
 
 namespace app {
 
-template <class ControllerType>
-class BasicStage final {
+class Controller;
+
+class Stage final {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -16,14 +17,12 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Controller = ControllerType;
     using System = std::function<void(Controller)>;
-    using SystemContainer = std::vector<System>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit BasicStage(SystemContainer&& t_systems) noexcept;
+    [[nodiscard]] explicit Stage(std::vector<System>&& t_systems) noexcept;
 
     ///-----------///
     ///  Methods  ///
@@ -34,16 +33,15 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    SystemContainer m_systems;
+    std::vector<System> m_systems;
 };
 
-template <class ControllerType>
-class BasicStage<ControllerType>::Builder {
+class Stage::Builder {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = BasicStage<ControllerType>;
+    using Product = Stage;
 
     ///-----------///
     ///  Methods  ///
@@ -51,15 +49,13 @@ public:
     [[nodiscard]] explicit(false) operator Product() noexcept;
     [[nodiscard]] auto build() noexcept -> Product;
 
-    [[nodiscard]] auto add_system(BasicStage::System&& t_system) -> Builder&;
+    [[nodiscard]] auto add_system(System&& t_system) -> Builder&;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    SystemContainer m_systems;
+    std::vector<System> m_systems;
 };
 
 }   // namespace app
-
-#include "Stage.inl"

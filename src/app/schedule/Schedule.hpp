@@ -15,20 +15,10 @@ public:
     ///------------------///
     class Builder;
 
-private:
-    ///----------------///
-    ///  Type aliases  ///
-    ///----------------///
-    using Controller = Controller<Schedule>;
-
-public:
-    using Stage = BasicStage<Controller>;
-    using StageContainer = std::vector<Stage>;
-
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit Schedule(StageContainer&& t_stages = {}) noexcept;
+    [[nodiscard]] explicit Schedule(std::vector<Stage>&& t_stages = {}) noexcept;
 
     ///-----------///
     ///  Methods  ///
@@ -39,7 +29,6 @@ public:
     template<class AppView>
     void execute(AppView t_app);
 
-    [[nodiscard]] auto running() const noexcept -> bool;
     void quit() noexcept;
 
 private:
@@ -50,7 +39,7 @@ private:
     ///  Variables  ///
     ///-------------///
     bool m_running = true;
-    StageContainer m_stages;
+    std::vector<Stage> m_stages;
 };
 
 class Schedule::Builder {
@@ -72,9 +61,12 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    StageContainer m_stages;
+    std::vector<Stage> m_stages;
 };
 
 }   // namespace app
+
+#include "Controller.inl"
+#include "Stage.inl"
 
 #include "Schedule.inl"

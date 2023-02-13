@@ -2,23 +2,15 @@
 
 namespace app {
 
-template <class ScheduleType>
-class Controller final {
-    ///----------------///
-    ///  Type aliases  ///
-    ///----------------///
-    using Schedule = ScheduleType;
+class Schedule;
 
+class Controller final {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
     [[nodiscard]] explicit Controller(Schedule& t_schedule) noexcept;
 
-    ///-----------///
-    ///  Methods  ///
-    ///-----------///
-    [[nodiscard]] auto running() const noexcept -> bool;
     void quit() noexcept;
 
 private:
@@ -29,5 +21,3 @@ private:
 };
 
 }   // namespace app
-
-#include "Controller.inl"
