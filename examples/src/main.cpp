@@ -3,11 +3,12 @@
 #include <thread>
 
 #include "app/App.hpp"
+#include "app/schedule/Schedule.hpp"
 
 auto main() -> int {
     using namespace std::chrono;
     using App = app::App;
-    using Schedule = app::Schedule<App>;
+    using Schedule = app::Schedule;
 
     try {
         App::Builder{}

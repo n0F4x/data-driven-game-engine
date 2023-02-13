@@ -3,14 +3,12 @@
 #include <functional>
 #include <vector>
 
-#include "app/core/schedule.hpp"
 #include "Controller.hpp"
 #include "Stage.hpp"
 
 namespace app {
 
-template <class AppType>
-class Schedule final : public ScheduleInterface<AppType> {
+class Schedule final {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -21,10 +19,9 @@ private:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Controller = Controller<Schedule<AppType>>;
+    using Controller = Controller<Schedule>;
 
 public:
-    using AppView = typename AppType::AppView;
     using Stage = BasicStage<Controller>;
     using StageContainer = std::vector<Stage>;
 
@@ -36,14 +33,17 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    explicit(false) operator std::function<void(typename AppType::AppView)>();
+    template<class AppView>
+    explicit(false) operator std::function<void(AppView)>();
 
-    void execute(AppView t_app) override;
+    template<class AppView>
+    void execute(AppView t_app);
 
     [[nodiscard]] auto running() const noexcept -> bool;
     void quit() noexcept;
 
 private:
+    template<class AppView>
     void advance(AppView t_app, Controller t_controller);
 
     ///-------------///
@@ -53,13 +53,12 @@ private:
     StageContainer m_stages;
 };
 
-template <class AppType>
-class Schedule<AppType>::Builder {
+class Schedule::Builder {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = Schedule<AppType>;
+    using Product = Schedule;
 
     ///-----------///
     ///  Methods  ///
