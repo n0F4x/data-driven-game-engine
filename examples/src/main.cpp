@@ -7,12 +7,12 @@
 auto main() -> int {
     using namespace std::chrono;
     using App = app::App;
-    using Schedule = app::Schedule<App::AppView>;
+    using Schedule = app::Schedule<App>;
 
     try {
         App::Builder{}
             .set_name("My game framework")
-            .set_schedule<Schedule>(
+            .set_schedule(
                 Schedule::Builder{}
                     .add_stage(Schedule::Stage::Builder{}
                                    .add_system([](auto t_controller) {
@@ -28,7 +28,8 @@ auto main() -> int {
                         [](auto t_controller) {
                             std::cout << "Stage 2\n";
                             t_controller.quit();
-                        })))
+                        }))
+                    .build())
             .build()
             .run();
     } catch (const std::exception&) {

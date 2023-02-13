@@ -11,14 +11,16 @@ namespace app {
 template <engine::RendererConcept RendererType>
 BasicApp<RendererType>::BasicApp(std::string_view t_name,
                                  Renderer&& t_renderer,
-                                 ScheduleHandle&& t_schedule) noexcept
+                                 Schedule&& t_schedule) noexcept
     : m_name{ t_name },
       m_renderer{ std::move(t_renderer) },
       m_schedule{ std::move(t_schedule) } {}
 
 template <engine::RendererConcept RendererType>
 void BasicApp<RendererType>::run() {
-    m_schedule->execute(*this);
+    if (m_schedule) {
+        m_schedule(*this);
+    }
 }
 
 ////////////////////////////////////////////
@@ -51,7 +53,7 @@ auto BasicApp<RendererType>::Builder::set_renderer(Renderer&& t_renderer)
 }
 
 template <engine::RendererConcept RendererType>
-auto BasicApp<RendererType>::Builder::set_schedule(ScheduleHandle&& t_schedule)
+auto BasicApp<RendererType>::Builder::set_schedule(Schedule&& t_schedule)
     -> Builder& {
     m_schedule = std::move(t_schedule);
     return *this;
@@ -61,7 +63,7 @@ template <engine::RendererConcept RendererType>
 template <class Schedule, typename... Args>
 auto BasicApp<RendererType>::Builder::set_schedule(Args&&... t_args)
     -> Builder& {
-    m_schedule = std::make_unique<Schedule>(t_args...);
+    m_schedule = Schedule{ std::forward<Args>(t_args)... };
     return *this;
 }
 

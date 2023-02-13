@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <memory>
+#include <functional>
 
 #include "AppView.hpp"
 #include "config.hpp"
@@ -21,7 +21,7 @@ public:
     ///----------------///
     using AppView = AppView<BasicApp<RendererType>>;
     using Renderer = RendererType;
-    using ScheduleHandle = std::unique_ptr<ScheduleInterface<AppView>>;
+    using Schedule = std::function<void(AppView)>;
 
     ///-----------///
     ///  Friends  ///
@@ -33,7 +33,7 @@ public:
     ///------------------------------///
     [[nodiscard]] explicit BasicApp(std::string_view t_name,
                                     Renderer&& t_renderer,
-                                    ScheduleHandle&& t_schedule) noexcept;
+                                    Schedule&& t_schedule) noexcept;
 
     ///-----------///
     ///  Methods  ///
@@ -46,7 +46,7 @@ private:
     ///-------------///
     std::string m_name;
     Renderer m_renderer;
-    ScheduleHandle m_schedule;
+    Schedule m_schedule;
 };
 
 template <engine::RendererConcept RendererType>
@@ -65,7 +65,7 @@ public:
 
     [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Builder&;
     [[nodiscard]] auto set_renderer(Renderer&& t_renderer) -> Builder&;
-    [[nodiscard]] auto set_schedule(ScheduleHandle&& t_schedule) -> Builder&;
+    [[nodiscard]] auto set_schedule(Schedule&& t_schedule) -> Builder&;
     template <class Schedule, typename... Args>
     [[nodiscard]] auto set_schedule(Args&&... t_args) -> Builder&;
 
@@ -75,7 +75,7 @@ private:
     ///-------------///
     std::string_view m_name = "App";
     Renderer m_renderer;
-    ScheduleHandle m_schedule = std::make_unique<config::Schedule<AppView>>();
+    Schedule m_schedule;
 };
 
 using App = BasicApp<config::Renderer>;
