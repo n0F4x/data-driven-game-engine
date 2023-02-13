@@ -2,13 +2,13 @@
 
 namespace app {
 
-template <class AppViewType>
+template <class AppType>
 class ScheduleInterface {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using AppView = AppViewType;
+    using AppView = typename AppType::AppView;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///

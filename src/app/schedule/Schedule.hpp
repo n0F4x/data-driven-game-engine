@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <vector>
 
 #include "app/core/schedule.hpp"
@@ -8,8 +9,8 @@
 
 namespace app {
 
-template <class AppViewType>
-class Schedule final : public ScheduleInterface<AppViewType> {
+template <class AppType>
+class Schedule final : public ScheduleInterface<AppType> {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -20,10 +21,10 @@ private:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Controller = Controller<Schedule<AppViewType>>;
+    using Controller = Controller<Schedule<AppType>>;
 
 public:
-    using AppView = AppViewType;
+    using AppView = typename AppType::AppView;
     using Stage = BasicStage<Controller>;
     using StageContainer = std::vector<Stage>;
 
@@ -35,6 +36,8 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
+    explicit(false) operator std::function<void(typename AppType::AppView)>();
+
     void execute(AppView t_app) override;
 
     [[nodiscard]] auto running() const noexcept -> bool;
@@ -50,13 +53,13 @@ private:
     StageContainer m_stages;
 };
 
-template <class AppViewType>
-class Schedule<AppViewType>::Builder {
+template <class AppType>
+class Schedule<AppType>::Builder {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Product = Schedule<AppViewType>;
+    using Product = Schedule<AppType>;
 
     ///-----------///
     ///  Methods  ///
@@ -73,6 +76,6 @@ private:
     StageContainer m_stages;
 };
 
-}   // namespace engine
+}   // namespace app
 
 #include "Schedule.inl"
