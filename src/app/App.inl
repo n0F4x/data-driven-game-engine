@@ -59,12 +59,4 @@ auto BasicApp<RendererType>::Builder::set_schedule(Schedule&& t_schedule)
     return *this;
 }
 
-template <engine::RendererConcept RendererType>
-template <class Schedule, typename... Args>
-auto BasicApp<RendererType>::Builder::set_schedule(Args&&... t_args)
-    -> Builder& {
-    m_schedule = Schedule{ std::forward<Args>(t_args)... };
-    return *this;
-}
-
 }   // namespace app

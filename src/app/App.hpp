@@ -66,8 +66,6 @@ public:
     [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Builder&;
     [[nodiscard]] auto set_renderer(Renderer&& t_renderer) -> Builder&;
     [[nodiscard]] auto set_schedule(Schedule&& t_schedule) -> Builder&;
-    template <class Schedule, typename... Args>
-    [[nodiscard]] auto set_schedule(Args&&... t_args) -> Builder&;
 
 private:
     ///-------------///
