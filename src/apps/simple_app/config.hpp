@@ -4,8 +4,8 @@
 
 #include "engine/renderer/Renderer.hpp"
 
-namespace app::config {
+namespace simple_app::config {
 
 using Renderer = engine::Renderer;
 
-}   // namespace app::config
+}   // namespace simple_app::config

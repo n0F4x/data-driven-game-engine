@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace app {
+namespace simple_app {
 
 ///////////////////////////////////
 ///-----------------------------///
@@ -59,4 +59,4 @@ auto BasicApp<RendererType>::Builder::set_schedule(Schedule&& t_schedule)
     return *this;
 }
 
-}   // namespace app
+}   // namespace simple_app

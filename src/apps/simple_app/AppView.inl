@@ -1,4 +1,4 @@
-namespace app {
+namespace simple_app {
 
 /////////////////////////////////////////
 ///-----------------------------------///
@@ -18,4 +18,4 @@ auto AppView<AppType>::renderer() -> App::Renderer& {
     return m_app.m_renderer;
 }
 
-}   // namespace app
+}   // namespace simple_app

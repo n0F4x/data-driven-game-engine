@@ -2,14 +2,14 @@
 #include <iostream>
 #include <thread>
 
-#include "app/App.hpp"
+#include "apps/simple_app/App.hpp"
 #include "engine/schedule/Schedule.hpp"
 
 auto main() -> int {
     using namespace std::chrono;
 
     try {
-        app::App::Builder{}
+        simple_app::App::Builder{}
             .set_name("My game framework")
             .set_schedule(
                 engine::Schedule::Builder{}

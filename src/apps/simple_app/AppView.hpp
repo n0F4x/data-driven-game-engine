@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-namespace app {
+namespace simple_app {
 
 template <class AppType>
 class AppView final {
@@ -30,6 +30,6 @@ private:
     App& m_app;
 };
 
-}   // namespace app
+}   // namespace simple_app
 
 #include "AppView.inl"
