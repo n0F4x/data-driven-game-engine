@@ -6,7 +6,7 @@
 #include "AppView.hpp"
 #include "config.hpp"
 
-namespace simple_app {
+namespace app {
 
 template <engine::RendererConcept RendererType>
 class BasicApp final {
@@ -78,6 +78,6 @@ private:
 
 using App = BasicApp<config::Renderer>;
 
-}   // namespace simple_app
+}   // namespace app
 
 #include "App.inl"

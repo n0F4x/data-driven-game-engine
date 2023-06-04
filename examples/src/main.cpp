@@ -9,7 +9,7 @@ auto main() -> int {
     using namespace std::chrono;
 
     try {
-        simple_app::App::Builder{}
+        app::App::Builder{}
             .set_name("My game framework")
             .set_schedule(
                 engine::Schedule::Builder{}

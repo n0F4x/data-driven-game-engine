@@ -1,11 +1,12 @@
 #pragma once
 
-#include <cstdint>
+#include <SFML/Window.hpp>
 
 #include "renderer/Renderer.hpp"
 
-namespace simple_app::config {
+namespace app::config {
 
 using Renderer = engine::Renderer;
+using Window = sf::WindowBase;
 
-}   // namespace simple_app::config
+}   // namespace app::config

@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
+include(FetchContent)
 
 set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 
 project(engine)
 
@@ -42,12 +42,21 @@ find_package(glm CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 
+# SFML
+set(BUILD_SHARED_LIBS OFF)
+FetchContent_Declare(SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG 2.6.x)
+FetchContent_MakeAvailable(SFML)
+
+
 target_link_libraries(${PROJECT_NAME} INTERFACE
         Microsoft.GSL::GSL
         Vulkan::Vulkan
         glm::glm
         glfw
         EnTT::EnTT
+        sfml-window
         )
 
 
