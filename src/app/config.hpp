@@ -1,12 +1,9 @@
 #pragma once
 
-#include <SFML/Window.hpp>
-
-#include "renderer/Renderer.hpp"
+#include "window/Window.hpp"
 
 namespace app::config {
 
-using Renderer = engine::Renderer;
-using Window = sf::WindowBase;
+using Window = window::Window;
 
 }   // namespace app::config

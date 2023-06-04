@@ -8,16 +8,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(engine)
 
 
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME})
 
 
 if (MSVC)
-    target_compile_options(${PROJECT_NAME} INTERFACE
+    target_compile_options(${PROJECT_NAME} PUBLIC
             /W4
             /WX
             )
 else ()
-    target_compile_options(${PROJECT_NAME} INTERFACE
+    target_compile_options(${PROJECT_NAME} PUBLIC
             -Wall
             -Wextra
             -Werror
@@ -25,7 +25,7 @@ else ()
             )
 endif ()
 
-target_include_directories(${PROJECT_NAME} INTERFACE
+target_include_directories(${PROJECT_NAME} PUBLIC
         src
         )
 
@@ -34,6 +34,7 @@ add_subdirectory(src/renderer)
 add_subdirectory(src/schedule)
 add_subdirectory(src/state_machine)
 add_subdirectory(src/state)
+add_subdirectory(src/window)
 
 
 find_package(Microsoft.GSL CONFIG REQUIRED)
@@ -50,7 +51,7 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 
-target_link_libraries(${PROJECT_NAME} INTERFACE
+target_link_libraries(${PROJECT_NAME} PUBLIC
         Microsoft.GSL::GSL
         Vulkan::Vulkan
         glm::glm

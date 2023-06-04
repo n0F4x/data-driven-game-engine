@@ -8,8 +8,7 @@
 
 namespace app {
 
-template <engine::RendererConcept RendererType>
-class BasicApp final {
+class App final {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -19,65 +18,53 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using AppView = AppView<BasicApp<RendererType>>;
-    using Renderer = RendererType;
-    using Schedule = std::function<void(AppView)>;
-
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend AppView;
+    using Window = config::Window;
+    using Runner = std::function<void(App&)>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit BasicApp(std::string_view t_name,
-                                    Renderer&& t_renderer,
-                                    Schedule&& t_schedule) noexcept;
+    [[nodiscard]] explicit App(Builder&& t_builder);
 
+public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
     void run();
 
+    ///----------------///
+    /// Static methods ///
+    ///----------------///
+    [[nodiscard]] static auto create() noexcept -> Builder;
+
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    std::string m_name;
-    Renderer m_renderer;
-    Schedule m_schedule;
+    Runner m_runner;
+    Window m_window;
 };
 
-template <engine::RendererConcept RendererType>
-class BasicApp<RendererType>::Builder final {
+class App::Builder final {
 public:
-    ///----------------///
-    ///  Type aliases  ///
-    ///----------------///
-    using Product = BasicApp<RendererType>;
-
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] explicit(false) operator Product() noexcept;
-    [[nodiscard]] auto build() noexcept -> Product;
+    [[nodiscard]] auto build() -> App;
 
-    [[nodiscard]] auto set_name(std::string_view t_name) noexcept -> Builder&;
-    [[nodiscard]] auto set_renderer(Renderer&& t_renderer) -> Builder&;
-    [[nodiscard]] auto set_schedule(Schedule&& t_schedule) -> Builder&;
+    auto set_runner(Runner&& t_runner) noexcept -> Builder&;
+    auto set_window(const Window::Builder& t_window_builder) noexcept
+        -> Builder&;
+
+    [[nodiscard]] auto runner() noexcept -> Runner;
+    [[nodiscard]] auto window() noexcept -> const Window::Builder&;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    std::string_view m_name = "App";
-    Renderer m_renderer;
-    Schedule m_schedule;
+    Runner m_runner;
+    Window::Builder m_window_builder;
 };
 
-using App = BasicApp<config::Renderer>;
-
 }   // namespace app
-
-#include "App.inl"

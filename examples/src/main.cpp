@@ -1,37 +1,17 @@
-#include <chrono>
-#include <iostream>
-#include <thread>
-
 #include "app/App.hpp"
-#include "schedule/Schedule.hpp"
+
+using namespace app;
+
+auto run(App&) -> void {}
 
 auto main() -> int {
-    using namespace std::chrono;
-
-    try {
-        app::App::Builder{}
-            .set_name("My game framework")
-            .set_schedule(
-                engine::Schedule::Builder{}
-                    .add_stage(engine::Stage::Builder{}
-                                   .add_system([](auto t_controller) {
-                                       std::this_thread::sleep_for(500ms);
-                                       std::cout << "Stage 1 - first\n";
-                                       t_controller.quit();
-                                   })
-                                   .add_system([](auto t_controller) {
-                                       std::cout << "Stage 1 - second\n";
-                                       t_controller.quit();
-                                   }))
-                    .add_stage(engine::Stage::Builder{}.add_system(
-                        [](auto t_controller) {
-                            std::cout << "Stage 2\n";
-                            t_controller.quit();
-                        }))
-                    .build())
-            .build()
-            .run();
-    } catch (const std::exception&) {
-        std::cout << "Oops... Something went wrong!\n";
-    }
+    auto my_app =
+        App::create()
+            .set_window(App::Window::create()
+                            .set_video_mode(sf::VideoMode{ 450u, 600u })
+                            .set_title("My window")
+                            .set_style(sf::Style::Default))
+            .set_runner(run)
+            .build();
+    my_app.run();
 }
