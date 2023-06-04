@@ -4,7 +4,7 @@
 
 #include <gsl/pointers>
 
-#include "engine/core/state.hpp"
+#include "core/state.hpp"
 
 namespace engine {
 

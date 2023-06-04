@@ -2,8 +2,8 @@
 #include <iostream>
 #include <thread>
 
-#include "apps/simple_app/App.hpp"
-#include "engine/schedule/Schedule.hpp"
+#include "app/App.hpp"
+#include "schedule/Schedule.hpp"
 
 auto main() -> int {
     using namespace std::chrono;

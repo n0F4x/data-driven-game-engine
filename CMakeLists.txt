@@ -29,8 +29,12 @@ target_include_directories(${PROJECT_NAME} INTERFACE
         src
         )
 
-add_subdirectory(src/apps/simple_app)
-add_subdirectory(src/engine)
+add_subdirectory(src/app)
+add_subdirectory(src/renderer)
+add_subdirectory(src/schedule)
+add_subdirectory(src/state_machine)
+add_subdirectory(src/state)
+
 
 find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)

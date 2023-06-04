@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "engine/renderer/Renderer.hpp"
+#include "renderer/Renderer.hpp"
 
 namespace simple_app::config {
 
