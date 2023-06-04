@@ -2,7 +2,7 @@
 
 using namespace app;
 
-auto run(App&) -> void {}
+auto run(App::Window&) -> void {}
 
 auto main() -> int {
     auto my_app =

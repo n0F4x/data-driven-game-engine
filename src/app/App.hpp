@@ -1,9 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <string>
 
-#include "AppView.hpp"
 #include "config.hpp"
 
 namespace app {
@@ -19,7 +17,7 @@ public:
     ///  Type aliases  ///
     ///----------------///
     using Window = config::Window;
-    using Runner = std::function<void(App&)>;
+    using Runner = std::function<void(Window&)>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
