@@ -1,6 +1,6 @@
-#include "app/App.hpp"
+#include <engine/app/App.hpp>
 
-using namespace app;
+using namespace engine::app;
 
 auto run(App::Window&) -> void {}
 

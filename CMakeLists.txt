@@ -29,12 +29,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         src
         )
 
-add_subdirectory(src/app)
-add_subdirectory(src/renderer)
-add_subdirectory(src/schedule)
-add_subdirectory(src/state_machine)
-add_subdirectory(src/state)
-add_subdirectory(src/window)
+add_subdirectory(src/engine)
 
 
 find_package(Microsoft.GSL CONFIG REQUIRED)

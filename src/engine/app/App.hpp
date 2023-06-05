@@ -4,7 +4,7 @@
 
 #include "config.hpp"
 
-namespace app {
+namespace engine::app {
 
 class App final {
 public:
@@ -65,4 +65,4 @@ private:
     Window::Builder m_window_builder;
 };
 
-}   // namespace app
+}   // namespace engine::app

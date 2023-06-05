@@ -1,8 +1,8 @@
 #pragma once
 
-#include <SFML/Window.hpp>
+#include "SFML/Window.hpp"
 
-namespace window {
+namespace engine::window {
 
 class Window : public sf::WindowBase {
 public:
@@ -47,4 +47,4 @@ private:
     sf::VideoMode m_video_mode;
 };
 
-}   // namespace window
+}   // namespace engine::window

@@ -1,6 +1,6 @@
 #include "Window.hpp"
 
-namespace window {
+namespace engine::window {
 
 Window::Window(const Builder& t_builder)
     : sf::WindowBase{ t_builder.video_mode(),
@@ -45,4 +45,4 @@ auto Window::Builder::video_mode() const noexcept -> const sf::VideoMode& {
     return m_video_mode;
 }
 
-}   // namespace window
+}   // namespace engine::window
