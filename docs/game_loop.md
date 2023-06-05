@@ -1,21 +1,38 @@
-## Game Loop:
+# Game Loop
 
-The following points take an attempt at describing each facet of a (simple) single threaded game loop.
+The game loop consists of multiple systems working together.
 
-- (process network inputs & send them to input buffer)
-- process inputs:
-  - get input
-  - update state based on input
-  - (send data to network)
-- advance game:
-  - animation
-  - physics
-- update states:
-  - AI:
-    - update state based on updated data
-    - create events & pass them to event queue
-- render
-- play audio
+## The big 3
 
-# Comments
-TODO: Adapt parallelism
+Synchronization is key, especially around the main building blocks.
+
+### Input processing
+
+- States:
+    - player state ↓
+    - game state
+
+### Game logic
+
+- States:
+    - player state
+    - bounding boxes
+    - positions ↓
+
+### Rendering
+
+- States:
+    - positions
+    - visuals
+
+## Sub-systems
+
+- User interface
+- Graphics (data modelling)
+- Rendering
+- Collision and physics
+- Animation
+- AI
+- Audio
+- Networking
+- Core and script
