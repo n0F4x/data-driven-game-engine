@@ -12,7 +12,9 @@ App::App(Builder&& t_builder)
       m_window{ t_builder.window() } {}
 
 void App::run() {
-    m_runner(m_window);
+    if (m_runner) {
+        m_runner(m_window);
+    }
 }
 
 auto App::create() noexcept -> App::Builder {
