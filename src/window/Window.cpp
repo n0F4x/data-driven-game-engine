@@ -2,12 +2,12 @@
 
 namespace window {
 
-Window::Window(const Window::Builder& t_builder)
+Window::Window(const Builder& t_builder)
     : sf::WindowBase{ t_builder.video_mode(),
                       t_builder.title(),
                       t_builder.style() } {}
 
-auto Window::create() -> Builder {
+auto Window::create() noexcept -> Builder {
     return Builder{};
 }
 
@@ -33,15 +33,15 @@ auto Window::Builder::set_style(sf::Uint32 t_style) noexcept
     return *this;
 }
 
-auto Window::Builder::style() const -> sf::Uint32 {
+auto Window::Builder::style() const noexcept -> sf::Uint32 {
     return m_style;
 }
 
-auto Window::Builder::title() const -> const sf::String& {
+auto Window::Builder::title() const noexcept -> const sf::String& {
     return m_title;
 }
 
-auto Window::Builder::video_mode() const -> const sf::VideoMode& {
+auto Window::Builder::video_mode() const noexcept -> const sf::VideoMode& {
     return m_video_mode;
 }
 

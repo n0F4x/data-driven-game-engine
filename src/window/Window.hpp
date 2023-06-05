@@ -14,7 +14,7 @@ public:
     ///----------------///
     /// Static methods ///
     ///----------------///
-    [[nodiscard]] static auto create() -> Builder;
+    [[nodiscard]] static auto create() noexcept -> Builder;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
@@ -34,9 +34,9 @@ public:
     auto set_title(const sf::String& t_title) noexcept -> Builder&;
     auto set_video_mode(const sf::VideoMode& t_video_mode) noexcept -> Builder&;
 
-    [[nodiscard]] auto style() const -> sf::Uint32;
-    [[nodiscard]] auto title() const -> const sf::String&;
-    [[nodiscard]] auto video_mode() const -> const sf::VideoMode&;
+    [[nodiscard]] auto style() const noexcept -> sf::Uint32;
+    [[nodiscard]] auto title() const noexcept -> const sf::String&;
+    [[nodiscard]] auto video_mode() const noexcept -> const sf::VideoMode&;
 
 private:
     ///-------------///
