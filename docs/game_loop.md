@@ -36,3 +36,4 @@ Synchronization is key, especially around the main building blocks.
 - Audio
 - Networking
 - Core and script
+- Profiling
