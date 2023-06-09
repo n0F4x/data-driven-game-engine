@@ -4,7 +4,7 @@
 
 #include "config.hpp"
 
-namespace engine::app {
+namespace engine {
 
 class App final {
 public:
@@ -16,7 +16,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Window = config::Window;
+    using Window = app::config::Window;
     using Runner = std::function<void(Window&)>;
 
     ///------------------------------///
@@ -65,4 +65,4 @@ private:
     Window::Builder m_window_builder;
 };
 
-}   // namespace engine::app
+}   // namespace engine

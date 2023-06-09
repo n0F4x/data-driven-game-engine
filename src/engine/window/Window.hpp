@@ -2,7 +2,7 @@
 
 #include "SFML/Window.hpp"
 
-namespace engine::window {
+namespace engine {
 
 class Window : public sf::WindowBase {
 public:
@@ -47,4 +47,4 @@ private:
     sf::VideoMode m_video_mode;
 };
 
-}   // namespace engine::window
+}   // namespace engine

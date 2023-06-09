@@ -1,6 +1,6 @@
 #include "App.hpp"
 
-namespace engine::app {
+namespace engine {
 
 //////////////////////////////
 ///----------------------- ///
@@ -49,4 +49,4 @@ auto App::Builder::window() noexcept -> const Window::Builder& {
     return m_window_builder;
 }
 
-}   // namespace engine::app
+}   // namespace engine

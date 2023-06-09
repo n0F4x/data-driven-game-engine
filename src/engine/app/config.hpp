@@ -4,6 +4,6 @@
 
 namespace engine::app::config {
 
-using Window = window::Window;
+using Window = Window;
 
 }   // namespace engine::app::config
