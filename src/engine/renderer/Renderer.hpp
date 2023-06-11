@@ -1,11 +1,12 @@
 #pragma once
 
+#include "RendererImpl.hpp"
 #include "SwapChain.hpp"
 
 namespace engine {
 
 template <renderer::WindowConcept WindowType>
-class Renderer final {
+class Renderer {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -21,7 +22,7 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Renderer(Window& t_window);
+    explicit Renderer(const vk::ApplicationInfo& t_app_info, Window& t_window);
 
     ///-----------///
     ///  Methods  ///
@@ -29,25 +30,13 @@ public:
     void begin_frame();
     void end_frame();
 
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
-
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
+    vk::raii::Instance m_instance;
+    renderer::RendererImpl m_pimpl;
     SwapChain m_swap_chain;
-};
-
-template <renderer::WindowConcept WindowType>
-class Renderer<WindowType>::Builder {
-public:
-    ///-----------///
-    ///  Methods  ///
-    ///-----------///
-    [[nodiscard]] auto build(Window& t_window) const -> Renderer<WindowType>;
 };
 
 }   // namespace engine

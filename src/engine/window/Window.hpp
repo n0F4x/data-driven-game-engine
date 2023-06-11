@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SFML/Window.hpp"
+#include "SFML/Window/Vulkan.hpp"
 
 namespace engine {
 
@@ -42,8 +43,8 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    sf::Uint32 m_style = sf::Style::Default;
-    sf::String m_title;
+    sf::Uint32    m_style = sf::Style::Default;
+    sf::String    m_title;
     sf::VideoMode m_video_mode;
 };
 
