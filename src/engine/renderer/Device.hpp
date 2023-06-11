@@ -4,19 +4,19 @@
 
 namespace engine::renderer {
 
-class RendererImpl {
+class Device {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    RendererImpl(const vk::raii::Instance& t_instance,
-                 vk::raii::SurfaceKHR&&    t_surface);
+    explicit Device(vk::raii::Instance&&        t_instance,
+                    const vk::raii::SurfaceKHR& t_surface);
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    vk::raii::SurfaceKHR m_surface;
+    vk::raii::Instance m_instance;
 };
 
 }   // namespace engine::renderer

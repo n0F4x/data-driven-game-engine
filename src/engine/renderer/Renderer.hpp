@@ -1,29 +1,42 @@
 #pragma once
 
-#include "RendererImpl.hpp"
+#include <vulkan/vulkan_raii.hpp>
+
+#include <SFML/Window/Vulkan.hpp>
+
+#include "Device.hpp"
+#include "engine/core/concepts.hpp"
+#include "engine/core/vulkan.hpp"
 #include "SwapChain.hpp"
 
 namespace engine {
 
-template <renderer::WindowConcept WindowType>
 class Renderer {
 public:
-    ///------------------///
-    ///  Nested classes  ///
-    ///------------------///
-    class Builder;
-
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Window = WindowType;
-    using SwapChain = renderer::SwapChain<Window>;
+    using Device    = renderer::Device;
+    using SwapChain = renderer::SwapChain;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Renderer(const vk::ApplicationInfo& t_app_info, Window& t_window);
+    template <utils::Invocable_R<vk::raii::SurfaceKHR,
+                                 const vk::raii::Instance&,
+                                 vk::Optional<const vk::AllocationCallbacks>>
+                  CreateSurfaceCallback>
+    explicit Renderer(const vk::ApplicationInfo& t_app_info,
+                      CreateSurfaceCallback&&    t_surface_creator);
 
+private:
+    template <typename CreateSurfaceCallback>
+    explicit Renderer(vk::raii::Instance&&    t_instance,
+                      CreateSurfaceCallback&& t_surface_creator);
+    explicit Renderer(vk::raii::SurfaceKHR&& t_surface,
+                      vk::raii::Instance&&   t_instance);
+
+public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
@@ -34,11 +47,35 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    vk::raii::Instance m_instance;
-    renderer::RendererImpl m_pimpl;
+    Device    m_device;
     SwapChain m_swap_chain;
 };
 
-}   // namespace engine
+///////////////////////////////////
+///-----------------------------///
+///  Renderer   IMPLEMENTATION  ///
+///-----------------------------///
+///////////////////////////////////
+template <utils::Invocable_R<vk::raii::SurfaceKHR,
+                             const vk::raii::Instance&,
+                             vk::Optional<const vk::AllocationCallbacks>>
+              CreateSurfaceCallback>
+Renderer::Renderer(const vk::ApplicationInfo& t_app_info,
+                   CreateSurfaceCallback&&    t_surface_creator)
+    : Renderer{ utils::create_instance(
+                    t_app_info,
+                    utils::create_validation_layers(),
+                    std::span{
+                        sf::Vulkan::getGraphicsRequiredInstanceExtensions() }),
+                t_surface_creator }
+{
+}
 
-#include "Renderer.inl"
+template <typename CreateSurfaceCallback>
+Renderer::Renderer(vk::raii::Instance&&    t_instance,
+                   CreateSurfaceCallback&& t_surface_creator)
+    : Renderer{ t_surface_creator(t_instance, nullptr), std::move(t_instance) }
+{
+}
+
+}   // namespace engine

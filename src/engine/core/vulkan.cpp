@@ -5,7 +5,7 @@
 namespace engine::utils {
 
 void check_validation_layer_support(
-    const std::vector<const char*>& t_validation_layers)
+    std::span<const char* const> t_validation_layers)
 {
     auto available_layers{ vk::enumerateInstanceLayerProperties() };
 
@@ -36,7 +36,7 @@ void check_validation_layer_support(
     }
 }
 
-void check_extension_support(const std::vector<const char*>& t_extensions)
+void check_extension_support(std::span<const char* const> t_extensions)
 {
     auto available_extensions{ vk::enumerateInstanceExtensionProperties() };
 
@@ -65,6 +65,23 @@ void check_extension_support(const std::vector<const char*>& t_extensions)
         }
         throw std::runtime_error{ message };
     }
+}
+
+auto create_instance(const vk::ApplicationInfo&   t_appInfo,
+                     std::span<const char* const> t_validationLayers,
+                     std::span<const char* const> t_extensions)
+    -> vk::raii::Instance
+{
+    check_validation_layer_support(t_validationLayers);
+    check_extension_support(t_extensions);
+    return {
+        {},
+        { .pApplicationInfo  = &t_appInfo,
+         .enabledLayerCount = static_cast<uint32_t>(t_validationLayers.size()),
+         .ppEnabledLayerNames     = t_validationLayers.data(),
+         .enabledExtensionCount   = static_cast<uint32_t>(t_extensions.size()),
+         .ppEnabledExtensionNames = t_extensions.data() }
+    };
 }
 
 }   // namespace engine::utils

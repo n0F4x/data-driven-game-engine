@@ -1,3 +1,5 @@
 target_sources(${PROJECT_NAME} PUBLIC
-        RendererImpl.cpp
+        Device.cpp
+        Renderer.cpp
+        SwapChain.cpp
         )

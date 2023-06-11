@@ -1,29 +1,21 @@
 #pragma once
 
-#include "WindowConcept.hpp"
+#include "Device.hpp"
 
 namespace engine::renderer {
 
-template <WindowConcept WindowType>
 class SwapChain {
 public:
-    ///----------------///
-    ///  Type aliases  ///
-    ///----------------///
-    using Window = WindowType;
-
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit SwapChain(Window& t_window);
+    explicit SwapChain(vk::raii::SurfaceKHR&& t_surface);
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    Window& m_window;
+    vk::raii::SurfaceKHR m_surface;
 };
 
 }   // namespace engine::renderer
-
-#include "SwapChain.inl"

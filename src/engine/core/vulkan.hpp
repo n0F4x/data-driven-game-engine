@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <ranges>
+#include <span>
 #include <stdexcept>
 #include <string_view>
 #include <vector>
@@ -24,15 +25,13 @@ create_app_info(std::string_view t_app_name, std::string_view t_engine_name)
 }
 
 [[nodiscard]] constexpr auto create_validation_layers()
-    -> std::vector<const char*>
+    -> std::span<const char* const>
 {
 #ifdef ENGINE_VULKAN_DEBUG
     if consteval {
-        return { "VK_LAYER_KHRONOS_validation" };
+        return { { "VK_LAYER_KHRONOS_validation" } };
     }
-    static const std::vector<const char*> validation_layers{ "VK_LAYER_"
-                                                             "KHRONOS_"
-                                                             "validation" };
+    static const std::array validation_layers{ "VK_LAYER_KHRONOS_validation" };
     return validation_layers;
 #else
     return {};
@@ -40,26 +39,14 @@ create_app_info(std::string_view t_app_name, std::string_view t_engine_name)
 }
 
 void check_validation_layer_support(
-    const std::vector<const char*>& t_validation_layers);
+    std::span<const char* const> t_validation_layers);
 
-void check_extension_support(const std::vector<const char*>& t_extensions);
+void check_extension_support(std::span<const char* const> t_extensions);
 
 [[nodiscard]] auto
-create_instance(const vk::ApplicationInfo&              t_appInfo,
-                const RangeOfConcept<const char*> auto& t_validationLayers,
-                const RangeOfConcept<const char*> auto& t_extensions)
-    -> vk::raii::Instance
-{
-    check_validation_layer_support(t_validationLayers);
-    check_extension_support(t_extensions);
-    return {
-        {},
-        { .pApplicationInfo  = &t_appInfo,
-         .enabledLayerCount = static_cast<uint32_t>(t_validationLayers.size()),
-         .ppEnabledLayerNames     = t_validationLayers.data(),
-         .enabledExtensionCount   = static_cast<uint32_t>(t_extensions.size()),
-         .ppEnabledExtensionNames = t_extensions.data() }
-    };
-}
+create_instance(const vk::ApplicationInfo&   t_appInfo,
+                std::span<const char* const> t_validationLayers,
+                std::span<const char* const> t_extensions)
+    -> vk::raii::Instance;
 
 }   // namespace engine::utils

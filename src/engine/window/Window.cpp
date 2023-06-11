@@ -2,6 +2,11 @@
 
 namespace engine {
 
+/////////////////////////////////
+///---------------------------///
+///  Window   IMPLEMENTATION  ///
+///---------------------------///
+/////////////////////////////////
 Window::Window(const Builder& t_builder)
     : sf::WindowBase{ t_builder.video_mode(),
                       t_builder.title(),
@@ -14,6 +19,11 @@ auto Window::create() noexcept -> Builder
     return Builder{};
 }
 
+//////////////////////////////////////////
+///------------------------------------///
+///  Window::Builder   IMPLEMENTATION  ///
+///------------------------------------///
+//////////////////////////////////////////
 auto Window::Builder::build() const -> Window
 {
     return Window{ *this };

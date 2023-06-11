@@ -2,6 +2,29 @@
 
 #include "engine/core/vulkan.hpp"
 
+namespace {
+
+auto create_surface(engine::App::Window& t_window)
+{
+    return [&t_window](const vk::raii::Instance&                   t_instance,
+                       vk::Optional<const vk::AllocationCallbacks> t_allocator)
+               -> vk::raii::SurfaceKHR {
+        VkSurfaceKHR surface{};
+
+        if (!t_window.createVulkanSurface(
+                *t_instance,
+                surface,
+                &t_allocator->operator const VkAllocationCallbacks&()))
+        {
+            throw std::runtime_error("Failed to create window surface");
+        }
+
+        return { t_instance, surface, t_allocator };
+    };
+}
+
+}   // namespace
+
 namespace engine {
 
 //////////////////////////////
@@ -11,7 +34,7 @@ namespace engine {
 //////////////////////////////
 App::App(Builder&& t_builder)
     : m_window{ t_builder.window() },
-      m_renderer{ utils::create_app_info({}, {}), m_window },
+      m_renderer{ utils::create_app_info({}, {}), create_surface(m_window) },
       m_runner{ t_builder.runner() }
 {
 }
