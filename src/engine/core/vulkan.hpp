@@ -23,17 +23,32 @@ create_app_info(std::string_view t_app_name, std::string_view t_engine_name)
                                 .apiVersion         = VK_API_VERSION_1_0 };
 }
 
-[[nodiscard]] auto create_validation_layers() -> std::vector<const char*>;
+[[nodiscard]] constexpr auto create_validation_layers()
+    -> std::vector<const char*>
+{
+#ifdef ENGINE_VULKAN_DEBUG
+    if consteval {
+        return { "VK_LAYER_KHRONOS_validation" };
+    }
+    static const std::vector<const char*> validation_layers{ "VK_LAYER_"
+                                                             "KHRONOS_"
+                                                             "validation" };
+    return validation_layers;
+#else
+    return {};
+#endif
+}
 
 void check_validation_layer_support(
     const std::vector<const char*>& t_validation_layers);
 
 void check_extension_support(const std::vector<const char*>& t_extensions);
 
-inline vk::raii::Instance
+[[nodiscard]] auto
 create_instance(const vk::ApplicationInfo&              t_appInfo,
                 const RangeOfConcept<const char*> auto& t_validationLayers,
                 const RangeOfConcept<const char*> auto& t_extensions)
+    -> vk::raii::Instance
 {
     check_validation_layer_support(t_validationLayers);
     check_extension_support(t_extensions);

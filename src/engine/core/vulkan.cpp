@@ -4,17 +4,6 @@
 
 namespace engine::utils {
 
-auto create_validation_layers() -> std::vector<const char*>
-{
-#ifdef ENGINE_VULKAN_DEBUG
-    static const std::vector<const char*> validation_layers{ "VK_LAYER_KHRONOS_"
-                                                             "validation" };
-    return validation_layers;
-#else
-    return {};
-#endif
-}
-
 void check_validation_layer_support(
     const std::vector<const char*>& t_validation_layers)
 {
