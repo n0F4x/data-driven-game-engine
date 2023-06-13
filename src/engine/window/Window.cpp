@@ -11,8 +11,7 @@ Window::Window(const Builder& t_builder)
     : sf::WindowBase{ t_builder.video_mode(),
                       t_builder.title(),
                       t_builder.style() }
-{
-}
+{}
 
 auto Window::create() noexcept -> Builder
 {

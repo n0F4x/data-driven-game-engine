@@ -22,19 +22,24 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    template <utils::Invocable_R<vk::raii::SurfaceKHR,
-                                 const vk::raii::Instance&,
-                                 vk::Optional<const vk::AllocationCallbacks>>
-                  CreateSurfaceCallback>
-    explicit Renderer(const vk::ApplicationInfo& t_app_info,
-                      CreateSurfaceCallback&&    t_surface_creator);
+    template <utils::Invocable_R<
+        vk::raii::SurfaceKHR,
+        const vk::raii::Instance&,
+        vk::Optional<const vk::AllocationCallbacks>> CreateSurfaceCallback>
+    explicit Renderer(
+        const vk::ApplicationInfo& t_app_info,
+        CreateSurfaceCallback&&    t_surface_creator
+    );
 
 private:
     template <typename CreateSurfaceCallback>
-    explicit Renderer(vk::raii::Instance&&    t_instance,
-                      CreateSurfaceCallback&& t_surface_creator);
-    explicit Renderer(vk::raii::SurfaceKHR&& t_surface,
-                      vk::raii::Instance&&   t_instance);
+    explicit Renderer(
+        vk::raii::Instance&&    t_instance,
+        CreateSurfaceCallback&& t_surface_creator
+    );
+    explicit Renderer(
+        vk::raii::SurfaceKHR&& t_surface, vk::raii::Instance&& t_instance
+    );
 
 public:
     ///-----------///
@@ -47,8 +52,9 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    Device    m_device;
-    SwapChain m_swap_chain;
+    Device                m_device;
+    SwapChain             m_swap_chain;
+    vk::raii::CommandPool m_command_pool;
 };
 
 ///////////////////////////////////
@@ -56,26 +62,28 @@ private:
 ///  Renderer   IMPLEMENTATION  ///
 ///-----------------------------///
 ///////////////////////////////////
-template <utils::Invocable_R<vk::raii::SurfaceKHR,
-                             const vk::raii::Instance&,
-                             vk::Optional<const vk::AllocationCallbacks>>
-              CreateSurfaceCallback>
-Renderer::Renderer(const vk::ApplicationInfo& t_app_info,
-                   CreateSurfaceCallback&&    t_surface_creator)
+template <utils::Invocable_R<
+    vk::raii::SurfaceKHR,
+    const vk::raii::Instance&,
+    vk::Optional<const vk::AllocationCallbacks>> CreateSurfaceCallback>
+Renderer::Renderer(
+    const vk::ApplicationInfo& t_app_info,
+    CreateSurfaceCallback&&    t_surface_creator
+)
     : Renderer{ utils::create_instance(
                     t_app_info,
                     utils::create_validation_layers(),
                     std::span{
-                        sf::Vulkan::getGraphicsRequiredInstanceExtensions() }),
+                        sf::Vulkan::getGraphicsRequiredInstanceExtensions() }
+                ),
                 t_surface_creator }
-{
-}
+{}
 
 template <typename CreateSurfaceCallback>
-Renderer::Renderer(vk::raii::Instance&&    t_instance,
-                   CreateSurfaceCallback&& t_surface_creator)
+Renderer::Renderer(
+    vk::raii::Instance&& t_instance, CreateSurfaceCallback&& t_surface_creator
+)
     : Renderer{ t_surface_creator(t_instance, nullptr), std::move(t_instance) }
-{
-}
+{}
 
 }   // namespace engine

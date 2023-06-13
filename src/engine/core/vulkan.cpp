@@ -5,7 +5,8 @@
 namespace engine::utils {
 
 void check_validation_layer_support(
-    std::span<const char* const> t_validation_layers)
+    std::span<const char* const> t_validation_layers
+)
 {
     auto available_layers{ vk::enumerateInstanceLayerProperties() };
 
@@ -17,7 +18,8 @@ void check_validation_layer_support(
                 [validationLayer](auto availableLayer) {
                     return strcmp(validationLayer, availableLayer) == 0;
                 },
-                &vk::LayerProperties::layerName)
+                &vk::LayerProperties::layerName
+            )
             == available_layers.end())
         {
             invalid_layers.push_back(validationLayer);
@@ -25,8 +27,10 @@ void check_validation_layer_support(
     }
 
     if (!invalid_layers.empty()) {
-        std::string message{ "The following Vulkan validation layers are not "
-                             "supported:\n" };
+        std::string message{
+            "The following Vulkan validation layers are not "
+            "supported:\n"
+        };
         for (auto layer : invalid_layers) {
             message += "\t\"";
             message += layer;
@@ -48,7 +52,8 @@ void check_extension_support(std::span<const char* const> t_extensions)
                 [extension](auto availableLayer) {
                     return strcmp(extension, availableLayer) == 0;
                 },
-                &vk::ExtensionProperties::extensionName)
+                &vk::ExtensionProperties::extensionName
+            )
             == available_extensions.end())
         {
             invalid_extensions.push_back(extension);
@@ -56,8 +61,10 @@ void check_extension_support(std::span<const char* const> t_extensions)
     }
 
     if (!invalid_extensions.empty()) {
-        std::string message{ "The following Vulkan validation layers are not "
-                             "supported:\n" };
+        std::string message{
+            "The following Vulkan validation layers are not "
+            "supported:\n"
+        };
         for (auto extension : invalid_extensions) {
             message += "\t\"";
             message += extension;
@@ -67,10 +74,11 @@ void check_extension_support(std::span<const char* const> t_extensions)
     }
 }
 
-auto create_instance(const vk::ApplicationInfo&   t_appInfo,
-                     std::span<const char* const> t_validationLayers,
-                     std::span<const char* const> t_extensions)
-    -> vk::raii::Instance
+auto create_instance(
+    const vk::ApplicationInfo&   t_appInfo,
+    std::span<const char* const> t_validationLayers,
+    std::span<const char* const> t_extensions
+) -> vk::raii::Instance
 {
     check_validation_layer_support(t_validationLayers);
     check_extension_support(t_extensions);
