@@ -10,17 +10,20 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit Device(
-        vk::raii::Instance&& t_instance, const vk::raii::SurfaceKHR& t_surface
+        vk::raii::Instance&&        t_instance,
+        const vk::raii::SurfaceKHR& t_surface
     );
 
-    auto physical_device() const -> const vk::raii::PhysicalDevice&;
-    auto device() const -> const vk::raii::Device&;
+    [[nodiscard]] auto physical_device() const noexcept
+        -> const vk::raii::PhysicalDevice&;
+    [[nodiscard]] auto device() const noexcept -> const vk::raii::Device&;
 
-    auto graphics_queue_family() const -> uint32_t;
-    auto present_queue_family() const -> uint32_t;
+    [[nodiscard]] auto graphics_queue_family() const noexcept -> uint32_t;
+    [[nodiscard]] auto present_queue_family() const noexcept -> uint32_t;
 
-    auto graphics_queue() const -> const vk::raii::Queue&;
-    auto present_queue() const -> const vk::raii::Queue&;
+    [[nodiscard]] auto graphics_queue() const noexcept
+        -> const vk::raii::Queue&;
+    [[nodiscard]] auto present_queue() const noexcept -> const vk::raii::Queue&;
 
 private:
     ///-------------///

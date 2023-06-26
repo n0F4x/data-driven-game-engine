@@ -22,9 +22,11 @@ AlignConsecutiveDeclarations:
 AlignConsecutiveMacros: Consecutive
 AlignEscapedNewlines: Left
 AlignOperands: AlignAfterOperator
-AlignTrailingComments: true
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
 AllowAllArgumentsOnNextLine: true
-AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortEnumsOnASingleLine: false
@@ -51,7 +53,7 @@ BraceWrapping:
   AfterUnion: false
   AfterExternBlock: false
   BeforeCatch: false
-  BeforeElse: false
+  BeforeElse: true
   BeforeLambdaBody: false
   BeforeWhile: false
   IndentBraces: false
@@ -92,9 +94,11 @@ IncludeCategories:
   - Regex: '^<entt/'
     Priority: 6
   - Regex: '^<.*\..*'
-    Priority: 999
+    Priority: 998
   - Regex: '^<.*'
     Priority: 1
+  - Regex: '\/.*'
+    Priority: 999
   - Regex: '.*'
     Priority: 1000
 IncludeIsMainRegex: ''
@@ -144,7 +148,7 @@ ReflowComments: true
 RemoveBracesLLVM: false
 RemoveSemicolon: true
 RequiresClausePosition: OwnLine
-RequiresExpressionIndentation: Keyword
+RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Always
 ShortNamespaceLines: 0
 SortIncludes: CaseInsensitive

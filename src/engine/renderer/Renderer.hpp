@@ -4,9 +4,10 @@
 
 #include <SFML/Window/Vulkan.hpp>
 
-#include "Device.hpp"
 #include "engine/core/concepts.hpp"
 #include "engine/core/vulkan.hpp"
+
+#include "Device.hpp"
 #include "SwapChain.hpp"
 
 namespace engine {
@@ -38,7 +39,8 @@ private:
         CreateSurfaceCallback&& t_surface_creator
     );
     explicit Renderer(
-        vk::raii::SurfaceKHR&& t_surface, vk::raii::Instance&& t_instance
+        vk::raii::SurfaceKHR&& t_surface,
+        vk::raii::Instance&&   t_instance
     );
 
 public:
@@ -52,9 +54,15 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    Device                m_device;
-    SwapChain             m_swap_chain;
-    vk::raii::CommandPool m_command_pool;
+    Device                   m_device;
+    SwapChain                m_swap_chain;
+    vk::raii::CommandPool    m_command_pool;
+    vk::raii::CommandBuffers m_command_buffers;
+
+    ///--------------------///
+    ///  Static Variables  ///
+    ///--------------------///
+    constexpr static uint32_t s_MAX_FRAMES_IN_FLIGHT = 2;
 };
 
 ///////////////////////////////////
@@ -81,7 +89,8 @@ Renderer::Renderer(
 
 template <typename CreateSurfaceCallback>
 Renderer::Renderer(
-    vk::raii::Instance&& t_instance, CreateSurfaceCallback&& t_surface_creator
+    vk::raii::Instance&&    t_instance,
+    CreateSurfaceCallback&& t_surface_creator
 )
     : Renderer{ t_surface_creator(t_instance, nullptr), std::move(t_instance) }
 {}

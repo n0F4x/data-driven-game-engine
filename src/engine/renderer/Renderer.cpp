@@ -21,6 +21,14 @@ Renderer::Renderer(vk::raii::SurfaceKHR&& t_surface,
               .flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
               .queueFamilyIndex = m_device.graphics_queue_family()
           }
+      },
+      m_command_buffers{
+          m_device.device(),
+          vk::CommandBufferAllocateInfo{
+              .commandPool        = *m_command_pool,
+              .level              = vk::CommandBufferLevel::ePrimary,
+              .commandBufferCount = s_MAX_FRAMES_IN_FLIGHT
+          }
       }
 {}
 

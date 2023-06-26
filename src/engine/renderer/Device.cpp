@@ -15,7 +15,8 @@ struct QueueFamilyIndices {
 };
 
 std::optional<QueueFamilyIndices> find_queue_families(
-    vk::SurfaceKHR t_surface, vk::PhysicalDevice t_physical_device
+    vk::SurfaceKHR     t_surface,
+    vk::PhysicalDevice t_physical_device
 )
 {
     std::optional<uint32_t> graphics_family;
@@ -73,7 +74,8 @@ bool supports_extensions(
 }
 
 bool suitable(
-    vk::PhysicalDevice t_physical_device, const vk::raii::SurfaceKHR& t_surface
+    vk::PhysicalDevice          t_physical_device,
+    const vk::raii::SurfaceKHR& t_surface
 )
 {
     if (!find_queue_families(*t_surface, t_physical_device).has_value()) {
@@ -94,7 +96,8 @@ bool suitable(
 }
 
 vk::raii::PhysicalDevice pick_physical_device(
-    const vk::raii::Instance& t_instance, const vk::raii::SurfaceKHR& t_surface
+    const vk::raii::Instance&   t_instance,
+    const vk::raii::SurfaceKHR& t_surface
 )
 {
     vk::raii::PhysicalDevices physical_devices{ t_instance };
@@ -169,7 +172,8 @@ namespace engine::renderer {
 ///---------------------------///
 /////////////////////////////////
 Device::Device(
-    vk::raii::Instance&& t_instance, const vk::raii::SurfaceKHR& t_surface
+    vk::raii::Instance&&        t_instance,
+    const vk::raii::SurfaceKHR& t_surface
 )
     : m_instance{ std::move(t_instance) },
       m_physical_device{ pick_physical_device(m_instance, t_surface) },
@@ -186,32 +190,32 @@ Device::Device(
       m_present_queue{ m_device, m_present_queue_family, 0 }
 {}
 
-auto Device::physical_device() const -> const vk::raii::PhysicalDevice&
+auto Device::physical_device() const noexcept -> const vk::raii::PhysicalDevice&
 {
     return m_physical_device;
 }
 
-auto Device::device() const -> const vk::raii::Device&
+auto Device::device() const noexcept -> const vk::raii::Device&
 {
     return m_device;
 }
 
-auto Device::graphics_queue() const -> const vk::raii::Queue&
+auto Device::graphics_queue() const noexcept -> const vk::raii::Queue&
 {
     return m_graphics_queue;
 }
 
-auto Device::present_queue() const -> const vk::raii::Queue&
+auto Device::present_queue() const noexcept -> const vk::raii::Queue&
 {
     return m_present_queue;
 }
 
-auto Device::graphics_queue_family() const -> uint32_t
+auto Device::graphics_queue_family() const noexcept -> uint32_t
 {
     return m_graphics_queue_family;
 }
 
-auto Device::present_queue_family() const -> uint32_t
+auto Device::present_queue_family() const noexcept -> uint32_t
 {
     return m_present_queue_family;
 }
