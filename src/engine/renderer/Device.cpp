@@ -172,11 +172,10 @@ namespace engine::renderer {
 ///---------------------------///
 /////////////////////////////////
 Device::Device(
-    vk::raii::Instance&&        t_instance,
+    const vk::raii::Instance&   t_instance,
     const vk::raii::SurfaceKHR& t_surface
 )
-    : m_instance{ std::move(t_instance) },
-      m_physical_device{ pick_physical_device(m_instance, t_surface) },
+    : m_physical_device{ pick_physical_device(t_instance, t_surface) },
       m_device{ create_device(t_surface, m_physical_device) },
       m_graphics_queue_family{
           find_queue_families(*t_surface, *m_physical_device)

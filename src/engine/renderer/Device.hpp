@@ -10,7 +10,7 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit Device(
-        vk::raii::Instance&&        t_instance,
+        const vk::raii::Instance&   t_instance,
         const vk::raii::SurfaceKHR& t_surface
     );
 
@@ -29,7 +29,6 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    vk::raii::Instance       m_instance;
     vk::raii::PhysicalDevice m_physical_device;
     vk::raii::Device         m_device;
     uint32_t                 m_graphics_queue_family;

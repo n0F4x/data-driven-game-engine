@@ -4,7 +4,7 @@
 
 namespace {
 
-auto create_surface(engine::App::Window& t_window)
+auto create_surface_creator(engine::App::Window& t_window)
 {
     return [&t_window](
                const vk::raii::Instance&                   t_instance,
@@ -36,7 +36,10 @@ namespace engine {
 //////////////////////////////
 App::App(Builder&& t_builder)
     : m_window{ t_builder.window() },
-      m_renderer{ utils::create_app_info({}, {}), create_surface(m_window) },
+      m_renderer{ utils::create_app_info({}, {}),
+                  create_surface_creator(m_window),
+        { m_window.getSize().x, m_window.getSize().y }
+      },
       m_runner{ t_builder.runner() }
 {}
 
