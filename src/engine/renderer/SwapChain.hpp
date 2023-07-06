@@ -10,12 +10,7 @@ class SwapChain {
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit SwapChain(
-        const vk::raii::SurfaceKHR&       t_surface,
-        const Device&                     t_device,
-        const vk::SurfaceCapabilitiesKHR& t_surface_capabilities,
-        const vk::Extent2D&               t_extent
-    );
+    explicit SwapChain(const Device& t_device, const vk::Extent2D& t_extent);
 
 public:
     ///-----------///
@@ -28,11 +23,9 @@ public:
     ///----------------///
     /// Static methods ///
     ///----------------///
-    [[nodiscard]] static auto create(
-        const vk::raii::SurfaceKHR& t_surface,
-        const vk::Extent2D&         t_frame_buffer_size,
-        const Device&               t_device
-    ) -> std::optional<SwapChain>;
+    [[nodiscard]] static auto
+        create(const Device& t_device, const vk::Extent2D& t_frame_buffer_size)
+            -> std::optional<SwapChain>;
 
 private:
     ///-------------///

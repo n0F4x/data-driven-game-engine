@@ -2,7 +2,6 @@
 
 #include <algorithm>   // std::clamp
 #include <limits>      // std::numeric_limits
-#include <set>
 
 namespace engine::renderer {
 
@@ -63,22 +62,24 @@ vk::Extent2D choose_swap_chain_extent(
 }
 
 vk::raii::SwapchainKHR create_swap_chain(
-    const vk::raii::SurfaceKHR&       t_surface,
-    const Device&                     t_device,
-    const vk::SurfaceCapabilitiesKHR& t_surface_capabilities,
-    const vk::Extent2D&               t_extent,
-    const vk::SurfaceFormatKHR&       t_surfaceFormat
+    const Device&               t_device,
+    const vk::Extent2D&         t_extent,
+    const vk::SurfaceFormatKHR& t_surfaceFormat
 )
 {
+    vk::SurfaceCapabilitiesKHR surface_capabilities =
+        t_device.physical_device().getSurfaceCapabilitiesKHR(*t_device.surface()
+        );
     vk::PresentModeKHR present_mode = choose_swap_chain_present_mode(
-        t_device.physical_device().getSurfacePresentModesKHR(*t_surface)
+        t_device.physical_device().getSurfacePresentModesKHR(*t_device.surface()
+        )
     );
 
-    uint32_t image_count = t_surface_capabilities.minImageCount + 1;
-    if (t_surface_capabilities.maxImageCount > 0
-        && image_count > t_surface_capabilities.maxImageCount)
+    uint32_t image_count = surface_capabilities.minImageCount + 1;
+    if (surface_capabilities.maxImageCount > 0
+        && image_count > surface_capabilities.maxImageCount)
     {
-        image_count = t_surface_capabilities.maxImageCount;
+        image_count = surface_capabilities.maxImageCount;
     }
 
     std::set              buffer{ t_device.graphics_queue_family(),
@@ -90,7 +91,7 @@ vk::raii::SwapchainKHR create_swap_chain(
     // TODO: implement exclusive sharing for multiple queues
 
     vk::SwapchainCreateInfoKHR create_info{
-        .surface          = *t_surface,
+        .surface          = *t_device.surface(),
         .minImageCount    = image_count,
         .imageFormat      = t_surfaceFormat.format,
         .imageColorSpace  = t_surfaceFormat.colorSpace,
@@ -101,7 +102,7 @@ vk::raii::SwapchainKHR create_swap_chain(
         .queueFamilyIndexCount =
             static_cast<uint32_t>(queueFamilyIndices.size()),
         .pQueueFamilyIndices = queueFamilyIndices.data(),
-        .preTransform        = t_surface_capabilities.currentTransform,
+        .preTransform        = surface_capabilities.currentTransform,
         .compositeAlpha      = vk::CompositeAlphaFlagBitsKHR::eOpaque,
         .presentMode         = present_mode,
         .clipped             = true,
@@ -147,44 +148,33 @@ vk::ImageAspectFlagBits::eColor,
 ///  SwapChain   IMPLEMENTATION  ///
 ///------------------------------///
 ////////////////////////////////////
-SwapChain::SwapChain(
-    const vk::raii::SurfaceKHR&       t_surface,
-    const Device&                     t_device,
-    const vk::SurfaceCapabilitiesKHR& t_surface_capabilities,
-    const vk::Extent2D&               t_extent
-)
+SwapChain::SwapChain(const Device& t_device, const vk::Extent2D& t_extent)
     : m_extent{ t_extent },
       m_surface_format{ choose_swap_chain_surface_format(
-          t_device.physical_device().getSurfaceFormatsKHR(*t_surface)
+          t_device.physical_device().getSurfaceFormatsKHR(*t_device.surface())
       ) },
-      m_swap_chain{ create_swap_chain(
-          t_surface,
-          t_device,
-          t_surface_capabilities,
-          m_extent,
-          m_surface_format
-      ) },
+      m_swap_chain{ create_swap_chain(t_device, m_extent, m_surface_format) },
       m_imageViews{
           create_image_views(t_device.device(), m_swap_chain, m_surface_format)
       }
 {}
 
 auto SwapChain::create(
-    const vk::raii::SurfaceKHR& t_surface,
-    const vk::Extent2D&         t_frame_buffer_size,
-    const Device&               t_device
+    const Device&       t_device,
+    const vk::Extent2D& t_frame_buffer_size
 ) -> std::optional<SwapChain>
 {
-    vk::SurfaceCapabilitiesKHR surface_capabilities =
-        t_device.physical_device().getSurfaceCapabilitiesKHR(*t_surface);
-    auto extent =
-        choose_swap_chain_extent(t_frame_buffer_size, surface_capabilities);
+    auto extent = choose_swap_chain_extent(
+        t_frame_buffer_size,
+        t_device.physical_device().getSurfaceCapabilitiesKHR(*t_device.surface()
+        )
+    );
 
     if (extent.width == 0 || extent.height == 0) {
         return std::nullopt;
     }
 
-    return SwapChain{ t_surface, t_device, surface_capabilities, extent };
+    return SwapChain{ t_device, extent };
 }
 
 auto SwapChain::extent() const noexcept -> const vk::Extent2D&
