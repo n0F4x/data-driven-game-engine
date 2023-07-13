@@ -12,9 +12,9 @@
 namespace engine::renderer {
 
 template <typename SurfaceCreatorFunction>
-concept SurfaceCreator = utils::Invocable_R<
-    SurfaceCreatorFunction,
+concept SurfaceCreator = std::is_invocable_r_v<
     vk::raii::SurfaceKHR,
+    SurfaceCreatorFunction,
     const vk::raii::Instance&,
     vk::Optional<const vk::AllocationCallbacks>>;
 
