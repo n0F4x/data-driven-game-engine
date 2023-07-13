@@ -5,12 +5,23 @@
 
 namespace engine {
 
-class Window : public sf::WindowBase {
+class Window {
 public:
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
     class Builder;
+
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
+    [[nodiscard]] sf::Vector2u getSize() const;
+
+    bool createVulkanSurface(
+        const VkInstance&            t_instance,
+        VkSurfaceKHR&                t_surface,
+        const VkAllocationCallbacks* t_allocator = nullptr
+    );
 
     ///----------------///
     /// Static methods ///
@@ -20,8 +31,13 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    using sf::WindowBase::WindowBase;
     [[nodiscard]] explicit Window(const Builder& t_builder);
+
+private:
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
+    sf::WindowBase m_pimpl;
 };
 
 class Window::Builder {

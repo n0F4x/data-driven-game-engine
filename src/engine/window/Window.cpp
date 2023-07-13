@@ -8,14 +8,26 @@ namespace engine {
 ///---------------------------///
 /////////////////////////////////
 Window::Window(const Builder& t_builder)
-    : sf::WindowBase{ t_builder.video_mode(),
-                      t_builder.title(),
-                      t_builder.style() }
+    : m_pimpl{ t_builder.video_mode(), t_builder.title(), t_builder.style() }
 {}
 
 auto Window::create() noexcept -> Builder
 {
     return Builder{};
+}
+
+sf::Vector2u Window::getSize() const
+{
+    return m_pimpl.getSize();
+}
+
+bool Window::createVulkanSurface(
+    const VkInstance&            t_instance,
+    VkSurfaceKHR&                t_surface,
+    const VkAllocationCallbacks* t_allocator
+)
+{
+    return m_pimpl.createVulkanSurface(t_instance, t_surface, t_allocator);
 }
 
 //////////////////////////////////////////
