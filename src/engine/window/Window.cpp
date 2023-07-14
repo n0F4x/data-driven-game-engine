@@ -7,8 +7,12 @@ namespace engine {
 ///  Window   IMPLEMENTATION  ///
 ///---------------------------///
 /////////////////////////////////
-Window::Window(const Builder& t_builder)
-    : m_pimpl{ t_builder.video_mode(), t_builder.title(), t_builder.style() }
+Window::Window(
+    const sf::VideoMode& t_video_mode,
+    const sf::String&    t_title,
+    sf::Uint32           t_style
+)
+    : m_pimpl{ t_video_mode, t_title, t_style }
 {}
 
 auto Window::create() noexcept -> Builder
@@ -16,7 +20,7 @@ auto Window::create() noexcept -> Builder
     return Builder{};
 }
 
-sf::Vector2u Window::getSize() const
+sf::Vector2u Window::getSize() const noexcept
 {
     return m_pimpl.getSize();
 }
@@ -37,7 +41,7 @@ bool Window::createVulkanSurface(
 //////////////////////////////////////////
 auto Window::Builder::build() const -> Window
 {
-    return Window{ *this };
+    return Window{ m_video_mode, m_title, m_style };
 }
 
 auto Window::Builder::set_video_mode(const sf::VideoMode& t_video_mode) noexcept

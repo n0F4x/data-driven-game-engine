@@ -35,12 +35,12 @@ namespace engine {
 ///------------------------///
 //////////////////////////////
 App::App(Builder&& t_builder)
-    : m_window{ t_builder.window() },
+    : m_window{ t_builder.window().build() },
       m_renderer{ utils::create_app_info({}, {}),
                   create_surface_creator(m_window),
         { m_window.getSize().x, m_window.getSize().y }
       },
-      m_runner{ t_builder.runner() }
+      m_runner{ t_builder.release_runner() }
 {}
 
 void App::run()
@@ -78,7 +78,7 @@ auto App::Builder::set_window(const Window::Builder& t_window_builder) noexcept
     return *this;
 }
 
-auto App::Builder::runner() noexcept -> App::Runner
+auto App::Builder::release_runner() noexcept -> App::Runner
 {
     return std::move(m_runner);
 }

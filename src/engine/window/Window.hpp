@@ -13,9 +13,25 @@ public:
     class Builder;
 
     ///-----------///
+    ///  Friends  ///
+    ///-----------///
+    friend Builder;
+
+private:
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    [[nodiscard]] explicit Window(
+        const sf::VideoMode& t_video_mode,
+        const sf::String&    t_title,
+        sf::Uint32           t_style
+    );
+
+public:
+    ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] sf::Vector2u getSize() const;
+    [[nodiscard]] sf::Vector2u getSize() const noexcept;
 
     bool createVulkanSurface(
         const VkInstance&            t_instance,
@@ -28,11 +44,6 @@ public:
     ///----------------///
     [[nodiscard]] static auto create() noexcept -> Builder;
 
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    [[nodiscard]] explicit Window(const Builder& t_builder);
-
 private:
     ///-------------///
     ///  Variables  ///
@@ -41,11 +52,22 @@ private:
 };
 
 class Window::Builder {
+    ///-----------///
+    ///  Friends  ///
+    ///-----------///
+    friend Window;
+
+private:
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    Builder() = default;
+
 public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto build() const -> Window;
+    [[nodiscard]] auto build() const noexcept(false) -> Window;
 
     auto set_style(sf::Uint32 t_style) noexcept -> Builder&;
     auto set_title(const sf::String& t_title) noexcept -> Builder&;

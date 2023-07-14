@@ -8,11 +8,6 @@ namespace engine {
 
 class App {
 public:
-    ///------------------///
-    ///  Nested classes  ///
-    ///------------------///
-    class Builder;
-
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
@@ -21,6 +16,17 @@ public:
         std::function<void(app::config::Renderer&, app::config::Window&)>;
     using Window = app::config::Window;
 
+    ///------------------///
+    ///  Nested classes  ///
+    ///------------------///
+    class Builder;
+
+    ///-----------///
+    ///  Friends  ///
+    ///-----------///
+    friend Builder;
+
+private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
@@ -47,6 +53,17 @@ private:
 };
 
 class App::Builder final {
+    ///-----------///
+    ///  Friends  ///
+    ///-----------///
+    friend App;
+
+private:
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    Builder() = default;
+
 public:
     ///-----------///
     ///  Methods  ///
@@ -57,7 +74,7 @@ public:
     auto set_window(const Window::Builder& t_window_builder) noexcept
         -> Builder&;
 
-    [[nodiscard]] auto runner() noexcept -> Runner;
+    [[nodiscard]] auto release_runner() noexcept -> Runner;
     [[nodiscard]] auto window() noexcept -> const Window::Builder&;
 
 private:
@@ -65,7 +82,7 @@ private:
     ///  Variables  ///
     ///-------------///
     Runner          m_runner;
-    Window::Builder m_window_builder;
+    Window::Builder m_window_builder{ Window::create() };
 };
 
 }   // namespace engine
