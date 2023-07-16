@@ -21,7 +21,7 @@ namespace engine::utils {
                                 .applicationVersion = VK_API_VERSION_1_0,
                                 .pEngineName        = t_engine_name.data(),
                                 .engineVersion      = VK_API_VERSION_1_0,
-                                .apiVersion         = VK_API_VERSION_1_0 };
+                                .apiVersion         = VK_API_VERSION_1_1 };
 }
 
 [[nodiscard]] constexpr auto create_validation_layers()

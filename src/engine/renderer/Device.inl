@@ -178,7 +178,7 @@ Device::Device(
     : m_instance{ utils::create_instance(
         t_app_info,
         utils::create_validation_layers(),
-        std::span{ sf::Vulkan::getGraphicsRequiredInstanceExtensions() }
+        sf::Vulkan::getGraphicsRequiredInstanceExtensions()
     ) },
       m_surface{ t_surface_creator(m_instance, nullptr) },
       m_physical_device{ pick_physical_device(m_instance, m_surface) },
