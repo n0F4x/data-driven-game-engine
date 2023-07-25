@@ -15,7 +15,7 @@ Use the provided .clang-format.
 
 The following naming conventions apply:
 
-- Namespace: camelCase
+- Namespace: snake_case
 - Macro: SCREAMING_SNAKE_CASE
 - Class: PascalCase
 - Struct: PascalCase
