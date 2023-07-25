@@ -6,7 +6,7 @@
 
 namespace {
 
-auto create_surface_creator(engine::App::Window& t_window)
+auto create_surface_creator(engine::App::Window& t_window) noexcept
 {
     return [&t_window](
                vk::Instance                                t_instance,

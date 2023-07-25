@@ -15,7 +15,7 @@ const std::vector<const char*> g_device_extensions{
 auto supports_extensions(
     vk::PhysicalDevice           t_physical_device,
     std::span<const char* const> t_device_extensions
-) -> bool
+) noexcept -> bool
 {
     auto [result, extension_properties]{
         t_physical_device.enumerateDeviceExtensionProperties()
@@ -37,7 +37,7 @@ auto supports_extensions(
 auto supports_surface(
     vk::PhysicalDevice t_physical_devices,
     vk::SurfaceKHR     t_surface
-) -> bool
+) noexcept -> bool
 {
     uint32_t i{ 0 };
     for (auto prop : t_physical_devices.getQueueFamilyProperties()) {
@@ -58,7 +58,7 @@ auto choose_physical_device(
     std::span<vk::PhysicalDevice> t_physical_devices,
     std::span<const char* const>  t_required_extensions,
     vk::SurfaceKHR                t_surface
-) -> std::optional<vk::PhysicalDevice>
+) noexcept -> std::optional<vk::PhysicalDevice>
 {
     if (t_physical_devices.empty()) {
         return std::nullopt;
@@ -93,7 +93,7 @@ struct QueueFamilyIndices {
 auto find_queue_families(
     vk::PhysicalDevice t_physical_device,
     vk::SurfaceKHR     t_surface
-) -> std::optional<QueueFamilyIndices>
+) noexcept -> std::optional<QueueFamilyIndices>
 {
     std::optional<uint32_t> graphics_family;
     std::optional<uint32_t> present_family;

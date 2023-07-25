@@ -9,7 +9,7 @@ namespace {
 auto choose_swap_chain_surface_format(
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device
-) -> std::optional<vk::SurfaceFormatKHR>
+) noexcept -> std::optional<vk::SurfaceFormatKHR>
 {
     auto [result, t_available_surface_formats]{
         t_physical_device.getSurfaceFormatsKHR(t_surface)
@@ -31,7 +31,7 @@ auto choose_swap_chain_surface_format(
 auto choose_swap_chain_present_mode(
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device
-) -> std::optional<vk::PresentModeKHR>
+) noexcept -> std::optional<vk::PresentModeKHR>
 {
     auto [result, present_modes]{
         t_physical_device.getSurfacePresentModesKHR(t_surface)
@@ -50,7 +50,7 @@ auto choose_swap_chain_present_mode(
 auto choose_swap_chain_extent(
     const vk::Extent2D&               t_frame_buffer_size,
     const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
-) -> vk::Extent2D
+) noexcept -> vk::Extent2D
 {
     if (t_surface_capabilities.currentExtent.width
         == std::numeric_limits<uint32_t>::max())
@@ -83,7 +83,7 @@ auto create_swap_chain(
     vk::Device           t_device,
     vk::Extent2D         t_extent,
     vk::SurfaceFormatKHR t_surfaceFormat
-) -> std::optional<vk::SwapchainKHR>
+) noexcept -> std::optional<vk::SwapchainKHR>
 {
     auto [result, surface_capabilities]{
         t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
@@ -141,7 +141,7 @@ auto create_image_views(
     vk::Device           t_device,
     vk::SwapchainKHR     t_swap_chain,
     vk::SurfaceFormatKHR t_surface_format
-) -> std::optional<std::vector<vk::ImageView>>
+) noexcept -> std::optional<std::vector<vk::ImageView>>
 {
     auto images = t_device.getSwapchainImagesKHR(t_swap_chain);
     if (images.result != vk::Result::eSuccess) {

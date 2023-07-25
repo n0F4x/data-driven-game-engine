@@ -43,7 +43,7 @@ auto Instance::create() noexcept -> Builder
 
 namespace {
 
-auto find_invalid_layers(const std::vector<const char*>& t_layers)
+auto find_invalid_layers(const std::vector<const char*>& t_layers) noexcept
     -> std::expected<std::vector<const char*>, vk::Result>
 {
     auto [result, available_layers]{ vk::enumerateInstanceLayerProperties() };
@@ -71,8 +71,8 @@ auto find_invalid_layers(const std::vector<const char*>& t_layers)
     return invalid_layers;
 }
 
-auto find_invalid_extensions(const std::vector<const char*>& t_extensions)
-    -> std::expected<std::vector<const char*>, vk::Result>
+auto find_invalid_extensions(const std::vector<const char*>& t_extensions
+) noexcept -> std::expected<std::vector<const char*>, vk::Result>
 {
     auto [result, available_extensions]{
         vk::enumerateInstanceExtensionProperties()
@@ -101,8 +101,8 @@ auto find_invalid_extensions(const std::vector<const char*>& t_extensions)
     return invalid_extensions;
 }
 
-auto check_for_error(const engine::vulkan::Instance::Builder& t_builder)
-    -> std::optional<engine::vulkan::Instance::Builder::Error>
+auto check_for_error(const engine::vulkan::Instance::Builder& t_builder
+) noexcept -> std::optional<engine::vulkan::Instance::Builder::Error>
 {
     engine::vulkan::Instance::Builder::Error error{};
 
@@ -203,8 +203,8 @@ auto Instance::Builder::set_api_version(uint32_t t_api_version) noexcept
     return *this;
 }
 
-auto Instance::Builder::add_layers(std::span<const char* const> t_layers) noexcept
-    -> Builder&
+auto Instance::Builder::add_layers(std::span<const char* const> t_layers
+) noexcept -> Builder&
 {
     m_layers.insert(m_layers.end(), t_layers.begin(), t_layers.end());
     return *this;

@@ -4,7 +4,7 @@
 
 namespace engine::vulkan {
 
-[[nodiscard]] constexpr auto validation_layers() -> std::span<const char* const>
+[[nodiscard]] constexpr auto validation_layers() noexcept -> std::span<const char* const>
 {
 #ifdef ENGINE_VULKAN_DEBUG
     if consteval {

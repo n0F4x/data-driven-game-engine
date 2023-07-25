@@ -4,7 +4,7 @@ using namespace engine;
 
 auto run(Renderer&, Window&) noexcept -> void {}
 
-auto main() -> int
+auto main() noexcept -> int
 {
     App::create()
         .set_window(Window::create()
