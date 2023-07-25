@@ -35,11 +35,6 @@ auto CommandPool::operator*() const noexcept -> vk::CommandPool
     return m_command_pool;
 }
 
-auto CommandPool::operator->() const noexcept -> const vk::CommandPool*
-{
-    return &m_command_pool;
-}
-
 auto CommandPool::create(
     vk::Device                 t_device,
     vk::CommandPoolCreateFlags t_flags,

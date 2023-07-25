@@ -10,7 +10,7 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit FrameBuffer(
-        vk::Instance   t_instance,
+        vk::Device      t_device,
         vk::Framebuffer t_frame_buffer
     ) noexcept;
     FrameBuffer(FrameBuffer&&) noexcept;
@@ -19,17 +19,15 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto               operator=(FrameBuffer&&) noexcept -> FrameBuffer& = default;
+    auto operator=(FrameBuffer&&) noexcept -> FrameBuffer& = default;
     [[nodiscard]] auto operator*() const noexcept -> vk::Framebuffer;
-    [[nodiscard]] auto operator->() const noexcept -> const vk::Framebuffer*;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    vk::Instance   m_instance;
+    vk::Device      m_device;
     vk::Framebuffer m_frame_buffer;
 };
 
 }   // namespace engine::vulkan
-

@@ -23,7 +23,6 @@ public:
     ///-------------///
     auto operator=(CommandPool&&) noexcept -> CommandPool& = default;
     [[nodiscard]] auto operator*() const noexcept -> vk::CommandPool;
-    [[nodiscard]] auto operator->() const noexcept -> const vk::CommandPool*;
 
     ///----------------///
     /// Static methods ///
