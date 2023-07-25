@@ -1,27 +1,20 @@
 #include "App.hpp"
 
-#include "engine/core/vulkan.hpp"
+#include <SFML/Window/Vulkan.hpp>
+
+#include "engine/utility/vulkan/helpers.hpp"
 
 namespace {
 
 auto create_surface_creator(engine::App::Window& t_window)
 {
     return [&t_window](
-               const vk::raii::Instance&                   t_instance,
+               vk::Instance                                t_instance,
                vk::Optional<const vk::AllocationCallbacks> t_allocator
-           ) -> vk::raii::SurfaceKHR {
-        VkSurfaceKHR surface{};
-
-        if (!t_window.createVulkanSurface(
-                *t_instance,
-                surface,
-                &t_allocator->operator const VkAllocationCallbacks&()
-            ))
-        {
-            throw std::runtime_error("Failed to create window surface");
-        }
-
-        return { t_instance, surface, t_allocator };
+           ) noexcept -> std::optional<vk::SurfaceKHR> {
+        return t_window.createVulkanSurface(
+            t_instance, &t_allocator->operator const VkAllocationCallbacks&()
+        );
     };
 }
 
@@ -34,21 +27,10 @@ namespace engine {
 ///  App   IMPLEMENTATION  ///
 ///------------------------///
 //////////////////////////////
-App::App(Builder&& t_builder)
-    : m_window{ t_builder.window().build() },
-      m_renderer{ utils::create_app_info({}, {}),
-                  create_surface_creator(m_window),
-        { m_window.getSize().x, m_window.getSize().y }
-      },
-      m_runner{ t_builder.release_runner() }
+App::App(Renderer&& t_renderer, Window&& t_window) noexcept
+    : m_renderer{ std::move(t_renderer) },
+      m_window{ std::move(t_window) }
 {}
-
-void App::run()
-{
-    if (m_runner) {
-        m_runner(m_renderer, m_window);
-    }
-}
 
 auto App::create() noexcept -> App::Builder
 {
@@ -60,32 +42,42 @@ auto App::create() noexcept -> App::Builder
 ///  App::Builder   IMPLEMENTATION  ///
 ///---------------------------------///
 ///////////////////////////////////////
-auto App::Builder::build() -> App
+auto App::Builder::build() && noexcept -> std::optional<App>
 {
-    return App{ std::move(*this) };
+    if (!m_window.has_value()) {
+        m_window = Window::create().build();
+    }
+
+    if (!m_window.has_value()) {
+        return std::nullopt;
+    }
+
+    auto instance{
+        vulkan::Instance::create()
+            .set_api_version(VK_API_VERSION_1_0)
+            .add_layers(vulkan::validation_layers())
+            .add_extensions(sf::Vulkan::getGraphicsRequiredInstanceExtensions())
+            .build()
+    };
+    if (!instance.has_value()) {
+        return std::nullopt;
+    }
+
+    auto renderer{ Renderer::create(
+        std::move(*instance), create_surface_creator(*m_window)
+    ) };
+    if (!renderer.has_value()) {
+        return std::nullopt;
+    }
+
+    return App{ std::move(*renderer), std::move(*m_window) };
 }
 
-auto App::Builder::set_runner(Runner&& t_runner) noexcept -> Builder&
+auto App::Builder::set_window(std::optional<Window> t_window) && noexcept
+    -> Builder
 {
-    m_runner = std::move(t_runner);
-    return *this;
-}
-
-auto App::Builder::set_window(const Window::Builder& t_window_builder) noexcept
-    -> App::Builder&
-{
-    m_window_builder = t_window_builder;
-    return *this;
-}
-
-auto App::Builder::release_runner() noexcept -> App::Runner
-{
-    return std::move(m_runner);
-}
-
-auto App::Builder::window() noexcept -> const Window::Builder&
-{
-    return m_window_builder;
+    m_window = std::move(t_window);
+    return std::move(*this);
 }
 
 }   // namespace engine

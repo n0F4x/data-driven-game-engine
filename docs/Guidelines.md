@@ -14,6 +14,7 @@ Use the provided .clang-format.
 ### Naming conventions
 
 The following naming conventions apply:
+
 - Namespace: camelCase
 - Macro: SCREAMING_SNAKE_CASE
 - Class: PascalCase
@@ -32,6 +33,7 @@ The following naming conventions apply:
 - Local Variable: snake_case
 
 Please use the following Hungarian notations:
+
 - Enumerator: eEnumerator
 - Class/Struct Private Member Field: m_field
 - Class/Struct Static Variable: s_variable
@@ -46,12 +48,15 @@ In some constructors exceptions are unavoidable, mark them `noexcept(false)`!
 Terminating the program in case of an unsuccessful dynamic memory allocation is fine.
 (This is what noexcept functions do by default instead of throwing.)
 
+### Comments
+
+Make your code self-documenting!  
+Mark each section as seen in the rest of the files.
+
 ### Other
 
 - Don't make class fields protected. Make a protected getter/setter instead.
 - Make a static helper function called `create` in case a normal constructor may fail.
-And mark the constructor private!
+  And mark the constructor private!
 - Use the Builder Pattern instead of complex constructors.
-The builder should be constructed by the class's `create` function, 
-which takes no arguments in this case.
-
+  The builder should be constructed by the class's `create` function.

@@ -7,31 +7,56 @@ namespace engine {
 ///  Window   IMPLEMENTATION  ///
 ///---------------------------///
 /////////////////////////////////
+
 Window::Window(
     const sf::VideoMode& t_video_mode,
     const sf::String&    t_title,
     sf::Uint32           t_style
-)
-    : m_pimpl{ t_video_mode, t_title, t_style }
+) noexcept(false)
+    : m_impl{
+          new sf::Window{t_video_mode, t_title, t_style}
+}
 {}
+
+auto Window::operator*() const noexcept -> sf::WindowBase&
+{
+    return *m_impl;
+}
+
+auto Window::operator->() const noexcept -> sf::WindowBase*
+{
+    return m_impl.operator->();
+}
+
+auto Window::getSize() const noexcept -> sf::Vector2u
+{
+    return m_impl->getSize();
+}
+
+auto Window::createVulkanSurface(
+    const VkInstance&            t_instance,
+    const VkAllocationCallbacks* t_allocator
+) noexcept -> std::optional<VkSurfaceKHR>
+{
+    if (!sf::Vulkan::isAvailable()) {
+        return std::nullopt;
+    }
+
+    VkSurfaceKHR surface{};
+
+    try {
+        if (m_impl->createVulkanSurface(t_instance, surface, t_allocator)) {
+            return surface;
+        }
+    } catch (...) {
+    }
+
+    return std::nullopt;
+}
 
 auto Window::create() noexcept -> Builder
 {
     return Builder{};
-}
-
-sf::Vector2u Window::getSize() const noexcept
-{
-    return m_pimpl.getSize();
-}
-
-bool Window::createVulkanSurface(
-    const VkInstance&            t_instance,
-    VkSurfaceKHR&                t_surface,
-    const VkAllocationCallbacks* t_allocator
-)
-{
-    return m_pimpl.createVulkanSurface(t_instance, t_surface, t_allocator);
 }
 
 //////////////////////////////////////////
@@ -39,9 +64,14 @@ bool Window::createVulkanSurface(
 ///  Window::Builder   IMPLEMENTATION  ///
 ///------------------------------------///
 //////////////////////////////////////////
-auto Window::Builder::build() const -> Window
+
+auto Window::Builder::build() const noexcept -> std::optional<Window>
 {
-    return Window{ m_video_mode, m_title, m_style };
+    try {
+        return Window{ m_video_mode, m_title, m_style };
+    } catch (...) {
+        return std::nullopt;
+    }
 }
 
 auto Window::Builder::set_video_mode(const sf::VideoMode& t_video_mode) noexcept

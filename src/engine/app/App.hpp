@@ -1,10 +1,18 @@
 #pragma once
 
 #include <functional>
+#include <optional>
+#include <type_traits>
+
+#include "engine/utility/Result.hpp"
 
 #include "config.hpp"
 
 namespace engine {
+
+template <typename Func>
+concept Runner = std::
+    is_nothrow_invocable_v<Func, app::config::Renderer&, app::config::Window&>;
 
 class App {
 public:
@@ -12,9 +20,7 @@ public:
     ///  Type aliases  ///
     ///----------------///
     using Renderer = app::config::Renderer;
-    using Runner =
-        std::function<void(app::config::Renderer&, app::config::Window&)>;
-    using Window = app::config::Window;
+    using Window   = app::config::Window;
 
     ///------------------///
     ///  Nested classes  ///
@@ -30,13 +36,20 @@ private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit App(Builder&& t_builder);
+    explicit App(Renderer&& t_renderer, Window&& t_window) noexcept;
 
 public:
+    App(App&&) noexcept = default;
+
+    ///-------------///
+    ///  Operators  ///
+    ///-------------///
+    auto operator=(App&&) noexcept -> App& = default;
+
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    void run();
+    auto run(Runner auto t_runner) noexcept -> void;
 
     ///----------------///
     /// Static methods ///
@@ -47,42 +60,37 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    Window   m_window;
     Renderer m_renderer;
-    Runner   m_runner;
+    Window   m_window;
 };
 
-class App::Builder final {
+class App::Builder {
     ///-----------///
     ///  Friends  ///
     ///-----------///
     friend App;
 
-private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    Builder() = default;
+    Builder() noexcept = default;
 
 public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto build() -> App;
+    [[nodiscard]] auto build() && noexcept -> std::optional<App>;
+    auto build_and_run(Runner auto t_runner) && noexcept -> Result;
 
-    auto set_runner(Runner&& t_runner) noexcept -> Builder&;
-    auto set_window(const Window::Builder& t_window_builder) noexcept
-        -> Builder&;
-
-    [[nodiscard]] auto release_runner() noexcept -> Runner;
-    [[nodiscard]] auto window() noexcept -> const Window::Builder&;
+    auto set_window(std::optional<Window> t_window) && noexcept -> Builder;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    Runner          m_runner;
-    Window::Builder m_window_builder{ Window::create() };
+    std::optional<Window> m_window;
 };
 
 }   // namespace engine
+
+#include "App.inl"

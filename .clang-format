@@ -1,6 +1,6 @@
 ---
 Language: Cpp
-BasedOnStyle: WebKit
+BasedOnStyle: Google
 
 AccessModifierOffset: -4
 AlignAfterOpenBracket: BlockIndent
@@ -128,16 +128,16 @@ NamespaceIndentation: None
 NamespaceMacros: [ ]
 PPIndentWidth: 2
 PackConstructorInitializers: CurrentLine
-PenaltyBreakAssignment: 10
-PenaltyBreakBeforeFirstCallParameter: 30
-PenaltyBreakComment: 10
-PenaltyBreakFirstLessLess: 0
-# PenaltyBreakOpenParenthesis: 
-PenaltyBreakString: 10
-# PenaltyBreakTemplateDeclaration: 
-PenaltyExcessCharacter: 100
-# PenaltyIndentedWhitespace: 
-PenaltyReturnTypeOnItsOwnLine: 5
+#PenaltyBreakAssignment: 10
+#PenaltyBreakBeforeFirstCallParameter: 30
+#PenaltyBreakComment: 10
+#PenaltyBreakFirstLessLess: 0
+#PenaltyBreakOpenParenthesis: 10
+#PenaltyBreakString: 10
+#PenaltyBreakTemplateDeclaration: 20
+#PenaltyExcessCharacter: 1
+#PenaltyIndentedWhitespace: 0
+#PenaltyReturnTypeOnItsOwnLine: 5
 PointerAlignment: Left
 QualifierAlignment: Custom
 QualifierOrder: [ 'constexpr', 'static', 'inline', 'volatile', 'const', 'type', 'restrict' ]

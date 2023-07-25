@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <optional>
+
 #include <SFML/Window.hpp>
 #include <SFML/Window/Vulkan.hpp>
 
@@ -21,23 +24,31 @@ private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    [[nodiscard]] explicit Window(
+    explicit Window(
         const sf::VideoMode& t_video_mode,
         const sf::String&    t_title,
         sf::Uint32           t_style
-    );
+    ) noexcept(false);
 
 public:
+    Window(Window&&) noexcept = default;
+
+    ///-------------///
+    ///  Operators  ///
+    ///-------------///
+    auto               operator=(Window&&) noexcept -> Window& = default;
+    [[nodiscard]] auto operator*() const noexcept -> sf::WindowBase&;
+    [[nodiscard]] auto operator->() const noexcept -> sf::WindowBase*;
+
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] sf::Vector2u getSize() const noexcept;
+    [[nodiscard]] auto getSize() const noexcept -> sf::Vector2u;
 
-    bool createVulkanSurface(
+    auto createVulkanSurface(
         const VkInstance&            t_instance,
-        VkSurfaceKHR&                t_surface,
         const VkAllocationCallbacks* t_allocator = nullptr
-    );
+    ) noexcept -> std::optional<VkSurfaceKHR>;
 
     ///----------------///
     /// Static methods ///
@@ -48,7 +59,7 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    sf::WindowBase m_pimpl;
+    std::unique_ptr<sf::WindowBase> m_impl;
 };
 
 class Window::Builder {
@@ -57,17 +68,16 @@ class Window::Builder {
     ///-----------///
     friend Window;
 
-private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    Builder() = default;
+    Builder() noexcept = default;
 
 public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto build() const noexcept(false) -> Window;
+    [[nodiscard]] auto build() const noexcept -> std::optional<Window>;
 
     auto set_style(sf::Uint32 t_style) noexcept -> Builder&;
     auto set_title(const sf::String& t_title) noexcept -> Builder&;

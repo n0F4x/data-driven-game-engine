@@ -20,7 +20,7 @@ else ()
     target_compile_options(${PROJECT_NAME} PUBLIC
             -Wall
             -Wextra
-            -Werror
+#            -Werror
             -fconcepts-diagnostics-depth=3
             )
 endif ()
@@ -45,6 +45,7 @@ add_subdirectory(src/engine)
 # Vulkan
 find_package(Vulkan REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
+        VULKAN_HPP_NO_EXCEPTIONS
         VULKAN_HPP_NO_TO_STRING
         VULKAN_HPP_NO_CONSTRUCTORS
         VULKAN_HPP_NO_SETTERS
