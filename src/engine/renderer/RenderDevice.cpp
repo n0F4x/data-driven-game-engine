@@ -1,4 +1,4 @@
-#include "Renderer.hpp"
+#include "RenderDevice.hpp"
 
 #include <functional>
 #include <ranges>
@@ -135,22 +135,40 @@ auto find_queue_families(
 
 namespace engine {
 
-///////////////////////////////////
-///-----------------------------///
-///  Renderer   IMPLEMENTATION  ///
-///-----------------------------///
-///////////////////////////////////
+///////////////////////////////////////
+///---------------------------------///
+///  RenderDevice   IMPLEMENTATION  ///
+///---------------------------------///
+///////////////////////////////////////
 
-static const uint32_t hardware_concurrency =
-    std::jthread::hardware_concurrency();
-const uint32_t Renderer::MAX_THREADS{ hardware_concurrency > 0
-                                          ? hardware_concurrency
-                                          : 1 };
+RenderDevice::RenderDevice(
+    vulkan::Instance&& t_instance,
+    vk::PhysicalDevice t_physical_device,
+    uint32_t           t_graphics_family_index,
+    uint32_t           t_present_family_index,
+    vulkan::Device&&   t_device
+) noexcept
+    : m_instance{ std::move(t_instance) },
+      m_physical_device{ t_physical_device },
+      m_graphics_family_index{ t_graphics_family_index },
+      m_present_family_index{ t_present_family_index },
+      m_device{ std::move(t_device) }
+{}
 
-auto Renderer::create(
-    Instance&&           t_instance,
-    SwapChain::Surface&& t_surface
-) noexcept -> std::optional<Renderer>
+auto RenderDevice::operator*() const noexcept -> vk::Device
+{
+    return *m_device;
+}
+
+auto RenderDevice::operator->() const noexcept -> const vk::Device*
+{
+    return m_device.operator->();
+}
+
+auto RenderDevice::create(
+    vulkan::Instance&& t_instance,
+    vk::SurfaceKHR     t_surface
+) noexcept -> std::optional<RenderDevice>
 {
     auto physical_devices{ t_instance->enumeratePhysicalDevices() };
     if (physical_devices.result != vk::Result::eSuccess) {
@@ -158,14 +176,14 @@ auto Renderer::create(
     }
 
     auto physical_device{ choose_physical_device(
-        physical_devices.value, g_device_extensions, *t_surface
+        physical_devices.value, g_device_extensions, t_surface
     ) };
     if (!physical_device.has_value()) {
         return std::nullopt;
     }
 
     auto queue_family_indices{
-        find_queue_families(*physical_device, *t_surface)
+        find_queue_families(*physical_device, t_surface)
     };
     if (!queue_family_indices.has_value()) {
         return std::nullopt;
@@ -184,7 +202,7 @@ auto Renderer::create(
                 .pQueuePriorities = &queue_priority });
         }
     }
-    auto device{ Device::create()
+    auto device{ vulkan::Device::create()
                      .set_physical_device(*physical_device)
                      .add_queue_create_infos(queue_create_infos)
                      .add_enabled_layers(vulkan::validation_layers())
@@ -194,16 +212,11 @@ auto Renderer::create(
         return std::nullopt;
     }
 
-    auto commandPool{ CommandPool::create(
-        **device,
-        vk::CommandPoolCreateFlagBits::eTransient,
-        queue_family_indices->graphics_family
-    ) };
-    if (!commandPool.has_value()) {
-        return std::nullopt;
-    }
-
-    return std::nullopt;
+    return RenderDevice{ std::move(t_instance),
+                         *physical_device,
+                         queue_family_indices->graphics_family,
+                         queue_family_indices->present_family,
+                         std::move(*device) };
 }
 
 }   // namespace engine

@@ -27,8 +27,13 @@ namespace engine {
 ///  App   IMPLEMENTATION  ///
 ///------------------------///
 //////////////////////////////
-App::App(Renderer&& t_renderer, Window&& t_window) noexcept
-    : m_renderer{ std::move(t_renderer) },
+App::App(
+    RenderDevice&&    t_render_device,
+    vulkan::Surface&& t_surface,
+    Window&&          t_window
+) noexcept
+    : m_render_device{ std::move(t_render_device) },
+      m_surface{ std::move(t_surface) },
       m_window{ std::move(t_window) }
 {}
 
@@ -63,14 +68,20 @@ auto App::Builder::build() && noexcept -> std::optional<App>
         return std::nullopt;
     }
 
-    auto renderer{ Renderer::create(
-        std::move(*instance), create_surface_creator(*m_window)
-    ) };
+    auto raw_surface{ create_surface_creator(*m_window)(**instance, nullptr) };
+    if (!raw_surface.has_value()) {
+        return std::nullopt;
+    }
+    vulkan::Surface surface{ **instance, *raw_surface };
+
+    auto renderer{ RenderDevice::create(std::move(*instance), *raw_surface) };
     if (!renderer.has_value()) {
         return std::nullopt;
     }
 
-    return App{ std::move(*renderer), std::move(*m_window) };
+    return App{ std::move(*renderer),
+                std::move(surface),
+                std::move(*m_window) };
 }
 
 auto App::Builder::set_window(std::optional<Window> t_window) && noexcept

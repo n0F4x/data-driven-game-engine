@@ -2,7 +2,7 @@
 
 using namespace engine;
 
-auto run(Renderer&, Window&) noexcept -> void {}
+auto run(RenderDevice&, Window&) noexcept -> void {}
 
 auto main() noexcept -> int
 {

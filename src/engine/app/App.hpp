@@ -11,16 +11,18 @@
 namespace engine {
 
 template <typename Func>
-concept Runner = std::
-    is_nothrow_invocable_v<Func, app::config::Renderer&, app::config::Window&>;
+concept Runner = std::is_nothrow_invocable_v<
+    Func,
+    app::config::RenderDevice&,
+    app::config::Window&>;
 
 class App {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Renderer = app::config::Renderer;
-    using Window   = app::config::Window;
+    using RenderDevice = app::config::RenderDevice;
+    using Window       = app::config::Window;
 
     ///------------------///
     ///  Nested classes  ///
@@ -36,7 +38,11 @@ private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit App(Renderer&& t_renderer, Window&& t_window) noexcept;
+    explicit App(
+        RenderDevice&&    t_render_device,
+        vulkan::Surface&& t_surface,
+        Window&&          t_window
+    ) noexcept;
 
 public:
     App(App&&) noexcept = default;
@@ -60,8 +66,9 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    Renderer m_renderer;
-    Window   m_window;
+    RenderDevice    m_render_device;
+    vulkan::Surface m_surface;
+    Window          m_window;
 };
 
 class App::Builder {
