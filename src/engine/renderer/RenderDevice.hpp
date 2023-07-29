@@ -1,40 +1,26 @@
 #pragma once
 
 #include <optional>
-#include <thread>
-#include <type_traits>
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/utility/vulkan/CommandPool.hpp"
+#include "engine/utility/vulkan/DebugUtilsMessenger.hpp"
 #include "engine/utility/vulkan/Device.hpp"
-#include "engine/utility/vulkan/FrameBuffer.hpp"
 #include "engine/utility/vulkan/Instance.hpp"
-#include "engine/utility/vulkan/SwapChain.hpp"
 
-namespace engine {
-
-namespace renderer {
-
-template <typename Func>
-concept SurfaceCreator = std::is_nothrow_invocable_r_v<
-    std::optional<vk::SurfaceKHR>,
-    Func,
-    vk::Instance,
-    vk::Optional<const vk::AllocationCallbacks>>;
-
-}   // namespace renderer
+namespace engine::renderer {
 
 class RenderDevice {
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit RenderDevice(
-        vulkan::Instance&& t_instance,
-        vk::PhysicalDevice t_physical_device,
-        uint32_t           t_graphics_family_index,
-        uint32_t           t_present_family_index,
-        vulkan::Device&&   t_device
+        vulkan::Instance&&                         t_instance,
+        std::optional<vulkan::DebugUtilsMessenger> t_messenger,
+        vk::PhysicalDevice                         t_physical_device,
+        uint32_t                                   t_graphics_family_index,
+        uint32_t                                   t_present_family_index,
+        vulkan::Device&&                           t_device
     ) noexcept;
 
 public:
@@ -50,24 +36,29 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
+    [[nodiscard]] auto physical_device() const noexcept -> vk::PhysicalDevice;
+    [[nodiscard]] auto graphics_queue_family_index() const noexcept -> uint32_t;
+    [[nodiscard]] auto present_queue_family_index() const noexcept -> uint32_t;
 
     ///----------------///
     /// Static methods ///
     ///----------------///
     [[nodiscard]] static auto create(
-        vulkan::Instance&& t_instance,
-        vk::SurfaceKHR     t_surface
+        vulkan::Instance&&                         t_instance,
+        std::optional<vulkan::DebugUtilsMessenger> t_messenger,
+        vk::SurfaceKHR                             t_surface
     ) noexcept -> std::optional<RenderDevice>;
 
 private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    vulkan::Instance   m_instance;
-    vk::PhysicalDevice m_physical_device;
-    uint32_t           m_graphics_family_index;
-    uint32_t           m_present_family_index;
-    vulkan::Device     m_device;
+    vulkan::Instance                           m_instance;
+    std::optional<vulkan::DebugUtilsMessenger> m_messenger;
+    vk::PhysicalDevice                         m_physical_device;
+    uint32_t                                   m_graphics_family_index;
+    uint32_t                                   m_present_family_index;
+    vulkan::Device                             m_device;
 };
 
-}   // namespace engine
+}   // namespace engine::renderer

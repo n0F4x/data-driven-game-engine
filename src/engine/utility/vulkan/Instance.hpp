@@ -35,7 +35,7 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator=(Instance&&) noexcept -> Instance& = default;
+    auto               operator=(Instance&&) noexcept -> Instance& = default;
     [[nodiscard]] auto operator*() const noexcept -> vk::Instance;
     [[nodiscard]] auto operator->() const noexcept -> const vk::Instance*;
 

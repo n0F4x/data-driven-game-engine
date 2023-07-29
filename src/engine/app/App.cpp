@@ -1,12 +1,8 @@
 #include "App.hpp"
 
-#include <SFML/Window/Vulkan.hpp>
-
-#include "engine/utility/vulkan/helpers.hpp"
-
 namespace {
 
-auto create_surface_creator(engine::App::Window& t_window) noexcept
+auto create_surface_callback(engine::App::Window& t_window) noexcept
 {
     return [&t_window](
                vk::Instance                                t_instance,
@@ -27,13 +23,8 @@ namespace engine {
 ///  App   IMPLEMENTATION  ///
 ///------------------------///
 //////////////////////////////
-App::App(
-    RenderDevice&&    t_render_device,
-    vulkan::Surface&& t_surface,
-    Window&&          t_window
-) noexcept
-    : m_render_device{ std::move(t_render_device) },
-      m_surface{ std::move(t_surface) },
+App::App(Renderer&& t_renderer, Window&& t_window) noexcept
+    : m_renderer{ std::move(t_renderer) },
       m_window{ std::move(t_window) }
 {}
 
@@ -57,37 +48,29 @@ auto App::Builder::build() && noexcept -> std::optional<App>
         return std::nullopt;
     }
 
-    auto instance{
-        vulkan::Instance::create()
-            .set_api_version(VK_API_VERSION_1_0)
-            .add_layers(vulkan::validation_layers())
-            .add_extensions(sf::Vulkan::getGraphicsRequiredInstanceExtensions())
-            .build()
-    };
-    if (!instance.has_value()) {
-        return std::nullopt;
-    }
-
-    auto raw_surface{ create_surface_creator(*m_window)(**instance, nullptr) };
-    if (!raw_surface.has_value()) {
-        return std::nullopt;
-    }
-    vulkan::Surface surface{ **instance, *raw_surface };
-
-    auto renderer{ RenderDevice::create(std::move(*instance), *raw_surface) };
+    auto renderer{ Renderer::create(
+        {},
+        create_surface_callback(*m_window),
+        vk::Extent2D{ .width  = m_window->getSize().x,
+                      .height = m_window->getSize().y }
+    ) };
     if (!renderer.has_value()) {
         return std::nullopt;
     }
 
-    return App{ std::move(*renderer),
-                std::move(surface),
-                std::move(*m_window) };
+    return App{ std::move(*renderer), std::move(*m_window) };
 }
 
-auto App::Builder::set_window(std::optional<Window> t_window) && noexcept
-    -> Builder
+auto App::Builder::set_window(Window&& t_window) && noexcept -> Builder
 {
     m_window = std::move(t_window);
+    return std::move(*this);
+}
+
+auto App::Builder::set_window(const Window::Builder& t_window_builder
+) && noexcept -> Builder
+{
+    m_window = t_window_builder.build();
     return std::move(*this);
 }
 

@@ -46,7 +46,7 @@ public:
     [[nodiscard]] auto getSize() const noexcept -> sf::Vector2u;
 
     auto createVulkanSurface(
-        const VkInstance&            t_instance,
+        VkInstance                   t_instance,
         const VkAllocationCallbacks* t_allocator = nullptr
     ) noexcept -> std::optional<VkSurfaceKHR>;
 

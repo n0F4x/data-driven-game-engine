@@ -133,22 +133,24 @@ auto find_queue_families(
 
 }   // namespace
 
-namespace engine {
+namespace engine::renderer {
 
 ///////////////////////////////////////
 ///---------------------------------///
-///  RenderDevice   IMPLEMENTATION  ///
+///  Renderer   IMPLEMENTATION  ///
 ///---------------------------------///
 ///////////////////////////////////////
 
 RenderDevice::RenderDevice(
-    vulkan::Instance&& t_instance,
-    vk::PhysicalDevice t_physical_device,
-    uint32_t           t_graphics_family_index,
-    uint32_t           t_present_family_index,
-    vulkan::Device&&   t_device
+    vulkan::Instance&&                         t_instance,
+    std::optional<vulkan::DebugUtilsMessenger> t_messenger,
+    vk::PhysicalDevice                         t_physical_device,
+    uint32_t                                   t_graphics_family_index,
+    uint32_t                                   t_present_family_index,
+    vulkan::Device&&                           t_device
 ) noexcept
     : m_instance{ std::move(t_instance) },
+      m_messenger{ std::move(t_messenger) },
       m_physical_device{ t_physical_device },
       m_graphics_family_index{ t_graphics_family_index },
       m_present_family_index{ t_present_family_index },
@@ -165,9 +167,25 @@ auto RenderDevice::operator->() const noexcept -> const vk::Device*
     return m_device.operator->();
 }
 
+auto RenderDevice::physical_device() const noexcept -> vk::PhysicalDevice
+{
+    return m_physical_device;
+}
+
+auto RenderDevice::graphics_queue_family_index() const noexcept -> uint32_t
+{
+    return m_graphics_family_index;
+}
+
+auto RenderDevice::present_queue_family_index() const noexcept -> uint32_t
+{
+    return m_present_family_index;
+}
+
 auto RenderDevice::create(
-    vulkan::Instance&& t_instance,
-    vk::SurfaceKHR     t_surface
+    vulkan::Instance&&                         t_instance,
+    std::optional<vulkan::DebugUtilsMessenger> t_messenger,
+    vk::SurfaceKHR                             t_surface
 ) noexcept -> std::optional<RenderDevice>
 {
     auto physical_devices{ t_instance->enumeratePhysicalDevices() };
@@ -213,10 +231,11 @@ auto RenderDevice::create(
     }
 
     return RenderDevice{ std::move(t_instance),
+                         std::move(t_messenger),
                          *physical_device,
                          queue_family_indices->graphics_family,
                          queue_family_indices->present_family,
                          std::move(*device) };
 }
 
-}   // namespace engine
+}   // namespace engine::renderer

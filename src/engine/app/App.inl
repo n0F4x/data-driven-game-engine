@@ -1,7 +1,7 @@
 namespace engine {
 
 auto App::run(Runner auto t_runner) noexcept -> void {
-    t_runner(m_render_device, m_window);
+    t_runner(m_renderer, m_window);
 }
 
 auto App::Builder::build_and_run(Runner auto t_runner) && noexcept -> Result

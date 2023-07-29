@@ -2,9 +2,12 @@
 
 #include <span>
 
+#include <vulkan/vulkan.hpp>
+
 namespace engine::vulkan {
 
-[[nodiscard]] constexpr auto validation_layers() noexcept -> std::span<const char* const>
+[[nodiscard]] constexpr auto validation_layers() noexcept
+    -> std::span<const char* const>
 {
 #ifdef ENGINE_VULKAN_DEBUG
     if consteval {
@@ -16,5 +19,13 @@ namespace engine::vulkan {
     return {};
 #endif
 }
+
+[[nodiscard]] auto instance_extensions() noexcept
+    -> std::span<const char* const>;
+
+auto init_vulkan() noexcept -> void;
+
+[[nodiscard]] auto create_debug_messenger(vk::Instance t_instance) noexcept
+    -> std::optional<vk::DebugUtilsMessengerEXT>;
 
 }   // namespace engine::vulkan

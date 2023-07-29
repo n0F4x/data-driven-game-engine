@@ -11,18 +11,16 @@
 namespace engine {
 
 template <typename Func>
-concept Runner = std::is_nothrow_invocable_v<
-    Func,
-    app::config::RenderDevice&,
-    app::config::Window&>;
+concept Runner = std::
+    is_nothrow_invocable_v<Func, app::config::Renderer&, app::config::Window&>;
 
 class App {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using RenderDevice = app::config::RenderDevice;
-    using Window       = app::config::Window;
+    using Renderer = app::config::Renderer;
+    using Window   = app::config::Window;
 
     ///------------------///
     ///  Nested classes  ///
@@ -38,11 +36,7 @@ private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit App(
-        RenderDevice&&    t_render_device,
-        vulkan::Surface&& t_surface,
-        Window&&          t_window
-    ) noexcept;
+    explicit App(Renderer&& t_renderer, Window&& t_window) noexcept;
 
 public:
     App(App&&) noexcept = default;
@@ -66,9 +60,8 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    RenderDevice    m_render_device;
-    vulkan::Surface m_surface;
-    Window          m_window;
+    Renderer m_renderer;
+    Window   m_window;
 };
 
 class App::Builder {
@@ -89,7 +82,9 @@ public:
     [[nodiscard]] auto build() && noexcept -> std::optional<App>;
     auto build_and_run(Runner auto t_runner) && noexcept -> Result;
 
-    auto set_window(std::optional<Window> t_window) && noexcept -> Builder;
+    auto set_window(Window&& t_window) && noexcept -> Builder;
+    auto set_window(const Window::Builder& t_window_builder) && noexcept
+        -> Builder;
 
 private:
     ///-------------///

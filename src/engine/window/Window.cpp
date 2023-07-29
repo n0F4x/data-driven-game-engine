@@ -34,7 +34,7 @@ auto Window::getSize() const noexcept -> sf::Vector2u
 }
 
 auto Window::createVulkanSurface(
-    const VkInstance&            t_instance,
+    VkInstance            t_instance,
     const VkAllocationCallbacks* t_allocator
 ) noexcept -> std::optional<VkSurfaceKHR>
 {
@@ -49,6 +49,7 @@ auto Window::createVulkanSurface(
             return surface;
         }
     } catch (...) {
+        return std::nullopt;
     }
 
     return std::nullopt;

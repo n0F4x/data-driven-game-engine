@@ -20,7 +20,7 @@ else ()
     target_compile_options(${PROJECT_NAME} PUBLIC
             -Wall
             -Wextra
-#            -Werror
+            #            -Werror
             -fconcepts-diagnostics-depth=3
             )
 endif ()

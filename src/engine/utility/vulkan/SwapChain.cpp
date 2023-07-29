@@ -1,8 +1,10 @@
 #include "SwapChain.hpp"
 
-#include <algorithm>   // std::clamp
-#include <limits>      // std::numeric_limits
+#include <algorithm>
+#include <limits>
 #include <set>
+
+#include <vulkan/vulkan_to_string.hpp>
 
 namespace {
 
@@ -53,9 +55,15 @@ auto choose_swap_chain_extent(
 ) noexcept -> vk::Extent2D
 {
     if (t_surface_capabilities.currentExtent.width
-        == std::numeric_limits<uint32_t>::max())
+        != std::numeric_limits<uint32_t>::max())
     {
-        auto actual_extent = t_frame_buffer_size;
+        return t_surface_capabilities.currentExtent;
+    }
+    else {
+        vk::Extent2D actual_extent{
+            .width  = static_cast<uint32_t>(t_frame_buffer_size.width),
+            .height = static_cast<uint32_t>(t_frame_buffer_size.height)
+        };
 
         actual_extent.width = std::clamp(
             actual_extent.width,
@@ -68,10 +76,7 @@ auto choose_swap_chain_extent(
             t_surface_capabilities.maxImageExtent.height
         );
 
-        return { actual_extent.width, actual_extent.height };
-    }
-    else {
-        return t_surface_capabilities.currentExtent;
+        return actual_extent;
     }
 }
 
@@ -126,7 +131,7 @@ auto create_swap_chain(
         .preTransform        = surface_capabilities.currentTransform,
         .compositeAlpha      = vk::CompositeAlphaFlagBitsKHR::eOpaque,
         .presentMode         = *present_mode,
-        .clipped             = true,
+        .clipped             = true
     };
 
     auto swap_chain{ t_device.createSwapchainKHR(create_info) };
@@ -182,28 +187,25 @@ namespace engine::vulkan {
 ////////////////////////////////////
 
 SwapChain::SwapChain(
-    Surface&&                  t_surface,
     vk::Device                 t_device,
     vk::Extent2D               t_extent,
     vk::SurfaceFormatKHR       t_surface_format,
     vk::SwapchainKHR           t_swap_chain,
     std::vector<vk::ImageView> t_image_views
 ) noexcept
-    : m_surface{ std::move(t_surface) },
-      m_device{ t_device },
+    : m_device{ t_device },
       m_extent{ t_extent },
       m_surface_format{ t_surface_format },
       m_swap_chain{ t_swap_chain },
-      m_imageViews{ std::move(t_image_views) }
+      m_image_views{ std::move(t_image_views) }
 {}
 
 SwapChain::SwapChain(SwapChain&& t_other) noexcept
-    : m_surface{ std::move(t_other.m_surface) },
-      m_device{ t_other.m_device },
+    : m_device{ t_other.m_device },
       m_extent{ t_other.m_extent },
       m_surface_format{ t_other.m_surface_format },
       m_swap_chain{ t_other.m_swap_chain },
-      m_imageViews{ std::move(t_other.m_imageViews) }
+      m_image_views{ std::move(t_other.m_image_views) }
 {
     t_other.m_swap_chain = nullptr;
 }
@@ -211,6 +213,9 @@ SwapChain::SwapChain(SwapChain&& t_other) noexcept
 SwapChain::~SwapChain() noexcept
 {
     if (m_swap_chain) {
+        for (auto image_view : m_image_views) {
+            m_device.destroy(image_view);
+        }
         m_device.destroy(m_swap_chain);
     }
 }
@@ -228,11 +233,11 @@ auto SwapChain::extent() const noexcept -> vk::Extent2D
 auto SwapChain::image_views() const noexcept
     -> const std::vector<vk::ImageView>&
 {
-    return m_imageViews;
+    return m_image_views;
 }
 
 auto engine::vulkan::SwapChain::create(
-    Surface&&          t_surface,
+    vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device,
     uint32_t           t_graphics_queue_family,
     uint32_t           t_present_queue_family,
@@ -241,7 +246,7 @@ auto engine::vulkan::SwapChain::create(
 ) noexcept -> std::optional<engine::vulkan::SwapChain>
 {
     auto surface_capabilities{
-        t_physical_device.getSurfaceCapabilitiesKHR(*t_surface)
+        t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
     };
     if (surface_capabilities.result != vk::Result::eSuccess) {
         return std::nullopt;
@@ -255,14 +260,14 @@ auto engine::vulkan::SwapChain::create(
     }
 
     auto surface_format{
-        choose_swap_chain_surface_format(*t_surface, t_physical_device)
+        choose_swap_chain_surface_format(t_surface, t_physical_device)
     };
     if (!surface_format.has_value()) {
         return std::nullopt;
     }
 
     auto swap_chain{ create_swap_chain(
-        *t_surface,
+        t_surface,
         t_physical_device,
         t_graphics_queue_family,
         t_present_queue_family,
@@ -281,12 +286,8 @@ auto engine::vulkan::SwapChain::create(
         return std::nullopt;
     }
 
-    return {
-        SwapChain{std::move(t_surface),
-                  t_device, extent,
-                  *surface_format,
-                  *swap_chain,
-                  std::move(*image_views)}
+    return SwapChain{
+        t_device, extent, *surface_format, *swap_chain, std::move(*image_views)
     };
 }
 

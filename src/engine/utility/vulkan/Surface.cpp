@@ -20,7 +20,8 @@ Surface::Surface(Surface&& t_other) noexcept
     t_other.m_surface = nullptr;
 }
 
-Surface::~Surface() noexcept {
+Surface::~Surface() noexcept
+{
     if (m_surface) {
         m_instance.destroy(m_surface);
     }

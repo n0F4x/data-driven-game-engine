@@ -2,7 +2,7 @@
 
 using namespace engine;
 
-auto run(RenderDevice&, Window&) noexcept -> void {}
+auto run(Renderer&, Window&) noexcept -> void {}
 
 auto main() noexcept -> int
 {
@@ -10,7 +10,6 @@ auto main() noexcept -> int
         .set_window(Window::create()
                         .set_video_mode(sf::VideoMode{ 450u, 600u })
                         .set_title("My window")
-                        .set_style(sf::Style::Default)
-                        .build())
+                        .set_style(sf::Style::Default))
         .build_and_run(run);
 }
