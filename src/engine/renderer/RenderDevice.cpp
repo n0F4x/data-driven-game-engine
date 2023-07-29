@@ -3,6 +3,7 @@
 #include <functional>
 #include <ranges>
 #include <set>
+#include <string_view>
 
 #include "engine/utility/vulkan/helpers.hpp"
 
@@ -24,8 +25,8 @@ auto supports_extensions(
         return false;
     }
 
-    std::set<const char*> required_extensions{ t_device_extensions.begin(),
-                                               t_device_extensions.end() };
+    std::set<std::string_view> required_extensions{ t_device_extensions.begin(),
+                                                    t_device_extensions.end() };
 
     for (const auto& extension : extension_properties) {
         required_extensions.erase(extension.extensionName);
@@ -41,10 +42,10 @@ auto supports_surface(
 {
     uint32_t i{ 0 };
     for (auto prop : t_physical_devices.getQueueFamilyProperties()) {
-        auto [result_1, supported]{
+        auto [result, supported]{
             t_physical_devices.getSurfaceSupportKHR(i, t_surface)
         };
-        if (result_1 != vk::Result::eSuccess) {
+        if (result != vk::Result::eSuccess) {
             return false;
         }
         if (prop.queueCount > 0 && supported) {
@@ -64,10 +65,11 @@ auto choose_physical_device(
         return std::nullopt;
     }
 
-    auto fallback_device{ t_physical_devices.front() };
+    std::optional<vk::PhysicalDevice> fallback_device;
+    std::optional<vk::PhysicalDevice> fallback_integrated_device;
     for (auto physical_device : t_physical_devices) {
-        if (!supports_extensions(physical_device, t_required_extensions)
-            || !supports_surface(physical_device, t_surface))
+        if (!(supports_extensions(physical_device, t_required_extensions)
+              && supports_surface(physical_device, t_surface)))
         {
             continue;
         }
@@ -77,11 +79,17 @@ auto choose_physical_device(
         if (device_type == vk::PhysicalDeviceType::eDiscreteGpu) {
             return physical_device;
         }
-        if (device_type == vk::PhysicalDeviceType::eIntegratedGpu) {
+        else if (device_type == vk::PhysicalDeviceType::eIntegratedGpu) {
+            fallback_integrated_device = physical_device;
+        }
+        else {
             fallback_device = physical_device;
         }
     }
 
+    if (fallback_integrated_device.has_value()) {
+        return fallback_integrated_device;
+    }
     return fallback_device;
 }
 

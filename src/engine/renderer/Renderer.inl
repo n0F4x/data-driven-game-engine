@@ -35,11 +35,12 @@ auto Renderer::create(
             })
     };
 
-    auto surface{ t_create_surface(**instance, nullptr)
-                      .transform([instance =
-                                      **instance](vk::SurfaceKHR surface) {
-                          return vulkan::Surface{ instance, surface };
-                      }) };
+    std::optional<vulkan::Surface> surface{
+        t_create_surface(**instance, nullptr)
+            .transform([instance = **instance](vk::SurfaceKHR surface) {
+                return vulkan::Surface{ instance, surface };
+            })
+    };
     if (!surface.has_value()) {
         return std::nullopt;
     }

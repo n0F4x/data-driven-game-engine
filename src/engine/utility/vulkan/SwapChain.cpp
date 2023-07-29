@@ -4,8 +4,6 @@
 #include <limits>
 #include <set>
 
-#include <vulkan/vulkan_to_string.hpp>
-
 namespace {
 
 auto choose_swap_chain_surface_format(
