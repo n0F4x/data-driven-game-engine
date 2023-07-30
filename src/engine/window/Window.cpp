@@ -13,9 +13,7 @@ Window::Window(
     const sf::String&    t_title,
     sf::Uint32           t_style
 ) noexcept(false)
-    : m_impl{
-          new sf::Window{t_video_mode, t_title, t_style}
-}
+    : m_impl{ std::make_unique<sf::WindowBase>(t_video_mode, t_title, t_style) }
 {}
 
 auto Window::operator*() const noexcept -> sf::WindowBase&
@@ -34,7 +32,7 @@ auto Window::getSize() const noexcept -> sf::Vector2u
 }
 
 auto Window::createVulkanSurface(
-    VkInstance            t_instance,
+    VkInstance                   t_instance,
     const VkAllocationCallbacks* t_allocator
 ) noexcept -> std::optional<VkSurfaceKHR>
 {
