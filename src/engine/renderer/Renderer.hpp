@@ -52,12 +52,15 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
-        -> Result;
+    auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void;
 
     void begin_frame() noexcept;
     void end_frame() noexcept;
 
+private:
+    void recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept;
+
+public:
     ///----------------///
     /// Static methods ///
     ///----------------///

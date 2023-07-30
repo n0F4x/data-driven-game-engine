@@ -79,13 +79,14 @@ auto choose_swap_chain_extent(
 }
 
 auto create_swap_chain(
-    vk::SurfaceKHR       t_surface,
-    vk::PhysicalDevice   t_physical_device,
-    uint32_t             t_graphics_queue_family,
-    uint32_t             t_present_queue_family,
-    vk::Device           t_device,
-    vk::Extent2D         t_extent,
-    vk::SurfaceFormatKHR t_surfaceFormat
+    vk::SurfaceKHR                  t_surface,
+    vk::PhysicalDevice              t_physical_device,
+    uint32_t                        t_graphics_queue_family,
+    uint32_t                        t_present_queue_family,
+    vk::Device                      t_device,
+    vk::Extent2D                    t_extent,
+    vk::SurfaceFormatKHR            t_surfaceFormat,
+    std::optional<vk::SwapchainKHR> t_old_swap_chain
 ) noexcept -> std::optional<vk::SwapchainKHR>
 {
     auto [result, surface_capabilities]{
@@ -129,7 +130,8 @@ auto create_swap_chain(
         .preTransform        = surface_capabilities.currentTransform,
         .compositeAlpha      = vk::CompositeAlphaFlagBitsKHR::eOpaque,
         .presentMode         = *present_mode,
-        .clipped             = true
+        .clipped             = true,
+        .oldSwapchain        = t_old_swap_chain.value_or(nullptr)
     };
 
     auto swap_chain{ t_device.createSwapchainKHR(create_info) };
@@ -235,12 +237,13 @@ auto SwapChain::image_views() const noexcept
 }
 
 auto engine::vulkan::SwapChain::create(
-    vk::SurfaceKHR     t_surface,
-    vk::PhysicalDevice t_physical_device,
-    uint32_t           t_graphics_queue_family,
-    uint32_t           t_present_queue_family,
-    vk::Device         t_device,
-    vk::Extent2D       t_frame_buffer_size
+    vk::SurfaceKHR                  t_surface,
+    vk::PhysicalDevice              t_physical_device,
+    uint32_t                        t_graphics_queue_family,
+    uint32_t                        t_present_queue_family,
+    vk::Device                      t_device,
+    vk::Extent2D                    t_frame_buffer_size,
+    std::optional<vk::SwapchainKHR> t_old_swap_chain
 ) noexcept -> std::optional<engine::vulkan::SwapChain>
 {
     auto surface_capabilities{
@@ -271,7 +274,8 @@ auto engine::vulkan::SwapChain::create(
         t_present_queue_family,
         t_device,
         extent,
-        *surface_format
+        *surface_format,
+        t_old_swap_chain
     ) };
     if (!swap_chain.has_value()) {
         return std::nullopt;
