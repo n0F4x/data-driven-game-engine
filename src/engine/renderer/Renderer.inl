@@ -55,7 +55,8 @@ auto Renderer::create(
     }
 
     std::vector<vulkan::CommandPool> command_pools;
-    for (size_t i{}; i < std::thread::hardware_concurrency(); i++) {
+    auto hardware_concurrency{ std::jthread::hardware_concurrency() };
+    for (size_t i{}; i < hardware_concurrency; i++) {
         if (auto command_pool{ vulkan::CommandPool::create(
                 **render_device,
                 vk::CommandPoolCreateFlagBits::eTransient,
