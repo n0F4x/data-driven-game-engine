@@ -1,5 +1,9 @@
 #include "Renderer.hpp"
 
+#include <thread>
+
+#include "engine/utility/vulkan/helpers.hpp"
+
 namespace engine {
 
 //////////////////////////////////!
@@ -54,6 +58,51 @@ auto Renderer::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
     ) };
     m_swap_chain.reset();
     m_swap_chain = std::move(new_swap_chain);
+}
+
+auto Renderer::create(
+    vulkan::Instance&& t_instance,
+    vulkan::Surface&&  t_surface,
+    vk::Extent2D       t_framebuffer_size
+) noexcept -> std::optional<Renderer>
+{
+    std::optional<vulkan::DebugUtilsMessenger> debug_messenger{
+        vulkan::create_debug_messenger(*t_instance)
+            .transform([instance =
+                            *t_instance](vk::DebugUtilsMessengerEXT messenger) {
+                return vulkan::DebugUtilsMessenger{ instance, messenger };
+            })
+    };
+
+    auto render_device{ renderer::RenderDevice::create(
+        std::move(t_instance), std::move(debug_messenger), *t_surface
+    ) };
+    if (!render_device.has_value()) {
+        return std::nullopt;
+    }
+
+    std::vector<vulkan::CommandPool> command_pools;
+    auto hardware_concurrency{ std::jthread::hardware_concurrency() };
+    for (unsigned i{}; i < hardware_concurrency; i++) {
+        if (auto command_pool{ vulkan::CommandPool::create(
+                **render_device,
+                vk::CommandPoolCreateFlagBits::eTransient,
+                render_device->graphics_queue_family_index()
+            ) })
+        {
+            command_pools.push_back(std::move(*command_pool));
+        }
+    }
+    if (command_pools.empty()) {
+        return std::nullopt;
+    }
+
+    Renderer renderer{ std::move(*render_device),
+                       std::move(t_surface),
+                       std::move(command_pools) };
+    renderer.set_framebuffer_size(t_framebuffer_size);
+
+    return renderer;
 }
 
 }   // namespace engine

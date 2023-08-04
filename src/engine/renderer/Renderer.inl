@@ -1,5 +1,3 @@
-#include <thread>
-
 #include "engine/utility/vulkan/helpers.hpp"
 
 namespace engine {
@@ -29,14 +27,6 @@ auto Renderer::create(
         return std::nullopt;
     }
 
-    std::optional<vulkan::DebugUtilsMessenger> debug_messenger{
-        vulkan::create_debug_messenger(**instance)
-            .transform([instance =
-                            **instance](vk::DebugUtilsMessengerEXT messenger) {
-                return vulkan::DebugUtilsMessenger{ instance, messenger };
-            })
-    };
-
     std::optional<vulkan::Surface> surface{
         t_create_surface(**instance, nullptr)
             .transform([instance = **instance](vk::SurfaceKHR surface) {
@@ -47,35 +37,9 @@ auto Renderer::create(
         return std::nullopt;
     }
 
-    auto render_device{ renderer::RenderDevice::create(
-        std::move(*instance), std::move(debug_messenger), **surface
-    ) };
-    if (!render_device.has_value()) {
-        return std::nullopt;
-    }
-
-    std::vector<vulkan::CommandPool> command_pools;
-    auto hardware_concurrency{ std::jthread::hardware_concurrency() };
-    for (size_t i{}; i < hardware_concurrency; i++) {
-        if (auto command_pool{ vulkan::CommandPool::create(
-                **render_device,
-                vk::CommandPoolCreateFlagBits::eTransient,
-                render_device->graphics_queue_family_index()
-            ) })
-        {
-            command_pools.push_back(std::move(*command_pool));
-        }
-    }
-    if (command_pools.empty()) {
-        return std::nullopt;
-    }
-
-    Renderer renderer{ std::move(*render_device),
-                       std::move(*surface),
-                       std::move(command_pools) };
-    renderer.set_framebuffer_size(t_framebuffer_size);
-
-    return renderer;
+    return create(
+        std::move(*instance), std::move(*surface), t_framebuffer_size
+    );
 }
 
 }   // namespace engine

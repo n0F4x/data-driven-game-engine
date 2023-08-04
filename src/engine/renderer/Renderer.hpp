@@ -9,7 +9,6 @@
 
 #include "engine/utility/Result.hpp"
 #include "engine/utility/vulkan/CommandPool.hpp"
-#include "engine/utility/vulkan/FrameBuffer.hpp"
 #include "engine/utility/vulkan/Surface.hpp"
 #include "engine/utility/vulkan/SwapChain.hpp"
 
@@ -45,8 +44,8 @@ private:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit Renderer(
-        renderer::RenderDevice&& t_render_device,
-        vulkan::Surface&&        t_surface,
+        renderer::RenderDevice&&           t_render_device,
+        vulkan::Surface&&                  t_surface,
         std::vector<vulkan::CommandPool>&& t_command_pools
     ) noexcept;
 
@@ -73,6 +72,12 @@ public:
     ) noexcept -> std::optional<Renderer>;
 
 private:
+    [[nodiscard]] static auto create(
+        vulkan::Instance&& t_instance,
+        vulkan::Surface&&  t_surface,
+        vk::Extent2D       t_framebuffer_size
+    ) noexcept -> std::optional<Renderer>;
+
     ///-------------///
     ///  Variables  ///
     ///-------------///
