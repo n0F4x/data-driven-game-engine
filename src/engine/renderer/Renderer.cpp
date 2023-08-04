@@ -9,11 +9,13 @@ namespace engine {
 ///////////////////////////////////
 
 Renderer::Renderer(
-    renderer::RenderDevice&& t_render_device,
-    vulkan::Surface&&        t_surface
+    renderer::RenderDevice&&           t_render_device,
+    vulkan::Surface&&                  t_surface,
+    std::vector<vulkan::CommandPool>&& t_command_pools
 ) noexcept
     : m_render_device{ std::move(t_render_device) },
-      m_surface{ std::move(t_surface) }
+      m_surface{ std::move(t_surface) },
+      m_command_pools{ std::move(t_command_pools) }
 {}
 
 void Renderer::begin_frame() noexcept
@@ -34,7 +36,8 @@ auto Renderer::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     }
 }
 
-void Renderer::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
+auto Renderer::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
+    -> void
 {
     if (m_render_device->waitIdle() != vk::Result::eSuccess) {
         return;

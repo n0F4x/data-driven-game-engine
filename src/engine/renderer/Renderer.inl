@@ -1,3 +1,5 @@
+#include <thread>
+
 #include "engine/utility/vulkan/helpers.hpp"
 
 namespace engine {
@@ -52,7 +54,24 @@ auto Renderer::create(
         return std::nullopt;
     }
 
-    Renderer renderer{ std::move(*render_device), std::move(*surface) };
+    std::vector<vulkan::CommandPool> command_pools;
+    for (size_t i{}; i < std::thread::hardware_concurrency(); i++) {
+        if (auto command_pool{ vulkan::CommandPool::create(
+                **render_device,
+                vk::CommandPoolCreateFlagBits::eTransient,
+                render_device->graphics_queue_family_index()
+            ) })
+        {
+            command_pools.push_back(std::move(*command_pool));
+        }
+    }
+    if (command_pools.empty()) {
+        return std::nullopt;
+    }
+
+    Renderer renderer{ std::move(*render_device),
+                       std::move(*surface),
+                       std::move(command_pools) };
     renderer.set_framebuffer_size(t_framebuffer_size);
 
     return renderer;

@@ -3,6 +3,7 @@
 #include <optional>
 #include <string_view>
 #include <type_traits>
+#include <vector>
 
 #include <vulkan/vulkan.hpp>
 
@@ -45,7 +46,8 @@ private:
     ///------------------------------///
     explicit Renderer(
         renderer::RenderDevice&& t_render_device,
-        vulkan::Surface&&        t_surface
+        vulkan::Surface&&        t_surface,
+        std::vector<vulkan::CommandPool>&& t_command_pools
     ) noexcept;
 
 public:
@@ -58,7 +60,7 @@ public:
     void end_frame() noexcept;
 
 private:
-    void recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept;
+    auto recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept -> void;
 
 public:
     ///----------------///
@@ -74,10 +76,11 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
+    bool                             m_in_frame{ false };
     renderer::RenderDevice           m_render_device;
     vulkan::Surface                  m_surface;
     std::optional<vulkan::SwapChain> m_swap_chain;
-    bool                             m_in_frame{ false };
+    std::vector<vulkan::CommandPool> m_command_pools;
 };
 
 }   // namespace engine
