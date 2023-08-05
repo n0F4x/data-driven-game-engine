@@ -43,13 +43,15 @@ auto Device::create() noexcept -> Builder
 ///------------------------------------///
 //////////////////////////////////////////
 
-auto Device::Builder::build() noexcept -> std::expected<Device, vk::Result>
+auto Device::Builder::build(const void* t_next) noexcept
+    -> std::expected<Device, vk::Result>
 {
     if (!m_physical_device) {
         return std::unexpected{ vk::Result::eErrorInitializationFailed };
     }
 
     auto [result, device]{ m_physical_device.createDevice(vk::DeviceCreateInfo{
+        .pNext = t_next,
         .queueCreateInfoCount =
             static_cast<uint32_t>(m_queue_create_infos.size()),
         .pQueueCreateInfos   = m_queue_create_infos.data(),
@@ -74,14 +76,6 @@ auto Device::Builder::set_physical_device(vk::PhysicalDevice t_physical_device
     return *this;
 }
 
-auto Device::Builder::add_queue_create_info(
-    vk::DeviceQueueCreateInfo t_queue_create_info
-) noexcept -> Builder&
-{
-    m_queue_create_infos.push_back(t_queue_create_info);
-    return *this;
-}
-
 auto Device::Builder::add_queue_create_infos(
     std::span<const vk::DeviceQueueCreateInfo> t_queue_create_info
 ) noexcept -> Builder&
@@ -94,13 +88,6 @@ auto Device::Builder::add_queue_create_infos(
     return *this;
 }
 
-auto Device::Builder::add_enabled_layer(const char* t_enabled_layer) noexcept
-    -> Builder&
-{
-    m_enabled_layers.push_back(t_enabled_layer);
-    return *this;
-}
-
 auto Device::Builder::add_enabled_layers(
     std::span<const char* const> t_enabled_layers
 ) noexcept -> Builder&
@@ -108,13 +95,6 @@ auto Device::Builder::add_enabled_layers(
     m_enabled_layers.insert(
         m_enabled_layers.end(), t_enabled_layers.begin(), t_enabled_layers.end()
     );
-    return *this;
-}
-
-auto Device::Builder::add_enabled_extension(const char* t_enabled_extension
-) noexcept -> Builder&
-{
-    m_enabled_extensions.push_back(t_enabled_extension);
     return *this;
 }
 

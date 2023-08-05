@@ -11,6 +11,13 @@
 namespace engine::renderer {
 
 class RenderDevice {
+public:
+    ///---------------------///
+    ///  Static  Variables  ///
+    ///---------------------///
+    constexpr static uint32_t s_API_VERSION = VK_API_VERSION_1_0;
+
+private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///

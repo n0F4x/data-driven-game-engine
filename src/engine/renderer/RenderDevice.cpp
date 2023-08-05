@@ -10,7 +10,10 @@
 namespace {
 
 const std::vector<const char*> g_device_extensions{
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+    VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,
+    VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
 };
 
 auto supports_extensions(
@@ -228,12 +231,15 @@ auto RenderDevice::create(
                 .pQueuePriorities = &queue_priority });
         }
     }
+    vk::PhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering_feature{
+        .dynamicRendering = true,
+    };
     auto device{ vulkan::Device::create()
                      .set_physical_device(*physical_device)
                      .add_queue_create_infos(queue_create_infos)
                      .add_enabled_layers(vulkan::validation_layers())
                      .add_enabled_extensions(g_device_extensions)
-                     .build() };
+                     .build(&dynamic_rendering_feature) };
     if (!device.has_value()) {
         return std::nullopt;
     }
