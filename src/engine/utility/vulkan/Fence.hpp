@@ -9,6 +9,7 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
+    Fence() noexcept = default;
     explicit Fence(vk::Device t_device, vk::Fence t_fence) noexcept;
     Fence(Fence&&) noexcept;
     ~Fence() noexcept;

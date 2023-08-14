@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <expected>
+#include <functional>
 #include <optional>
 #include <string_view>
 #include <type_traits>
@@ -14,6 +16,7 @@
 #include "engine/utility/vulkan/Surface.hpp"
 #include "engine/utility/vulkan/SwapChain.hpp"
 
+#include "FrameData.hpp"
 #include "RenderDevice.hpp"
 
 namespace engine {
@@ -26,6 +29,14 @@ concept SurfaceCreator = std::is_nothrow_invocable_r_v<
     Func,
     vk::Instance,
     vk::Optional<const vk::AllocationCallbacks>>;
+
+template <typename Func>
+concept Recorder = std::is_nothrow_invocable_v<Func>;
+
+struct CommandBufferAllocateInfo {
+    vk::CommandBufferLevel level{};
+    const void*            pNext{};
+};
 
 }   // namespace renderer
 
@@ -44,7 +55,7 @@ public:
     ///---------------------///
     ///  Static  Variables  ///
     ///---------------------///
-    constexpr static uint32_t s_MAX_FRAMES_IN_FLIGHT = 2;
+    constexpr static uint32_t s_max_frames_in_flight{ 2 };
 
 private:
     ///------------------------------///
@@ -53,26 +64,35 @@ private:
     explicit Renderer(
         renderer::RenderDevice&& t_render_device,
         vulkan::Surface&&        t_surface,
-        std::array<std::vector<vulkan::CommandPool>, s_MAX_FRAMES_IN_FLIGHT>&&
-                                     t_command_pools,
-        std::vector<vulkan::Fence>&& t_fences
+        std::array<renderer::FrameData, s_max_frames_in_flight>&& t_frame_data
     ) noexcept;
 
 public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto command_pools_per_frame() const noexcept -> size_t;
-
     auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void;
+
+    auto allocate_command_buffer(
+        const renderer::CommandBufferAllocateInfo& t_allocate_info,
+        size_t                                     t_work_load
+    ) noexcept -> std::expected<renderer::CommandHandle, vk::Result>;
+
+    auto free_command_buffer(renderer::CommandHandle t_command) noexcept
+        -> void;
 
     auto begin_frame() noexcept -> Result;
     auto end_frame() noexcept -> void;
+
+    auto post_update() noexcept -> void;
 
     auto wait_idle() noexcept -> void;
 
 private:
     auto recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept -> void;
+
+    auto get_command_buffer(renderer::CommandHandle t_command) const noexcept
+        -> std::optional<renderer::CommandNodeInfo>;
 
 public:
     ///----------------///
@@ -81,14 +101,16 @@ public:
     [[nodiscard]] static auto create(
         CreateInfo                    t_context,
         renderer::SurfaceCreator auto t_create_surface,
-        vk::Extent2D                  t_framebuffer_size
+        vk::Extent2D                  t_framebuffer_size,
+        unsigned                      t_hardware_concurrency
     ) noexcept -> std::optional<Renderer>;
 
 private:
     [[nodiscard]] static auto create(
         vulkan::Instance&& t_instance,
         vulkan::Surface&&  t_surface,
-        vk::Extent2D       t_framebuffer_size
+        vk::Extent2D       t_framebuffer_size,
+        unsigned           t_hardware_concurrency
     ) noexcept -> std::optional<Renderer>;
 
     ///-------------///
@@ -99,10 +121,12 @@ private:
     vulkan::Surface                  m_surface;
     std::optional<vulkan::SwapChain> m_swap_chain;
 
-    uint32_t m_frame_index{};
-    std::array<std::vector<vulkan::CommandPool>, s_MAX_FRAMES_IN_FLIGHT>
-                               m_command_pools;
-    std::vector<vulkan::Fence> m_fences;
+    std::array<renderer::FrameData, s_max_frames_in_flight> m_frame_data;
+    uint32_t                                                m_frame_index{};
+
+    static_assert(s_max_frames_in_flight > 1);
+    std::array<std::vector<std::function<void()>>, s_max_frames_in_flight - 1>
+        m_post_updates;
 };
 
 }   // namespace engine

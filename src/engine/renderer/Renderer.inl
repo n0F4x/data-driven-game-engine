@@ -11,7 +11,8 @@ namespace engine {
 auto Renderer::create(
     CreateInfo                    t_context,
     renderer::SurfaceCreator auto t_create_surface,
-    vk::Extent2D                  t_framebuffer_size
+    vk::Extent2D                  t_framebuffer_size,
+    unsigned                      t_hardware_concurrency
 ) noexcept -> std::optional<Renderer>
 {
     auto instance{ vulkan::Instance::create()
@@ -38,7 +39,10 @@ auto Renderer::create(
     }
 
     return create(
-        std::move(*instance), std::move(*surface), t_framebuffer_size
+        std::move(*instance),
+        std::move(*surface),
+        t_framebuffer_size,
+        t_hardware_concurrency
     );
 }
 

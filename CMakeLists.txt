@@ -66,6 +66,16 @@ FetchContent_MakeAvailable(SFML)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         sfml-window)
 
+## Taskflow
+#FetchContent_Declare(Taskflow
+#        GIT_REPOSITORY https://github.com/taskflow/taskflow.git
+#        GIT_TAG v3.6.0)
+#FetchContent_MakeAvailable(Taskflow)
+#target_compile_definitions(${PROJECT_NAME} PUBLIC
+#        TF_BUILD_EXAMPLES=OFF
+#        TF_BUILD_TESTS=OFF)
+#target_link_libraries(${PROJECT_NAME} PUBLIC
+#        Taskflow)
 
 ###########
 ## TESTS ##

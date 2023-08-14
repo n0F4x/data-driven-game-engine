@@ -1,5 +1,7 @@
 #include "App.hpp"
 
+#include <thread>
+
 namespace {
 
 auto create_surface_callback(engine::App::Window& t_window) noexcept
@@ -52,7 +54,8 @@ auto App::Builder::build() && noexcept -> std::optional<App>
         {},
         create_surface_callback(*m_window),
         vk::Extent2D{ .width  = m_window->getSize().x,
-                      .height = m_window->getSize().y }
+                      .height = m_window->getSize().y },
+        std::jthread::hardware_concurrency()
     ) };
     if (!renderer.has_value()) {
         return std::nullopt;

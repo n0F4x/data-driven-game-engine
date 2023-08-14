@@ -1,7 +1,6 @@
 #include "Renderer.hpp"
 
 #include <ranges>
-#include <thread>
 
 #include "engine/utility/vulkan/helpers.hpp"
 
@@ -14,36 +13,14 @@ namespace engine {
 ///////////////////////////////////
 
 Renderer::Renderer(
-    renderer::RenderDevice&& t_render_device,
-    vulkan::Surface&&        t_surface,
-    std::array<std::vector<vulkan::CommandPool>, s_MAX_FRAMES_IN_FLIGHT>&&
-                                 t_command_pools,
-    std::vector<vulkan::Fence>&& t_fences
+    renderer::RenderDevice&&                                  t_render_device,
+    vulkan::Surface&&                                         t_surface,
+    std::array<renderer::FrameData, s_max_frames_in_flight>&& t_frame_data
 ) noexcept
     : m_render_device{ std::move(t_render_device) },
       m_surface{ std::move(t_surface) },
-      m_command_pools{ std::move(t_command_pools) },
-      m_fences{ std::move(t_fences) }
+      m_frame_data{ std::move(t_frame_data) }
 {}
-
-auto Renderer::begin_frame() noexcept -> Result
-{
-    if (m_render_device->waitForFences(
-            *m_fences[m_frame_index], true, std::numeric_limits<uint64_t>::max()
-        )
-        != vk::Result::eSuccess)
-    {
-        return Result::eFailure;
-    }
-    m_in_frame = true;
-    return Result::eSuccess;
-}
-
-auto Renderer::end_frame() noexcept -> void
-{
-    m_in_frame    = false;
-    m_frame_index = (m_frame_index + 1) % s_MAX_FRAMES_IN_FLIGHT;
-}
 
 auto Renderer::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     -> void
@@ -51,6 +28,110 @@ auto Renderer::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     if (!m_in_frame) {
         recreate_swap_chain(t_framebuffer_size);
     }
+}
+
+auto Renderer::allocate_command_buffer(
+    const renderer::CommandBufferAllocateInfo& t_allocate_info,
+    size_t                                     t_work_load
+) noexcept -> std::expected<renderer::CommandHandle, vk::Result>
+{
+    if (m_in_frame) {
+        return std::unexpected{ vk::Result::eNotReady };
+    }
+
+    auto& frame_data{ m_frame_data[m_frame_index] };
+
+    auto command_pool_index{ *std::ranges::min_element(
+        std::views::iota(frame_data.command_buffers.size()),
+        std::less{},
+        [&](const auto& pool_index) {
+            size_t sum{};
+            for (const auto& buffer : frame_data.command_buffers[pool_index]) {
+                sum += buffer.work_load;
+            }
+            return sum;
+        }
+    ) };
+
+    auto [result, command_buffer]{
+        m_render_device->allocateCommandBuffers(vk::CommandBufferAllocateInfo{
+            .pNext              = t_allocate_info.pNext,
+            .commandPool        = *frame_data.command_pools[command_pool_index],
+            .level              = t_allocate_info.level,
+            .commandBufferCount = 1 })
+    };
+    if (result != vk::Result::eSuccess) {
+        return std::unexpected{ result };
+    }
+
+    frame_data.command_buffers[command_pool_index].emplace_back(
+        command_buffer[0], t_work_load
+    );
+
+    frame_data.command_map.try_emplace(
+        frame_data.m_next_command_handle,
+        renderer::CommandNodeInfo{
+            .worker_id = command_pool_index,
+            .index = frame_data.command_buffers[command_pool_index].size() - 1 }
+    );
+
+    return frame_data.m_next_command_handle++;
+}
+
+auto Renderer::free_command_buffer(renderer::CommandHandle t_command) noexcept
+    -> void
+{
+    auto info{ get_command_buffer(t_command) };
+    if (!info.has_value()) {
+        return;
+    }
+
+    auto [worker_id, index]{ *info };
+    auto& frame_data{ m_frame_data[m_frame_index] };
+
+    m_render_device->freeCommandBuffers(
+        *frame_data.command_pools[worker_id],
+        frame_data.command_buffers[worker_id][index].command_buffer
+    );
+
+    frame_data.command_buffers[worker_id].erase(
+        frame_data.command_buffers[worker_id].begin()
+        + static_cast<
+            std::vector<engine::renderer::CommandNode>::difference_type>(index)
+    );
+
+    frame_data.command_map.erase(t_command);
+}
+
+auto Renderer::begin_frame() noexcept -> Result
+{
+    if (m_render_device->waitForFences(
+            *m_frame_data[m_frame_index].fence,
+            true,
+            std::numeric_limits<uint64_t>::max()
+        )
+        != vk::Result::eSuccess)
+    {
+        return Result::eFailure;
+    }
+
+    for (auto& command_pool : m_frame_data[m_frame_index].command_pools) {
+        m_render_device->resetCommandPool(*command_pool);
+    }
+
+    m_in_frame = true;
+    return Result::eSuccess;
+}
+
+auto Renderer::end_frame() noexcept -> void
+{
+    m_in_frame    = false;
+    m_frame_index = (m_frame_index + 1) % s_max_frames_in_flight;
+}
+
+auto Renderer::wait_idle() noexcept -> void
+{
+    static_cast<void>(m_render_device->waitIdle());
 }
 
 auto Renderer::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
@@ -73,20 +154,24 @@ auto Renderer::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
     m_swap_chain = std::move(new_swap_chain);
 }
 
-auto Renderer::command_pools_per_frame() const noexcept -> size_t
+auto Renderer::get_command_buffer(renderer::CommandHandle t_command
+) const noexcept -> std::optional<renderer::CommandNodeInfo>
 {
-    return m_command_pools.size() / s_MAX_FRAMES_IN_FLIGHT;
-}
-
-auto Renderer::wait_idle() noexcept -> void
-{
-    static_cast<void>(m_render_device->waitIdle());
+    if (auto iter{ m_frame_data[m_frame_index].command_map.find(t_command) };
+        iter == m_frame_data[m_frame_index].command_map.end())
+    {
+        return std::nullopt;
+    }
+    else {
+        return iter->second;
+    }
 }
 
 auto Renderer::create(
     vulkan::Instance&& t_instance,
     vulkan::Surface&&  t_surface,
-    vk::Extent2D       t_framebuffer_size
+    vk::Extent2D       t_framebuffer_size,
+    unsigned           t_hardware_concurrency
 ) noexcept -> std::optional<Renderer>
 {
     std::optional<vulkan::DebugUtilsMessenger> debug_messenger{
@@ -104,50 +189,50 @@ auto Renderer::create(
         return std::nullopt;
     }
 
-    std::array<std::vector<vulkan::CommandPool>, s_MAX_FRAMES_IN_FLIGHT>
-         command_pools;
-    auto hardware_concurrency{
-        std::min(std::jthread::hardware_concurrency(), 1u)
-        * s_MAX_FRAMES_IN_FLIGHT
-    };
-    for (size_t i{}; i < s_MAX_FRAMES_IN_FLIGHT; i++) {
-        command_pools[i].reserve(hardware_concurrency);
-        for (unsigned j{}; j < hardware_concurrency; j++) {
+    std::array<renderer::FrameData, s_max_frames_in_flight> frame_data;
+
+    for (size_t i{}; i < s_max_frames_in_flight; i++) {
+        frame_data[i].command_pools.reserve(t_hardware_concurrency);
+        for (unsigned j{}; j < t_hardware_concurrency; j++) {
             if (auto command_pool{ vulkan::CommandPool::create(
                     **render_device,
                     vk::CommandPoolCreateFlagBits::eTransient,
                     render_device->graphics_queue_family_index()
                 ) })
             {
-                command_pools[i].push_back(std::move(*command_pool));
+                frame_data[i].command_pools.push_back(std::move(*command_pool));
             }
-        }
-        if (command_pools[i].empty()) {
-            return std::nullopt;
+            else {
+                return std::nullopt;
+            }
         }
     }
 
-    std::vector<vulkan::Fence> fences;
-    fences.reserve(s_MAX_FRAMES_IN_FLIGHT);
-    for (uint32_t i{}; i < s_MAX_FRAMES_IN_FLIGHT; i++) {
+    for (uint32_t i{}; i < s_max_frames_in_flight; i++) {
         if (auto [result, fence]{
                 (*render_device)->createFence(vk::FenceCreateInfo{}) };
             result == vk::Result::eSuccess)
         {
-            fences.emplace_back(**render_device, fence);
+            frame_data[i].fence = vulkan::Fence{ **render_device, fence };
         }
-    }
-    if (fences.size() < s_MAX_FRAMES_IN_FLIGHT) {
-        return std::nullopt;
+        else {
+            return std::nullopt;
+        }
     }
 
     Renderer renderer{ std::move(*render_device),
                        std::move(t_surface),
-                       std::move(command_pools),
-                       std::move(fences) };
+                       std::move(frame_data) };
     renderer.set_framebuffer_size(t_framebuffer_size);
 
     return renderer;
+}
+
+auto Renderer::post_update() noexcept -> void {
+    for (auto& update : m_post_updates[m_frame_index]) {
+        update();
+    }
+    m_post_updates[m_frame_index].clear();
 }
 
 }   // namespace engine
