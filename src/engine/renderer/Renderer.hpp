@@ -38,6 +38,13 @@ struct CommandBufferAllocateInfo {
     const void*            pNext{};
 };
 
+using CommandHandle = size_t;
+
+struct CommandNodeInfo {
+    size_t worker_id;
+    size_t index;
+};
+
 }   // namespace renderer
 
 class Renderer {
@@ -81,17 +88,17 @@ public:
     auto free_command_buffer(renderer::CommandHandle t_command) noexcept
         -> void;
 
-    auto begin_frame() noexcept -> Result;
+    auto reset() noexcept -> Result;
+    auto pre_update() noexcept -> void;
+    auto begin_frame() noexcept -> void;
     auto end_frame() noexcept -> void;
-
-    auto post_update() noexcept -> void;
 
     auto wait_idle() noexcept -> void;
 
 private:
     auto recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept -> void;
 
-    auto get_command_buffer(renderer::CommandHandle t_command) const noexcept
+    auto get_command_buffer_info(renderer::CommandHandle t_command) const noexcept
         -> std::optional<renderer::CommandNodeInfo>;
 
 public:
@@ -116,17 +123,20 @@ private:
     ///-------------///
     ///  Variables  ///
     ///-------------///
-    bool                             m_in_frame{ false };
+    bool                             m_rendering{ false };
     renderer::RenderDevice           m_render_device;
     vulkan::Surface                  m_surface;
     std::optional<vulkan::SwapChain> m_swap_chain;
 
     std::array<renderer::FrameData, s_max_frames_in_flight> m_frame_data;
     uint32_t                                                m_frame_index{};
+    std::unordered_map<renderer::CommandHandle, renderer::CommandNodeInfo>
+                            m_command_map;
+    renderer::CommandHandle m_next_command_handle{};
 
     static_assert(s_max_frames_in_flight > 1);
     std::array<std::vector<std::function<void()>>, s_max_frames_in_flight - 1>
-        m_post_updates;
+        m_pre_updates;
 };
 
 }   // namespace engine

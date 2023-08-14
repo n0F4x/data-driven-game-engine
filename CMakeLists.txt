@@ -81,4 +81,4 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 ## TESTS ##
 ###########
 add_executable(test examples/src/main.cpp)
-target_link_libraries(test PUBLIC ${PROJECT_NAME})
+target_link_libraries(test PRIVATE ${PROJECT_NAME})

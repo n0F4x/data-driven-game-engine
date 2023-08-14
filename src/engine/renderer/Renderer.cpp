@@ -25,7 +25,7 @@ Renderer::Renderer(
 auto Renderer::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     -> void
 {
-    if (!m_in_frame) {
+    if (!m_rendering) {
         recreate_swap_chain(t_framebuffer_size);
     }
 }
@@ -35,75 +35,94 @@ auto Renderer::allocate_command_buffer(
     size_t                                     t_work_load
 ) noexcept -> std::expected<renderer::CommandHandle, vk::Result>
 {
-    if (m_in_frame) {
+    if (m_rendering) {
         return std::unexpected{ vk::Result::eNotReady };
     }
 
-    auto& frame_data{ m_frame_data[m_frame_index] };
-
     auto command_pool_index{ *std::ranges::min_element(
-        std::views::iota(frame_data.command_buffers.size()),
+        std::views::iota(m_frame_data[m_frame_index].command_buffers.size()),
         std::less{},
         [&](const auto& pool_index) {
             size_t sum{};
-            for (const auto& buffer : frame_data.command_buffers[pool_index]) {
+            for (const auto& buffer :
+                 m_frame_data[m_frame_index].command_buffers[pool_index])
+            {
                 sum += buffer.work_load;
             }
             return sum;
         }
     ) };
 
-    auto [result, command_buffer]{
-        m_render_device->allocateCommandBuffers(vk::CommandBufferAllocateInfo{
-            .pNext              = t_allocate_info.pNext,
-            .commandPool        = *frame_data.command_pools[command_pool_index],
-            .level              = t_allocate_info.level,
-            .commandBufferCount = 1 })
-    };
-    if (result != vk::Result::eSuccess) {
-        return std::unexpected{ result };
+    for (uint32_t frame_index{}; frame_index < s_max_frames_in_flight;
+         frame_index++)
+    {
+        auto [result, command_buffer]{ m_render_device->allocateCommandBuffers(
+            vk::CommandBufferAllocateInfo{
+                .pNext       = t_allocate_info.pNext,
+                .commandPool = *m_frame_data[frame_index]
+                                    .command_pools[command_pool_index],
+                .level              = t_allocate_info.level,
+                .commandBufferCount = 1 }
+        ) };
+        if (result != vk::Result::eSuccess) {
+            return std::unexpected{ result };
+        }
+
+        m_frame_data[frame_index]
+            .command_buffers[command_pool_index]
+            .emplace_back(command_buffer[0], t_work_load);
     }
 
-    frame_data.command_buffers[command_pool_index].emplace_back(
-        command_buffer[0], t_work_load
+    m_command_map.try_emplace(
+        m_next_command_handle,
+        renderer::CommandNodeInfo{ .worker_id = command_pool_index,
+                                   .index =
+                                       m_frame_data[m_frame_index]
+                                           .command_buffers[command_pool_index]
+                                           .size()
+                                       - 1 }
     );
 
-    frame_data.command_map.try_emplace(
-        frame_data.m_next_command_handle,
-        renderer::CommandNodeInfo{
-            .worker_id = command_pool_index,
-            .index = frame_data.command_buffers[command_pool_index].size() - 1 }
-    );
-
-    return frame_data.m_next_command_handle++;
+    return m_next_command_handle++;
 }
 
 auto Renderer::free_command_buffer(renderer::CommandHandle t_command) noexcept
     -> void
 {
-    auto info{ get_command_buffer(t_command) };
+    auto info{ get_command_buffer_info(t_command) };
     if (!info.has_value()) {
         return;
     }
 
     auto [worker_id, index]{ *info };
-    auto& frame_data{ m_frame_data[m_frame_index] };
 
-    m_render_device->freeCommandBuffers(
-        *frame_data.command_pools[worker_id],
-        frame_data.command_buffers[worker_id][index].command_buffer
-    );
+    auto free_buffer{ [&]() {
+        auto& frame_data{ m_frame_data[m_frame_index] };
 
-    frame_data.command_buffers[worker_id].erase(
-        frame_data.command_buffers[worker_id].begin()
-        + static_cast<
-            std::vector<engine::renderer::CommandNode>::difference_type>(index)
-    );
+        m_render_device->freeCommandBuffers(
+            *frame_data.command_pools[worker_id],
+            frame_data.command_buffers[worker_id][index].command_buffer
+        );
 
-    frame_data.command_map.erase(t_command);
+        frame_data.command_buffers[worker_id].erase(
+            frame_data.command_buffers[worker_id].begin()
+            + static_cast<
+                std::vector<engine::renderer::CommandNode>::difference_type>(
+                index
+            )
+        );
+    } };
+
+    for (auto& pre_update_list : m_pre_updates) {
+        pre_update_list.emplace_back(free_buffer);
+    }
+
+    free_buffer();
+
+    m_command_map.erase(t_command);
 }
 
-auto Renderer::begin_frame() noexcept -> Result
+auto Renderer::reset() noexcept -> Result
 {
     if (m_render_device->waitForFences(
             *m_frame_data[m_frame_index].fence,
@@ -119,13 +138,25 @@ auto Renderer::begin_frame() noexcept -> Result
         m_render_device->resetCommandPool(*command_pool);
     }
 
-    m_in_frame = true;
     return Result::eSuccess;
+}
+
+auto Renderer::pre_update() noexcept -> void
+{
+    for (auto& update : m_pre_updates[m_frame_index]) {
+        update();
+    }
+    m_pre_updates[m_frame_index].clear();
+}
+
+auto Renderer::begin_frame() noexcept -> void
+{
+    m_rendering = true;
 }
 
 auto Renderer::end_frame() noexcept -> void
 {
-    m_in_frame    = false;
+    m_rendering   = false;
     m_frame_index = (m_frame_index + 1) % s_max_frames_in_flight;
 }
 
@@ -154,11 +185,10 @@ auto Renderer::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
     m_swap_chain = std::move(new_swap_chain);
 }
 
-auto Renderer::get_command_buffer(renderer::CommandHandle t_command
+auto Renderer::get_command_buffer_info(renderer::CommandHandle t_command
 ) const noexcept -> std::optional<renderer::CommandNodeInfo>
 {
-    if (auto iter{ m_frame_data[m_frame_index].command_map.find(t_command) };
-        iter == m_frame_data[m_frame_index].command_map.end())
+    if (auto iter{ m_command_map.find(t_command) }; iter == m_command_map.end())
     {
         return std::nullopt;
     }
@@ -226,13 +256,6 @@ auto Renderer::create(
     renderer.set_framebuffer_size(t_framebuffer_size);
 
     return renderer;
-}
-
-auto Renderer::post_update() noexcept -> void {
-    for (auto& update : m_post_updates[m_frame_index]) {
-        update();
-    }
-    m_post_updates[m_frame_index].clear();
 }
 
 }   // namespace engine

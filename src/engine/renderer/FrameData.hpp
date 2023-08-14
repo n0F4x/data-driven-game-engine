@@ -15,18 +15,9 @@ struct CommandNode {
     size_t            work_load{};
 };
 
-using CommandHandle = size_t;
-
-struct CommandNodeInfo {
-    size_t worker_id;
-    size_t index;
-};
-
 struct FrameData {
     std::vector<vulkan::CommandPool>                   command_pools;
     std::vector<std::vector<CommandNode>>              command_buffers;
-    std::unordered_map<CommandHandle, CommandNodeInfo> command_map;
-    CommandHandle                                      m_next_command_handle{};
     vulkan::Fence                                      fence;
 };
 
