@@ -17,18 +17,14 @@ public:
     ///------------------///
     class Builder;
 
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend Builder;
+    ///----------------///
+    /// Static methods ///
+    ///----------------///
+    [[nodiscard]] static auto create() noexcept -> Builder;
 
-private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Instance(vk::Instance t_instance) noexcept;
-
-public:
     Instance(Instance&&) noexcept;
     ~Instance() noexcept;
 
@@ -39,16 +35,22 @@ public:
     [[nodiscard]] auto operator*() const noexcept -> vk::Instance;
     [[nodiscard]] auto operator->() const noexcept -> const vk::Instance*;
 
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
-
 private:
-    ///-------------///
+    ///******************///
+    ///  Friend Classes  ///
+    ///******************///
+    friend Builder;
+
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     vk::Instance m_instance;
+
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    explicit Instance(vk::Instance t_instance) noexcept;
+
 };
 
 class Instance::Builder {
@@ -62,18 +64,6 @@ public:
         vk::Result               code;
     };
 
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend Instance;
-
-private:
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    Builder() noexcept = default;
-
-public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
@@ -99,9 +89,14 @@ public:
         -> const std::vector<const char*>&;
 
 private:
-    ///-------------///
+    ///******************///
+    ///  Friend Classes  ///
+    ///******************///
+    friend Instance;
+
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     std::string_view         m_application_name{};
     uint32_t                 m_application_version = VK_API_VERSION_1_0;
     std::string_view         m_engine_name{};
@@ -109,6 +104,11 @@ private:
     uint32_t                 m_api_version    = VK_API_VERSION_1_0;
     std::vector<const char*> m_layers{};
     std::vector<const char*> m_extensions{};
+
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    Builder() noexcept = default;
 };
 
 }   // namespace engine::vulkan

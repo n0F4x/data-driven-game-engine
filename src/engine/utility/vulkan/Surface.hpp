@@ -23,9 +23,9 @@ public:
     [[nodiscard]] auto operator*() const noexcept -> vk::SurfaceKHR;
 
 private:
-    ///-------------///
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     vk::Instance   m_instance;
     vk::SurfaceKHR m_surface;
 };

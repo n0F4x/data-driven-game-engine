@@ -15,22 +15,14 @@ public:
     ///------------------///
     class Builder;
 
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend Builder;
+    ///----------------///
+    /// Static methods ///
+    ///----------------///
+    [[nodiscard]] static auto create() noexcept -> Builder;
 
-private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Window(
-        const sf::VideoMode& t_video_mode,
-        const sf::String&    t_title,
-        sf::Uint32           t_style
-    ) noexcept(false);
-
-public:
     Window(Window&&) noexcept = default;
 
     ///-------------///
@@ -50,29 +42,28 @@ public:
         const VkAllocationCallbacks* t_allocator = nullptr
     ) noexcept -> std::optional<VkSurfaceKHR>;
 
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
-
 private:
-    ///-------------///
+    ///******************///
+    ///  Friend Classes  ///
+    ///******************///
+    friend Builder;
+
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     std::unique_ptr<sf::WindowBase> m_impl;
+
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    explicit Window(
+        const sf::VideoMode& t_video_mode,
+        const sf::String&    t_title,
+        sf::Uint32           t_style
+    ) noexcept(false);
 };
 
 class Window::Builder {
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend Window;
-
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    Builder() noexcept = default;
-
 public:
     ///-----------///
     ///  Methods  ///
@@ -88,12 +79,22 @@ public:
     [[nodiscard]] auto video_mode() const noexcept -> const sf::VideoMode&;
 
 private:
-    ///-------------///
+    ///******************///
+    ///  Friend Classes  ///
+    ///******************///
+    friend Window;
+
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     sf::Uint32    m_style = sf::Style::Default;
     sf::String    m_title;
     sf::VideoMode m_video_mode;
+
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    Builder() noexcept = default;
 };
 
 }   // namespace engine

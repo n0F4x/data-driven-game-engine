@@ -24,9 +24,9 @@ public:
     [[nodiscard]] auto operator*() const noexcept -> vk::DebugUtilsMessengerEXT;
 
 private:
-    ///-------------///
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     vk::Instance               m_instance;
     vk::DebugUtilsMessengerEXT m_messenger;
 };

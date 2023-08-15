@@ -21,9 +21,9 @@ public:
     [[nodiscard]] auto operator*() const noexcept -> vk::Fence;
 
 private:
-    ///-------------///
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     vk::Device m_device;
     vk::Fence  m_fence;
 };

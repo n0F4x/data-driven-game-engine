@@ -23,9 +23,9 @@ public:
     [[nodiscard]] auto operator*() const noexcept -> vk::Framebuffer;
 
 private:
-    ///-------------///
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     vk::Device      m_device;
     vk::Framebuffer m_frame_buffer;
 };

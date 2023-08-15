@@ -15,18 +15,14 @@ public:
     ///------------------///
     class Builder;
 
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend Builder;
+    ///----------------///
+    /// Static methods ///
+    ///----------------///
+    [[nodiscard]] static auto create() noexcept -> Builder;
 
-private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Device(vk::Device t_device) noexcept;
-
-public:
     Device(Device&&) noexcept;
     ~Device() noexcept;
 
@@ -37,29 +33,24 @@ public:
     [[nodiscard]] auto operator*() const noexcept -> vk::Device;
     [[nodiscard]] auto operator->() const noexcept -> const vk::Device*;
 
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
-
 private:
-    ///-------------///
+    ///******************///
+    ///  Friend Classes  ///
+    ///******************///
+    friend Builder;
+
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     vk::Device m_device;
+
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    explicit Device(vk::Device t_device) noexcept;
 };
 
 class Device::Builder {
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend Device;
-
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    Builder() noexcept = default;
-
 public:
     ///-----------///
     ///  Methods  ///
@@ -81,14 +72,24 @@ public:
     ) noexcept -> Builder&;
 
 private:
-    ///-------------///
+    ///******************///
+    ///  Friend Classes  ///
+    ///******************///
+    friend Device;
+
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     vk::PhysicalDevice                     m_physical_device{ nullptr };
     std::vector<vk::DeviceQueueCreateInfo> m_queue_create_infos;
     std::vector<const char*>               m_enabled_layers;
     std::vector<const char*>               m_enabled_extensions;
     vk::PhysicalDeviceFeatures             m_enabled_features{};
+
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    Builder() noexcept = default;
 };
 
 }   // namespace engine::vulkan

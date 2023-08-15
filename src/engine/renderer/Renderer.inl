@@ -20,7 +20,7 @@ auto Renderer::create(
                        .set_engine_version(t_context.engine_version)
                        .set_application_name(t_context.app_name)
                        .set_application_version(t_context.app_version)
-                       .set_api_version(renderer::RenderDevice::s_API_VERSION)
+                       .set_api_version(VK_API_VERSION_1_0)
                        .add_layers(vulkan::validation_layers())
                        .add_extensions(vulkan::instance_extensions())
                        .build() };

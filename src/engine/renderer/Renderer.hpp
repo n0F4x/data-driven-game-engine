@@ -59,22 +59,16 @@ public:
         uint32_t         app_version{};
     };
 
-    ///---------------------///
-    ///  Static  Variables  ///
-    ///---------------------///
-    constexpr static uint32_t s_max_frames_in_flight{ 2 };
+    ///----------------///
+    /// Static methods ///
+    ///----------------///
+    [[nodiscard]] static auto create(
+        CreateInfo                    t_context,
+        renderer::SurfaceCreator auto t_create_surface,
+        vk::Extent2D                  t_framebuffer_size,
+        unsigned                      t_hardware_concurrency
+    ) noexcept -> std::optional<Renderer>;
 
-private:
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    explicit Renderer(
-        renderer::RenderDevice&& t_render_device,
-        vulkan::Surface&&        t_surface,
-        std::array<renderer::FrameData, s_max_frames_in_flight>&& t_frame_data
-    ) noexcept;
-
-public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
@@ -96,33 +90,14 @@ public:
     auto wait_idle() noexcept -> void;
 
 private:
-    auto recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept -> void;
+    ///*********************///
+    ///  Static  Variables  ///
+    ///*********************///
+    constexpr static uint32_t s_max_frames_in_flight{ 2 };
 
-    auto get_command_buffer_info(renderer::CommandHandle t_command) const noexcept
-        -> std::optional<renderer::CommandNodeInfo>;
-
-public:
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create(
-        CreateInfo                    t_context,
-        renderer::SurfaceCreator auto t_create_surface,
-        vk::Extent2D                  t_framebuffer_size,
-        unsigned                      t_hardware_concurrency
-    ) noexcept -> std::optional<Renderer>;
-
-private:
-    [[nodiscard]] static auto create(
-        vulkan::Instance&& t_instance,
-        vulkan::Surface&&  t_surface,
-        vk::Extent2D       t_framebuffer_size,
-        unsigned           t_hardware_concurrency
-    ) noexcept -> std::optional<Renderer>;
-
-    ///-------------///
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     bool                             m_rendering{ false };
     renderer::RenderDevice           m_render_device;
     vulkan::Surface                  m_surface;
@@ -137,6 +112,33 @@ private:
     static_assert(s_max_frames_in_flight > 1);
     std::array<std::vector<std::function<void()>>, s_max_frames_in_flight - 1>
         m_pre_updates;
+
+    ///****************///
+    /// Static methods ///
+    ///****************///
+    [[nodiscard]] static auto create(
+        vulkan::Instance&& t_instance,
+        vulkan::Surface&&  t_surface,
+        vk::Extent2D       t_framebuffer_size,
+        unsigned           t_hardware_concurrency
+    ) noexcept -> std::optional<Renderer>;
+
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    explicit Renderer(
+        renderer::RenderDevice&& t_render_device,
+        vulkan::Surface&&        t_surface,
+        std::array<renderer::FrameData, s_max_frames_in_flight>&& t_frame_data
+    ) noexcept;
+
+    ///***********///
+    ///  Methods  ///
+    ///***********///
+    auto recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept -> void;
+
+    auto get_command_buffer_info(renderer::CommandHandle t_command
+    ) const noexcept -> std::optional<renderer::CommandNodeInfo>;
 };
 
 }   // namespace engine

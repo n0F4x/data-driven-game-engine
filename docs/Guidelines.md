@@ -53,10 +53,25 @@ Terminating the program in case of an unsuccessful dynamic memory allocation is 
 Make your code self-documenting!  
 Mark each section as seen in the rest of the files.
 
+### Class Scope Ordering
+
+Declare everything that is public first!  
+The order within public/protected/private parts is the following:
+  1. Type Aliases
+  2. Nested Classes
+  3. Friend Classes
+  4. Static Variables
+  5. Variables
+  6. Static Methods
+  7. Constructors / Destructors
+  8. Operators
+  9. Methods
+
+Declare friend classes as private!
+
 ### Other
 
 - Don't make class fields protected. Make a protected getter/setter instead.
 - Make a static helper function called `create` in case a normal constructor may fail.
-  And mark the constructor private!
-- Use the Builder Pattern instead of complex constructors.
+- Use the Builder Pattern or a CreateInfo struct instead of complex constructors.
   The builder should be constructed by the class's `create` function.

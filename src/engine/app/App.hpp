@@ -27,18 +27,14 @@ public:
     ///------------------///
     class Builder;
 
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend Builder;
+    ///----------------///
+    /// Static methods ///
+    ///----------------///
+    [[nodiscard]] static auto create() noexcept -> Builder;
 
-private:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit App(Renderer&& t_renderer, Window&& t_window) noexcept;
-
-public:
     App(App&&) noexcept = default;
 
     ///-------------///
@@ -51,30 +47,25 @@ public:
     ///-----------///
     auto run(Runner auto t_runner) noexcept -> void;
 
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
-
 private:
-    ///-------------///
+    ///******************///
+    ///  Friend Classes  ///
+    ///******************///
+    friend Builder;
+
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     Renderer m_renderer;
     Window   m_window;
+
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    explicit App(Renderer&& t_renderer, Window&& t_window) noexcept;
 };
 
 class App::Builder {
-    ///-----------///
-    ///  Friends  ///
-    ///-----------///
-    friend App;
-
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    Builder() noexcept = default;
-
 public:
     ///-----------///
     ///  Methods  ///
@@ -87,10 +78,20 @@ public:
         -> Builder;
 
 private:
-    ///-------------///
+    ///******************///
+    ///  Friend Classes  ///
+    ///******************///
+    friend App;
+
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     std::optional<Window> m_window;
+
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    Builder() noexcept = default;
 };
 
 }   // namespace engine

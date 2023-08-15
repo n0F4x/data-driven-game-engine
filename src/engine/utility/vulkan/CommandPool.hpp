@@ -8,6 +8,15 @@ namespace engine::vulkan {
 
 class CommandPool {
 public:
+    ///----------------///
+    /// Static methods ///
+    ///----------------///
+    [[nodiscard]] static auto create(
+        vk::Device                 t_device,
+        vk::CommandPoolCreateFlags t_flags,
+        uint32_t                   t_queue_family_index
+    ) noexcept -> std::optional<CommandPool>;
+
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
@@ -24,19 +33,10 @@ public:
     auto operator=(CommandPool&&) noexcept -> CommandPool& = default;
     [[nodiscard]] auto operator*() const noexcept -> vk::CommandPool;
 
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create(
-        vk::Device                 t_device,
-        vk::CommandPoolCreateFlags t_flags,
-        uint32_t                   t_queue_family_index
-    ) noexcept -> std::optional<CommandPool>;
-
 private:
-    ///-------------///
+    ///*************///
     ///  Variables  ///
-    ///-------------///
+    ///*************///
     vk::Device      m_device;
     vk::CommandPool m_command_pool;
 };
