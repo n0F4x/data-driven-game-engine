@@ -26,12 +26,12 @@ auto Window::operator->() const noexcept -> sf::WindowBase*
     return m_impl.operator->();
 }
 
-auto Window::getSize() const noexcept -> sf::Vector2u
+auto Window::framebuffer_size() const noexcept -> sf::Vector2u
 {
     return m_impl->getSize();
 }
 
-auto Window::createVulkanSurface(
+auto Window::create_vulkan_surface(
     VkInstance                   t_instance,
     const VkAllocationCallbacks* t_allocator
 ) noexcept -> std::optional<VkSurfaceKHR>

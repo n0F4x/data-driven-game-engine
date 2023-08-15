@@ -35,9 +35,9 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto getSize() const noexcept -> sf::Vector2u;
+    [[nodiscard]] auto framebuffer_size() const noexcept -> sf::Vector2u;
 
-    auto createVulkanSurface(
+    auto create_vulkan_surface(
         VkInstance                   t_instance,
         const VkAllocationCallbacks* t_allocator = nullptr
     ) noexcept -> std::optional<VkSurfaceKHR>;

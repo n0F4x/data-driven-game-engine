@@ -160,9 +160,9 @@ auto Renderer::end_frame() noexcept -> void
     m_frame_index = (m_frame_index + 1) % s_max_frames_in_flight;
 }
 
-auto Renderer::wait_idle() noexcept -> void
+auto Renderer::wait_idle() noexcept -> vk::Result
 {
-    static_cast<void>(m_render_device->waitIdle());
+    return m_render_device->waitIdle();
 }
 
 auto Renderer::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept

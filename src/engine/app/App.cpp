@@ -10,7 +10,7 @@ auto create_surface_callback(engine::App::Window& t_window) noexcept
                vk::Instance                                t_instance,
                vk::Optional<const vk::AllocationCallbacks> t_allocator
            ) noexcept -> std::optional<vk::SurfaceKHR> {
-        return t_window.createVulkanSurface(
+        return t_window.create_vulkan_surface(
             t_instance, &t_allocator->operator const VkAllocationCallbacks&()
         );
     };
@@ -53,8 +53,8 @@ auto App::Builder::build() && noexcept -> std::optional<App>
     auto renderer{ Renderer::create(
         {},
         create_surface_callback(*m_window),
-        vk::Extent2D{ .width  = m_window->getSize().x,
-                      .height = m_window->getSize().y },
+        vk::Extent2D{ .width  = m_window->framebuffer_size().x,
+                      .height = m_window->framebuffer_size().y },
         std::jthread::hardware_concurrency()
     ) };
     if (!renderer.has_value()) {

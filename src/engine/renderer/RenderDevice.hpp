@@ -25,6 +25,7 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     RenderDevice(RenderDevice&&) noexcept = default;
+    ~RenderDevice() noexcept;
 
     ///-------------///
     ///  Operators  ///

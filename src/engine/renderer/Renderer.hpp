@@ -87,7 +87,7 @@ public:
     auto begin_frame() noexcept -> void;
     auto end_frame() noexcept -> void;
 
-    auto wait_idle() noexcept -> void;
+    auto wait_idle() noexcept -> vk::Result;
 
 private:
     ///*********************///

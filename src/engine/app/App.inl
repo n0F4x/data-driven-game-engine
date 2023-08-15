@@ -2,7 +2,6 @@ namespace engine {
 
 auto App::run(Runner auto t_runner) noexcept -> void {
     t_runner(m_renderer, m_window);
-    m_renderer.wait_idle();
 }
 
 auto App::Builder::build_and_run(Runner auto t_runner) && noexcept -> Result
