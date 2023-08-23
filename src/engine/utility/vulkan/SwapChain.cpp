@@ -142,40 +142,6 @@ auto create_swap_chain(
     return swap_chain.value;
 }
 
-auto create_image_views(
-    vk::Device           t_device,
-    vk::SwapchainKHR     t_swap_chain,
-    vk::SurfaceFormatKHR t_surface_format
-) noexcept -> std::optional<std::vector<vk::ImageView>>
-{
-    auto images = t_device.getSwapchainImagesKHR(t_swap_chain);
-    if (images.result != vk::Result::eSuccess) {
-        return std::nullopt;
-    }
-    std::vector<vk::ImageView> image_views;
-    image_views.reserve(images.value.size());
-
-    vk::ImageViewCreateInfo image_view_create_info{
-        .viewType         = vk::ImageViewType::e2D,
-        .format           = t_surface_format.format,
-        .subresourceRange = {.aspectMask     = vk::ImageAspectFlagBits::eColor,
-                             .baseMipLevel   = 0,
-                             .levelCount     = 1,
-                             .baseArrayLayer = 0,
-                             .layerCount     = 1}
-    };
-    for (auto image : images.value) {
-        image_view_create_info.image = image;
-        auto image_view{ t_device.createImageView(image_view_create_info) };
-        if (image_view.result != vk::Result::eSuccess) {
-            return std::nullopt;
-        }
-        image_views.push_back(image_view.value);
-    }
-
-    return image_views;
-}
-
 }   // namespace
 
 namespace engine::vulkan {
@@ -187,25 +153,22 @@ namespace engine::vulkan {
 ////////////////////////////////////
 
 SwapChain::SwapChain(
-    vk::Device                 t_device,
-    vk::Extent2D               t_extent,
-    vk::SurfaceFormatKHR       t_surface_format,
-    vk::SwapchainKHR           t_swap_chain,
-    std::vector<vk::ImageView> t_image_views
+    vk::Device           t_device,
+    vk::Extent2D         t_extent,
+    vk::SurfaceFormatKHR t_surface_format,
+    vk::SwapchainKHR     t_swap_chain
 ) noexcept
     : m_device{ t_device },
       m_extent{ t_extent },
       m_surface_format{ t_surface_format },
-      m_swap_chain{ t_swap_chain },
-      m_image_views{ std::move(t_image_views) }
+      m_swap_chain{ t_swap_chain }
 {}
 
 SwapChain::SwapChain(SwapChain&& t_other) noexcept
     : m_device{ t_other.m_device },
       m_extent{ t_other.m_extent },
       m_surface_format{ t_other.m_surface_format },
-      m_swap_chain{ t_other.m_swap_chain },
-      m_image_views{ std::move(t_other.m_image_views) }
+      m_swap_chain{ t_other.m_swap_chain }
 {
     t_other.m_swap_chain = nullptr;
 }
@@ -213,9 +176,6 @@ SwapChain::SwapChain(SwapChain&& t_other) noexcept
 SwapChain::~SwapChain() noexcept
 {
     if (m_swap_chain) {
-        for (auto image_view : m_image_views) {
-            m_device.destroy(image_view);
-        }
         m_device.destroy(m_swap_chain);
     }
 }
@@ -228,12 +188,6 @@ auto SwapChain::operator*() const noexcept -> vk::SwapchainKHR
 auto SwapChain::extent() const noexcept -> vk::Extent2D
 {
     return m_extent;
-}
-
-auto SwapChain::image_views() const noexcept
-    -> const std::vector<vk::ImageView>&
-{
-    return m_image_views;
 }
 
 auto engine::vulkan::SwapChain::create(
@@ -281,16 +235,7 @@ auto engine::vulkan::SwapChain::create(
         return std::nullopt;
     }
 
-    auto image_views{
-        create_image_views(t_device, *swap_chain, *surface_format)
-    };
-    if (!image_views.has_value()) {
-        return std::nullopt;
-    }
-
-    return SwapChain{
-        t_device, extent, *surface_format, *swap_chain, std::move(*image_views)
-    };
+    return SwapChain{ t_device, extent, *surface_format, *swap_chain };
 }
 
 }   // namespace engine::vulkan

@@ -37,8 +37,6 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto extent() const noexcept -> vk::Extent2D;
-    [[nodiscard]] auto image_views() const noexcept
-        -> const std::vector<vk::ImageView>&;
 
 private:
     ///*************///
@@ -48,7 +46,6 @@ private:
     vk::Extent2D               m_extent;
     vk::SurfaceFormatKHR       m_surface_format;
     vk::SwapchainKHR           m_swap_chain;
-    std::vector<vk::ImageView> m_image_views;
 
     ///******************************///
     ///  Constructors / Destructors  ///
@@ -57,8 +54,7 @@ private:
         vk::Device                 t_device,
         vk::Extent2D               t_extent,
         vk::SurfaceFormatKHR       t_surface_format,
-        vk::SwapchainKHR           t_swap_chain,
-        std::vector<vk::ImageView> t_image_views
+        vk::SwapchainKHR           t_swap_chain
     ) noexcept;
 };
 
