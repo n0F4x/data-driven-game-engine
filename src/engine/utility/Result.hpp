@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace engine {
 
 enum class Result {
@@ -8,4 +7,4 @@ enum class Result {
     eFailure
 };
 
-}
+}   // namespace engine

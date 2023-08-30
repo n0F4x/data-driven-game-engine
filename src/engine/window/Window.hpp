@@ -6,7 +6,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/Window/Vulkan.hpp>
 
-namespace engine {
+namespace engine::window {
 
 class Window {
 public:
@@ -19,18 +19,6 @@ public:
     /// Static methods ///
     ///----------------///
     [[nodiscard]] static auto create() noexcept -> Builder;
-
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    Window(Window&&) noexcept = default;
-
-    ///-------------///
-    ///  Operators  ///
-    ///-------------///
-    auto               operator=(Window&&) noexcept -> Window& = default;
-    [[nodiscard]] auto operator*() const noexcept -> sf::WindowBase&;
-    [[nodiscard]] auto operator->() const noexcept -> sf::WindowBase*;
 
     ///-----------///
     ///  Methods  ///

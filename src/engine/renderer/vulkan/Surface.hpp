@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::vulkan {
+namespace engine::renderer::vulkan {
 
 class Surface {
 public:
@@ -30,4 +30,4 @@ private:
     vk::SurfaceKHR m_surface;
 };
 
-}   // namespace engine::vulkan
+}   // namespace engine::renderer::vulkan

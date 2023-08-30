@@ -1,4 +1,8 @@
+add_subdirectory(vulkan)
+
 target_sources(${PROJECT_NAME} PUBLIC
-        RenderDevice.cpp
+        Device.cpp
+        RenderFrame.cpp
         Renderer.cpp
+        Swapchain.cpp
         )

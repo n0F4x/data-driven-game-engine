@@ -47,37 +47,6 @@ auto choose_swap_chain_present_mode(
     return vk::PresentModeKHR::eFifo;
 }
 
-auto choose_swap_chain_extent(
-    const vk::Extent2D&               t_frame_buffer_size,
-    const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
-) noexcept -> vk::Extent2D
-{
-    if (t_surface_capabilities.currentExtent.width
-        != std::numeric_limits<uint32_t>::max())
-    {
-        return t_surface_capabilities.currentExtent;
-    }
-    else {
-        vk::Extent2D actual_extent{
-            .width  = static_cast<uint32_t>(t_frame_buffer_size.width),
-            .height = static_cast<uint32_t>(t_frame_buffer_size.height)
-        };
-
-        actual_extent.width = std::clamp(
-            actual_extent.width,
-            t_surface_capabilities.minImageExtent.width,
-            t_surface_capabilities.maxImageExtent.width
-        );
-        actual_extent.height = std::clamp(
-            actual_extent.height,
-            t_surface_capabilities.minImageExtent.height,
-            t_surface_capabilities.maxImageExtent.height
-        );
-
-        return actual_extent;
-    }
-}
-
 auto create_swap_chain(
     vk::SurfaceKHR                  t_surface,
     vk::PhysicalDevice              t_physical_device,
@@ -142,9 +111,43 @@ auto create_swap_chain(
     return swap_chain.value;
 }
 
+auto create_image_views(
+    vk::Device           t_device,
+    vk::SwapchainKHR     t_swap_chain,
+    vk::SurfaceFormatKHR t_surface_format
+) noexcept -> std::optional<std::vector<vk::ImageView>>
+{
+    auto images = t_device.getSwapchainImagesKHR(t_swap_chain);
+    if (images.result != vk::Result::eSuccess) {
+        return std::nullopt;
+    }
+    std::vector<vk::ImageView> image_views;
+    image_views.reserve(images.value.size());
+
+    vk::ImageViewCreateInfo image_view_create_info{
+        .viewType         = vk::ImageViewType::e2D,
+        .format           = t_surface_format.format,
+        .subresourceRange = {.aspectMask     = vk::ImageAspectFlagBits::eColor,
+                             .baseMipLevel   = 0,
+                             .levelCount     = 1,
+                             .baseArrayLayer = 0,
+                             .layerCount     = 1}
+    };
+    for (auto image : images.value) {
+        image_view_create_info.image = image;
+        auto image_view{ t_device.createImageView(image_view_create_info) };
+        if (image_view.result != vk::Result::eSuccess) {
+            return std::nullopt;
+        }
+        image_views.push_back(image_view.value);
+    }
+
+    return image_views;
+}
+
 }   // namespace
 
-namespace engine::vulkan {
+namespace engine::renderer::vulkan {
 
 ////////////////////////////////////
 ///------------------------------///
@@ -153,22 +156,25 @@ namespace engine::vulkan {
 ////////////////////////////////////
 
 SwapChain::SwapChain(
-    vk::Device           t_device,
-    vk::Extent2D         t_extent,
-    vk::SurfaceFormatKHR t_surface_format,
-    vk::SwapchainKHR     t_swap_chain
+    vk::Device                 t_device,
+    vk::Extent2D               t_extent,
+    vk::SurfaceFormatKHR       t_surface_format,
+    vk::SwapchainKHR           t_swap_chain,
+    std::vector<vk::ImageView> t_image_views
 ) noexcept
     : m_device{ t_device },
       m_extent{ t_extent },
       m_surface_format{ t_surface_format },
-      m_swap_chain{ t_swap_chain }
+      m_swap_chain{ t_swap_chain },
+      m_image_views{ std::move(t_image_views) }
 {}
 
 SwapChain::SwapChain(SwapChain&& t_other) noexcept
     : m_device{ t_other.m_device },
       m_extent{ t_other.m_extent },
       m_surface_format{ t_other.m_surface_format },
-      m_swap_chain{ t_other.m_swap_chain }
+      m_swap_chain{ t_other.m_swap_chain },
+      m_image_views{ std::move(t_other.m_image_views) }
 {
     t_other.m_swap_chain = nullptr;
 }
@@ -176,6 +182,9 @@ SwapChain::SwapChain(SwapChain&& t_other) noexcept
 SwapChain::~SwapChain() noexcept
 {
     if (m_swap_chain) {
+        for (auto image_view : m_image_views) {
+            m_device.destroy(image_view);
+        }
         m_device.destroy(m_swap_chain);
     }
 }
@@ -190,15 +199,26 @@ auto SwapChain::extent() const noexcept -> vk::Extent2D
     return m_extent;
 }
 
-auto engine::vulkan::SwapChain::create(
+auto SwapChain::surface_format() const noexcept -> vk::SurfaceFormatKHR
+{
+    return m_surface_format;
+}
+
+auto SwapChain::image_views() const noexcept
+    -> const std::vector<vk::ImageView>&
+{
+    return m_image_views;
+}
+
+auto SwapChain::create(
     vk::SurfaceKHR                  t_surface,
     vk::PhysicalDevice              t_physical_device,
     uint32_t                        t_graphics_queue_family,
     uint32_t                        t_present_queue_family,
     vk::Device                      t_device,
-    vk::Extent2D                    t_frame_buffer_size,
+    vk::Extent2D                    t_framebuffer_size,
     std::optional<vk::SwapchainKHR> t_old_swap_chain
-) noexcept -> std::optional<engine::vulkan::SwapChain>
+) noexcept -> std::optional<SwapChain>
 {
     auto surface_capabilities{
         t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
@@ -208,7 +228,7 @@ auto engine::vulkan::SwapChain::create(
     }
 
     auto extent = choose_swap_chain_extent(
-        t_frame_buffer_size, surface_capabilities.value
+        t_framebuffer_size, surface_capabilities.value
     );
     if (extent.width == 0 || extent.height == 0) {
         return std::nullopt;
@@ -235,7 +255,47 @@ auto engine::vulkan::SwapChain::create(
         return std::nullopt;
     }
 
-    return SwapChain{ t_device, extent, *surface_format, *swap_chain };
+    auto image_views{
+        create_image_views(t_device, *swap_chain, *surface_format)
+    };
+    if (!image_views.has_value()) {
+        return std::nullopt;
+    }
+
+    return SwapChain{
+        t_device, extent, *surface_format, *swap_chain, std::move(*image_views)
+    };
 }
 
-}   // namespace engine::vulkan
+auto choose_swap_chain_extent(
+    const vk::Extent2D&               t_framebuffer_size,
+    const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
+) noexcept -> vk::Extent2D
+{
+    if (t_surface_capabilities.currentExtent.width
+        != std::numeric_limits<uint32_t>::max())
+    {
+        return t_surface_capabilities.currentExtent;
+    }
+    else {
+        vk::Extent2D actual_extent{
+            .width  = static_cast<uint32_t>(t_framebuffer_size.width),
+            .height = static_cast<uint32_t>(t_framebuffer_size.height)
+        };
+
+        actual_extent.width = std::clamp(
+            actual_extent.width,
+            t_surface_capabilities.minImageExtent.width,
+            t_surface_capabilities.maxImageExtent.width
+        );
+        actual_extent.height = std::clamp(
+            actual_extent.height,
+            t_surface_capabilities.minImageExtent.height,
+            t_surface_capabilities.maxImageExtent.height
+        );
+
+        return actual_extent;
+    }
+}
+
+}   // namespace engine::renderer::vulkan

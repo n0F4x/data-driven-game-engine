@@ -4,7 +4,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::vulkan {
+namespace engine::renderer::vulkan {
 
 class SwapChain {
 public:
@@ -37,6 +37,9 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto extent() const noexcept -> vk::Extent2D;
+    [[nodiscard]] auto surface_format() const noexcept -> vk::SurfaceFormatKHR;
+    [[nodiscard]] auto image_views() const noexcept
+        -> const std::vector<vk::ImageView>&;
 
 private:
     ///*************///
@@ -46,6 +49,7 @@ private:
     vk::Extent2D               m_extent;
     vk::SurfaceFormatKHR       m_surface_format;
     vk::SwapchainKHR           m_swap_chain;
+    std::vector<vk::ImageView> m_image_views;
 
     ///******************************///
     ///  Constructors / Destructors  ///
@@ -54,8 +58,14 @@ private:
         vk::Device                 t_device,
         vk::Extent2D               t_extent,
         vk::SurfaceFormatKHR       t_surface_format,
-        vk::SwapchainKHR           t_swap_chain
+        vk::SwapchainKHR           t_swap_chain,
+        std::vector<vk::ImageView> t_image_views
     ) noexcept;
 };
 
-}   // namespace engine::vulkan
+[[nodiscard]] auto choose_swap_chain_extent(
+    const vk::Extent2D&               t_framebuffer_size,
+    const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
+) noexcept -> vk::Extent2D;
+
+}   // namespace engine::renderer::vulkan

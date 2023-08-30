@@ -73,5 +73,3 @@ Declare friend classes as private!
 
 - Don't make class fields protected. Make a protected getter/setter instead.
 - Make a static helper function called `create` in case a normal constructor may fail.
-- Use the Builder Pattern or a CreateInfo struct instead of complex constructors.
-  The builder should be constructed by the class's `create` function.

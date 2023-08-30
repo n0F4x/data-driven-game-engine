@@ -1,72 +1,63 @@
 #pragma once
 
-#include <array>
-#include <expected>
+#include <algorithm>
+#include <atomic>
+#include <concepts>
 #include <functional>
+#include <memory>
 #include <optional>
-#include <string_view>
-#include <type_traits>
-#include <vector>
+#include <thread>
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/utility/Result.hpp"
-#include "engine/utility/vulkan/CommandPool.hpp"
-#include "engine/utility/vulkan/Fence.hpp"
-#include "engine/utility/vulkan/Surface.hpp"
-#include "engine/utility/vulkan/SwapChain.hpp"
+#include "vulkan/Instance.hpp"
+#include "vulkan/Surface.hpp"
 
-#include "FrameData.hpp"
-#include "RenderDevice.hpp"
+#include "Device.hpp"
+#include "RenderFrame.hpp"
+#include "Swapchain.hpp"
 
-namespace engine {
-
-namespace renderer {
+namespace engine::renderer {
 
 template <typename Func>
-concept SurfaceCreator = std::is_nothrow_invocable_r_v<
-    std::optional<vk::SurfaceKHR>,
+concept CreateSurfaceConcept = std::
+    is_nothrow_invocable_r_v<std::optional<vk::SurfaceKHR>, Func, vk::Instance>;
+
+template <typename Func>
+concept CreateDeviceConcept = std::is_nothrow_invocable_r_v<
+    std::optional<renderer::Device>,
     Func,
     vk::Instance,
-    vk::Optional<const vk::AllocationCallbacks>>;
-
-template <typename Func>
-concept Recorder = std::is_nothrow_invocable_v<Func>;
-
-struct CommandBufferAllocateInfo {
-    vk::CommandBufferLevel level{};
-    const void*            pNext{};
-};
-
-using CommandHandle = size_t;
-
-struct CommandNodeInfo {
-    size_t worker_id;
-    size_t index;
-};
-
-}   // namespace renderer
+    vk::SurfaceKHR,
+    vk::PhysicalDevice>;
 
 class Renderer {
 public:
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
-    struct CreateInfo {
-        std::string_view engine_name;
-        uint32_t         engine_version{};
-        std::string_view app_name;
-        uint32_t         app_version{};
+    struct Config {
+        std::function<std::optional<vk::DebugUtilsMessengerEXT>(vk::Instance)>
+            create_debug_messenger;
+        std::function<bool(vk::PhysicalDevice, vk::SurfaceKHR)>
+            filter_physical_device;
+        std::function<size_t(vk::PhysicalDevice, vk::SurfaceKHR)>
+                 rank_physical_device{ Renderer::rank_physical_device };
+        unsigned thread_count{
+            std::max(std::jthread::hardware_concurrency(), 1u)
+        };
+        unsigned frame_count{ 2 };
     };
 
     ///----------------///
     /// Static methods ///
     ///----------------///
     [[nodiscard]] static auto create(
-        CreateInfo                    t_context,
-        renderer::SurfaceCreator auto t_create_surface,
-        vk::Extent2D                  t_framebuffer_size,
-        unsigned                      t_hardware_concurrency
+        vk::Instance                    t_instance,
+        vk::SurfaceKHR                  t_surface,
+        vk::Extent2D                    t_framebuffer_size,
+        const CreateDeviceConcept auto& t_create_device,
+        Config&                         t_config
     ) noexcept -> std::optional<Renderer>;
 
     ///-----------///
@@ -74,73 +65,39 @@ public:
     ///-----------///
     auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void;
 
-    auto allocate_command_buffer(
-        const renderer::CommandBufferAllocateInfo& t_allocate_info,
-        size_t                                     t_work_load
-    ) noexcept -> std::expected<renderer::CommandHandle, vk::Result>;
-
-    auto free_command_buffer(renderer::CommandHandle t_command) noexcept
-        -> void;
-
-    auto reset() noexcept -> Result;
-    auto pre_update() noexcept -> void;
-    auto begin_frame() noexcept -> void;
-    auto end_frame() noexcept -> void;
-
-    auto wait_idle() noexcept -> vk::Result;
-
 private:
-    ///*********************///
-    ///  Static  Variables  ///
-    ///*********************///
-    constexpr static uint32_t s_max_frames_in_flight{ 2 };
+    ///********************///
+    ///  Static Variables  ///
+    ///********************///
+    [[nodiscard]] static auto rank_physical_device(
+        vk::PhysicalDevice,
+        vk::SurfaceKHR
+    ) noexcept -> size_t;
 
     ///*************///
     ///  Variables  ///
     ///*************///
-    bool                             m_rendering{ false };
-    renderer::RenderDevice           m_render_device;
-    vulkan::Surface                  m_surface;
-    std::optional<vulkan::SwapChain> m_swap_chain;
-
-    std::array<renderer::FrameData, s_max_frames_in_flight> m_frame_data;
-    uint32_t                                                m_frame_index{};
-    std::unordered_map<renderer::CommandHandle, renderer::CommandNodeInfo>
-                            m_command_map;
-    renderer::CommandHandle m_next_command_handle{};
-
-    static_assert(s_max_frames_in_flight > 1);
-    std::array<std::vector<std::function<void()>>, s_max_frames_in_flight - 1>
-        m_pre_updates;
-
-    ///****************///
-    /// Static methods ///
-    ///****************///
-    [[nodiscard]] static auto create(
-        vulkan::Instance&& t_instance,
-        vulkan::Surface&&  t_surface,
-        vk::Extent2D       t_framebuffer_size,
-        unsigned           t_hardware_concurrency
-    ) noexcept -> std::optional<Renderer>;
+    vulkan::Instance                           m_instance;
+    std::unique_ptr<std::atomic<vk::Extent2D>> m_framebuffer_size;
+    std::vector<vk::PhysicalDevice>            m_adequate_devices;
+    Device                                     m_device;
+    Swapchain                                  m_swapchain;
+    RenderFrame                                m_render_frame;
 
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
-    explicit Renderer(
-        renderer::RenderDevice&& t_render_device,
-        vulkan::Surface&&        t_surface,
-        std::array<renderer::FrameData, s_max_frames_in_flight>&& t_frame_data
-    ) noexcept;
-
-    ///***********///
-    ///  Methods  ///
-    ///***********///
-    auto recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept -> void;
-
-    auto get_command_buffer_info(renderer::CommandHandle t_command
-    ) const noexcept -> std::optional<renderer::CommandNodeInfo>;
+    Renderer(
+        vk::Instance                      t_instance,
+        vk::DebugUtilsMessengerEXT        t_debug_messenger,
+        vk::SurfaceKHR                    t_surface,
+        vk::Extent2D                      t_framebuffer_size,
+        std::vector<vk::PhysicalDevice>&& t_adequate_devices,
+        Device&&                          t_device,
+        RenderFrame&&                     t_render_frame
+    );
 };
 
-}   // namespace engine
+}   // namespace engine::renderer
 
 #include "Renderer.inl"

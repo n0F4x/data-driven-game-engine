@@ -1,49 +1,79 @@
-#include "engine/utility/vulkan/helpers.hpp"
+#include <ranges>
 
-namespace engine {
-
-//////////////////////////////////!
-///-----------------------------///
-///  Renderer   IMPLEMENTATION  ///
-///-----------------------------///
-///////////////////////////////////
+namespace engine::renderer {
 
 auto Renderer::create(
-    CreateInfo                    t_context,
-    renderer::SurfaceCreator auto t_create_surface,
-    vk::Extent2D                  t_framebuffer_size,
-    unsigned                      t_hardware_concurrency
+    vk::Instance                    t_instance,
+    vk::SurfaceKHR                  t_surface,
+    vk::Extent2D                    t_framebuffer_size,
+    const CreateDeviceConcept auto& t_create_device,
+    Config&                         t_config
 ) noexcept -> std::optional<Renderer>
 {
-    auto instance{ vulkan::Instance::create()
-                       .set_engine_name(t_context.engine_name)
-                       .set_engine_version(t_context.engine_version)
-                       .set_application_name(t_context.app_name)
-                       .set_application_version(t_context.app_version)
-                       .set_api_version(VK_API_VERSION_1_0)
-                       .add_layers(vulkan::validation_layers())
-                       .add_extensions(vulkan::instance_extensions())
-                       .build() };
-    if (!instance.has_value()) {
+    if (!t_instance || !t_surface) {
         return std::nullopt;
     }
 
-    std::optional<vulkan::Surface> surface{
-        t_create_surface(**instance, nullptr)
-            .transform([instance = **instance](vk::SurfaceKHR surface) {
-                return vulkan::Surface{ instance, surface };
-            })
-    };
-    if (!surface.has_value()) {
+    std::optional<vk::DebugUtilsMessengerEXT> debug_messenger;
+    if (t_config.create_debug_messenger) {
+        debug_messenger = t_config.create_debug_messenger(t_instance);
+    }
+
+    auto [result, physical_devices]{ t_instance.enumeratePhysicalDevices() };
+    if (result != vk::Result::eSuccess) {
+        return std::nullopt;
+    }
+    auto view{ physical_devices
+               | std::views::filter([&](vk::PhysicalDevice t_physical_device) {
+                     return renderer::Device::adequate(
+                                t_physical_device, t_surface
+                            )
+                         && (!t_config.filter_physical_device
+                             || t_config.filter_physical_device(
+                                 t_physical_device, t_surface
+                             ));
+                 }) };
+    std::vector<vk::PhysicalDevice> adequate_devices{ view.begin(),
+                                                      view.end() };
+    if (adequate_devices.empty()) {
         return std::nullopt;
     }
 
-    return create(
-        std::move(*instance),
-        std::move(*surface),
-        t_framebuffer_size,
-        t_hardware_concurrency
-    );
+    auto physical_device{ adequate_devices.front() };
+    if (t_config.rank_physical_device) {
+        auto highest_rank{
+            t_config.rank_physical_device(physical_device, t_surface)
+        };
+        for (auto adequate_device : adequate_devices) {
+            if (auto rank{
+                    t_config.rank_physical_device(adequate_device, t_surface) };
+                rank > highest_rank)
+            {
+                physical_device = adequate_device;
+                highest_rank    = rank;
+            }
+        }
+    }
+
+    auto device{ t_create_device(t_instance, t_surface, physical_device) };
+    if (!device.has_value()) {
+        return std::nullopt;
+    }
+
+    auto render_frame{ RenderFrame::create(
+        *device, t_config.thread_count, t_config.frame_count
+    ) };
+    if (!render_frame.has_value()) {
+        return std::nullopt;
+    }
+
+    return Renderer{ t_instance,
+                     debug_messenger ? *debug_messenger : nullptr,
+                     t_surface,
+                     t_framebuffer_size,
+                     std::move(adequate_devices),
+                     std::move(*device),
+                     std::move(*render_frame) };
 }
 
-}   // namespace engine
+}   // namespace engine::renderer

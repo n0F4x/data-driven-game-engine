@@ -1,6 +1,7 @@
 #include "helpers.hpp"
 
 #include <iostream>
+#include <set>
 
 #include <vulkan/vulkan_to_string.hpp>
 
@@ -20,7 +21,7 @@ auto create_instance_extensions() noexcept
 
 }   // namespace
 
-namespace engine::vulkan {
+namespace engine::renderer::vulkan {
 
 auto instance_extensions() noexcept -> std::span<const char* const>
 {
@@ -30,7 +31,7 @@ auto instance_extensions() noexcept -> std::span<const char* const>
     return instance_extensions;
 }
 
-}   // namespace engine::vulkan
+}   // namespace engine::renderer::vulkan
 
 PFN_vkCreateDebugUtilsMessengerEXT  pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
@@ -115,7 +116,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
     return false;
 }
 
-namespace engine::vulkan {
+namespace engine::renderer::vulkan {
 
 auto create_debug_messenger(vk::Instance t_instance) noexcept
     -> std::optional<vk::DebugUtilsMessengerEXT>
@@ -175,4 +176,26 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
     return std::nullopt;
 }
 
-}   // namespace engine::vulkan
+auto supports_extensions(
+    vk::PhysicalDevice           t_physical_device,
+    std::span<const char* const> t_extensions
+) noexcept -> bool
+{
+    auto [result, extension_properties]{
+        t_physical_device.enumerateDeviceExtensionProperties()
+    };
+    if (result != vk::Result::eSuccess) {
+        return false;
+    }
+
+    std::set<std::string_view> required_extensions{ t_extensions.begin(),
+                                                    t_extensions.end() };
+
+    for (const auto& extension : extension_properties) {
+        required_extensions.erase(extension.extensionName);
+    }
+
+    return required_extensions.empty();
+}
+
+}   // namespace engine::renderer::vulkan

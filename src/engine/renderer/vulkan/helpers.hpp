@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::vulkan {
+namespace engine::renderer::vulkan {
 
 [[nodiscard]] constexpr auto validation_layers() noexcept
     -> std::span<const char* const>
@@ -29,4 +29,9 @@ auto init_vulkan() noexcept -> void;
 [[nodiscard]] auto create_debug_messenger(vk::Instance t_instance) noexcept
     -> std::optional<vk::DebugUtilsMessengerEXT>;
 
-}   // namespace engine::vulkan
+[[nodiscard]] auto supports_extensions(
+    vk::PhysicalDevice           t_physical_device,
+    std::span<const char* const> t_extensions
+) noexcept -> bool;
+
+}   // namespace engine::renderer::vulkan

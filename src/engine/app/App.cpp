@@ -1,22 +1,6 @@
 #include "App.hpp"
 
-#include <thread>
-
-namespace {
-
-auto create_surface_callback(engine::App::Window& t_window) noexcept
-{
-    return [&t_window](
-               vk::Instance                                t_instance,
-               vk::Optional<const vk::AllocationCallbacks> t_allocator
-           ) noexcept -> std::optional<vk::SurfaceKHR> {
-        return t_window.create_vulkan_surface(
-            t_instance, &t_allocator->operator const VkAllocationCallbacks&()
-        );
-    };
-}
-
-}   // namespace
+#include "engine/renderer/defaults.hpp"
 
 namespace engine {
 
@@ -50,16 +34,13 @@ auto App::Builder::build() && noexcept -> std::optional<App>
         return std::nullopt;
     }
 
-    auto renderer{ Renderer::create(
-        {},
-        create_surface_callback(*m_window),
-        vk::Extent2D{ .width  = m_window->framebuffer_size().x,
-                      .height = m_window->framebuffer_size().y },
-        std::jthread::hardware_concurrency()
-    ) };
+    auto renderer{ renderer::defaults::create<Renderer>(*m_window) };
     if (!renderer.has_value()) {
         return std::nullopt;
     }
+    renderer->set_framebuffer_size(vk::Extent2D{
+        .width  = m_window->framebuffer_size().x,
+        .height = m_window->framebuffer_size().y });
 
     return App{ std::move(*renderer), std::move(*m_window) };
 }

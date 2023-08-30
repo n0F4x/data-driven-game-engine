@@ -1,6 +1,6 @@
 #include "CommandPool.hpp"
 
-namespace engine::vulkan {
+namespace engine::renderer::vulkan {
 
 //////////////////////////////////////
 ///--------------------------------///
@@ -53,4 +53,4 @@ auto CommandPool::create(
     return CommandPool{ t_device, command_pool };
 }
 
-}   // namespace engine::vulkan
+}   // namespace engine::renderer::vulkan

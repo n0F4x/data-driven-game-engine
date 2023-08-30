@@ -32,16 +32,6 @@ public:
     ///----------------///
     [[nodiscard]] static auto create() noexcept -> Builder;
 
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    App(App&&) noexcept = default;
-
-    ///-------------///
-    ///  Operators  ///
-    ///-------------///
-    auto operator=(App&&) noexcept -> App& = default;
-
     ///-----------///
     ///  Methods  ///
     ///-----------///
@@ -56,8 +46,8 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    Renderer m_renderer;
-    Window   m_window;
+    Renderer                                   m_renderer;
+    Window                                     m_window;
 
     ///******************************///
     ///  Constructors / Destructors  ///

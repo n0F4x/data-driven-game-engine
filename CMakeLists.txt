@@ -37,10 +37,16 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 add_subdirectory(src/engine)
 
 
-#find_package(Microsoft.GSL CONFIG REQUIRED)
 #find_package(glm CONFIG REQUIRED)
 #find_package(glfw3 CONFIG REQUIRED)
-#find_package(EnTT CONFIG REQUIRED)
+
+## Microsoft.GSL
+#FetchContent_Declare(Microsoft.GSL
+#        GIT_REPOSITORY https://github.com/microsoft/GSL.git
+#        GIT_TAG v4.0.0)
+#FetchContent_MakeAvailable(Microsoft.GSL)
+#target_link_libraries(${PROJECT_NAME} PUBLIC
+#        Microsoft.GSL::GSL)
 
 # Vulkan
 find_package(Vulkan REQUIRED)
@@ -76,6 +82,14 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 #        TF_BUILD_TESTS=OFF)
 #target_link_libraries(${PROJECT_NAME} PUBLIC
 #        Taskflow)
+
+# EnTT
+FetchContent_Declare(EnTT
+        GIT_REPOSITORY https://github.com/skypjack/entt.git
+        GIT_TAG v3.12.2)
+FetchContent_MakeAvailable(EnTT)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        EnTT)
 
 ###########
 ## TESTS ##

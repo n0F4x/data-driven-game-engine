@@ -4,7 +4,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::vulkan {
+namespace engine::renderer::vulkan {
 
 class CommandPool {
 public:
@@ -41,4 +41,4 @@ private:
     vk::CommandPool m_command_pool;
 };
 
-}   // namespace engine::vulkan
+}   // namespace engine::renderer::vulkan

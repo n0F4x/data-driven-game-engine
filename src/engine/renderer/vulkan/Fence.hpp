@@ -2,14 +2,13 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::vulkan {
+namespace engine::renderer::vulkan {
 
 class Fence {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    Fence() noexcept = default;
     explicit Fence(vk::Device t_device, vk::Fence t_fence) noexcept;
     Fence(Fence&&) noexcept;
     ~Fence() noexcept;
@@ -28,4 +27,4 @@ private:
     vk::Fence  m_fence;
 };
 
-}   // namespace engine::vulkan
+}   // namespace engine::renderer::vulkan

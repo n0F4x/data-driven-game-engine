@@ -1,6 +1,6 @@
 #include "Window.hpp"
 
-namespace engine {
+namespace engine::window {
 
 /////////////////////////////////
 ///---------------------------///
@@ -15,16 +15,6 @@ Window::Window(
 ) noexcept(false)
     : m_impl{ std::make_unique<sf::WindowBase>(t_video_mode, t_title, t_style) }
 {}
-
-auto Window::operator*() const noexcept -> sf::WindowBase&
-{
-    return *m_impl;
-}
-
-auto Window::operator->() const noexcept -> sf::WindowBase*
-{
-    return m_impl.operator->();
-}
 
 auto Window::framebuffer_size() const noexcept -> sf::Vector2u
 {
