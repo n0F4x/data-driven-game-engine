@@ -39,6 +39,10 @@ Renderer::Renderer(
       m_render_frame{ std::move(t_render_frame) }
 {}
 
-auto Renderer::set_framebuffer_size(vk::Extent2D) noexcept -> void {}
+auto Renderer::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
+    -> void
+{
+    m_framebuffer_size->store(t_framebuffer_size);
+}
 
 }   // namespace engine::renderer
