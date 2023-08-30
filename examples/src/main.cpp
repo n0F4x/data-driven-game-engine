@@ -12,11 +12,9 @@ public:
     {
         using namespace window;
 
-        auto window{ Window::create()
-                         .set_video_mode(sf::VideoMode{ 450u, 600u })
-                         .set_title("My window")
-                         .set_style(sf::Style::Default)
-                         .build() };
+        auto window{ Window::create(
+            sf::VideoMode{ 450u, 600u }, "My window", Window::Style::eDefault
+        ) };
 
         if (window.has_value()) {
             t_app_context.emplace<Window>(std::move(*window));
