@@ -32,7 +32,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto run(Runner<App> auto t_runner) noexcept -> void;
+    auto run(const Runner<App> auto& t_runner) noexcept -> void;
 
     [[nodiscard]] auto context() noexcept -> Context&;
 

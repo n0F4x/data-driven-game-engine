@@ -4,15 +4,13 @@
 using namespace engine;
 
 #include <engine/renderer.hpp>
-#include <engine/window/Window.hpp>
+#include <engine/window.hpp>
 
-auto run(App&) noexcept -> void {}
-
-class WindowPlugin : engine::Plugin {
+class WindowPlugin : Plugin {
 public:
     auto set_context(App::Context& t_app_context) const -> void override
     {
-        using namespace engine::window;
+        using namespace window;
 
         auto window{ Window::create()
                          .set_video_mode(sf::VideoMode{ 450u, 600u })
@@ -26,12 +24,12 @@ public:
     }
 };
 
-class RendererPlugin : engine::Plugin {
+class RendererPlugin : Plugin {
 public:
     auto set_context(App::Context& t_app_context) const -> void override
     {
-        using namespace engine::renderer;
-        using namespace engine::window;
+        using namespace renderer;
+        using namespace window;
 
         if (!t_app_context.contains<Window>()) {
             return;
@@ -61,7 +59,7 @@ auto main() noexcept -> int
     auto result{ App::create()
                      .add_plugin(WindowPlugin{})
                      .add_plugin(RendererPlugin{})
-                     .build_and_run(run) };
+                     .build_and_run([](App&) noexcept {}) };
 
     std::cout << (result == Result::eSuccess ? "Success" : "Failure") << '\n';
 }

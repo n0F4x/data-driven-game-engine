@@ -1,6 +1,6 @@
 namespace engine {
 
-auto App::Builder::build_and_run(Runner<App> auto t_runner) && noexcept
+auto App::Builder::build_and_run(const Runner<App> auto& t_runner) && noexcept
     -> Result
 {
     if (auto app{ std::move(*this).build() }) {

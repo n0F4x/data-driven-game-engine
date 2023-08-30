@@ -1,6 +1,6 @@
 namespace engine {
 
-auto App::run(Runner<App> auto t_runner) noexcept -> void
+auto App::run(const Runner<App> auto& t_runner) noexcept -> void
 {
     t_runner(*this);
 }
