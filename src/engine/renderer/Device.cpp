@@ -118,6 +118,35 @@ auto Device::create(
                    nullptr };
 }
 
+const std::vector<const char*> g_default_device_extensions{
+    VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
+};
+
+auto Device::create_default(
+    vk::Instance       t_instance,
+    vk::SurfaceKHR     t_surface,
+    vk::PhysicalDevice t_physical_device
+) noexcept -> std::optional<Device>
+{
+    vk::PhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering_features{
+        .dynamicRendering = true
+    };
+
+    return Device::create(
+        t_instance,
+        t_surface,
+        t_physical_device,
+        Device::Config{ .extensions = g_default_device_extensions,
+                        .next       = &dynamic_rendering_features }
+    );
+}
+
+auto Device::default_extensions() noexcept -> std::span<const char* const>
+{
+    return g_default_device_extensions;
+}
+
 auto Device::adequate(
     vk::PhysicalDevice t_physical_device,
     vk::SurfaceKHR     t_surface

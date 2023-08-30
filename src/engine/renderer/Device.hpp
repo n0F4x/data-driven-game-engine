@@ -30,6 +30,15 @@ public:
         const Config&      t_config
     ) noexcept -> std::optional<Device>;
 
+    [[nodiscard]] static auto create_default(
+        vk::Instance       t_instance,
+        vk::SurfaceKHR     t_surface,
+        vk::PhysicalDevice t_physical_device
+    ) noexcept -> std::optional<Device>;
+
+    [[nodiscard]] static auto default_extensions() noexcept
+        -> std::span<const char* const>;
+
     [[nodiscard]] static auto adequate(
         vk::PhysicalDevice t_physical_device,
         vk::SurfaceKHR     t_surface

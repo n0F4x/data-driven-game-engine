@@ -53,11 +53,16 @@ public:
     /// Static methods ///
     ///----------------///
     [[nodiscard]] static auto create(
-        vk::Instance                    t_instance,
-        vk::SurfaceKHR                  t_surface,
-        vk::Extent2D                    t_framebuffer_size,
-        const CreateDeviceConcept auto& t_create_device,
-        Config&                         t_config
+        vk::Instance                     t_instance,
+        const CreateSurfaceConcept auto& t_create_surface,
+        vk::Extent2D                     t_framebuffer_size,
+        const CreateDeviceConcept auto&  t_create_device,
+        Config&                          t_config
+    ) noexcept -> std::optional<Renderer>;
+
+    [[nodiscard]] static auto create_default(
+        const CreateSurfaceConcept auto& t_create_surface,
+        vk::Extent2D                     t_framebuffer_size
     ) noexcept -> std::optional<Renderer>;
 
     ///-----------///

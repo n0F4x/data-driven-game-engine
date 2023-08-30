@@ -4,28 +4,25 @@
 #include <optional>
 #include <type_traits>
 
-#include "engine/utility/Result.hpp"
-
-#include "config.hpp"
+#include <entt/entity/registry.hpp>
 
 namespace engine {
 
-template <typename Func>
-concept Runner = std::
-    is_nothrow_invocable_v<Func, app::config::Renderer&, app::config::Window&>;
+template <typename Func, class App>
+concept Runner = std::is_nothrow_invocable_v<Func, App&>;
 
 class App {
 public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Renderer = app::config::Renderer;
-    using Window   = app::config::Window;
+    using Context = entt::registry::context;
 
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
     class Builder;
+    class Instance;
 
     ///----------------///
     /// Static methods ///
@@ -35,7 +32,9 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto run(Runner auto t_runner) noexcept -> void;
+    auto run(Runner<App> auto t_runner) noexcept -> void;
+
+    [[nodiscard]] auto context() noexcept -> Context&;
 
 private:
     ///******************///
@@ -46,42 +45,12 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    Renderer                                   m_renderer;
-    Window                                     m_window;
+    Context m_context;
 
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
-    explicit App(Renderer&& t_renderer, Window&& t_window) noexcept;
-};
-
-class App::Builder {
-public:
-    ///-----------///
-    ///  Methods  ///
-    ///-----------///
-    [[nodiscard]] auto build() && noexcept -> std::optional<App>;
-    auto build_and_run(Runner auto t_runner) && noexcept -> Result;
-
-    auto set_window(Window&& t_window) && noexcept -> Builder;
-    auto set_window(const Window::Builder& t_window_builder) && noexcept
-        -> Builder;
-
-private:
-    ///******************///
-    ///  Friend Classes  ///
-    ///******************///
-    friend App;
-
-    ///*************///
-    ///  Variables  ///
-    ///*************///
-    std::optional<Window> m_window;
-
-    ///******************************///
-    ///  Constructors / Destructors  ///
-    ///******************************///
-    Builder() noexcept = default;
+    explicit App(Context&& t_context) noexcept;
 };
 
 }   // namespace engine
