@@ -4,7 +4,7 @@
 #include <optional>
 #include <type_traits>
 
-#include <entt/entity/registry.hpp>
+#include "entt/entity/registry.hpp"
 
 namespace engine {
 

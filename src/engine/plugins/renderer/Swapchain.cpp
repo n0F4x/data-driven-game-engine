@@ -3,7 +3,7 @@
 #include <limits>
 #include <ranges>
 
-#include "vulkan/helpers.hpp"
+#include "engine/plugins/renderer/vulkan/helpers.hpp"
 
 namespace engine::renderer {
 

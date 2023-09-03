@@ -3,7 +3,7 @@
 #include <functional>
 #include <ranges>
 
-#include "vulkan/helpers.hpp"
+#include "engine/plugins/renderer/vulkan/helpers.hpp"
 
 const std::vector<const char*> g_device_extensions{
     VK_KHR_SWAPCHAIN_EXTENSION_NAME

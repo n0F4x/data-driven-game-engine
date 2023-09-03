@@ -3,8 +3,8 @@
 #include <memory>
 #include <optional>
 
-#include <SFML/Window.hpp>
-#include <SFML/Window/Vulkan.hpp>
+#include "SFML/Window.hpp"
+#include "SFML/Window/Vulkan.hpp"
 
 namespace engine::window {
 
@@ -27,7 +27,7 @@ public:
     ///----------------///
     [[nodiscard]] static auto create(
         const sf::VideoMode& t_video_mode,
-        const sf::String&     t_title,
+        const sf::String&    t_title,
         Style                t_style
     ) noexcept -> std::optional<Window>;
 

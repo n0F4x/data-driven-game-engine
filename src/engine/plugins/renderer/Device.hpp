@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "vulkan/Device.hpp"
+#include "engine/plugins/renderer/vulkan/Device.hpp"
 
 namespace engine::renderer {
 

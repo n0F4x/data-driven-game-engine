@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan_to_string.hpp>
 
-#include <SFML/Window/Vulkan.hpp>
+#include "SFML/Window/Vulkan.hpp"
 
 namespace {
 

@@ -10,8 +10,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "vulkan/Instance.hpp"
-#include "vulkan/Surface.hpp"
+#include "engine/plugins/renderer/vulkan/Instance.hpp"
+#include "engine/plugins/renderer/vulkan/Surface.hpp"
 
 #include "Device.hpp"
 #include "RenderFrame.hpp"

@@ -1,18 +1,11 @@
 #pragma once
 
-#include "engine/utility/Result.hpp"
+#include "engine/common/utility/Result.hpp"
 
 #include "App.hpp"
 #include "Plugin.hpp"
 
 namespace engine {
-
-template <typename Plugin>
-concept PluginConcept = requires(Plugin t_plugin, App::Context& t_context) {
-    {
-        t_plugin.set_context(t_context)
-    };
-};
 
 class App::Builder {
 public:

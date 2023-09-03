@@ -1,4 +1,3 @@
 #pragma once
 
-#include "app/App.hpp"
-#include "app/Builder.hpp"
+#include "common/app.hpp"

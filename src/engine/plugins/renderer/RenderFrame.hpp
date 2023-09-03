@@ -7,8 +7,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "vulkan/CommandPool.hpp"
-#include "vulkan/Fence.hpp"
+#include "engine/plugins/renderer/vulkan/CommandPool.hpp"
+#include "engine/plugins/renderer/vulkan/Fence.hpp"
 
 #include "Device.hpp"
 
@@ -61,9 +61,7 @@ private:
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
-    explicit RenderFrame(
-        std::vector<FrameData>&& t_frame_data
-    );
+    explicit RenderFrame(std::vector<FrameData>&& t_frame_data);
 
     ///***********///
     ///  Methods  ///
