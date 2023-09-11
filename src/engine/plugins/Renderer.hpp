@@ -1,11 +1,10 @@
 #pragma once
 
 #include "engine/common/app/Plugin.hpp"
-#include "engine/plugins/renderer/Renderer.hpp"
 
-namespace engine::renderer {
+namespace engine::plugins {
 
-class RendererPlugin {
+class Renderer {
 public:
     ///-----------///
     ///  Methods  ///
@@ -13,6 +12,6 @@ public:
     auto set_context(App::Context& t_context) const noexcept -> void;
 };
 
-static_assert(PluginConcept<RendererPlugin>);
+static_assert(PluginConcept<Renderer>);
 
-}   // namespace engine::renderer
+}   // namespace engine::plugins

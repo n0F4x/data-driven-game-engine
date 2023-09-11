@@ -1,10 +1,11 @@
-#include "renderer.hpp"
+#include "Renderer.hpp"
 
+#include "engine/plugins/renderer/Renderer.hpp"
 #include "engine/plugins/window/Window.hpp"
 
-namespace engine::renderer {
+namespace engine::plugins {
 
-auto RendererPlugin::set_context(App::Context& t_context) const noexcept -> void
+auto Renderer::set_context(App::Context& t_context) const noexcept -> void
 {
     using namespace window;
 
@@ -19,15 +20,15 @@ auto RendererPlugin::set_context(App::Context& t_context) const noexcept -> void
                              .height = framebuffer_size.y };
     }() };
 
-    auto renderer{ Renderer::create_default(
+    auto renderer{ renderer::Renderer::create_default(
         [&](vk::Instance instance) noexcept {
             return window.create_vulkan_surface(instance);
         },
         framebuffer_size
     ) };
     if (renderer.has_value()) {
-        t_context.emplace<Renderer>(std::move(*renderer));
+        t_context.emplace<renderer::Renderer>(std::move(*renderer));
     }
 }
 
-}   // namespace engine::renderer
+}   // namespace engine::plugins

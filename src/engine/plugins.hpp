@@ -1,4 +1,4 @@
 #pragma once
 
-#include "plugins/renderer.hpp"
-#include "plugins/window.hpp"
+#include "plugins/Renderer.hpp"
+#include "plugins/Window.hpp"

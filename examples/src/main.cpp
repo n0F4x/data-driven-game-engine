@@ -5,15 +5,13 @@
 auto main() noexcept -> int
 {
     using namespace engine;
-    using namespace renderer;
-    using namespace window;
 
     auto result{
         App::create()
-            .add_plugin(WindowPlugin{ sf::VideoMode{ 450u, 600u },
-                                     "My window", Window::Style::eDefault }
+            .add_plugin(plugins::Window{ sf::VideoMode{ 450u, 600u },
+                                        "My window", window::Window::Style::eDefault }
             )
-            .add_plugin(RendererPlugin{}
+            .add_plugin(plugins::Renderer{}
             )
             .build_and_run([](App&) noexcept {}
             )

@@ -3,17 +3,17 @@
 #include "engine/common/app/Plugin.hpp"
 #include "engine/plugins/window/Window.hpp"
 
-namespace engine::window {
+namespace engine::plugins {
 
-class WindowPlugin {
+class Window {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit WindowPlugin(
-        sf::VideoMode t_video_mode,
-        std::string   t_title,
-        Window::Style t_style
+    explicit Window(
+        sf::VideoMode         t_video_mode,
+        std::string_view      t_title,
+        window::Window::Style t_style
     ) noexcept;
 
     ///-----------///
@@ -25,11 +25,11 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    sf::VideoMode m_video_mode;
-    std::string   m_title;
-    Window::Style m_style;
+    sf::VideoMode         m_video_mode;
+    std::string_view      m_title;
+    window::Window::Style m_style;
 };
 
-static_assert(PluginConcept<WindowPlugin>);
+static_assert(PluginConcept<Window>);
 
-}   // namespace engine::window
+}   // namespace engine::plugins
