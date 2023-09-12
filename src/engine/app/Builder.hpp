@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/common/utility/Result.hpp"
+#include "engine/utility/Result.hpp"
 
 #include "App.hpp"
 #include "Plugin.hpp"

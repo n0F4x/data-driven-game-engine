@@ -12,7 +12,7 @@ Window::Window(
       m_style{ t_style }
 {}
 
-auto Window::set_context(App::Context& t_context) const noexcept -> void
+auto Window::inject(App::Context& t_context) const noexcept -> void
 {
     auto window{
         window::Window::create(m_video_mode, m_title.data(), m_style)

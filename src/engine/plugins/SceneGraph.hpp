@@ -4,7 +4,7 @@
 
 namespace engine::plugins {
 
-class Renderer {
+class SceneGraph {
 public:
     ///-----------///
     ///  Methods  ///
@@ -12,6 +12,6 @@ public:
     auto inject(App::Context& t_context) const noexcept -> void;
 };
 
-static_assert(PluginConcept<Renderer>);
+static_assert(PluginConcept<SceneGraph>);
 
 }   // namespace engine::plugins

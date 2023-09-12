@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/common/app/Plugin.hpp"
+#include "engine/app/Plugin.hpp"
 #include "engine/plugins/window/Window.hpp"
 
 namespace engine::plugins {
@@ -19,7 +19,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto set_context(App::Context& t_context) const noexcept -> void;
+    auto inject(App::Context& t_context) const noexcept -> void;
 
 private:
     ///*************///

@@ -13,6 +13,8 @@ auto main() noexcept -> int
             )
             .add_plugin(plugins::Renderer{}
             )
+            .add_plugin(plugins::SceneGraph{}
+            )
             .build_and_run([](App&) noexcept {}
             )
     };
