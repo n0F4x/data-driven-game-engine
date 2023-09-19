@@ -6,7 +6,7 @@ namespace engine::scene_graph {
 
 auto SceneManager::add_scene(Scene&& t_scene) noexcept -> void
 {
-    m_scenes.push_back(std::make_shared<Scene>(std::move(t_scene)));
+    m_scenes.push_back(std::move(t_scene));
 }
 
 auto SceneManager::load_scene(Scene::Id t_scene_id, int t_priority) noexcept
@@ -30,7 +30,7 @@ auto SceneManager::load_scene(Scene::Id t_scene_id, int t_priority) noexcept
             + std::distance(
                 m_active_scene_priorities.begin(), scene_priority_iter
             ),
-        *scene_iter
+        scene_iter.operator->()
     );
     m_active_scene_priorities.insert(scene_priority_iter, t_priority);
 
@@ -44,7 +44,9 @@ auto SceneManager::unload_scene(Scene::Id t_scene_id) noexcept -> void
         return;
     }
 
-    auto active_scene_iter{ std::ranges::find(m_active_scenes, *scene_iter) };
+    auto active_scene_iter{
+        std::ranges::find(m_active_scenes, scene_iter.operator->())
+    };
 
     m_active_scenes.erase(active_scene_iter);
     m_active_scene_priorities.erase(
@@ -53,8 +55,7 @@ auto SceneManager::unload_scene(Scene::Id t_scene_id) noexcept -> void
     );
 }
 
-auto SceneManager::active_scenes() noexcept
-    -> std::vector<std::shared_ptr<Scene>>&
+auto SceneManager::active_scenes() noexcept -> std::vector<Scene*>&
 {
     return m_active_scenes;
 }

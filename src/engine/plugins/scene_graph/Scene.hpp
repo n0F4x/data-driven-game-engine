@@ -21,6 +21,7 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto id() const noexcept -> Id;
+    [[nodiscard]] auto world() noexcept -> entt::registry&;
 
 private:
     ///*************///
@@ -28,6 +29,7 @@ private:
     ///*************///
     Id             m_id;
     entt::registry m_world;
+    entt::entity   m_root;
 };
 
 }   // namespace engine::scene_graph
