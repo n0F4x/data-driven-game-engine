@@ -30,16 +30,16 @@ auto Renderer::create(
     if (result != vk::Result::eSuccess) {
         return std::nullopt;
     }
-    auto view{ physical_devices
-               | std::views::filter([&](vk::PhysicalDevice t_physical_device) {
-                     return renderer::Device::adequate(
-                                t_physical_device, *surface
-                            )
-                         && (!t_config.filter_physical_device
-                             || t_config.filter_physical_device(
-                                 t_physical_device, *surface
-                             ));
-                 }) };
+    auto view{
+        physical_devices
+        | std::views::filter([&](vk::PhysicalDevice t_physical_device) {
+              return renderer::Device::adequate(t_physical_device, *surface)
+                  && (!t_config.filter_physical_device
+                      || t_config.filter_physical_device(
+                          t_physical_device, *surface
+                      ));
+          })
+    };
     std::vector<vk::PhysicalDevice> adequate_devices{ view.begin(),
                                                       view.end() };
     if (adequate_devices.empty()) {

@@ -19,7 +19,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto inject(App::Context& t_context) const noexcept -> void;
+    auto setup(App::Context& t_context) const noexcept -> void;
 
 private:
     ///*************///

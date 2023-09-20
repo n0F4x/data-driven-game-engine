@@ -74,10 +74,9 @@ private:
     ///********************///
     ///  Static Variables  ///
     ///********************///
-    [[nodiscard]] static auto rank_physical_device(
-        vk::PhysicalDevice,
-        vk::SurfaceKHR
-    ) noexcept -> size_t;
+    [[nodiscard]] static auto
+        rank_physical_device(vk::PhysicalDevice, vk::SurfaceKHR) noexcept
+        -> size_t;
 
     ///*************///
     ///  Variables  ///

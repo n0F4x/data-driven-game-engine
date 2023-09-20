@@ -12,9 +12,14 @@ auto Scene::id() const noexcept -> Scene::Id
     return m_id;
 }
 
-auto Scene::world() noexcept -> entt::registry&
+auto Scene::world() noexcept -> World&
 {
     return m_world;
+}
+
+auto Scene::root() const noexcept -> Entity
+{
+    return m_root;
 }
 
 }   // namespace engine::scene_graph

@@ -4,9 +4,11 @@
 
 namespace engine::scene_graph {
 
-auto SceneManager::add_scene(Scene&& t_scene) noexcept -> void
+auto SceneManager::add_scene(Scene&& t_scene) noexcept -> SceneManager&
 {
     m_scenes.push_back(std::move(t_scene));
+
+    return *this;
 }
 
 auto SceneManager::load_scene(Scene::Id t_scene_id, int t_priority) noexcept

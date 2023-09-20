@@ -5,7 +5,7 @@
 
 namespace engine::plugins {
 
-auto Renderer::inject(App::Context& t_context) const noexcept -> void
+auto Renderer::setup(App::Context& t_context) const noexcept -> void
 {
     using namespace window;
 

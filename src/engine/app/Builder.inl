@@ -13,7 +13,7 @@ auto App::Builder::build_and_run(const Runner<App> auto& t_runner) && noexcept
 auto App::Builder::add_plugin(const PluginConcept auto& t_plugin) && noexcept
     -> App::Builder
 {
-    t_plugin.inject(m_context);
+    t_plugin.setup(m_context);
     return std::move(*this);
 }
 

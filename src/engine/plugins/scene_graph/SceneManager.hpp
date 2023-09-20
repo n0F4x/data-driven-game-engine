@@ -21,7 +21,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto add_scene(Scene&& t_scene) noexcept -> void;
+    auto add_scene(Scene&& t_scene) noexcept -> SceneManager&;
 
     auto load_scene(Scene::Id t_scene_id, int t_priority) noexcept -> Result;
     auto unload_scene(Scene::Id t_scene_id) noexcept -> void;

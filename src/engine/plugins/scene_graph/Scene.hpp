@@ -5,6 +5,9 @@
 
 namespace engine::scene_graph {
 
+using World  = entt::registry;
+using Entity = entt::entity;
+
 class Scene {
 public:
     ///----------------///
@@ -21,15 +24,16 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto id() const noexcept -> Id;
-    [[nodiscard]] auto world() noexcept -> entt::registry&;
+    [[nodiscard]] auto world() noexcept -> World&;
+    [[nodiscard]] auto root() const noexcept -> Entity;
 
 private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    Id             m_id;
-    entt::registry m_world;
-    entt::entity   m_root;
+    Id     m_id;
+    World  m_world;
+    Entity m_root;
 };
 
 }   // namespace engine::scene_graph
