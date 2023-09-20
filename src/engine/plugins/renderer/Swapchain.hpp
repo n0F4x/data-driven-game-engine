@@ -53,7 +53,7 @@ private:
     std::optional<vulkan::SwapChain>           m_swap_chain;
     uint32_t                                   m_image_index{};
     entt::sigh<void(const vulkan::SwapChain&)> m_swapchain_recreated_signal;
-    entt::sink<entt::sigh<void(const vulkan::SwapChain&)>>
+    entt::sink<decltype(m_swapchain_recreated_signal)>
         m_swapchain_recreated_sink{ m_swapchain_recreated_signal };
 
     ///***********///

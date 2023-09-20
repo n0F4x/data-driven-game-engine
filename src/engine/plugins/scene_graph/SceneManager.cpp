@@ -20,6 +20,8 @@ auto SceneManager::load_scene(Scene::Id t_scene_id, int t_priority) noexcept
         return Result::eFailure;
     }
 
+    scene_iter->load();
+
     auto scene_priority_iter{ std::upper_bound(
         m_active_scene_priorities.begin(),
         m_active_scene_priorities.end(),
@@ -45,6 +47,8 @@ auto SceneManager::unload_scene(Scene::Id t_scene_id) noexcept -> void
     if (scene_iter == m_scenes.end()) {
         return;
     }
+
+    scene_iter->unload();
 
     auto active_scene_iter{
         std::ranges::find(m_active_scenes, scene_iter.operator->())
