@@ -28,14 +28,6 @@ public:
     [[nodiscard]] auto world() noexcept -> World&;
     [[nodiscard]] auto root() const noexcept -> Entity;
 
-    auto load() noexcept -> void;
-    auto unload() noexcept -> void;
-
-    [[nodiscard]] auto loaded_sink() noexcept
-        -> entt::sink<entt::sigh<void(Scene&)>>&;
-    [[nodiscard]] auto unloaded_sink() noexcept
-        -> entt::sink<entt::sigh<void(Scene&)>>&;
-
 private:
     ///*************///
     ///  Variables  ///
@@ -43,14 +35,7 @@ private:
     Id     m_id;
     World  m_world;
     Entity m_root;
-
-    entt::sigh<void(Scene&)>              m_loaded_signal;
-    entt::sink<decltype(m_loaded_signal)> m_loaded_sink{ m_loaded_signal };
-
-    entt::sigh<void(Scene&)>                m_unloaded_signal;
-    entt::sink<decltype(m_unloaded_signal)> m_unloaded_sink{
-        m_unloaded_signal
-    };
+};
 };
 
 }   // namespace engine::scene_graph

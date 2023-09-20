@@ -11,7 +11,7 @@ auto SceneManager::add_scene(Scene&& t_scene) noexcept -> SceneManager&
     return *this;
 }
 
-auto SceneManager::load_scene(Scene::Id t_scene_id, int t_priority) noexcept
+auto SceneManager::activate_scene(Scene::Id t_scene_id, int t_priority) noexcept
     -> Result
 {
     auto scene_iter{ std::ranges::find(m_scenes, t_scene_id, &Scene::id) };
@@ -19,8 +19,6 @@ auto SceneManager::load_scene(Scene::Id t_scene_id, int t_priority) noexcept
     if (scene_iter == m_scenes.end()) {
         return Result::eFailure;
     }
-
-    scene_iter->load();
 
     auto scene_priority_iter{ std::upper_bound(
         m_active_scene_priorities.begin(),
@@ -41,14 +39,12 @@ auto SceneManager::load_scene(Scene::Id t_scene_id, int t_priority) noexcept
     return Result::eSuccess;
 }
 
-auto SceneManager::unload_scene(Scene::Id t_scene_id) noexcept -> void
+auto SceneManager::deactivate_scene(Scene::Id t_scene_id) noexcept -> void
 {
     auto scene_iter{ std::ranges::find(m_scenes, t_scene_id, &Scene::id) };
     if (scene_iter == m_scenes.end()) {
         return;
     }
-
-    scene_iter->unload();
 
     auto active_scene_iter{
         std::ranges::find(m_active_scenes, scene_iter.operator->())
@@ -59,6 +55,13 @@ auto SceneManager::unload_scene(Scene::Id t_scene_id) noexcept -> void
         m_active_scene_priorities.begin()
         + std::distance(m_active_scenes.begin(), active_scene_iter)
     );
+}
+
+auto SceneManager::change_priority(Scene::Id t_scene_id, int t_new_priority)
+    -> void
+{
+    deactivate_scene(t_scene_id);
+    activate_scene(t_scene_id, t_new_priority);
 }
 
 auto SceneManager::active_scenes() noexcept -> std::vector<Scene*>&

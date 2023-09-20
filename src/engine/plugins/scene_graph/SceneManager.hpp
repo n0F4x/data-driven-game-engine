@@ -23,8 +23,11 @@ public:
     ///-----------///
     auto add_scene(Scene&& t_scene) noexcept -> SceneManager&;
 
-    auto load_scene(Scene::Id t_scene_id, int t_priority) noexcept -> Result;
-    auto unload_scene(Scene::Id t_scene_id) noexcept -> void;
+    auto activate_scene(Scene::Id t_scene_id, int t_priority) noexcept
+        -> Result;
+    auto deactivate_scene(Scene::Id t_scene_id) noexcept -> void;
+
+    auto change_priority(Scene::Id t_scene_id, int t_new_priority) -> void;
 
     [[nodiscard]] auto active_scenes() noexcept -> std::vector<Scene*>&;
 
