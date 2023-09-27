@@ -1,6 +1,6 @@
 #include <ranges>
 
-#include "engine/plugins/renderer/vulkan/helpers.hpp"
+#include "engine/utility/vulkan/helpers.hpp"
 
 namespace engine::renderer {
 
@@ -30,16 +30,16 @@ auto Renderer::create(
     if (result != vk::Result::eSuccess) {
         return std::nullopt;
     }
-    auto view{
-        physical_devices
-        | std::views::filter([&](vk::PhysicalDevice t_physical_device) {
-              return renderer::Device::adequate(t_physical_device, *surface)
-                  && (!t_config.filter_physical_device
-                      || t_config.filter_physical_device(
-                          t_physical_device, *surface
-                      ));
-          })
-    };
+    auto view{ physical_devices
+               | std::views::filter([&](vk::PhysicalDevice t_physical_device) {
+                     return renderer::Device::adequate(
+                                t_physical_device, *surface
+                            )
+                         && (!t_config.filter_physical_device
+                             || t_config.filter_physical_device(
+                                 t_physical_device, *surface
+                             ));
+                 }) };
     std::vector<vk::PhysicalDevice> adequate_devices{ view.begin(),
                                                       view.end() };
     if (adequate_devices.empty()) {
@@ -99,10 +99,11 @@ inline auto create_default_instance() noexcept
     };
 
     auto [result, instance]{ vk::createInstance(create_info) };
-    if (result == vk::Result::eSuccess) {
-        return instance;
+    if (result != vk::Result::eSuccess) {
+        return std::unexpected{ result };
     }
-    return std::unexpected{ result };
+
+    return instance;
 }
 
 auto Renderer::create_default(

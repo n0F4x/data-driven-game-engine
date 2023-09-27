@@ -7,8 +7,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/plugins/renderer/vulkan/CommandPool.hpp"
-#include "engine/plugins/renderer/vulkan/Fence.hpp"
+#include "engine/utility/vulkan/CommandPool.hpp"
+#include "engine/utility/vulkan/Fence.hpp"
 
 #include "Device.hpp"
 

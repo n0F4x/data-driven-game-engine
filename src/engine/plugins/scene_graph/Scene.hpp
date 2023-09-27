@@ -36,6 +36,5 @@ private:
     World  m_world;
     Entity m_root;
 };
-};
 
 }   // namespace engine::scene_graph

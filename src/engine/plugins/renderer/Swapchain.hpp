@@ -8,8 +8,8 @@
 #include <entt/signal/sigh.hpp>
 
 #include "engine/utility/Result.hpp"
-#include "vulkan/Surface.hpp"
-#include "vulkan/SwapChain.hpp"
+#include "engine/utility/vulkan/Surface.hpp"
+#include "engine/utility/vulkan/SwapChain.hpp"
 
 #include "Device.hpp"
 

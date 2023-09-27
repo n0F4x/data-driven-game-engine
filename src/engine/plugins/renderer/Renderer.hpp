@@ -10,8 +10,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/plugins/renderer/vulkan/Instance.hpp"
-#include "engine/plugins/renderer/vulkan/Surface.hpp"
+#include "engine/utility/vulkan/Instance.hpp"
+#include "engine/utility/vulkan/Surface.hpp"
 
 #include "Device.hpp"
 #include "RenderFrame.hpp"
@@ -74,9 +74,10 @@ private:
     ///********************///
     ///  Static Variables  ///
     ///********************///
-    [[nodiscard]] static auto
-        rank_physical_device(vk::PhysicalDevice, vk::SurfaceKHR) noexcept
-        -> size_t;
+    [[nodiscard]] static auto rank_physical_device(
+        vk::PhysicalDevice,
+        vk::SurfaceKHR
+    ) noexcept -> size_t;
 
     ///*************///
     ///  Variables  ///
