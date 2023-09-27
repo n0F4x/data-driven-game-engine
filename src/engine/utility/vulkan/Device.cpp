@@ -1,6 +1,6 @@
 #include "Device.hpp"
 
-namespace engine::renderer::vulkan {
+namespace engine::utils::vulkan {
 
 Device::Device(vk::Device t_device) noexcept : m_device{ t_device } {}
 
@@ -27,4 +27,4 @@ auto Device::operator->() const noexcept -> const vk::Device*
     return &m_device;
 }
 
-}   // namespace engine::renderer::vulkan
+}   // namespace engine::utils::vulkan

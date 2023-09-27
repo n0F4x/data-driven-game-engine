@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::renderer::vulkan {
+namespace engine::utils::vulkan {
 
 class Fence {
 public:
@@ -27,4 +27,4 @@ private:
     vk::Fence  m_fence;
 };
 
-}   // namespace engine::renderer::vulkan
+}   // namespace engine::utils::vulkan

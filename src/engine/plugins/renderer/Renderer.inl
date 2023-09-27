@@ -1,6 +1,7 @@
 #include <ranges>
 
 #include "engine/utility/vulkan/helpers.hpp"
+#include "engine/utility/vulkan/tools.hpp"
 
 namespace engine::renderer {
 
@@ -87,8 +88,8 @@ inline auto create_default_instance() noexcept
     -> std::expected<vk::Instance, vk::Result>
 {
     vk::ApplicationInfo app_info{ .apiVersion = VK_API_VERSION_1_3 };
-    auto                layers{ renderer::vulkan::validation_layers() };
-    auto                extensions{ renderer::vulkan::instance_extensions() };
+    auto                layers{ utils::vulkan::validation_layers() };
+    auto                extensions{ utils::vulkan::instance_extensions() };
 
     vk::InstanceCreateInfo create_info{
         .pApplicationInfo        = &app_info,
@@ -117,10 +118,10 @@ auto Renderer::create_default(
     }
 
     Renderer::Config config{
-        .create_debug_messenger = vulkan::create_debug_messenger,
+        .create_debug_messenger = utils::vulkan::create_debug_messenger,
         .filter_physical_device =
             [](vk::PhysicalDevice t_physical_device, vk::SurfaceKHR) {
-                return vulkan::supports_extensions(
+                return utils::vulkan::supports_extensions(
                     t_physical_device, Device::default_extensions()
                 );
             }

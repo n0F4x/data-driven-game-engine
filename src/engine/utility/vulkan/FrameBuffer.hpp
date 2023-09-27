@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::renderer::vulkan {
+namespace engine::utils::vulkan {
 
 class FrameBuffer {
 public:
@@ -30,4 +30,4 @@ private:
     vk::Framebuffer m_frame_buffer;
 };
 
-}   // namespace engine::renderer::vulkan
+}   // namespace engine::utils::vulkan

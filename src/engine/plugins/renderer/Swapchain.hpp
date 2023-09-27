@@ -9,7 +9,7 @@
 
 #include "engine/utility/Result.hpp"
 #include "engine/utility/vulkan/Surface.hpp"
-#include "engine/utility/vulkan/SwapChain.hpp"
+#include "engine/utility/vulkan/Swapchain.hpp"
 
 #include "Device.hpp"
 
@@ -17,11 +17,18 @@ namespace engine::renderer {
 
 class Swapchain {
 public:
+    ///----------------///
+    ///  Type aliases  ///
+    ///----------------///
+    using SwapchainRecreatedSigh =
+        entt::sigh<void(const utils::vulkan::Swapchain&)>;
+    using SwapchainRecreatedSink = entt::sink<SwapchainRecreatedSigh>;
+
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit Swapchain(
-        vulkan::Surface&&               t_surface,
+        utils::vulkan::Surface&&        t_surface,
         Device&                         t_device,
         std::function<vk::Extent2D()>&& t_get_framebuffer_size
     ) noexcept;
@@ -41,20 +48,21 @@ public:
         -> void;
 
     [[nodiscard]] auto swapchain_recreated_sink() noexcept
-        -> entt::sink<entt::sigh<void(const vulkan::SwapChain&)>>&;
+        -> SwapchainRecreatedSink&;
 
 private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vulkan::Surface                            m_surface;
-    Device&                                    m_device;
-    std::function<vk::Extent2D()>              m_get_framebuffer_size;
-    std::optional<vulkan::SwapChain>           m_swap_chain;
-    uint32_t                                   m_image_index{};
-    entt::sigh<void(const vulkan::SwapChain&)> m_swapchain_recreated_signal;
-    entt::sink<decltype(m_swapchain_recreated_signal)>
-        m_swapchain_recreated_sink{ m_swapchain_recreated_signal };
+    utils::vulkan::Surface                  m_surface;
+    Device&                                 m_device;
+    std::function<vk::Extent2D()>           m_get_framebuffer_size;
+    std::optional<utils::vulkan::Swapchain> m_swap_chain;
+    uint32_t                                m_image_index{};
+    SwapchainRecreatedSigh                  m_swapchain_recreated_signal;
+    SwapchainRecreatedSink                  m_swapchain_recreated_sink{
+        m_swapchain_recreated_signal
+    };
 
     ///***********///
     ///  Methods  ///

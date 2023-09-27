@@ -1,6 +1,6 @@
 #include "Surface.hpp"
 
-namespace engine::renderer::vulkan {
+namespace engine::utils::vulkan {
 
 //////////////////////////////////
 ///----------------------------///
@@ -32,4 +32,4 @@ auto Surface::operator*() const noexcept -> vk::SurfaceKHR
     return m_surface;
 }
 
-}   // namespace engine::renderer::vulkan
+}   // namespace engine::utils::vulkan

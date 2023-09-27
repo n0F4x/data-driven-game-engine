@@ -7,4 +7,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         Instance.cpp
         Surface.cpp
         SwapChain.cpp
+        tools.cpp
         )

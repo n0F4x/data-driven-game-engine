@@ -1,6 +1,6 @@
 #include "FrameBuffer.hpp"
 
-namespace engine::renderer::vulkan {
+namespace engine::utils::vulkan {
 
 //////////////////////////////////////
 ///--------------------------------///
@@ -35,4 +35,4 @@ auto FrameBuffer::operator*() const noexcept -> vk::Framebuffer
     return m_frame_buffer;
 }
 
-}   // namespace engine::renderer::vulkan
+}   // namespace engine::utils::vulkan

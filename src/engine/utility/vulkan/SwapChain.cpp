@@ -1,4 +1,4 @@
-#include "SwapChain.hpp"
+#include "Swapchain.hpp"
 
 #include <algorithm>
 #include <limits>
@@ -147,70 +147,46 @@ auto create_image_views(
 
 }   // namespace
 
-namespace engine::renderer::vulkan {
+namespace engine::utils::vulkan {
 
 ////////////////////////////////////
 ///------------------------------///
-///  SwapChain   IMPLEMENTATION  ///
+///  Swapchain   IMPLEMENTATION  ///
 ///------------------------------///
 ////////////////////////////////////
 
-SwapChain::SwapChain(
-    vk::Device                 t_device,
-    vk::Extent2D               t_extent,
-    vk::SurfaceFormatKHR       t_surface_format,
-    vk::SwapchainKHR           t_swap_chain,
-    std::vector<vk::ImageView> t_image_views
-) noexcept
-    : m_device{ t_device },
-      m_extent{ t_extent },
-      m_surface_format{ t_surface_format },
-      m_swap_chain{ t_swap_chain },
-      m_image_views{ std::move(t_image_views) }
-{}
-
-SwapChain::SwapChain(SwapChain&& t_other) noexcept
-    : m_device{ t_other.m_device },
-      m_extent{ t_other.m_extent },
-      m_surface_format{ t_other.m_surface_format },
-      m_swap_chain{ t_other.m_swap_chain },
-      m_image_views{ std::move(t_other.m_image_views) }
+auto Swapchain::choose_extent(
+    const vk::Extent2D&               t_framebuffer_size,
+    const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
+) noexcept -> vk::Extent2D
 {
-    t_other.m_swap_chain = nullptr;
-}
+    if (t_surface_capabilities.currentExtent.width
+        != std::numeric_limits<uint32_t>::max())
+    {
+        return t_surface_capabilities.currentExtent;
+    }
+    else {
+        vk::Extent2D actual_extent{
+            .width  = static_cast<uint32_t>(t_framebuffer_size.width),
+            .height = static_cast<uint32_t>(t_framebuffer_size.height)
+        };
 
-SwapChain::~SwapChain() noexcept
-{
-    if (m_swap_chain) {
-        for (auto image_view : m_image_views) {
-            m_device.destroy(image_view);
-        }
-        m_device.destroy(m_swap_chain);
+        actual_extent.width = std::clamp(
+            actual_extent.width,
+            t_surface_capabilities.minImageExtent.width,
+            t_surface_capabilities.maxImageExtent.width
+        );
+        actual_extent.height = std::clamp(
+            actual_extent.height,
+            t_surface_capabilities.minImageExtent.height,
+            t_surface_capabilities.maxImageExtent.height
+        );
+
+        return actual_extent;
     }
 }
 
-auto SwapChain::operator*() const noexcept -> vk::SwapchainKHR
-{
-    return m_swap_chain;
-}
-
-auto SwapChain::extent() const noexcept -> vk::Extent2D
-{
-    return m_extent;
-}
-
-auto SwapChain::surface_format() const noexcept -> vk::SurfaceFormatKHR
-{
-    return m_surface_format;
-}
-
-auto SwapChain::image_views() const noexcept
-    -> const std::vector<vk::ImageView>&
-{
-    return m_image_views;
-}
-
-auto SwapChain::create(
+auto Swapchain::create(
     vk::SurfaceKHR                  t_surface,
     vk::PhysicalDevice              t_physical_device,
     uint32_t                        t_graphics_queue_family,
@@ -218,7 +194,7 @@ auto SwapChain::create(
     vk::Device                      t_device,
     vk::Extent2D                    t_framebuffer_size,
     std::optional<vk::SwapchainKHR> t_old_swap_chain
-) noexcept -> std::optional<SwapChain>
+) noexcept -> std::optional<Swapchain>
 {
     auto surface_capabilities{
         t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
@@ -227,9 +203,7 @@ auto SwapChain::create(
         return std::nullopt;
     }
 
-    auto extent = choose_swap_chain_extent(
-        t_framebuffer_size, surface_capabilities.value
-    );
+    auto extent = choose_extent(t_framebuffer_size, surface_capabilities.value);
     if (extent.width == 0 || extent.height == 0) {
         return std::nullopt;
     }
@@ -262,40 +236,64 @@ auto SwapChain::create(
         return std::nullopt;
     }
 
-    return SwapChain{
+    return Swapchain{
         t_device, extent, *surface_format, *swap_chain, std::move(*image_views)
     };
 }
 
-auto choose_swap_chain_extent(
-    const vk::Extent2D&               t_framebuffer_size,
-    const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
-) noexcept -> vk::Extent2D
+Swapchain::Swapchain(
+    vk::Device                 t_device,
+    vk::Extent2D               t_extent,
+    vk::SurfaceFormatKHR       t_surface_format,
+    vk::SwapchainKHR           t_swap_chain,
+    std::vector<vk::ImageView> t_image_views
+) noexcept
+    : m_device{ t_device },
+      m_extent{ t_extent },
+      m_surface_format{ t_surface_format },
+      m_swap_chain{ t_swap_chain },
+      m_image_views{ std::move(t_image_views) }
+{}
+
+Swapchain::Swapchain(Swapchain&& t_other) noexcept
+    : m_device{ t_other.m_device },
+      m_extent{ t_other.m_extent },
+      m_surface_format{ t_other.m_surface_format },
+      m_swap_chain{ t_other.m_swap_chain },
+      m_image_views{ std::move(t_other.m_image_views) }
 {
-    if (t_surface_capabilities.currentExtent.width
-        != std::numeric_limits<uint32_t>::max())
-    {
-        return t_surface_capabilities.currentExtent;
-    }
-    else {
-        vk::Extent2D actual_extent{
-            .width  = static_cast<uint32_t>(t_framebuffer_size.width),
-            .height = static_cast<uint32_t>(t_framebuffer_size.height)
-        };
+    t_other.m_swap_chain = nullptr;
+}
 
-        actual_extent.width = std::clamp(
-            actual_extent.width,
-            t_surface_capabilities.minImageExtent.width,
-            t_surface_capabilities.maxImageExtent.width
-        );
-        actual_extent.height = std::clamp(
-            actual_extent.height,
-            t_surface_capabilities.minImageExtent.height,
-            t_surface_capabilities.maxImageExtent.height
-        );
-
-        return actual_extent;
+Swapchain::~Swapchain() noexcept
+{
+    if (m_swap_chain) {
+        for (auto image_view : m_image_views) {
+            m_device.destroy(image_view);
+        }
+        m_device.destroy(m_swap_chain);
     }
 }
 
-}   // namespace engine::renderer::vulkan
+auto Swapchain::operator*() const noexcept -> vk::SwapchainKHR
+{
+    return m_swap_chain;
+}
+
+auto Swapchain::extent() const noexcept -> vk::Extent2D
+{
+    return m_extent;
+}
+
+auto Swapchain::surface_format() const noexcept -> vk::SurfaceFormatKHR
+{
+    return m_surface_format;
+}
+
+auto Swapchain::image_views() const noexcept
+    -> const std::vector<vk::ImageView>&
+{
+    return m_image_views;
+}
+
+}   // namespace engine::utils::vulkan

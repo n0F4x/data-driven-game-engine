@@ -3,7 +3,7 @@
 #include <functional>
 #include <ranges>
 
-#include "engine/utility/vulkan/helpers.hpp"
+#include "engine/utility/vulkan/tools.hpp"
 
 const std::vector<const char*> g_device_extensions{
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
@@ -69,7 +69,9 @@ auto Device::create(
 {
     if (!t_instance || !t_surface || !t_physical_device
         || !adequate(t_physical_device, t_surface)
-        || !vulkan::supports_extensions(t_physical_device, t_config.extensions))
+        || !utils::vulkan::supports_extensions(
+            t_physical_device, t_config.extensions
+        ))
     {
         return std::nullopt;
     }
@@ -152,7 +154,9 @@ auto Device::adequate(
     vk::SurfaceKHR     t_surface
 ) noexcept -> bool
 {
-    return vulkan::supports_extensions(t_physical_device, g_device_extensions)
+    return utils::vulkan::supports_extensions(
+               t_physical_device, g_device_extensions
+           )
         && supports_surface(t_physical_device, t_surface);
 }
 

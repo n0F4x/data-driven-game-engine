@@ -32,7 +32,7 @@ Renderer::Renderer(
       m_adequate_devices{ std::move(t_adequate_devices) },
       m_device{ std::move(t_device) },
       m_swapchain{
-          vulkan::Surface{*m_instance, t_surface},
+          utils::vulkan::Surface{*m_instance, t_surface},
           m_device,
           [this](){ return m_framebuffer_size->load(); }
       },

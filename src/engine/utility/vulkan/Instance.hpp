@@ -8,7 +8,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::renderer::vulkan {
+namespace engine::utils::vulkan {
 
 class Instance {
 public:
@@ -37,4 +37,4 @@ private:
     vk::DebugUtilsMessengerEXT m_debug_messenger;
 };
 
-}   // namespace engine::renderer::vulkan
+}   // namespace engine::utils::vulkan

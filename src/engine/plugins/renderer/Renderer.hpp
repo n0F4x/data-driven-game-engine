@@ -82,7 +82,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vulkan::Instance                           m_instance;
+    utils::vulkan::Instance                    m_instance;
     std::unique_ptr<std::atomic<vk::Extent2D>> m_framebuffer_size;
     std::vector<vk::PhysicalDevice>            m_adequate_devices;
     Device                                     m_device;

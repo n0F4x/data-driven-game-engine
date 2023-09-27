@@ -65,14 +65,14 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::PhysicalDevice m_physical_device;
-    vulkan::Device     m_device;
-    uint32_t           m_graphics_queue_family_index;
-    vk::Queue          m_graphics_queue;
-    uint32_t           m_compute_queue_family_index;
-    vk::Queue          m_compute_queue;
-    uint32_t           m_transfer_queue_family_index;
-    vk::Queue          m_transfer_queue;
+    vk::PhysicalDevice    m_physical_device;
+    utils::vulkan::Device m_device;
+    uint32_t              m_graphics_queue_family_index;
+    vk::Queue             m_graphics_queue;
+    uint32_t              m_compute_queue_family_index;
+    vk::Queue             m_compute_queue;
+    uint32_t              m_transfer_queue_family_index;
+    vk::Queue             m_transfer_queue;
 
     ///******************************///
     ///  Constructors / Destructors  ///

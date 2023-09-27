@@ -4,13 +4,18 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::renderer::vulkan {
+namespace engine::utils::vulkan {
 
-class SwapChain {
+class Swapchain {
 public:
     ///----------------///
     /// Static methods ///
     ///----------------///
+    [[nodiscard]] static auto choose_extent(
+        const vk::Extent2D&               t_framebuffer_size,
+        const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
+    ) noexcept -> vk::Extent2D;
+
     [[nodiscard]] static auto create(
         vk::SurfaceKHR                  t_surface,
         vk::PhysicalDevice              t_physical_device,
@@ -19,18 +24,18 @@ public:
         vk::Device                      t_device,
         vk::Extent2D                    t_frame_buffer_size,
         std::optional<vk::SwapchainKHR> t_old_swap_chain
-    ) noexcept -> std::optional<SwapChain>;
+    ) noexcept -> std::optional<Swapchain>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    SwapChain(SwapChain&&) noexcept;
-    ~SwapChain() noexcept;
+    Swapchain(Swapchain&&) noexcept;
+    ~Swapchain() noexcept;
 
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto               operator=(SwapChain&&) noexcept -> SwapChain& = default;
+    auto               operator=(Swapchain&&) noexcept -> Swapchain& = default;
     [[nodiscard]] auto operator*() const noexcept -> vk::SwapchainKHR;
 
     ///-----------///
@@ -54,7 +59,7 @@ private:
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
-    explicit SwapChain(
+    explicit Swapchain(
         vk::Device                 t_device,
         vk::Extent2D               t_extent,
         vk::SurfaceFormatKHR       t_surface_format,
@@ -63,9 +68,4 @@ private:
     ) noexcept;
 };
 
-[[nodiscard]] auto choose_swap_chain_extent(
-    const vk::Extent2D&               t_framebuffer_size,
-    const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
-) noexcept -> vk::Extent2D;
-
-}   // namespace engine::renderer::vulkan
+}   // namespace engine::utils::vulkan

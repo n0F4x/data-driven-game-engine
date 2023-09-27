@@ -19,7 +19,7 @@ auto RenderFrame::create(
         std::vector<ThreadData> thread_data;
         thread_data.reserve(t_thread_count);
         for (unsigned j{}; j < t_thread_count; j++) {
-            if (auto command_pool{ vulkan::CommandPool::create(
+            if (auto command_pool{ utils::vulkan::CommandPool::create(
                     *t_device,
                     vk::CommandPoolCreateFlagBits::eTransient,
                     t_device.graphics_queue_family_index()
@@ -43,7 +43,7 @@ auto RenderFrame::create(
 
         frame_data.emplace_back(
             std::move(thread_data),
-            vulkan::Fence{ *t_device, fence },
+            utils::vulkan::Fence{ *t_device, fence },
             std::vector<std::function<void()>>{}
         );
     }

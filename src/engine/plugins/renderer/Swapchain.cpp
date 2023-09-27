@@ -14,7 +14,7 @@ namespace engine::renderer {
 ///////////////////////////////////
 
 Swapchain::Swapchain(
-    vulkan::Surface&&               t_surface,
+    utils::vulkan::Surface&&        t_surface,
     Device&                         t_device,
     std::function<vk::Extent2D()>&& t_get_framebuffer_size
 ) noexcept
@@ -44,7 +44,7 @@ auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     if (surface_capabilities.result != vk::Result::eSuccess) {
         return;
     }
-    auto extent = vulkan::choose_swap_chain_extent(
+    auto extent = utils::vulkan::Swapchain::choose_extent(
         t_framebuffer_size, surface_capabilities.value
     );
 
@@ -98,6 +98,11 @@ auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) noexcept
     }
 }
 
+auto Swapchain::swapchain_recreated_sink() noexcept -> SwapchainRecreatedSink&
+{
+    return m_swapchain_recreated_sink;
+}
+
 auto Swapchain::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
     -> void
 {
@@ -105,14 +110,14 @@ auto Swapchain::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
         return;
     }
 
-    auto new_swap_chain{ vulkan::SwapChain::create(
+    auto new_swap_chain{ utils::vulkan::Swapchain::create(
         *m_surface,
         m_device.physical_device(),
         m_device.graphics_queue_family_index(),
         m_device.graphics_queue_family_index(),
         *m_device,
         t_framebuffer_size,
-        m_swap_chain.transform(&vulkan::SwapChain::operator*)
+        m_swap_chain.transform(&utils::vulkan::Swapchain::operator*)
     ) };
     m_swap_chain.reset();
     m_swap_chain = std::move(new_swap_chain);
@@ -127,12 +132,6 @@ auto Swapchain::recreate_swap_chain() noexcept -> void
     if (m_get_framebuffer_size) {
         recreate_swap_chain(m_get_framebuffer_size());
     }
-}
-
-auto Swapchain::swapchain_recreated_sink() noexcept
-    -> entt::sink<entt::sigh<void(const vulkan::SwapChain&)>>&
-{
-    return m_swapchain_recreated_sink;
 }
 
 }   // namespace engine::renderer

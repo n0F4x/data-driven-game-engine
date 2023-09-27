@@ -1,6 +1,6 @@
 #include "Fence.hpp"
 
-namespace engine::renderer::vulkan {
+namespace engine::utils::vulkan {
 
 ////////////////////////////////
 ///--------------------------///
@@ -32,4 +32,4 @@ auto Fence::operator*() const noexcept -> vk::Fence
     return m_fence;
 }
 
-}   // namespace engine::renderer::vulkan
+}   // namespace engine::utils::vulkan
