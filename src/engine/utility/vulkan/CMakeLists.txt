@@ -5,6 +5,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         Framebuffer.cpp
         helpers.cpp
         Instance.cpp
+        ShaderModule.cpp
         Surface.cpp
         SwapChain.cpp
         tools.cpp
