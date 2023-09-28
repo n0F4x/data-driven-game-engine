@@ -7,6 +7,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         Instance.cpp
         ShaderModule.cpp
         Surface.cpp
-        SwapChain.cpp
+        Swapchain.cpp
         tools.cpp
         )
