@@ -8,8 +8,7 @@
 #include <entt/signal/sigh.hpp>
 
 #include "engine/utility/Result.hpp"
-#include "engine/utility/vulkan/Surface.hpp"
-#include "engine/utility/vulkan/Swapchain.hpp"
+#include "engine/utility/vulkan/raii_wrappers.hpp"
 
 #include "Device.hpp"
 

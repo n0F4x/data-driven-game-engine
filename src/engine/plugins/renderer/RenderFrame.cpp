@@ -19,21 +19,20 @@ auto RenderFrame::create(
         std::vector<ThreadData> thread_data;
         thread_data.reserve(t_thread_count);
         for (unsigned j{}; j < t_thread_count; j++) {
-            if (auto command_pool{ utils::vulkan::CommandPool::create(
-                    *t_device,
-                    vk::CommandPoolCreateFlagBits::eTransient,
-                    t_device.graphics_queue_family_index()
-                ) })
-            {
-                thread_data.emplace_back(
-                    std::move(*command_pool),
-                    std::vector<vk::CommandBuffer>{},
-                    0
-                );
-            }
-            else {
+            auto [result, command_pool]{ t_device->createCommandPool(
+                vk::CommandPoolCreateInfo{
+                    .flags = vk::CommandPoolCreateFlagBits::eTransient,
+                    .queueFamilyIndex = t_device.graphics_queue_family_index() }
+            ) };
+            if (result != vk::Result::eSuccess) {
                 return std::nullopt;
             }
+
+            thread_data.emplace_back(
+                utils::vulkan::CommandPool{ *t_device, command_pool },
+                std::vector<vk::CommandBuffer>{},
+                0
+            );
         }
 
         auto [result, fence]{ t_device->createFence(vk::FenceCreateInfo{}) };

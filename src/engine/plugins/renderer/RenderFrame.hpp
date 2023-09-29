@@ -7,8 +7,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/utility/vulkan/CommandPool.hpp"
-#include "engine/utility/vulkan/Fence.hpp"
+#include "engine/utility/vulkan/raii_wrappers.hpp"
 
 #include "Device.hpp"
 

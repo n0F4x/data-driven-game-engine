@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/utility/vulkan/Device.hpp"
+#include "engine/utility/vulkan/raii_wrappers.hpp"
 
 namespace engine::renderer {
 

@@ -36,10 +36,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 add_subdirectory(src/engine)
 
-
-#find_package(glm CONFIG REQUIRED)
-#find_package(glfw3 CONFIG REQUIRED)
-
 ## Microsoft.GSL
 #FetchContent_Declare(Microsoft.GSL
 #        GIT_REPOSITORY https://github.com/microsoft/GSL.git
@@ -47,6 +43,15 @@ add_subdirectory(src/engine)
 #FetchContent_MakeAvailable(Microsoft.GSL)
 #target_link_libraries(${PROJECT_NAME} PUBLIC
 #        Microsoft.GSL::GSL)
+
+# SFML
+set(BUILD_SHARED_LIBS OFF)
+FetchContent_Declare(SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG 2.6.x)
+FetchContent_MakeAvailable(SFML)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        sfml-window)
 
 # Vulkan
 find_package(Vulkan REQUIRED)
@@ -63,14 +68,21 @@ if (ENGINE_DEBUG IN_LIST engine_compile_defs)
 endif ()
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 
-# SFML
-set(BUILD_SHARED_LIBS OFF)
-FetchContent_Declare(SFML
-        GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 2.6.x)
-FetchContent_MakeAvailable(SFML)
+# glm
+FetchContent_Declare(glm
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG 0.9.9.8)
+FetchContent_MakeAvailable(glm)
 target_link_libraries(${PROJECT_NAME} PUBLIC
-        sfml-window)
+        glm::glm)
+
+# EnTT
+FetchContent_Declare(EnTT
+        GIT_REPOSITORY https://github.com/skypjack/entt.git
+        GIT_TAG v3.12.2)
+FetchContent_MakeAvailable(EnTT)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        EnTT)
 
 ## Taskflow
 #FetchContent_Declare(Taskflow
@@ -82,14 +94,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 #        TF_BUILD_TESTS=OFF)
 #target_link_libraries(${PROJECT_NAME} PUBLIC
 #        Taskflow)
-
-# EnTT
-FetchContent_Declare(EnTT
-        GIT_REPOSITORY https://github.com/skypjack/entt.git
-        GIT_TAG v3.12.2)
-FetchContent_MakeAvailable(EnTT)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-        EnTT)
 
 ###########
 ## TESTS ##
