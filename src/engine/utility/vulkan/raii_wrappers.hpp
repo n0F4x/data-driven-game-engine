@@ -22,7 +22,9 @@ public:
     Wrapper(Wrapper&& t_other) noexcept
         : m_owner{ t_other.m_owner },
           m_handle{ t_other.m_handle }
-    {}
+    {
+        t_other.m_handle = nullptr;
+    }
 
     ~Wrapper()
     {
