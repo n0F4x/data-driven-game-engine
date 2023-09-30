@@ -5,6 +5,7 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "engine/utility/vulkan/Allocator.hpp"
 #include "engine/utility/vulkan/raii_wrappers.hpp"
 
 namespace engine::renderer {
@@ -17,7 +18,7 @@ public:
     struct Config {
         std::span<const char* const> extensions;
         vk::PhysicalDeviceFeatures   features{};
-        const void*                  next;
+        const void*                  next{};
     };
 
     ///----------------///
@@ -65,14 +66,15 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::PhysicalDevice    m_physical_device;
-    utils::vulkan::Device m_device;
-    uint32_t              m_graphics_queue_family_index;
-    vk::Queue             m_graphics_queue;
-    uint32_t              m_compute_queue_family_index;
-    vk::Queue             m_compute_queue;
-    uint32_t              m_transfer_queue_family_index;
-    vk::Queue             m_transfer_queue;
+    vk::PhysicalDevice       m_physical_device;
+    utils::vulkan::Device    m_device;
+    utils::vulkan::Allocator m_allocator;
+    uint32_t                 m_graphics_queue_family_index;
+    vk::Queue                m_graphics_queue;
+    uint32_t                 m_compute_queue_family_index;
+    vk::Queue                m_compute_queue;
+    uint32_t                 m_transfer_queue_family_index;
+    vk::Queue                m_transfer_queue;
 
     ///******************************///
     ///  Constructors / Destructors  ///
@@ -80,6 +82,7 @@ private:
     explicit Device(
         vk::PhysicalDevice t_physical_device,
         vk::Device         t_device,
+        VmaAllocator       t_allocator,
         uint32_t           t_graphics_family_index,
         vk::Queue          t_graphics_queue,
         uint32_t           t_compute_queue_family_index,

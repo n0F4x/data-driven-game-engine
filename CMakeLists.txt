@@ -68,6 +68,19 @@ if (ENGINE_DEBUG IN_LIST engine_compile_defs)
 endif ()
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 
+# VulkanMemoryAllocator
+FetchContent_Declare(VulkanMemoryAllocator
+        GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+        )
+FetchContent_MakeAvailable(VulkanMemoryAllocator)
+set(VMA_static_vulkan_functions 0)
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+        VMA_STATIC_VULKAN_FUNCTIONS=${VMA_static_vulkan_functions}
+        VMA_DYNAMIC_VULKAN_FUNCTIONS
+        )
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        VulkanMemoryAllocator)
+
 # glm
 FetchContent_Declare(glm
         GIT_REPOSITORY https://github.com/g-truc/glm.git

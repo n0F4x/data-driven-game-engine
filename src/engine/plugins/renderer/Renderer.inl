@@ -87,7 +87,7 @@ auto Renderer::create(
 inline auto create_default_instance() noexcept
     -> std::expected<vk::Instance, vk::Result>
 {
-    vk::ApplicationInfo app_info{ .apiVersion = VK_API_VERSION_1_3 };
+    vk::ApplicationInfo app_info{ .apiVersion = utils::vulkan::api_version() };
     auto                layers{ utils::vulkan::validation_layers() };
     auto                extensions{ utils::vulkan::instance_extensions() };
 

@@ -7,6 +7,11 @@
 
 namespace engine::utils::vulkan {
 
+[[nodiscard]] constexpr auto api_version() noexcept -> uint32_t
+{
+    return VK_API_VERSION_1_3;
+}
+
 [[nodiscard]] constexpr auto validation_layers() noexcept
     -> std::span<const char* const>
 {
@@ -23,8 +28,6 @@ namespace engine::utils::vulkan {
 
 [[nodiscard]] auto instance_extensions() noexcept
     -> std::span<const char* const>;
-
-auto init_vulkan() noexcept -> void;
 
 [[nodiscard]] auto create_debug_messenger(vk::Instance t_instance) noexcept
     -> std::optional<vk::DebugUtilsMessengerEXT>;
