@@ -76,7 +76,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 FetchContent_Declare(VulkanMemoryAllocator
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
         GIT_PROGRESS TRUE
-        SYSTEM
         )
 FetchContent_MakeAvailable(VulkanMemoryAllocator)
 set(VMA_static_vulkan_functions 0)
