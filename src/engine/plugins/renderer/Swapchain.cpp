@@ -85,9 +85,9 @@ auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) noexcept
     vk::PresentInfoKHR              info{
                      .waitSemaphoreCount = static_cast<uint32_t>(t_wait_semaphores.size()),
                      .pWaitSemaphores = t_wait_semaphores.data(),
-                     .swapchainCount  = swapchains.size(),
-                     .pSwapchains     = swapchains.data(),
-                     .pImageIndices   = &m_image_index
+                     .swapchainCount = static_cast<uint32_t>(swapchains.size()),
+                     .pSwapchains    = swapchains.data(),
+                     .pImageIndices  = &m_image_index
     };
 
     auto result{ m_device.graphics_queue().presentKHR(info) };

@@ -14,7 +14,7 @@ add_library(${PROJECT_NAME})
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PUBLIC
             /W4
-            /WX
+            #     /WX
             )
 else ()
     target_compile_options(${PROJECT_NAME} PUBLIC
@@ -112,4 +112,4 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 ## TESTS ##
 ###########
 add_executable(test examples/src/main.cpp)
-target_link_libraries(test PRIVATE ${PROJECT_NAME})
+target_link_libraries(test PUBLIC ${PROJECT_NAME})

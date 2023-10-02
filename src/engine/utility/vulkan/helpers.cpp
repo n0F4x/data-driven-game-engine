@@ -1,6 +1,7 @@
 #include "helpers.hpp"
 
 #include <iostream>
+#include <sstream>
 
 #include <vulkan/vulkan_to_string.hpp>
 
