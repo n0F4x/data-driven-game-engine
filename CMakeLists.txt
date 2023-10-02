@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.25)
+
 include(FetchContent)
+set(FETCHCONTENT_QUIET FALSE)
 
 set(CMAKE_CXX_STANDARD 23)
 
@@ -39,7 +41,8 @@ add_subdirectory(src/engine)
 ## Microsoft.GSL
 #FetchContent_Declare(Microsoft.GSL
 #        GIT_REPOSITORY https://github.com/microsoft/GSL.git
-#        GIT_TAG v4.0.0)
+#        GIT_TAG v4.0.0
+#        GIT_PROGRESS TRUE)
 #FetchContent_MakeAvailable(Microsoft.GSL)
 #target_link_libraries(${PROJECT_NAME} PUBLIC
 #        Microsoft.GSL::GSL)
@@ -48,7 +51,8 @@ add_subdirectory(src/engine)
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_Declare(SFML
         GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 2.6.x)
+        GIT_TAG 2.6.x
+        GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(SFML)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         sfml-window)
@@ -71,6 +75,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 # VulkanMemoryAllocator
 FetchContent_Declare(VulkanMemoryAllocator
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+        GIT_PROGRESS TRUE
+        SYSTEM
         )
 FetchContent_MakeAvailable(VulkanMemoryAllocator)
 set(VMA_static_vulkan_functions 0)
@@ -84,7 +90,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 # glm
 FetchContent_Declare(glm
         GIT_REPOSITORY https://github.com/g-truc/glm.git
-        GIT_TAG 0.9.9.8)
+        GIT_TAG 0.9.9.8
+        GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(glm)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         glm::glm)
@@ -92,7 +99,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 # EnTT
 FetchContent_Declare(EnTT
         GIT_REPOSITORY https://github.com/skypjack/entt.git
-        GIT_TAG v3.12.2)
+        GIT_TAG v3.12.2
+        GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(EnTT)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         EnTT)
@@ -100,7 +108,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 ## Taskflow
 #FetchContent_Declare(Taskflow
 #        GIT_REPOSITORY https://github.com/taskflow/taskflow.git
-#        GIT_TAG v3.6.0)
+#        GIT_TAG v3.6.0
+#        GIT_PROGRESS TRUE)
 #FetchContent_MakeAvailable(Taskflow)
 #target_compile_definitions(${PROJECT_NAME} PUBLIC
 #        TF_BUILD_EXAMPLES=OFF
