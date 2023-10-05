@@ -34,7 +34,7 @@ auto Window::create_vulkan_surface(
 ) noexcept -> VkSurfaceKHR
 {
     if (!sf::Vulkan::isAvailable()) {
-        return nullptr;
+        return VkSurfaceKHR{};
     }
 
     VkSurfaceKHR surface{};
@@ -42,7 +42,7 @@ auto Window::create_vulkan_surface(
     try {
         m_impl->createVulkanSurface(t_instance, surface, t_allocator);
     } catch (...) {
-        return nullptr;
+        return VkSurfaceKHR{};
     }
 
     return surface;
