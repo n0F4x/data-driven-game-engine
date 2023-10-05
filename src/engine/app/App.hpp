@@ -9,7 +9,7 @@
 namespace engine {
 
 template <typename Func, class App>
-concept Runner = std::is_nothrow_invocable_v<Func, App&>;
+concept RunnerConcept = std::is_nothrow_invocable_v<Func, App&>;
 
 class App {
 public:
@@ -32,7 +32,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto run(const Runner<App> auto& t_runner) noexcept -> void;
+    auto run(const RunnerConcept<App> auto& t_runner) noexcept -> void;
 
     [[nodiscard]] auto context() noexcept -> Context&;
 

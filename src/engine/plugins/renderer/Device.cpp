@@ -3,34 +3,11 @@
 #include <functional>
 #include <ranges>
 
-#include "engine/utility/vulkan/helpers.hpp"
 #include "engine/utility/vulkan/tools.hpp"
 
-const std::vector<const char*> g_device_extensions{
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
+#include "helpers.hpp"
 
 namespace {
-
-auto supports_surface(
-    vk::PhysicalDevice t_physical_devices,
-    vk::SurfaceKHR     t_surface
-) noexcept -> bool
-{
-    uint32_t i{ 0 };
-    for (auto prop : t_physical_devices.getQueueFamilyProperties()) {
-        auto [result, supported]{
-            t_physical_devices.getSurfaceSupportKHR(i, t_surface)
-        };
-        if (result != vk::Result::eSuccess) {
-            return false;
-        }
-        if (prop.queueCount > 0 && supported) {
-            return true;
-        }
-    }
-    return false;
-}
 
 auto find_graphics_queue_family(
     vk::PhysicalDevice t_physical_device,
@@ -62,17 +39,14 @@ namespace engine::renderer {
 ///////////////////////////////////////
 
 auto Device::create(
-    vk::Instance       t_instance,
+    const Instance&    t_instance,
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device,
-    const Config&      t_config
+    const CreateInfo&  t_config
 ) noexcept -> std::optional<Device>
 {
-    if (!t_instance || !t_surface || !t_physical_device
-        || !adequate(t_physical_device, t_surface)
-        || !utils::vulkan::supports_extensions(
-            t_physical_device, t_config.extensions
-        ))
+    if (!t_surface || !t_physical_device
+        || !helpers::is_adequate(t_physical_device, t_surface))
     {
         return std::nullopt;
     }
@@ -112,10 +86,14 @@ auto Device::create(
     vulkan_functions.vkGetDeviceProcAddr   = &vkGetDeviceProcAddr;
 
     VmaAllocatorCreateInfo allocator_info{};
+    allocator_info.flags = helpers::vma_allocator_create_flags(
+        t_instance.enabled_extensions(), t_config.extensions
+    );
     allocator_info.physicalDevice   = t_physical_device;
     allocator_info.device           = device;
-    allocator_info.instance         = t_instance;
+    allocator_info.instance         = *t_instance;
     allocator_info.pVulkanFunctions = &vulkan_functions;
+    allocator_info.vulkanApiVersion = t_instance.application_info().apiVersion;
     VmaAllocator allocator;
     vmaCreateAllocator(&allocator_info, &allocator);
 
@@ -131,33 +109,18 @@ auto Device::create(
 }
 
 auto Device::create_default(
-    vk::Instance       t_instance,
+    const Instance&    t_instance,
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device
 ) noexcept -> std::optional<Device>
 {
-    return Device::create(
+    return create(
         t_instance,
         t_surface,
         t_physical_device,
-        Device::Config{ .extensions = g_device_extensions }
+        CreateInfo{ .extensions =
+                        helpers::device_extensions(t_physical_device) }
     );
-}
-
-auto Device::default_extensions() noexcept -> std::span<const char* const>
-{
-    return g_device_extensions;
-}
-
-auto Device::adequate(
-    vk::PhysicalDevice t_physical_device,
-    vk::SurfaceKHR     t_surface
-) noexcept -> bool
-{
-    return utils::vulkan::supports_extensions(
-               t_physical_device, g_device_extensions
-           )
-        && supports_surface(t_physical_device, t_surface);
 }
 
 Device::Device(
@@ -205,6 +168,26 @@ auto Device::graphics_queue_family_index() const noexcept -> uint32_t
 auto Device::graphics_queue() const noexcept -> vk::Queue
 {
     return m_graphics_queue;
+}
+
+auto Device::compute_queue_family_index() const noexcept -> uint32_t
+{
+    return m_compute_queue_family_index;
+}
+
+auto Device::compute_queue() const noexcept -> vk::Queue
+{
+    return m_compute_queue;
+}
+
+auto Device::transfer_queue_family_index() const noexcept -> uint32_t
+{
+    return m_transfer_queue_family_index;
+}
+
+auto Device::transfer_queue() const noexcept -> vk::Queue
+{
+    return m_transfer_queue;
 }
 
 }   // namespace engine::renderer

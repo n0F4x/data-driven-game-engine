@@ -8,6 +8,8 @@
 #include "engine/utility/vulkan/Allocator.hpp"
 #include "engine/utility/vulkan/raii_wrappers.hpp"
 
+#include "Instance.hpp"
+
 namespace engine::renderer {
 
 class Device {
@@ -15,35 +17,27 @@ public:
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
-    struct Config {
-        std::span<const char* const> extensions;
-        vk::PhysicalDeviceFeatures   features{};
+    struct CreateInfo {
         const void*                  next{};
+        std::span<const char* const> extensions{};
+        vk::PhysicalDeviceFeatures   features{};
     };
 
     ///----------------///
     /// Static methods ///
     ///----------------///
     [[nodiscard]] static auto create(
-        vk::Instance       t_instance,
+        const Instance&    t_instance,
         vk::SurfaceKHR     t_surface,
         vk::PhysicalDevice t_physical_device,
-        const Config&      t_config
+        const CreateInfo&  t_config
     ) noexcept -> std::optional<Device>;
 
     [[nodiscard]] static auto create_default(
-        vk::Instance       t_instance,
+        const Instance&    t_instance,
         vk::SurfaceKHR     t_surface,
         vk::PhysicalDevice t_physical_device
     ) noexcept -> std::optional<Device>;
-
-    [[nodiscard]] static auto default_extensions() noexcept
-        -> std::span<const char* const>;
-
-    [[nodiscard]] static auto adequate(
-        vk::PhysicalDevice t_physical_device,
-        vk::SurfaceKHR     t_surface
-    ) noexcept -> bool;
 
     ///-------------///
     ///  Operators  ///

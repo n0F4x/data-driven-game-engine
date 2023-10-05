@@ -31,23 +31,21 @@ auto Window::framebuffer_size() const noexcept -> sf::Vector2u
 auto Window::create_vulkan_surface(
     VkInstance                   t_instance,
     const VkAllocationCallbacks* t_allocator
-) noexcept -> std::optional<VkSurfaceKHR>
+) noexcept -> VkSurfaceKHR
 {
     if (!sf::Vulkan::isAvailable()) {
-        return std::nullopt;
+        return nullptr;
     }
 
     VkSurfaceKHR surface{};
 
     try {
-        if (m_impl->createVulkanSurface(t_instance, surface, t_allocator)) {
-            return surface;
-        }
+        m_impl->createVulkanSurface(t_instance, surface, t_allocator);
     } catch (...) {
-        return std::nullopt;
+        return nullptr;
     }
 
-    return std::nullopt;
+    return surface;
 }
 
 Window::Window(

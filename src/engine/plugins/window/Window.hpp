@@ -39,7 +39,7 @@ public:
     auto create_vulkan_surface(
         VkInstance                   t_instance,
         const VkAllocationCallbacks* t_allocator = nullptr
-    ) noexcept -> std::optional<VkSurfaceKHR>;
+    ) noexcept -> VkSurfaceKHR;
 
 private:
     ///*************///

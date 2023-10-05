@@ -24,6 +24,11 @@ public:
         unsigned t_frame_count = 2
     ) noexcept -> std::optional<RenderFrame>;
 
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    RenderFrame(RenderFrame&&) noexcept = default;
+
     ///-----------///
     ///  Methods  ///
     ///-----------///

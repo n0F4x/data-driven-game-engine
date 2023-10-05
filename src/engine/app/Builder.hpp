@@ -13,8 +13,11 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto build() && noexcept -> std::optional<App>;
-    auto build_and_run(const Runner<App> auto& t_runner) && noexcept -> Result;
+    auto build_and_run(const RunnerConcept<App> auto& t_runner) && noexcept
+        -> Result;
 
+    template <PluginConcept Plugin>
+    auto add_plugin() && noexcept -> Builder;
     auto add_plugin(const PluginConcept auto& t_plugin) && noexcept -> Builder;
 
 private:

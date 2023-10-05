@@ -9,24 +9,24 @@
 namespace engine::utils::vulkan {
 
 template <typename Handle, typename Owner = vk::Device>
-class Wrapper {
+class Wrapped {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Wrapper(Owner t_owner, Handle t_handle)
+    explicit Wrapped(Owner t_owner, Handle t_handle)
         : m_owner{ t_owner },
           m_handle{ t_handle }
     {}
 
-    Wrapper(Wrapper&& t_other) noexcept
+    Wrapped(Wrapped&& t_other) noexcept
         : m_owner{ t_other.m_owner },
           m_handle{ t_other.m_handle }
     {
         t_other.m_handle = nullptr;
     }
 
-    ~Wrapper()
+    ~Wrapped()
     {
         if (m_handle) {
             m_owner.destroy(m_handle);
@@ -36,7 +36,7 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator=(Wrapper&&) noexcept -> Wrapper& = default;
+    auto operator=(Wrapped&&) noexcept -> Wrapped& = default;
 
     [[nodiscard]] auto operator*() const noexcept -> Handle
     {
@@ -51,11 +51,11 @@ private:
     Handle m_handle;
 };
 
-using Buffer       = Wrapper<vk::Buffer>;
-using CommandPool  = Wrapper<vk::CommandPool>;
-using Fence        = Wrapper<vk::Fence>;
-using Framebuffer  = Wrapper<vk::Framebuffer>;
-using ShaderModule = Wrapper<vk::ShaderModule>;
-using Surface      = Wrapper<vk::SurfaceKHR, vk::Instance>;
+using Buffer       = Wrapped<vk::Buffer>;
+using CommandPool  = Wrapped<vk::CommandPool>;
+using Fence        = Wrapped<vk::Fence>;
+using Framebuffer  = Wrapped<vk::Framebuffer>;
+using ShaderModule = Wrapped<vk::ShaderModule>;
+using Surface      = Wrapped<vk::SurfaceKHR, vk::Instance>;
 
 }   // namespace engine::utils::vulkan

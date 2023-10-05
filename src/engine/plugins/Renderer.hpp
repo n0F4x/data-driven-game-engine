@@ -9,7 +9,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto setup(App::Context& t_context) const noexcept -> void;
+    static auto setup(App::Context& t_context) noexcept -> void;
 };
 
 static_assert(PluginConcept<Renderer>);

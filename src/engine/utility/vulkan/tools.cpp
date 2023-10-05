@@ -1,15 +1,73 @@
 #include "tools.hpp"
 
 #include <fstream>
+#include <ranges>
 #include <set>
 
 namespace engine::utils::vulkan {
+
+auto available_layers() noexcept
+    -> std::expected<const std::vector<const char*>, vk::Result>
+{
+    auto [result, properties]{ vk::enumerateInstanceLayerProperties() };
+
+    if (result != vk::Result::eSuccess) {
+        return std::unexpected{ result };
+    }
+
+    auto view{ properties
+               | std::views::transform([](const vk::LayerProperties& t_property
+                                       ) { return t_property.layerName; }) };
+    return std::vector<const char*>{ view.begin(), view.end() };
+}
+
+auto available_instance_extensions() noexcept
+    -> std::expected<const std::vector<const char*>, vk::Result>
+{
+    auto [result, properties]{ vk::enumerateInstanceExtensionProperties() };
+
+    if (result != vk::Result::eSuccess) {
+        return std::unexpected{ result };
+    }
+
+    auto view{
+        properties
+        | std::views::transform([](const vk::ExtensionProperties& t_property) {
+              return t_property.extensionName;
+          })
+    };
+    return std::vector<const char*>{ view.begin(), view.end() };
+}
+
+auto available_device_extensions(vk::PhysicalDevice t_physical_device) noexcept
+    -> std::expected<const std::vector<const char*>, vk::Result>
+{
+    auto [result, extension_properties]{
+        t_physical_device.enumerateDeviceExtensionProperties()
+    };
+
+    if (result != vk::Result::eSuccess) {
+        return std::unexpected{ result };
+    }
+
+    auto view{
+        extension_properties
+        | std::views::transform([](const vk::ExtensionProperties& t_property) {
+              return t_property.extensionName;
+          })
+    };
+    return std::vector<const char*>{ view.begin(), view.end() };
+}
 
 auto supports_extensions(
     vk::PhysicalDevice           t_physical_device,
     std::span<const char* const> t_extensions
 ) noexcept -> bool
 {
+    if (!t_physical_device) {
+        return false;
+    }
+
     auto [result, extension_properties]{
         t_physical_device.enumerateDeviceExtensionProperties()
     };
@@ -25,6 +83,30 @@ auto supports_extensions(
     }
 
     return required_extensions.empty();
+}
+
+auto supports_surface(
+    vk::PhysicalDevice t_physical_device,
+    vk::SurfaceKHR     t_surface
+) noexcept -> bool
+{
+    if (!t_physical_device || !t_surface) {
+        return false;
+    }
+
+    uint32_t i{ 0 };
+    for (auto prop : t_physical_device.getQueueFamilyProperties()) {
+        auto [result, supported]{
+            t_physical_device.getSurfaceSupportKHR(i, t_surface)
+        };
+        if (result != vk::Result::eSuccess) {
+            return false;
+        }
+        if (prop.queueCount > 0 && supported) {
+            return true;
+        }
+    }
+    return false;
 }
 
 auto load_shader(vk::Device t_device, std::string_view t_file_path) noexcept
