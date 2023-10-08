@@ -1,4 +1,3 @@
-#define VMA_IMPLEMENTATION
 #include "Allocator.hpp"
 
 namespace engine::utils::vulkan {

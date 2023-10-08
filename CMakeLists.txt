@@ -16,13 +16,13 @@ add_library(${PROJECT_NAME})
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PUBLIC
             /W4
-            #     /WX
+            /WX
             )
 else ()
     target_compile_options(${PROJECT_NAME} PUBLIC
             -Wall
             -Wextra
-            #            -Werror
+            -Werror
             -fconcepts-diagnostics-depth=3
             )
 endif ()
@@ -37,6 +37,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         )
 
 add_subdirectory(src/engine)
+
+
+#optional_view
+add_subdirectory(vendor/optional_view)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        optional_view)
 
 ## Microsoft.GSL
 #FetchContent_Declare(Microsoft.GSL
@@ -73,18 +79,15 @@ endif ()
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 
 # VulkanMemoryAllocator
-FetchContent_Declare(VulkanMemoryAllocator
-        GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        GIT_PROGRESS TRUE
-        )
-FetchContent_MakeAvailable(VulkanMemoryAllocator)
-set(VMA_static_vulkan_functions 0)
-target_compile_definitions(${PROJECT_NAME} PUBLIC
-        VMA_STATIC_VULKAN_FUNCTIONS=${VMA_static_vulkan_functions}
-        VMA_DYNAMIC_VULKAN_FUNCTIONS
+set(STATIC_VULKAN_FUNCTIONS 0)
+set(DYNAMIC_VULKAN_FUNCTIONS 1)
+add_subdirectory(libs/vulkan-memory-allocator)
+target_compile_definitions(vulkan-memory-allocator PUBLIC
+        VMA_STATIC_VULKAN_FUNCTIONS=${STATIC_VULKAN_FUNCTIONS}
+        VMA_DYNAMIC_VULKAN_FUNCTIONS=${DYNAMIC_VULKAN_FUNCTIONS}
         )
 target_link_libraries(${PROJECT_NAME} PUBLIC
-        VulkanMemoryAllocator)
+        vulkan-memory-allocator)
 
 # glm
 FetchContent_Declare(glm
@@ -92,8 +95,24 @@ FetchContent_Declare(glm
         GIT_TAG 0.9.9.8
         GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(glm)
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+        GLM_FORCE_DEPTH_ZERO_TO_ONE
+        )
 target_link_libraries(${PROJECT_NAME} PUBLIC
         glm::glm)
+
+# tinygltf
+FetchContent_Declare(tinygltf
+        GIT_REPOSITORY https://github.com/syoyo/tinygltf.git
+        GIT_TAG v2.8.17
+        GIT_PROGRESS TRUE)
+FetchContent_MakeAvailable(tinygltf)
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+        TINYGLTF_NOEXCEPTION
+        TINYGLTF_USE_CPP14
+        )
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        tinygltf)
 
 # EnTT
 FetchContent_Declare(EnTT

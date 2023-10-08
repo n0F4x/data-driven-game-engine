@@ -39,6 +39,9 @@ const std::vector<const char*> g_required_instance_extensions
 #endif
 };
 const std::vector<const char*> g_optional_instance_extensions{
+#ifdef ENGINE_VULKAN_DEBUG
+    VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+#endif
     VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
 };
 
@@ -60,13 +63,114 @@ const std::vector<const char*> g_optional_device_extensions{
 {
     std::vector<const char*> filtered{ t_required.begin(), t_required.end() };
 
-    for (auto optional_layer : t_optional) {
-        if (std::ranges::contains(t_available, optional_layer)) {
-            filtered.emplace_back(optional_layer);
+    for (auto optional : t_optional) {
+        if (std::ranges::any_of(t_available, [optional](auto available) {
+                return strcmp(optional, available);
+            }))
+        {
+            filtered.emplace_back(optional);
         }
     }
 
     return filtered;
+}
+
+auto find_graphics_queue_family(
+    vk::PhysicalDevice t_physical_device,
+    vk::SurfaceKHR     t_surface
+) noexcept -> std::optional<uint32_t>
+{
+    auto     queue_families{ t_physical_device.getQueueFamilyProperties() };
+    uint32_t i{};
+    for (const auto& props : queue_families) {
+        if (auto [result, success]{
+                t_physical_device.getSurfaceSupportKHR(i, t_surface) };
+            result == vk::Result::eSuccess && success
+            && props.queueFlags & vk::QueueFlagBits::eGraphics)
+        {
+            return i;
+        }
+        i++;
+    }
+
+    return std::nullopt;
+}
+
+[[nodiscard]] auto find_transfer_queue_family(
+    vk::PhysicalDevice t_physical_device,
+    uint32_t           t_graphics_queue_family
+) -> std::optional<uint32_t>
+{
+    auto queue_families{ t_physical_device.getQueueFamilyProperties() };
+
+    uint32_t i{};
+    for (const auto& props : queue_families) {
+        if (!(props.queueFlags & vk::QueueFlagBits::eGraphics)
+            && !(props.queueFlags & vk::QueueFlagBits::eCompute)
+            && props.queueFlags & vk::QueueFlagBits::eTransfer)
+        {
+            return i;
+        }
+        i++;
+    }
+
+    i = 0;
+    for (const auto& props : queue_families) {
+        if (i == t_graphics_queue_family
+            && props.queueFlags & vk::QueueFlagBits::eTransfer)
+        {
+            return i;
+        }
+        i++;
+    }
+
+    i = 0;
+    for (const auto& props : queue_families) {
+        if (props.queueFlags & vk::QueueFlagBits::eTransfer) {
+            return i;
+        }
+        i++;
+    }
+
+    return std::nullopt;
+}
+
+auto find_compute_queue_family(
+    vk::PhysicalDevice t_physical_device,
+    uint32_t           t_graphics_queue_family
+) noexcept -> std::optional<uint32_t>
+{
+    auto queue_families{ t_physical_device.getQueueFamilyProperties() };
+
+    uint32_t i{};
+    for (const auto& props : queue_families) {
+        if (!(props.queueFlags & vk::QueueFlagBits::eGraphics)
+            && props.queueFlags & vk::QueueFlagBits::eCompute)
+        {
+            return i;
+        }
+        i++;
+    }
+
+    i = 0;
+    for (const auto& props : queue_families) {
+        if (i != t_graphics_queue_family
+            && props.queueFlags & vk::QueueFlagBits::eCompute)
+        {
+            return i;
+        }
+        i++;
+    }
+
+    i = 0;
+    for (const auto& props : queue_families) {
+        if (props.queueFlags & vk::QueueFlagBits::eCompute) {
+            return i;
+        }
+        i++;
+    }
+
+    return std::nullopt;
 }
 
 }   // namespace
@@ -258,6 +362,97 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
     }
 
     return debugUtilsMessenger.value;
+}
+
+auto find_queue_families(
+    vk::PhysicalDevice t_physical_device,
+    vk::SurfaceKHR     t_surface
+) -> std::optional<QueueInfos>
+{
+    auto graphics_family{
+        find_graphics_queue_family(t_physical_device, t_surface)
+    };
+    if (!graphics_family.has_value()) {
+        return std::nullopt;
+    }
+
+    auto compute_family{
+        find_compute_queue_family(t_physical_device, *graphics_family)
+    };
+    if (!compute_family.has_value()) {
+        return std::nullopt;
+    }
+
+    auto transfer_family{
+        find_transfer_queue_family(t_physical_device, *graphics_family)
+    };
+    if (!transfer_family.has_value()) {
+        return std::nullopt;
+    }
+
+    QueueInfos queue_infos;
+    queue_infos.graphics_family = *graphics_family;
+    queue_infos.compute_family  = *compute_family;
+    queue_infos.transfer_family = *transfer_family;
+
+    auto queue_priority{ 1.f };
+
+    queue_infos.queue_create_infos.push_back(vk::DeviceQueueCreateInfo{
+        .queueFamilyIndex = *graphics_family,
+        .queueCount       = 1,
+        .pQueuePriorities = &queue_priority });
+    queue_infos.graphics_index = 0;
+
+    if (compute_family == graphics_family) {
+        if (t_physical_device
+                .getQueueFamilyProperties()[queue_infos.graphics_family]
+                .queueCount
+            > queue_infos.queue_create_infos[0].queueCount)
+        {
+            queue_infos.queue_create_infos[0].queueCount++;
+        }
+        queue_infos.compute_index =
+            queue_infos.queue_create_infos[0].queueCount - 1;
+    }
+    else {
+        queue_infos.queue_create_infos.push_back(vk::DeviceQueueCreateInfo{
+            .queueFamilyIndex = *compute_family,
+            .queueCount       = 1,
+            .pQueuePriorities = &queue_priority });
+        queue_infos.compute_index = 0;
+    }
+
+    if (transfer_family == graphics_family) {
+        if (t_physical_device
+                .getQueueFamilyProperties()[queue_infos.graphics_family]
+                .queueCount
+            > queue_infos.queue_create_infos[0].queueCount)
+        {
+            queue_infos.queue_create_infos[0].queueCount++;
+        }
+        queue_infos.transfer_index =
+            queue_infos.queue_create_infos[0].queueCount - 1;
+    }
+    else if (transfer_family == compute_family) {
+        if (t_physical_device
+                .getQueueFamilyProperties()[queue_infos.compute_family]
+                .queueCount
+            > queue_infos.queue_create_infos[1].queueCount)
+        {
+            queue_infos.queue_create_infos[1].queueCount++;
+        }
+        queue_infos.transfer_index =
+            queue_infos.queue_create_infos[1].queueCount - 1;
+    }
+    else {
+        queue_infos.queue_create_infos.push_back(vk::DeviceQueueCreateInfo{
+            .queueFamilyIndex = *transfer_family,
+            .queueCount       = 1,
+            .pQueuePriorities = &queue_priority });
+        queue_infos.transfer_index = 0;
+    }
+
+    return queue_infos;
 }
 
 auto device_extensions(vk::PhysicalDevice t_physical_device) noexcept

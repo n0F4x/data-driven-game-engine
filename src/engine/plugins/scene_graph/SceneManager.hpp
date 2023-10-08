@@ -15,7 +15,6 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     SceneManager()                        = default;
-    SceneManager(const SceneManager&)     = delete;
     SceneManager(SceneManager&&) noexcept = default;
 
     ///-----------///

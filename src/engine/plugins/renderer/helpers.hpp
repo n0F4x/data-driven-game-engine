@@ -1,6 +1,7 @@
 #pragma once
 
 #include <expected>
+#include <optional>
 #include <span>
 
 #include <vulkan/vulkan.hpp>
@@ -18,6 +19,21 @@ namespace engine::renderer::helpers {
 
 [[nodiscard]] auto create_debug_messenger(vk::Instance t_instance) noexcept
     -> std::expected<vk::DebugUtilsMessengerEXT, vk::Result>;
+
+struct QueueInfos {
+    uint32_t                               graphics_family;
+    uint32_t                               graphics_index;
+    uint32_t                               compute_family;
+    uint32_t                               compute_index;
+    uint32_t                               transfer_family;
+    uint32_t                               transfer_index;
+    std::vector<vk::DeviceQueueCreateInfo> queue_create_infos;
+};
+
+[[nodiscard]] auto find_queue_families(
+    vk::PhysicalDevice queue_family_index,
+    vk::SurfaceKHR     t_surface
+) -> std::optional<QueueInfos>;
 
 [[nodiscard]] auto device_extensions(vk::PhysicalDevice t_physical_device
 ) noexcept -> std::span<const char* const>;

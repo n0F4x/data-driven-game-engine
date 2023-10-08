@@ -4,7 +4,7 @@
 #include <optional>
 #include <type_traits>
 
-#include <entt/entity/registry.hpp>
+#include "engine/utility/Context.hpp"
 
 namespace engine {
 
@@ -16,7 +16,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Context = entt::registry::context;
+    using Context = utils::Context;
 
     ///------------------///
     ///  Nested classes  ///
@@ -32,7 +32,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto run(const RunnerConcept<App> auto& t_runner) noexcept -> void;
+    auto run(RunnerConcept<App> auto&& t_runner) noexcept -> void;
 
     [[nodiscard]] auto context() noexcept -> Context&;
 

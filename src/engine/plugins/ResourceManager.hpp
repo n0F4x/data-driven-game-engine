@@ -1,14 +1,13 @@
 #pragma once
 
-#include <entt/entity/registry.hpp>
-
 #include "engine/app/Plugin.hpp"
+#include "engine/utility/Context.hpp"
 
 namespace engine {
 
 namespace resource_manager {
 
-using ResourceManager = entt::registry::context;
+using ResourceManager = utils::Context;
 
 }   // namespace resource_manager
 

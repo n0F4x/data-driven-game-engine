@@ -7,29 +7,21 @@ namespace engine::plugins {
 
 class Window {
 public:
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    explicit Window(
-        sf::VideoMode         t_video_mode,
-        std::string_view      t_title,
-        window::Window::Style t_style
-    ) noexcept;
-
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto setup(App::Context& t_context) const noexcept -> void;
-
-private:
-    ///*************///
-    ///  Variables  ///
-    ///*************///
-    sf::VideoMode         m_video_mode;
-    std::string_view      m_title;
-    window::Window::Style m_style;
+    static auto setup(
+        App::Context&         t_context,
+        const sf::VideoMode&  t_video_mode,
+        std::string_view      t_title,
+        window::Window::Style t_style
+    ) noexcept -> void;
 };
 
-static_assert(PluginConcept<Window>);
+static_assert(PluginConcept<
+              Window,
+              const sf::VideoMode&,
+              std::string_view,
+              window::Window::Style>);
 
 }   // namespace engine::plugins

@@ -13,12 +13,14 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto build() && noexcept -> std::optional<App>;
-    auto build_and_run(const RunnerConcept<App> auto& t_runner) && noexcept
+    auto build_and_run(RunnerConcept<App> auto&& t_runner) && noexcept
         -> Result;
 
     template <PluginConcept Plugin>
     auto add_plugin() && noexcept -> Builder;
-    auto add_plugin(const PluginConcept auto& t_plugin) && noexcept -> Builder;
+    template <typename Plugin>
+    auto add_plugin(auto&&... t_args) && noexcept -> Builder;
+    auto add_plugin(PluginConcept auto&& t_plugin) && noexcept -> Builder;
 
 private:
     ///******************///
@@ -29,7 +31,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    Context m_context{ std::allocator<entt::id_type>{} };
+    Context m_context{};
 
     ///******************************///
     ///  Constructors / Destructors  ///

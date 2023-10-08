@@ -1,34 +1,10 @@
 #include "Device.hpp"
 
-#include <functional>
 #include <ranges>
 
 #include "engine/utility/vulkan/tools.hpp"
 
 #include "helpers.hpp"
-
-namespace {
-
-auto find_graphics_queue_family(
-    vk::PhysicalDevice t_physical_device,
-    vk::SurfaceKHR     t_surface
-) noexcept -> std::optional<uint32_t>
-{
-    auto queue_families{ t_physical_device.getQueueFamilyProperties() };
-    for (uint32_t i{}; i < queue_families.size(); i++) {
-        if (auto [result, success]{
-                t_physical_device.getSurfaceSupportKHR(i, t_surface) };
-            result == vk::Result::eSuccess && success
-            && queue_families[i].queueFlags & vk::QueueFlagBits::eGraphics)
-        {
-            return i;
-        }
-    }
-
-    return std::nullopt;
-}
-
-}   // namespace
 
 namespace engine::renderer {
 
@@ -51,28 +27,18 @@ auto Device::create(
         return std::nullopt;
     }
 
-    auto graphics_queue_family_index{
-        find_graphics_queue_family(t_physical_device, t_surface)
+    auto queue_infos{
+        helpers::find_queue_families(t_physical_device, t_surface)
     };
-    if (!graphics_queue_family_index.has_value()) {
+    if (!queue_infos.has_value()) {
         return std::nullopt;
-    }
-
-    std::vector<vk::DeviceQueueCreateInfo> queue_create_infos;
-    {
-        auto queue_priority{ 1.f };
-
-        queue_create_infos.push_back(vk::DeviceQueueCreateInfo{
-            .queueFamilyIndex = *graphics_queue_family_index,
-            .queueCount       = 1,
-            .pQueuePriorities = &queue_priority });
     }
 
     auto [result, device]{ t_physical_device.createDevice(vk::DeviceCreateInfo{
         .pNext = t_config.next,
         .queueCreateInfoCount =
-            static_cast<uint32_t>(queue_create_infos.size()),
-        .pQueueCreateInfos = queue_create_infos.data(),
+            static_cast<uint32_t>(queue_infos->queue_create_infos.size()),
+        .pQueueCreateInfos = queue_infos->queue_create_infos.data(),
         .enabledExtensionCount =
             static_cast<uint32_t>(t_config.extensions.size()),
         .ppEnabledExtensionNames = t_config.extensions.data(),
@@ -93,19 +59,25 @@ auto Device::create(
     allocator_info.device           = device;
     allocator_info.instance         = *t_instance;
     allocator_info.pVulkanFunctions = &vulkan_functions;
-    allocator_info.vulkanApiVersion = t_instance.application_info().apiVersion;
+    allocator_info.vulkanApiVersion = VK_API_VERSION_1_2;
     VmaAllocator allocator;
     vmaCreateAllocator(&allocator_info, &allocator);
 
     return Device{ t_physical_device,
                    device,
                    allocator,
-                   *graphics_queue_family_index,
-                   device.getQueue(*graphics_queue_family_index, 0),
-                   0,
-                   nullptr,
-                   0,
-                   nullptr };
+                   queue_infos->graphics_family,
+                   device.getQueue(
+                       queue_infos->graphics_family, queue_infos->graphics_index
+                   ),
+                   queue_infos->compute_family,
+                   device.getQueue(
+                       queue_infos->compute_family, queue_infos->compute_index
+                   ),
+                   queue_infos->transfer_family,
+                   device.getQueue(
+                       queue_infos->transfer_family, queue_infos->transfer_index
+                   ) };
 }
 
 auto Device::create_default(
@@ -158,6 +130,11 @@ auto Device::operator->() const noexcept -> const vk::Device*
 auto Device::physical_device() const noexcept -> vk::PhysicalDevice
 {
     return m_physical_device;
+}
+
+auto Device::allocator() const noexcept -> VmaAllocator
+{
+    return *m_allocator;
 }
 
 auto Device::graphics_queue_family_index() const noexcept -> uint32_t

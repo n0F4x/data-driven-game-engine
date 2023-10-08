@@ -2,20 +2,15 @@
 
 namespace engine::plugins {
 
-Window::Window(
-    sf::VideoMode         t_video_mode,
+auto Window::setup(
+    App::Context&         t_context,
+    const sf::VideoMode&  t_video_mode,
     std::string_view      t_title,
     window::Window::Style t_style
-) noexcept
-    : m_video_mode{ t_video_mode },
-      m_title{ t_title },
-      m_style{ t_style }
-{}
-
-auto Window::setup(App::Context& t_context) const noexcept -> void
+) noexcept -> void
 {
     auto window{
-        window::Window::create(m_video_mode, m_title.data(), m_style)
+        window::Window::create(t_video_mode, t_title.data(), t_style)
     };
 
     if (window.has_value()) {

@@ -123,14 +123,14 @@ auto load_shader(vk::Device t_device, std::string_view t_file_path) noexcept
         return std::nullopt;
     }
 
-    std::vector<char> buffer(file_size);
+    std::vector<char> buffer(static_cast<size_t>(file_size));
 
     file.seekg(0, std::ios::beg);
     file.read(buffer.data(), file_size);
     file.close();
 
     vk::ShaderModuleCreateInfo create_info{};
-    create_info.codeSize = file_size;
+    create_info.codeSize = static_cast<size_t>(file_size);
     create_info.pCode    = (uint32_t*)buffer.data();
 
     auto [result, shader_module]{ t_device.createShaderModule(create_info) };

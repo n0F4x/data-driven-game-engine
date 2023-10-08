@@ -49,6 +49,7 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto physical_device() const noexcept -> vk::PhysicalDevice;
+    [[nodiscard]] auto allocator() const noexcept -> VmaAllocator;
     [[nodiscard]] auto graphics_queue_family_index() const noexcept -> uint32_t;
     [[nodiscard]] auto graphics_queue() const noexcept -> vk::Queue;
     [[nodiscard]] auto compute_queue_family_index() const noexcept -> uint32_t;
