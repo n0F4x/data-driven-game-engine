@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include <vulkan/vulkan.hpp>
 
 #include "Device.hpp"
@@ -20,11 +22,9 @@ public:
     {}
 
     Wrapped(Wrapped&& t_other) noexcept
-        : m_owner{ t_other.m_owner },
-          m_handle{ t_other.m_handle }
-    {
-        t_other.m_handle = nullptr;
-    }
+        : m_owner{ std::exchange(t_other.m_owner, nullptr) },
+          m_handle{ std::exchange(t_other.m_handle, nullptr) }
+    {}
 
     ~Wrapped()
     {
@@ -51,7 +51,6 @@ private:
     Handle m_handle;
 };
 
-using Buffer       = Wrapped<vk::Buffer>;
 using CommandPool  = Wrapped<vk::CommandPool>;
 using Fence        = Wrapped<vk::Fence>;
 using Framebuffer  = Wrapped<vk::Framebuffer>;

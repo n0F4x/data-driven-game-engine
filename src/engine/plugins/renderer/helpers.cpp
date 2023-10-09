@@ -4,6 +4,8 @@
 #include <ranges>
 #include <sstream>
 
+#include <spdlog/spdlog.h>
+
 #if defined(_WIN32)
 // clang-format off
   #include <windows.h>
@@ -20,6 +22,7 @@
 #include "engine/utility/vulkan/tools.hpp"
 
 namespace {
+
 const uint32_t g_api_version{ VK_API_VERSION_1_3 };
 
 const std::vector<const char*> g_required_layers{};
@@ -307,11 +310,16 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
 namespace engine::renderer::helpers {
 
 auto create_debug_messenger(vk::Instance t_instance) noexcept
-    -> std::expected<vk::DebugUtilsMessengerEXT, vk::Result>
+    -> vk::DebugUtilsMessengerEXT
 {
     auto props = vk::enumerateInstanceExtensionProperties();
     if (props.result != vk::Result::eSuccess) {
-        return std::unexpected{ props.result };
+        SPDLOG_ERROR(
+            "vk::enumerateInstanceExtensionProperties failed with error code "
+            "{}",
+            static_cast<int>(props.result)
+        );
+        return nullptr;
     }
 
     auto propertyIterator = std::find_if(
@@ -323,7 +331,11 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
         }
     );
     if (propertyIterator == props.value.end()) {
-        return std::unexpected{ vk::Result::eErrorExtensionNotPresent };
+        SPDLOG_ERROR(
+            "{} Vulkan extension is not supported",
+            VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+        );
+        return nullptr;
     }
 
     pfnVkCreateDebugUtilsMessengerEXT =
@@ -331,7 +343,8 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
             t_instance.getProcAddr("vkCreateDebugUtilsMessengerEXT")
         );
     if (pfnVkCreateDebugUtilsMessengerEXT == nullptr) {
-        return std::unexpected{ vk::Result::eErrorInitializationFailed };
+        SPDLOG_ERROR("pfnVkCreateDebugUtilsMessengerEXT not found");
+        return nullptr;
     }
 
     pfnVkDestroyDebugUtilsMessengerEXT =
@@ -339,7 +352,8 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
             t_instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT")
         );
     if (pfnVkDestroyDebugUtilsMessengerEXT == nullptr) {
-        return std::unexpected{ vk::Result::eErrorInitializationFailed };
+        SPDLOG_ERROR("pfnVkDestroyDebugUtilsMessengerEXT not found");
+        return nullptr;
     }
 
     vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
@@ -358,7 +372,12 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
                                                   &debugMessageFunc }
     );
     if (debugUtilsMessenger.result != vk::Result::eSuccess) {
-        return std::unexpected{ debugUtilsMessenger.result };
+        SPDLOG_ERROR(
+            "vk::Instance::createDebugUtilsMessengerEXT failed with error code "
+            "{}",
+            static_cast<int>(debugUtilsMessenger.result)
+        );
+        return nullptr;
     }
 
     return debugUtilsMessenger.value;
@@ -495,6 +514,10 @@ auto choose_physical_device(
 {
     auto [result, physical_devices]{ t_instance.enumeratePhysicalDevices() };
     if (result != vk::Result::eSuccess) {
+        SPDLOG_ERROR(
+            "vk::Instance::enumeratePhysicalDevices failed with error code {}",
+            static_cast<int>(result)
+        );
         return nullptr;
     }
 

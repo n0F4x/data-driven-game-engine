@@ -1,5 +1,4 @@
-
-#include "Builder.hpp"
+#include <spdlog/spdlog.h>
 
 namespace engine {
 
@@ -7,6 +6,7 @@ auto App::Builder::build_and_run(RunnerConcept<App> auto&& t_runner) && noexcept
     -> Result
 {
     if (auto app{ std::move(*this).build() }) {
+        SPDLOG_INFO("App is running");
         app->run(t_runner);
         return Result::eSuccess;
     }

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <limits>
 #include <set>
+#include <utility>
 
 namespace {
 
@@ -256,18 +257,16 @@ Swapchain::Swapchain(
 {}
 
 Swapchain::Swapchain(Swapchain&& t_other) noexcept
-    : m_device{ t_other.m_device },
+    : m_device{ std::exchange(t_other.m_device, nullptr) },
       m_extent{ t_other.m_extent },
       m_surface_format{ t_other.m_surface_format },
-      m_swap_chain{ t_other.m_swap_chain },
+      m_swap_chain{ std::exchange(t_other.m_swap_chain, nullptr) },
       m_image_views{ std::move(t_other.m_image_views) }
-{
-    t_other.m_swap_chain = nullptr;
-}
+{}
 
 Swapchain::~Swapchain() noexcept
 {
-    if (m_swap_chain) {
+    if (m_device) {
         for (auto image_view : m_image_views) {
             m_device.destroy(image_view);
         }

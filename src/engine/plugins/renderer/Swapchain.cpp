@@ -3,6 +3,8 @@
 #include <limits>
 #include <ranges>
 
+#include <spdlog/spdlog.h>
+
 #include "helpers.hpp"
 
 namespace engine::renderer {
@@ -72,6 +74,10 @@ auto Swapchain::acquire_next_image(
     if ((result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
         || !m_swap_chain.has_value())
     {
+        SPDLOG_ERROR(
+            "vk::Device::acquireNextImage failed with error code {}",
+            static_cast<int>(result)
+        );
         return Result::eFailure;
     }
 

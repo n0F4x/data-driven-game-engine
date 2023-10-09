@@ -1,13 +1,14 @@
 #include "Device.hpp"
 
+#include <utility>
+
 namespace engine::utils::vulkan {
 
 Device::Device(vk::Device t_device) noexcept : m_device{ t_device } {}
 
-Device::Device(Device&& t_other) noexcept : Device{ t_other.m_device }
-{
-    t_other.m_device = nullptr;
-}
+Device::Device(Device&& t_other) noexcept
+    : Device{ std::exchange(t_other.m_device, nullptr) }
+{}
 
 Device::~Device() noexcept
 {

@@ -18,7 +18,7 @@ namespace engine::renderer::helpers {
     -> std::span<const char* const>;
 
 [[nodiscard]] auto create_debug_messenger(vk::Instance t_instance) noexcept
-    -> std::expected<vk::DebugUtilsMessengerEXT, vk::Result>;
+    -> vk::DebugUtilsMessengerEXT;
 
 struct QueueInfos {
     uint32_t                               graphics_family;

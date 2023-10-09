@@ -2,8 +2,6 @@
 
 #include <expected>
 #include <functional>
-#include <limits>
-#include <unordered_map>
 
 #include <vulkan/vulkan.hpp>
 

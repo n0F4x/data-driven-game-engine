@@ -1,5 +1,9 @@
 #include "Instance.hpp"
 
+#include <format>
+
+#include <spdlog/spdlog.h>
+
 #include "helpers.hpp"
 
 namespace engine::renderer {
@@ -20,16 +24,16 @@ auto Instance::create(const CreateInfo& t_create_info) noexcept
 
     auto [result, instance]{ vk::createInstance(create_info) };
     if (result != vk::Result::eSuccess) {
+        SPDLOG_ERROR(
+            "vk::createInstance failed with error code {}",
+            static_cast<int>(result)
+        );
         return std::unexpected{ result };
     }
 
     vk::DebugUtilsMessengerEXT debug_messenger{};
     if (t_create_info.create_debug_messenger) {
-        auto expected{ t_create_info.create_debug_messenger(instance) };
-        if (!expected.has_value()) {
-            return std::unexpected{ expected.error() };
-        }
-        debug_messenger = *expected;
+        debug_messenger = t_create_info.create_debug_messenger(instance);
     }
 
     return Instance{
@@ -85,6 +89,36 @@ Instance::Instance(
       m_layers{ t_layers.begin(), t_layers.end() },
       m_extensions{ t_extensions.begin(), t_extensions.end() },
       m_instance{ std::move(t_instance) }
-{}
+{
+    auto [result, instance_version]{ vk::enumerateInstanceVersion() };
+    if (result != vk::Result::eSuccess) {
+        return;
+    }
+
+    std::string instance_info{};
+
+    instance_info += "\nEnabled instance layers:";
+    for (auto layer : m_layers) {
+        instance_info += '\n';
+        instance_info += '\t';
+        instance_info += layer;
+    }
+
+    instance_info += "\nEnabled instance extensions:";
+    for (auto extension : m_extensions) {
+        instance_info += '\n';
+        instance_info += '\t';
+        instance_info += extension;
+    }
+
+    SPDLOG_INFO(
+        "Found Vulkan Instance version: {}.{}.{}",
+        VK_VERSION_MAJOR(instance_version),
+        VK_VERSION_MINOR(instance_version),
+        VK_VERSION_PATCH(instance_version)
+    );
+
+    SPDLOG_TRACE(instance_info);
+}
 
 }   // namespace engine::renderer

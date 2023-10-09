@@ -13,6 +13,9 @@ project(engine)
 add_library(${PROJECT_NAME})
 
 
+option(engine_debug "Turn on debug mode for library" ON)
+
+
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PUBLIC
             /W4
@@ -28,8 +31,8 @@ else ()
 endif ()
 
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC ENGINE_DEBUG)
-get_target_property(engine_compile_defs ${PROJECT_NAME} COMPILE_DEFINITIONS)
+#target_compile_definitions(${PROJECT_NAME} PUBLIC ENGINE_DEBUG)
+#get_target_property(engine_compile_defs ${PROJECT_NAME} COMPILE_DEFINITIONS)
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -39,7 +42,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 add_subdirectory(src/engine)
 
 
-#optional_view
+# optional_view
 add_subdirectory(vendor/optional_view)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         optional_view)
@@ -53,11 +56,25 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 #target_link_libraries(${PROJECT_NAME} PUBLIC
 #        Microsoft.GSL::GSL)
 
+# spdlog
+FetchContent_Declare(spdlog
+        GIT_REPOSITORY https://github.com/gabime/spdlog.git
+        GIT_TAG v1.12.0
+        GIT_PROGRESS TRUE)
+FetchContent_MakeAvailable(spdlog)
+if (engine_debug)
+    set(spdlog_level SPDLOG_LEVEL_TRACE)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC
+            SPDLOG_ACTIVE_LEVEL=${spdlog_level}
+            )
+endif ()
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
+
 # SFML
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_Declare(SFML
         GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 2.6.x
+        GIT_TAG 2.6.0
         GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(SFML)
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -73,7 +90,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
         VULKAN_HPP_NO_SMART_HANDLE
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
         )
-if (ENGINE_DEBUG IN_LIST engine_compile_defs)
+if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PUBLIC ENGINE_VULKAN_DEBUG)
 endif ()
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
@@ -134,6 +151,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 #        TF_BUILD_TESTS=OFF)
 #target_link_libraries(${PROJECT_NAME} PUBLIC
 #        Taskflow)
+
+
+unset(engine_debug CACHE)
+
 
 ###########
 ## TESTS ##

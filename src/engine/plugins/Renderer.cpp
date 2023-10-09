@@ -2,6 +2,8 @@
 
 #include <thread>
 
+#include <spdlog/spdlog.h>
+
 #include "engine/plugins/renderer/Device.hpp"
 #include "engine/plugins/renderer/helpers.hpp"
 #include "engine/plugins/renderer/Instance.hpp"
@@ -49,6 +51,8 @@ auto Renderer::setup(App::Context& t_context) noexcept -> void
         return;
     }
     t_context.emplace<RenderFrame>(std::move(*original_render_frame));
+
+    SPDLOG_TRACE("Added Renderer plugin");
 }
 
 }   // namespace engine::plugins

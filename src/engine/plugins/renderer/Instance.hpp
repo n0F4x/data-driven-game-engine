@@ -2,6 +2,7 @@
 
 #include <expected>
 #include <functional>
+#include <span>
 #include <vector>
 
 #include "engine/utility/vulkan/Instance.hpp"
@@ -19,8 +20,7 @@ public:
         vk::ApplicationInfo          application_info{};
         std::span<const char* const> layers{};
         std::span<const char* const> extensions{};
-        std::function<
-            std::expected<vk::DebugUtilsMessengerEXT, vk::Result>(vk::Instance)>
+        std::function<vk::DebugUtilsMessengerEXT(vk::Instance)>
             create_debug_messenger{};
     };
 

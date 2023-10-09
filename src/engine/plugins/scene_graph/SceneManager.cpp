@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <spdlog/spdlog.h>
+
 namespace engine::scene_graph {
 
 auto SceneManager::add_scene(Scene&& t_scene) noexcept -> SceneManager&
@@ -17,6 +19,7 @@ auto SceneManager::activate_scene(Scene::Id t_scene_id, int t_priority) noexcept
     auto scene_iter{ std::ranges::find(m_scenes, t_scene_id, &Scene::id) };
 
     if (scene_iter == m_scenes.end()) {
+        SPDLOG_ERROR("There is no scene with the following id: {}", t_scene_id);
         return Result::eFailure;
     }
 

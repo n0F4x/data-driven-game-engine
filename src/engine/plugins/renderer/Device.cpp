@@ -2,6 +2,8 @@
 
 #include <ranges>
 
+#include <spdlog/spdlog.h>
+
 #include "engine/utility/vulkan/tools.hpp"
 
 #include "helpers.hpp"
@@ -18,7 +20,7 @@ auto Device::create(
     const Instance&    t_instance,
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device,
-    const CreateInfo&  t_config
+    const CreateInfo&  t_create_info
 ) noexcept -> std::optional<Device>
 {
     if (!t_surface || !t_physical_device
@@ -35,15 +37,19 @@ auto Device::create(
     }
 
     auto [result, device]{ t_physical_device.createDevice(vk::DeviceCreateInfo{
-        .pNext = t_config.next,
+        .pNext = t_create_info.next,
         .queueCreateInfoCount =
             static_cast<uint32_t>(queue_infos->queue_create_infos.size()),
         .pQueueCreateInfos = queue_infos->queue_create_infos.data(),
         .enabledExtensionCount =
-            static_cast<uint32_t>(t_config.extensions.size()),
-        .ppEnabledExtensionNames = t_config.extensions.data(),
-        .pEnabledFeatures        = &t_config.features }) };
+            static_cast<uint32_t>(t_create_info.extensions.size()),
+        .ppEnabledExtensionNames = t_create_info.extensions.data(),
+        .pEnabledFeatures        = &t_create_info.features }) };
     if (result != vk::Result::eSuccess) {
+        SPDLOG_ERROR(
+            "vk::PhysicalDevice::createDevice failed with error code {}",
+            static_cast<int>(result)
+        );
         return std::nullopt;
     }
 
@@ -53,7 +59,7 @@ auto Device::create(
 
     VmaAllocatorCreateInfo allocator_info{};
     allocator_info.flags = helpers::vma_allocator_create_flags(
-        t_instance.enabled_extensions(), t_config.extensions
+        t_instance.enabled_extensions(), t_create_info.extensions
     );
     allocator_info.physicalDevice   = t_physical_device;
     allocator_info.device           = device;
@@ -64,6 +70,7 @@ auto Device::create(
     vmaCreateAllocator(&allocator_info, &allocator);
 
     return Device{ t_physical_device,
+                   t_create_info,
                    device,
                    allocator,
                    queue_infos->graphics_family,
@@ -97,6 +104,7 @@ auto Device::create_default(
 
 Device::Device(
     vk::PhysicalDevice t_physical_device,
+    const CreateInfo&  t_info,
     vk::Device         t_device,
     VmaAllocator       t_allocator,
     uint32_t           t_graphics_family_index,
@@ -107,6 +115,7 @@ Device::Device(
     vk::Queue          t_transfer_queue
 ) noexcept
     : m_physical_device{ t_physical_device },
+      m_info{ t_info },
       m_device{ t_device },
       m_allocator{ t_allocator },
       m_graphics_queue_family_index{ t_graphics_family_index },
@@ -115,7 +124,26 @@ Device::Device(
       m_compute_queue{ t_compute_queue },
       m_transfer_queue_family_index{ t_transfer_queue_family_index },
       m_transfer_queue{ t_transfer_queue }
-{}
+{
+    auto properties{ t_physical_device.getProperties() };
+
+    std::string supported_extensions{ "\nSupported device extensions:" };
+    for (auto extension : m_info.extensions) {
+        supported_extensions += '\n';
+        supported_extensions += '\t';
+        supported_extensions += extension;
+    }
+
+    SPDLOG_INFO(
+        "Found GPU({}) with Vulkan version: {}.{}.{}",
+        properties.deviceName,
+        VK_VERSION_MAJOR(properties.apiVersion),
+        VK_VERSION_MINOR(properties.apiVersion),
+        VK_VERSION_PATCH(properties.apiVersion)
+    );
+
+    SPDLOG_TRACE(supported_extensions);
+}
 
 auto Device::operator*() const noexcept -> vk::Device
 {

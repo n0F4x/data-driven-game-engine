@@ -1,5 +1,9 @@
 #include "RenderFrame.hpp"
 
+#include <limits>
+
+#include <spdlog/spdlog.h>
+
 namespace engine::renderer {
 
 auto RenderFrame::create(
@@ -8,6 +12,7 @@ auto RenderFrame::create(
     unsigned     t_frame_count
 ) noexcept -> std::optional<RenderFrame>
 {
+    assert(t_frame_count != 0 && "Frame count must be positive");
     if (t_frame_count == 0) {
         return std::nullopt;
     }
@@ -25,6 +30,10 @@ auto RenderFrame::create(
                     .queueFamilyIndex = t_device.graphics_queue_family_index() }
             ) };
             if (result != vk::Result::eSuccess) {
+                SPDLOG_ERROR(
+                    "vk::Device::createCommandPool failed with error code {}",
+                    static_cast<int>(result)
+                );
                 return std::nullopt;
             }
 
@@ -37,6 +46,10 @@ auto RenderFrame::create(
 
         auto [result, fence]{ t_device->createFence(vk::FenceCreateInfo{}) };
         if (result != vk::Result::eSuccess) {
+            SPDLOG_ERROR(
+                "vk::Device::createFence failed with error code {}",
+                static_cast<int>(result)
+            );
             return std::nullopt;
         }
 
@@ -58,6 +71,10 @@ auto RenderFrame::reset(vk::Device t_device) noexcept -> vk::Result
         *current_frame().fence, true, std::numeric_limits<uint64_t>::max()
     ) };
     if (result != vk::Result::eSuccess) {
+        SPDLOG_ERROR(
+            "vk::Device::waitForFences failed with error code {}",
+            static_cast<int>(result)
+        );
         return result;
     }
 
@@ -92,6 +109,10 @@ auto RenderFrame::request_command_buffer(
                 .commandBufferCount = 1 })
         };
         if (result != vk::Result::eSuccess) {
+            SPDLOG_ERROR(
+                "vk::Device::allocateCommandBuffers failed with error code {}",
+                static_cast<int>(result)
+            );
             return std::unexpected{ result };
         }
         current_thread.command_buffers.push_back(command_buffer.front());

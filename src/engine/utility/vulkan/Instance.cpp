@@ -1,5 +1,7 @@
 #include "Instance.hpp"
 
+#include <utility>
+
 namespace engine::utils::vulkan {
 
 ///////////////////////////////////
@@ -17,12 +19,9 @@ Instance::Instance(
 {}
 
 Instance::Instance(Instance&& t_other) noexcept
-    : m_instance{ t_other.m_instance },
-      m_debug_messenger{ t_other.m_debug_messenger }
-{
-    t_other.m_instance        = nullptr;
-    t_other.m_debug_messenger = nullptr;
-}
+    : m_instance{ std::exchange(t_other.m_instance, nullptr) },
+      m_debug_messenger{ std::exchange(t_other.m_debug_messenger, nullptr) }
+{}
 
 Instance::~Instance() noexcept
 {

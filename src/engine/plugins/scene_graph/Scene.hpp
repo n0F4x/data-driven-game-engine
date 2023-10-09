@@ -2,7 +2,6 @@
 
 #include <entt/core/hashed_string.hpp>
 #include <entt/entity/registry.hpp>
-#include <entt/signal/sigh.hpp>
 
 namespace engine::scene_graph {
 

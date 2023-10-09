@@ -3,6 +3,7 @@ add_subdirectory(scene_graph)
 add_subdirectory(window)
 
 target_sources(${PROJECT_NAME} PRIVATE
+        Logger.cpp
         Renderer.cpp
         ResourceManager.cpp
         SceneGraph.cpp

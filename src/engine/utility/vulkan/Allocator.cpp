@@ -1,5 +1,7 @@
 #include "Allocator.hpp"
 
+#include <utility>
+
 namespace engine::utils::vulkan {
 
 Allocator::Allocator(VmaAllocator t_allocator) noexcept
@@ -7,10 +9,8 @@ Allocator::Allocator(VmaAllocator t_allocator) noexcept
 {}
 
 Allocator::Allocator(Allocator&& t_other) noexcept
-    : Allocator{ t_other.m_allocator }
-{
-    t_other.m_allocator = nullptr;
-}
+    : Allocator{ std::exchange(t_other.m_allocator, nullptr) }
+{}
 
 Allocator::~Allocator() noexcept
 {

@@ -85,14 +85,18 @@ IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '^<gsl/'
     Priority: 2
-  - Regex: '^<vulkan/'
+  - Regex: '^<spdlog/'
     Priority: 3
-  - Regex: '^<glm/'
+  - Regex: '^<vulkan/'
     Priority: 4
-  - Regex: '^<glfw/'
+  - Regex: '^<glm/'
     Priority: 5
-  - Regex: '^<entt/'
+  - Regex: '^<glfw/'
     Priority: 6
+  - Regex: '^<SFML/'
+    Priority: 7
+  - Regex: '^<entt/'
+    Priority: 8
   - Regex: '^<.*\..*'
     Priority: 998
   - Regex: '^<.*'

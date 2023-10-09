@@ -30,7 +30,7 @@ public:
         const Instance&    t_instance,
         vk::SurfaceKHR     t_surface,
         vk::PhysicalDevice t_physical_device,
-        const CreateInfo&  t_config
+        const CreateInfo&  t_create_info
     ) noexcept -> std::optional<Device>;
 
     [[nodiscard]] static auto create_default(
@@ -49,6 +49,7 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto physical_device() const noexcept -> vk::PhysicalDevice;
+    [[nodiscard]] auto info() const noexcept -> const CreateInfo&;
     [[nodiscard]] auto allocator() const noexcept -> VmaAllocator;
     [[nodiscard]] auto graphics_queue_family_index() const noexcept -> uint32_t;
     [[nodiscard]] auto graphics_queue() const noexcept -> vk::Queue;
@@ -62,6 +63,7 @@ private:
     ///  Variables  ///
     ///*************///
     vk::PhysicalDevice       m_physical_device;
+    CreateInfo               m_info;
     utils::vulkan::Device    m_device;
     utils::vulkan::Allocator m_allocator;
     uint32_t                 m_graphics_queue_family_index;
@@ -76,6 +78,7 @@ private:
     ///******************************///
     explicit Device(
         vk::PhysicalDevice t_physical_device,
+        const CreateInfo&  t_info,
         vk::Device         t_device,
         VmaAllocator       t_allocator,
         uint32_t           t_graphics_family_index,

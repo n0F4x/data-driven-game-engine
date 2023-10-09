@@ -1,7 +1,5 @@
 #pragma once
 
-#include <functional>
-#include <optional>
 #include <type_traits>
 
 #include "engine/utility/Context.hpp"

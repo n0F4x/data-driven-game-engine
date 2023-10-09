@@ -7,6 +7,7 @@ auto main() noexcept -> int
     using namespace engine;
 
     auto result{ App::create()
+                     .add_plugin<plugins::Logger>()
                      .add_plugin<plugins::ResourceManager>()
                      .add_plugin<plugins::Window>(
                          sf::VideoMode{ 450u, 600u },
@@ -17,5 +18,5 @@ auto main() noexcept -> int
                      .add_plugin<plugins::SceneGraph>()
                      .build_and_run([](App&) noexcept {}) };
 
-    std::cout << (result == Result::eSuccess ? "Success" : "Failure") << '\n';
+    return static_cast<int>(result);
 }
