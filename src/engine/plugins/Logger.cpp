@@ -4,7 +4,7 @@
 
 namespace engine::plugins {
 
-auto Logger::setup(App::Context&) noexcept -> void
+auto Logger::operator()(App::Context&) noexcept -> void
 {
     spdlog::set_level(spdlog::level::trace);
 

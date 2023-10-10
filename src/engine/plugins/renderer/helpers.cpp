@@ -64,10 +64,10 @@ const std::vector<const char*> g_optional_device_extensions{
     std::span<const char* const> t_optional
 ) noexcept -> std::vector<const char*>
 {
-    std::vector<const char*> filtered{ t_required.begin(), t_required.end() };
+    std::vector<const char*> filtered{ t_required.cbegin(), t_required.cend() };
 
-    for (auto optional : t_optional) {
-        if (std::ranges::any_of(t_available, [optional](auto available) {
+    for (const auto optional : t_optional) {
+        if (std::ranges::any_of(t_available, [optional](const auto available) {
                 return strcmp(optional, available);
             }))
         {
@@ -83,17 +83,23 @@ auto find_graphics_queue_family(
     vk::SurfaceKHR     t_surface
 ) noexcept -> std::optional<uint32_t>
 {
-    auto     queue_families{ t_physical_device.getQueueFamilyProperties() };
-    uint32_t i{};
-    for (const auto& props : queue_families) {
-        if (auto [result, success]{
-                t_physical_device.getSurfaceSupportKHR(i, t_surface) };
+    for (const auto [index, properties] :
+         std::views::enumerate(t_physical_device.getQueueFamilyProperties()))
+    {
+        if (const auto [result, success]{
+                t_physical_device.getSurfaceSupportKHR(index, t_surface) };
             result == vk::Result::eSuccess && success
-            && props.queueFlags & vk::QueueFlagBits::eGraphics)
+            && properties.queueFlags & vk::QueueFlagBits::eGraphics)
         {
-            return i;
+            return index;
         }
-        i++;
+        else if (result != vk::Result::eSuccess) {
+            SPDLOG_ERROR(
+                "vk::PhysicalDevice::getQueueFamilyProperties failed with "
+                "error code {}",
+                static_cast<int>(result)
+            );
+        }
     }
 
     return std::nullopt;
@@ -104,35 +110,32 @@ auto find_graphics_queue_family(
     uint32_t           t_graphics_queue_family
 ) -> std::optional<uint32_t>
 {
-    auto queue_families{ t_physical_device.getQueueFamilyProperties() };
+    const auto queue_families{ t_physical_device.getQueueFamilyProperties() };
 
-    uint32_t i{};
-    for (const auto& props : queue_families) {
-        if (!(props.queueFlags & vk::QueueFlagBits::eGraphics)
-            && !(props.queueFlags & vk::QueueFlagBits::eCompute)
-            && props.queueFlags & vk::QueueFlagBits::eTransfer)
+    for (const auto [index, properties] : std::views::enumerate(queue_families))
+    {
+        if (!(properties.queueFlags & vk::QueueFlagBits::eGraphics)
+            && !(properties.queueFlags & vk::QueueFlagBits::eCompute)
+            && properties.queueFlags & vk::QueueFlagBits::eTransfer)
         {
-            return i;
+            return index;
         }
-        i++;
     }
 
-    i = 0;
-    for (const auto& props : queue_families) {
-        if (i == t_graphics_queue_family
-            && props.queueFlags & vk::QueueFlagBits::eTransfer)
+    for (const auto [index, properties] : std::views::enumerate(queue_families))
+    {
+        if (index == t_graphics_queue_family
+            && properties.queueFlags & vk::QueueFlagBits::eTransfer)
         {
-            return i;
+            return index;
         }
-        i++;
     }
 
-    i = 0;
-    for (const auto& props : queue_families) {
-        if (props.queueFlags & vk::QueueFlagBits::eTransfer) {
-            return i;
+    for (const auto [index, properties] : std::views::enumerate(queue_families))
+    {
+        if (properties.queueFlags & vk::QueueFlagBits::eTransfer) {
+            return index;
         }
-        i++;
     }
 
     return std::nullopt;
@@ -143,34 +146,31 @@ auto find_compute_queue_family(
     uint32_t           t_graphics_queue_family
 ) noexcept -> std::optional<uint32_t>
 {
-    auto queue_families{ t_physical_device.getQueueFamilyProperties() };
+    const auto queue_families{ t_physical_device.getQueueFamilyProperties() };
 
-    uint32_t i{};
-    for (const auto& props : queue_families) {
-        if (!(props.queueFlags & vk::QueueFlagBits::eGraphics)
-            && props.queueFlags & vk::QueueFlagBits::eCompute)
+    for (const auto [index, properties] : std::views::enumerate(queue_families))
+    {
+        if (!(properties.queueFlags & vk::QueueFlagBits::eGraphics)
+            && properties.queueFlags & vk::QueueFlagBits::eCompute)
         {
-            return i;
+            return index;
         }
-        i++;
     }
 
-    i = 0;
-    for (const auto& props : queue_families) {
-        if (i != t_graphics_queue_family
-            && props.queueFlags & vk::QueueFlagBits::eCompute)
+    for (const auto [index, properties] : std::views::enumerate(queue_families))
+    {
+        if (index != t_graphics_queue_family
+            && properties.queueFlags & vk::QueueFlagBits::eCompute)
         {
-            return i;
+            return index;
         }
-        i++;
     }
 
-    i = 0;
-    for (const auto& props : queue_families) {
-        if (props.queueFlags & vk::QueueFlagBits::eCompute) {
-            return i;
+    for (const auto [index, properties] : std::views::enumerate(queue_families))
+    {
+        if (properties.queueFlags & vk::QueueFlagBits::eCompute) {
+            return index;
         }
-        i++;
     }
 
     return std::nullopt;
@@ -312,25 +312,26 @@ namespace engine::renderer::helpers {
 auto create_debug_messenger(vk::Instance t_instance) noexcept
     -> vk::DebugUtilsMessengerEXT
 {
-    auto props = vk::enumerateInstanceExtensionProperties();
-    if (props.result != vk::Result::eSuccess) {
+    const auto [result, properties] =
+        vk::enumerateInstanceExtensionProperties();
+    if (result != vk::Result::eSuccess) {
         SPDLOG_ERROR(
             "vk::enumerateInstanceExtensionProperties failed with error code "
             "{}",
-            static_cast<int>(props.result)
+            static_cast<int>(result)
         );
         return nullptr;
     }
 
-    auto propertyIterator = std::find_if(
-        props.value.begin(),
-        props.value.end(),
+    const auto propertyIterator = std::find_if(
+        properties.cbegin(),
+        properties.cend(),
         [](const vk::ExtensionProperties& ep) {
             return strcmp(ep.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
                 == 0;
         }
     );
-    if (propertyIterator == props.value.end()) {
+    if (propertyIterator == properties.cend()) {
         SPDLOG_ERROR(
             "{} Vulkan extension is not supported",
             VK_EXT_DEBUG_UTILS_EXTENSION_NAME
@@ -356,16 +357,16 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
         return nullptr;
     }
 
-    vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
+    const vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
         | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
     );
-    vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
+    const vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
         vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
         | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
         | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation
     );
-    auto debugUtilsMessenger = t_instance.createDebugUtilsMessengerEXT(
+    const auto debugUtilsMessenger = t_instance.createDebugUtilsMessengerEXT(
         vk::DebugUtilsMessengerCreateInfoEXT{ .messageSeverity = severityFlags,
                                               .messageType = messageTypeFlags,
                                               .pfnUserCallback =
@@ -388,21 +389,21 @@ auto find_queue_families(
     vk::SurfaceKHR     t_surface
 ) -> std::optional<QueueInfos>
 {
-    auto graphics_family{
+    const auto graphics_family{
         find_graphics_queue_family(t_physical_device, t_surface)
     };
     if (!graphics_family.has_value()) {
         return std::nullopt;
     }
 
-    auto compute_family{
+    const auto compute_family{
         find_compute_queue_family(t_physical_device, *graphics_family)
     };
     if (!compute_family.has_value()) {
         return std::nullopt;
     }
 
-    auto transfer_family{
+    const auto transfer_family{
         find_transfer_queue_family(t_physical_device, *graphics_family)
     };
     if (!transfer_family.has_value()) {
@@ -512,7 +513,8 @@ auto choose_physical_device(
     vk::SurfaceKHR t_surface
 ) noexcept -> vk::PhysicalDevice
 {
-    auto [result, physical_devices]{ t_instance.enumeratePhysicalDevices() };
+    const auto [result, physical_devices]{ t_instance.enumeratePhysicalDevices(
+    ) };
     if (result != vk::Result::eSuccess) {
         SPDLOG_ERROR(
             "vk::Instance::enumeratePhysicalDevices failed with error code {}",
@@ -542,7 +544,7 @@ auto choose_physical_device(
         )
     };
     std::vector<std::pair<vk::PhysicalDevice, unsigned>> ranked_devices{
-        ranked_devices_view.begin(), ranked_devices_view.end()
+        ranked_devices_view.cbegin(), ranked_devices_view.cend()
     };
     std::ranges::sort(
         ranked_devices, {}, &std::pair<vk::PhysicalDevice, unsigned>::second

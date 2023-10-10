@@ -13,14 +13,22 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto build() && noexcept -> std::optional<App>;
-    auto build_and_run(RunnerConcept<App> auto&& t_runner) && noexcept
-        -> Result;
 
-    template <PluginConcept Plugin>
-    auto add_plugin() && noexcept -> Builder;
+    template <typename... Args>
+    auto build_and_run(
+        RunnerConcept<Args...> auto&& t_runner,
+        Args&&... t_args
+    ) && noexcept -> Result;
+
+    
     template <typename Plugin>
     auto add_plugin(auto&&... t_args) && noexcept -> Builder;
-    auto add_plugin(PluginConcept auto&& t_plugin) && noexcept -> Builder;
+
+    template <typename... Args>
+    auto add_plugin(
+        PluginConcept<Args...> auto&& t_plugin,
+        Args&&... t_args
+    ) && noexcept -> Builder;
 
 private:
     ///******************///

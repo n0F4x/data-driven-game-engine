@@ -29,22 +29,24 @@ auto Device::create(
         return std::nullopt;
     }
 
-    auto queue_infos{
+    const auto queue_infos{
         helpers::find_queue_families(t_physical_device, t_surface)
     };
     if (!queue_infos.has_value()) {
         return std::nullopt;
     }
 
-    auto [result, device]{ t_physical_device.createDevice(vk::DeviceCreateInfo{
-        .pNext = t_create_info.next,
-        .queueCreateInfoCount =
-            static_cast<uint32_t>(queue_infos->queue_create_infos.size()),
-        .pQueueCreateInfos = queue_infos->queue_create_infos.data(),
-        .enabledExtensionCount =
-            static_cast<uint32_t>(t_create_info.extensions.size()),
-        .ppEnabledExtensionNames = t_create_info.extensions.data(),
-        .pEnabledFeatures        = &t_create_info.features }) };
+    const auto [result, device]{
+        t_physical_device.createDevice(vk::DeviceCreateInfo{
+            .pNext = t_create_info.next,
+            .queueCreateInfoCount =
+                static_cast<uint32_t>(queue_infos->queue_create_infos.size()),
+            .pQueueCreateInfos = queue_infos->queue_create_infos.data(),
+            .enabledExtensionCount =
+                static_cast<uint32_t>(t_create_info.extensions.size()),
+            .ppEnabledExtensionNames = t_create_info.extensions.data(),
+            .pEnabledFeatures        = &t_create_info.features })
+    };
     if (result != vk::Result::eSuccess) {
         SPDLOG_ERROR(
             "vk::PhysicalDevice::createDevice failed with error code {}",
@@ -53,19 +55,20 @@ auto Device::create(
         return std::nullopt;
     }
 
-    VmaVulkanFunctions vulkan_functions    = {};
-    vulkan_functions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
-    vulkan_functions.vkGetDeviceProcAddr   = &vkGetDeviceProcAddr;
+    const VmaVulkanFunctions vulkan_functions = { .vkGetInstanceProcAddr =
+                                                      &vkGetInstanceProcAddr,
+                                                  .vkGetDeviceProcAddr =
+                                                      &vkGetDeviceProcAddr };
 
-    VmaAllocatorCreateInfo allocator_info{};
-    allocator_info.flags = helpers::vma_allocator_create_flags(
-        t_instance.enabled_extensions(), t_create_info.extensions
-    );
-    allocator_info.physicalDevice   = t_physical_device;
-    allocator_info.device           = device;
-    allocator_info.instance         = *t_instance;
-    allocator_info.pVulkanFunctions = &vulkan_functions;
-    allocator_info.vulkanApiVersion = VK_API_VERSION_1_2;
+    const VmaAllocatorCreateInfo allocator_info{
+        .flags = helpers::vma_allocator_create_flags(
+            t_instance.enabled_extensions(), t_create_info.extensions
+        ),
+        .physicalDevice   = t_physical_device,
+        .device           = device,
+        .pVulkanFunctions = &vulkan_functions,
+        .instance         = *t_instance,
+    };
     VmaAllocator allocator;
     vmaCreateAllocator(&allocator_info, &allocator);
 
@@ -125,7 +128,7 @@ Device::Device(
       m_transfer_queue_family_index{ t_transfer_queue_family_index },
       m_transfer_queue{ t_transfer_queue }
 {
-    auto properties{ t_physical_device.getProperties() };
+    const auto properties{ t_physical_device.getProperties() };
 
     std::string supported_extensions{ "\nSupported device extensions:" };
     for (auto extension : m_info.extensions) {

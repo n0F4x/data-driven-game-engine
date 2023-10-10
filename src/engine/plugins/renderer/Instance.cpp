@@ -11,7 +11,7 @@ namespace engine::renderer {
 auto Instance::create(const CreateInfo& t_create_info) noexcept
     -> std::expected<Instance, vk::Result>
 {
-    vk::InstanceCreateInfo create_info{
+    const vk::InstanceCreateInfo create_info{
         .pNext             = t_create_info.next,
         .flags             = t_create_info.flags,
         .pApplicationInfo  = &t_create_info.application_info,
@@ -22,7 +22,7 @@ auto Instance::create(const CreateInfo& t_create_info) noexcept
         .ppEnabledExtensionNames = t_create_info.extensions.data()
     };
 
-    auto [result, instance]{ vk::createInstance(create_info) };
+    const auto [result, instance]{ vk::createInstance(create_info) };
     if (result != vk::Result::eSuccess) {
         SPDLOG_ERROR(
             "vk::createInstance failed with error code {}",
@@ -86,11 +86,11 @@ Instance::Instance(
     utils::vulkan::Instance&&    t_instance
 ) noexcept
     : m_application_info{ t_application_info },
-      m_layers{ t_layers.begin(), t_layers.end() },
-      m_extensions{ t_extensions.begin(), t_extensions.end() },
+      m_layers{ t_layers.cbegin(), t_layers.cend() },
+      m_extensions{ t_extensions.cbegin(), t_extensions.cend() },
       m_instance{ std::move(t_instance) }
 {
-    auto [result, instance_version]{ vk::enumerateInstanceVersion() };
+    const auto [result, instance_version]{ vk::enumerateInstanceVersion() };
     if (result != vk::Result::eSuccess) {
         return;
     }

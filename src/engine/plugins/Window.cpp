@@ -4,7 +4,7 @@
 
 namespace engine::plugins {
 
-auto Window::setup(
+auto Window::operator()(
     App::Context&         t_context,
     const sf::VideoMode&  t_video_mode,
     std::string_view      t_title,

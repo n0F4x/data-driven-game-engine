@@ -6,7 +6,7 @@
 
 namespace engine::plugins {
 
-auto SceneGraph::setup(App::Context& t_context) noexcept -> void
+auto SceneGraph::operator()(App::Context& t_context) noexcept -> void
 {
     t_context.emplace<scene_graph::SceneManager>();
 

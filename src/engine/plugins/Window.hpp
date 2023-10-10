@@ -7,10 +7,10 @@ namespace engine::plugins {
 
 class Window {
 public:
-    ///-----------///
-    ///  Methods  ///
-    ///-----------///
-    static auto setup(
+    ///-------------///
+    ///  Operators  ///
+    ///-------------///
+    auto operator()(
         App::Context&         t_context,
         const sf::VideoMode&  t_video_mode,
         std::string_view      t_title,

@@ -1,8 +1,15 @@
+#include <functional>
+
+#include <spdlog/spdlog.h>
+
 namespace engine {
 
-auto App::run(RunnerConcept<App> auto&& t_runner) noexcept -> void
+template <typename... Args>
+auto App::run(RunnerConcept<Args...> auto&& t_runner, Args&&... t_args) noexcept
+    -> void
 {
-    t_runner(*this);
+    SPDLOG_INFO("App is running");
+    std::invoke(t_runner, *this, std::forward<Args>(t_args)...);
 }
 
 }   // namespace engine

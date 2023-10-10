@@ -60,7 +60,7 @@ auto Swapchain::acquire_next_image(
     vk::Fence     t_fence
 ) noexcept -> Result
 {
-    auto [result, image_index]{ m_device->acquireNextImageKHR(
+    const auto [result, image_index]{ m_device->acquireNextImageKHR(
         **m_swap_chain,
         std::numeric_limits<uint64_t>::max(),
         t_semaphore,
@@ -87,8 +87,8 @@ auto Swapchain::acquire_next_image(
 auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) noexcept
     -> void
 {
-    std::array<vk::SwapchainKHR, 1> swapchains{ **m_swap_chain };
-    vk::PresentInfoKHR              info{
+    const std::array<vk::SwapchainKHR, 1> swapchains{ **m_swap_chain };
+    const vk::PresentInfoKHR              info{
                      .waitSemaphoreCount = static_cast<uint32_t>(t_wait_semaphores.size()),
                      .pWaitSemaphores = t_wait_semaphores.data(),
                      .swapchainCount = static_cast<uint32_t>(swapchains.size()),
@@ -96,7 +96,7 @@ auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) noexcept
                      .pImageIndices  = &m_image_index
     };
 
-    auto result{ m_device.graphics_queue().presentKHR(info) };
+    const auto result{ m_device.graphics_queue().presentKHR(info) };
     if (result == vk::Result::eErrorOutOfDateKHR
         || result == vk::Result::eSuboptimalKHR)
     {
@@ -124,6 +124,7 @@ auto Swapchain::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
         *m_device,
         t_framebuffer_size,
         m_swap_chain.transform(&utils::vulkan::Swapchain::operator*)
+            .value_or(nullptr)
     ) };
     m_swap_chain.reset();
     m_swap_chain = std::move(new_swap_chain);

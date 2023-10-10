@@ -9,40 +9,44 @@ namespace engine::utils::vulkan {
 auto available_layers() noexcept
     -> std::expected<const std::vector<const char*>, vk::Result>
 {
-    auto [result, properties]{ vk::enumerateInstanceLayerProperties() };
+    const auto [result, properties]{ vk::enumerateInstanceLayerProperties() };
 
     if (result != vk::Result::eSuccess) {
         return std::unexpected{ result };
     }
 
-    auto view{ properties
-               | std::views::transform([](const vk::LayerProperties& t_property
-                                       ) { return t_property.layerName; }) };
-    return std::vector<const char*>{ view.begin(), view.end() };
+    const auto view{
+        properties
+        | std::views::transform([](const vk::LayerProperties& t_property) {
+              return t_property.layerName;
+          })
+    };
+    return std::vector<const char*>{ view.cbegin(), view.cend() };
 }
 
 auto available_instance_extensions() noexcept
     -> std::expected<const std::vector<const char*>, vk::Result>
 {
-    auto [result, properties]{ vk::enumerateInstanceExtensionProperties() };
+    const auto [result, properties]{ vk::enumerateInstanceExtensionProperties(
+    ) };
 
     if (result != vk::Result::eSuccess) {
         return std::unexpected{ result };
     }
 
-    auto view{
+    const auto view{
         properties
         | std::views::transform([](const vk::ExtensionProperties& t_property) {
               return t_property.extensionName;
           })
     };
-    return std::vector<const char*>{ view.begin(), view.end() };
+    return std::vector<const char*>{ view.cbegin(), view.cend() };
 }
 
 auto available_device_extensions(vk::PhysicalDevice t_physical_device) noexcept
     -> std::expected<const std::vector<const char*>, vk::Result>
 {
-    auto [result, extension_properties]{
+    const auto [result, extension_properties]{
         t_physical_device.enumerateDeviceExtensionProperties()
     };
 
@@ -50,13 +54,13 @@ auto available_device_extensions(vk::PhysicalDevice t_physical_device) noexcept
         return std::unexpected{ result };
     }
 
-    auto view{
+    const auto view{
         extension_properties
         | std::views::transform([](const vk::ExtensionProperties& t_property) {
               return t_property.extensionName;
           })
     };
-    return std::vector<const char*>{ view.begin(), view.end() };
+    return std::vector<const char*>{ view.cbegin(), view.cend() };
 }
 
 auto supports_extensions(
@@ -68,15 +72,15 @@ auto supports_extensions(
         return false;
     }
 
-    auto [result, extension_properties]{
+    const auto [result, extension_properties]{
         t_physical_device.enumerateDeviceExtensionProperties()
     };
     if (result != vk::Result::eSuccess) {
         return false;
     }
 
-    std::set<std::string_view> required_extensions{ t_extensions.begin(),
-                                                    t_extensions.end() };
+    std::set<std::string_view> required_extensions{ t_extensions.cbegin(),
+                                                    t_extensions.cend() };
 
     for (const auto& extension : extension_properties) {
         required_extensions.erase(extension.extensionName);
@@ -94,15 +98,16 @@ auto supports_surface(
         return false;
     }
 
-    uint32_t i{ 0 };
-    for (auto prop : t_physical_device.getQueueFamilyProperties()) {
+    for (const auto [index, properties] :
+         std::views::enumerate(t_physical_device.getQueueFamilyProperties()))
+    {
         auto [result, supported]{
-            t_physical_device.getSurfaceSupportKHR(i, t_surface)
+            t_physical_device.getSurfaceSupportKHR(index, t_surface)
         };
         if (result != vk::Result::eSuccess) {
             return false;
         }
-        if (prop.queueCount > 0 && supported) {
+        if (properties.queueCount > 0 && supported) {
             return true;
         }
     }
@@ -118,7 +123,7 @@ auto load_shader(vk::Device t_device, std::string_view t_file_path) noexcept
         return std::nullopt;
     }
 
-    std::streamsize file_size = file.tellg();
+    const std::streamsize file_size = file.tellg();
     if (file_size <= 0) {
         return std::nullopt;
     }
@@ -129,11 +134,13 @@ auto load_shader(vk::Device t_device, std::string_view t_file_path) noexcept
     file.read(buffer.data(), file_size);
     file.close();
 
-    vk::ShaderModuleCreateInfo create_info{};
-    create_info.codeSize = static_cast<size_t>(file_size);
-    create_info.pCode    = (uint32_t*)buffer.data();
+    const vk::ShaderModuleCreateInfo create_info{
+        .codeSize = static_cast<size_t>(file_size),
+        .pCode    = (uint32_t*)buffer.data()
+    };
 
-    auto [result, shader_module]{ t_device.createShaderModule(create_info) };
+    const auto [result, shader_module]{ t_device.createShaderModule(create_info
+    ) };
     if (result != vk::Result::eSuccess) {
         return std::nullopt;
     }

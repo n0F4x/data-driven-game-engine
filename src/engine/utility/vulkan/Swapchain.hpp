@@ -17,13 +17,13 @@ public:
     ) noexcept -> vk::Extent2D;
 
     [[nodiscard]] static auto create(
-        vk::SurfaceKHR                  t_surface,
-        vk::PhysicalDevice              t_physical_device,
-        uint32_t                        t_graphics_queue_family,
-        uint32_t                        t_present_queue_family,
-        vk::Device                      t_device,
-        vk::Extent2D                    t_frame_buffer_size,
-        std::optional<vk::SwapchainKHR> t_old_swap_chain
+        vk::SurfaceKHR     t_surface,
+        vk::PhysicalDevice t_physical_device,
+        uint32_t           t_graphics_queue_family,
+        uint32_t           t_present_queue_family,
+        vk::Device         t_device,
+        vk::Extent2D       t_frame_buffer_size,
+        vk::SwapchainKHR   t_old_swap_chain = nullptr
     ) noexcept -> std::optional<Swapchain>;
 
     ///------------------------------///

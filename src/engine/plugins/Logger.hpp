@@ -6,10 +6,10 @@ namespace engine::plugins {
 
 class Logger {
 public:
-    ///-----------///
-    ///  Methods  ///
-    ///-----------///
-    static auto setup(App::Context& t_context) noexcept -> void;
+    ///-------------///
+    ///  Operators  ///
+    ///-------------///
+    auto operator()(App::Context& t_context) noexcept -> void;
 };
 
 static_assert(PluginConcept<Logger>);

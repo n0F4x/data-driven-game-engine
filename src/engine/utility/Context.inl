@@ -24,8 +24,8 @@ auto Context::find() noexcept -> opview::optional_view<std::remove_cv_t<T>>
 {
     using Type = std::remove_cvref_t<T>;
 
-    auto index_iter{ m_index_map.find(entt::type_index<Type>{}) };
-    if (index_iter == m_index_map.end()) {
+    const auto index_iter{ m_index_map.find(entt::type_index<Type>{}) };
+    if (index_iter == m_index_map.cend()) {
         return std::nullopt;
     }
 

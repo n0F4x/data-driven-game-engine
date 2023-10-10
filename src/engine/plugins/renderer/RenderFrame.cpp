@@ -1,6 +1,7 @@
 #include "RenderFrame.hpp"
 
 #include <limits>
+#include <ranges>
 
 #include <spdlog/spdlog.h>
 
@@ -20,11 +21,14 @@ auto RenderFrame::create(
     std::vector<FrameData> frame_data;
     frame_data.reserve(t_frame_count);
 
-    for (size_t i{}; i < t_frame_count; i++) {
+    for ([[maybe_unused]] auto i : std::ranges::iota_view{ 0u, t_frame_count })
+    {
         std::vector<ThreadData> thread_data;
         thread_data.reserve(t_thread_count);
-        for (unsigned j{}; j < t_thread_count; j++) {
-            auto [result, command_pool]{ t_device->createCommandPool(
+        for ([[maybe_unused]] auto j :
+             std::ranges::iota_view{ 0u, t_thread_count })
+        {
+            const auto [result, command_pool]{ t_device->createCommandPool(
                 vk::CommandPoolCreateInfo{
                     .flags = vk::CommandPoolCreateFlagBits::eTransient,
                     .queueFamilyIndex = t_device.graphics_queue_family_index() }
@@ -44,7 +48,8 @@ auto RenderFrame::create(
             );
         }
 
-        auto [result, fence]{ t_device->createFence(vk::FenceCreateInfo{}) };
+        const auto [result, fence]{ t_device->createFence(vk::FenceCreateInfo{}
+        ) };
         if (result != vk::Result::eSuccess) {
             SPDLOG_ERROR(
                 "vk::Device::createFence failed with error code {}",
@@ -67,7 +72,7 @@ auto RenderFrame::reset(vk::Device t_device) noexcept -> vk::Result
 {
     m_frame_index = (m_frame_index + 1) % m_frame_data.size();
 
-    auto result{ t_device.waitForFences(
+    const auto result{ t_device.waitForFences(
         *current_frame().fence, true, std::numeric_limits<uint64_t>::max()
     ) };
     if (result != vk::Result::eSuccess) {
@@ -102,7 +107,7 @@ auto RenderFrame::request_command_buffer(
     if (current_thread.requested_command_buffers
         >= current_thread.command_buffers.size())
     {
-        auto [result, command_buffer]{
+        const auto [result, command_buffer]{
             t_device.allocateCommandBuffers(vk::CommandBufferAllocateInfo{
                 .commandPool        = *current_thread.command_pool,
                 .level              = t_level,

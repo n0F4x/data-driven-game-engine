@@ -13,7 +13,7 @@
 
 namespace engine::plugins {
 
-auto Renderer::setup(App::Context& t_context) noexcept -> void
+auto Renderer::operator()(App::Context& t_context) noexcept -> void
 {
     using namespace renderer;
     using namespace window;
@@ -27,8 +27,9 @@ auto Renderer::setup(App::Context& t_context) noexcept -> void
     if (!original_instance) {
         return;
     }
-    auto& instance{ t_context.emplace<Instance>(std::move(*original_instance)
-    ) };
+    const auto& instance{
+        t_context.emplace<Instance>(std::move(*original_instance))
+    };
 
     utils::vulkan::Surface surface{
         *instance, vk::SurfaceKHR{ window->create_vulkan_surface(*instance) }

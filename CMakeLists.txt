@@ -27,6 +27,7 @@ else ()
             -Wextra
             -Werror
             -fconcepts-diagnostics-depth=3
+            -Wno-missing-field-initializers
             )
 endif ()
 

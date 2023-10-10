@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <ranges>
 #include <set>
 #include <utility>
 
@@ -12,7 +13,7 @@ auto choose_swap_chain_surface_format(
     vk::PhysicalDevice t_physical_device
 ) noexcept -> std::optional<vk::SurfaceFormatKHR>
 {
-    auto [result, t_available_surface_formats]{
+    const auto [result, t_available_surface_formats]{
         t_physical_device.getSurfaceFormatsKHR(t_surface)
     };
     if (result != vk::Result::eSuccess) {
@@ -34,42 +35,39 @@ auto choose_swap_chain_present_mode(
     vk::PhysicalDevice t_physical_device
 ) noexcept -> std::optional<vk::PresentModeKHR>
 {
-    auto [result, present_modes]{
+    const auto [result, present_modes]{
         t_physical_device.getSurfacePresentModesKHR(t_surface)
     };
     if (result != vk::Result::eSuccess) {
         return std::nullopt;
     }
-    for (auto available_present_mode : present_modes) {
-        if (available_present_mode == vk::PresentModeKHR::eMailbox) {
-            return available_present_mode;
-        }
-    }
-    return vk::PresentModeKHR::eFifo;
+    return std::ranges::contains(present_modes, vk::PresentModeKHR::eMailbox)
+             ? vk::PresentModeKHR::eMailbox
+             : vk::PresentModeKHR::eFifo;
 }
 
 auto create_swap_chain(
-    vk::SurfaceKHR                  t_surface,
-    vk::PhysicalDevice              t_physical_device,
-    uint32_t                        t_graphics_queue_family,
-    uint32_t                        t_present_queue_family,
-    vk::Device                      t_device,
-    vk::Extent2D                    t_extent,
-    vk::SurfaceFormatKHR            t_surfaceFormat,
-    std::optional<vk::SwapchainKHR> t_old_swap_chain
-) noexcept -> std::optional<vk::SwapchainKHR>
+    vk::SurfaceKHR       t_surface,
+    vk::PhysicalDevice   t_physical_device,
+    uint32_t             t_graphics_queue_family,
+    uint32_t             t_present_queue_family,
+    vk::Device           t_device,
+    vk::Extent2D         t_extent,
+    vk::SurfaceFormatKHR t_surfaceFormat,
+    vk::SwapchainKHR     t_old_swap_chain
+) noexcept -> vk::SwapchainKHR
 {
-    auto [result, surface_capabilities]{
+    const auto [result, surface_capabilities]{
         t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
     };
     if (result != vk::Result::eSuccess) {
-        return std::nullopt;
+        return nullptr;
     }
-    auto present_mode{
+    const auto present_mode{
         choose_swap_chain_present_mode(t_surface, t_physical_device)
     };
     if (!present_mode.has_value()) {
-        return std::nullopt;
+        return nullptr;
     }
 
     uint32_t image_count = surface_capabilities.minImageCount + 1;
@@ -79,13 +77,14 @@ auto create_swap_chain(
         image_count = surface_capabilities.maxImageCount;
     }
 
-    std::set buffer{ t_graphics_queue_family, t_present_queue_family };
-    std::vector<uint32_t> queueFamilyIndices = { buffer.begin(), buffer.end() };
-    vk::SharingMode       sharingMode        = queueFamilyIndices.size() > 1
-                                                 ? vk::SharingMode::eConcurrent
-                                                 : vk::SharingMode::eExclusive;
+    const std::set buffer{ t_graphics_queue_family, t_present_queue_family };
+    const std::vector<uint32_t> queueFamilyIndices = { buffer.cbegin(),
+                                                       buffer.cend() };
+    const vk::SharingMode       sharingMode = queueFamilyIndices.size() > 1
+                                                ? vk::SharingMode::eConcurrent
+                                                : vk::SharingMode::eExclusive;
 
-    vk::SwapchainCreateInfoKHR create_info{
+    const vk::SwapchainCreateInfoKHR create_info{
         .surface          = t_surface,
         .minImageCount    = image_count,
         .imageFormat      = t_surfaceFormat.format,
@@ -101,12 +100,12 @@ auto create_swap_chain(
         .compositeAlpha      = vk::CompositeAlphaFlagBitsKHR::eOpaque,
         .presentMode         = *present_mode,
         .clipped             = true,
-        .oldSwapchain        = t_old_swap_chain.value_or(nullptr)
+        .oldSwapchain        = t_old_swap_chain
     };
 
-    auto swap_chain{ t_device.createSwapchainKHR(create_info) };
+    const auto swap_chain{ t_device.createSwapchainKHR(create_info) };
     if (swap_chain.result != vk::Result::eSuccess) {
-        return std::nullopt;
+        return nullptr;
     }
 
     return swap_chain.value;
@@ -118,7 +117,7 @@ auto create_image_views(
     vk::SurfaceFormatKHR t_surface_format
 ) noexcept -> std::optional<std::vector<vk::ImageView>>
 {
-    auto images = t_device.getSwapchainImagesKHR(t_swap_chain);
+    const auto images = t_device.getSwapchainImagesKHR(t_swap_chain);
     if (images.result != vk::Result::eSuccess) {
         return std::nullopt;
     }
@@ -188,35 +187,35 @@ auto Swapchain::choose_extent(
 }
 
 auto Swapchain::create(
-    vk::SurfaceKHR                  t_surface,
-    vk::PhysicalDevice              t_physical_device,
-    uint32_t                        t_graphics_queue_family,
-    uint32_t                        t_present_queue_family,
-    vk::Device                      t_device,
-    vk::Extent2D                    t_framebuffer_size,
-    std::optional<vk::SwapchainKHR> t_old_swap_chain
+    vk::SurfaceKHR     t_surface,
+    vk::PhysicalDevice t_physical_device,
+    uint32_t           t_graphics_queue_family,
+    uint32_t           t_present_queue_family,
+    vk::Device         t_device,
+    vk::Extent2D       t_framebuffer_size,
+    vk::SwapchainKHR   t_old_swap_chain
 ) noexcept -> std::optional<Swapchain>
 {
-    auto surface_capabilities{
+    const auto [result, surface_capabilities]{
         t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
     };
-    if (surface_capabilities.result != vk::Result::eSuccess) {
+    if (result != vk::Result::eSuccess) {
         return std::nullopt;
     }
 
-    auto extent = choose_extent(t_framebuffer_size, surface_capabilities.value);
+    const auto extent = choose_extent(t_framebuffer_size, surface_capabilities);
     if (extent.width == 0 || extent.height == 0) {
         return std::nullopt;
     }
 
-    auto surface_format{
+    const auto surface_format{
         choose_swap_chain_surface_format(t_surface, t_physical_device)
     };
     if (!surface_format.has_value()) {
         return std::nullopt;
     }
 
-    auto swap_chain{ create_swap_chain(
+    const auto swap_chain{ create_swap_chain(
         t_surface,
         t_physical_device,
         t_graphics_queue_family,
@@ -226,19 +225,19 @@ auto Swapchain::create(
         *surface_format,
         t_old_swap_chain
     ) };
-    if (!swap_chain.has_value()) {
+    if (!swap_chain) {
         return std::nullopt;
     }
 
     auto image_views{
-        create_image_views(t_device, *swap_chain, *surface_format)
+        create_image_views(t_device, swap_chain, *surface_format)
     };
     if (!image_views.has_value()) {
         return std::nullopt;
     }
 
     return Swapchain{
-        t_device, extent, *surface_format, *swap_chain, std::move(*image_views)
+        t_device, extent, *surface_format, swap_chain, std::move(*image_views)
     };
 }
 
