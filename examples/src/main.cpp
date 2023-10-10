@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "engine/engine.hpp"
 
 auto main() noexcept -> int
@@ -16,5 +18,5 @@ auto main() noexcept -> int
                            .add_plugin<plugins::SceneGraph>()
                            .build_and_run([](App&) noexcept {}) };
 
-    return static_cast<int>(result);
+    return std::to_underlying(result);
 }

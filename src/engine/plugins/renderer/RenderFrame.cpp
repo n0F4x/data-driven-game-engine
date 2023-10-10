@@ -2,6 +2,7 @@
 
 #include <limits>
 #include <ranges>
+#include <utility>
 
 #include <spdlog/spdlog.h>
 
@@ -36,7 +37,7 @@ auto RenderFrame::create(
             if (result != vk::Result::eSuccess) {
                 SPDLOG_ERROR(
                     "vk::Device::createCommandPool failed with error code {}",
-                    static_cast<int>(result)
+                    std::to_underlying(result)
                 );
                 return std::nullopt;
             }
@@ -53,7 +54,7 @@ auto RenderFrame::create(
         if (result != vk::Result::eSuccess) {
             SPDLOG_ERROR(
                 "vk::Device::createFence failed with error code {}",
-                static_cast<int>(result)
+                std::to_underlying(result)
             );
             return std::nullopt;
         }
@@ -78,7 +79,7 @@ auto RenderFrame::reset(vk::Device t_device) noexcept -> vk::Result
     if (result != vk::Result::eSuccess) {
         SPDLOG_ERROR(
             "vk::Device::waitForFences failed with error code {}",
-            static_cast<int>(result)
+            std::to_underlying(result)
         );
         return result;
     }
@@ -116,7 +117,7 @@ auto RenderFrame::request_command_buffer(
         if (result != vk::Result::eSuccess) {
             SPDLOG_ERROR(
                 "vk::Device::allocateCommandBuffers failed with error code {}",
-                static_cast<int>(result)
+                std::to_underlying(result)
             );
             return std::unexpected{ result };
         }

@@ -1,6 +1,6 @@
 #include "Instance.hpp"
 
-#include <format>
+#include <utility>
 
 #include <spdlog/spdlog.h>
 
@@ -26,7 +26,7 @@ auto Instance::create(const CreateInfo& t_create_info) noexcept
     if (result != vk::Result::eSuccess) {
         SPDLOG_ERROR(
             "vk::createInstance failed with error code {}",
-            static_cast<int>(result)
+            std::to_underlying(result)
         );
         return std::unexpected{ result };
     }

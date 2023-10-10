@@ -1,6 +1,7 @@
 #include "Device.hpp"
 
 #include <ranges>
+#include <utility>
 
 #include <spdlog/spdlog.h>
 
@@ -50,7 +51,7 @@ auto Device::create(
     if (result != vk::Result::eSuccess) {
         SPDLOG_ERROR(
             "vk::PhysicalDevice::createDevice failed with error code {}",
-            static_cast<int>(result)
+            std::to_underlying(result)
         );
         return std::nullopt;
     }

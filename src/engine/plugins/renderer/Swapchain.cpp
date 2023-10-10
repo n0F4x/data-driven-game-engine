@@ -2,6 +2,7 @@
 
 #include <limits>
 #include <ranges>
+#include <utility>
 
 #include <spdlog/spdlog.h>
 
@@ -76,7 +77,7 @@ auto Swapchain::acquire_next_image(
     {
         SPDLOG_ERROR(
             "vk::Device::acquireNextImage failed with error code {}",
-            static_cast<int>(result)
+            std::to_underlying(result)
         );
         return Result::eFailure;
     }

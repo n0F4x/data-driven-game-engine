@@ -3,6 +3,7 @@
 #include <iostream>
 #include <ranges>
 #include <sstream>
+#include <utility>
 
 #include <spdlog/spdlog.h>
 
@@ -97,7 +98,7 @@ auto find_graphics_queue_family(
             SPDLOG_ERROR(
                 "vk::PhysicalDevice::getQueueFamilyProperties failed with "
                 "error code {}",
-                static_cast<int>(result)
+                std::to_underlying(result)
             );
         }
     }
@@ -318,7 +319,7 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
         SPDLOG_ERROR(
             "vk::enumerateInstanceExtensionProperties failed with error code "
             "{}",
-            static_cast<int>(result)
+            std::to_underlying(result)
         );
         return nullptr;
     }
@@ -376,7 +377,7 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
         SPDLOG_ERROR(
             "vk::Instance::createDebugUtilsMessengerEXT failed with error code "
             "{}",
-            static_cast<int>(debugUtilsMessenger.result)
+            std::to_underlying(debugUtilsMessenger.result)
         );
         return nullptr;
     }
@@ -518,7 +519,7 @@ auto choose_physical_device(
     if (result != vk::Result::eSuccess) {
         SPDLOG_ERROR(
             "vk::Instance::enumeratePhysicalDevices failed with error code {}",
-            static_cast<int>(result)
+            std::to_underlying(result)
         );
         return nullptr;
     }
