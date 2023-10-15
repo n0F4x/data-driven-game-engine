@@ -13,9 +13,11 @@ auto Context::emplace(auto&&... t_args) noexcept
 {
     using Type = std::remove_cvref_t<T>;
 
-    m_index_map.try_emplace(entt::type_index<Type>{}, m_elements.size());
+    m_index_map.try_emplace(
+        entt::type_index<Type>{}, static_cast<TypeIndex>(m_elements.size())
+    );
 
-    return entt::any_cast<Type&>(m_elements.emplace_back(any{
+    return entt::any_cast<Type&>(m_elements.emplace_back(Any{
         std::in_place_type<Type>, std::forward<decltype(t_args)>(t_args)... }));
 }
 

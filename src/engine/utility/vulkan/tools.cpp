@@ -21,7 +21,7 @@ auto available_layers() noexcept
               return t_property.layerName;
           })
     };
-    return std::vector<const char*>{ view.cbegin(), view.cend() };
+    return std::vector<const char*>{ view.begin(), view.end() };
 }
 
 auto available_instance_extensions() noexcept
@@ -40,7 +40,7 @@ auto available_instance_extensions() noexcept
               return t_property.extensionName;
           })
     };
-    return std::vector<const char*>{ view.cbegin(), view.cend() };
+    return std::vector<const char*>{ view.begin(), view.end() };
 }
 
 auto available_device_extensions(vk::PhysicalDevice t_physical_device) noexcept
@@ -60,7 +60,7 @@ auto available_device_extensions(vk::PhysicalDevice t_physical_device) noexcept
               return t_property.extensionName;
           })
     };
-    return std::vector<const char*>{ view.cbegin(), view.cend() };
+    return std::vector<const char*>{ view.begin(), view.end() };
 }
 
 auto supports_extensions(
@@ -101,9 +101,9 @@ auto supports_surface(
     for (const auto [index, properties] :
          std::views::enumerate(t_physical_device.getQueueFamilyProperties()))
     {
-        auto [result, supported]{
-            t_physical_device.getSurfaceSupportKHR(index, t_surface)
-        };
+        auto [result, supported]{ t_physical_device.getSurfaceSupportKHR(
+            static_cast<uint32_t>(index), t_surface
+        ) };
         if (result != vk::Result::eSuccess) {
             return false;
         }

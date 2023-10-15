@@ -12,8 +12,8 @@ namespace engine::utils {
 
 class Context {
 public:
-    using any        = entt::basic_any<0>;
-    using type_index = entt::id_type;
+    using Any       = entt::basic_any<0>;
+    using TypeIndex = entt::id_type;
 
     Context()                   = default;
     Context(Context&&) noexcept = default;
@@ -31,8 +31,8 @@ public:
     [[nodiscard]] auto contains() const noexcept -> bool;
 
 private:
-    std::unordered_map<type_index, type_index> m_index_map;
-    std::vector<any>                           m_elements;
+    std::unordered_map<TypeIndex, TypeIndex> m_index_map;
+    std::vector<Any>                         m_elements;
 };
 
 }   // namespace engine::utils

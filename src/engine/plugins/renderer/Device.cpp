@@ -131,11 +131,11 @@ Device::Device(
 {
     const auto properties{ t_physical_device.getProperties() };
 
-    std::string supported_extensions{ "\nSupported device extensions:" };
+    std::string enabled_extensions{ "\nEnabled device extensions:" };
     for (auto extension : m_info.extensions) {
-        supported_extensions += '\n';
-        supported_extensions += '\t';
-        supported_extensions += extension;
+        enabled_extensions += '\n';
+        enabled_extensions += '\t';
+        enabled_extensions += extension;
     }
 
     SPDLOG_INFO(
@@ -146,7 +146,7 @@ Device::Device(
         VK_VERSION_PATCH(properties.apiVersion)
     );
 
-    SPDLOG_TRACE(supported_extensions);
+    SPDLOG_TRACE(enabled_extensions);
 }
 
 auto Device::operator*() const noexcept -> vk::Device

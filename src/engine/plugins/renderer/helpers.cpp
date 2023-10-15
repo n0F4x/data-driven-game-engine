@@ -88,11 +88,13 @@ auto find_graphics_queue_family(
          std::views::enumerate(t_physical_device.getQueueFamilyProperties()))
     {
         if (const auto [result, success]{
-                t_physical_device.getSurfaceSupportKHR(index, t_surface) };
+                t_physical_device.getSurfaceSupportKHR(
+                    static_cast<uint32_t>(index), t_surface
+                ) };
             result == vk::Result::eSuccess && success
             && properties.queueFlags & vk::QueueFlagBits::eGraphics)
         {
-            return index;
+            return static_cast<uint32_t>(index);
         }
         else if (result != vk::Result::eSuccess) {
             SPDLOG_ERROR(
@@ -119,23 +121,23 @@ auto find_graphics_queue_family(
             && !(properties.queueFlags & vk::QueueFlagBits::eCompute)
             && properties.queueFlags & vk::QueueFlagBits::eTransfer)
         {
-            return index;
+            return static_cast<uint32_t>(index);
         }
     }
 
     for (const auto [index, properties] : std::views::enumerate(queue_families))
     {
-        if (index == t_graphics_queue_family
+        if (static_cast<uint32_t>(index) == t_graphics_queue_family
             && properties.queueFlags & vk::QueueFlagBits::eTransfer)
         {
-            return index;
+            return static_cast<uint32_t>(index);
         }
     }
 
     for (const auto [index, properties] : std::views::enumerate(queue_families))
     {
         if (properties.queueFlags & vk::QueueFlagBits::eTransfer) {
-            return index;
+            return static_cast<uint32_t>(index);
         }
     }
 
@@ -154,23 +156,23 @@ auto find_compute_queue_family(
         if (!(properties.queueFlags & vk::QueueFlagBits::eGraphics)
             && properties.queueFlags & vk::QueueFlagBits::eCompute)
         {
-            return index;
+            return static_cast<uint32_t>(index);
         }
     }
 
     for (const auto [index, properties] : std::views::enumerate(queue_families))
     {
-        if (index != t_graphics_queue_family
+        if (static_cast<uint32_t>(index) != t_graphics_queue_family
             && properties.queueFlags & vk::QueueFlagBits::eCompute)
         {
-            return index;
+            return static_cast<uint32_t>(index);
         }
     }
 
     for (const auto [index, properties] : std::views::enumerate(queue_families))
     {
         if (properties.queueFlags & vk::QueueFlagBits::eCompute) {
-            return index;
+            return static_cast<uint32_t>(index);
         }
     }
 
