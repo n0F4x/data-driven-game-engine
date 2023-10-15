@@ -1,11 +1,5 @@
 #include "Swapchain.hpp"
 
-#include <limits>
-#include <ranges>
-#include <utility>
-
-#include <spdlog/spdlog.h>
-
 #include "helpers.hpp"
 
 namespace engine::renderer {

@@ -1,7 +1,5 @@
 #include "SceneGraph.hpp"
 
-#include <spdlog/spdlog.h>
-
 #include "scene_graph/SceneManager.hpp"
 
 namespace engine::plugins {

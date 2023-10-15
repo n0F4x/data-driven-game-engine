@@ -1,7 +1,5 @@
 #include "Device.hpp"
 
-#include <utility>
-
 namespace engine::utils::vulkan {
 
 Device::Device(vk::Device t_device) noexcept : m_device{ t_device } {}

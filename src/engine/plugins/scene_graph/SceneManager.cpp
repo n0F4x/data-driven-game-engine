@@ -1,9 +1,5 @@
 #include "SceneManager.hpp"
 
-#include <algorithm>
-
-#include <spdlog/spdlog.h>
-
 namespace engine::scene_graph {
 
 auto SceneManager::add_scene(Scene&& t_scene) noexcept -> SceneManager&

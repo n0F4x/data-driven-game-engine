@@ -1,7 +1,5 @@
 #include "Window.hpp"
 
-#include <spdlog/spdlog.h>
-
 namespace engine::plugins {
 
 auto Window::operator()(

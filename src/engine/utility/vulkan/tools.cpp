@@ -1,9 +1,5 @@
 #include "tools.hpp"
 
-#include <fstream>
-#include <ranges>
-#include <set>
-
 namespace engine::utils::vulkan {
 
 auto available_layers() noexcept
