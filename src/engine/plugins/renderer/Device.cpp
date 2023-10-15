@@ -1,10 +1,5 @@
 #include "Device.hpp"
 
-#include <ranges>
-#include <utility>
-
-#include <spdlog/spdlog.h>
-
 #include "engine/utility/vulkan/tools.hpp"
 
 #include "helpers.hpp"

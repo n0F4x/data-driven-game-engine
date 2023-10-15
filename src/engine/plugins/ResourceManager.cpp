@@ -1,7 +1,5 @@
 #include "ResourceManager.hpp"
 
-#include <spdlog/spdlog.h>
-
 namespace engine::plugins {
 
 auto ResourceManager::operator()(App::Context& t_context) noexcept -> void

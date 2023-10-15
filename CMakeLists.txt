@@ -32,12 +32,31 @@ else ()
 endif ()
 
 
-#target_compile_definitions(${PROJECT_NAME} PUBLIC ENGINE_DEBUG)
-#get_target_property(engine_compile_defs ${PROJECT_NAME} COMPILE_DEFINITIONS)
-
-
 target_include_directories(${PROJECT_NAME} PUBLIC
         src
+        )
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE
+        <algorithm>
+        <concepts>
+        <expected>
+        <fstream>
+        <functional>
+        <iostream>
+        <limits>
+        <memory>
+        <optional>
+        <ranges>
+        <set>
+        <span>
+        <sstream>
+        <string>
+        <string_view>
+        <thread>
+        <type_traits>
+        <unordered_map>
+        <utility>
+        <vector>
         )
 
 add_subdirectory(src/engine)
@@ -45,6 +64,7 @@ add_subdirectory(src/engine)
 
 # optional_view
 add_subdirectory(vendor/optional_view)
+target_precompile_headers(${PROJECT_NAME} PRIVATE <optional_view.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         optional_view)
 
@@ -69,6 +89,7 @@ if (engine_debug)
             SPDLOG_ACTIVE_LEVEL=${spdlog_level}
             )
 endif ()
+target_precompile_headers(${PROJECT_NAME} PRIVATE <spdlog/spdlog.h>)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # SFML
@@ -94,6 +115,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PUBLIC ENGINE_VULKAN_DEBUG)
 endif ()
+target_precompile_headers(${PROJECT_NAME} PRIVATE <vulkan/vulkan.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 
 # VulkanMemoryAllocator
@@ -116,6 +138,7 @@ FetchContent_MakeAvailable(glm)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
         GLM_FORCE_DEPTH_ZERO_TO_ONE
         )
+target_precompile_headers(${PROJECT_NAME} PRIVATE <glm/glm.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         glm::glm)
 
@@ -138,6 +161,7 @@ FetchContent_Declare(EnTT
         GIT_TAG v3.12.2
         GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(EnTT)
+target_precompile_headers(${PROJECT_NAME} PRIVATE <entt/entt.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         EnTT)
 

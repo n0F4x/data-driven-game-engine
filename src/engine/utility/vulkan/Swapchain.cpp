@@ -1,11 +1,5 @@
 #include "Swapchain.hpp"
 
-#include <algorithm>
-#include <limits>
-#include <ranges>
-#include <set>
-#include <utility>
-
 namespace {
 
 auto choose_swap_chain_surface_format(

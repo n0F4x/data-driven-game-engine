@@ -1,7 +1,5 @@
 #include "Logger.hpp"
 
-#include <spdlog/spdlog.h>
-
 namespace engine::plugins {
 
 auto Logger::operator()(App::Context&) noexcept -> void

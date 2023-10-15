@@ -1,11 +1,5 @@
 #include "RenderFrame.hpp"
 
-#include <limits>
-#include <ranges>
-#include <utility>
-
-#include <spdlog/spdlog.h>
-
 namespace engine::renderer {
 
 auto RenderFrame::create(

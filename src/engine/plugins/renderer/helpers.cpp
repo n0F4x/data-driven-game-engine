@@ -1,12 +1,5 @@
 #include "helpers.hpp"
 
-#include <iostream>
-#include <ranges>
-#include <sstream>
-#include <utility>
-
-#include <spdlog/spdlog.h>
-
 #if defined(_WIN32)
 // clang-format off
   #include <windows.h>
