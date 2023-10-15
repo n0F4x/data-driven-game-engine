@@ -1,5 +1,7 @@
 #include "Allocator.hpp"
 
+#include <utility>
+
 namespace engine::utils::vulkan {
 
 Allocator::Allocator(VmaAllocator t_allocator) noexcept

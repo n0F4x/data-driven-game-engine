@@ -10,14 +10,14 @@
 namespace engine::utils::vulkan {
 
 [[nodiscard]] auto available_layers() noexcept
-    -> std::expected<const std::vector<const char*>, vk::Result>;
+    -> std::expected<std::vector<const char*>, vk::Result>;
 
 [[nodiscard]] auto available_instance_extensions() noexcept
-    -> std::expected<const std::vector<const char*>, vk::Result>;
+    -> std::expected<std::vector<const char*>, vk::Result>;
 
 [[nodiscard]] auto available_device_extensions(
     vk::PhysicalDevice t_physical_device
-) noexcept -> std::expected<const std::vector<const char*>, vk::Result>;
+) noexcept -> std::expected<std::vector<const char*>, vk::Result>;
 
 [[nodiscard]] auto supports_extensions(
     vk::PhysicalDevice           t_physical_device,

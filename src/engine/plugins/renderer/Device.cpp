@@ -1,5 +1,7 @@
 #include "Device.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include "engine/utility/vulkan/tools.hpp"
 
 #include "helpers.hpp"

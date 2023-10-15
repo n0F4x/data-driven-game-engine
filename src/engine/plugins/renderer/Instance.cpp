@@ -1,5 +1,9 @@
 #include "Instance.hpp"
 
+#include <utility>
+
+#include <spdlog/spdlog.h>
+
 #include "helpers.hpp"
 
 namespace engine::renderer {
