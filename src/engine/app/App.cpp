@@ -1,5 +1,7 @@
 #include "App.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include "Builder.hpp"
 
 namespace engine {

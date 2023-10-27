@@ -1,5 +1,7 @@
 #include "Renderer.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include "engine/plugins/renderer/Device.hpp"
 #include "engine/plugins/renderer/helpers.hpp"
 #include "engine/plugins/renderer/Instance.hpp"

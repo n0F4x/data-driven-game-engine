@@ -83,20 +83,22 @@ ForEachMacros: [ 'RANGES_FOR', 'FOREACH' ]
 IfMacros: [ 'IF' ]
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^<gsl/'
+  - Regex: '^<windows.h>'
     Priority: 2
-  - Regex: '^<spdlog/'
+  - Regex: '^<gsl/'
     Priority: 3
-  - Regex: '^<vulkan/'
+  - Regex: '^<spdlog/'
     Priority: 4
-  - Regex: '^<glm/'
+  - Regex: '^<vulkan/'
     Priority: 5
-  - Regex: '^<glfw/'
+  - Regex: '^<glm/'
     Priority: 6
-  - Regex: '^<SFML/'
+  - Regex: '^<glfw/'
     Priority: 7
-  - Regex: '^<entt/'
+  - Regex: '^<SFML/'
     Priority: 8
+  - Regex: '^<entt/'
+    Priority: 9
   - Regex: '^<.*\..*'
     Priority: 998
   - Regex: '^<.*'

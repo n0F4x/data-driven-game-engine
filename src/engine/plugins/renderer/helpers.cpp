@@ -8,10 +8,8 @@
 #include <spdlog/spdlog.h>
 
 #if defined(_WIN32)
-// clang-format off
   #include <windows.h>
   #include <vulkan/vulkan_win32.h>
-// clang-format on
 #elif defined(__linux__)
   #include <vulkan/vulkan_xcb.h>
 #elif defined(__ANDROID__)
