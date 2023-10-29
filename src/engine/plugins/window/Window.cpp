@@ -1,5 +1,7 @@
 #include "Window.hpp"
 
+#include <spdlog/spdlog.h>
+
 namespace engine::window {
 
 /////////////////////////////////
@@ -38,10 +40,16 @@ auto Window::create_vulkan_surface(
     }
 
     VkSurfaceKHR surface{};
+    bool         success;
 
     try {
-        m_impl->createVulkanSurface(t_instance, surface, t_allocator);
+        success = m_impl->createVulkanSurface(t_instance, surface, t_allocator);
     } catch (...) {
+        return VkSurfaceKHR{};
+    }
+
+    if (!success) {
+        SPDLOG_ERROR("sf::WindowBase::createVulkanSurface failed");
         return VkSurfaceKHR{};
     }
 
