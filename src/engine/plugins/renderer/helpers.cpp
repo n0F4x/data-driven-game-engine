@@ -545,7 +545,7 @@ auto choose_physical_device(
         )
     };
     std::vector<std::pair<vk::PhysicalDevice, unsigned>> ranked_devices{
-        ranked_devices_view.cbegin(), ranked_devices_view.cend()
+        ranked_devices_view.begin(), ranked_devices_view.end()
     };
     std::ranges::sort(
         ranked_devices, {}, &std::pair<vk::PhysicalDevice, unsigned>::second
