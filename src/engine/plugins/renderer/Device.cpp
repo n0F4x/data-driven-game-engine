@@ -143,7 +143,7 @@ Device::Device(
         VK_VERSION_PATCH(properties.apiVersion)
     );
 
-    SPDLOG_TRACE(enabled_extensions);
+    SPDLOG_DEBUG(enabled_extensions);
 }
 
 auto Device::operator*() const noexcept -> vk::Device

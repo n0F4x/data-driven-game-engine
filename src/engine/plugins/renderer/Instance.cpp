@@ -118,7 +118,7 @@ Instance::Instance(
         VK_VERSION_PATCH(instance_version)
     );
 
-    SPDLOG_TRACE(instance_info);
+    SPDLOG_DEBUG(instance_info);
 }
 
 }   // namespace engine::renderer

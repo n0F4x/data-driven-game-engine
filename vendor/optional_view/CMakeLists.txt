@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project(optional_view)
+project(optional_view CXX)
 
 
 add_library(${PROJECT_NAME} INTERFACE)

@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.25)
 
 include(FetchContent)
-set(FETCHCONTENT_QUIET FALSE)
+set(FETCHCONTENT_QUIET OFF)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
 set(CMAKE_CXX_STANDARD 23)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project(engine)
+project(engine CXX)
 
 
 add_library(${PROJECT_NAME})
@@ -32,10 +32,6 @@ else ()
 endif ()
 
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-        src
-        )
-
 target_precompile_headers(${PROJECT_NAME} PRIVATE
         <algorithm>
         <concepts>
@@ -58,8 +54,6 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
         <utility>
         <vector>
         )
-
-add_subdirectory(src/engine)
 
 
 # optional_view
@@ -176,6 +170,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 #        TF_BUILD_TESTS=OFF)
 #target_link_libraries(${PROJECT_NAME} PUBLIC
 #        Taskflow)
+
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+        src
+)
+
+add_subdirectory(src/engine)
 
 
 unset(engine_debug CACHE)
