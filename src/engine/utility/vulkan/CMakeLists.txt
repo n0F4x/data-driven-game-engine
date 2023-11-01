@@ -4,4 +4,4 @@ target_sources(${PROJECT_NAME} PRIVATE
         Instance.cpp
         Swapchain.cpp
         tools.cpp
-        )
+)

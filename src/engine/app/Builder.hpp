@@ -20,7 +20,7 @@ public:
         Args&&... t_args
     ) && noexcept -> Result;
 
-    
+
     template <typename Plugin>
     auto add_plugin(auto&&... t_args) && noexcept -> Builder;
 

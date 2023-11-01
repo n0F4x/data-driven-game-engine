@@ -4,9 +4,6 @@ include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 project(engine CXX)
 
 
@@ -16,19 +13,22 @@ add_library(${PROJECT_NAME})
 option(engine_debug "Turn on debug mode for library" ON)
 
 
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
+
+
 if (MSVC)
-    target_compile_options(${PROJECT_NAME} PUBLIC
+    target_compile_options(${PROJECT_NAME} PRIVATE
             /W4
             /WX
-            )
+    )
 else ()
-    target_compile_options(${PROJECT_NAME} PUBLIC
+    target_compile_options(${PROJECT_NAME} PRIVATE
             -Wall
             -Wextra
             -Werror
             -fconcepts-diagnostics-depth=3
             -Wno-missing-field-initializers
-            )
+    )
 endif ()
 
 
@@ -53,7 +53,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
         <unordered_map>
         <utility>
         <vector>
-        )
+)
 
 
 # optional_view
@@ -81,7 +81,7 @@ if (engine_debug)
     set(spdlog_level SPDLOG_LEVEL_TRACE)
     target_compile_definitions(${PROJECT_NAME} PUBLIC
             SPDLOG_ACTIVE_LEVEL=${spdlog_level}
-            )
+    )
 endif ()
 target_precompile_headers(${PROJECT_NAME} PRIVATE <spdlog/spdlog.h>)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
@@ -105,7 +105,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
         VULKAN_HPP_NO_SETTERS
         VULKAN_HPP_NO_SMART_HANDLE
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
-        )
+)
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PUBLIC ENGINE_VULKAN_DEBUG)
 endif ()
@@ -119,7 +119,7 @@ add_subdirectory(libs/vulkan-memory-allocator)
 target_compile_definitions(vulkan-memory-allocator PUBLIC
         VMA_STATIC_VULKAN_FUNCTIONS=${STATIC_VULKAN_FUNCTIONS}
         VMA_DYNAMIC_VULKAN_FUNCTIONS=${DYNAMIC_VULKAN_FUNCTIONS}
-        )
+)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         vulkan-memory-allocator)
 
@@ -131,7 +131,7 @@ FetchContent_Declare(glm
 FetchContent_MakeAvailable(glm)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
         GLM_FORCE_DEPTH_ZERO_TO_ONE
-        )
+)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <glm/glm.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         glm::glm)
@@ -145,7 +145,7 @@ FetchContent_MakeAvailable(tinygltf)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
         TINYGLTF_NOEXCEPTION
         TINYGLTF_USE_CPP14
-        )
+)
 target_link_libraries(${PROJECT_NAME} PUBLIC
         tinygltf)
 
@@ -186,4 +186,5 @@ unset(engine_debug CACHE)
 ## TESTS ##
 ###########
 add_executable(test examples/src/main.cpp)
-target_link_libraries(test PUBLIC ${PROJECT_NAME})
+target_compile_features(test PRIVATE cxx_std_23)
+target_link_libraries(test PRIVATE ${PROJECT_NAME})
