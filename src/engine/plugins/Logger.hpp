@@ -25,8 +25,8 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        App::Context& t_context,
-        Level         t_log_level = Level::eDebug
+        App::Store& t_store,
+        Level       t_log_level = Level::eDebug
     ) noexcept -> void;
 };
 

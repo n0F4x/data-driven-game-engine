@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#include "engine/utility/Context.hpp"
+#include "engine/utility/Store.hpp"
 
 namespace engine {
 
@@ -16,7 +16,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Context = utils::Context;
+    using Store = utils::Store;
 
     ///------------------///
     ///  Nested classes  ///
@@ -36,7 +36,7 @@ public:
     auto run(RunnerConcept<Args...> auto&& t_runner, Args&&... t_args) noexcept
         -> void;
 
-    [[nodiscard]] auto context() noexcept -> Context&;
+    [[nodiscard]] auto store() noexcept -> Store&;
 
 private:
     ///******************///
@@ -47,12 +47,12 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    Context m_context;
+    Store m_store;
 
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
-    explicit App(Context&& t_context) noexcept;
+    explicit App(Store&& t_store) noexcept;
 };
 
 }   // namespace engine

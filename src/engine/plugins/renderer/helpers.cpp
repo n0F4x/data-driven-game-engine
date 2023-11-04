@@ -9,6 +9,7 @@
 
 #if defined(_WIN32)
   #include <windows.h>
+
   #include <vulkan/vulkan_win32.h>
 #elif defined(__linux__)
   #include <vulkan/vulkan_xcb.h>

@@ -11,7 +11,7 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        App::Context&         t_context,
+        App::Store&           t_store,
         const sf::VideoMode&  t_video_mode,
         std::string_view      t_title,
         window::Window::Style t_style

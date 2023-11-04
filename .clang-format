@@ -87,18 +87,20 @@ IncludeCategories:
     Priority: 2
   - Regex: '^<gsl/'
     Priority: 3
-  - Regex: '^<spdlog/'
+  - Regex: '^<tl/'
     Priority: 4
-  - Regex: '^<vulkan/'
+  - Regex: '^<spdlog/'
     Priority: 5
-  - Regex: '^<glm/'
+  - Regex: '^<vulkan/'
     Priority: 6
-  - Regex: '^<glfw/'
+  - Regex: '^<glm/'
     Priority: 7
-  - Regex: '^<SFML/'
+  - Regex: '^<glfw/'
     Priority: 8
-  - Regex: '^<entt/'
+  - Regex: '^<SFML/'
     Priority: 9
+  - Regex: '^<entt/'
+    Priority: 10
   - Regex: '^<.*\..*'
     Priority: 998
   - Regex: '^<.*'

@@ -9,7 +9,7 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(App::Context& t_context) noexcept -> void;
+    auto operator()(App::Store& t_store) noexcept -> void;
 };
 
 static_assert(PluginConcept<SceneGraph>);

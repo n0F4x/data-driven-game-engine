@@ -39,7 +39,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    Context m_context{};
+    Store m_store{};
 
     ///******************************///
     ///  Constructors / Destructors  ///

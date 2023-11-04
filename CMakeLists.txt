@@ -56,20 +56,14 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
 )
 
 
-# optional_view
-add_subdirectory(vendor/optional_view)
-target_precompile_headers(${PROJECT_NAME} PRIVATE <optional_view.hpp>)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-        optional_view)
-
-## Microsoft.GSL
-#FetchContent_Declare(Microsoft.GSL
-#        GIT_REPOSITORY https://github.com/microsoft/GSL.git
-#        GIT_TAG v4.0.0
-#        GIT_PROGRESS TRUE)
-#FetchContent_MakeAvailable(Microsoft.GSL)
-#target_link_libraries(${PROJECT_NAME} PUBLIC
-#        Microsoft.GSL::GSL)
+# tl-optional
+FetchContent_Declare(tl-optional
+        GIT_REPOSITORY https://github.com/TartanLlama/optional.git
+        GIT_TAG v1.1.0
+        GIT_PROGRESS TRUE)
+FetchContent_MakeAvailable(tl-optional)
+target_precompile_headers(${PROJECT_NAME} PRIVATE <tl/optional.hpp>)
+target_link_libraries(${PROJECT_NAME} PUBLIC tl::optional)
 
 # spdlog
 FetchContent_Declare(spdlog
@@ -93,8 +87,7 @@ FetchContent_Declare(SFML
         GIT_TAG 2.6.0
         GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(SFML)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-        sfml-window)
+target_link_libraries(${PROJECT_NAME} PUBLIC sfml-window)
 
 # Vulkan
 find_package(Vulkan REQUIRED)
@@ -120,8 +113,7 @@ target_compile_definitions(vulkan-memory-allocator PUBLIC
         VMA_STATIC_VULKAN_FUNCTIONS=${STATIC_VULKAN_FUNCTIONS}
         VMA_DYNAMIC_VULKAN_FUNCTIONS=${DYNAMIC_VULKAN_FUNCTIONS}
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC
-        vulkan-memory-allocator)
+target_link_libraries(${PROJECT_NAME} PUBLIC vulkan-memory-allocator)
 
 # glm
 FetchContent_Declare(glm
@@ -133,8 +125,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
         GLM_FORCE_DEPTH_ZERO_TO_ONE
 )
 target_precompile_headers(${PROJECT_NAME} PRIVATE <glm/glm.hpp>)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-        glm::glm)
+target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 
 # tinygltf
 FetchContent_Declare(tinygltf
@@ -146,8 +137,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
         TINYGLTF_NOEXCEPTION
         TINYGLTF_USE_CPP14
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC
-        tinygltf)
+target_link_libraries(${PROJECT_NAME} PUBLIC tinygltf)
 
 # EnTT
 FetchContent_Declare(EnTT
@@ -156,25 +146,10 @@ FetchContent_Declare(EnTT
         GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(EnTT)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <entt/entt.hpp>)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-        EnTT)
-
-## Taskflow
-#FetchContent_Declare(Taskflow
-#        GIT_REPOSITORY https://github.com/taskflow/taskflow.git
-#        GIT_TAG v3.6.0
-#        GIT_PROGRESS TRUE)
-#FetchContent_MakeAvailable(Taskflow)
-#target_compile_definitions(${PROJECT_NAME} PUBLIC
-#        TF_BUILD_EXAMPLES=OFF
-#        TF_BUILD_TESTS=OFF)
-#target_link_libraries(${PROJECT_NAME} PUBLIC
-#        Taskflow)
+target_link_libraries(${PROJECT_NAME} PUBLIC EnTT)
 
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-        src
-)
+target_include_directories(${PROJECT_NAME} PUBLIC src)
 
 add_subdirectory(src/engine)
 

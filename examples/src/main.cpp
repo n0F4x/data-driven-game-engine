@@ -9,7 +9,7 @@ auto main() noexcept -> int
     const auto result{
         App::create()
             .add_plugin<plugins::Logger>(plugins::Logger::Level::eTrace)
-            .add_plugin<plugins::ResourceManager>()
+            .add_plugin<plugins::AssetManager>()
             .add_plugin<plugins::Window>(
                 sf::VideoMode{ 450u, 600u },
                 "My window",
