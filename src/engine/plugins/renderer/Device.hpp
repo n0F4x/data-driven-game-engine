@@ -1,7 +1,8 @@
 #pragma once
 
-#include <tl/optional.hpp>
 #include <span>
+
+#include <tl/optional.hpp>
 
 #include <vulkan/vulkan.hpp>
 

@@ -8,7 +8,7 @@ auto App::Builder::build_and_run(
 {
     return std::move(*this)
         .build()
-        .transform([&t_runner, &t_args...](auto&& app) {
+        .transform([&t_runner, &t_args...](App&& app) {
             app.run(
                 std::forward<decltype(t_runner)>(t_runner),
                 std::forward<Args>(t_args)...

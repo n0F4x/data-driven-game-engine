@@ -15,7 +15,8 @@ public:
     auto emplace(Asset&& t_asset, entt::id_type t_id) noexcept -> Asset&;
 
     template <typename Asset>
-    auto find(entt::id_type t_id) noexcept -> tl::optional<Asset&>;
+    [[nodiscard]] auto find(entt::id_type t_id) noexcept
+        -> tl::optional<Asset&>;
 
 private:
     ///****************///

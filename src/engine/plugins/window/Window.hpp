@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+
 #include <tl/optional.hpp>
 
 #include <SFML/Window.hpp>
