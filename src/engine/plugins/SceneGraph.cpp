@@ -6,9 +6,9 @@
 
 namespace engine::plugins {
 
-auto SceneGraph::operator()(App::Context& t_context) noexcept -> void
+auto SceneGraph::operator()(App::Store& t_store) noexcept -> void
 {
-    t_context.emplace<scene_graph::SceneManager>();
+    t_store.emplace<scene_graph::SceneManager>();
 
     SPDLOG_TRACE("Added SceneGraph plugin");
 }

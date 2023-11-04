@@ -5,7 +5,7 @@
 namespace engine::plugins {
 
 auto Window::operator()(
-    App::Context&         t_context,
+    App::Store&           t_store,
     const sf::VideoMode&  t_video_mode,
     std::string_view      t_title,
     window::Window::Style t_style
@@ -18,7 +18,7 @@ auto Window::operator()(
         return;
     }
 
-    t_context.emplace<window::Window>(std::move(*window));
+    t_store.emplace<window::Window>(std::move(*window));
 
     SPDLOG_TRACE("Added Window plugin");
 }

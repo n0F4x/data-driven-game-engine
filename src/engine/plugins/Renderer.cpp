@@ -11,13 +11,13 @@
 
 namespace engine::plugins {
 
-auto Renderer::operator()(App::Context& t_context) noexcept -> void
+auto Renderer::operator()(App::Store& t_store) noexcept -> void
 {
     using namespace renderer;
     using namespace window;
 
-    auto window{ t_context.find<Window>() };
-    if (window.empty()) {
+    auto window{ t_store.find<Window>() };
+    if (!window.has_value()) {
         return;
     }
 
@@ -25,9 +25,8 @@ auto Renderer::operator()(App::Context& t_context) noexcept -> void
     if (!original_instance) {
         return;
     }
-    const auto& instance{
-        t_context.emplace<Instance>(std::move(*original_instance))
-    };
+    const auto& instance{ t_store.emplace<Instance>(std::move(*original_instance
+    )) };
 
     utils::vulkan::Surface surface{
         *instance, vk::SurfaceKHR{ window->create_vulkan_surface(*instance) }
@@ -39,9 +38,9 @@ auto Renderer::operator()(App::Context& t_context) noexcept -> void
     if (!original_device.has_value()) {
         return;
     }
-    auto& device{ t_context.emplace<Device>(std::move(*original_device)) };
+    auto& device{ t_store.emplace<Device>(std::move(*original_device)) };
 
-    t_context.emplace<Swapchain>(std::move(surface), device, nullptr);
+    t_store.emplace<Swapchain>(std::move(surface), device, nullptr);
 
     auto original_render_frame{ RenderFrame::create(
         device, std::max(std::jthread::hardware_concurrency(), 1u)
@@ -49,7 +48,7 @@ auto Renderer::operator()(App::Context& t_context) noexcept -> void
     if (!original_render_frame.has_value()) {
         return;
     }
-    t_context.emplace<RenderFrame>(std::move(*original_render_frame));
+    t_store.emplace<RenderFrame>(std::move(*original_render_frame));
 
     SPDLOG_TRACE("Added Renderer plugin");
 }

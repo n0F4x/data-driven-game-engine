@@ -4,7 +4,7 @@
 
 namespace engine::plugins {
 
-class Renderer {
+class AssetManager {
 public:
     ///-------------///
     ///  Operators  ///
@@ -12,6 +12,6 @@ public:
     auto operator()(App::Store& t_store) noexcept -> void;
 };
 
-static_assert(PluginConcept<Renderer>);
+static_assert(PluginConcept<AssetManager>);
 
 }   // namespace engine::plugins

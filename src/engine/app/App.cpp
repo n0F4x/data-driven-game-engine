@@ -11,7 +11,7 @@ namespace engine {
 ///  App   IMPLEMENTATION  ///
 ///------------------------///
 //////////////////////////////
-App::App(Context&& t_context) noexcept : m_context{ std::move(t_context) } {}
+App::App(Store&& t_store) noexcept : m_store{ std::move(t_store) } {}
 
 auto App::create() noexcept -> App::Builder
 {
@@ -19,9 +19,9 @@ auto App::create() noexcept -> App::Builder
     return Builder{};
 }
 
-auto App::context() noexcept -> App::Context&
+auto App::store() noexcept -> App::Store&
 {
-    return m_context;
+    return m_store;
 }
 
 }   // namespace engine

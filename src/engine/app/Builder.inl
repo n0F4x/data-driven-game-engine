@@ -34,7 +34,7 @@ auto App::Builder::add_plugin(
 {
     std::invoke(
         std::forward<decltype(t_plugin)>(t_plugin),
-        m_context,
+        m_store,
         std::forward<decltype(t_args)>(t_args)...
     );
     return std::move(*this);
