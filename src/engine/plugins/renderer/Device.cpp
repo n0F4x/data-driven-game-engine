@@ -19,19 +19,19 @@ auto Device::create(
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device,
     const CreateInfo&  t_create_info
-) noexcept -> std::optional<Device>
+) noexcept -> tl::optional<Device>
 {
     if (!t_surface || !t_physical_device
         || !helpers::is_adequate(t_physical_device, t_surface))
     {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     const auto queue_infos{
         helpers::find_queue_families(t_physical_device, t_surface)
     };
     if (!queue_infos.has_value()) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     const auto [result, device]{
@@ -50,7 +50,7 @@ auto Device::create(
             "vk::PhysicalDevice::createDevice failed with error code {}",
             std::to_underlying(result)
         );
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     const VmaVulkanFunctions vulkan_functions = { .vkGetInstanceProcAddr =
@@ -92,7 +92,7 @@ auto Device::create_default(
     const Instance&    t_instance,
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device
-) noexcept -> std::optional<Device>
+) noexcept -> tl::optional<Device>
 {
     return create(
         t_instance,

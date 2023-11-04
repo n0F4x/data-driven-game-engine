@@ -81,7 +81,7 @@ const std::vector<const char*> g_optional_device_extensions{
 auto find_graphics_queue_family(
     vk::PhysicalDevice t_physical_device,
     vk::SurfaceKHR     t_surface
-) noexcept -> std::optional<uint32_t>
+) noexcept -> tl::optional<uint32_t>
 {
     for (const auto [index, properties] :
          std::views::enumerate(t_physical_device.getQueueFamilyProperties()))
@@ -104,13 +104,13 @@ auto find_graphics_queue_family(
         }
     }
 
-    return std::nullopt;
+    return tl::nullopt;
 }
 
 [[nodiscard]] auto find_transfer_queue_family(
     vk::PhysicalDevice t_physical_device,
     uint32_t           t_graphics_queue_family
-) -> std::optional<uint32_t>
+) -> tl::optional<uint32_t>
 {
     const auto queue_families{ t_physical_device.getQueueFamilyProperties() };
 
@@ -140,13 +140,13 @@ auto find_graphics_queue_family(
         }
     }
 
-    return std::nullopt;
+    return tl::nullopt;
 }
 
 auto find_compute_queue_family(
     vk::PhysicalDevice t_physical_device,
     uint32_t           t_graphics_queue_family
-) noexcept -> std::optional<uint32_t>
+) noexcept -> tl::optional<uint32_t>
 {
     const auto queue_families{ t_physical_device.getQueueFamilyProperties() };
 
@@ -175,7 +175,7 @@ auto find_compute_queue_family(
         }
     }
 
-    return std::nullopt;
+    return tl::nullopt;
 }
 
 }   // namespace
@@ -389,27 +389,27 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
 auto find_queue_families(
     vk::PhysicalDevice t_physical_device,
     vk::SurfaceKHR     t_surface
-) -> std::optional<QueueInfos>
+) -> tl::optional<QueueInfos>
 {
     const auto graphics_family{
         find_graphics_queue_family(t_physical_device, t_surface)
     };
     if (!graphics_family.has_value()) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     const auto compute_family{
         find_compute_queue_family(t_physical_device, *graphics_family)
     };
     if (!compute_family.has_value()) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     const auto transfer_family{
         find_transfer_queue_family(t_physical_device, *graphics_family)
     };
     if (!transfer_family.has_value()) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     QueueInfos queue_infos;

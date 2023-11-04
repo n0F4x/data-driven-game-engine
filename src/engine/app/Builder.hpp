@@ -12,7 +12,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto build() && noexcept -> std::optional<App>;
+    [[nodiscard]] auto build() && noexcept -> tl::optional<App>;
 
     template <typename... Args>
     auto build_and_run(

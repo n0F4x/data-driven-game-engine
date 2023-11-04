@@ -14,14 +14,14 @@ auto Window::create(
     const sf::VideoMode& t_video_mode,
     const sf::String&    t_title,
     Style                t_style
-) noexcept -> std::optional<Window>
+) noexcept -> tl::optional<Window>
 {
     try {
         return Window{ t_video_mode,
                        t_title,
                        static_cast<sf::Uint32>(t_style) };
     } catch (...) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 }
 

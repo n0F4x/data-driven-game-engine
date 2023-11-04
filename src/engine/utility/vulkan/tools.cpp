@@ -115,17 +115,17 @@ auto supports_surface(
 }
 
 auto load_shader(vk::Device t_device, std::string_view t_file_path) noexcept
-    -> std::optional<vk::ShaderModule>
+    -> tl::optional<vk::ShaderModule>
 {
     std::ifstream file{ t_file_path.data(),
                         std::ios::binary | std::ios::in | std::ios::ate };
     if (!file.is_open()) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     const std::streamsize file_size = file.tellg();
     if (file_size <= 0) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     std::vector<char> buffer(static_cast<size_t>(file_size));
@@ -142,7 +142,7 @@ auto load_shader(vk::Device t_device, std::string_view t_file_path) noexcept
     const auto [result, shader_module]{ t_device.createShaderModule(create_info
     ) };
     if (result != vk::Result::eSuccess) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     return shader_module;

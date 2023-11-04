@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <optional>
+#include <tl/optional.hpp>
 
 #include <vulkan/vulkan.hpp>
 
@@ -56,7 +56,7 @@ private:
     utils::vulkan::Surface                  m_surface;
     Device&                                 m_device;
     std::function<vk::Extent2D()>           m_get_framebuffer_size;
-    std::optional<utils::vulkan::Swapchain> m_swap_chain;
+    tl::optional<utils::vulkan::Swapchain> m_swap_chain;
     uint32_t                                m_image_index{};
     SwapchainRecreatedSigh                  m_swapchain_recreated_signal;
     SwapchainRecreatedSink                  m_swapchain_recreated_sink{

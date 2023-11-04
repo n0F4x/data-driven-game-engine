@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <optional>
+#include <tl/optional.hpp>
 
 #include <SFML/Window.hpp>
 #include <SFML/Window/Vulkan.hpp>
@@ -29,7 +29,7 @@ public:
         const sf::VideoMode& t_video_mode,
         const sf::String&    t_title,
         Style                t_style
-    ) noexcept -> std::optional<Window>;
+    ) noexcept -> tl::optional<Window>;
 
     ///-----------///
     ///  Methods  ///

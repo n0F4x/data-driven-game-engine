@@ -9,13 +9,13 @@ namespace {
 auto choose_swap_chain_surface_format(
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device
-) noexcept -> std::optional<vk::SurfaceFormatKHR>
+) noexcept -> tl::optional<vk::SurfaceFormatKHR>
 {
     const auto [result, t_available_surface_formats]{
         t_physical_device.getSurfaceFormatsKHR(t_surface)
     };
     if (result != vk::Result::eSuccess) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     for (const auto& surface_format : t_available_surface_formats) {
@@ -31,13 +31,13 @@ auto choose_swap_chain_surface_format(
 auto choose_swap_chain_present_mode(
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device
-) noexcept -> std::optional<vk::PresentModeKHR>
+) noexcept -> tl::optional<vk::PresentModeKHR>
 {
     const auto [result, present_modes]{
         t_physical_device.getSurfacePresentModesKHR(t_surface)
     };
     if (result != vk::Result::eSuccess) {
-        return std::nullopt;
+        return tl::nullopt;
     }
     return std::ranges::contains(present_modes, vk::PresentModeKHR::eMailbox)
              ? vk::PresentModeKHR::eMailbox
@@ -113,11 +113,11 @@ auto create_image_views(
     vk::Device           t_device,
     vk::SwapchainKHR     t_swap_chain,
     vk::SurfaceFormatKHR t_surface_format
-) noexcept -> std::optional<std::vector<vk::ImageView>>
+) noexcept -> tl::optional<std::vector<vk::ImageView>>
 {
     const auto images = t_device.getSwapchainImagesKHR(t_swap_chain);
     if (images.result != vk::Result::eSuccess) {
-        return std::nullopt;
+        return tl::nullopt;
     }
     std::vector<vk::ImageView> image_views;
     image_views.reserve(images.value.size());
@@ -135,7 +135,7 @@ auto create_image_views(
         image_view_create_info.image = image;
         auto image_view{ t_device.createImageView(image_view_create_info) };
         if (image_view.result != vk::Result::eSuccess) {
-            return std::nullopt;
+            return tl::nullopt;
         }
         image_views.push_back(image_view.value);
     }
@@ -192,25 +192,25 @@ auto Swapchain::create(
     vk::Device         t_device,
     vk::Extent2D       t_framebuffer_size,
     vk::SwapchainKHR   t_old_swap_chain
-) noexcept -> std::optional<Swapchain>
+) noexcept -> tl::optional<Swapchain>
 {
     const auto [result, surface_capabilities]{
         t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
     };
     if (result != vk::Result::eSuccess) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     const auto extent = choose_extent(t_framebuffer_size, surface_capabilities);
     if (extent.width == 0 || extent.height == 0) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     const auto surface_format{
         choose_swap_chain_surface_format(t_surface, t_physical_device)
     };
     if (!surface_format.has_value()) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     const auto swap_chain{ create_swap_chain(
@@ -224,14 +224,14 @@ auto Swapchain::create(
         t_old_swap_chain
     ) };
     if (!swap_chain) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     auto image_views{
         create_image_views(t_device, swap_chain, *surface_format)
     };
     if (!image_views.has_value()) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     return Swapchain{

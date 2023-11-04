@@ -11,11 +11,11 @@ auto RenderFrame::create(
     Device&      t_device,
     unsigned int t_thread_count,
     unsigned     t_frame_count
-) noexcept -> std::optional<RenderFrame>
+) noexcept -> tl::optional<RenderFrame>
 {
     assert(t_frame_count != 0 && "Frame count must be positive");
     if (t_frame_count == 0) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     std::vector<FrameData> frame_data;
@@ -38,7 +38,7 @@ auto RenderFrame::create(
                     "vk::Device::createCommandPool failed with error code {}",
                     std::to_underlying(result)
                 );
-                return std::nullopt;
+                return tl::nullopt;
             }
 
             thread_data.emplace_back(
@@ -55,7 +55,7 @@ auto RenderFrame::create(
                 "vk::Device::createFence failed with error code {}",
                 std::to_underlying(result)
             );
-            return std::nullopt;
+            return tl::nullopt;
         }
 
         frame_data.emplace_back(

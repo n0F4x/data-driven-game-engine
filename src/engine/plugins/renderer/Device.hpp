@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include <tl/optional.hpp>
 #include <span>
 
 #include <vulkan/vulkan.hpp>
@@ -31,13 +31,13 @@ public:
         vk::SurfaceKHR     t_surface,
         vk::PhysicalDevice t_physical_device,
         const CreateInfo&  t_create_info
-    ) noexcept -> std::optional<Device>;
+    ) noexcept -> tl::optional<Device>;
 
     [[nodiscard]] static auto create_default(
         const Instance&    t_instance,
         vk::SurfaceKHR     t_surface,
         vk::PhysicalDevice t_physical_device
-    ) noexcept -> std::optional<Device>;
+    ) noexcept -> tl::optional<Device>;
 
     ///-------------///
     ///  Operators  ///

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include <tl/optional.hpp>
 
 #include <vulkan/vulkan.hpp>
 
@@ -24,7 +24,7 @@ public:
         vk::Device         t_device,
         vk::Extent2D       t_frame_buffer_size,
         vk::SwapchainKHR   t_old_swap_chain = nullptr
-    ) noexcept -> std::optional<Swapchain>;
+    ) noexcept -> tl::optional<Swapchain>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///

@@ -20,7 +20,7 @@ public:
         Device&  t_device,
         unsigned t_thread_count,
         unsigned t_frame_count = 2
-    ) noexcept -> std::optional<RenderFrame>;
+    ) noexcept -> tl::optional<RenderFrame>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///

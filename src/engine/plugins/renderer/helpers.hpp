@@ -1,7 +1,7 @@
 #pragma once
 
 #include <expected>
-#include <optional>
+#include <tl/optional.hpp>
 #include <span>
 
 #include <vulkan/vulkan.hpp>
@@ -33,7 +33,7 @@ struct QueueInfos {
 [[nodiscard]] auto find_queue_families(
     vk::PhysicalDevice queue_family_index,
     vk::SurfaceKHR     t_surface
-) -> std::optional<QueueInfos>;
+) -> tl::optional<QueueInfos>;
 
 [[nodiscard]] auto device_extensions(vk::PhysicalDevice t_physical_device
 ) noexcept -> std::span<const char* const>;
