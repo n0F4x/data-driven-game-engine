@@ -16,7 +16,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using Store = utils::Store;
+    using Store = Store;
 
     ///------------------///
     ///  Nested classes  ///
@@ -34,7 +34,7 @@ public:
     ///-----------///
     template <typename... Args>
     auto run(RunnerConcept<Args...> auto&& t_runner, Args&&... t_args) noexcept
-        -> void;
+        -> std::invoke_result_t<decltype(t_runner), App&, Args...>;
 
     [[nodiscard]] auto store() noexcept -> Store&;
 

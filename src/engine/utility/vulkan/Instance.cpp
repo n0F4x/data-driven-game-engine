@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace engine::utils::vulkan {
+namespace engine::vulkan {
 
 ///////////////////////////////////
 ///-----------------------------///
@@ -43,4 +43,4 @@ auto Instance::operator->() const noexcept -> const vk::Instance*
     return &m_instance;
 }
 
-}   // namespace engine::utils::vulkan
+}   // namespace engine::vulkan

@@ -145,7 +145,7 @@ auto create_image_views(
 
 }   // namespace
 
-namespace engine::utils::vulkan {
+namespace engine::vulkan {
 
 ////////////////////////////////////
 ///------------------------------///
@@ -292,4 +292,4 @@ auto Swapchain::image_views() const noexcept
     return m_image_views;
 }
 
-}   // namespace engine::utils::vulkan
+}   // namespace engine::vulkan

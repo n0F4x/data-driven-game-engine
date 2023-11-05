@@ -40,7 +40,7 @@ auto Instance::create(const CreateInfo& t_create_info) noexcept
         t_create_info.application_info,
         t_create_info.layers,
         t_create_info.extensions,
-        utils::vulkan::Instance{instance, debug_messenger}
+        vulkan::Instance{instance, debug_messenger}
     };
 }
 
@@ -83,7 +83,7 @@ Instance::Instance(
     const vk::ApplicationInfo&   t_application_info,
     std::span<const char* const> t_layers,
     std::span<const char* const> t_extensions,
-    utils::vulkan::Instance&&    t_instance
+    vulkan::Instance&&    t_instance
 ) noexcept
     : m_application_info{ t_application_info },
       m_layers{ t_layers.cbegin(), t_layers.cend() },

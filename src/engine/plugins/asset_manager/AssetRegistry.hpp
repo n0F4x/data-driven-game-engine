@@ -28,7 +28,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    utils::Store m_store;
+    Store m_store;
 };
 
 }   // namespace engine::asset_manager

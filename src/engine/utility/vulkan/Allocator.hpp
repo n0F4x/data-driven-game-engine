@@ -4,7 +4,7 @@
 
 #include <vk_mem_alloc.h>
 
-namespace engine::utils::vulkan {
+namespace engine::vulkan {
 
 class Allocator {
 public:
@@ -29,4 +29,4 @@ private:
     VmaAllocator m_allocator;
 };
 
-}   // namespace engine::utils::vulkan
+}   // namespace engine::vulkan

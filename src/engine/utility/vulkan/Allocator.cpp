@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace engine::utils::vulkan {
+namespace engine::vulkan {
 
 Allocator::Allocator(VmaAllocator t_allocator) noexcept
     : m_allocator{ t_allocator }
@@ -29,4 +29,4 @@ auto Allocator::operator->() const noexcept -> const VmaAllocator*
     return &m_allocator;
 }
 
-}   // namespace engine::utils::vulkan
+}   // namespace engine::vulkan

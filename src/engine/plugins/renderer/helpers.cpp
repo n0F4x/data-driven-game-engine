@@ -193,7 +193,7 @@ auto application_info() noexcept -> const vk::ApplicationInfo&
 auto layers() noexcept -> std::span<const char* const>
 {
     static const std::vector<const char*> layers{ []() {
-        auto                              expected_available_layers{ utils::vulkan::available_layers() };
+        auto                              expected_available_layers{ vulkan::available_layers() };
         if (!expected_available_layers.has_value()) {
             return g_required_layers;
         }
@@ -209,7 +209,7 @@ auto instance_extensions() noexcept -> std::span<const char* const>
 {
     static const std::vector<const char*> instance_extensions{ []() {
         auto                              expected_available_instance_extensions{
-            utils::vulkan::available_instance_extensions()
+            vulkan::available_instance_extensions()
         };
         if (!expected_available_instance_extensions.has_value()) {
             return g_required_instance_extensions;
@@ -483,7 +483,7 @@ auto device_extensions(vk::PhysicalDevice t_physical_device) noexcept
     static const std::vector<const char*> device_extensions{
         [t_physical_device]() {
             auto expected_available_device_extensions{
-                utils::vulkan::available_device_extensions(t_physical_device)
+                vulkan::available_device_extensions(t_physical_device)
             };
             if (!expected_available_device_extensions.has_value()) {
                 return g_required_device_extensions;
@@ -504,8 +504,8 @@ auto is_adequate(
     vk::SurfaceKHR     t_surface
 ) noexcept -> bool
 {
-    return utils::vulkan::supports_surface(t_physical_device, t_surface)
-        && utils::vulkan::supports_extensions(
+    return vulkan::supports_surface(t_physical_device, t_surface)
+        && vulkan::supports_extensions(
                t_physical_device, device_extensions(t_physical_device)
         );
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/utility/Result.hpp"
+#include <tl/optional.hpp>
 
 #include "App.hpp"
 #include "Plugin.hpp"
@@ -18,7 +18,8 @@ public:
     auto build_and_run(
         RunnerConcept<Args...> auto&& t_runner,
         Args&&... t_args
-    ) && noexcept -> Result;
+    ) && noexcept
+        -> tl::optional<decltype(std::declval<App>().run(t_runner, t_args...))>;
 
 
     template <typename Plugin>

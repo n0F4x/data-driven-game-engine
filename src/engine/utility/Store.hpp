@@ -8,7 +8,7 @@
 #include <entt/core/any.hpp>
 #include <entt/core/type_info.hpp>
 
-namespace engine::utils {
+namespace engine {
 
 class Store {
 public:

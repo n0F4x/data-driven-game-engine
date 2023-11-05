@@ -8,7 +8,7 @@
 #include "Instance.hpp"
 #include "Swapchain.hpp"
 
-namespace engine::utils::vulkan {
+namespace engine::vulkan {
 
 template <typename Handle, typename Owner = vk::Device>
 class Wrapped {
@@ -57,4 +57,4 @@ using Framebuffer  = Wrapped<vk::Framebuffer>;
 using ShaderModule = Wrapped<vk::ShaderModule>;
 using Surface      = Wrapped<vk::SurfaceKHR, vk::Instance>;
 
-}   // namespace engine::utils::vulkan
+}   // namespace engine::vulkan

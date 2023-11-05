@@ -8,7 +8,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::utils::vulkan {
+namespace engine::vulkan {
 
 [[nodiscard]] auto available_layers() noexcept
     -> std::expected<std::vector<const char*>, vk::Result>;
@@ -35,4 +35,4 @@ namespace engine::utils::vulkan {
     std::string_view t_file_path
 ) noexcept -> tl::optional<vk::ShaderModule>;
 
-}   // namespace engine::utils::vulkan
+}   // namespace engine::vulkan

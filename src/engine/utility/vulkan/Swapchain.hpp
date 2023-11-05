@@ -4,7 +4,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::utils::vulkan {
+namespace engine::vulkan {
 
 class Swapchain {
 public:
@@ -68,4 +68,4 @@ private:
     ) noexcept;
 };
 
-}   // namespace engine::utils::vulkan
+}   // namespace engine::vulkan

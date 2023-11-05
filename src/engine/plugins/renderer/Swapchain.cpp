@@ -15,7 +15,7 @@ namespace engine::renderer {
 ///////////////////////////////////
 
 Swapchain::Swapchain(
-    utils::vulkan::Surface&&        t_surface,
+    vulkan::Surface&&               t_surface,
     Device&                         t_device,
     std::function<vk::Extent2D()>&& t_get_framebuffer_size
 ) noexcept
@@ -34,7 +34,7 @@ auto Swapchain::surface() const noexcept -> vk::SurfaceKHR
 auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     -> void
 {
-    if (!m_swap_chain.has_value()) {
+    if (!m_swapchain.has_value()) {
         recreate_swap_chain(t_framebuffer_size);
         return;
     }
@@ -45,11 +45,11 @@ auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     if (surface_capabilities.result != vk::Result::eSuccess) {
         return;
     }
-    auto extent = utils::vulkan::Swapchain::choose_extent(
+    auto extent = vulkan::Swapchain::choose_extent(
         t_framebuffer_size, surface_capabilities.value
     );
 
-    if (m_swap_chain->extent() != extent) {
+    if (m_swapchain->extent() != extent) {
         recreate_swap_chain(t_framebuffer_size);
     }
 }
@@ -57,10 +57,19 @@ auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
 auto Swapchain::acquire_next_image(
     vk::Semaphore t_semaphore,
     vk::Fence     t_fence
-) noexcept -> Result
+) noexcept
+    -> std::expected<
+        std::variant<vulkan::err::Success, vulkan::err::SuboptimalKHR>,
+        std::variant<
+            err::NoSwapchain,
+            vulkan::err::ErrorOutOfHostMemory,
+            vulkan::err::ErrorOutOfDeviceMemory,
+            vulkan::err::ErrorDeviceLost,
+            vulkan::err::ErrorSurfaceLostKHR,
+            vulkan::err::ErrorFullScreenExclusiveModeLostEXT>>
 {
     const auto [result, image_index]{ m_device->acquireNextImageKHR(
-        **m_swap_chain,
+        **m_swapchain,
         std::numeric_limits<uint64_t>::max(),
         t_semaphore,
         t_fence
@@ -70,23 +79,35 @@ auto Swapchain::acquire_next_image(
         recreate_swap_chain();
     }
 
-    if ((result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
-        || !m_swap_chain.has_value())
-    {
-        SPDLOG_ERROR(
-            "vk::Device::acquireNextImage failed with error code {}",
-            std::to_underlying(result)
-        );
-        return Result::eFailure;
+    if (!m_swapchain.has_value()) {
+        return std::unexpected{ err::NoSwapchain{} };
     }
 
-    return Result::eSuccess;
+    switch (result) {
+        case vk::Result::eSuccess:
+        case vk::Result::eSuboptimalKHR:
+            return vulkan::
+                get<vulkan::err::Success, vulkan::err::SuboptimalKHR>(result);
+        default: {
+            SPDLOG_ERROR(
+                "vk::Device::acquireNextImage failed with error code {}",
+                std::to_underlying(result)
+            );
+            return std::unexpected{ vulkan::get<
+                err::NoSwapchain,
+                vulkan::err::ErrorOutOfHostMemory,
+                vulkan::err::ErrorOutOfDeviceMemory,
+                vulkan::err::ErrorDeviceLost,
+                vulkan::err::ErrorSurfaceLostKHR,
+                vulkan::err::ErrorFullScreenExclusiveModeLostEXT>(result) };
+        }
+    }
 }
 
 auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) noexcept
     -> void
 {
-    const std::array<vk::SwapchainKHR, 1> swapchains{ **m_swap_chain };
+    const std::array<vk::SwapchainKHR, 1> swapchains{ **m_swapchain };
     const vk::PresentInfoKHR              info{
                      .waitSemaphoreCount = static_cast<uint32_t>(t_wait_semaphores.size()),
                      .pWaitSemaphores = t_wait_semaphores.data(),
@@ -115,21 +136,20 @@ auto Swapchain::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
         return;
     }
 
-    auto new_swap_chain{ utils::vulkan::Swapchain::create(
+    auto new_swap_chain{ vulkan::Swapchain::create(
         *m_surface,
         m_device.physical_device(),
         m_device.graphics_queue_family_index(),
         m_device.graphics_queue_family_index(),
         *m_device,
         t_framebuffer_size,
-        m_swap_chain.transform(&utils::vulkan::Swapchain::operator*)
-            .value_or(nullptr)
+        m_swapchain.transform(&vulkan::Swapchain::operator*).value_or(nullptr)
     ) };
-    m_swap_chain.reset();
-    m_swap_chain = std::move(new_swap_chain);
+    m_swapchain.reset();
+    m_swapchain = std::move(new_swap_chain);
 
-    if (m_swap_chain.has_value()) {
-        m_swapchain_recreated_signal.publish(*m_swap_chain);
+    if (m_swapchain.has_value()) {
+        m_swapchain_recreated_signal.publish(*m_swapchain);
     }
 }
 

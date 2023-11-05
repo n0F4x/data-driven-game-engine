@@ -1,4 +1,4 @@
-namespace engine::utils {
+namespace engine {
 
 Store::~Store() noexcept
 {

@@ -8,7 +8,7 @@ auto Window::operator()(
     App::Store&           t_store,
     const sf::VideoMode&  t_video_mode,
     std::string_view      t_title,
-    window::Window::Style t_style
+    window::Style        t_style
 ) noexcept -> void
 {
     window::Window::create(t_video_mode, t_title.data(), t_style)

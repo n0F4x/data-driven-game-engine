@@ -42,7 +42,7 @@ auto RenderFrame::create(
             }
 
             thread_data.emplace_back(
-                utils::vulkan::CommandPool{ *t_device, command_pool },
+                vulkan::CommandPool{ *t_device, command_pool },
                 std::vector<vk::CommandBuffer>{},
                 0
             );
@@ -60,7 +60,7 @@ auto RenderFrame::create(
 
         frame_data.emplace_back(
             std::move(thread_data),
-            utils::vulkan::Fence{ *t_device, fence },
+            vulkan::Fence{ *t_device, fence },
             std::vector<std::function<void()>>{}
         );
     }

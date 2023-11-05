@@ -92,7 +92,7 @@ namespace {
     return [&](std::tuple<vk::Instance, vk::SurfaceKHR, Device&>&& t_pack
            ) -> Device& {
         t_store.emplace<Swapchain>(
-            utils::vulkan::Surface{ std::get<vk::Instance>(t_pack),
+            vulkan::Surface{ std::get<vk::Instance>(t_pack),
                                     std::get<vk::SurfaceKHR>(t_pack) },
             std::get<Device&>(t_pack),
             nullptr

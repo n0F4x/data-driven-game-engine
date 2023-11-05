@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace engine::utils::vulkan {
+namespace engine::vulkan {
 
 Device::Device(vk::Device t_device) noexcept : m_device{ t_device } {}
 
@@ -28,4 +28,4 @@ auto Device::operator->() const noexcept -> const vk::Device*
     return &m_device;
 }
 
-}   // namespace engine::utils::vulkan
+}   // namespace engine::vulkan

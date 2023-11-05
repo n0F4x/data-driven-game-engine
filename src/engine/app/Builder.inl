@@ -4,18 +4,16 @@ template <typename... Args>
 auto App::Builder::build_and_run(
     RunnerConcept<Args...> auto&& t_runner,
     Args&&... t_args
-) && noexcept -> Result
+) && noexcept
+    -> tl::optional<decltype(std::declval<App>().run(t_runner, t_args...))>
 {
-    return std::move(*this)
-        .build()
-        .transform([&t_runner, &t_args...](App&& app) {
-            app.run(
-                std::forward<decltype(t_runner)>(t_runner),
-                std::forward<Args>(t_args)...
-            );
-            return Result::eSuccess;
-        })
-        .value_or(Result::eFailure);
+    return std::move(*this).build().transform([&t_runner,
+                                               &t_args...](App&& app) {
+        return app.run(
+            std::forward<decltype(t_runner)>(t_runner),
+            std::forward<Args>(t_args)...
+        );
+    });
 }
 
 template <typename Plugin>

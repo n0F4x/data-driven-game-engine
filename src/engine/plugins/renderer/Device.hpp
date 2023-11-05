@@ -65,8 +65,8 @@ private:
     ///*************///
     vk::PhysicalDevice       m_physical_device;
     CreateInfo               m_info;
-    utils::vulkan::Device    m_device;
-    utils::vulkan::Allocator m_allocator;
+    vulkan::Device    m_device;
+    vulkan::Allocator m_allocator;
     uint32_t                 m_graphics_queue_family_index;
     vk::Queue                m_graphics_queue;
     uint32_t                 m_compute_queue_family_index;

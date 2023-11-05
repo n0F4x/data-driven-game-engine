@@ -43,14 +43,14 @@ private:
     ///  Nested classes  ///
     ///******************///
     struct ThreadData {
-        utils::vulkan::CommandPool     command_pool;
+        vulkan::CommandPool     command_pool;
         std::vector<vk::CommandBuffer> command_buffers;
         size_t                         requested_command_buffers{};
     };
 
     struct FrameData {
         std::vector<ThreadData>            thread_data;
-        utils::vulkan::Fence               fence;
+        vulkan::Fence               fence;
         std::vector<std::function<void()>> pre_updates;
     };
 

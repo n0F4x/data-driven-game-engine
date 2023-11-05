@@ -56,7 +56,7 @@ private:
     vk::ApplicationInfo      m_application_info;
     std::vector<const char*> m_layers;
     std::vector<const char*> m_extensions;
-    utils::vulkan::Instance  m_instance;
+    vulkan::Instance  m_instance;
 
     ///******************************///
     ///  Constructors / Destructors  ///
@@ -65,7 +65,7 @@ private:
         const vk::ApplicationInfo&   t_application_info,
         std::span<const char* const> t_layers,
         std::span<const char* const> t_extensions,
-        utils::vulkan::Instance&&    t_instance
+        vulkan::Instance&&    t_instance
     ) noexcept;
 };
 

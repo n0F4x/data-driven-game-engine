@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace engine::utils::vulkan {
+namespace engine::vulkan {
 
 class Device {
 public:
@@ -27,4 +27,4 @@ private:
     vk::Device m_device;
 };
 
-}   // namespace engine::utils::vulkan
+}   // namespace engine::vulkan

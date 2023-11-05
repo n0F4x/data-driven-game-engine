@@ -4,7 +4,7 @@
 #include <ranges>
 #include <set>
 
-namespace engine::utils::vulkan {
+namespace engine::vulkan {
 
 auto available_layers() noexcept
     -> std::expected<std::vector<const char*>, vk::Result>
@@ -148,4 +148,4 @@ auto load_shader(vk::Device t_device, std::string_view t_file_path) noexcept
     return shader_module;
 }
 
-}   // namespace engine::utils::vulkan
+}   // namespace engine::vulkan
