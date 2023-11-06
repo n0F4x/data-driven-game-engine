@@ -26,7 +26,7 @@ public:
     ///-----------///
     [[nodiscard]] auto framebuffer_size() const noexcept -> sf::Vector2u;
 
-    auto create_vulkan_surface(
+    [[nodiscard]] auto create_vulkan_surface(
         VkInstance                   t_instance,
         const VkAllocationCallbacks* t_allocator = nullptr
     ) noexcept -> VkSurfaceKHR;

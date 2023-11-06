@@ -35,10 +35,6 @@ auto Window::create_vulkan_surface(
     const VkAllocationCallbacks* t_allocator
 ) noexcept -> VkSurfaceKHR
 {
-    if (!sf::Vulkan::isAvailable()) {
-        return VkSurfaceKHR{};
-    }
-
     VkSurfaceKHR surface{};
     bool         success;
 

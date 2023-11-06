@@ -1,3 +1,3 @@
-- add a logger
-- add (required/optional) policy to plugins
+- separate logger for debug and actual use
 - replace sfml with glfw
+- let compute queue present according to https://gpuopen.com/learn/rdna-performance-guide/#presenting
