@@ -1,1 +1,2 @@
 - add a logger
+- add (required/optional) policy to plugins
