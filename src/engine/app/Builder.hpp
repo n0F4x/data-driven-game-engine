@@ -21,7 +21,7 @@ public:
     ) && noexcept
         -> tl::optional<decltype(std::declval<App>().run(
             std::forward<decltype(t_runner)>(t_runner),
-            std::forward(t_args)...
+            std::forward<decltype(t_args)>(t_args)...
         ))>;
 
 
