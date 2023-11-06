@@ -1,2 +1,3 @@
 - add a logger
 - add (required/optional) policy to plugins
+- replace sfml with glfw

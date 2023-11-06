@@ -1,7 +1,9 @@
 #pragma once
 
+#include <SFML/Window/VideoMode.hpp>
+
 #include "engine/app/Plugin.hpp"
-#include "engine/plugins/window/Window.hpp"
+#include "engine/plugins/window/Style.hpp"
 
 namespace engine::plugins {
 

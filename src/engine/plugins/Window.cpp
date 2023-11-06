@@ -2,12 +2,14 @@
 
 #include <spdlog/spdlog.h>
 
+#include "engine/plugins/window/Window.hpp"
+
 namespace engine::plugins {
 
 auto Window::operator()(
-    App::Store&           t_store,
-    const sf::VideoMode&  t_video_mode,
-    std::string_view      t_title,
+    App::Store&          t_store,
+    const sf::VideoMode& t_video_mode,
+    std::string_view     t_title,
     window::Style        t_style
 ) noexcept -> void
 {

@@ -5,13 +5,15 @@ auto App::Builder::build_and_run(
     RunnerConcept<Args...> auto&& t_runner,
     Args&&... t_args
 ) && noexcept
-    -> tl::optional<decltype(std::declval<App>().run(t_runner, std::forward(t_args)...))>
+    -> tl::optional<decltype(std::declval<App>().run(
+        std::forward<decltype(t_runner)>(t_runner),
+        std::forward(t_args)...
+    ))>
 {
     return std::move(*this).build().transform([&t_runner,
                                                &t_args...](App&& app) {
         return app.run(
-            std::forward<decltype(t_runner)>(t_runner),
-            std::forward<Args>(t_args)...
+            std::forward<decltype(t_runner)>(t_runner), std::forward(t_args)...
         );
     });
 }

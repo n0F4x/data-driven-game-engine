@@ -19,8 +19,10 @@ public:
         RunnerConcept<Args...> auto&& t_runner,
         Args&&... t_args
     ) && noexcept
-        -> tl::optional<decltype(std::declval<App>()
-                                     .run(t_runner, std::forward(t_args)...))>;
+        -> tl::optional<decltype(std::declval<App>().run(
+            std::forward<decltype(t_runner)>(t_runner),
+            std::forward(t_args)...
+        ))>;
 
 
     template <typename Plugin>
