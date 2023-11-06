@@ -41,11 +41,11 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
         <iostream>
         <limits>
         <memory>
-        <optional>
         <ranges>
         <set>
         <span>
         <sstream>
+        <stdexcept>
         <string>
         <string_view>
         <thread>
@@ -53,6 +53,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
         <unordered_map>
         <utility>
         <vector>
+        <variant>
 )
 
 

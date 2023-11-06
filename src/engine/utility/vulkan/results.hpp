@@ -286,16 +286,16 @@ auto to_variant(vk::Result t_result) -> Variant
 }
 
 template <typename... Args>
-auto variant_cast(const Variant& t_original) noexcept -> std::variant<Args...>
+auto variant_cast(Variant&& t_original) -> std::variant<Args...>
 {
     return std::visit(
         [](auto&& result) -> std::variant<Args...> {
             if constexpr ((std::is_same_v<decltype(result), Args> || ...)) {
-                return result;
+                return std::forward(result);
             }
             throw std::logic_error{ "Unexpected case" };
         },
-        t_original
+        std::forward<Variant>(t_original)
     );
 }
 
