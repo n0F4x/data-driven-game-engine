@@ -8,6 +8,7 @@
 
 #include "engine/utility/vulkan/Allocator.hpp"
 #include "engine/utility/vulkan/raii_wrappers.hpp"
+#include "engine/utility/vulkan/VmaBuffer.hpp"
 
 #include "Instance.hpp"
 
@@ -59,20 +60,26 @@ public:
     [[nodiscard]] auto transfer_queue_family_index() const noexcept -> uint32_t;
     [[nodiscard]] auto transfer_queue() const noexcept -> vk::Queue;
 
+    [[nodiscard]] auto create_buffer(
+        const vk::BufferCreateInfo&    t_buffer_create_info,
+        const VmaAllocationCreateInfo& t_allocation_create_info,
+        void*                          t_data = nullptr
+    ) const noexcept -> tl::optional<vulkan::VmaBuffer>;
+
 private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::PhysicalDevice       m_physical_device;
-    CreateInfo               m_info;
-    vulkan::Device    m_device;
-    vulkan::Allocator m_allocator;
-    uint32_t                 m_graphics_queue_family_index;
-    vk::Queue                m_graphics_queue;
-    uint32_t                 m_compute_queue_family_index;
-    vk::Queue                m_compute_queue;
-    uint32_t                 m_transfer_queue_family_index;
-    vk::Queue                m_transfer_queue;
+    vk::PhysicalDevice m_physical_device;
+    CreateInfo         m_info;
+    vulkan::Device     m_device;
+    vulkan::Allocator  m_allocator;
+    uint32_t           m_graphics_queue_family_index;
+    vk::Queue          m_graphics_queue;
+    uint32_t           m_compute_queue_family_index;
+    vk::Queue          m_compute_queue;
+    uint32_t           m_transfer_queue_family_index;
+    vk::Queue          m_transfer_queue;
 
     ///******************************///
     ///  Constructors / Destructors  ///

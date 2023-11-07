@@ -161,6 +161,11 @@ auto Device::physical_device() const noexcept -> vk::PhysicalDevice
     return m_physical_device;
 }
 
+auto Device::info() const noexcept -> const Device::CreateInfo&
+{
+    return m_info;
+}
+
 auto Device::allocator() const noexcept -> VmaAllocator
 {
     return *m_allocator;
@@ -194,6 +199,83 @@ auto Device::transfer_queue_family_index() const noexcept -> uint32_t
 auto Device::transfer_queue() const noexcept -> vk::Queue
 {
     return m_transfer_queue;
+}
+
+auto Device::create_buffer(
+    const vk::BufferCreateInfo&    t_buffer_create_info,
+    const VmaAllocationCreateInfo& t_allocation_create_info,
+    void*                          t_data
+) const noexcept -> tl::optional<vulkan::VmaBuffer>
+{
+    vk::Buffer        buffer;
+    VmaAllocation     allocation;
+    VmaAllocationInfo allocation_info;
+    const vk::Result  create_buffer_result{ vmaCreateBuffer(
+        *m_allocator,
+        reinterpret_cast<const VkBufferCreateInfo*>(&t_buffer_create_info),
+        &t_allocation_create_info,
+        reinterpret_cast<VkBuffer*>(&buffer),
+        &allocation,
+        &allocation_info
+    ) };
+    if (create_buffer_result != vk::Result::eSuccess) {
+        SPDLOG_WARN(
+            "vmaCreateBuffer failed with error code {}",
+            std::to_underlying(create_buffer_result)
+        );
+        return tl::nullopt;
+    }
+
+    vk::MemoryPropertyFlags memPropFlags;
+    vmaGetAllocationMemoryProperties(
+        *m_allocator,
+        allocation,
+        reinterpret_cast<VkMemoryPropertyFlags*>(&memPropFlags)
+    );
+
+    if (t_data != nullptr) {
+        const bool mapped{ static_cast<bool>(
+            t_allocation_create_info.flags & VMA_ALLOCATION_CREATE_MAPPED_BIT
+        ) };
+
+        if (!mapped) {
+            vk::Result map_result{ vmaMapMemory(
+                *m_allocator, allocation, &allocation_info.pMappedData
+            ) };
+            if (map_result != vk::Result::eSuccess) {
+                SPDLOG_WARN(
+                    "vmaMapMemory failed with error code {}",
+                    std::to_underlying(map_result)
+                );
+                return tl::nullopt;
+            }
+        }
+
+        memcpy(
+            allocation_info.pMappedData,
+            t_data,
+            static_cast<size_t>(t_buffer_create_info.size)
+        );
+
+        if (memPropFlags & vk::MemoryPropertyFlagBits::eHostCoherent) {
+            const vk::Result flush_result{
+                vmaFlushAllocation(*m_allocator, allocation, 0, VK_WHOLE_SIZE)
+            };
+            if (flush_result != vk::Result::eSuccess) {
+                SPDLOG_WARN(
+                    "vmaFlushAllocation failed with error code {}",
+                    std::to_underlying(flush_result)
+                );
+                return tl::nullopt;
+            }
+        }
+
+        if (!mapped) {
+            vmaUnmapMemory(*m_allocator, allocation);
+        }
+    }
+
+    return vulkan::VmaBuffer{ *m_allocator, buffer, allocation };
 }
 
 }   // namespace engine::renderer

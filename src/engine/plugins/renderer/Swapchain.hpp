@@ -12,7 +12,7 @@
 
 #include "engine/utility/Result.hpp"
 #include "engine/utility/vulkan/raii_wrappers.hpp"
-#include "engine/utility/vulkan/results.hpp"
+#include "engine/utility/vulkan/result_types.hpp"
 
 #include "Device.hpp"
 

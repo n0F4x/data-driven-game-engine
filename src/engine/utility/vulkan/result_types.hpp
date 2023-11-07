@@ -4,6 +4,8 @@
 #include <type_traits>
 #include <variant>
 
+#include <vulkan/vulkan_enums.hpp>
+
 namespace engine::vulkan {
 
 namespace err {
@@ -273,6 +275,10 @@ auto to_variant(vk::Result t_result) -> Variant
             return err::ErrorInvalidDrmFormatModifierPlaneLayoutEXT{};
         case vk::Result::eErrorNotPermittedKHR:
             return err::ErrorNotPermittedKHR{};
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+        case vk::Result::eErrorFullScreenExclusiveModeLostEXT:
+            return err::ErrorFullScreenExclusiveModeLostEXT{};
+#endif /*VK_USE_PLATFORM_WIN32_KHR*/
         case vk::Result::eThreadIdleKHR: return err::ThreadIdleKHR{};
         case vk::Result::eThreadDoneKHR: return err::ThreadDoneKHR{};
         case vk::Result::eOperationDeferredKHR:
