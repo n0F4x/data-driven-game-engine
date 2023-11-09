@@ -1,5 +1,6 @@
 add_subdirectory(renderer)
 add_subdirectory(asset_manager)
+add_subdirectory(graphics)
 add_subdirectory(scene_graph)
 add_subdirectory(window)
 
