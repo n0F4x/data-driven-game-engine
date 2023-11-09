@@ -525,13 +525,21 @@ auto choose_physical_device(
         return nullptr;
     }
 
-    auto ranked_devices_view{
+    auto adequate_devices{
         physical_devices
         | std::views::filter(
             [t_surface](vk::PhysicalDevice t_physical_device) -> bool {
                 return is_adequate(t_physical_device, t_surface);
             }
         )
+    };
+
+    if (std::ranges::empty(adequate_devices)) {
+        return nullptr;
+    }
+
+    auto ranked_devices{
+        adequate_devices
         | std::views::transform(
             [](vk::PhysicalDevice t_physical_device
             ) -> std::pair<vk::PhysicalDevice, unsigned> {
@@ -544,15 +552,16 @@ auto choose_physical_device(
                 }
             }
         )
+        | std::ranges::to<std::vector>()
     };
-    std::vector<std::pair<vk::PhysicalDevice, unsigned>> ranked_devices{
-        ranked_devices_view.begin(), ranked_devices_view.end()
-    };
+
     std::ranges::sort(
-        ranked_devices, {}, &std::pair<vk::PhysicalDevice, unsigned>::second
+        ranked_devices,
+        std::ranges::greater{},
+        &std::pair<vk::PhysicalDevice, unsigned>::second
     );
 
-    return ranked_devices.empty() ? nullptr : ranked_devices.front().first;
+    return ranked_devices.front().first;
 }
 
 auto vma_allocator_create_flags(

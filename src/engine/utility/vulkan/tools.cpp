@@ -15,13 +15,11 @@ auto available_layers() noexcept
         return std::unexpected{ result };
     }
 
-    const auto view{
-        properties
-        | std::views::transform([](const vk::LayerProperties& t_property) {
-              return t_property.layerName;
-          })
-    };
-    return std::vector<const char*>{ view.begin(), view.end() };
+    return properties
+         | std::views::transform([](const vk::LayerProperties& t_property) {
+               return t_property.layerName;
+           })
+         | std::ranges::to<std::vector<const char*>>();
 }
 
 auto available_instance_extensions() noexcept
@@ -34,13 +32,11 @@ auto available_instance_extensions() noexcept
         return std::unexpected{ result };
     }
 
-    const auto view{
-        properties
-        | std::views::transform([](const vk::ExtensionProperties& t_property) {
-              return t_property.extensionName;
-          })
-    };
-    return std::vector<const char*>{ view.begin(), view.end() };
+    return properties
+         | std::views::transform([](const vk::ExtensionProperties& t_property) {
+               return t_property.extensionName;
+           })
+         | std::ranges::to<std::vector<const char*>>();
 }
 
 auto available_device_extensions(vk::PhysicalDevice t_physical_device) noexcept
@@ -54,13 +50,11 @@ auto available_device_extensions(vk::PhysicalDevice t_physical_device) noexcept
         return std::unexpected{ result };
     }
 
-    const auto view{
-        extension_properties
-        | std::views::transform([](const vk::ExtensionProperties& t_property) {
-              return t_property.extensionName;
-          })
-    };
-    return std::vector<const char*>{ view.begin(), view.end() };
+    return extension_properties
+         | std::views::transform([](const vk::ExtensionProperties& t_property) {
+               return t_property.extensionName;
+           })
+         | std::ranges::to<std::vector<const char*>>();
 }
 
 auto supports_extensions(
