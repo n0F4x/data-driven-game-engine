@@ -26,7 +26,6 @@ else ()
             -Wall
             -Wextra
             -Werror
-            -fconcepts-diagnostics-depth=3
             -Wno-missing-field-initializers
     )
 endif ()
@@ -86,7 +85,9 @@ set(BUILD_SHARED_LIBS OFF)
 FetchContent_Declare(SFML
         GIT_REPOSITORY https://github.com/SFML/SFML.git
         GIT_TAG 2.6.0
-        GIT_PROGRESS TRUE)
+        GIT_PROGRESS TRUE
+        SYSTEM
+)
 FetchContent_MakeAvailable(SFML)
 target_link_libraries(${PROJECT_NAME} PUBLIC sfml-window)
 

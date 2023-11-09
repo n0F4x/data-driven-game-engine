@@ -2,7 +2,7 @@
 
 ## Compilation
 
-The code must compile with the latest gcc version.
+The code must compile with the latest Clang version.
 Please use modern features if possible.
 
 ## Style Guide
@@ -57,15 +57,16 @@ Mark each section as seen in the rest of the files.
 
 Declare everything that is public first!  
 The order within public/protected/private parts is the following:
-  1. Type Aliases
-  2. Nested Classes
-  3. Friend Classes
-  4. Static Variables
-  5. Variables
-  6. Static Methods
-  7. Constructors / Destructors
-  8. Operators
-  9. Methods
+
+1. Type Aliases
+2. Nested Classes
+3. Friend Classes
+4. Static Variables
+5. Variables
+6. Static Methods
+7. Constructors / Destructors
+8. Operators
+9. Methods
 
 Declare friend classes as private!
 

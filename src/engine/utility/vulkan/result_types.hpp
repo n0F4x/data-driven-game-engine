@@ -205,7 +205,7 @@ using Variant = std::variant<
     err::ErrorCompressionExhaustedEXT,
     err::ErrorIncompatibleShaderBinaryEXT>;
 
-auto to_variant(vk::Result t_result) -> Variant
+[[maybe_unused]] auto to_variant(vk::Result t_result) -> Variant
 {
     switch (t_result) {
         case vk::Result::eSuccess: return err::Success{};
