@@ -121,7 +121,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC vulkan-memory-allocator)
 FetchContent_Declare(glm
         GIT_REPOSITORY https://github.com/g-truc/glm.git
         GIT_TAG 0.9.9.8
-        GIT_PROGRESS TRUE)
+        GIT_PROGRESS TRUE
+        SYSTEM
+)
 FetchContent_MakeAvailable(glm)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
         GLM_FORCE_DEPTH_ZERO_TO_ONE
