@@ -1,7 +1,6 @@
 #include <engine/app.hpp>
-#include <engine/asset_manager/GltfLoader.hpp>
-#include <engine/graphics/ModelFactory.hpp>
 #include <engine/plugins.hpp>
+
 using namespace engine;
 
 auto main() noexcept -> int
