@@ -1,11 +1,16 @@
 #include <engine/app.hpp>
-#include <engine/asset_manager/GltfLoader.hpp>
-#include <engine/graphics/ModelFactory.hpp>
 #include <engine/plugins.hpp>
+
 using namespace engine;
 
 auto main() noexcept -> int
 {
+    // return asset_manager::GltfLoader::load_model(
+    //            asset_manager::GltfFormat::eBinary, "models/DamagedHelmet.glb"
+    // )
+    //     .transform(gfx::ModelFactory::create_model)
+    //     .has_value();
+
     return App::create()
         .add_plugin<plugins::Logger>(logger::Level::eTrace)
         .add_plugin<plugins::AssetManager>()
