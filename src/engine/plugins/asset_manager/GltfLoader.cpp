@@ -29,8 +29,12 @@ auto GltfLoader::load_model(
     }
 
     if (!success) {
-        SPDLOG_WARN(warning);
-        SPDLOG_ERROR(error);
+        if (!warning.empty()) {
+            SPDLOG_WARN(warning);
+        }
+        if (!error.empty()) {
+            SPDLOG_ERROR(error);
+        }
         return tl::nullopt;
     }
 

@@ -97,19 +97,18 @@ template <typename IndexType>
 [[nodiscard]] auto get_indices(
     const tinygltf::Model&    t_model,
     const tinygltf::Accessor& t_accessor,
-    uint32_t                  t_vertex_start
+    uint32_t                  t_first_vertex_index
 ) noexcept -> std::vector<uint32_t>
 {
     const auto& buffer_view = t_model.bufferViews[t_accessor.bufferView];
     const auto& buffer      = t_model.buffers[buffer_view.buffer];
-
-    const auto* buf = reinterpret_cast<const IndexType*>(
+    const auto* buf         = reinterpret_cast<const IndexType*>(
         &buffer.data[t_accessor.byteOffset + buffer_view.byteOffset]
     );
 
     return std::ranges::iota_view{ size_t{ 0 }, t_accessor.count }
-         | std::views::transform([buf, t_vertex_start](auto index) {
-               return buf[index] + t_vertex_start;
+         | std::views::transform([buf, t_first_vertex_index](auto index) {
+               return buf[index] + t_first_vertex_index;
            })
          | std::ranges::to<std::vector>();
 }
@@ -117,19 +116,25 @@ template <typename IndexType>
 [[nodiscard]] auto get_indices_opt(
     const tinygltf::Model&     t_model,
     const tinygltf::Primitive& t_primitive,
-    uint32_t                   t_vertex_start
+    uint32_t                   t_first_vertex_index
 ) noexcept -> tl::optional<std::vector<uint32_t>>
 {
     const auto& accessor = t_model.accessors[t_primitive.indices];
     switch (accessor.componentType) {
         case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
-            return get_indices<uint32_t>(t_model, accessor, t_vertex_start);
+            return get_indices<uint32_t>(
+                t_model, accessor, t_first_vertex_index
+            );
         }
         case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
-            return get_indices<uint16_t>(t_model, accessor, t_vertex_start);
+            return get_indices<uint16_t>(
+                t_model, accessor, t_first_vertex_index
+            );
         }
         case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
-            return get_indices<uint8_t>(t_model, accessor, t_vertex_start);
+            return get_indices<uint8_t>(
+                t_model, accessor, t_first_vertex_index
+            );
         }
         default:
             SPDLOG_WARN(
@@ -149,8 +154,8 @@ struct MeshInfo {
 [[nodiscard]] auto load_mesh(
     const tinygltf::Node&  t_node,
     const tinygltf::Model& t_model,
-    uint32_t               t_first_vertex,
-    uint32_t               t_first_index
+    uint32_t               t_first_vertex_index,
+    uint32_t               t_first_index_index
 ) noexcept -> tl::optional<MeshInfo>
 {
     std::vector<Model::Vertex>    vertices;
@@ -158,12 +163,14 @@ struct MeshInfo {
     std::vector<Model::Primitive> primitives;
 
     for (const auto& primitive : t_model.meshes[t_node.mesh].primitives) {
-        uint32_t first_vertex{ static_cast<uint32_t>(vertices.size())
-                               + t_first_vertex };
-        uint32_t first_index{ static_cast<uint32_t>(indices.size())
-                              + t_first_index };
+        uint32_t first_vertex_index{ static_cast<uint32_t>(vertices.size())
+                                     + t_first_vertex_index };
+        uint32_t first_index_index{ static_cast<uint32_t>(indices.size())
+                                    + t_first_index_index };
 
-        auto indices_opt{ get_indices_opt(t_model, primitive, first_vertex) };
+        auto indices_opt{
+            get_indices_opt(t_model, primitive, first_vertex_index)
+        };
         if (!indices_opt) {
             return tl::nullopt;
         }
@@ -172,7 +179,7 @@ struct MeshInfo {
         vertices.append_range(get_vertices(t_model, primitive));
 
         primitives.emplace_back(
-            first_index, static_cast<uint32_t>(indices_opt->size())
+            first_index_index, static_cast<uint32_t>(indices_opt->size())
         );
     }
 
@@ -191,8 +198,8 @@ auto load_node(
     Model::Node*           t_parent,
     const tinygltf::Node&  t_node,
     const tinygltf::Model& t_model,
-    uint32_t               t_vertex_start,
-    uint32_t               t_first_index
+    uint32_t               t_first_vertex_index,
+    uint32_t               t_first_index_index
 ) noexcept -> NodeInfo
 {
     NodeInfo result;
@@ -207,7 +214,7 @@ auto load_node(
     }
 
     if (t_node.mesh > -1) {
-        load_mesh(t_node, t_model, t_vertex_start, t_first_index)
+        load_mesh(t_node, t_model, t_first_vertex_index, t_first_index_index)
             .transform([&](MeshInfo&& t_mesh_info) {
                 vertices.append_range(std::move(t_mesh_info.vertices));
                 indices.append_range(std::move(t_mesh_info.indices));
@@ -217,19 +224,19 @@ auto load_node(
             });
     }
 
-    for (int i : t_node.children) {
+    std::ranges::for_each(t_node.children, [&](auto index) {
         auto child{ load_node(
             &node,
-            t_model.nodes[i],
+            t_model.nodes[index],
             t_model,
-            t_first_index + static_cast<uint32_t>(indices.size()),
-            t_vertex_start + static_cast<uint32_t>(vertices.size())
+            t_first_index_index + static_cast<uint32_t>(indices.size()),
+            t_first_vertex_index + static_cast<uint32_t>(vertices.size())
         ) };
 
         node.children.push_back(std::move(child.node));
         vertices.append_range(std::move(child.vertices));
         indices.append_range(std::move(child.indices));
-    }
+    });
 
     return result;
 }

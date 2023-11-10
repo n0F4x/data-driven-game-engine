@@ -93,7 +93,7 @@ namespace {
            ) -> Device& {
         t_store.emplace<Swapchain>(
             vulkan::Surface{ std::get<vk::Instance>(t_pack),
-                                    std::get<vk::SurfaceKHR>(t_pack) },
+                             std::get<vk::SurfaceKHR>(t_pack) },
             std::get<Device&>(t_pack),
             nullptr
         );

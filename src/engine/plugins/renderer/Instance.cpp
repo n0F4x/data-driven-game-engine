@@ -83,7 +83,7 @@ Instance::Instance(
     const vk::ApplicationInfo&   t_application_info,
     std::span<const char* const> t_layers,
     std::span<const char* const> t_extensions,
-    vulkan::Instance&&    t_instance
+    vulkan::Instance&&           t_instance
 ) noexcept
     : m_application_info{ t_application_info },
       m_layers{ t_layers.cbegin(), t_layers.cend() },

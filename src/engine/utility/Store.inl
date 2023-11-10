@@ -40,4 +40,4 @@ auto Store::contains() const noexcept -> bool
     return m_index_map.contains(entt::type_index<T>{});
 }
 
-}   // namespace engine::utils
+}   // namespace engine

@@ -26,7 +26,7 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        App::Store& t_store,
+        App::Store&   t_store,
         logger::Level t_log_level = logger::Level::eDebug
     ) noexcept -> void;
 };
