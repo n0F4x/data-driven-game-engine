@@ -14,44 +14,58 @@ using namespace engine::window;
 
 namespace engine::renderer {
 
+std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
+    Plugin::default_surface_creator{ [](Store&                       t_store,
+                                        VkInstance                   t_instance,
+                                        const VkAllocationCallbacks* t_allocator
+                                     ) {
+        return t_store.find<Window>()
+            .transform([=](Window& t_window) {
+                return t_window.create_vulkan_surface(t_instance, t_allocator);
+            })
+            .or_else([] {
+                SPDLOG_WARN(
+                    "Default window could not be found in store. "
+                    "Consider using another surface creator than the default."
+                );
+            })
+            .value_or(nullptr);
+    } };
+
 namespace {
 
-[[nodiscard]] auto create_instance(Window& t_window)
-    -> tl::optional<std::tuple<Window&, Instance>>
+[[nodiscard]] auto create_instance() -> tl::optional<Instance>
 {
     return Instance::create_default()
-        .transform([&](Instance&& t_instance) {
-            return tl::make_optional(
-                std::make_tuple(std::ref(t_window), std::move(t_instance))
-            );
-        })
+        .transform(
+            []<typename Instance>(Instance&& t_instance
+            ) -> tl::optional<Instance> {
+                return std::forward<Instance>(t_instance);
+            }
+        )
         .value_or(tl::nullopt);
 }
 
 [[nodiscard]] auto inject_instance(Store& t_store)
 {
-    return [&](std::tuple<Window&, Instance>&& t_pack) {
-        return std::make_tuple(
-            std::ref(std::get<Window&>(t_pack)),
-            std::cref(
-                t_store.emplace<Instance>(std::move(std::get<Instance>(t_pack)))
-            )
-        );
+    return [&]<typename Instance>(Instance&& t_instance) -> Instance& {
+        return t_store.emplace<Instance>(std::forward<Instance>(t_instance));
     };
 }
 
-[[nodiscard]] auto create_surface(std::tuple<Window&, const Instance&>&& t_pack)
-    -> tl::optional<std::tuple<const Instance&, vk::SurfaceKHR>>
+[[nodiscard]] auto
+    create_surface(Store& t_store, const SurfaceCreator& t_create_surface)
 {
-    vk::SurfaceKHR surface{ std::get<Window&>(t_pack).create_vulkan_surface(
-        *std::get<const Instance&>(t_pack)
-    ) };
-    if (!surface) {
-        return tl::nullopt;
-    }
-    return std::make_tuple(
-        std::cref(std::get<const Instance&>(t_pack)), surface
-    );
+    return [&](const Instance& t_instance
+           ) -> tl::optional<std::tuple<const Instance&, vk::SurfaceKHR>> {
+        vk::SurfaceKHR surface{
+            std::invoke(t_create_surface, t_store, *t_instance, nullptr)
+        };
+        if (!surface) {
+            return tl::nullopt;
+        }
+        return std::make_tuple(std::cref(t_instance), surface);
+    };
 }
 
 [[nodiscard]] auto create_device(
@@ -118,12 +132,16 @@ namespace {
 
 }   // namespace
 
-auto Plugin::operator()(Store& t_store) noexcept -> void
+auto Plugin::operator()(
+    Store& t_store,
+    const std::function<
+        VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>&
+        t_create_surface
+) const noexcept -> void
 {
-    t_store.find<Window>()
-        .and_then(create_instance)
+    create_instance()
         .transform(inject_instance(t_store))
-        .and_then(create_surface)
+        .and_then(create_surface(t_store, t_create_surface))
         .and_then(create_device)
         .transform(inject_device(t_store))
         .transform(inject_swapchain(t_store))
