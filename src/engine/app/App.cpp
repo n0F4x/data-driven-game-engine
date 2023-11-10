@@ -19,7 +19,7 @@ auto App::create() noexcept -> App::Builder
     return Builder{};
 }
 
-auto App::store() noexcept -> App::Store&
+auto App::store() noexcept -> Store&
 {
     return m_store;
 }

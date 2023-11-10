@@ -2,7 +2,7 @@
 
 #include <spdlog/common.h>
 
-#include "engine/app/Plugin.hpp"
+#include "engine/common/Plugin.hpp"
 
 namespace engine::logger {
 
@@ -16,21 +16,15 @@ enum class Level {
     eOff      = SPDLOG_LEVEL_OFF
 };
 
-}   // namespace engine::logger
-
-namespace engine::plugins {
-
-class Logger {
+class Plugin {
 public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(
-        App::Store&   t_store,
-        logger::Level t_log_level = logger::Level::eDebug
-    ) noexcept -> void;
+    auto operator()(Store& t_store, Level t_log_level = Level::eDebug) noexcept
+        -> void;
 };
 
-static_assert(PluginConcept<Logger, logger::Level>);
+static_assert(PluginConcept<Plugin, Level>);
 
-}   // namespace engine::plugins
+}   // namespace engine::logger

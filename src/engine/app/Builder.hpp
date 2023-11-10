@@ -2,8 +2,9 @@
 
 #include <tl/optional.hpp>
 
+#include "engine/common/Plugin.hpp"
+
 #include "App.hpp"
-#include "Plugin.hpp"
 
 namespace engine {
 

@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include "engine/utility/Store.hpp"
+#include "engine/common/Store.hpp"
 
 namespace engine::asset_manager {
 

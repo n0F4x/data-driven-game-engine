@@ -8,7 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #if defined(_WIN32)
-  #include <windows.h>
+  #include <Windows.h>
 
   #include <vulkan/vulkan_win32.h>
 #elif defined(__linux__)

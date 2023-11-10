@@ -2,28 +2,29 @@
 
 #include <SFML/Window/VideoMode.hpp>
 
-#include "engine/app/Plugin.hpp"
-#include "engine/plugins/window/Style.hpp"
+#include "engine/common/Plugin.hpp"
 
-namespace engine::plugins {
+#include "Style.hpp"
 
-class Window {
+namespace engine::window {
+
+class Plugin {
 public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        App::Store&          t_store,
+        Store&               t_store,
         const sf::VideoMode& t_video_mode,
         std::string_view     t_title,
-        window::Style        t_style
+        Style                t_style
     ) noexcept -> void;
 };
 
 static_assert(PluginConcept<
-              Window,
+              Plugin,
               const sf::VideoMode&,
               std::string_view,
-              window::Style>);
+              Style>);
 
-}   // namespace engine::plugins
+}   // namespace engine::window

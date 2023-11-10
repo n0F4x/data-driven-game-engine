@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#include "engine/utility/Store.hpp"
+#include "engine/common/Store.hpp"
 
 namespace engine {
 
@@ -13,11 +13,6 @@ concept RunnerConcept = std::invocable<Runner, App&, Args...>;
 
 class App {
 public:
-    ///----------------///
-    ///  Type aliases  ///
-    ///----------------///
-    using Store = Store;
-
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
@@ -58,3 +53,4 @@ private:
 }   // namespace engine
 
 #include "App.inl"
+#include "Builder.hpp"

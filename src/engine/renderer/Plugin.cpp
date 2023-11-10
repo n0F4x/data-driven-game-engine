@@ -1,17 +1,18 @@
-#include "Renderer.hpp"
+#include "Plugin.hpp"
 
 #include <spdlog/spdlog.h>
 
-#include "engine/plugins/renderer/Device.hpp"
-#include "engine/plugins/renderer/helpers.hpp"
-#include "engine/plugins/renderer/Instance.hpp"
-#include "engine/plugins/renderer/RenderFrame.hpp"
-#include "engine/plugins/renderer/Swapchain.hpp"
-#include "engine/plugins/window/Window.hpp"
+#include "engine/window/Window.hpp"
 
-using namespace engine;
-using namespace window;
-using namespace renderer;
+#include "Device.hpp"
+#include "helpers.hpp"
+#include "Instance.hpp"
+#include "RenderFrame.hpp"
+#include "Swapchain.hpp"
+
+using namespace engine::window;
+
+namespace engine::renderer {
 
 namespace {
 
@@ -27,7 +28,7 @@ namespace {
         .value_or(tl::nullopt);
 }
 
-[[nodiscard]] auto inject_instance(App::Store& t_store)
+[[nodiscard]] auto inject_instance(Store& t_store)
 {
     return [&](std::tuple<Window&, Instance>&& t_pack) {
         return std::make_tuple(
@@ -74,7 +75,7 @@ namespace {
         });
 }
 
-[[nodiscard]] auto inject_device(App::Store& t_store)
+[[nodiscard]] auto inject_device(Store& t_store)
 {
     return [&t_store](std::tuple<vk::Instance, vk::SurfaceKHR, Device>&& t_pack
            ) {
@@ -87,7 +88,7 @@ namespace {
     };
 }
 
-[[nodiscard]] auto inject_swapchain(App::Store& t_store)
+[[nodiscard]] auto inject_swapchain(Store& t_store)
 {
     return [&](std::tuple<vk::Instance, vk::SurfaceKHR, Device&>&& t_pack
            ) -> Device& {
@@ -108,7 +109,7 @@ namespace {
     );
 }
 
-[[nodiscard]] auto inject_render_frame(App::Store& t_store)
+[[nodiscard]] auto inject_render_frame(Store& t_store)
 {
     return [&](RenderFrame&& t_render_frame) {
         t_store.emplace<RenderFrame>(std::move(t_render_frame));
@@ -117,9 +118,7 @@ namespace {
 
 }   // namespace
 
-namespace engine::plugins {
-
-auto Renderer::operator()(App::Store& t_store) noexcept -> void
+auto Plugin::operator()(Store& t_store) noexcept -> void
 {
     t_store.find<Window>()
         .and_then(create_instance)
@@ -133,4 +132,4 @@ auto Renderer::operator()(App::Store& t_store) noexcept -> void
         .transform([](auto) { SPDLOG_TRACE("Added Renderer plugin"); });
 }
 
-}   // namespace engine::plugins
+}   // namespace engine::renderer
