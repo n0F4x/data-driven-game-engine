@@ -7,7 +7,7 @@ namespace engine {
 ///  App::Builder   IMPLEMENTATION  ///
 ///---------------------------------///
 ///////////////////////////////////////
-auto App::Builder::build() && noexcept -> tl::optional<App>
+auto App::Builder::build() && noexcept -> App
 {
     return App{ std::move(m_store) };
 }

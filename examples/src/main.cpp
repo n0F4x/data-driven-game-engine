@@ -5,7 +5,7 @@ using namespace engine;
 
 auto main() noexcept -> int
 {
-    return App::create()
+    App::create()
         .add_plugin<plugins::Logger>(logger::Level::eTrace)
         .add_plugin<plugins::AssetManager>()
         .add_plugin<plugins::Window>(
@@ -13,6 +13,5 @@ auto main() noexcept -> int
         )
         .add_plugin<plugins::Renderer>()
         .add_plugin<plugins::SceneGraph>()
-        .build_and_run([](App&) noexcept { return 0; })
-        .value_or(1);
+        .build_and_run([](App&) noexcept {});
 }
