@@ -224,7 +224,7 @@ auto load_node(
             });
     }
 
-    std::ranges::for_each(t_node.children, [&](auto index) {
+    for (auto index : t_node.children) {
         auto child{ load_node(
             &node,
             t_model.nodes[index],
@@ -236,7 +236,7 @@ auto load_node(
         node.children.push_back(std::move(child.node));
         vertices.append_range(std::move(child.vertices));
         indices.append_range(std::move(child.indices));
-    });
+    }
 
     return result;
 }
