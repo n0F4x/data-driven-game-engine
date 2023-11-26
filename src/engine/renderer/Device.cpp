@@ -204,33 +204,35 @@ auto Device::transfer_queue() const noexcept -> vk::Queue
 auto Device::create_buffer(
     const vk::BufferCreateInfo&    t_buffer_create_info,
     const VmaAllocationCreateInfo& t_allocation_create_info,
-    void*                          t_data
-) const noexcept -> tl::optional<vulkan::VmaBuffer>
+    const void*                    t_data
+) const noexcept
+    -> tl::optional<std::tuple<vulkan::VmaBuffer, VmaAllocationInfo>>
 {
     vk::Buffer        buffer;
     VmaAllocation     allocation;
     VmaAllocationInfo allocation_info;
-    const vk::Result  create_buffer_result{ vmaCreateBuffer(
-        *m_allocator,
-        reinterpret_cast<const VkBufferCreateInfo*>(&t_buffer_create_info),
-        &t_allocation_create_info,
-        reinterpret_cast<VkBuffer*>(&buffer),
-        &allocation,
-        &allocation_info
-    ) };
-    if (create_buffer_result != vk::Result::eSuccess) {
+    if (const vk::Result result{ vmaCreateBuffer(
+            *m_allocator,
+            reinterpret_cast<const VkBufferCreateInfo*>(&t_buffer_create_info),
+            &t_allocation_create_info,
+            reinterpret_cast<VkBuffer*>(&buffer),
+            &allocation,
+            &allocation_info
+        ) };
+        result != vk::Result::eSuccess)
+    {
         SPDLOG_WARN(
             "vmaCreateBuffer failed with error code {}",
-            std::to_underlying(create_buffer_result)
+            std::to_underlying(result)
         );
         return tl::nullopt;
     }
 
-    vk::MemoryPropertyFlags memPropFlags;
+    vk::MemoryPropertyFlags memory_property_flags;
     vmaGetAllocationMemoryProperties(
         *m_allocator,
         allocation,
-        reinterpret_cast<VkMemoryPropertyFlags*>(&memPropFlags)
+        reinterpret_cast<VkMemoryPropertyFlags*>(&memory_property_flags)
     );
 
     if (t_data != nullptr) {
@@ -239,32 +241,32 @@ auto Device::create_buffer(
         ) };
 
         if (!mapped) {
-            vk::Result map_result{ vmaMapMemory(
-                *m_allocator, allocation, &allocation_info.pMappedData
-            ) };
-            if (map_result != vk::Result::eSuccess) {
+            if (const vk::Result result{ vmaMapMemory(
+                    *m_allocator, allocation, &allocation_info.pMappedData
+                ) };
+                result != vk::Result::eSuccess)
+            {
                 SPDLOG_WARN(
                     "vmaMapMemory failed with error code {}",
-                    std::to_underlying(map_result)
+                    std::to_underlying(result)
                 );
                 return tl::nullopt;
             }
         }
 
-        memcpy(
-            allocation_info.pMappedData,
-            t_data,
-            static_cast<size_t>(t_buffer_create_info.size)
-        );
+        memcpy(allocation_info.pMappedData, t_data, t_buffer_create_info.size);
 
-        if (memPropFlags & vk::MemoryPropertyFlagBits::eHostCoherent) {
-            const vk::Result flush_result{
-                vmaFlushAllocation(*m_allocator, allocation, 0, VK_WHOLE_SIZE)
-            };
-            if (flush_result != vk::Result::eSuccess) {
+        if (!(memory_property_flags & vk::MemoryPropertyFlagBits::eHostCoherent
+            ))
+        {
+            if (const vk::Result result{ vmaFlushAllocation(
+                    *m_allocator, allocation, 0, VK_WHOLE_SIZE
+                ) };
+                result != vk::Result::eSuccess)
+            {
                 SPDLOG_WARN(
                     "vmaFlushAllocation failed with error code {}",
-                    std::to_underlying(flush_result)
+                    std::to_underlying(result)
                 );
                 return tl::nullopt;
             }
@@ -275,7 +277,9 @@ auto Device::create_buffer(
         }
     }
 
-    return vulkan::VmaBuffer{ *m_allocator, buffer, allocation };
+    return std::make_tuple(
+        vulkan::VmaBuffer{ *m_allocator, buffer, allocation }, allocation_info
+    );
 }
 
 }   // namespace engine::renderer

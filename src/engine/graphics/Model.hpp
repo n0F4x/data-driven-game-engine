@@ -40,6 +40,10 @@ public:
         glm::mat4          matrix{ glm::identity<glm::mat4>() };
     };
 
+    [[nodiscard]] auto vertices() const noexcept -> const std::vector<Vertex>&;
+    [[nodiscard]] auto indices() const noexcept -> const std::vector<uint32_t>&;
+    [[nodiscard]] auto nodes() const noexcept -> const std::vector<Node>&;
+
 private:
     ///******************///
     ///  Friend Classes  ///

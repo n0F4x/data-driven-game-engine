@@ -12,4 +12,19 @@ Model::Model(
       m_nodes{ std::move(t_nodes) }
 {}
 
+auto Model::vertices() const noexcept -> const std::vector<Vertex>&
+{
+    return m_vertices;
+}
+
+auto Model::indices() const noexcept -> const std::vector<uint32_t>&
+{
+    return m_indices;
+}
+
+auto Model::nodes() const noexcept -> const std::vector<Node>&
+{
+    return m_nodes;
+}
+
 }   // namespace engine::gfx

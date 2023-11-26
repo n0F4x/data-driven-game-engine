@@ -1,7 +1,5 @@
 #pragma once
 
-#include <tl/optional.hpp>
-
 #include <tiny_gltf.h>
 
 #include "Model.hpp"

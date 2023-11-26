@@ -1,5 +1,7 @@
 #include "Plugin.hpp"
 
+#include <tuple>
+
 #include <spdlog/spdlog.h>
 
 #include "engine/window/Window.hpp"

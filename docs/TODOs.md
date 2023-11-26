@@ -2,3 +2,4 @@
 - replace sfml with glfw
 - let compute queue present according to https://gpuopen.com/learn/rdna-performance-guide/#presenting
 - replace tinygltf to fastgltf
+- clean up code related to renderer::Model

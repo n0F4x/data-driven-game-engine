@@ -1,6 +1,7 @@
 #pragma once
 
 #include <span>
+#include <tuple>
 
 #include <tl/optional.hpp>
 
@@ -63,8 +64,9 @@ public:
     [[nodiscard]] auto create_buffer(
         const vk::BufferCreateInfo&    t_buffer_create_info,
         const VmaAllocationCreateInfo& t_allocation_create_info,
-        void*                          t_data = nullptr
-    ) const noexcept -> tl::optional<vulkan::VmaBuffer>;
+        const void*                    t_data = nullptr
+    ) const noexcept
+        -> tl::optional<std::tuple<vulkan::VmaBuffer, VmaAllocationInfo>>;
 
 private:
     ///*************///
