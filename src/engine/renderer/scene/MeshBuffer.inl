@@ -1,15 +1,14 @@
 namespace engine::renderer {
 
 template <typename Vertex>
-auto Mesh::create(
+auto MeshBuffer::create(
     const Device&             t_device,
     std::span<const Vertex>   t_vertices,
     std::span<const uint32_t> t_indices
-) noexcept -> tl::optional<std::tuple<StagingMesh, Mesh>>
+) noexcept -> tl::optional<std::tuple<StagingMeshBuffer, MeshBuffer>>
 {
-    uint32_t vertex_buffer_size =
-        static_cast<uint32_t>(t_vertices.size_bytes());
-    uint32_t index_buffer_size = static_cast<uint32_t>(t_indices.size_bytes());
+    auto vertex_buffer_size = static_cast<uint32_t>(t_vertices.size_bytes());
+    auto index_buffer_size  = static_cast<uint32_t>(t_indices.size_bytes());
 
     const vk::BufferCreateInfo staging_buffer_create_info = {
         .size  = vertex_buffer_size,
@@ -71,7 +70,7 @@ auto Mesh::create(
 
 
     return std::make_tuple(
-        StagingMesh{
+        StagingMeshBuffer{
             std::move(std::get<vulkan::VmaBuffer>(*vertex_staging_buffer)),
             std::move(std::get<vulkan::VmaBuffer>(*index_staging_buffer)),
             *std::get<vulkan::VmaBuffer>(*vertex_buffer),
@@ -79,13 +78,13 @@ auto Mesh::create(
             vertex_buffer_size,
             index_buffer_size
     },
-        Mesh{ Vertices{
-                  .buffer =
-                      std::move(std::get<vulkan::VmaBuffer>(*vertex_buffer)) },
-              Indices{
-                  .count = static_cast<uint32_t>(t_indices.size()),
-                  .buffer =
-                      std::move(std::get<vulkan::VmaBuffer>(*index_buffer)) } }
+        MeshBuffer{ Vertices{ .buffer = std::move(
+                                  std::get<vulkan::VmaBuffer>(*vertex_buffer)
+                              ) },
+                    Indices{ .count  = static_cast<uint32_t>(t_indices.size()),
+                             .buffer = std::move(
+                                 std::get<vulkan::VmaBuffer>(*index_buffer)
+                             ) } }
     );
 }
 

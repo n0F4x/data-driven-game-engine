@@ -6,15 +6,14 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "engine/renderer/Device.hpp"
 #include "engine/utility/vulkan/VmaBuffer.hpp"
-
-#include "Device.hpp"
 
 namespace engine::renderer {
 
-class Mesh;
+class MeshBuffer;
 
-class StagingMesh {
+class StagingMeshBuffer {
 public:
     ///-----------///
     ///  Methods  ///
@@ -25,7 +24,7 @@ private:
     ///******************///
     ///  Friend Classes  ///
     ///******************///
-    friend Mesh;
+    friend MeshBuffer;
 
     ///*************///
     ///  Variables  ///
@@ -41,7 +40,7 @@ private:
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
-    explicit StagingMesh(
+    explicit StagingMeshBuffer(
         vulkan::VmaBuffer&& t_vertex_staging_buffer,
         vulkan::VmaBuffer&& t_index_staging_buffer,
         vk::Buffer          t_vertex_buffer,
@@ -51,7 +50,7 @@ private:
     ) noexcept;
 };
 
-class Mesh {
+class MeshBuffer {
 public:
     ///------------------///
     ///  Nested classes  ///
@@ -73,7 +72,7 @@ public:
         const Device&             t_device,
         std::span<const Vertex>   t_vertices,
         std::span<const uint32_t> t_indices
-    ) noexcept -> tl::optional<std::tuple<StagingMesh, Mesh>>;
+    ) noexcept -> tl::optional<std::tuple<StagingMeshBuffer, MeshBuffer>>;
 
     ///-----------///
     ///  Methods  ///
@@ -90,9 +89,9 @@ private:
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
-    explicit Mesh(Vertices&& t_vertices, Indices&& t_indices) noexcept;
+    explicit MeshBuffer(Vertices&& t_vertices, Indices&& t_indices) noexcept;
 };
 
 }   // namespace engine::renderer
 
-#include "Mesh.inl"
+#include "MeshBuffer.inl"

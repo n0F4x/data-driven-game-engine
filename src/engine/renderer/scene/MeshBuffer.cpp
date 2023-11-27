@@ -1,9 +1,9 @@
-#include "Mesh.hpp"
+#include "MeshBuffer.hpp"
 
 namespace engine::renderer {
 
-auto StagingMesh::upload(vk::CommandBuffer t_copy_command_buffer) const noexcept
-    -> void
+auto StagingMeshBuffer::upload(vk::CommandBuffer t_copy_command_buffer
+) const noexcept -> void
 {
     vk::BufferCopy copy_region{ .size = m_vertex_buffer_size };
     t_copy_command_buffer.copyBuffer(
@@ -18,7 +18,7 @@ auto StagingMesh::upload(vk::CommandBuffer t_copy_command_buffer) const noexcept
     }
 }
 
-StagingMesh::StagingMesh(
+StagingMeshBuffer::StagingMeshBuffer(
     vulkan::VmaBuffer&& t_vertex_staging_buffer,
     vulkan::VmaBuffer&& t_index_staging_buffer,
     vk::Buffer          t_vertex_buffer,
@@ -34,17 +34,22 @@ StagingMesh::StagingMesh(
       m_index_buffer_size{ t_index_buffer_size }
 {}
 
-auto Mesh::bind(vk::CommandBuffer t_command_buffer) const noexcept -> void
+auto MeshBuffer::bind(vk::CommandBuffer t_command_buffer) const noexcept -> void
 {
     const std::array vertex_buffers{ *m_vertices.buffer };
     constexpr std::array<vk::DeviceSize, 1> offsets{ 0 };
     t_command_buffer.bindVertexBuffers(0, vertex_buffers, offsets);
-    t_command_buffer.bindIndexBuffer(
-        *m_indices.buffer, 0, vk::IndexType::eUint32
-    );
+    if (m_indices.count > 0) {
+        t_command_buffer.bindIndexBuffer(
+            *m_indices.buffer, 0, vk::IndexType::eUint32
+        );
+    }
 }
 
-Mesh::Mesh(Mesh::Vertices&& t_vertices, Mesh::Indices&& t_indices) noexcept
+MeshBuffer::MeshBuffer(
+    MeshBuffer::Vertices&& t_vertices,
+    MeshBuffer::Indices&&  t_indices
+) noexcept
     : m_vertices{ std::move(t_vertices) },
       m_indices{ std::move(t_indices) }
 {}

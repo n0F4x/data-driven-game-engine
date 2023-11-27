@@ -1,18 +1,8 @@
-#include "Model.hpp"
+#include "RenderObject.hpp"
 
 namespace engine::renderer {
 
-auto StagingModel::upload_mesh(vk::CommandBuffer t_copy_command_buffer
-) const noexcept -> void
-{
-    m_staging_mesh.upload(t_copy_command_buffer);
-}
-
-StagingModel::StagingModel(StagingMesh&& t_staging_mesh) noexcept
-    : m_staging_mesh{ std::move(t_staging_mesh) }
-{}
-
-auto Model::Mesh::create(
+auto RenderObject::Mesh::create(
     const Device&          t_device,
     std::vector<Primitive> t_primitives,
     const UniformBlock&    t_uniform_block
@@ -53,12 +43,12 @@ auto Model::Mesh::create(
 [[nodiscard]] static auto create_node(
     const Device&           t_device,
     const gfx::Model::Node& t_node,
-    Model::Node*            t_parent
-) noexcept -> tl::optional<Model::Node>
+    RenderObject::Node*     t_parent
+) noexcept -> tl::optional<RenderObject::Node>
 {
-    tl::optional<Model::Mesh> mesh;
+    tl::optional<RenderObject::Mesh> mesh;
     if (auto src_mesh = t_node.mesh; src_mesh.has_value()) {
-        mesh = { Model::Mesh::create(
+        mesh = { RenderObject::Mesh::create(
             t_device, src_mesh->primitives, src_mesh->uniform_block
         ) };
         if (!mesh) {
@@ -66,7 +56,7 @@ auto Model::Mesh::create(
         }
     }
 
-    Model::Node node{
+    RenderObject::Node node{
         .parent = t_parent,
         .mesh   = std::move(mesh),
         .matrix = t_node.matrix,
@@ -84,8 +74,11 @@ auto Model::Mesh::create(
     return node;
 }
 
-auto Model::create(const Device& t_device, const gfx::Model& t_model) noexcept
-    -> tl::optional<std::tuple<StagingModel, Model>>
+auto RenderObject::create(
+    const Device&         t_device,
+    const gfx::Model&     t_model,
+    renderer::MeshBuffer& t_mesh_buffer
+) noexcept -> tl::optional<RenderObject>
 {
     std::vector<Node> nodes;
     nodes.reserve(t_model.nodes().size());
@@ -97,23 +90,15 @@ auto Model::create(const Device& t_device, const gfx::Model& t_model) noexcept
         nodes.push_back(std::move(*node));
     }
 
-    auto opt_mesh{ renderer::Mesh::create<gfx::Model::Vertex>(
-        t_device, t_model.vertices(), t_model.indices()
-    ) };
-    if (!opt_mesh) {
-        return tl::nullopt;
-    }
-    auto [staging_mesh, mesh]{ std::move(*opt_mesh) };
-
-    return std::make_tuple(
-        StagingModel{ std::move(staging_mesh) },
-        Model{ std::move(nodes), std::move(mesh) }
-    );
+    return RenderObject{ std::move(nodes), t_mesh_buffer };
 }
 
-Model::Model(std::vector<Node>&& t_nodes, renderer::Mesh&& t_mesh) noexcept
+RenderObject::RenderObject(
+    std::vector<Node>&&   t_nodes,
+    renderer::MeshBuffer& t_mesh
+) noexcept
     : m_nodes{ std::move(t_nodes) },
-      m_mesh{ std::move(t_mesh) }
+      m_mesh_buffer{ t_mesh }
 {}
 
 }   // namespace engine::renderer
