@@ -54,6 +54,11 @@ public:
         renderer::MeshBuffer& t_mesh_buffer
     ) noexcept -> tl::optional<RenderObject>;
 
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
+    auto draw(vk::CommandBuffer t_graphics_buffer) const noexcept -> void;
+
 private:
     ///*************///
     ///  Variables  ///

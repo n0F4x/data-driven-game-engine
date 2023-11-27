@@ -93,6 +93,13 @@ auto RenderObject::create(
     return RenderObject{ std::move(nodes), t_mesh_buffer };
 }
 
+auto RenderObject::draw(vk::CommandBuffer t_graphics_buffer) const noexcept
+    -> void
+{
+    m_mesh_buffer.bind(t_graphics_buffer);
+    // ...
+}
+
 RenderObject::RenderObject(
     std::vector<Node>&&   t_nodes,
     renderer::MeshBuffer& t_mesh

@@ -36,7 +36,6 @@ private:
     uint32_t          m_vertex_buffer_size;
     uint32_t          m_index_buffer_size;
 
-
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
