@@ -17,6 +17,7 @@ FetchContent_Declare(VulkanMemoryAllocator
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
         GIT_TAG 2f382df
         GIT_PROGRESS TRUE
+        SYSTEM
 )
 FetchContent_MakeAvailable(VulkanMemoryAllocator)
 target_link_libraries(${PROJECT_NAME} PUBLIC
