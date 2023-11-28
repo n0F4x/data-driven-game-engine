@@ -104,7 +104,10 @@ namespace {
     };
 }
 
-[[nodiscard]] auto inject_swapchain(Store& t_store)
+[[nodiscard]] auto inject_swapchain(
+    Store&                             t_store,
+    Swapchain::FramebufferSizeGetter&& t_get_framebuffer_size
+)
 {
     return [&](std::tuple<vk::Instance, vk::SurfaceKHR, Device&>&& t_pack
            ) -> Device& {
@@ -112,7 +115,7 @@ namespace {
             vulkan::Surface{ std::get<vk::Instance>(t_pack),
                              std::get<vk::SurfaceKHR>(t_pack) },
             std::get<Device&>(t_pack),
-            nullptr
+            std::move(t_get_framebuffer_size)
         );
         return std::get<Device&>(t_pack);
     };
@@ -135,10 +138,9 @@ namespace {
 }   // namespace
 
 auto Plugin::operator()(
-    Store& t_store,
-    const std::function<
-        VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>&
-        t_create_surface
+    Store&                             t_store,
+    const SurfaceCreator&              t_create_surface,
+    Swapchain::FramebufferSizeGetter&& t_get_framebuffer_size
 ) const noexcept -> void
 {
     create_instance()
@@ -146,7 +148,7 @@ auto Plugin::operator()(
         .and_then(create_surface(t_store, t_create_surface))
         .and_then(create_device)
         .transform(inject_device(t_store))
-        .transform(inject_swapchain(t_store))
+        .transform(inject_swapchain(t_store, std::move(t_get_framebuffer_size)))
         .and_then(create_render_frame)
         .transform(inject_render_frame(t_store))
         .transform([](auto) { SPDLOG_TRACE("Added Renderer plugin"); });

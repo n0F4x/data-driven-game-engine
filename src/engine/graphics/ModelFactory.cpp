@@ -176,10 +176,14 @@ struct MeshInfo {
         }
         indices.append_range(*indices_opt);
 
-        vertices.append_range(get_vertices(t_model, primitive));
+        auto     temp_vertices{ get_vertices(t_model, primitive) };
+        uint32_t vertex_count = static_cast<uint32_t>(temp_vertices.size());
+        vertices.append_range(std::move(temp_vertices));
 
         primitives.emplace_back(
-            first_index_index, static_cast<uint32_t>(indices_opt->size())
+            first_index_index,
+            static_cast<uint32_t>(indices_opt->size()),
+            vertex_count
         );
     }
 

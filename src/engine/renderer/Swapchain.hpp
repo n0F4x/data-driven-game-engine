@@ -32,6 +32,7 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
+    using FramebufferSizeGetter  = std::function<vk::Extent2D()>;
     using SwapchainRecreatedSigh = entt::sigh<void(const vulkan::Swapchain&)>;
     using SwapchainRecreatedSink = entt::sink<SwapchainRecreatedSigh>;
 
@@ -39,9 +40,9 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit Swapchain(
-        vulkan::Surface&&               t_surface,
-        Device&                         t_device,
-        std::function<vk::Extent2D()>&& t_get_framebuffer_size
+        vulkan::Surface&&       t_surface,
+        Device&                 t_device,
+        FramebufferSizeGetter&& t_get_framebuffer_size
     ) noexcept;
 
     ///-----------///
@@ -49,15 +50,6 @@ public:
     ///-----------///
     [[nodiscard]] auto surface() const noexcept -> vk::SurfaceKHR;
     auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void;
-
-    /*
-VK_ERROR_OUT_OF_HOST_MEMORY
-VK_ERROR_OUT_OF_DEVICE_MEMORY
-VK_ERROR_DEVICE_LOST
-VK_ERROR_OUT_OF_DATE_KHR
-VK_ERROR_SURFACE_LOST_KHR
-VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT
-    */
 
     [[nodiscard]] auto acquire_next_image(
         vk::Semaphore t_semaphore = nullptr,
@@ -85,7 +77,7 @@ private:
     ///*************///
     vulkan::Surface                 m_surface;
     Device&                         m_device;
-    std::function<vk::Extent2D()>   m_get_framebuffer_size;
+    FramebufferSizeGetter           m_get_framebuffer_size;
     tl::optional<vulkan::Swapchain> m_swapchain;
     uint32_t                        m_image_index{};
     SwapchainRecreatedSigh          m_swapchain_recreated_signal;
