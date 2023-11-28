@@ -6,6 +6,8 @@
 
 #include "engine/common/Plugin.hpp"
 
+#include "Swapchain.hpp"
+
 namespace engine::renderer {
 
 using SurfaceCreator = std::function<
@@ -23,7 +25,8 @@ public:
     ///-------------///
     auto operator()(
         Store&                t_store,
-        const SurfaceCreator& t_create_surface = default_surface_creator
+        const SurfaceCreator& t_create_surface = default_surface_creator,
+        Swapchain::FramebufferSizeGetter&& t_get_framebuffer_size = nullptr
     ) const noexcept -> void;
 };
 

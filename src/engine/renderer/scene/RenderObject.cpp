@@ -93,11 +93,67 @@ auto RenderObject::create(
     return RenderObject{ std::move(nodes), t_mesh_buffer };
 }
 
+static auto draw_node(
+    vk::CommandBuffer         t_graphics_buffer,
+    const RenderObject::Node& t_node
+) noexcept -> void
+{
+    if (t_node.mesh) {
+        for (const auto& primitive : t_node.mesh->primitives) {
+            // TODO
+            //
+            //            const VkPipeline pipeline{};
+            //
+            //            if (pipeline != boundPipeline) {
+            //                vkCmdBindPipeline(
+            //                    commandBuffers[cbIndex],
+            //                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+            //                    pipeline
+            //                );
+            //                boundPipeline = pipeline;
+            //            }
+            //
+            //            const std::vector<VkDescriptorSet> descriptorsets = {
+            //                descriptorSets[cbIndex].scene,
+            //                primitive->material.descriptorSet,
+            //                node->mesh->uniformBuffer.descriptorSet,
+            //                descriptorSetMaterials
+            //            };
+            //            vkCmdBindDescriptorSets(
+            //                commandBuffers[cbIndex],
+            //                VK_PIPELINE_BIND_POINT_GRAPHICS,
+            //                pipelineLayout,
+            //                0,
+            //                static_cast<uint32_t>(descriptorsets.size()),
+            //                descriptorsets.data(),
+            //                0,
+            //                NULL
+            //            );
+
+            if (primitive.index_count > 0) {
+                t_graphics_buffer.drawIndexed(
+                    primitive.index_count, 1, primitive.first_index_index, 0, 0
+                );
+            }
+            else {
+                t_graphics_buffer.draw(primitive.vertex_count, 1, 0, 0);
+            }
+        }
+    }
+
+    for (const auto& child : t_node.children) {
+        draw_node(t_graphics_buffer, child);
+    }
+}
+
 auto RenderObject::draw(vk::CommandBuffer t_graphics_buffer) const noexcept
     -> void
 {
     m_mesh_buffer.bind(t_graphics_buffer);
-    // ...
+
+    for (const auto& node : m_nodes) {
+        draw_node(t_graphics_buffer, node);
+    }
 }
 
 RenderObject::RenderObject(

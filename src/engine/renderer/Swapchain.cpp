@@ -15,9 +15,9 @@ namespace engine::renderer {
 ///////////////////////////////////
 
 Swapchain::Swapchain(
-    vulkan::Surface&&               t_surface,
-    Device&                         t_device,
-    std::function<vk::Extent2D()>&& t_get_framebuffer_size
+    vulkan::Surface&&       t_surface,
+    Device&                 t_device,
+    FramebufferSizeGetter&& t_get_framebuffer_size
 ) noexcept
     : m_surface{ std::move(t_surface) },
       m_device{ t_device },
