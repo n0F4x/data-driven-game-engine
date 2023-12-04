@@ -13,10 +13,10 @@ namespace engine::renderer::helpers {
 
 [[nodiscard]] auto application_info() noexcept -> const vk::ApplicationInfo&;
 
-[[nodiscard]] auto layers() noexcept -> std::span<const char* const>;
+[[nodiscard]] auto layers() noexcept -> std::span<const std::string>;
 
 [[nodiscard]] auto instance_extensions() noexcept
-    -> std::span<const char* const>;
+    -> std::span<const std::string>;
 
 [[nodiscard]] auto create_debug_messenger(vk::Instance t_instance) noexcept
     -> vk::DebugUtilsMessengerEXT;
@@ -37,7 +37,7 @@ struct QueueInfos {
 ) -> tl::optional<QueueInfos>;
 
 [[nodiscard]] auto device_extensions(vk::PhysicalDevice t_physical_device
-) noexcept -> std::span<const char* const>;
+) noexcept -> std::span<const std::string>;
 
 [[nodiscard]] auto is_adequate(
     vk::PhysicalDevice t_physical_device,
@@ -50,8 +50,8 @@ struct QueueInfos {
 ) noexcept -> vk::PhysicalDevice;
 
 [[nodiscard]] auto vma_allocator_create_flags(
-    std::span<const char* const> enabled_instance_extensions,
-    std::span<const char* const> enabled_device_extensions
+    std::span<const std::string> enabled_instance_extensions,
+    std::span<const std::string> enabled_device_extensions
 ) noexcept -> VmaAllocatorCreateFlags;
 
 }   // namespace engine::renderer::helpers

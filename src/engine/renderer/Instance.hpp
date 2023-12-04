@@ -3,6 +3,7 @@
 #include <expected>
 #include <functional>
 #include <span>
+#include <string_view>
 #include <vector>
 
 #include "engine/utility/vulkan/Instance.hpp"
@@ -18,8 +19,8 @@ public:
         const void*                  next{};
         vk::InstanceCreateFlags      flags{};
         vk::ApplicationInfo          application_info{};
-        std::span<const char* const> layers{};
-        std::span<const char* const> extensions{};
+        std::span<const std::string> layers{};
+        std::span<const std::string> extensions{};
         std::function<vk::DebugUtilsMessengerEXT(vk::Instance)>
             create_debug_messenger{};
     };
@@ -27,8 +28,8 @@ public:
     ///----------------///
     /// Static methods ///
     ///----------------///
-    [[nodiscard]] static auto create(const CreateInfo& t_create_info) noexcept
-        -> std::expected<Instance, vk::Result>;
+    [[nodiscard]] static auto create(const CreateInfo& t_extension_name
+    ) noexcept -> std::expected<Instance, vk::Result>;
 
     [[nodiscard]] static auto create_default() noexcept
         -> std::expected<Instance, vk::Result>;
@@ -45,17 +46,17 @@ public:
     [[nodiscard]] auto application_info() const noexcept
         -> const vk::ApplicationInfo&;
     [[nodiscard]] auto enabled_layers() const noexcept
-        -> std::span<const char* const>;
+        -> std::span<const std::string>;
     [[nodiscard]] auto enabled_extensions() const noexcept
-        -> std::span<const char* const>;
+        -> std::span<const std::string>;
 
 private:
     ///*************///
     ///  Variables  ///
     ///*************///
     vk::ApplicationInfo      m_application_info;
-    std::vector<const char*> m_layers;
-    std::vector<const char*> m_extensions;
+    std::vector<std::string> m_layers;
+    std::vector<std::string> m_extensions;
     vulkan::Instance         m_instance;
 
     ///******************************///
@@ -63,8 +64,8 @@ private:
     ///******************************///
     explicit Instance(
         const vk::ApplicationInfo&   t_application_info,
-        std::span<const char* const> t_layers,
-        std::span<const char* const> t_extensions,
+        std::span<const std::string> t_layers,
+        std::span<const std::string> t_extensions,
         vulkan::Instance&&           t_instance
     ) noexcept;
 };

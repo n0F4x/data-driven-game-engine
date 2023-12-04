@@ -8,21 +8,23 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "raii_wrappers.hpp"
+
 namespace engine::vulkan {
 
 [[nodiscard]] auto available_layers() noexcept
-    -> std::expected<std::vector<const char*>, vk::Result>;
+    -> std::expected<std::vector<std::string>, vk::Result>;
 
 [[nodiscard]] auto available_instance_extensions() noexcept
-    -> std::expected<std::vector<const char*>, vk::Result>;
+    -> std::expected<std::vector<std::string>, vk::Result>;
 
 [[nodiscard]] auto available_device_extensions(
     vk::PhysicalDevice t_physical_device
-) noexcept -> std::expected<std::vector<const char*>, vk::Result>;
+) noexcept -> std::expected<std::vector<std::string>, vk::Result>;
 
 [[nodiscard]] auto supports_extensions(
     vk::PhysicalDevice           t_physical_device,
-    std::span<const char* const> t_extensions
+    std::span<const std::string> t_extensions
 ) noexcept -> bool;
 
 [[nodiscard]] auto supports_surface(
@@ -33,6 +35,6 @@ namespace engine::vulkan {
 [[nodiscard]] auto load_shader(
     vk::Device       t_device,
     std::string_view t_file_path
-) noexcept -> tl::optional<vk::ShaderModule>;
+) noexcept -> tl::optional<ShaderModule>;
 
 }   // namespace engine::vulkan

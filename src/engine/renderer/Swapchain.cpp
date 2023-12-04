@@ -31,6 +31,11 @@ auto Swapchain::surface() const noexcept -> vk::SurfaceKHR
     return *m_surface;
 }
 
+auto Swapchain::get() const noexcept -> const tl::optional<vulkan::Swapchain>&
+{
+    return m_swapchain;
+}
+
 auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     -> void
 {

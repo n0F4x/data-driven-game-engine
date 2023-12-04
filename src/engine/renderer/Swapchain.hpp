@@ -49,6 +49,9 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto surface() const noexcept -> vk::SurfaceKHR;
+    [[nodiscard]] auto get() const noexcept
+        -> const tl::optional<vulkan::Swapchain>&;
+
     auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void;
 
     [[nodiscard]] auto acquire_next_image(

@@ -1,5 +1,6 @@
 #include "helpers.hpp"
 
+#include <cstring>
 #include <iostream>
 #include <ranges>
 #include <utility>
@@ -8,7 +9,7 @@
 #include <spdlog/spdlog.h>
 
 #if defined(_WIN32)
-  #include <Windows.h>
+  #include <windows.h>
 
   #include <vulkan/vulkan_win32.h>
 #elif defined(__linux__)
@@ -25,14 +26,14 @@ namespace {
 
 const uint32_t g_api_version{ VK_API_VERSION_1_3 };
 
-const std::vector<const char*> g_required_layers{};
-const std::vector<const char*> g_optional_layers{
+const std::vector<std::string> g_required_layers{};
+const std::vector<std::string> g_optional_layers{
 #ifdef ENGINE_VULKAN_DEBUG
     "VK_LAYER_KHRONOS_validation"
 #endif
 };
 
-const std::vector<const char*> g_required_instance_extensions
+const std::vector<std::string> g_required_instance_extensions
 {
     VK_KHR_SURFACE_EXTENSION_NAME,
 #if defined(_WIN32)
@@ -41,39 +42,37 @@ const std::vector<const char*> g_required_instance_extensions
         VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 #endif
 };
-const std::vector<const char*> g_optional_instance_extensions{
+const std::vector<std::string> g_optional_instance_extensions{
 #ifdef ENGINE_VULKAN_DEBUG
     VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
     VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
 };
 
-const std::vector<const char*> g_required_device_extensions{
+const std::vector<std::string> g_required_device_extensions{
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
-const std::vector<const char*> g_optional_device_extensions{
+const std::vector<std::string> g_optional_device_extensions{
     VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
     VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
     VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
-    VK_EXT_MEMORY_BUDGET_EXTENSION_NAME
+    VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
 };
 
 [[nodiscard]] auto filter(
-    std::span<const char* const> t_available,
-    std::span<const char* const> t_required,
-    std::span<const char* const> t_optional
-) noexcept -> std::vector<const char*>
+    std::span<const std::string> t_available,
+    std::span<const std::string> t_required,
+    std::span<const std::string> t_optional
+) noexcept -> std::vector<std::string>
 {
-    std::vector<const char*> filtered{ t_required.cbegin(), t_required.cend() };
+    std::vector<std::string> filtered{ t_required.cbegin(), t_required.cend() };
 
-    for (const auto optional : t_optional) {
-        if (std::ranges::any_of(t_available, [optional](const auto available) {
-                return strcmp(optional, available);
-            }))
-        {
-            filtered.emplace_back(optional);
-        }
-    }
+    filtered.append_range(
+        t_optional | std::views::filter([&](const auto& optional) {
+            return std::ranges::contains(t_available, optional);
+        })
+    );
 
     return filtered;
 }
@@ -190,36 +189,34 @@ auto application_info() noexcept -> const vk::ApplicationInfo&
     return application_create_info;
 }
 
-auto layers() noexcept -> std::span<const char* const>
+auto layers() noexcept -> std::span<const std::string>
 {
-    static const std::vector<const char*> layers{ []() {
-        auto                              expected_available_layers{ vulkan::available_layers() };
-        if (!expected_available_layers.has_value()) {
-            return g_required_layers;
-        }
-        return filter(
-            *expected_available_layers, g_required_layers, g_optional_layers
-        );
-    }() };
+    static const std::vector<std::string> layers{
+        vulkan::available_layers()
+            .transform([&](auto&& available_layers) {
+                return filter(
+                    available_layers, g_required_layers, g_optional_layers
+                );
+            })
+            .value_or(g_required_layers)
+    };
 
     return layers;
 }
 
-auto instance_extensions() noexcept -> std::span<const char* const>
+auto instance_extensions() noexcept -> std::span<const std::string>
 {
-    static const std::vector<const char*> instance_extensions{ []() {
-        auto                              expected_available_instance_extensions{
-            vulkan::available_instance_extensions()
-        };
-        if (!expected_available_instance_extensions.has_value()) {
-            return g_required_instance_extensions;
-        }
-        return filter(
-            *expected_available_instance_extensions,
-            g_required_instance_extensions,
-            g_optional_instance_extensions
-        );
-    }() };
+    static const std::vector<std::string> instance_extensions{
+        vulkan::available_instance_extensions()
+            .transform([&](auto&& available_instance_extensions) {
+                return filter(
+                    available_instance_extensions,
+                    g_required_instance_extensions,
+                    g_optional_instance_extensions
+                );
+            })
+            .value_or(g_required_instance_extensions)
+    };
 
     return instance_extensions;
 }
@@ -478,22 +475,18 @@ auto find_queue_families(
 }
 
 auto device_extensions(vk::PhysicalDevice t_physical_device) noexcept
-    -> std::span<const char* const>
+    -> std::span<const std::string>
 {
-    static const std::vector<const char*> device_extensions{
-        [t_physical_device]() {
-            auto expected_available_device_extensions{
-                vulkan::available_device_extensions(t_physical_device)
-            };
-            if (!expected_available_device_extensions.has_value()) {
-                return g_required_device_extensions;
-            }
-            return filter(
-                *expected_available_device_extensions,
-                g_required_device_extensions,
-                g_optional_device_extensions
-            );
-        }()
+    static const std::vector<std::string> device_extensions{
+        vulkan::available_device_extensions(t_physical_device)
+            .transform([](auto&& available_device_extensions) {
+                return filter(
+                    available_device_extensions,
+                    g_required_device_extensions,
+                    g_optional_device_extensions
+                );
+            })
+            .value_or(g_required_device_extensions)
     };
 
     return device_extensions;
@@ -565,8 +558,8 @@ auto choose_physical_device(
 }
 
 auto vma_allocator_create_flags(
-    std::span<const char* const> enabled_instance_extensions,
-    std::span<const char* const> enabled_device_extensions
+    std::span<const std::string> enabled_instance_extensions,
+    std::span<const std::string> enabled_device_extensions
 ) noexcept -> VmaAllocatorCreateFlags
 {
     VmaAllocatorCreateFlags flags{};

@@ -51,10 +51,14 @@ private:
     Handle m_handle;
 };
 
-using CommandPool  = Wrapped<vk::CommandPool>;
-using Fence        = Wrapped<vk::Fence>;
-using Framebuffer  = Wrapped<vk::Framebuffer>;
-using ShaderModule = Wrapped<vk::ShaderModule>;
-using Surface      = Wrapped<vk::SurfaceKHR, vk::Instance>;
+using CommandPool         = Wrapped<vk::CommandPool>;
+using DescriptorSetLayout = Wrapped<vk::DescriptorSetLayout>;
+using Fence               = Wrapped<vk::Fence>;
+using Framebuffer         = Wrapped<vk::Framebuffer>;
+using Pipeline            = Wrapped<vk::Pipeline>;
+using PipelineLayout      = Wrapped<vk::PipelineLayout>;
+using ShaderModule        = Wrapped<vk::ShaderModule>;
+using Surface             = Wrapped<vk::SurfaceKHR, vk::Instance>;
+using RenderPass          = Wrapped<vk::RenderPass>;
 
 }   // namespace engine::vulkan

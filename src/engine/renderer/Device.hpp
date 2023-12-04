@@ -1,6 +1,7 @@
 #pragma once
 
 #include <span>
+#include <string_view>
 #include <tuple>
 
 #include <tl/optional.hpp>
@@ -22,7 +23,7 @@ public:
     ///------------------///
     struct CreateInfo {
         const void*                  next{};
-        std::span<const char* const> extensions{};
+        std::span<const std::string> extensions{};
         vk::PhysicalDeviceFeatures   features{};
     };
 

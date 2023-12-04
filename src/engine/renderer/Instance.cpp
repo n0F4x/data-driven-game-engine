@@ -1,5 +1,6 @@
 #include "Instance.hpp"
 
+#include <ranges>
 #include <utility>
 
 #include <spdlog/spdlog.h>
@@ -11,15 +12,30 @@ namespace engine::renderer {
 auto Instance::create(const CreateInfo& t_create_info) noexcept
     -> std::expected<Instance, vk::Result>
 {
+    auto enabled_layer_names{
+        t_create_info.layers
+        | std::views::transform([](const auto& t_layer_name) {
+              return t_layer_name.data();
+          })
+        | std::ranges::to<std::vector>()
+    };
+    auto enabled_extension_names{
+        t_create_info.extensions
+        | std::views::transform([](const auto& t_extension_name) {
+              return t_extension_name.data();
+          })
+        | std::ranges::to<std::vector>()
+    };
+
     const vk::InstanceCreateInfo create_info{
         .pNext             = t_create_info.next,
         .flags             = t_create_info.flags,
         .pApplicationInfo  = &t_create_info.application_info,
-        .enabledLayerCount = static_cast<uint32_t>(t_create_info.layers.size()),
-        .ppEnabledLayerNames = t_create_info.layers.data(),
+        .enabledLayerCount = static_cast<uint32_t>(enabled_layer_names.size()),
+        .ppEnabledLayerNames = enabled_layer_names.data(),
         .enabledExtensionCount =
-            static_cast<uint32_t>(t_create_info.extensions.size()),
-        .ppEnabledExtensionNames = t_create_info.extensions.data()
+            static_cast<uint32_t>(enabled_extension_names.size()),
+        .ppEnabledExtensionNames = enabled_extension_names.data()
     };
 
     const auto [result, instance]{ vk::createInstance(create_info) };
@@ -46,11 +62,12 @@ auto Instance::create(const CreateInfo& t_create_info) noexcept
 
 auto Instance::create_default() noexcept -> std::expected<Instance, vk::Result>
 {
-    return create(CreateInfo{ .application_info = helpers::application_info(),
-                              .layers           = helpers::layers(),
-                              .extensions = helpers::instance_extensions(),
-                              .create_debug_messenger =
-                                  helpers::create_debug_messenger });
+    return create(CreateInfo{
+        .application_info = helpers::application_info(),
+        .layers           = helpers::layers() | std::ranges::to<std::vector>(),
+        .extensions =
+            helpers::instance_extensions() | std::ranges::to<std::vector>(),
+        .create_debug_messenger = helpers::create_debug_messenger });
 }
 
 auto Instance::operator*() const noexcept -> vk::Instance
@@ -68,21 +85,21 @@ auto Instance::application_info() const noexcept -> const vk::ApplicationInfo&
     return m_application_info;
 }
 
-auto Instance::enabled_layers() const noexcept -> std::span<const char* const>
+auto Instance::enabled_layers() const noexcept -> std::span<const std::string>
 {
     return m_layers;
 }
 
 auto Instance::enabled_extensions() const noexcept
-    -> std::span<const char* const>
+    -> std::span<const std::string>
 {
     return m_extensions;
 }
 
 Instance::Instance(
     const vk::ApplicationInfo&   t_application_info,
-    std::span<const char* const> t_layers,
-    std::span<const char* const> t_extensions,
+    std::span<const std::string> t_layers,
+    std::span<const std::string> t_extensions,
     vulkan::Instance&&           t_instance
 ) noexcept
     : m_application_info{ t_application_info },
@@ -98,14 +115,14 @@ Instance::Instance(
     std::string instance_info{};
 
     instance_info += "\nEnabled instance layers:";
-    for (auto layer : m_layers) {
+    for (const auto& layer : m_layers) {
         instance_info += '\n';
         instance_info += '\t';
         instance_info += layer;
     }
 
     instance_info += "\nEnabled instance extensions:";
-    for (auto extension : m_extensions) {
+    for (const auto& extension : m_extensions) {
         instance_info += '\n';
         instance_info += '\t';
         instance_info += extension;

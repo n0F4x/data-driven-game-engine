@@ -2,8 +2,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "engine/utility/vulkan/tools.hpp"
-
 #include "helpers.hpp"
 
 namespace engine::renderer {
@@ -34,6 +32,13 @@ auto Device::create(
         return tl::nullopt;
     }
 
+    auto enabled_extension_names{
+        t_create_info.extensions
+        | std::views::transform([](const auto& t_extension_name) {
+              return t_extension_name.data();
+          })
+        | std::ranges::to<std::vector>()
+    };
     const auto [result, device]{
         t_physical_device.createDevice(vk::DeviceCreateInfo{
             .pNext = t_create_info.next,
@@ -41,8 +46,8 @@ auto Device::create(
                 static_cast<uint32_t>(queue_infos->queue_create_infos.size()),
             .pQueueCreateInfos = queue_infos->queue_create_infos.data(),
             .enabledExtensionCount =
-                static_cast<uint32_t>(t_create_info.extensions.size()),
-            .ppEnabledExtensionNames = t_create_info.extensions.data(),
+                static_cast<uint32_t>(enabled_extension_names.size()),
+            .ppEnabledExtensionNames = enabled_extension_names.data(),
             .pEnabledFeatures        = &t_create_info.features })
     };
     if (result != vk::Result::eSuccess) {

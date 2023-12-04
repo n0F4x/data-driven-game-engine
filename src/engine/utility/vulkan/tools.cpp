@@ -7,7 +7,7 @@
 namespace engine::vulkan {
 
 auto available_layers() noexcept
-    -> std::expected<std::vector<const char*>, vk::Result>
+    -> std::expected<std::vector<std::string>, vk::Result>
 {
     const auto [result, properties]{ vk::enumerateInstanceLayerProperties() };
 
@@ -17,13 +17,13 @@ auto available_layers() noexcept
 
     return properties
          | std::views::transform([](const vk::LayerProperties& t_property) {
-               return t_property.layerName;
+               return t_property.layerName.operator std::string();
            })
-         | std::ranges::to<std::vector<const char*>>();
+         | std::ranges::to<std::vector<std::string>>();
 }
 
 auto available_instance_extensions() noexcept
-    -> std::expected<std::vector<const char*>, vk::Result>
+    -> std::expected<std::vector<std::string>, vk::Result>
 {
     const auto [result, properties]{ vk::enumerateInstanceExtensionProperties(
     ) };
@@ -32,15 +32,14 @@ auto available_instance_extensions() noexcept
         return std::unexpected{ result };
     }
 
-    return properties
-         | std::views::transform([](const vk::ExtensionProperties& t_property) {
-               return t_property.extensionName;
+    return properties | std::views::transform([](const auto& t_property) {
+               return t_property.extensionName.operator std::string();
            })
-         | std::ranges::to<std::vector<const char*>>();
+         | std::ranges::to<std::vector>();
 }
 
 auto available_device_extensions(vk::PhysicalDevice t_physical_device) noexcept
-    -> std::expected<std::vector<const char*>, vk::Result>
+    -> std::expected<std::vector<std::string>, vk::Result>
 {
     const auto [result, extension_properties]{
         t_physical_device.enumerateDeviceExtensionProperties()
@@ -51,15 +50,15 @@ auto available_device_extensions(vk::PhysicalDevice t_physical_device) noexcept
     }
 
     return extension_properties
-         | std::views::transform([](const vk::ExtensionProperties& t_property) {
-               return t_property.extensionName;
+         | std::views::transform([](const auto& t_property) {
+               return t_property.extensionName.operator std::string();
            })
-         | std::ranges::to<std::vector<const char*>>();
+         | std::ranges::to<std::vector<std::string>>();
 }
 
 auto supports_extensions(
     vk::PhysicalDevice           t_physical_device,
-    std::span<const char* const> t_extensions
+    std::span<const std::string> t_extensions
 ) noexcept -> bool
 {
     if (!t_physical_device) {
@@ -109,7 +108,7 @@ auto supports_surface(
 }
 
 auto load_shader(vk::Device t_device, std::string_view t_file_path) noexcept
-    -> tl::optional<vk::ShaderModule>
+    -> tl::optional<ShaderModule>
 {
     std::ifstream file{ t_file_path.data(),
                         std::ios::binary | std::ios::in | std::ios::ate };
@@ -139,7 +138,7 @@ auto load_shader(vk::Device t_device, std::string_view t_file_path) noexcept
         return tl::nullopt;
     }
 
-    return shader_module;
+    return ShaderModule{ t_device, shader_module };
 }
 
 }   // namespace engine::vulkan
