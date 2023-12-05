@@ -32,13 +32,9 @@ auto Device::create(
         return tl::nullopt;
     }
 
-    auto enabled_extension_names{
-        t_create_info.extensions
-        | std::views::transform([](const auto& t_extension_name) {
-              return t_extension_name.data();
-          })
-        | std::ranges::to<std::vector>()
-    };
+    auto enabled_extension_names{ t_create_info.extensions
+                                  | std::views::transform(&std::string::c_str)
+                                  | std::ranges::to<std::vector>() };
     const auto [result, device]{
         t_physical_device.createDevice(vk::DeviceCreateInfo{
             .pNext = t_create_info.next,

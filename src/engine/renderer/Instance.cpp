@@ -12,20 +12,12 @@ namespace engine::renderer {
 auto Instance::create(const CreateInfo& t_create_info) noexcept
     -> std::expected<Instance, vk::Result>
 {
-    auto enabled_layer_names{
-        t_create_info.layers
-        | std::views::transform([](const auto& t_layer_name) {
-              return t_layer_name.data();
-          })
-        | std::ranges::to<std::vector>()
-    };
-    auto enabled_extension_names{
-        t_create_info.extensions
-        | std::views::transform([](const auto& t_extension_name) {
-              return t_extension_name.data();
-          })
-        | std::ranges::to<std::vector>()
-    };
+    auto enabled_layer_names{ t_create_info.layers
+                              | std::views::transform(&std::string::c_str)
+                              | std::ranges::to<std::vector>() };
+    auto enabled_extension_names{ t_create_info.extensions
+                                  | std::views::transform(&std::string::c_str)
+                                  | std::ranges::to<std::vector>() };
 
     const vk::InstanceCreateInfo create_info{
         .pNext             = t_create_info.next,

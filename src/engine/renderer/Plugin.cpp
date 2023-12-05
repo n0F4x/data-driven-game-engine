@@ -139,9 +139,9 @@ namespace {
 }   // namespace
 
 auto Plugin::operator()(
-    Store&                t_store,
-    const SurfaceCreator& t_create_surface,
-    FramebufferSizeGetter t_get_framebuffer_size
+    Store&                       t_store,
+    const SurfaceCreator&        t_create_surface,
+    const FramebufferSizeGetter& t_get_framebuffer_size
 ) const noexcept -> void
 {
     create_instance()
