@@ -45,22 +45,17 @@ auto choose_swap_chain_present_mode(
 }
 
 auto create_swap_chain(
-    vk::SurfaceKHR       t_surface,
-    vk::PhysicalDevice   t_physical_device,
-    uint32_t             t_graphics_queue_family,
-    uint32_t             t_present_queue_family,
-    vk::Device           t_device,
-    vk::Extent2D         t_extent,
-    vk::SurfaceFormatKHR t_surfaceFormat,
-    vk::SwapchainKHR     t_old_swap_chain
+    vk::SurfaceKHR             t_surface,
+    vk::PhysicalDevice         t_physical_device,
+    uint32_t                   t_graphics_queue_family,
+    uint32_t                   t_present_queue_family,
+    vk::Device                 t_device,
+    vk::SurfaceCapabilitiesKHR t_surface_capabilities,
+    vk::Extent2D               t_extent,
+    vk::SurfaceFormatKHR       t_surfaceFormat,
+    vk::SwapchainKHR           t_old_swap_chain
 ) noexcept -> vk::SwapchainKHR
 {
-    const auto [result, surface_capabilities]{
-        t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
-    };
-    if (result != vk::Result::eSuccess) {
-        return nullptr;
-    }
     const auto present_mode{
         choose_swap_chain_present_mode(t_surface, t_physical_device)
     };
@@ -68,11 +63,11 @@ auto create_swap_chain(
         return nullptr;
     }
 
-    uint32_t image_count = surface_capabilities.minImageCount + 1;
-    if (surface_capabilities.maxImageCount > 0
-        && image_count > surface_capabilities.maxImageCount)
+    uint32_t image_count = t_surface_capabilities.minImageCount + 1;
+    if (t_surface_capabilities.maxImageCount > 0
+        && image_count > t_surface_capabilities.maxImageCount)
     {
-        image_count = surface_capabilities.maxImageCount;
+        image_count = t_surface_capabilities.maxImageCount;
     }
 
     const std::set buffer{ t_graphics_queue_family, t_present_queue_family };
@@ -94,7 +89,7 @@ auto create_swap_chain(
         .queueFamilyIndexCount =
             static_cast<uint32_t>(queueFamilyIndices.size()),
         .pQueueFamilyIndices = queueFamilyIndices.data(),
-        .preTransform        = surface_capabilities.currentTransform,
+        .preTransform        = t_surface_capabilities.currentTransform,
         .compositeAlpha      = vk::CompositeAlphaFlagBitsKHR::eOpaque,
         .presentMode         = *present_mode,
         .clipped             = true,
@@ -219,6 +214,7 @@ auto Swapchain::create(
         t_graphics_queue_family,
         t_present_queue_family,
         t_device,
+        surface_capabilities,
         extent,
         *surface_format,
         t_old_swap_chain
