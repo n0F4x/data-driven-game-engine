@@ -34,10 +34,19 @@ auto RenderScene::flush(vk::CommandBuffer t_copy_buffer) noexcept -> void
     m_staging_mesh_buffers.clear();
 }
 
-auto ModelHandle::spawn(const Device& t_device) const noexcept
-    -> tl::optional<RenderObject>
+auto ModelHandle::spawn(
+    const Device&           t_device,
+    vk::DescriptorSetLayout t_descriptor_set_layout,
+    vk::DescriptorPool      t_descriptor_pool
+) const noexcept -> tl::optional<RenderObject>
 {
-    return RenderObject::create(t_device, m_model, m_mesh_buffer);
+    return RenderObject::create(
+        t_device,
+        t_descriptor_set_layout,
+        t_descriptor_pool,
+        m_model,
+        m_mesh_buffer
+    );
 }
 
 ModelHandle::ModelHandle(

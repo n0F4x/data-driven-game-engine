@@ -21,6 +21,11 @@ public:
         Style                t_style
     ) noexcept -> tl::optional<Window>;
 
+    ///-------------///
+    ///  Operators  ///
+    ///-------------///
+    [[nodiscard]] auto operator->() const noexcept -> sf::WindowBase*;
+
     ///-----------///
     ///  Methods  ///
     ///-----------///

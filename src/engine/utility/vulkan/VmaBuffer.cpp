@@ -22,11 +22,7 @@ VmaBuffer::VmaBuffer(VmaBuffer&& t_other) noexcept
 
 VmaBuffer::~VmaBuffer() noexcept
 {
-    if (m_allocator) {
-        vmaDestroyBuffer(
-            m_allocator, static_cast<VkBuffer>(m_buffer), m_allocation
-        );
-    }
+    destroy();
 }
 
 auto VmaBuffer::operator*() const noexcept -> vk::Buffer
@@ -37,6 +33,18 @@ auto VmaBuffer::operator*() const noexcept -> vk::Buffer
 auto VmaBuffer::allocation() const noexcept -> VmaAllocation
 {
     return m_allocation;
+}
+
+auto VmaBuffer::destroy() noexcept -> void
+{
+    if (m_allocator) {
+        vmaDestroyBuffer(
+            m_allocator, static_cast<VkBuffer>(m_buffer), m_allocation
+        );
+    }
+    m_allocation = nullptr;
+    m_buffer     = nullptr;
+    m_allocator  = nullptr;
 }
 
 }   // namespace engine::vulkan

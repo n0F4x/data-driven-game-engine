@@ -2,7 +2,9 @@
 
 #include <expected>
 #include <functional>
+#include <utility>
 #include <variant>
+#include <vector>
 
 #include <tl/optional.hpp>
 
@@ -32,9 +34,9 @@ public:
     ///----------------///
     ///  Type aliases  ///
     ///----------------///
-    using FramebufferSizeGetter  = std::function<vk::Extent2D()>;
-    using SwapchainRecreatedSigh = entt::sigh<void(const vulkan::Swapchain&)>;
-    using SwapchainRecreatedSink = entt::sink<SwapchainRecreatedSigh>;
+    using FramebufferSizeGetter = std::function<vk::Extent2D()>;
+    using SwapchainRecreatedEvent =
+        std::function<void(const vulkan::Swapchain&)>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
@@ -57,22 +59,16 @@ public:
     [[nodiscard]] auto acquire_next_image(
         vk::Semaphore t_semaphore = nullptr,
         vk::Fence     t_fence     = nullptr
-    ) noexcept
-        -> std::expected<
-            std::variant<vulkan::err::Success, vulkan::err::SuboptimalKHR>,
-            std::variant<
-                err::NoSwapchain,
-                vulkan::err::ErrorOutOfHostMemory,
-                vulkan::err::ErrorOutOfDeviceMemory,
-                vulkan::err::ErrorDeviceLost,
-                vulkan::err::ErrorSurfaceLostKHR,
-                vulkan::err::ErrorFullScreenExclusiveModeLostEXT>>;
+    ) noexcept -> tl::optional<uint32_t>;
 
     auto present(std::span<vk::Semaphore> t_wait_semaphores = {}) noexcept
         -> void;
 
-    [[nodiscard]] auto swapchain_recreated_sink() noexcept
-        -> SwapchainRecreatedSink&;
+    auto on_swapchain_recreated(
+        SwapchainRecreatedEvent&& t_swapchain_recreated_event
+    ) noexcept -> uint32_t;
+
+    auto remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void;
 
 private:
     ///*************///
@@ -83,10 +79,9 @@ private:
     FramebufferSizeGetter           m_get_framebuffer_size;
     tl::optional<vulkan::Swapchain> m_swapchain;
     uint32_t                        m_image_index{};
-    SwapchainRecreatedSigh          m_swapchain_recreated_signal;
-    SwapchainRecreatedSink          m_swapchain_recreated_sink{
-        m_swapchain_recreated_signal
-    };
+    std::vector<std::pair<uint32_t, SwapchainRecreatedEvent>>
+             m_swapchain_recreated_events;
+    uint32_t m_swapchain_recreated_events_counter{};
 
     ///***********///
     ///  Methods  ///

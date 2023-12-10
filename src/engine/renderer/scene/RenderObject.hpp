@@ -2,6 +2,8 @@
 
 #include <tl/optional.hpp>
 
+#include <vulkan/vulkan.hpp>
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
@@ -24,17 +26,18 @@ public:
 
         std::vector<Primitive> primitives;
 
-        vulkan::VmaBuffer        uniform_buffer;
-        vk::DescriptorBufferInfo descriptor_buffer_info{};
-        vk::DescriptorSet        descriptor_set{};
-        void*                    mapped{};
+        vulkan::VmaBuffer uniform_buffer;
+        vk::DescriptorSet descriptor_set{};
+        void*             mapped{};
 
         UniformBlock uniform_block;
 
         [[nodiscard]] static auto create(
-            const Device&          t_device,
-            std::vector<Primitive> t_primitives,
-            const UniformBlock&    t_uniform_block
+            const Device&           t_device,
+            vk::DescriptorSetLayout t_descriptor_set_layout,
+            vk::DescriptorPool      t_descriptor_pool,
+            std::vector<Primitive>  t_primitives,
+            const UniformBlock&     t_uniform_block
         ) noexcept -> tl::optional<Mesh>;
     };
 
@@ -49,15 +52,20 @@ public:
     /// Static methods ///
     ///----------------///
     [[nodiscard]] static auto create(
-        const Device&         t_device,
-        const gfx::Model&     t_model,
-        renderer::MeshBuffer& t_mesh_buffer
+        const Device&           t_device,
+        vk::DescriptorSetLayout t_descriptor_set_layout,
+        vk::DescriptorPool      t_descriptor_pool,
+        const gfx::Model&       t_model,
+        renderer::MeshBuffer&   t_mesh_buffer
     ) noexcept -> tl::optional<RenderObject>;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto draw(vk::CommandBuffer t_graphics_buffer) const noexcept -> void;
+    auto draw(
+        vk::CommandBuffer  t_graphics_buffer,
+        vk::PipelineLayout t_pipeline_layout
+    ) const noexcept -> void;
 
 private:
     ///*************///

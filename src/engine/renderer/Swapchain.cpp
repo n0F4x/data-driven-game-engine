@@ -62,49 +62,37 @@ auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
 auto Swapchain::acquire_next_image(
     vk::Semaphore t_semaphore,
     vk::Fence     t_fence
-) noexcept
-    -> std::expected<
-        std::variant<vulkan::err::Success, vulkan::err::SuboptimalKHR>,
-        std::variant<
-            err::NoSwapchain,
-            vulkan::err::ErrorOutOfHostMemory,
-            vulkan::err::ErrorOutOfDeviceMemory,
-            vulkan::err::ErrorDeviceLost,
-            vulkan::err::ErrorSurfaceLostKHR,
-            vulkan::err::ErrorFullScreenExclusiveModeLostEXT>>
+) noexcept -> tl::optional<uint32_t>
 {
+    if (!m_swapchain.has_value()) {
+        return tl::nullopt;
+    }
+    
     const auto [result, image_index]{ m_device->acquireNextImageKHR(
         **m_swapchain,
         std::numeric_limits<uint64_t>::max(),
         t_semaphore,
         t_fence
     ) };
+    m_image_index = image_index;
 
     if (result == vk::Result::eErrorOutOfDateKHR) {
         recreate_swap_chain();
     }
 
     if (!m_swapchain.has_value()) {
-        return std::unexpected{ err::NoSwapchain{} };
+        return tl::nullopt;
     }
 
     switch (result) {
         case vk::Result::eSuccess:
-        case vk::Result::eSuboptimalKHR:
-            return vulkan::
-                get<vulkan::err::Success, vulkan::err::SuboptimalKHR>(result);
+        case vk::Result::eSuboptimalKHR: return image_index;
         default: {
             SPDLOG_ERROR(
                 "vk::Device::acquireNextImage failed with error code {}",
                 std::to_underlying(result)
             );
-            return std::unexpected{ vulkan::get<
-                err::NoSwapchain,
-                vulkan::err::ErrorOutOfHostMemory,
-                vulkan::err::ErrorOutOfDeviceMemory,
-                vulkan::err::ErrorDeviceLost,
-                vulkan::err::ErrorSurfaceLostKHR,
-                vulkan::err::ErrorFullScreenExclusiveModeLostEXT>(result) };
+            return tl::nullopt;
         }
     }
 }
@@ -129,9 +117,22 @@ auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) noexcept
     }
 }
 
-auto Swapchain::swapchain_recreated_sink() noexcept -> SwapchainRecreatedSink&
+auto Swapchain::on_swapchain_recreated(
+    Swapchain::SwapchainRecreatedEvent&& t_swapchain_recreated_event
+) noexcept -> uint32_t
 {
-    return m_swapchain_recreated_sink;
+    m_swapchain_recreated_events.emplace_back(
+        m_swapchain_recreated_events_counter,
+        std::move(t_swapchain_recreated_event)
+    );
+    return m_swapchain_recreated_events_counter++;
+}
+
+auto Swapchain::remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void
+{
+    std::erase_if(m_swapchain_recreated_events, [t_id](const auto& t_pair) {
+        return t_pair.first == t_id;
+    });
 }
 
 auto Swapchain::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
@@ -154,7 +155,9 @@ auto Swapchain::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
     m_swapchain = std::move(new_swap_chain);
 
     if (m_swapchain.has_value()) {
-        m_swapchain_recreated_signal.publish(*m_swapchain);
+        for (const auto& [id, event] : m_swapchain_recreated_events) {
+            std::invoke(event, m_swapchain.value());
+        }
     }
 }
 

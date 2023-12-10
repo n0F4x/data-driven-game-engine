@@ -22,13 +22,13 @@ struct BufferData {
 [[nodiscard]] auto get_buffer_data(
     const tinygltf::Model&     t_model,
     const tinygltf::Primitive& t_primitive,
-    std::string_view           t_attribute,
+    const char*                t_attribute,
     uint32_t                   t_type
 ) noexcept -> BufferData
 {
     BufferData result{};
 
-    if (const auto iter{ t_primitive.attributes.find(t_attribute.data()) };
+    if (const auto iter{ t_primitive.attributes.find(t_attribute) };
         iter != t_primitive.attributes.end())
     {
         const auto& accessor    = t_model.accessors[iter->second];
@@ -218,7 +218,12 @@ auto load_node(
     }
 
     if (t_node.mesh > -1) {
-        load_mesh(t_node, t_model, t_first_vertex_index, t_first_index_index)
+        load_mesh(
+            t_node,
+            t_model,
+            t_first_vertex_index + static_cast<uint32_t>(vertices.size()),
+            t_first_index_index + static_cast<uint32_t>(indices.size())
+        )
             .transform([&](MeshInfo&& t_mesh_info) {
                 vertices.append_range(std::move(t_mesh_info.vertices));
                 indices.append_range(std::move(t_mesh_info.indices));
@@ -233,8 +238,8 @@ auto load_node(
             &node,
             t_model.nodes[index],
             t_model,
-            t_first_index_index + static_cast<uint32_t>(indices.size()),
-            t_first_vertex_index + static_cast<uint32_t>(vertices.size())
+            t_first_vertex_index + static_cast<uint32_t>(vertices.size()),
+            t_first_index_index + static_cast<uint32_t>(indices.size())
         ) };
 
         node.children.push_back(std::move(child.node));

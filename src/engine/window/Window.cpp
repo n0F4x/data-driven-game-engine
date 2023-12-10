@@ -25,6 +25,11 @@ auto Window::create(
     }
 }
 
+auto Window::operator->() const noexcept -> sf::WindowBase*
+{
+    return m_impl.operator->();
+}
+
 auto Window::framebuffer_size() const noexcept -> sf::Vector2u
 {
     return m_impl->getSize();

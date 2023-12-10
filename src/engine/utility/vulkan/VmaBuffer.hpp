@@ -29,6 +29,7 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto allocation() const noexcept -> VmaAllocation;
+    auto               destroy() noexcept -> void;
 
 private:
     ///*************///

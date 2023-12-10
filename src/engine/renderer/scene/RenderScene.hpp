@@ -6,6 +6,8 @@
 
 #include <tl/optional.hpp>
 
+#include <vulkan/vulkan.hpp>
+
 #include "engine/graphics/Model.hpp"
 #include "engine/renderer/Device.hpp"
 
@@ -41,8 +43,11 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto spawn(const Device& t_device) const noexcept
-        -> tl::optional<RenderObject>;
+    [[nodiscard]] auto spawn(
+        const Device&           t_device,
+        vk::DescriptorSetLayout t_descriptor_set_layout,
+        vk::DescriptorPool      t_descriptor_pool
+    ) const noexcept -> tl::optional<RenderObject>;
 
 private:
     ///******************///

@@ -60,7 +60,9 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
 FetchContent_Declare(tl-optional
         GIT_REPOSITORY https://github.com/TartanLlama/optional.git
         GIT_TAG v1.1.0
-        GIT_PROGRESS TRUE)
+        GIT_PROGRESS TRUE
+        SYSTEM
+)
 FetchContent_MakeAvailable(tl-optional)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <tl/optional.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC tl::optional)
@@ -69,7 +71,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC tl::optional)
 FetchContent_Declare(spdlog
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
         GIT_TAG v1.12.0
-        GIT_PROGRESS TRUE)
+        GIT_PROGRESS TRUE
+        SYSTEM
+)
 FetchContent_MakeAvailable(spdlog)
 if (engine_debug)
     set(spdlog_level SPDLOG_LEVEL_TRACE)
@@ -164,6 +168,4 @@ unset(engine_debug CACHE)
 ###########
 ## TESTS ##
 ###########
-add_executable(test examples/src/main.cpp)
-target_compile_features(test PRIVATE cxx_std_23)
-target_link_libraries(test PRIVATE ${PROJECT_NAME})
+add_subdirectory(examples)

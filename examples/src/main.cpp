@@ -1,17 +1,22 @@
 #include <engine/app.hpp>
 #include <engine/plugins.hpp>
+#include <engine/window/Window.hpp>
+
+#include "demo.hpp"
 
 using namespace engine;
 
-auto main() noexcept -> int
+auto main() -> int
 {
-    App::create()
+    return App::create()
         .add_plugin<plugins::Logger>(logger::Level::eTrace)
         .add_plugin<plugins::AssetManager>()
         .add_plugin<plugins::Window>(
-            sf::VideoMode{ 450u, 600u }, "My window", window::Style::eDefault
+            sf::VideoMode::getDesktopMode(), "My window", window::Style::eNone
         )
-        .add_plugin<plugins::Renderer>()
+        .add_plugin<plugins::Renderer>(
+            plugins::Renderer::default_surface_creator
+        )
         .add_plugin<plugins::SceneGraph>()
-        .build_and_run([](App&) noexcept {});
+        .build_and_run(demo::run);
 }

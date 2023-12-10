@@ -11,3 +11,5 @@ build.bat
 CMakeSettings.json
 CMakePresets.json
 cpp.hint
+
+*/shaders/*.spv

@@ -28,9 +28,7 @@ public:
 
     ~Wrapped()
     {
-        if (m_handle) {
-            m_owner.destroy(m_handle);
-        }
+        destroy();
     }
 
     ///-------------///
@@ -43,6 +41,18 @@ public:
         return m_handle;
     }
 
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
+    auto destroy() noexcept -> void
+    {
+        if (m_handle) {
+            m_owner.destroy(m_handle);
+        }
+        m_handle = nullptr;
+        m_owner  = nullptr;
+    }
+
 private:
     ///*************///
     ///  Variables  ///
@@ -52,11 +62,15 @@ private:
 };
 
 using CommandPool         = Wrapped<vk::CommandPool>;
+using DescriptorPool      = Wrapped<vk::DescriptorPool>;
 using DescriptorSetLayout = Wrapped<vk::DescriptorSetLayout>;
 using Fence               = Wrapped<vk::Fence>;
 using Framebuffer         = Wrapped<vk::Framebuffer>;
+using Image               = Wrapped<vk::Image>;
+using ImageView           = Wrapped<vk::ImageView>;
 using Pipeline            = Wrapped<vk::Pipeline>;
 using PipelineLayout      = Wrapped<vk::PipelineLayout>;
+using Semaphore           = Wrapped<vk::Semaphore>;
 using ShaderModule        = Wrapped<vk::ShaderModule>;
 using Surface             = Wrapped<vk::SurfaceKHR, vk::Instance>;
 using RenderPass          = Wrapped<vk::RenderPass>;
