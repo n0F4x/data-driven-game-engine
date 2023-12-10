@@ -10,8 +10,12 @@ auto MeshBuffer::create(
     auto vertex_buffer_size = static_cast<uint32_t>(t_vertices.size_bytes());
     auto index_buffer_size  = static_cast<uint32_t>(t_indices.size_bytes());
 
-    const vk::BufferCreateInfo staging_buffer_create_info = {
+    const vk::BufferCreateInfo vertex_staging_buffer_create_info = {
         .size  = vertex_buffer_size,
+        .usage = vk::BufferUsageFlagBits::eTransferSrc,
+    };
+    const vk::BufferCreateInfo index_staging_buffer_create_info = {
+        .size  = index_buffer_size,
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
     constexpr VmaAllocationCreateInfo staging_allocation_create_info = {
@@ -21,7 +25,7 @@ auto MeshBuffer::create(
     };
 
     auto vertex_staging_buffer{ t_device.create_buffer(
-        staging_buffer_create_info,
+        vertex_staging_buffer_create_info,
         staging_allocation_create_info,
         t_vertices.data()
     ) };
@@ -29,7 +33,7 @@ auto MeshBuffer::create(
         return tl::nullopt;
     }
     auto index_staging_buffer{ t_device.create_buffer(
-        staging_buffer_create_info,
+        index_staging_buffer_create_info,
         staging_allocation_create_info,
         t_indices.data()
     ) };
@@ -68,13 +72,15 @@ auto MeshBuffer::create(
         return tl::nullopt;
     }
 
-
+    const auto raw_vertex_buffer{ *std::get<vulkan::VmaBuffer>(*vertex_buffer
+    ) };
+    const auto raw_index_buffer{ *std::get<vulkan::VmaBuffer>(*index_buffer) };
     return std::make_tuple(
         StagingMeshBuffer{
             std::move(std::get<vulkan::VmaBuffer>(*vertex_staging_buffer)),
             std::move(std::get<vulkan::VmaBuffer>(*index_staging_buffer)),
-            *std::get<vulkan::VmaBuffer>(*vertex_buffer),
-            *std::get<vulkan::VmaBuffer>(*index_buffer),
+            raw_vertex_buffer,
+            raw_index_buffer,
             vertex_buffer_size,
             index_buffer_size
     },
