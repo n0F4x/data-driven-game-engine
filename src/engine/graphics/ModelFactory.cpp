@@ -1,7 +1,6 @@
 #include "ModelFactory.hpp"
 
 #include <ranges>
-#include <string_view>
 #include <tuple>
 #include <vector>
 
@@ -41,8 +40,8 @@ struct BufferData {
         result.byte_stride =
             accessor.ByteStride(buffer_view)
                 ? static_cast<int>(
-                    (accessor.ByteStride(buffer_view) / sizeof(float))
-                )
+                      (accessor.ByteStride(buffer_view) / sizeof(float))
+                  )
                 : tinygltf::GetNumComponentsInType(t_type);
     }
 
@@ -68,25 +67,30 @@ struct BufferData {
          | std::views::transform([&](auto index) {
                return Model::Vertex{
                    .position = glm::vec4(
-                       position_data.buffer ? glm::make_vec3(
-                           &position_data
-                                .buffer[index * position_data.byte_stride]
-                       )
-                                            : glm::vec3(0.f),
+                       position_data.buffer
+                           ? glm::make_vec3(
+                                 &position_data
+                                      .buffer[index * position_data.byte_stride]
+                             )
+                           : glm::vec3(0.f),
                        1.0f
                    ),
                    .color = glm::vec4(
-                       color_data.buffer ? glm::make_vec3(
-                           &color_data.buffer[index * color_data.byte_stride]
-                       )
-                                         : glm::vec3(1.f),
+                       color_data.buffer
+                           ? glm::make_vec3(
+                                 &color_data
+                                      .buffer[index * color_data.byte_stride]
+                             )
+                           : glm::vec3(1.f),
                        1.0f
                    ),
                    .normal = glm::normalize(glm::vec3(
-                       normal_data.buffer ? glm::make_vec3(
-                           &normal_data.buffer[index * normal_data.byte_stride]
-                       )
-                                          : glm::vec3(0.f)
+                       normal_data.buffer
+                           ? glm::make_vec3(
+                                 &normal_data
+                                      .buffer[index * normal_data.byte_stride]
+                             )
+                           : glm::vec3(0.f)
                    )),
                };
            })

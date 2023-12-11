@@ -22,14 +22,6 @@
 
 using namespace engine;
 
-// const std::string g_model_file_path{
-//     "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
-// };
-// const std::string g_model_file_path{ "models/Avocado/glTF-Binary/Avocado.glb"
-// };
-const std::string g_model_file_path{ "models/DamagedHelmet.glb" };
-// const std::string g_model_file_path{ "models/Sponza/glTF/Sponza.gltf" };
-
 constexpr uint32_t g_frame_count{ 2 };
 
 struct DemoApp {
@@ -52,6 +44,7 @@ struct DemoApp {
 
     renderer::RenderScene  render_scene;
     renderer::RenderObject render_object;
+    bool                   swapchain_recreated{ false };
 
     static auto flush_model(
         const renderer::Device& t_device,
@@ -93,8 +86,10 @@ struct DemoApp {
         t_device->resetCommandPool(*transfer_command_pool);
     }
 
-    [[nodiscard]] static auto create(Store& t_store) noexcept
-        -> tl::optional<DemoApp>
+    [[nodiscard]] static auto create(
+        Store&             t_store,
+        const std::string& t_model_filepath
+    ) noexcept -> tl::optional<DemoApp>
     {
         auto opt_device{ t_store.find<renderer::Device>() };
         if (!opt_device) {
@@ -200,7 +195,7 @@ struct DemoApp {
         }
 
         renderer::RenderScene render_scene;
-        auto opt_model{ init::create_model(g_model_file_path) };
+        auto                  opt_model{ init::create_model(t_model_filepath) };
         if (!opt_model) {
             std::cout << "Model could not be created properly\n";
             return tl::nullopt;
@@ -367,81 +362,87 @@ struct DemoApp {
     }
 };
 
-auto demo::run(engine::App& t_app) noexcept -> int
+auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
+    -> int
 {
-    DemoApp::create(t_app.store()).transform([&](DemoApp t_demo) {
-        // TODO: fix resizing with depth image
-        t_demo.swapchain.on_swapchain_recreated(
-            [&t_demo](const vulkan::Swapchain& t_swapchain) {
-                t_demo.depth_image = init::create_depth_image(
-                    t_demo.device, t_swapchain.extent()
-                );
-            }
-        );
-        t_demo.swapchain.on_swapchain_recreated(
-            [&t_demo](const vulkan::Swapchain& t_swapchain) {
-                t_demo.depth_image_view = init::create_depth_image_view(
-                    t_demo.device, *t_demo.depth_image
-                );
-            }
-        );
-        t_demo.swapchain.on_swapchain_recreated(
-            [&t_demo](const vulkan::Swapchain& t_swapchain) {
-                t_demo.framebuffers = init::create_framebuffers(
-                    *t_demo.device,
-                    t_swapchain.extent(),
-                    t_swapchain.image_views(),
-                    *t_demo.render_pass,
-                    *t_demo.depth_image_view
-                );
-            }
-        );
-
-        bool      running{ true };
-        auto&     window{ t_app.store().find<window::Window>().value() };
-        sf::Event event{};
-
-        Controller controller;
-
-        std::atomic<vk::Extent2D> framebuffer_size{};
-        std::atomic<Camera>       camera;
-
-        auto rendering = std::async(std::launch::async, [&] {
-            while (running) {
-                t_demo.render(framebuffer_size, camera.load());
-            }
-        });
-
-        auto last_time = std::chrono::high_resolution_clock::now();
-        while (running) {
-            auto now = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<float, std::chrono::seconds::period>
-                delta_time{ now - last_time };
-            last_time = now;
-
-            while (window->pollEvent(event)) {
-                if (event.type == sf::Event::Closed) {
-                    running = false;
-                }
-                if (event.type == sf::Event::KeyPressed
-                    && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-                {
-                    running = false;
-                }
-                if (event.type == sf::Event::Resized) {
-                    framebuffer_size.store(
-                        utils::to_extent2D(window.framebuffer_size())
+    DemoApp::create(t_app.store(), t_model_filepath)
+        .transform([&](DemoApp t_demo) {
+            // TODO: fix resizing with depth image
+            t_demo.swapchain.on_swapchain_recreated(
+                [&t_demo](const vulkan::Swapchain& t_swapchain) {
+                    t_demo.depth_image = init::create_depth_image(
+                        t_demo.device, t_swapchain.extent()
                     );
                 }
+            );
+            t_demo.swapchain.on_swapchain_recreated(
+                [&t_demo](const vulkan::Swapchain& t_swapchain) {
+                    t_demo.depth_image_view = init::create_depth_image_view(
+                        t_demo.device, *t_demo.depth_image
+                    );
+                }
+            );
+            t_demo.swapchain.on_swapchain_recreated(
+                [&t_demo](const vulkan::Swapchain& t_swapchain) {
+                    t_demo.framebuffers = init::create_framebuffers(
+                        *t_demo.device,
+                        t_swapchain.extent(),
+                        t_swapchain.image_views(),
+                        *t_demo.render_pass,
+                        *t_demo.depth_image_view
+                    );
+                }
+            );
+
+            bool      running{ true };
+            auto&     window{ t_app.store().find<window::Window>().value() };
+            sf::Event event{};
+
+            Controller controller;
+
+            std::atomic<vk::Extent2D> framebuffer_size{};
+            std::atomic<Camera>       camera;
+
+            auto rendering = std::async(std::launch::async, [&] {
+                while (running) {
+                    t_demo.render(framebuffer_size, camera.load());
+                }
+            });
+
+            auto last_time = std::chrono::high_resolution_clock::now();
+            while (running) {
+                std::this_thread::sleep_for(
+                    std::chrono::duration<float, std::chrono::seconds::period>{
+                        1.f / 60.f }
+                );
+                auto now = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<float, std::chrono::seconds::period>
+                    delta_time{ now - last_time };
+                last_time = now;
+
+                while (window->pollEvent(event)) {
+                    if (event.type == sf::Event::Closed) {
+                        running = false;
+                    }
+                    if (event.type == sf::Event::KeyPressed
+                        && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                    {
+                        running = false;
+                    }
+                    if (event.type == sf::Event::Resized) {
+                        framebuffer_size.store(
+                            utils::to_extent2D(window.framebuffer_size())
+                        );
+                    }
+                }
+
+                controller.update(delta_time.count());
+                camera = controller.update_camera(camera);
             }
 
-            controller.update(delta_time.count());
-            camera = controller.update_camera(camera);
-        }
-
-        rendering.get();
-        static_cast<void>(t_demo.device->waitIdle());
-    });
+            rendering.get();
+            static_cast<void>(t_demo.device->waitIdle());
+        });
 
     return 0;
 }

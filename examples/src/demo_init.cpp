@@ -1,5 +1,7 @@
 #include "demo_init.hpp"
 
+#include <bit>
+
 #include <vulkan/vulkan.hpp>
 
 #include <engine/asset_manager/GltfLoader.hpp>
@@ -39,11 +41,10 @@ namespace {
 [[nodiscard]] auto find_depth_format(vk::PhysicalDevice t_physical_device
 ) noexcept -> tl::optional<vk::Format>
 {
+    using enum vk::Format;
     return find_supported_format(
         t_physical_device,
-        { vk::Format::eD32Sfloat,
-          vk::Format::eD32SfloatS8Uint,
-          vk::Format::eD24UnormS8Uint },
+        { eD32Sfloat, eD32SfloatS8Uint, eD24UnormS8Uint },
         vk::ImageTiling::eOptimal,
         vk::FormatFeatureFlagBits::eDepthStencilAttachment
     );
@@ -160,7 +161,7 @@ auto create_depth_image(
         .priority = 1.f,
     };
 
-    vk::Image     image;
+    vk::Image     image{};
     VmaAllocation allocation;
     vmaCreateImage(
         t_device.allocator(),
@@ -296,11 +297,11 @@ auto create_framebuffers(
         vk::PipelineShaderStageCreateInfo{.stage =
 vk::ShaderStageFlagBits::eVertex,
                                           .module = **vertex_shader_module,
-                                          .pName  = "main"},
+                                          .pName  = "main" },
         vk::PipelineShaderStageCreateInfo{
                                           .stage  = vk::ShaderStageFlagBits::eFragment,
                                           .module = **fragment_shader_module,
-                                          .pName  = "main"}
+                                          .pName  = "main" }
     };
 
     using Vertex = engine::gfx::Model::Vertex;
@@ -314,17 +315,17 @@ vk::ShaderStageFlagBits::eVertex,
                                             .location = 0,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex, position))},
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex, position)) },
         vk::VertexInputAttributeDescription{
                                             .location = 1,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,    color))},
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,    color)) },
         vk::VertexInputAttributeDescription{
                                             .location = 2,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,   normal))}
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,   normal)) }
     };
 
     vk::PipelineVertexInputStateCreateInfo
@@ -504,9 +505,8 @@ auto create_model(const std::string& t_path) noexcept
                            : asset_manager::GltfFormat::eAscii };
 
     return asset_manager::GltfLoader::load_model(format, t_path)
-        .transform([](auto&& t_model) {
-            return gfx::ModelFactory::create_model(
-                std::forward<decltype(t_model)>(t_model)
+        .transform([]<typename Model>(Model&& t_model) {
+            return gfx::ModelFactory::create_model(std::forward<Model>(t_model)
             );
         });
 }
