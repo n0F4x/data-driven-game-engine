@@ -23,7 +23,7 @@ Swapchain::Swapchain(
       m_device{ t_device },
       m_get_framebuffer_size{ std::move(t_get_framebuffer_size) }
 {
-    recreate_swap_chain();
+    recreate_swapchain();
 }
 
 auto Swapchain::surface() const noexcept -> vk::SurfaceKHR
@@ -40,7 +40,7 @@ auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     -> void
 {
     if (!m_swapchain.has_value()) {
-        recreate_swap_chain(t_framebuffer_size);
+        recreate_swapchain(t_framebuffer_size);
         return;
     }
 
@@ -55,7 +55,7 @@ auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     );
 
     if (m_swapchain->extent() != extent) {
-        recreate_swap_chain(t_framebuffer_size);
+        recreate_swapchain(t_framebuffer_size);
     }
 }
 
@@ -67,7 +67,7 @@ auto Swapchain::acquire_next_image(
     if (!m_swapchain.has_value()) {
         return tl::nullopt;
     }
-    
+
     const auto [result, image_index]{ m_device->acquireNextImageKHR(
         **m_swapchain,
         std::numeric_limits<uint64_t>::max(),
@@ -77,7 +77,7 @@ auto Swapchain::acquire_next_image(
     m_image_index = image_index;
 
     if (result == vk::Result::eErrorOutOfDateKHR) {
-        recreate_swap_chain();
+        recreate_swapchain();
     }
 
     if (!m_swapchain.has_value()) {
@@ -113,7 +113,7 @@ auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) noexcept
     if (result == vk::Result::eErrorOutOfDateKHR
         || result == vk::Result::eSuboptimalKHR)
     {
-        recreate_swap_chain();
+        recreate_swapchain();
     }
 }
 
@@ -135,14 +135,14 @@ auto Swapchain::remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void
     });
 }
 
-auto Swapchain::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
+auto Swapchain::recreate_swapchain(vk::Extent2D t_framebuffer_size) noexcept
     -> void
 {
     if (m_device->waitIdle() != vk::Result::eSuccess) {
         return;
     }
 
-    auto new_swap_chain{ vulkan::Swapchain::create(
+    auto new_swapchain{ vulkan::Swapchain::create(
         *m_surface,
         m_device.physical_device(),
         m_device.graphics_queue_family_index(),
@@ -152,7 +152,7 @@ auto Swapchain::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
         m_swapchain.transform(&vulkan::Swapchain::operator*).value_or(nullptr)
     ) };
     m_swapchain.reset();
-    m_swapchain = std::move(new_swap_chain);
+    m_swapchain = std::move(new_swapchain);
 
     if (m_swapchain.has_value()) {
         for (const auto& [id, event] : m_swapchain_recreated_events) {
@@ -161,10 +161,10 @@ auto Swapchain::recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept
     }
 }
 
-auto Swapchain::recreate_swap_chain() noexcept -> void
+auto Swapchain::recreate_swapchain() noexcept -> void
 {
     if (m_get_framebuffer_size) {
-        recreate_swap_chain(m_get_framebuffer_size());
+        recreate_swapchain(m_get_framebuffer_size());
     }
 }
 

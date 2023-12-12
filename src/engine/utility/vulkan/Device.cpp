@@ -12,10 +12,17 @@ Device::Device(Device&& t_other) noexcept
 
 Device::~Device() noexcept
 {
-    if (m_device) {
-        static_cast<void>(m_device.waitIdle());
-        m_device.destroy();
+    destroy();
+}
+
+auto Device::operator=(Device&& t_other) noexcept -> Device&
+{
+    if (this != &t_other) {
+        destroy();
+
+        std::swap(m_device, t_other.m_device);
     }
+    return *this;
 }
 
 auto Device::operator*() const noexcept -> vk::Device
@@ -26,6 +33,14 @@ auto Device::operator*() const noexcept -> vk::Device
 auto Device::operator->() const noexcept -> const vk::Device*
 {
     return &m_device;
+}
+
+auto Device::destroy() noexcept -> void
+{
+    if (m_device) {
+        m_device.destroy();
+    }
+    m_device = nullptr;
 }
 
 }   // namespace engine::vulkan

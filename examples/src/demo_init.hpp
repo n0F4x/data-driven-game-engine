@@ -20,7 +20,7 @@ namespace init {
 
 [[nodiscard]] auto create_depth_image(
     const engine::renderer::Device& t_device,
-    vk::Extent2D                    t_swap_chain_extent
+    vk::Extent2D                    t_swapchain_extent
 ) noexcept -> engine::vulkan::VmaImage;
 
 [[nodiscard]] auto create_depth_image_view(
@@ -29,11 +29,11 @@ namespace init {
 ) noexcept -> engine::vulkan::ImageView;
 
 [[nodiscard]] auto create_framebuffers(
-    vk::Device                        t_device,
-    vk::Extent2D                      t_swapchain_extent,
-    const std::vector<vk::ImageView>& t_swapchain_image_views,
-    vk::RenderPass                    t_render_pass,
-    vk::ImageView                     t_depth_image_view
+    vk::Device                                    t_device,
+    vk::Extent2D                                  t_swapchain_extent,
+    const std::vector<engine::vulkan::ImageView>& t_swapchain_image_views,
+    vk::RenderPass                                t_render_pass,
+    vk::ImageView                                 t_depth_image_view
 ) noexcept -> std::vector<engine::vulkan::Framebuffer>;
 
 [[nodiscard]] auto create_descriptor_set_layout(vk::Device t_device) noexcept

@@ -15,6 +15,7 @@
 #include "engine/utility/Result.hpp"
 #include "engine/utility/vulkan/raii_wrappers.hpp"
 #include "engine/utility/vulkan/result_types.hpp"
+#include "engine/utility/vulkan/Swapchain.hpp"
 
 #include "Device.hpp"
 
@@ -86,8 +87,8 @@ private:
     ///***********///
     ///  Methods  ///
     ///***********///
-    auto recreate_swap_chain(vk::Extent2D t_framebuffer_size) noexcept -> void;
-    auto recreate_swap_chain() noexcept -> void;
+    auto recreate_swapchain(vk::Extent2D t_framebuffer_size) noexcept -> void;
+    auto recreate_swapchain() noexcept -> void;
 };
 
 }   // namespace engine::renderer

@@ -19,9 +19,14 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto               operator=(Instance&&) noexcept -> Instance& = default;
+    auto               operator=(Instance&&) noexcept -> Instance&;
     [[nodiscard]] auto operator*() const noexcept -> vk::Instance;
     [[nodiscard]] auto operator->() const noexcept -> const vk::Instance*;
+
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
+    auto destroy() noexcept -> void;
 
 private:
     ///*************///

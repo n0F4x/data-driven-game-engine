@@ -129,7 +129,7 @@ namespace init {
 
 auto create_depth_image(
     const renderer::Device& t_device,
-    vk::Extent2D            t_swap_chain_extent
+    vk::Extent2D            t_swapchain_extent
 ) noexcept -> vulkan::VmaImage
 {
     auto opt_depth_format = find_depth_format(t_device.physical_device());
@@ -143,8 +143,8 @@ auto create_depth_image(
         .format    = depth_format,
         .extent =
             vk::Extent3D{
-                         .width  = t_swap_chain_extent.width,
-                         .height = t_swap_chain_extent.height,
+                         .width  = t_swapchain_extent.width,
+                         .height = t_swapchain_extent.height,
                          .depth  = 1,
                          },
         .mipLevels     = 1,
@@ -200,18 +200,18 @@ auto create_depth_image_view(
 }
 
 auto create_framebuffers(
-    vk::Device                        t_device,
-    vk::Extent2D                      t_swapchain_extent,
-    const std::vector<vk::ImageView>& t_swapchain_image_views,
-    vk::RenderPass                    t_render_pass,
-    vk::ImageView                     t_depth_image_view
+    vk::Device                            t_device,
+    vk::Extent2D                          t_swapchain_extent,
+    const std::vector<vulkan::ImageView>& t_swapchain_image_views,
+    vk::RenderPass                        t_render_pass,
+    vk::ImageView                         t_depth_image_view
 ) noexcept -> std::vector<engine::vulkan::Framebuffer>
 {
     std::vector<vulkan::Framebuffer> framebuffers;
     framebuffers.reserve(t_swapchain_image_views.size());
 
-    for (auto swapchain_image_view : t_swapchain_image_views) {
-        std::array attachments{ swapchain_image_view, t_depth_image_view };
+    for (const auto& swapchain_image_view : t_swapchain_image_views) {
+        std::array attachments{ *swapchain_image_view, t_depth_image_view };
 
         vk::FramebufferCreateInfo framebuffer_create_info{
             .renderPass      = t_render_pass,

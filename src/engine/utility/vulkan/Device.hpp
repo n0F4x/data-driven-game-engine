@@ -16,9 +16,14 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto               operator=(Device&&) noexcept -> Device& = default;
+    auto               operator=(Device&&) noexcept -> Device&;
     [[nodiscard]] auto operator*() const noexcept -> vk::Device;
     [[nodiscard]] auto operator->() const noexcept -> const vk::Device*;
+
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
+    auto destroy() noexcept -> void;
 
 private:
     ///*************///

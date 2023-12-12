@@ -367,7 +367,6 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
 {
     DemoApp::create(t_app.store(), t_model_filepath)
         .transform([&](DemoApp t_demo) {
-            // TODO: fix resizing with depth image
             t_demo.swapchain.on_swapchain_recreated(
                 [&t_demo](const vulkan::Swapchain& t_swapchain) {
                     t_demo.depth_image.destroy();
