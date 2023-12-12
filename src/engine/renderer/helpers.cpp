@@ -33,13 +33,12 @@ const std::vector<std::string> g_optional_layers{
 #endif
 };
 
-const std::vector<std::string> g_required_instance_extensions
-{
+const std::vector<std::string> g_required_instance_extensions{
     VK_KHR_SURFACE_EXTENSION_NAME,
 #if defined(_WIN32)
-        VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 #else
-        VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+    VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 #endif
 };
 const std::vector<std::string> g_optional_instance_extensions{
@@ -310,26 +309,15 @@ namespace engine::renderer::helpers {
 auto create_debug_messenger(vk::Instance t_instance) noexcept
     -> vk::DebugUtilsMessengerEXT
 {
-    const auto [result, properties] =
-        vk::enumerateInstanceExtensionProperties();
-    if (result != vk::Result::eSuccess) {
-        SPDLOG_ERROR(
-            "vk::enumerateInstanceExtensionProperties failed with error code "
-            "{}",
-            std::to_underlying(result)
-        );
-        return nullptr;
-    }
-
-    const auto propertyIterator = std::find_if(
-        properties.cbegin(),
-        properties.cend(),
-        [](const vk::ExtensionProperties& ep) {
-            return strcmp(ep.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
-                == 0;
-        }
-    );
-    if (propertyIterator == properties.cend()) {
+    auto extension_supported{ vulkan::available_instance_extensions()
+                                  .transform([](auto extensions) {
+                                      return std::ranges::contains(
+                                          extensions,
+                                          VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+                                      );
+                                  })
+                                  .value_or(false) };
+    if (!extension_supported) {
         SPDLOG_ERROR(
             "{} Vulkan extension is not supported",
             VK_EXT_DEBUG_UTILS_EXTENSION_NAME
