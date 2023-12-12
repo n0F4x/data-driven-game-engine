@@ -25,6 +25,18 @@ VmaBuffer::~VmaBuffer() noexcept
     destroy();
 }
 
+auto VmaBuffer::operator=(VmaBuffer&& t_other) noexcept -> VmaBuffer&
+{
+    if (this != &t_other) {
+        destroy();
+
+        std::swap(m_allocator, t_other.m_allocator);
+        std::swap(m_buffer, t_other.m_buffer);
+        std::swap(m_allocation, t_other.m_allocation);
+    }
+    return *this;
+}
+
 auto VmaBuffer::operator*() const noexcept -> vk::Buffer
 {
     return m_buffer;

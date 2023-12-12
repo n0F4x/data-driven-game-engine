@@ -22,7 +22,7 @@ auto main() -> int
         .add_plugin<plugins::Logger>(logger::Level::eTrace)
         .add_plugin<plugins::AssetManager>()
         .add_plugin<plugins::Window>(
-            sf::VideoMode::getDesktopMode(), "My window", window::Style::eNone
+            sf::VideoMode{ 1'080, 720 }, "My window", window::Style::eDefault
         )
         .add_plugin<plugins::Renderer>(
             plugins::Renderer::default_surface_creator

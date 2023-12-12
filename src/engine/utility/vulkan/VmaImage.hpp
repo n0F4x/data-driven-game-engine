@@ -22,7 +22,7 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto               operator=(VmaImage&&) noexcept -> VmaImage& = default;
+    auto               operator=(VmaImage&&) noexcept -> VmaImage&;
     [[nodiscard]] auto operator*() const noexcept -> vk::Image;
 
     ///-----------///

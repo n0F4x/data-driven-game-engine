@@ -22,7 +22,7 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto               operator=(VmaBuffer&&) noexcept -> VmaBuffer& = default;
+    auto               operator=(VmaBuffer&&) noexcept -> VmaBuffer&;
     [[nodiscard]] auto operator*() const noexcept -> vk::Buffer;
 
     ///-----------///

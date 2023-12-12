@@ -34,7 +34,16 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator=(Wrapped&&) noexcept -> Wrapped& = default;
+    auto operator=(Wrapped&& t_other) noexcept -> Wrapped&
+    {
+        if (this != &t_other) {
+            destroy();
+
+            std::swap(m_owner, t_other.m_owner);
+            std::swap(m_handle, t_other.m_handle);
+        }
+        return *this;
+    }
 
     [[nodiscard]] auto operator*() const noexcept -> Handle
     {

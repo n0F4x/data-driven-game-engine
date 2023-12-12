@@ -370,6 +370,7 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
             // TODO: fix resizing with depth image
             t_demo.swapchain.on_swapchain_recreated(
                 [&t_demo](const vulkan::Swapchain& t_swapchain) {
+                    t_demo.depth_image.destroy();
                     t_demo.depth_image = init::create_depth_image(
                         t_demo.device, t_swapchain.extent()
                     );
@@ -377,6 +378,7 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
             );
             t_demo.swapchain.on_swapchain_recreated(
                 [&t_demo](const vulkan::Swapchain& t_swapchain) {
+                    t_demo.depth_image_view.destroy();
                     t_demo.depth_image_view = init::create_depth_image_view(
                         t_demo.device, *t_demo.depth_image
                     );
@@ -384,6 +386,7 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
             );
             t_demo.swapchain.on_swapchain_recreated(
                 [&t_demo](const vulkan::Swapchain& t_swapchain) {
+                    t_demo.framebuffers.clear();
                     t_demo.framebuffers = init::create_framebuffers(
                         *t_demo.device,
                         t_swapchain.extent(),

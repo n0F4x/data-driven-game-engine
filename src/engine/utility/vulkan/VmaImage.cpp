@@ -25,6 +25,18 @@ VmaImage::~VmaImage() noexcept
     destroy();
 }
 
+auto VmaImage::operator=(VmaImage&& t_other) noexcept -> VmaImage&
+{
+    if (this != &t_other) {
+        destroy();
+
+        std::swap(m_allocator, t_other.m_allocator);
+        std::swap(m_image, t_other.m_image);
+        std::swap(m_allocation, t_other.m_allocation);
+    }
+    return *this;
+}
+
 auto VmaImage::operator*() const noexcept -> vk::Image
 {
     return m_image;
