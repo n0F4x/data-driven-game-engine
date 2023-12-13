@@ -12,10 +12,10 @@
 
 #include <entt/signal/sigh.hpp>
 
-#include "engine/utility/Result.hpp"
-#include "engine/utility/vulkan/raii_wrappers.hpp"
-#include "engine/utility/vulkan/result_types.hpp"
-#include "engine/utility/vulkan/Swapchain.hpp"
+#include "engine/utils/Result.hpp"
+#include "engine/utils/vulkan/raii_wrappers.hpp"
+#include "engine/utils/vulkan/result_types.hpp"
+#include "engine/utils/vulkan/Swapchain.hpp"
 
 #include "Device.hpp"
 

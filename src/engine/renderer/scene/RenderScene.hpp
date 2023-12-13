@@ -8,7 +8,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/graphics/Model.hpp"
+#include "engine/gfx/Model.hpp"
 #include "engine/renderer/Device.hpp"
 
 #include "MeshBuffer.hpp"

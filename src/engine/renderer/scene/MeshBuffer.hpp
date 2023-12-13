@@ -7,7 +7,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "engine/renderer/Device.hpp"
-#include "engine/utility/vulkan/VmaBuffer.hpp"
+#include "engine/utils/vulkan/VmaBuffer.hpp"
 
 namespace engine::renderer {
 

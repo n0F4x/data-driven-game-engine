@@ -6,7 +6,7 @@
 #include <string_view>
 #include <vector>
 
-#include "engine/utility/vulkan/raii_wrappers.hpp"
+#include "engine/utils/vulkan/raii_wrappers.hpp"
 
 namespace engine::renderer {
 

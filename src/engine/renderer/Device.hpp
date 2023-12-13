@@ -8,9 +8,9 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/utility/vulkan/Allocator.hpp"
-#include "engine/utility/vulkan/raii_wrappers.hpp"
-#include "engine/utility/vulkan/VmaBuffer.hpp"
+#include "engine/utils/vulkan/Allocator.hpp"
+#include "engine/utils/vulkan/raii_wrappers.hpp"
+#include "engine/utils/vulkan/VmaBuffer.hpp"
 
 #include "Instance.hpp"
 

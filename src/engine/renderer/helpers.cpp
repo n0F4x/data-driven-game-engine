@@ -20,7 +20,7 @@
 
 #include <vulkan/vulkan_to_string.hpp>
 
-#include "engine/utility/vulkan/tools.hpp"
+#include "engine/utils/vulkan/tools.hpp"
 
 namespace {
 

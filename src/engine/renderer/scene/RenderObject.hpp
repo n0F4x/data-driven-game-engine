@@ -7,9 +7,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include "engine/graphics/Model.hpp"
+#include "engine/gfx/Model.hpp"
 #include "engine/renderer/Device.hpp"
-#include "engine/utility/vulkan/VmaBuffer.hpp"
+#include "engine/utils/vulkan/VmaBuffer.hpp"
 
 #include "MeshBuffer.hpp"
 
