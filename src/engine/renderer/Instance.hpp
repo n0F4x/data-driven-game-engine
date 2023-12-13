@@ -6,7 +6,7 @@
 #include <string_view>
 #include <vector>
 
-#include "engine/utility/vulkan/Instance.hpp"
+#include "engine/utility/vulkan/raii_wrappers.hpp"
 
 namespace engine::renderer {
 
@@ -54,19 +54,21 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::ApplicationInfo      m_application_info;
-    std::vector<std::string> m_layers;
-    std::vector<std::string> m_extensions;
-    vulkan::Instance         m_instance;
+    vk::ApplicationInfo         m_application_info;
+    std::vector<std::string>    m_layers;
+    std::vector<std::string>    m_extensions;
+    vulkan::Instance            m_instance;
+    vulkan::DebugUtilsMessenger m_debug_utils_messenger;
 
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
     explicit Instance(
-        const vk::ApplicationInfo&   t_application_info,
-        std::span<const std::string> t_layers,
-        std::span<const std::string> t_extensions,
-        vulkan::Instance&&           t_instance
+        const vk::ApplicationInfo&    t_application_info,
+        std::span<const std::string>  t_layers,
+        std::span<const std::string>  t_extensions,
+        vulkan::Instance&&            t_instance,
+        vulkan::DebugUtilsMessenger&& t_debug_utils_messenger
     ) noexcept;
 };
 

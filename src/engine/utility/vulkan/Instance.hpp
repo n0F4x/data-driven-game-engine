@@ -9,10 +9,7 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Instance(
-        vk::Instance               t_instance,
-        vk::DebugUtilsMessengerEXT t_debug_messenger = nullptr
-    ) noexcept;
+    explicit Instance(vk::Instance t_instance) noexcept;
     Instance(Instance&&) noexcept;
     ~Instance() noexcept;
 
@@ -32,8 +29,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::Instance               m_instance;
-    vk::DebugUtilsMessengerEXT m_debug_messenger;
+    vk::Instance m_instance;
 };
 
 }   // namespace engine::vulkan

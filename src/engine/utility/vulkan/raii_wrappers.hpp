@@ -4,6 +4,9 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "Device.hpp"
+#include "Instance.hpp"
+
 namespace engine::vulkan {
 
 template <typename Handle, typename Owner = vk::Device>
@@ -67,6 +70,7 @@ private:
 };
 
 using CommandPool         = Wrapped<vk::CommandPool>;
+using DebugUtilsMessenger = Wrapped<vk::DebugUtilsMessengerEXT, vk::Instance>;
 using DescriptorPool      = Wrapped<vk::DescriptorPool>;
 using DescriptorSetLayout = Wrapped<vk::DescriptorSetLayout>;
 using Fence               = Wrapped<vk::Fence>;

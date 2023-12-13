@@ -9,7 +9,6 @@
 #include <vulkan/vulkan.hpp>
 
 #include "engine/utility/vulkan/Allocator.hpp"
-#include "engine/utility/vulkan/Device.hpp"
 #include "engine/utility/vulkan/raii_wrappers.hpp"
 #include "engine/utility/vulkan/VmaBuffer.hpp"
 

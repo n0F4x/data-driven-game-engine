@@ -52,7 +52,8 @@ auto Instance::create(const CreateInfo& t_create_info) noexcept
         t_create_info.application_info,
         t_create_info.layers,
         t_create_info.extensions,
-        vulkan::Instance{ instance, debug_messenger }
+        vulkan::Instance{ instance },
+        vulkan::DebugUtilsMessenger{ instance, debug_messenger }
     };
 }
 
@@ -93,15 +94,17 @@ auto Instance::enabled_extensions() const noexcept
 }
 
 Instance::Instance(
-    const vk::ApplicationInfo&   t_application_info,
-    std::span<const std::string> t_layers,
-    std::span<const std::string> t_extensions,
-    vulkan::Instance&&           t_instance
+    const vk::ApplicationInfo&    t_application_info,
+    std::span<const std::string>  t_layers,
+    std::span<const std::string>  t_extensions,
+    vulkan::Instance&&            t_instance,
+    vulkan::DebugUtilsMessenger&& t_debug_utils_messenger
 ) noexcept
     : m_application_info{ t_application_info },
       m_layers{ t_layers.cbegin(), t_layers.cend() },
       m_extensions{ t_extensions.cbegin(), t_extensions.cend() },
-      m_instance{ std::move(t_instance) }
+      m_instance{ std::move(t_instance) },
+      m_debug_utils_messenger{ std::move(t_debug_utils_messenger) }
 {
     const auto [result, instance_version]{ vk::enumerateInstanceVersion() };
     if (result != vk::Result::eSuccess) {
