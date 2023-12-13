@@ -1,5 +1,7 @@
 #include "Device.hpp"
 
+#include <ranges>
+
 #include <spdlog/spdlog.h>
 
 #include "helpers.hpp"
