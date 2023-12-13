@@ -1,6 +1,5 @@
 #include "helpers.hpp"
 
-#include <cstring>
 #include <iostream>
 #include <ranges>
 #include <utility>
@@ -64,11 +63,12 @@ const std::vector<std::string> g_optional_device_extensions{
     std::span<const std::string> t_optional
 ) noexcept -> std::vector<std::string>
 {
-    std::vector<std::string> filtered{ t_required.cbegin(), t_required.cend() };
+    std::vector<std::string> filtered{ t_required.begin(), t_required.end() };
 
     filtered.append_range(
         t_optional | std::views::filter([&](const auto& optional) {
-            return std::ranges::contains(t_available, optional);
+            return std::ranges::find(t_available, optional)
+                != std::cend(t_available);
         })
     );
 
@@ -80,17 +80,15 @@ auto find_graphics_queue_family(
     vk::SurfaceKHR     t_surface
 ) noexcept -> tl::optional<uint32_t>
 {
-    for (const auto [index, properties] :
-         std::views::enumerate(t_physical_device.getQueueFamilyProperties()))
+    uint32_t index{};
+    for (const auto& properties : t_physical_device.getQueueFamilyProperties())
     {
         if (const auto [result, success]{
-                t_physical_device.getSurfaceSupportKHR(
-                    static_cast<uint32_t>(index), t_surface
-                ) };
+                t_physical_device.getSurfaceSupportKHR(index, t_surface) };
             result == vk::Result::eSuccess && success
             && properties.queueFlags & vk::QueueFlagBits::eGraphics)
         {
-            return static_cast<uint32_t>(index);
+            return index;
         }
         else if (result != vk::Result::eSuccess) {
             SPDLOG_ERROR(
@@ -99,6 +97,7 @@ auto find_graphics_queue_family(
                 std::to_underlying(result)
             );
         }
+        index++;
     }
 
     return tl::nullopt;
@@ -111,30 +110,33 @@ auto find_graphics_queue_family(
 {
     const auto queue_families{ t_physical_device.getQueueFamilyProperties() };
 
-    for (const auto [index, properties] : std::views::enumerate(queue_families))
-    {
+    uint32_t index{};
+    for (const auto& properties : queue_families) {
         if (!(properties.queueFlags & vk::QueueFlagBits::eGraphics)
             && !(properties.queueFlags & vk::QueueFlagBits::eCompute)
             && properties.queueFlags & vk::QueueFlagBits::eTransfer)
         {
-            return static_cast<uint32_t>(index);
+            return index;
         }
+        index++;
     }
 
-    for (const auto [index, properties] : std::views::enumerate(queue_families))
-    {
-        if (static_cast<uint32_t>(index) == t_graphics_queue_family
+    index = 0;
+    for (const auto& properties : queue_families) {
+        if (index == t_graphics_queue_family
             && properties.queueFlags & vk::QueueFlagBits::eTransfer)
         {
-            return static_cast<uint32_t>(index);
+            return index;
         }
+        index++;
     }
 
-    for (const auto [index, properties] : std::views::enumerate(queue_families))
-    {
+    index = 0;
+    for (const auto& properties : queue_families) {
         if (properties.queueFlags & vk::QueueFlagBits::eTransfer) {
-            return static_cast<uint32_t>(index);
+            return index;
         }
+        index++;
     }
 
     return tl::nullopt;
@@ -147,29 +149,32 @@ auto find_compute_queue_family(
 {
     const auto queue_families{ t_physical_device.getQueueFamilyProperties() };
 
-    for (const auto [index, properties] : std::views::enumerate(queue_families))
-    {
+    uint32_t index{};
+    for (const auto& properties : queue_families) {
         if (!(properties.queueFlags & vk::QueueFlagBits::eGraphics)
             && properties.queueFlags & vk::QueueFlagBits::eCompute)
         {
-            return static_cast<uint32_t>(index);
+            return index;
         }
+        index++;
     }
 
-    for (const auto [index, properties] : std::views::enumerate(queue_families))
-    {
-        if (static_cast<uint32_t>(index) != t_graphics_queue_family
+    index = 0;
+    for (const auto& properties : queue_families) {
+        if (index != t_graphics_queue_family
             && properties.queueFlags & vk::QueueFlagBits::eCompute)
         {
-            return static_cast<uint32_t>(index);
+            return index;
         }
+        index++;
     }
 
-    for (const auto [index, properties] : std::views::enumerate(queue_families))
-    {
+    index = 0;
+    for (const auto& properties : queue_families) {
         if (properties.queueFlags & vk::QueueFlagBits::eCompute) {
-            return static_cast<uint32_t>(index);
+            return index;
         }
+        index++;
     }
 
     return tl::nullopt;
@@ -309,14 +314,16 @@ namespace engine::renderer::helpers {
 auto create_debug_messenger(vk::Instance t_instance) noexcept
     -> vk::DebugUtilsMessengerEXT
 {
-    auto extension_supported{ vulkan::available_instance_extensions()
-                                  .transform([](auto extensions) {
-                                      return std::ranges::contains(
-                                          extensions,
-                                          VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-                                      );
-                                  })
-                                  .value_or(false) };
+    auto extension_supported{
+        vulkan::available_instance_extensions()
+            .transform([](auto extensions) {
+                return std::ranges::find(
+                           extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+                       )
+                    != std::cend(extensions);
+            })
+            .value_or(false)
+    };
     if (!extension_supported) {
         SPDLOG_ERROR(
             "{} Vulkan extension is not supported",
@@ -551,32 +558,33 @@ auto vma_allocator_create_flags(
 {
     VmaAllocatorCreateFlags flags{};
 
-    if (std::ranges::contains(
+    if (std::ranges::find(
             enabled_device_extensions,
             VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
-        )
-        && std::ranges::contains(
-            enabled_device_extensions,
-            VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
-        ))
+        ) != std::cend(enabled_device_extensions)
+        && std::ranges::find(
+               enabled_device_extensions,
+               VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
+           ) != std::cend(enabled_device_extensions))
     {
         flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
     }
 
-    if (std::ranges::contains(
+    if (std::ranges::find(
             enabled_device_extensions, VK_KHR_BIND_MEMORY_2_EXTENSION_NAME
-        ))
+        )
+        != std::cend(enabled_device_extensions))
     {
         flags |= VMA_ALLOCATOR_CREATE_KHR_BIND_MEMORY2_BIT;
     }
 
-    if (std::ranges::contains(
+    if (std::ranges::find(
             enabled_instance_extensions,
             VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
-        )
-        && std::ranges::contains(
-            enabled_device_extensions, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME
-        ))
+        ) != std::cend(enabled_instance_extensions)
+        && std::ranges::find(
+               enabled_device_extensions, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME
+           ) != std::cend(enabled_device_extensions))
     {
         flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
     }

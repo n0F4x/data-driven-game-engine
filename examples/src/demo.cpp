@@ -3,6 +3,7 @@
 #include <atomic>
 #include <future>
 #include <iostream>
+#include <mutex>
 #include <thread>
 
 #include <tl/optional.hpp>
@@ -403,11 +404,16 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
             Controller controller;
 
             std::atomic<vk::Extent2D> framebuffer_size{};
-            std::atomic<Camera>       camera;
+            Camera                    camera;
+            std::mutex                camera_lock{};
 
             auto rendering = std::async(std::launch::async, [&] {
+                Camera render_camera;
                 while (running) {
-                    t_demo.render(framebuffer_size, camera.load());
+                    camera_lock.lock();
+                    render_camera = camera;
+                    camera_lock.unlock();
+                    t_demo.render(framebuffer_size, render_camera);
                 }
             });
 
@@ -439,7 +445,9 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
                 }
 
                 controller.update(delta_time.count());
+                camera_lock.lock();
                 camera = controller.update_camera(camera);
+                camera_lock.unlock();
             }
 
             rendering.get();

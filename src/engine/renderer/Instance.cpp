@@ -41,9 +41,9 @@ auto Instance::create(const CreateInfo& t_create_info) noexcept
 
     vk::DebugUtilsMessengerEXT debug_messenger{};
     if (t_create_info.create_debug_messenger
-        && std::ranges::contains(
-            t_create_info.extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-        ))
+        && std::ranges::find(
+               t_create_info.extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+           ) != std::cend(t_create_info.extensions))
     {
         debug_messenger = t_create_info.create_debug_messenger(instance);
     }
@@ -101,8 +101,8 @@ Instance::Instance(
     vulkan::DebugUtilsMessenger&& t_debug_utils_messenger
 ) noexcept
     : m_application_info{ t_application_info },
-      m_layers{ t_layers.cbegin(), t_layers.cend() },
-      m_extensions{ t_extensions.cbegin(), t_extensions.cend() },
+      m_layers{ t_layers.begin(), t_layers.end() },
+      m_extensions{ t_extensions.begin(), t_extensions.end() },
       m_instance{ std::move(t_instance) },
       m_debug_utils_messenger{ std::move(t_debug_utils_messenger) }
 {

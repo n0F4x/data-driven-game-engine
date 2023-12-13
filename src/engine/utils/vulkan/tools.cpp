@@ -72,8 +72,8 @@ auto supports_extensions(
         return false;
     }
 
-    std::set<std::string_view> required_extensions{ t_extensions.cbegin(),
-                                                    t_extensions.cend() };
+    std::set<std::string_view> required_extensions{ t_extensions.begin(),
+                                                    t_extensions.end() };
 
     for (const auto& extension : extension_properties) {
         required_extensions.erase(extension.extensionName);
@@ -91,18 +91,19 @@ auto supports_surface(
         return false;
     }
 
-    for (const auto [index, properties] :
-         std::views::enumerate(t_physical_device.getQueueFamilyProperties()))
+    uint32_t index{};
+    for (const auto& properties : t_physical_device.getQueueFamilyProperties())
     {
-        auto [result, supported]{ t_physical_device.getSurfaceSupportKHR(
-            static_cast<uint32_t>(index), t_surface
-        ) };
+        auto [result, supported]{
+            t_physical_device.getSurfaceSupportKHR(index, t_surface)
+        };
         if (result != vk::Result::eSuccess) {
             return false;
         }
         if (properties.queueCount > 0 && supported) {
             return true;
         }
+        index++;
     }
     return false;
 }

@@ -12,7 +12,6 @@
 
 #include <entt/signal/sigh.hpp>
 
-#include "engine/utils/Result.hpp"
 #include "engine/utils/vulkan/raii_wrappers.hpp"
 #include "engine/utils/vulkan/result_types.hpp"
 #include "engine/utils/vulkan/Swapchain.hpp"

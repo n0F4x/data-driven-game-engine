@@ -1,5 +1,6 @@
 #include "Plugin.hpp"
 
+#include <thread>
 #include <tuple>
 
 #include <spdlog/spdlog.h>
@@ -125,7 +126,7 @@ namespace {
 [[nodiscard]] auto create_render_frame(Device& t_device)
 {
     return RenderFrame::create(
-        t_device, std::max(std::jthread::hardware_concurrency(), 2u)
+        t_device, std::max(std::thread::hardware_concurrency(), 2u)
     );
 }
 

@@ -39,7 +39,8 @@ auto choose_swapchain_present_mode(
     if (result != vk::Result::eSuccess) {
         return tl::nullopt;
     }
-    return std::ranges::contains(present_modes, vk::PresentModeKHR::eMailbox)
+    return std::ranges::find(present_modes, vk::PresentModeKHR::eMailbox)
+                != std::cend(present_modes)
              ? vk::PresentModeKHR::eMailbox
              : vk::PresentModeKHR::eFifo;
 }
