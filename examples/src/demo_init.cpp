@@ -5,9 +5,9 @@
 #include <vulkan/vulkan.hpp>
 
 #include <engine/asset_manager/GltfLoader.hpp>
-#include <engine/graphics/Model.hpp>
-#include <engine/graphics/ModelFactory.hpp>
-#include <engine/utility/vulkan/tools.hpp>
+#include <engine/gfx/Model.hpp>
+#include <engine/gfx/ModelFactory.hpp>
+#include <engine/utils/vulkan/tools.hpp>
 
 
 using namespace engine;

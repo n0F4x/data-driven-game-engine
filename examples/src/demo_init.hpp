@@ -6,10 +6,10 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <engine/graphics/Model.hpp>
+#include <engine/gfx/Model.hpp>
 #include <engine/renderer/Device.hpp>
-#include <engine/utility/vulkan/raii_wrappers.hpp>
-#include <engine/utility/vulkan/VmaImage.hpp>
+#include <engine/utils/vulkan/raii_wrappers.hpp>
+#include <engine/utils/vulkan/VmaImage.hpp>
 
 namespace init {
 
