@@ -14,7 +14,7 @@
 #include <engine/renderer/scene/RenderScene.hpp>
 #include <engine/renderer/Swapchain.hpp>
 #include <engine/utils/converters.hpp>
-#include <engine/utils/vulkan/VmaImage.hpp>
+#include <engine/utils/vulkan/vma/Image.hpp>
 #include <engine/window/Window.hpp>
 
 #include "Camera.hpp"
@@ -29,7 +29,7 @@ struct DemoApp {
     renderer::Device&                device;
     renderer::Swapchain&             swapchain;
     vulkan::RenderPass               render_pass;
-    vulkan::VmaImage                 depth_image;
+    vulkan::vma::Image               depth_image;
     vulkan::ImageView                depth_image_view;
     std::vector<vulkan::Framebuffer> framebuffers;
     vulkan::DescriptorSetLayout      descriptor_set_layout;

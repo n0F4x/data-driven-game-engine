@@ -3,8 +3,10 @@
 #include <expected>
 #include <functional>
 #include <span>
-#include <string_view>
+#include <string>
 #include <vector>
+
+#include <vulkan/vulkan.hpp>
 
 #include "engine/utils/vulkan/raii_wrappers.hpp"
 

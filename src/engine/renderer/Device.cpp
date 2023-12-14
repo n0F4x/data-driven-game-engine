@@ -209,7 +209,7 @@ auto Device::create_buffer(
     const VmaAllocationCreateInfo& t_allocation_create_info,
     const void*                    t_data
 ) const noexcept
-    -> tl::optional<std::tuple<vulkan::VmaBuffer, VmaAllocationInfo>>
+    -> tl::optional<std::tuple<vulkan::vma::Buffer, VmaAllocationInfo>>
 {
     vk::Buffer        buffer;
     VmaAllocation     allocation;
@@ -281,7 +281,7 @@ auto Device::create_buffer(
     }
 
     return std::make_tuple(
-        vulkan::VmaBuffer{ *m_allocator, buffer, allocation }, allocation_info
+        vulkan::vma::Buffer{ *m_allocator, buffer, allocation }, allocation_info
     );
 }
 

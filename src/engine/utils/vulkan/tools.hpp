@@ -2,7 +2,7 @@
 
 #include <expected>
 #include <span>
-#include <string_view>
+#include <string>
 
 #include <tl/optional.hpp>
 
@@ -33,8 +33,8 @@ namespace engine::vulkan {
 ) noexcept -> bool;
 
 [[nodiscard]] auto load_shader(
-    vk::Device       t_device,
-    std::string_view t_file_path
+    vk::Device         t_device,
+    const std::string& t_file_path
 ) noexcept -> tl::optional<ShaderModule>;
 
 }   // namespace engine::vulkan

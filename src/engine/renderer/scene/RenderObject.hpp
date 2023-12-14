@@ -9,7 +9,7 @@
 
 #include "engine/gfx/Model.hpp"
 #include "engine/renderer/Device.hpp"
-#include "engine/utils/vulkan/VmaBuffer.hpp"
+#include "engine/utils/vulkan/vma/Buffer.hpp"
 
 #include "MeshBuffer.hpp"
 
@@ -26,9 +26,9 @@ public:
 
         std::vector<Primitive> primitives;
 
-        vulkan::VmaBuffer uniform_buffer;
-        vk::DescriptorSet descriptor_set{};
-        void*             mapped{};
+        vulkan::vma::Buffer uniform_buffer;
+        vk::DescriptorSet   descriptor_set{};
+        void*               mapped{};
 
         UniformBlock uniform_block;
 

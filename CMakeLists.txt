@@ -159,7 +159,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC EnTT)
 
 target_include_directories(${PROJECT_NAME} PUBLIC src)
 
-add_subdirectory(src/engine)
+add_subdirectory(src)
 
 
 unset(engine_debug CACHE)

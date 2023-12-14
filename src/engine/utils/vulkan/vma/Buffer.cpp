@@ -1,10 +1,10 @@
-#include "VmaBuffer.hpp"
+#include "Buffer.hpp"
 
 #include <utility>
 
-namespace engine::vulkan {
+namespace engine::vulkan::vma {
 
-VmaBuffer::VmaBuffer(
+Buffer::Buffer(
     VmaAllocator  t_allocator,
     vk::Buffer    t_buffer,
     VmaAllocation t_allocation
@@ -14,18 +14,18 @@ VmaBuffer::VmaBuffer(
       m_allocation{ t_allocation }
 {}
 
-VmaBuffer::VmaBuffer(VmaBuffer&& t_other) noexcept
-    : VmaBuffer{ std::exchange(t_other.m_allocator, nullptr),
-                 std::exchange(t_other.m_buffer, nullptr),
-                 std::exchange(t_other.m_allocation, nullptr) }
+Buffer::Buffer(Buffer&& t_other) noexcept
+    : Buffer{ std::exchange(t_other.m_allocator, nullptr),
+              std::exchange(t_other.m_buffer, nullptr),
+              std::exchange(t_other.m_allocation, nullptr) }
 {}
 
-VmaBuffer::~VmaBuffer() noexcept
+Buffer::~Buffer() noexcept
 {
     destroy();
 }
 
-auto VmaBuffer::operator=(VmaBuffer&& t_other) noexcept -> VmaBuffer&
+auto Buffer::operator=(Buffer&& t_other) noexcept -> Buffer&
 {
     if (this != &t_other) {
         destroy();
@@ -37,17 +37,17 @@ auto VmaBuffer::operator=(VmaBuffer&& t_other) noexcept -> VmaBuffer&
     return *this;
 }
 
-auto VmaBuffer::operator*() const noexcept -> vk::Buffer
+auto Buffer::operator*() const noexcept -> vk::Buffer
 {
     return m_buffer;
 }
 
-auto VmaBuffer::allocation() const noexcept -> VmaAllocation
+auto Buffer::allocation() const noexcept -> VmaAllocation
 {
     return m_allocation;
 }
 
-auto VmaBuffer::destroy() noexcept -> void
+auto Buffer::destroy() noexcept -> void
 {
     if (m_allocator) {
         vmaDestroyBuffer(
@@ -59,4 +59,4 @@ auto VmaBuffer::destroy() noexcept -> void
     m_allocator  = nullptr;
 }
 
-}   // namespace engine::vulkan
+}   // namespace engine::vulkan::vma

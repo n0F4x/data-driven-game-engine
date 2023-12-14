@@ -8,9 +8,11 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/utils/vulkan/Allocator.hpp"
+#include <vk_mem_alloc.h>
+
 #include "engine/utils/vulkan/raii_wrappers.hpp"
-#include "engine/utils/vulkan/VmaBuffer.hpp"
+#include "engine/utils/vulkan/vma/Allocator.hpp"
+#include "engine/utils/vulkan/vma/Buffer.hpp"
 
 #include "Instance.hpp"
 
@@ -67,22 +69,22 @@ public:
         const VmaAllocationCreateInfo& t_allocation_create_info,
         const void*                    t_data = nullptr
     ) const noexcept
-        -> tl::optional<std::tuple<vulkan::VmaBuffer, VmaAllocationInfo>>;
+        -> tl::optional<std::tuple<vulkan::vma::Buffer, VmaAllocationInfo>>;
 
 private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::PhysicalDevice m_physical_device;
-    CreateInfo         m_info;
-    vulkan::Device     m_device;
-    vulkan::Allocator  m_allocator;
-    uint32_t           m_graphics_queue_family_index;
-    vk::Queue          m_graphics_queue;
-    uint32_t           m_compute_queue_family_index;
-    vk::Queue          m_compute_queue;
-    uint32_t           m_transfer_queue_family_index;
-    vk::Queue          m_transfer_queue;
+    vk::PhysicalDevice     m_physical_device;
+    CreateInfo             m_info;
+    vulkan::Device         m_device;
+    vulkan::vma::Allocator m_allocator;
+    uint32_t               m_graphics_queue_family_index;
+    vk::Queue              m_graphics_queue;
+    uint32_t               m_compute_queue_family_index;
+    vk::Queue              m_compute_queue;
+    uint32_t               m_transfer_queue_family_index;
+    vk::Queue              m_transfer_queue;
 
     ///******************************///
     ///  Constructors / Destructors  ///

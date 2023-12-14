@@ -4,26 +4,26 @@
 
 #include <vk_mem_alloc.h>
 
-namespace engine::vulkan {
+namespace engine::vulkan::vma {
 
-class VmaBuffer {
+class Image {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit VmaBuffer(
+    explicit Image(
         VmaAllocator  t_allocator,
-        vk::Buffer    t_buffer,
+        vk::Image     t_image,
         VmaAllocation t_allocation
     ) noexcept;
-    VmaBuffer(VmaBuffer&&) noexcept;
-    ~VmaBuffer() noexcept;
+    Image(Image&&) noexcept;
+    ~Image() noexcept;
 
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto               operator=(VmaBuffer&&) noexcept -> VmaBuffer&;
-    [[nodiscard]] auto operator*() const noexcept -> vk::Buffer;
+    auto               operator=(Image&&) noexcept -> Image&;
+    [[nodiscard]] auto operator*() const noexcept -> vk::Image;
 
     ///-----------///
     ///  Methods  ///
@@ -36,8 +36,8 @@ private:
     ///  Variables  ///
     ///*************///
     VmaAllocator  m_allocator;
-    vk::Buffer    m_buffer;
+    vk::Image     m_image;
     VmaAllocation m_allocation;
 };
 
-}   // namespace engine::vulkan
+}   // namespace engine::vulkan::vma

@@ -1,11 +1,9 @@
 #pragma once
 
-#include <utility>
-
 #include <vulkan/vulkan.hpp>
 
-#include "Device.hpp"
-#include "Instance.hpp"
+#include "raii_wrappers-Device.hpp"
+#include "raii_wrappers-Instance.hpp"
 
 namespace engine::vulkan {
 
@@ -15,51 +13,20 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Wrapped(Owner t_owner, Handle t_handle)
-        : m_owner{ t_owner },
-          m_handle{ t_handle }
-    {}
-
-    Wrapped(Wrapped&& t_other) noexcept
-        : m_owner{ std::exchange(t_other.m_owner, nullptr) },
-          m_handle{ std::exchange(t_other.m_handle, nullptr) }
-    {}
-
-    ~Wrapped()
-    {
-        destroy();
-    }
+    explicit Wrapped(Owner t_owner, Handle t_handle);
+    Wrapped(Wrapped&& t_other) noexcept;
+    ~Wrapped();
 
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator=(Wrapped&& t_other) noexcept -> Wrapped&
-    {
-        if (this != &t_other) {
-            destroy();
-
-            std::swap(m_owner, t_other.m_owner);
-            std::swap(m_handle, t_other.m_handle);
-        }
-        return *this;
-    }
-
-    [[nodiscard]] auto operator*() const noexcept -> Handle
-    {
-        return m_handle;
-    }
+    auto               operator=(Wrapped&& t_other) noexcept -> Wrapped&;
+    [[nodiscard]] auto operator*() const noexcept -> Handle;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto destroy() noexcept -> void
-    {
-        if (m_handle) {
-            m_owner.destroy(m_handle);
-        }
-        m_handle = nullptr;
-        m_owner  = nullptr;
-    }
+    auto destroy() noexcept -> void;
 
 private:
     ///*************///
@@ -85,3 +52,5 @@ using Surface             = Wrapped<vk::SurfaceKHR, vk::Instance>;
 using RenderPass          = Wrapped<vk::RenderPass>;
 
 }   // namespace engine::vulkan
+
+#include "raii_wrappers.inl"

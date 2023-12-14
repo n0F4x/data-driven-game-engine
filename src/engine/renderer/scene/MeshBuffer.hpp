@@ -7,7 +7,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "engine/renderer/Device.hpp"
-#include "engine/utils/vulkan/VmaBuffer.hpp"
+#include "engine/utils/vulkan/vma/Buffer.hpp"
 
 namespace engine::renderer {
 
@@ -29,23 +29,23 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vulkan::VmaBuffer m_vertex_staging_buffer;
-    vulkan::VmaBuffer m_index_staging_buffer;
-    vk::Buffer        m_vertex_buffer;
-    vk::Buffer        m_index_buffer;
-    uint32_t          m_vertex_buffer_size;
-    uint32_t          m_index_buffer_size;
+    vulkan::vma::Buffer m_vertex_staging_buffer;
+    vulkan::vma::Buffer m_index_staging_buffer;
+    vk::Buffer          m_vertex_buffer;
+    vk::Buffer          m_index_buffer;
+    uint32_t            m_vertex_buffer_size;
+    uint32_t            m_index_buffer_size;
 
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
     explicit StagingMeshBuffer(
-        vulkan::VmaBuffer&& t_vertex_staging_buffer,
-        vulkan::VmaBuffer&& t_index_staging_buffer,
-        vk::Buffer          t_vertex_buffer,
-        vk::Buffer          t_index_buffer,
-        uint32_t            t_vertex_buffer_size,
-        uint32_t            t_index_buffer_size
+        vulkan::vma::Buffer&& t_vertex_staging_buffer,
+        vulkan::vma::Buffer&& t_index_staging_buffer,
+        vk::Buffer            t_vertex_buffer,
+        vk::Buffer            t_index_buffer,
+        uint32_t              t_vertex_buffer_size,
+        uint32_t              t_index_buffer_size
     ) noexcept;
 };
 
@@ -55,12 +55,12 @@ public:
     ///  Nested classes  ///
     ///------------------///
     struct Vertices {
-        vulkan::VmaBuffer buffer;
+        vulkan::vma::Buffer buffer;
     };
 
     struct Indices {
-        uint32_t          count{};
-        vulkan::VmaBuffer buffer;
+        uint32_t            count{};
+        vulkan::vma::Buffer buffer;
     };
 
     ///------------------------------///

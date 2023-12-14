@@ -58,7 +58,7 @@ auto RenderObject::Mesh::create(
             buffer_create_info, allocation_create_info, &t_uniform_block
         )
         .and_then(
-            [&](std::tuple<vulkan::VmaBuffer, VmaAllocationInfo>&& result
+            [&](std::tuple<vulkan::vma::Buffer, VmaAllocationInfo>&& result
             ) -> tl::optional<Mesh> {
                 auto [_uniform_buffer, allocation_info]{ std::move(result) };
                 auto buffer{ *_uniform_buffer };

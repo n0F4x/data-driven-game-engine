@@ -9,7 +9,7 @@
 #include <engine/gfx/Model.hpp>
 #include <engine/renderer/Device.hpp>
 #include <engine/utils/vulkan/raii_wrappers.hpp>
-#include <engine/utils/vulkan/VmaImage.hpp>
+#include <engine/utils/vulkan/vma/Image.hpp>
 
 namespace init {
 
@@ -21,7 +21,7 @@ namespace init {
 [[nodiscard]] auto create_depth_image(
     const engine::renderer::Device& t_device,
     vk::Extent2D                    t_swapchain_extent
-) noexcept -> engine::vulkan::VmaImage;
+) noexcept -> engine::vulkan::vma::Image;
 
 [[nodiscard]] auto create_depth_image_view(
     const engine::renderer::Device& t_device,

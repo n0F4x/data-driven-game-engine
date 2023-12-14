@@ -108,10 +108,10 @@ auto supports_surface(
     return false;
 }
 
-auto load_shader(vk::Device t_device, std::string_view t_file_path) noexcept
+auto load_shader(vk::Device t_device, const std::string& t_file_path) noexcept
     -> tl::optional<ShaderModule>
 {
-    std::ifstream file{ t_file_path.data(),
+    std::ifstream file{ t_file_path,
                         std::ios::binary | std::ios::in | std::ios::ate };
     if (!file.is_open()) {
         return tl::nullopt;

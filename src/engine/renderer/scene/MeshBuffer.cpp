@@ -19,12 +19,12 @@ auto StagingMeshBuffer::upload(vk::CommandBuffer t_copy_command_buffer
 }
 
 StagingMeshBuffer::StagingMeshBuffer(
-    vulkan::VmaBuffer&& t_vertex_staging_buffer,
-    vulkan::VmaBuffer&& t_index_staging_buffer,
-    vk::Buffer          t_vertex_buffer,
-    vk::Buffer          t_index_buffer,
-    uint32_t            t_vertex_buffer_size,
-    uint32_t            t_index_buffer_size
+    vulkan::vma::Buffer&& t_vertex_staging_buffer,
+    vulkan::vma::Buffer&& t_index_staging_buffer,
+    vk::Buffer            t_vertex_buffer,
+    vk::Buffer            t_index_buffer,
+    uint32_t              t_vertex_buffer_size,
+    uint32_t              t_index_buffer_size
 ) noexcept
     : m_vertex_staging_buffer{ std::move(t_vertex_staging_buffer) },
       m_index_staging_buffer{ std::move(t_index_staging_buffer) },

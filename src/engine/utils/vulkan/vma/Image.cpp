@@ -1,10 +1,10 @@
-#include "VmaImage.hpp"
+#include "Image.hpp"
 
 #include <utility>
 
-namespace engine::vulkan {
+namespace engine::vulkan::vma {
 
-VmaImage::VmaImage(
+Image::Image(
     VmaAllocator  t_allocator,
     vk::Image     t_image,
     VmaAllocation t_allocation
@@ -14,18 +14,18 @@ VmaImage::VmaImage(
       m_allocation{ t_allocation }
 {}
 
-VmaImage::VmaImage(VmaImage&& t_other) noexcept
-    : VmaImage{ std::exchange(t_other.m_allocator, nullptr),
-                std::exchange(t_other.m_image, nullptr),
-                std::exchange(t_other.m_allocation, nullptr) }
+Image::Image(Image&& t_other) noexcept
+    : Image{ std::exchange(t_other.m_allocator, nullptr),
+             std::exchange(t_other.m_image, nullptr),
+             std::exchange(t_other.m_allocation, nullptr) }
 {}
 
-VmaImage::~VmaImage() noexcept
+Image::~Image() noexcept
 {
     destroy();
 }
 
-auto VmaImage::operator=(VmaImage&& t_other) noexcept -> VmaImage&
+auto Image::operator=(Image&& t_other) noexcept -> Image&
 {
     if (this != &t_other) {
         destroy();
@@ -37,17 +37,17 @@ auto VmaImage::operator=(VmaImage&& t_other) noexcept -> VmaImage&
     return *this;
 }
 
-auto VmaImage::operator*() const noexcept -> vk::Image
+auto Image::operator*() const noexcept -> vk::Image
 {
     return m_image;
 }
 
-auto VmaImage::allocation() const noexcept -> VmaAllocation
+auto Image::allocation() const noexcept -> VmaAllocation
 {
     return m_allocation;
 }
 
-auto VmaImage::destroy() noexcept -> void
+auto Image::destroy() noexcept -> void
 {
     if (m_allocator) {
         vmaDestroyImage(
@@ -59,4 +59,4 @@ auto VmaImage::destroy() noexcept -> void
     m_allocator  = nullptr;
 }
 
-}   // namespace engine::vulkan
+}   // namespace engine::vulkan::vma

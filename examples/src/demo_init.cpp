@@ -9,7 +9,6 @@
 #include <engine/gfx/ModelFactory.hpp>
 #include <engine/utils/vulkan/tools.hpp>
 
-
 using namespace engine;
 
 namespace {
@@ -130,11 +129,11 @@ namespace init {
 auto create_depth_image(
     const renderer::Device& t_device,
     vk::Extent2D            t_swapchain_extent
-) noexcept -> vulkan::VmaImage
+) noexcept -> vulkan::vma::Image
 {
     auto opt_depth_format = find_depth_format(t_device.physical_device());
     if (!opt_depth_format) {
-        return vulkan::VmaImage{ nullptr, nullptr, nullptr };
+        return vulkan::vma::Image{ nullptr, nullptr, nullptr };
     }
     vk::Format depth_format{ *opt_depth_format };
 
@@ -171,7 +170,7 @@ auto create_depth_image(
         &allocation,
         nullptr
     );
-    return engine::vulkan::VmaImage(t_device.allocator(), image, allocation);
+    return engine::vulkan::vma::Image(t_device.allocator(), image, allocation);
 }
 
 auto create_depth_image_view(

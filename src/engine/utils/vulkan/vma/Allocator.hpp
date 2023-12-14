@@ -1,10 +1,8 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
-
 #include <vk_mem_alloc.h>
 
-namespace engine::vulkan {
+namespace engine::vulkan::vma {
 
 class Allocator {
 public:
@@ -29,4 +27,4 @@ private:
     VmaAllocator m_allocator;
 };
 
-}   // namespace engine::vulkan
+}   // namespace engine::vulkan::vma
