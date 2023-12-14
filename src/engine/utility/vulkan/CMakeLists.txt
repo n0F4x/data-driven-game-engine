@@ -4,6 +4,6 @@ target_sources(${PROJECT_NAME} PRIVATE
         raii_wrappers-Device.cpp
         raii_wrappers-Instance.cpp
         result_types.cpp
-        Swapchain.cpp
+        SwapchainHolder.cpp
         tools.cpp
 )

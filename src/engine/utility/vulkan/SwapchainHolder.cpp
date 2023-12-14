@@ -1,4 +1,4 @@
-#include "Swapchain.hpp"
+#include "SwapchainHolder.hpp"
 
 #include <limits>
 #include <set>
@@ -145,11 +145,11 @@ namespace engine::vulkan {
 
 ////////////////////////////////////
 ///------------------------------///
-///  Swapchain   IMPLEMENTATION  ///
+///  SwapchainHolder   IMPLEMENTATION  ///
 ///------------------------------///
 ////////////////////////////////////
 
-auto Swapchain::choose_extent(
+auto SwapchainHolder::choose_extent(
     const vk::Extent2D&               t_framebuffer_size,
     const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
 ) noexcept -> vk::Extent2D
@@ -180,7 +180,7 @@ auto Swapchain::choose_extent(
     }
 }
 
-auto Swapchain::create(
+auto SwapchainHolder::create(
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device,
     uint32_t           t_graphics_queue_family,
@@ -188,7 +188,7 @@ auto Swapchain::create(
     vk::Device         t_device,
     vk::Extent2D       t_framebuffer_size,
     vk::SwapchainKHR   t_old_swapchain
-) noexcept -> tl::optional<Swapchain>
+) noexcept -> tl::optional<SwapchainHolder>
 {
     const auto [result, surface_capabilities]{
         t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
@@ -231,41 +231,42 @@ auto Swapchain::create(
         return tl::nullopt;
     }
 
-    return Swapchain{
+    return SwapchainHolder{
         t_device,
         extent,
         *surface_format,
-        Wrapped<vk::SwapchainKHR>{ t_device, swapchain },
+        Swapchain{ t_device, swapchain },
         std::move(*image_views)
     };
 }
 
-auto Swapchain::operator*() const noexcept -> vk::SwapchainKHR
+auto SwapchainHolder::operator*() const noexcept -> vk::SwapchainKHR
 {
     return m_swapchain.operator*();
 }
 
-auto Swapchain::extent() const noexcept -> vk::Extent2D
+auto SwapchainHolder::extent() const noexcept -> vk::Extent2D
 {
     return m_extent;
 }
 
-auto Swapchain::surface_format() const noexcept -> vk::SurfaceFormatKHR
+auto SwapchainHolder::surface_format() const noexcept -> vk::SurfaceFormatKHR
 {
     return m_surface_format;
 }
 
-auto Swapchain::image_views() const noexcept -> const std::vector<ImageView>&
+auto SwapchainHolder::image_views() const noexcept
+    -> const std::vector<ImageView>&
 {
     return m_image_views;
 }
 
-Swapchain::Swapchain(
-    vk::Device                  t_device,
-    vk::Extent2D                t_extent,
-    vk::SurfaceFormatKHR        t_surface_format,
-    Wrapped<vk::SwapchainKHR>&& t_swapchain,
-    std::vector<ImageView>&&    t_image_views
+SwapchainHolder::SwapchainHolder(
+    vk::Device               t_device,
+    vk::Extent2D             t_extent,
+    vk::SurfaceFormatKHR     t_surface_format,
+    Swapchain&&              t_swapchain,
+    std::vector<ImageView>&& t_image_views
 ) noexcept
     : m_device{ t_device },
       m_extent{ t_extent },

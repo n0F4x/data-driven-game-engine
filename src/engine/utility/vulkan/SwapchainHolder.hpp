@@ -8,7 +8,7 @@
 
 namespace engine::vulkan {
 
-class Swapchain {
+class SwapchainHolder {
 public:
     ///----------------///
     /// Static methods ///
@@ -26,17 +26,17 @@ public:
         vk::Device         t_device,
         vk::Extent2D       t_frame_buffer_size,
         vk::SwapchainKHR   t_old_swapchain = nullptr
-    ) noexcept -> tl::optional<Swapchain>;
+    ) noexcept -> tl::optional<SwapchainHolder>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    Swapchain(Swapchain&&) noexcept = default;
+    SwapchainHolder(SwapchainHolder&&) noexcept = default;
 
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto               operator=(Swapchain&&) noexcept -> Swapchain& = default;
+    auto operator=(SwapchainHolder&&) noexcept -> SwapchainHolder& = default;
     [[nodiscard]] auto operator*() const noexcept -> vk::SwapchainKHR;
 
     ///-----------///
@@ -51,21 +51,21 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::Device                m_device;
-    vk::Extent2D              m_extent;
-    vk::SurfaceFormatKHR      m_surface_format;
-    Wrapped<vk::SwapchainKHR> m_swapchain;
-    std::vector<ImageView>    m_image_views;
+    vk::Device             m_device;
+    vk::Extent2D           m_extent;
+    vk::SurfaceFormatKHR   m_surface_format;
+    Swapchain              m_swapchain;
+    std::vector<ImageView> m_image_views;
 
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
-    explicit Swapchain(
-        vk::Device                  t_device,
-        vk::Extent2D                t_extent,
-        vk::SurfaceFormatKHR        t_surface_format,
-        Wrapped<vk::SwapchainKHR>&& t_swapchain,
-        std::vector<ImageView>&&    t_image_views
+    explicit SwapchainHolder(
+        vk::Device               t_device,
+        vk::Extent2D             t_extent,
+        vk::SurfaceFormatKHR     t_surface_format,
+        Swapchain&&              t_swapchain,
+        std::vector<ImageView>&& t_image_views
     ) noexcept;
 };
 

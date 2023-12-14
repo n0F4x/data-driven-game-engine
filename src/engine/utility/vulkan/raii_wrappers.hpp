@@ -49,6 +49,7 @@ using PipelineLayout      = Wrapped<vk::PipelineLayout>;
 using Semaphore           = Wrapped<vk::Semaphore>;
 using ShaderModule        = Wrapped<vk::ShaderModule>;
 using Surface             = Wrapped<vk::SurfaceKHR, vk::Instance>;
+using Swapchain           = Wrapped<vk::SwapchainKHR>;
 using RenderPass          = Wrapped<vk::RenderPass>;
 
 }   // namespace engine::vulkan
