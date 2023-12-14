@@ -4,7 +4,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace engine::utils {
+namespace engine {
 
 template <typename T>
 [[nodiscard]] auto to_extent2D(sf::Vector2<T> t_vector2) noexcept
@@ -14,4 +14,4 @@ template <typename T>
                          static_cast<uint32_t>(t_vector2.y) };
 }
 
-}   // namespace engine::utils
+}   // namespace engine

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "engine/utils/Result.hpp"
+#include "engine/utility/Result.hpp"
 
 #include "Scene.hpp"
 

@@ -8,8 +8,8 @@
 
 #include <engine/gfx/Model.hpp>
 #include <engine/renderer/Device.hpp>
-#include <engine/utils/vulkan/raii_wrappers.hpp>
-#include <engine/utils/vulkan/vma/Image.hpp>
+#include <engine/utility/vulkan/raii_wrappers.hpp>
+#include <engine/utility/vulkan/vma/Image.hpp>
 
 namespace init {
 

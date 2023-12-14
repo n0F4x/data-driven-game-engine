@@ -8,7 +8,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/utils/vulkan/raii_wrappers.hpp"
+#include "engine/utility/vulkan/raii_wrappers.hpp"
 
 namespace engine::renderer {
 

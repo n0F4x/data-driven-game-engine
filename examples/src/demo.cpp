@@ -13,8 +13,8 @@
 #include <engine/renderer/Device.hpp>
 #include <engine/renderer/scene/RenderScene.hpp>
 #include <engine/renderer/Swapchain.hpp>
-#include <engine/utils/converters.hpp>
-#include <engine/utils/vulkan/vma/Image.hpp>
+#include <engine/utility/converters.hpp>
+#include <engine/utility/vulkan/vma/Image.hpp>
 #include <engine/window/Window.hpp>
 
 #include "Camera.hpp"
@@ -102,7 +102,7 @@ struct DemoApp {
         if (!opt_swapchain) {
             return tl::nullopt;
         }
-        opt_swapchain->set_framebuffer_size(utils::to_extent2D(
+        opt_swapchain->set_framebuffer_size(to_extent2D(
             t_store.find<window::Window>().value().framebuffer_size()
         ));
         if (!opt_swapchain->get()) {
@@ -439,7 +439,7 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
                     }
                     if (event.type == sf::Event::Resized) {
                         framebuffer_size.store(
-                            utils::to_extent2D(window.framebuffer_size())
+                            to_extent2D(window.framebuffer_size())
                         );
                     }
                 }

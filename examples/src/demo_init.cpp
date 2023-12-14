@@ -7,7 +7,7 @@
 #include <engine/asset_manager/GltfLoader.hpp>
 #include <engine/gfx/Model.hpp>
 #include <engine/gfx/ModelFactory.hpp>
-#include <engine/utils/vulkan/tools.hpp>
+#include <engine/utility/vulkan/tools.hpp>
 
 using namespace engine;
 

@@ -10,9 +10,9 @@
 
 #include <vk_mem_alloc.h>
 
-#include "engine/utils/vulkan/raii_wrappers.hpp"
-#include "engine/utils/vulkan/vma/Allocator.hpp"
-#include "engine/utils/vulkan/vma/Buffer.hpp"
+#include "engine/utility/vulkan/raii_wrappers.hpp"
+#include "engine/utility/vulkan/vma/Allocator.hpp"
+#include "engine/utility/vulkan/vma/Buffer.hpp"
 
 #include "Instance.hpp"
 
