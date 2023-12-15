@@ -55,6 +55,11 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
         <variant>
 )
 
+# precompile macros before the rest of the headers that can't be added through the command line
+target_precompile_headers(${PROJECT_NAME} PRIVATE
+        src/PRE_MACROS.hpp
+)
+
 
 # tl-optional
 FetchContent_Declare(tl-optional
