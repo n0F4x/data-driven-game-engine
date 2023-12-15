@@ -289,6 +289,7 @@ auto create_framebuffers(
         vulkan::load_shader(t_device, "shaders/model_test.frag.spv")
     };
     if (!vertex_shader_module || !fragment_shader_module) {
+        std::cout << "Failed loading shaders\n";
         return vulkan::Pipeline{ nullptr, nullptr };
     }
 

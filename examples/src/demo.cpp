@@ -366,7 +366,7 @@ struct DemoApp {
 auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
     -> int
 {
-    DemoApp::create(t_app.store(), t_model_filepath)
+    return DemoApp::create(t_app.store(), t_model_filepath)
         .transform([&](DemoApp t_demo) {
             t_demo.swapchain.on_swapchain_recreated(
                 [&t_demo](const vulkan::SwapchainHolder& t_swapchain) {
@@ -452,7 +452,8 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
 
             rendering.get();
             static_cast<void>(t_demo.device->waitIdle());
-        });
 
-    return 0;
+            return 0;
+        })
+        .value_or(-1);
 }
