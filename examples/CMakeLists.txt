@@ -6,6 +6,14 @@ add_executable(test
         src/demo_init.cpp
 )
 target_compile_features(test PRIVATE cxx_std_23)
+target_compile_definitions(test PRIVATE
+        VULKAN_HPP_NO_EXCEPTIONS
+        VULKAN_HPP_NO_TO_STRING
+        VULKAN_HPP_NO_CONSTRUCTORS
+        VULKAN_HPP_NO_SETTERS
+        VULKAN_HPP_NO_SMART_HANDLE
+        VULKAN_HPP_NO_SPACESHIP_OPERATOR
+)
 target_link_libraries(test PRIVATE ${PROJECT_NAME})
 
 ###################

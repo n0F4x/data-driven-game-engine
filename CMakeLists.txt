@@ -62,6 +62,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
 
 
 # tl-optional
+set(BUILD_TESTING OFF)
 FetchContent_Declare(tl-optional
         GIT_REPOSITORY https://github.com/TartanLlama/optional.git
         GIT_TAG v1.1.0
@@ -82,7 +83,7 @@ FetchContent_Declare(spdlog
 FetchContent_MakeAvailable(spdlog)
 if (engine_debug)
     set(spdlog_level SPDLOG_LEVEL_TRACE)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
             SPDLOG_ACTIVE_LEVEL=${spdlog_level}
     )
 endif ()
@@ -102,7 +103,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC sfml-window)
 
 # Vulkan
 find_package(Vulkan REQUIRED)
-target_compile_definitions(${PROJECT_NAME} PUBLIC
+target_compile_definitions(${PROJECT_NAME} PRIVATE
         VULKAN_HPP_NO_EXCEPTIONS
         VULKAN_HPP_NO_TO_STRING
         VULKAN_HPP_NO_CONSTRUCTORS
@@ -111,7 +112,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
 )
 if (engine_debug)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC ENGINE_VULKAN_DEBUG)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
 endif ()
 target_precompile_headers(${PROJECT_NAME} PRIVATE <vulkan/vulkan.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
@@ -134,7 +135,7 @@ FetchContent_Declare(glm
         SYSTEM
 )
 FetchContent_MakeAvailable(glm)
-target_compile_definitions(${PROJECT_NAME} PUBLIC
+target_compile_definitions(${PROJECT_NAME} PRIVATE
         GLM_FORCE_DEPTH_ZERO_TO_ONE
 )
 target_precompile_headers(${PROJECT_NAME} PRIVATE <glm/glm.hpp>)
@@ -146,7 +147,7 @@ FetchContent_Declare(tinygltf
         GIT_TAG v2.8.17
         GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(tinygltf)
-target_compile_definitions(${PROJECT_NAME} PUBLIC
+target_compile_definitions(${PROJECT_NAME} PRIVATE
         TINYGLTF_NOEXCEPTION
         TINYGLTF_USE_CPP14
 )
