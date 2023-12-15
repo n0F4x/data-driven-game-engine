@@ -55,11 +55,6 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
         <variant>
 )
 
-# precompile macros before the rest of the headers that can't be added through the command line
-target_precompile_headers(${PROJECT_NAME} PRIVATE
-        src/PRE_MACROS.hpp
-)
-
 
 # tl-optional
 set(BUILD_TESTING OFF)
@@ -114,18 +109,27 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
 endif ()
-target_precompile_headers(${PROJECT_NAME} PRIVATE <vulkan/vulkan.hpp>)
+target_precompile_headers(${PROJECT_NAME} PRIVATE
+        src/engine/config/vulkan_pre_macros.hpp
+        <vulkan/vulkan.hpp>
+)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 
 # VulkanMemoryAllocator
 set(STATIC_VULKAN_FUNCTIONS 0)
 set(DYNAMIC_VULKAN_FUNCTIONS 1)
-add_subdirectory(libs/vulkan-memory-allocator)
-target_compile_definitions(vulkan-memory-allocator PUBLIC
+FetchContent_Declare(VulkanMemoryAllocator
+        GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+        GIT_TAG 2f382df
+        GIT_PROGRESS TRUE
+        SYSTEM
+)
+FetchContent_MakeAvailable(VulkanMemoryAllocator)
+target_compile_definitions(${PROJECT_NAME} PRIVATE
         VMA_STATIC_VULKAN_FUNCTIONS=${STATIC_VULKAN_FUNCTIONS}
         VMA_DYNAMIC_VULKAN_FUNCTIONS=${DYNAMIC_VULKAN_FUNCTIONS}
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC vulkan-memory-allocator)
+target_link_libraries(${PROJECT_NAME} PUBLIC VulkanMemoryAllocator)
 
 # glm
 FetchContent_Declare(glm
