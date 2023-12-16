@@ -89,7 +89,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:w
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_Declare(SFML
         GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 2.6.0
+        GIT_TAG 2.6.1
         GIT_PROGRESS TRUE
         SYSTEM
 )

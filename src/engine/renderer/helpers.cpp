@@ -337,7 +337,7 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
             t_instance.getProcAddr("vkCreateDebugUtilsMessengerEXT")
         );
     if (g_create_debug_utils_messenger_ext == nullptr) {
-        SPDLOG_ERROR("g_create_debug_utils_messenger_ext not found");
+        SPDLOG_ERROR("vkCreateDebugUtilsMessengerEXT not found");
         return vk::UniqueDebugUtilsMessengerEXT{};
     }
 
@@ -346,7 +346,7 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
             t_instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT")
         );
     if (g_destroy_debug_utils_messenger_ext == nullptr) {
-        SPDLOG_ERROR("g_destroy_debug_utils_messenger_ext not found");
+        SPDLOG_ERROR("vkDestroyDebugUtilsMessengerEXT not found");
         return vk::UniqueDebugUtilsMessengerEXT{};
     }
 
