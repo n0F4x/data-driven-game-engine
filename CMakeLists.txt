@@ -177,4 +177,4 @@ unset(engine_debug CACHE)
 ###########
 ## TESTS ##
 ###########
-add_subdirectory(examples)
+add_subdirectory(example)

@@ -31,13 +31,13 @@ find_program(GLSL_VALIDATOR glslangValidator HINTS
 
 # get all .vert and .frag files in shaders directory
 file(GLOB_RECURSE GLSL_SOURCE_FILES
-        "${PROJECT_SOURCE_DIR}/examples/shaders/*.frag"
-        "${PROJECT_SOURCE_DIR}/examples/shaders/*.vert"
+        "${PROJECT_SOURCE_DIR}/example/shaders/*.frag"
+        "${PROJECT_SOURCE_DIR}/example/shaders/*.vert"
 )
 
 foreach (GLSL ${GLSL_SOURCE_FILES})
     get_filename_component(FILE_NAME ${GLSL} NAME)
-    set(SPIRV "${PROJECT_SOURCE_DIR}/examples/shaders/${FILE_NAME}.spv")
+    set(SPIRV "${PROJECT_SOURCE_DIR}/example/shaders/${FILE_NAME}.spv")
     add_custom_command(
             OUTPUT ${SPIRV}
             COMMAND ${GLSL_VALIDATOR} -V ${GLSL} -o ${SPIRV}
