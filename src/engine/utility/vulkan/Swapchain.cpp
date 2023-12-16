@@ -1,4 +1,4 @@
-#include "SwapchainHolder.hpp"
+#include "Swapchain.hpp"
 
 #include <limits>
 #include <set>
@@ -55,13 +55,13 @@ auto create_swapchain(
     vk::Extent2D               t_extent,
     vk::SurfaceFormatKHR       t_surfaceFormat,
     vk::SwapchainKHR           t_old_swapchain
-) noexcept -> vk::SwapchainKHR
+) noexcept -> vk::UniqueSwapchainKHR
 {
     const auto present_mode{
         choose_swapchain_present_mode(t_surface, t_physical_device)
     };
     if (!present_mode.has_value()) {
-        return nullptr;
+        return vk::UniqueSwapchainKHR{};
     }
 
     uint32_t image_count = t_surface_capabilities.minImageCount + 1;
@@ -97,25 +97,25 @@ auto create_swapchain(
         .oldSwapchain        = t_old_swapchain
     };
 
-    const auto swapchain{ t_device.createSwapchainKHR(create_info) };
+    auto swapchain{ t_device.createSwapchainKHRUnique(create_info) };
     if (swapchain.result != vk::Result::eSuccess) {
-        return nullptr;
+        return vk::UniqueSwapchainKHR{};
     }
 
-    return swapchain.value;
+    return std::move(swapchain.value);
 }
 
 auto create_image_views(
     vk::Device           t_device,
     vk::SwapchainKHR     t_swapchain,
     vk::SurfaceFormatKHR t_surface_format
-) noexcept -> tl::optional<std::vector<engine::vulkan::ImageView>>
+) noexcept -> tl::optional<std::vector<vk::UniqueImageView>>
 {
     const auto images = t_device.getSwapchainImagesKHR(t_swapchain);
     if (images.result != vk::Result::eSuccess) {
         return tl::nullopt;
     }
-    std::vector<engine::vulkan::ImageView> image_views;
+    std::vector<vk::UniqueImageView> image_views;
     image_views.reserve(images.value.size());
 
     vk::ImageViewCreateInfo image_view_create_info{
@@ -129,11 +129,12 @@ auto create_image_views(
     };
     for (auto image : images.value) {
         image_view_create_info.image = image;
-        auto image_view{ t_device.createImageView(image_view_create_info) };
+        auto image_view{ t_device.createImageViewUnique(image_view_create_info
+        ) };
         if (image_view.result != vk::Result::eSuccess) {
             return tl::nullopt;
         }
-        image_views.emplace_back(t_device, image_view.value);
+        image_views.emplace_back(std::move(image_view.value));
     }
 
     return image_views;
@@ -145,11 +146,11 @@ namespace engine::vulkan {
 
 ////////////////////////////////////
 ///------------------------------///
-///  SwapchainHolder   IMPLEMENTATION  ///
+///  Swapchain   IMPLEMENTATION  ///
 ///------------------------------///
 ////////////////////////////////////
 
-auto SwapchainHolder::choose_extent(
+auto Swapchain::choose_extent(
     const vk::Extent2D&               t_framebuffer_size,
     const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
 ) noexcept -> vk::Extent2D
@@ -180,7 +181,7 @@ auto SwapchainHolder::choose_extent(
     }
 }
 
-auto SwapchainHolder::create(
+auto Swapchain::create(
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device,
     uint32_t           t_graphics_queue_family,
@@ -188,7 +189,7 @@ auto SwapchainHolder::create(
     vk::Device         t_device,
     vk::Extent2D       t_framebuffer_size,
     vk::SwapchainKHR   t_old_swapchain
-) noexcept -> tl::optional<SwapchainHolder>
+) noexcept -> tl::optional<Swapchain>
 {
     const auto [result, surface_capabilities]{
         t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
@@ -209,7 +210,7 @@ auto SwapchainHolder::create(
         return tl::nullopt;
     }
 
-    const auto swapchain{ create_swapchain(
+    auto swapchain{ create_swapchain(
         t_surface,
         t_physical_device,
         t_graphics_queue_family,
@@ -225,48 +226,46 @@ auto SwapchainHolder::create(
     }
 
     auto image_views{
-        create_image_views(t_device, swapchain, *surface_format)
+        create_image_views(t_device, swapchain.get(), *surface_format)
     };
     if (!image_views.has_value()) {
         return tl::nullopt;
     }
 
-    return SwapchainHolder{
-        t_device,
-        extent,
-        *surface_format,
-        Swapchain{ t_device, swapchain },
-        std::move(*image_views)
-    };
+    return Swapchain{ t_device,
+                      extent,
+                      *surface_format,
+                      std::move(swapchain),
+                      std::move(*image_views) };
 }
 
-auto SwapchainHolder::operator*() const noexcept -> vk::SwapchainKHR
+auto Swapchain::operator*() const noexcept -> vk::SwapchainKHR
 {
     return m_swapchain.operator*();
 }
 
-auto SwapchainHolder::extent() const noexcept -> vk::Extent2D
+auto Swapchain::extent() const noexcept -> vk::Extent2D
 {
     return m_extent;
 }
 
-auto SwapchainHolder::surface_format() const noexcept -> vk::SurfaceFormatKHR
+auto Swapchain::surface_format() const noexcept -> vk::SurfaceFormatKHR
 {
     return m_surface_format;
 }
 
-auto SwapchainHolder::image_views() const noexcept
-    -> const std::vector<ImageView>&
+auto Swapchain::image_views() const noexcept
+    -> const std::vector<vk::UniqueImageView>&
 {
     return m_image_views;
 }
 
-SwapchainHolder::SwapchainHolder(
-    vk::Device               t_device,
-    vk::Extent2D             t_extent,
-    vk::SurfaceFormatKHR     t_surface_format,
-    Swapchain&&              t_swapchain,
-    std::vector<ImageView>&& t_image_views
+Swapchain::Swapchain(
+    vk::Device                         t_device,
+    vk::Extent2D                       t_extent,
+    vk::SurfaceFormatKHR               t_surface_format,
+    vk::UniqueSwapchainKHR&&           t_swapchain,
+    std::vector<vk::UniqueImageView>&& t_image_views
 ) noexcept
     : m_device{ t_device },
       m_extent{ t_extent },

@@ -10,7 +10,6 @@
 
 #include <vk_mem_alloc.h>
 
-#include "engine/utility/vulkan/raii_wrappers.hpp"
 #include "engine/utility/vulkan/vma/Allocator.hpp"
 #include "engine/utility/vulkan/vma/Buffer.hpp"
 
@@ -77,7 +76,7 @@ private:
     ///*************///
     vk::PhysicalDevice     m_physical_device;
     CreateInfo             m_info;
-    vulkan::Device         m_device;
+    vk::UniqueDevice       m_device;
     vulkan::vma::Allocator m_allocator;
     uint32_t               m_graphics_queue_family_index;
     vk::Queue              m_graphics_queue;
@@ -92,7 +91,7 @@ private:
     explicit Device(
         vk::PhysicalDevice t_physical_device,
         const CreateInfo&  t_info,
-        vk::Device         t_device,
+        vk::UniqueDevice&& t_device,
         VmaAllocator       t_allocator,
         uint32_t           t_graphics_family_index,
         vk::Queue          t_graphics_queue,

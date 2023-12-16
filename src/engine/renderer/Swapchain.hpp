@@ -12,9 +12,8 @@
 
 #include <entt/signal/sigh.hpp>
 
-#include "engine/utility/vulkan/raii_wrappers.hpp"
 #include "engine/utility/vulkan/result_types.hpp"
-#include "engine/utility/vulkan/SwapchainHolder.hpp"
+#include "engine/utility/vulkan/Swapchain.hpp"
 
 #include "Device.hpp"
 
@@ -23,7 +22,7 @@ namespace engine::renderer {
 namespace err {
 
 /**
- * No swapchain is present within SwapchainHolder.
+ * No swapchain is present within Swapchain.
  */
 class NoSwapchain {};
 
@@ -36,13 +35,13 @@ public:
     ///----------------///
     using FramebufferSizeGetter = std::function<vk::Extent2D()>;
     using SwapchainRecreatedEvent =
-        std::function<void(const vulkan::SwapchainHolder&)>;
+        std::function<void(const vulkan::Swapchain&)>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit Swapchain(
-        vulkan::Surface&&       t_surface,
+        vk::UniqueSurfaceKHR&&  t_surface,
         Device&                 t_device,
         FramebufferSizeGetter&& t_get_framebuffer_size
     ) noexcept;
@@ -52,7 +51,7 @@ public:
     ///-----------///
     [[nodiscard]] auto surface() const noexcept -> vk::SurfaceKHR;
     [[nodiscard]] auto get() const noexcept
-        -> const tl::optional<vulkan::SwapchainHolder>&;
+        -> const tl::optional<vulkan::Swapchain>&;
 
     auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void;
 
@@ -74,11 +73,11 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vulkan::Surface                       m_surface;
-    Device&                               m_device;
-    FramebufferSizeGetter                 m_get_framebuffer_size;
-    tl::optional<vulkan::SwapchainHolder> m_swapchain;
-    uint32_t                              m_image_index{};
+    vk::UniqueSurfaceKHR            m_surface;
+    Device&                         m_device;
+    FramebufferSizeGetter           m_get_framebuffer_size;
+    tl::optional<vulkan::Swapchain> m_swapchain;
+    uint32_t                        m_image_index{};
     std::vector<std::pair<uint32_t, SwapchainRecreatedEvent>>
              m_swapchain_recreated_events;
     uint32_t m_swapchain_recreated_events_counter{};

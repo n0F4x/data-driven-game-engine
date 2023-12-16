@@ -10,12 +10,12 @@ namespace engine::renderer {
 
 //////////////////////////////////!
 ///-----------------------------///
-///  SwapchainHolder   IMPLEMENTATION  ///
+///  Swapchain   IMPLEMENTATION  ///
 ///-----------------------------///
 ///////////////////////////////////
 
 Swapchain::Swapchain(
-    vulkan::Surface&&       t_surface,
+    vk::UniqueSurfaceKHR&&  t_surface,
     Device&                 t_device,
     FramebufferSizeGetter&& t_get_framebuffer_size
 ) noexcept
@@ -31,8 +31,7 @@ auto Swapchain::surface() const noexcept -> vk::SurfaceKHR
     return *m_surface;
 }
 
-auto Swapchain::get() const noexcept
-    -> const tl::optional<vulkan::SwapchainHolder>&
+auto Swapchain::get() const noexcept -> const tl::optional<vulkan::Swapchain>&
 {
     return m_swapchain;
 }
@@ -51,7 +50,7 @@ auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     if (surface_capabilities.result != vk::Result::eSuccess) {
         return;
     }
-    auto extent = vulkan::SwapchainHolder::choose_extent(
+    auto extent = vulkan::Swapchain::choose_extent(
         t_framebuffer_size, surface_capabilities.value
     );
 
@@ -143,15 +142,14 @@ auto Swapchain::recreate_swapchain(vk::Extent2D t_framebuffer_size) noexcept
         return;
     }
 
-    auto new_swapchain{ vulkan::SwapchainHolder::create(
+    auto new_swapchain{ vulkan::Swapchain::create(
         *m_surface,
         m_device.physical_device(),
         m_device.graphics_queue_family_index(),
         m_device.graphics_queue_family_index(),
         *m_device,
         t_framebuffer_size,
-        m_swapchain.transform(&vulkan::SwapchainHolder::operator*)
-            .value_or(nullptr)
+        m_swapchain.transform(&vulkan::Swapchain::operator*).value_or(nullptr)
     ) };
     m_swapchain.reset();
     m_swapchain = std::move(new_swapchain);

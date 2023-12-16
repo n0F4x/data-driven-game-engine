@@ -5,8 +5,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/utility/vulkan/raii_wrappers.hpp"
-
 #include "Device.hpp"
 
 namespace engine::renderer {
@@ -43,14 +41,14 @@ private:
     ///  Nested classes  ///
     ///******************///
     struct ThreadData {
-        vulkan::CommandPool            command_pool;
+        vk::UniqueCommandPool          command_pool;
         std::vector<vk::CommandBuffer> command_buffers;
         size_t                         requested_command_buffers{};
     };
 
     struct FrameData {
         std::vector<ThreadData>            thread_data;
-        vulkan::Fence                      fence;
+        vk::UniqueFence                    fence;
         std::vector<std::function<void()>> pre_updates;
     };
 

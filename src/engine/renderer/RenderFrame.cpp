@@ -28,7 +28,7 @@ auto RenderFrame::create(
         for ([[maybe_unused]] auto j :
              std::ranges::iota_view{ 0u, t_thread_count })
         {
-            const auto [result, command_pool]{ t_device->createCommandPool(
+            auto [result, command_pool]{ t_device->createCommandPoolUnique(
                 vk::CommandPoolCreateInfo{
                     .flags = vk::CommandPoolCreateFlagBits::eTransient,
                     .queueFamilyIndex = t_device.graphics_queue_family_index() }
@@ -42,13 +42,11 @@ auto RenderFrame::create(
             }
 
             thread_data.emplace_back(
-                vulkan::CommandPool{ *t_device, command_pool },
-                std::vector<vk::CommandBuffer>{},
-                0
+                std::move(command_pool), std::vector<vk::CommandBuffer>{}, 0
             );
         }
 
-        const auto [result, fence]{ t_device->createFence(vk::FenceCreateInfo{}
+        auto [result, fence]{ t_device->createFenceUnique(vk::FenceCreateInfo{}
         ) };
         if (result != vk::Result::eSuccess) {
             SPDLOG_ERROR(
@@ -60,7 +58,7 @@ auto RenderFrame::create(
 
         frame_data.emplace_back(
             std::move(thread_data),
-            vulkan::Fence{ *t_device, fence },
+            std::move(fence),
             std::vector<std::function<void()>>{}
         );
     }

@@ -22,13 +22,13 @@ Buffer::Buffer(Buffer&& t_other) noexcept
 
 Buffer::~Buffer() noexcept
 {
-    destroy();
+    reset();
 }
 
 auto Buffer::operator=(Buffer&& t_other) noexcept -> Buffer&
 {
     if (this != &t_other) {
-        destroy();
+        reset();
 
         std::swap(m_allocator, t_other.m_allocator);
         std::swap(m_buffer, t_other.m_buffer);
@@ -47,7 +47,7 @@ auto Buffer::allocation() const noexcept -> VmaAllocation
     return m_allocation;
 }
 
-auto Buffer::destroy() noexcept -> void
+auto Buffer::reset() noexcept -> void
 {
     if (m_allocator) {
         vmaDestroyBuffer(

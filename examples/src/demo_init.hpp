@@ -8,7 +8,6 @@
 
 #include <engine/gfx/Model.hpp>
 #include <engine/renderer/Device.hpp>
-#include <engine/utility/vulkan/raii_wrappers.hpp>
 #include <engine/utility/vulkan/vma/Image.hpp>
 
 namespace init {
@@ -16,7 +15,7 @@ namespace init {
 [[nodiscard]] auto create_render_pass(
     const vk::SurfaceFormatKHR&     t_surface_format,
     const engine::renderer::Device& t_device
-) noexcept -> engine::vulkan::RenderPass;
+) noexcept -> vk::UniqueRenderPass;
 
 [[nodiscard]] auto create_depth_image(
     const engine::renderer::Device& t_device,
@@ -26,35 +25,35 @@ namespace init {
 [[nodiscard]] auto create_depth_image_view(
     const engine::renderer::Device& t_device,
     vk::Image                       t_depth_image
-) noexcept -> engine::vulkan::ImageView;
+) noexcept -> vk::UniqueImageView;
 
 [[nodiscard]] auto create_framebuffers(
-    vk::Device                                    t_device,
-    vk::Extent2D                                  t_swapchain_extent,
-    const std::vector<engine::vulkan::ImageView>& t_swapchain_image_views,
-    vk::RenderPass                                t_render_pass,
-    vk::ImageView                                 t_depth_image_view
-) noexcept -> std::vector<engine::vulkan::Framebuffer>;
+    vk::Device                              t_device,
+    vk::Extent2D                            t_swapchain_extent,
+    const std::vector<vk::UniqueImageView>& t_swapchain_image_views,
+    vk::RenderPass                          t_render_pass,
+    vk::ImageView                           t_depth_image_view
+) noexcept -> std::vector<vk::UniqueFramebuffer>;
 
 [[nodiscard]] auto create_descriptor_set_layout(vk::Device t_device) noexcept
-    -> engine::vulkan::DescriptorSetLayout;
+    -> vk::UniqueDescriptorSetLayout;
 
 [[nodiscard]] auto create_pipeline_layout(
     vk::Device              t_device,
     vk::DescriptorSetLayout t_descriptor_set_layout,
     uint32_t                t_push_constant_size
-) -> engine::vulkan::PipelineLayout;
+) -> vk::UniquePipelineLayout;
 
 [[nodiscard]] auto create_pipeline(
     vk::Device         t_device,
     vk::PipelineLayout t_pipeline_layout,
     vk::RenderPass     t_render_pass
-) -> engine::vulkan::Pipeline;
+) -> vk::UniquePipeline;
 
 [[nodiscard]] auto create_command_pool(
     vk::Device t_device,
     uint32_t   t_queue_family_index
-) noexcept -> engine::vulkan::CommandPool;
+) noexcept -> vk::UniqueCommandPool;
 
 [[nodiscard]] auto create_command_buffers(
     vk::Device      t_device,
@@ -65,15 +64,15 @@ namespace init {
 [[nodiscard]] auto create_descriptor_pool(
     vk::Device t_device,
     uint32_t   t_count
-) noexcept -> engine::vulkan::DescriptorPool;
+) noexcept -> vk::UniqueDescriptorPool;
 
 [[nodiscard]] auto create_semaphores(
     vk::Device t_device,
     uint32_t   t_count
-) noexcept -> std::vector<engine::vulkan::Semaphore>;
+) noexcept -> std::vector<vk::UniqueSemaphore>;
 
 [[nodiscard]] auto create_fences(vk::Device t_device, uint32_t t_count) noexcept
-    -> std::vector<engine::vulkan::Fence>;
+    -> std::vector<vk::UniqueFence>;
 
 [[nodiscard]] auto create_model(const std::string& t_path) noexcept
     -> tl::optional<engine::gfx::Model>;

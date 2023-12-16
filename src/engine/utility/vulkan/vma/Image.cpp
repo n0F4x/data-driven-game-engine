@@ -22,13 +22,13 @@ Image::Image(Image&& t_other) noexcept
 
 Image::~Image() noexcept
 {
-    destroy();
+    reset();
 }
 
 auto Image::operator=(Image&& t_other) noexcept -> Image&
 {
     if (this != &t_other) {
-        destroy();
+        reset();
 
         std::swap(m_allocator, t_other.m_allocator);
         std::swap(m_image, t_other.m_image);
@@ -47,7 +47,7 @@ auto Image::allocation() const noexcept -> VmaAllocation
     return m_allocation;
 }
 
-auto Image::destroy() noexcept -> void
+auto Image::reset() noexcept -> void
 {
     if (m_allocator) {
         vmaDestroyImage(

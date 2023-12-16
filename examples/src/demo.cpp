@@ -26,26 +26,25 @@ using namespace engine;
 constexpr uint32_t g_frame_count{ 2 };
 
 struct DemoApp {
-    renderer::Device&                device;
-    renderer::Swapchain&             swapchain;
-    vulkan::RenderPass               render_pass;
-    vulkan::vma::Image               depth_image;
-    vulkan::ImageView                depth_image_view;
-    std::vector<vulkan::Framebuffer> framebuffers;
-    vulkan::DescriptorSetLayout      descriptor_set_layout;
-    vulkan::PipelineLayout           pipeline_layout;
-    vulkan::Pipeline                 pipeline;
-    vulkan::CommandPool              command_pool;
-    std::vector<vk::CommandBuffer>   command_buffers;
-    vulkan::DescriptorPool           descriptor_pool;
-    std::vector<vulkan::Semaphore>   image_acquired_semaphores;
-    std::vector<vulkan::Semaphore>   render_finished_semaphores;
-    std::vector<vulkan::Fence>       in_flight_fences;
-    uint32_t                         frame_index{};
+    renderer::Device&                  device;
+    renderer::Swapchain&               swapchain;
+    vk::UniqueRenderPass               render_pass;
+    vulkan::vma::Image                 depth_image;
+    vk::UniqueImageView                depth_image_view;
+    std::vector<vk::UniqueFramebuffer> framebuffers;
+    vk::UniqueDescriptorSetLayout      descriptor_set_layout;
+    vk::UniquePipelineLayout           pipeline_layout;
+    vk::UniquePipeline                 pipeline;
+    vk::UniqueCommandPool              command_pool;
+    std::vector<vk::CommandBuffer>     command_buffers;
+    vk::UniqueDescriptorPool           descriptor_pool;
+    std::vector<vk::UniqueSemaphore>   image_acquired_semaphores;
+    std::vector<vk::UniqueSemaphore>   render_finished_semaphores;
+    std::vector<vk::UniqueFence>       in_flight_fences;
+    uint32_t                           frame_index{};
 
     renderer::RenderScene  render_scene;
     renderer::RenderObject render_object;
-    bool                   swapchain_recreated{ false };
 
     static auto flush_model(
         const renderer::Device& t_device,
@@ -74,7 +73,7 @@ struct DemoApp {
             .commandBufferCount = 1,
             .pCommandBuffers    = &command_buffer,
         };
-        vulkan::Fence fence{ *t_device, t_device->createFence({}).value };
+        vk::UniqueFence fence{ t_device->createFenceUnique({}).value };
 
         static_cast<void>(
             t_device.transfer_queue().submit(1, &submit_info, *fence)
@@ -369,23 +368,23 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
     return DemoApp::create(t_app.store(), t_model_filepath)
         .transform([&](DemoApp t_demo) {
             t_demo.swapchain.on_swapchain_recreated(
-                [&t_demo](const vulkan::SwapchainHolder& t_swapchain) {
-                    t_demo.depth_image.destroy();
+                [&t_demo](const vulkan::Swapchain& t_swapchain) {
+                    t_demo.depth_image.reset();
                     t_demo.depth_image = init::create_depth_image(
                         t_demo.device, t_swapchain.extent()
                     );
                 }
             );
             t_demo.swapchain.on_swapchain_recreated(
-                [&t_demo](const vulkan::SwapchainHolder& t_swapchain) {
-                    t_demo.depth_image_view.destroy();
+                [&t_demo](const vulkan::Swapchain& t_swapchain) {
+                    t_demo.depth_image_view.reset();
                     t_demo.depth_image_view = init::create_depth_image_view(
                         t_demo.device, *t_demo.depth_image
                     );
                 }
             );
             t_demo.swapchain.on_swapchain_recreated(
-                [&t_demo](const vulkan::SwapchainHolder& t_swapchain) {
+                [&t_demo](const vulkan::Swapchain& t_swapchain) {
                     t_demo.framebuffers.clear();
                     t_demo.framebuffers = init::create_framebuffers(
                         *t_demo.device,

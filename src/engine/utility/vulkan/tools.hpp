@@ -4,11 +4,7 @@
 #include <span>
 #include <string>
 
-#include <tl/optional.hpp>
-
 #include <vulkan/vulkan.hpp>
-
-#include "raii_wrappers.hpp"
 
 namespace engine::vulkan {
 
@@ -35,6 +31,6 @@ namespace engine::vulkan {
 [[nodiscard]] auto load_shader(
     vk::Device         t_device,
     const std::string& t_file_path
-) noexcept -> tl::optional<ShaderModule>;
+) noexcept -> vk::UniqueShaderModule;
 
 }   // namespace engine::vulkan

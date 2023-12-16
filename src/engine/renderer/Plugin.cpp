@@ -59,36 +59,38 @@ namespace {
 [[nodiscard]] auto
     create_surface(Store& t_store, const SurfaceCreator& t_create_surface)
 {
-    return [&](const Instance& t_instance
-           ) -> tl::optional<std::tuple<const Instance&, vulkan::Surface>> {
-        vk::SurfaceKHR surface{
-            std::invoke(t_create_surface, t_store, *t_instance, nullptr)
+    return
+        [&](const Instance& t_instance
+        ) -> tl::optional<std::tuple<const Instance&, vk::UniqueSurfaceKHR>> {
+            vk::SurfaceKHR surface{
+                std::invoke(t_create_surface, t_store, *t_instance, nullptr)
+            };
+            if (!surface) {
+                return tl::nullopt;
+            }
+            return std::make_tuple(
+                std::cref(t_instance),
+                vk::UniqueSurfaceKHR{ surface, *t_instance }
+            );
         };
-        if (!surface) {
-            return tl::nullopt;
-        }
-        return std::make_tuple(
-            std::cref(t_instance), vulkan::Surface{ *t_instance, surface }
-        );
-    };
 }
 
 [[nodiscard]] auto create_device(
-    std::tuple<const Instance&, vulkan::Surface> t_pack
+    std::tuple<const Instance&, vk::UniqueSurfaceKHR> t_pack
 )
 {
     return Device::create_default(
                std::get<const Instance&>(t_pack),
-               *std::get<vulkan::Surface>(t_pack),
+               *std::get<vk::UniqueSurfaceKHR>(t_pack),
                helpers::choose_physical_device(
                    *std::get<const Instance&>(t_pack),
-                   *std::get<vulkan::Surface>(t_pack)
+                   *std::get<vk::UniqueSurfaceKHR>(t_pack)
                )
     )
         .transform([&](Device&& t_device) {
             return std::make_tuple(
                 *std::get<const Instance&>(t_pack),
-                std::move(std::get<vulkan::Surface>(t_pack)),
+                std::move(std::get<vk::UniqueSurfaceKHR>(t_pack)),
                 std::move(t_device)
             );
         });
@@ -96,11 +98,12 @@ namespace {
 
 [[nodiscard]] auto inject_device(Store& t_store)
 {
-    return [&t_store](std::tuple<vk::Instance, vulkan::Surface, Device>&& t_pack
+    return [&t_store](
+               std::tuple<vk::Instance, vk::UniqueSurfaceKHR, Device>&& t_pack
            ) {
         return std::make_tuple(
             std::get<vk::Instance>(t_pack),
-            std::move(std::get<vulkan::Surface>(t_pack)),
+            std::move(std::get<vk::UniqueSurfaceKHR>(t_pack)),
             std::ref(t_store.emplace<Device>(std::move(std::get<Device>(t_pack))
             ))
         );
@@ -112,10 +115,10 @@ namespace {
     Swapchain::FramebufferSizeGetter&& t_get_framebuffer_size
 )
 {
-    return [&](std::tuple<vk::Instance, vulkan::Surface, Device&>&& t_pack
+    return [&](std::tuple<vk::Instance, vk::UniqueSurfaceKHR, Device&>&& t_pack
            ) -> Device& {
         t_store.emplace<Swapchain>(
-            std::move(std::get<vulkan::Surface>(t_pack)),
+            std::move(std::get<vk::UniqueSurfaceKHR>(t_pack)),
             std::get<Device&>(t_pack),
             std::move(t_get_framebuffer_size)
         );

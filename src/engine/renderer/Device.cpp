@@ -37,8 +37,8 @@ auto Device::create(
     auto enabled_extension_names{ t_create_info.extensions
                                   | std::views::transform(&std::string::c_str)
                                   | std::ranges::to<std::vector>() };
-    const auto [result, device]{
-        t_physical_device.createDevice(vk::DeviceCreateInfo{
+    auto [result, device]{
+        t_physical_device.createDeviceUnique(vk::DeviceCreateInfo{
             .pNext = t_create_info.next,
             .queueCreateInfoCount =
                 static_cast<uint32_t>(queue_infos->queue_create_infos.size()),
@@ -66,7 +66,7 @@ auto Device::create(
             t_instance.enabled_extensions(), t_create_info.extensions
         ),
         .physicalDevice   = t_physical_device,
-        .device           = device,
+        .device           = device.get(),
         .pVulkanFunctions = &vulkan_functions,
         .instance         = *t_instance,
     };
@@ -75,18 +75,18 @@ auto Device::create(
 
     return Device{ t_physical_device,
                    t_create_info,
-                   device,
+                   std::move(device),
                    allocator,
                    queue_infos->graphics_family,
-                   device.getQueue(
+                   device->getQueue(
                        queue_infos->graphics_family, queue_infos->graphics_index
                    ),
                    queue_infos->compute_family,
-                   device.getQueue(
+                   device->getQueue(
                        queue_infos->compute_family, queue_infos->compute_index
                    ),
                    queue_infos->transfer_family,
-                   device.getQueue(
+                   device->getQueue(
                        queue_infos->transfer_family, queue_infos->transfer_index
                    ) };
 }
@@ -109,7 +109,7 @@ auto Device::create_default(
 Device::Device(
     vk::PhysicalDevice t_physical_device,
     const CreateInfo&  t_info,
-    vk::Device         t_device,
+    vk::UniqueDevice&& t_device,
     VmaAllocator       t_allocator,
     uint32_t           t_graphics_family_index,
     vk::Queue          t_graphics_queue,
@@ -120,7 +120,7 @@ Device::Device(
 ) noexcept
     : m_physical_device{ t_physical_device },
       m_info{ t_info },
-      m_device{ t_device },
+      m_device{ std::move(t_device) },
       m_allocator{ t_allocator },
       m_graphics_queue_family_index{ t_graphics_family_index },
       m_graphics_queue{ t_graphics_queue },
@@ -132,7 +132,7 @@ Device::Device(
     const auto properties{ t_physical_device.getProperties() };
 
     std::string enabled_extensions{ "\nEnabled device extensions:" };
-    for (auto extension : m_info.extensions) {
+    for (const auto& extension : m_info.extensions) {
         enabled_extensions += '\n';
         enabled_extensions += '\t';
         enabled_extensions += extension;

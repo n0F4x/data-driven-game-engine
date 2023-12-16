@@ -30,7 +30,7 @@ auto Instance::create(const CreateInfo& t_create_info) noexcept
         .ppEnabledExtensionNames = enabled_extension_names.data()
     };
 
-    const auto [result, instance]{ vk::createInstance(create_info) };
+    auto [result, instance]{ vk::createInstanceUnique(create_info) };
     if (result != vk::Result::eSuccess) {
         SPDLOG_ERROR(
             "vk::createInstance failed with error code {}",
@@ -39,22 +39,20 @@ auto Instance::create(const CreateInfo& t_create_info) noexcept
         return std::unexpected{ result };
     }
 
-    vk::DebugUtilsMessengerEXT debug_messenger{};
+    vk::UniqueDebugUtilsMessengerEXT debug_messenger{};
     if (t_create_info.create_debug_messenger
         && std::ranges::find(
                t_create_info.extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
            ) != std::cend(t_create_info.extensions))
     {
-        debug_messenger = t_create_info.create_debug_messenger(instance);
+        debug_messenger = t_create_info.create_debug_messenger(instance.get());
     }
 
-    return Instance{
-        t_create_info.application_info,
-        t_create_info.layers,
-        t_create_info.extensions,
-        vulkan::Instance{ instance },
-        vulkan::DebugUtilsMessenger{ instance, debug_messenger }
-    };
+    return Instance{ t_create_info.application_info,
+                     t_create_info.layers,
+                     t_create_info.extensions,
+                     std::move(instance),
+                     std::move(debug_messenger) };
 }
 
 auto Instance::create_default() noexcept -> std::expected<Instance, vk::Result>
@@ -94,11 +92,11 @@ auto Instance::enabled_extensions() const noexcept
 }
 
 Instance::Instance(
-    const vk::ApplicationInfo&    t_application_info,
-    std::span<const std::string>  t_layers,
-    std::span<const std::string>  t_extensions,
-    vulkan::Instance&&            t_instance,
-    vulkan::DebugUtilsMessenger&& t_debug_utils_messenger
+    const vk::ApplicationInfo&         t_application_info,
+    std::span<const std::string>       t_layers,
+    std::span<const std::string>       t_extensions,
+    vk::UniqueInstance&&               t_instance,
+    vk::UniqueDebugUtilsMessengerEXT&& t_debug_utils_messenger
 ) noexcept
     : m_application_info{ t_application_info },
       m_layers{ t_layers.begin(), t_layers.end() },

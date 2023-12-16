@@ -226,8 +226,8 @@ auto instance_extensions() noexcept -> std::span<const std::string>
 
 }   // namespace engine::renderer::helpers
 
-PFN_vkCreateDebugUtilsMessengerEXT  pfnVkCreateDebugUtilsMessengerEXT;
-PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
+PFN_vkCreateDebugUtilsMessengerEXT  g_create_debug_utils_messenger_ext;
+PFN_vkDestroyDebugUtilsMessengerEXT g_destroy_debug_utils_messenger_ext;
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(
     VkInstance                                instance,
@@ -236,7 +236,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(
     VkDebugUtilsMessengerEXT*                 pMessenger
 )
 {
-    return pfnVkCreateDebugUtilsMessengerEXT(
+    return g_create_debug_utils_messenger_ext(
         instance, pCreateInfo, pAllocator, pMessenger
     );
 }
@@ -247,7 +247,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(
     const VkAllocationCallbacks* pAllocator
 )
 {
-    return pfnVkDestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
+    return g_destroy_debug_utils_messenger_ext(instance, messenger, pAllocator);
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
@@ -312,7 +312,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
 namespace engine::renderer::helpers {
 
 auto create_debug_messenger(vk::Instance t_instance) noexcept
-    -> vk::DebugUtilsMessengerEXT
+    -> vk::UniqueDebugUtilsMessengerEXT
 {
     auto extension_supported{
         vulkan::available_instance_extensions()
@@ -329,52 +329,54 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
             "{} Vulkan extension is not supported",
             VK_EXT_DEBUG_UTILS_EXTENSION_NAME
         );
-        return nullptr;
+        return vk::UniqueDebugUtilsMessengerEXT{};
     }
 
-    pfnVkCreateDebugUtilsMessengerEXT =
+    g_create_debug_utils_messenger_ext =
         reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
             t_instance.getProcAddr("vkCreateDebugUtilsMessengerEXT")
         );
-    if (pfnVkCreateDebugUtilsMessengerEXT == nullptr) {
-        SPDLOG_ERROR("pfnVkCreateDebugUtilsMessengerEXT not found");
-        return nullptr;
+    if (g_create_debug_utils_messenger_ext == nullptr) {
+        SPDLOG_ERROR("g_create_debug_utils_messenger_ext not found");
+        return vk::UniqueDebugUtilsMessengerEXT{};
     }
 
-    pfnVkDestroyDebugUtilsMessengerEXT =
+    g_destroy_debug_utils_messenger_ext =
         reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
             t_instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT")
         );
-    if (pfnVkDestroyDebugUtilsMessengerEXT == nullptr) {
-        SPDLOG_ERROR("pfnVkDestroyDebugUtilsMessengerEXT not found");
-        return nullptr;
+    if (g_destroy_debug_utils_messenger_ext == nullptr) {
+        SPDLOG_ERROR("g_destroy_debug_utils_messenger_ext not found");
+        return vk::UniqueDebugUtilsMessengerEXT{};
     }
 
-    const vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
+    const vk::DebugUtilsMessageSeverityFlagsEXT severity_flags(
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
         | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
     );
-    const vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
+    const vk::DebugUtilsMessageTypeFlagsEXT message_type_flags(
         vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
         | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
         | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation
     );
-    const auto debugUtilsMessenger = t_instance.createDebugUtilsMessengerEXT(
-        vk::DebugUtilsMessengerCreateInfoEXT{ .messageSeverity = severityFlags,
-                                              .messageType = messageTypeFlags,
-                                              .pfnUserCallback =
-                                                  &debugMessageFunc }
-    );
-    if (debugUtilsMessenger.result != vk::Result::eSuccess) {
+    auto [result, debug_utils_messenger]{
+        t_instance.createDebugUtilsMessengerEXTUnique(
+            vk::DebugUtilsMessengerCreateInfoEXT{
+                .messageSeverity = severity_flags,
+                .messageType     = message_type_flags,
+                .pfnUserCallback = &debugMessageFunc }
+        )
+    };
+    if (result != vk::Result::eSuccess) {
         SPDLOG_ERROR(
             "vk::Instance::createDebugUtilsMessengerEXT failed with error code "
             "{}",
-            std::to_underlying(debugUtilsMessenger.result)
+            std::to_underlying(result)
         );
-        return nullptr;
+        return vk::UniqueDebugUtilsMessengerEXT{};
     }
 
-    return debugUtilsMessenger.value;
+    return std::move(debug_utils_messenger);
 }
 
 auto find_queue_families(

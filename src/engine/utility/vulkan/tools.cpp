@@ -109,17 +109,17 @@ auto supports_surface(
 }
 
 auto load_shader(vk::Device t_device, const std::string& t_file_path) noexcept
-    -> tl::optional<ShaderModule>
+    -> vk::UniqueShaderModule
 {
     std::ifstream file{ t_file_path,
                         std::ios::binary | std::ios::in | std::ios::ate };
     if (!file.is_open()) {
-        return tl::nullopt;
+        return vk::UniqueShaderModule{};
     }
 
     const std::streamsize file_size = file.tellg();
     if (file_size <= 0) {
-        return tl::nullopt;
+        return vk::UniqueShaderModule{};
     }
 
     std::vector<char> buffer(static_cast<size_t>(file_size));
@@ -133,13 +133,13 @@ auto load_shader(vk::Device t_device, const std::string& t_file_path) noexcept
         .pCode    = (uint32_t*)buffer.data()
     };
 
-    const auto [result, shader_module]{ t_device.createShaderModule(create_info
+    auto [result, shader_module]{ t_device.createShaderModuleUnique(create_info
     ) };
     if (result != vk::Result::eSuccess) {
-        return tl::nullopt;
+        return vk::UniqueShaderModule{};
     }
 
-    return ShaderModule{ t_device, shader_module };
+    return std::move(shader_module);
 }
 
 }   // namespace engine::vulkan
