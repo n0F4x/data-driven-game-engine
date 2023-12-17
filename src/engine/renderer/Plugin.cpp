@@ -56,15 +56,19 @@ namespace {
     };
 }
 
+template <typename TSurfaceCreator>
 [[nodiscard]] auto
-    create_surface(Store& t_store, const SurfaceCreator& t_create_surface)
+    create_surface(Store& t_store, TSurfaceCreator&& t_create_surface)
 {
     return
         [&](const Instance& t_instance
         ) -> tl::optional<std::tuple<const Instance&, vk::UniqueSurfaceKHR>> {
-            vk::SurfaceKHR surface{
-                std::invoke(t_create_surface, t_store, *t_instance, nullptr)
-            };
+            vk::SurfaceKHR surface{ std::invoke(
+                std::forward<TSurfaceCreator>(t_create_surface),
+                t_store,
+                *t_instance,
+                nullptr
+            ) };
             if (!surface) {
                 return tl::nullopt;
             }
@@ -110,9 +114,10 @@ namespace {
     };
 }
 
+template <typename FramebufferSizeGetterCreator>
 [[nodiscard]] auto inject_swapchain(
-    Store&                             t_store,
-    Swapchain::FramebufferSizeGetter&& t_get_framebuffer_size
+    Store&                         t_store,
+    FramebufferSizeGetterCreator&& t_create_framebuffer_size_getter
 )
 {
     return [&](std::tuple<vk::Instance, vk::UniqueSurfaceKHR, Device&>&& t_pack
@@ -120,7 +125,13 @@ namespace {
         t_store.emplace<Swapchain>(
             std::move(std::get<vk::UniqueSurfaceKHR>(t_pack)),
             std::get<Device&>(t_pack),
-            std::move(t_get_framebuffer_size)
+            t_create_framebuffer_size_getter ? std::invoke(
+                std::forward<FramebufferSizeGetterCreator>(
+                    t_create_framebuffer_size_getter
+                ),
+                t_store
+            )
+                                             : nullptr
         );
         return std::get<Device&>(t_pack);
     };
@@ -135,17 +146,17 @@ namespace {
 
 [[nodiscard]] auto inject_render_frame(Store& t_store)
 {
-    return [&](RenderFrame&& t_render_frame) {
-        t_store.emplace<RenderFrame>(std::move(t_render_frame));
+    return [&]<typename RenderFrame>(RenderFrame&& t_render_frame) {
+        t_store.emplace<RenderFrame>(std::forward<RenderFrame>(t_render_frame));
     };
 }
 
 }   // namespace
 
 auto Plugin::operator()(
-    Store&                       t_store,
-    const SurfaceCreator&        t_create_surface,
-    const FramebufferSizeGetter& t_get_framebuffer_size
+    Store&                              t_store,
+    const SurfaceCreator&               t_create_surface,
+    const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter
 ) const noexcept -> void
 {
     create_instance()
@@ -153,10 +164,7 @@ auto Plugin::operator()(
         .and_then(create_surface(t_store, t_create_surface))
         .and_then(create_device)
         .transform(inject_device(t_store))
-        .transform(inject_swapchain(
-            t_store,
-            t_get_framebuffer_size ? t_get_framebuffer_size(t_store) : nullptr
-        ))
+        .transform(inject_swapchain(t_store, t_create_framebuffer_size_getter))
         .and_then(create_render_frame)
         .transform(inject_render_frame(t_store))
         .transform([](auto) { SPDLOG_TRACE("Added Renderer plugin"); });
