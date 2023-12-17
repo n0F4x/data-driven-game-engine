@@ -40,14 +40,6 @@ Please use the following Hungarian notations:
 - Global Variable: g_variable
 - Parameter: t_parameter
 
-### Exceptions
-
-This is an exception-free codebase. Mark functions as `noexcept`.
-In some constructors exceptions are unavoidable, mark them `noexcept(false)`!
-
-Terminating the program in case of an unsuccessful dynamic memory allocation is fine.
-(This is what noexcept functions do by default instead of throwing.)
-
 ### Comments
 
 Make your code self-documenting!  
@@ -73,4 +65,3 @@ Declare friend classes as private!
 ### Other
 
 - Don't make class fields protected. Make a protected getter/setter instead.
-- Make a static helper function called `create` in case a normal constructor may fail.
