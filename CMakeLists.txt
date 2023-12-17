@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.25)
 
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
 project(engine CXX)
 
