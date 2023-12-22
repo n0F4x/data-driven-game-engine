@@ -21,14 +21,14 @@ public:
     ///--------------------///
     ///  Static variables  ///
     ///--------------------///
-    static SurfaceCreator default_surface_creator;
+    static SurfaceCreator create_surface;
 
     ///-------------///
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        Store&                t_store,
-        const SurfaceCreator& t_create_surface = default_surface_creator,
+        Store&                              t_store,
+        const SurfaceCreator&               t_create_surface = create_surface,
         const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter =
             nullptr
     ) const noexcept -> void;

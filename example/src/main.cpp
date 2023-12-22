@@ -24,9 +24,7 @@ auto main() -> int
         .add_plugin<plugins::Window>(
             sf::VideoMode{ 1'080, 720 }, "My window", window::Style::eDefault
         )
-        .add_plugin<plugins::Renderer>(
-            plugins::Renderer::default_surface_creator
-        )
+        .add_plugin<plugins::Renderer>(plugins::Renderer::create_surface)
         .add_plugin<plugins::SceneGraph>()
         .build_and_run(demo::run, g_model_file_path);
 }
