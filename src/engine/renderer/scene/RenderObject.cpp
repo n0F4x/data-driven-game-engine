@@ -1,5 +1,7 @@
 #include "RenderObject.hpp"
 
+#include <spdlog/spdlog.h>
+
 namespace engine::renderer {
 
 [[nodiscard]] auto create_descriptor_set(
@@ -7,22 +9,19 @@ namespace engine::renderer {
     vk::DescriptorSetLayout  t_descriptor_set_layout,
     vk::DescriptorPool       t_descriptor_pool,
     vk::DescriptorBufferInfo t_descriptor_buffer_info
-) noexcept -> vk::DescriptorSet
+) -> vk::UniqueDescriptorSet
 {
     vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
         .descriptorPool     = t_descriptor_pool,
         .descriptorSetCount = 1,
         .pSetLayouts        = &t_descriptor_set_layout,
     };
-    auto [result, descriptor_sets]{
-        t_device.allocateDescriptorSets(descriptor_set_allocate_info)
+    auto descriptor_sets{
+        t_device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
     };
-    if (result != vk::Result::eSuccess) {
-        return nullptr;
-    }
 
     vk::WriteDescriptorSet write_descriptor_set{
-        .dstSet          = descriptor_sets.front(),
+        .dstSet          = descriptor_sets.front().get(),
         .dstBinding      = 0,
         .descriptorCount = 1u,
         .descriptorType  = vk::DescriptorType::eUniformBuffer,
@@ -31,7 +30,7 @@ namespace engine::renderer {
 
     t_device.updateDescriptorSets(1, &write_descriptor_set, 0, nullptr);
 
-    return descriptor_sets.front();
+    return std::move(descriptor_sets.front());
 }
 
 auto RenderObject::Mesh::create(
@@ -41,7 +40,7 @@ auto RenderObject::Mesh::create(
     std::vector<Primitive>  t_primitives,
     const UniformBlock&     t_uniform_block
 ) noexcept -> tl::optional<Mesh>
-{
+try {
     const vk::BufferCreateInfo buffer_create_info = {
         .size  = sizeof(t_uniform_block),
         .usage = vk::BufferUsageFlagBits::eUniformBuffer
@@ -58,30 +57,31 @@ auto RenderObject::Mesh::create(
             buffer_create_info, allocation_create_info, &t_uniform_block
         )
         .and_then(
-            [&](std::tuple<vulkan::vma::Buffer, VmaAllocationInfo>&& result
+            [&](std::pair<vulkan::vma::Buffer, VmaAllocationInfo>&& result
             ) -> tl::optional<Mesh> {
-                auto [_uniform_buffer, allocation_info]{ std::move(result) };
-                auto buffer{ *_uniform_buffer };
-                auto raw_descriptor_set{ create_descriptor_set(
-                    *t_device,
-                    t_descriptor_set_layout,
-                    t_descriptor_pool,
-                    vk::DescriptorBufferInfo{ .buffer = buffer,
-                                              .offset = 0,
-                                              .range  = sizeof(uniform_block) }
-                ) };
-                if (!raw_descriptor_set) {
-                    return tl::nullopt;
-                }
+                vk::DescriptorBufferInfo descriptor_buffer_info{
+                    .buffer = *result.first,
+                    .offset = 0,
+                    .range  = sizeof(uniform_block)
+                };
+
                 return Mesh{
                     .primitives     = std::move(t_primitives),
-                    .uniform_buffer = std::move(_uniform_buffer),
-                    .descriptor_set = raw_descriptor_set,
-                    .mapped         = allocation_info.pMappedData,
-                    .uniform_block  = t_uniform_block,
+                    .uniform_buffer = std::move(result.first),
+                    .descriptor_set = create_descriptor_set(
+                        *t_device,
+                        t_descriptor_set_layout,
+                        t_descriptor_pool,
+                        descriptor_buffer_info
+                    ),
+                    .mapped        = result.second.pMappedData,
+                    .uniform_block = t_uniform_block,
                 };
             }
         );
+} catch (const vk::Error& t_error) {
+    SPDLOG_ERROR(t_error.what());
+    return tl::nullopt;
 }
 
 [[nodiscard]] static auto create_node(
@@ -176,7 +176,7 @@ static auto draw_node(
                 vk::PipelineBindPoint::eGraphics,
                 t_pipeline_layout,
                 0,
-                t_node.mesh->descriptor_set,
+                t_node.mesh->descriptor_set.get(),
                 nullptr
             );
 

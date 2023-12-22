@@ -6,39 +6,49 @@
 
 namespace {
 
+[[nodiscard]] auto get_min_image_count(
+    vk::SurfaceCapabilitiesKHR t_surface_capabilities
+) noexcept -> uint32_t
+{
+    uint32_t image_count = t_surface_capabilities.minImageCount + 1;
+    if (t_surface_capabilities.maxImageCount > 0
+        && image_count > t_surface_capabilities.maxImageCount)
+    {
+        image_count = t_surface_capabilities.maxImageCount;
+    }
+    return image_count;
+}
+
 auto choose_swapchain_surface_format(
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device
-) noexcept -> tl::optional<vk::SurfaceFormatKHR>
+) -> vk::SurfaceFormatKHR
 {
-    const auto [result, t_available_surface_formats]{
+    const auto t_available_surface_formats{
         t_physical_device.getSurfaceFormatsKHR(t_surface)
     };
-    if (result != vk::Result::eSuccess) {
-        return tl::nullopt;
-    }
 
-    for (const auto& surface_format : t_available_surface_formats) {
+    for (const auto& surface_format :
+         t_physical_device.getSurfaceFormatsKHR(t_surface))
+    {
         if (surface_format.format == vk::Format::eB8G8R8A8Srgb
             && surface_format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
         {
             return surface_format;
         }
     }
+
     return t_available_surface_formats.front();
 }
 
 auto choose_swapchain_present_mode(
     vk::SurfaceKHR     t_surface,
     vk::PhysicalDevice t_physical_device
-) noexcept -> tl::optional<vk::PresentModeKHR>
+) -> vk::PresentModeKHR
 {
-    const auto [result, present_modes]{
+    const auto present_modes{
         t_physical_device.getSurfacePresentModesKHR(t_surface)
     };
-    if (result != vk::Result::eSuccess) {
-        return tl::nullopt;
-    }
     return std::ranges::find(present_modes, vk::PresentModeKHR::eMailbox)
                 != std::cend(present_modes)
              ? vk::PresentModeKHR::eMailbox
@@ -53,24 +63,10 @@ auto create_swapchain(
     vk::Device                 t_device,
     vk::SurfaceCapabilitiesKHR t_surface_capabilities,
     vk::Extent2D               t_extent,
-    vk::SurfaceFormatKHR       t_surfaceFormat,
+    vk::SurfaceFormatKHR       t_surface_format,
     vk::SwapchainKHR           t_old_swapchain
-) noexcept -> vk::UniqueSwapchainKHR
+) -> vk::UniqueSwapchainKHR
 {
-    const auto present_mode{
-        choose_swapchain_present_mode(t_surface, t_physical_device)
-    };
-    if (!present_mode.has_value()) {
-        return vk::UniqueSwapchainKHR{};
-    }
-
-    uint32_t image_count = t_surface_capabilities.minImageCount + 1;
-    if (t_surface_capabilities.maxImageCount > 0
-        && image_count > t_surface_capabilities.maxImageCount)
-    {
-        image_count = t_surface_capabilities.maxImageCount;
-    }
-
     const std::set buffer{ t_graphics_queue_family, t_present_queue_family };
     const std::vector<uint32_t> queueFamilyIndices = { buffer.cbegin(),
                                                        buffer.cend() };
@@ -80,9 +76,9 @@ auto create_swapchain(
 
     const vk::SwapchainCreateInfoKHR create_info{
         .surface          = t_surface,
-        .minImageCount    = image_count,
-        .imageFormat      = t_surfaceFormat.format,
-        .imageColorSpace  = t_surfaceFormat.colorSpace,
+        .minImageCount    = get_min_image_count(t_surface_capabilities),
+        .imageFormat      = t_surface_format.format,
+        .imageColorSpace  = t_surface_format.colorSpace,
         .imageExtent      = t_extent,
         .imageArrayLayers = 1,
         .imageUsage       = vk::ImageUsageFlagBits::eColorAttachment,
@@ -92,31 +88,24 @@ auto create_swapchain(
         .pQueueFamilyIndices = queueFamilyIndices.data(),
         .preTransform        = t_surface_capabilities.currentTransform,
         .compositeAlpha      = vk::CompositeAlphaFlagBitsKHR::eOpaque,
-        .presentMode         = *present_mode,
-        .clipped             = true,
-        .oldSwapchain        = t_old_swapchain
+        .presentMode =
+            choose_swapchain_present_mode(t_surface, t_physical_device),
+        .clipped      = true,
+        .oldSwapchain = t_old_swapchain
     };
 
-    auto swapchain{ t_device.createSwapchainKHRUnique(create_info) };
-    if (swapchain.result != vk::Result::eSuccess) {
-        return vk::UniqueSwapchainKHR{};
-    }
-
-    return std::move(swapchain.value);
+    return t_device.createSwapchainKHRUnique(create_info);
 }
 
 auto create_image_views(
     vk::Device           t_device,
     vk::SwapchainKHR     t_swapchain,
     vk::SurfaceFormatKHR t_surface_format
-) noexcept -> tl::optional<std::vector<vk::UniqueImageView>>
+) -> std::vector<vk::UniqueImageView>
 {
     const auto images = t_device.getSwapchainImagesKHR(t_swapchain);
-    if (images.result != vk::Result::eSuccess) {
-        return tl::nullopt;
-    }
     std::vector<vk::UniqueImageView> image_views;
-    image_views.reserve(images.value.size());
+    image_views.reserve(images.size());
 
     vk::ImageViewCreateInfo image_view_create_info{
         .viewType         = vk::ImageViewType::e2D,
@@ -127,14 +116,11 @@ auto create_image_views(
                              .baseArrayLayer = 0,
                              .layerCount     = 1 }
     };
-    for (auto image : images.value) {
+    for (auto image : images) {
         image_view_create_info.image = image;
-        auto image_view{ t_device.createImageViewUnique(image_view_create_info
-        ) };
-        if (image_view.result != vk::Result::eSuccess) {
-            return tl::nullopt;
-        }
-        image_views.emplace_back(std::move(image_view.value));
+        image_views.emplace_back(
+            t_device.createImageViewUnique(image_view_create_info)
+        );
     }
 
     return image_views;
@@ -190,13 +176,10 @@ auto Swapchain::create(
     vk::Extent2D       t_framebuffer_size,
     vk::SwapchainKHR   t_old_swapchain
 ) noexcept -> tl::optional<Swapchain>
-{
-    const auto [result, surface_capabilities]{
+try {
+    const auto surface_capabilities{
         t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
     };
-    if (result != vk::Result::eSuccess) {
-        return tl::nullopt;
-    }
 
     const auto extent = choose_extent(t_framebuffer_size, surface_capabilities);
     if (extent.width == 0 || extent.height == 0) {
@@ -206,9 +189,6 @@ auto Swapchain::create(
     const auto surface_format{
         choose_swapchain_surface_format(t_surface, t_physical_device)
     };
-    if (!surface_format.has_value()) {
-        return tl::nullopt;
-    }
 
     auto swapchain{ create_swapchain(
         t_surface,
@@ -218,25 +198,20 @@ auto Swapchain::create(
         t_device,
         surface_capabilities,
         extent,
-        *surface_format,
+        surface_format,
         t_old_swapchain
     ) };
-    if (!swapchain) {
-        return tl::nullopt;
-    }
 
-    auto image_views{
-        create_image_views(t_device, swapchain.get(), *surface_format)
+    return Swapchain{
+        t_device,
+        extent,
+        surface_format,
+        std::move(swapchain),
+        create_image_views(t_device, swapchain.get(), surface_format)
     };
-    if (!image_views.has_value()) {
-        return tl::nullopt;
-    }
-
-    return Swapchain{ t_device,
-                      extent,
-                      *surface_format,
-                      std::move(swapchain),
-                      std::move(*image_views) };
+} catch (const vk::Error& t_error) {
+    SPDLOG_ERROR(t_error.what());
+    return tl::nullopt;
 }
 
 auto Swapchain::operator*() const noexcept -> vk::SwapchainKHR

@@ -18,7 +18,7 @@ namespace {
     const std::vector<vk::Format>& t_candidates,
     vk::ImageTiling                t_tiling,
     vk::FormatFeatureFlags         t_features
-) -> tl::optional<vk::Format>
+) -> vk::Format
 {
     for (auto format : t_candidates) {
         vk::FormatProperties format_properties;
@@ -34,11 +34,11 @@ namespace {
             return format;
         }
     }
-    return tl::nullopt;
+    throw std::runtime_error{ "Failed to find supported format!" };
 }
 
 [[nodiscard]] auto find_depth_format(vk::PhysicalDevice t_physical_device
-) noexcept -> tl::optional<vk::Format>
+) noexcept -> vk::Format
 {
     using enum vk::Format;
     return find_supported_format(
@@ -56,7 +56,7 @@ namespace init {
 [[nodiscard]] auto create_render_pass(
     const vk::SurfaceFormatKHR& t_surface_format,
     const renderer::Device&     t_device
-) noexcept -> vk::UniqueRenderPass
+) -> vk::UniqueRenderPass
 {
     vk::AttachmentDescription color_attachment_description{
         .format         = t_surface_format.format,
@@ -70,12 +70,8 @@ namespace init {
         .layout     = vk::ImageLayout::eColorAttachmentOptimal,
     };
 
-    auto depth_format{ find_depth_format(t_device.physical_device()) };
-    if (!depth_format) {
-        return vk::UniqueRenderPass{};
-    }
     vk::AttachmentDescription depth_attachment_description{
-        .format         = *depth_format,
+        .format         = find_depth_format(t_device.physical_device()),
         .samples        = vk::SampleCountFlagBits::e1,
         .loadOp         = vk::AttachmentLoadOp::eClear,
         .storeOp        = vk::AttachmentStoreOp::eDontCare,
@@ -121,7 +117,7 @@ namespace init {
         .pDependencies   = &subpass_dependency,
     };
 
-    return t_device->createRenderPassUnique(render_pass_create_info).value;
+    return t_device->createRenderPassUnique(render_pass_create_info);
 }
 
 auto create_depth_image(
@@ -129,15 +125,9 @@ auto create_depth_image(
     vk::Extent2D            t_swapchain_extent
 ) noexcept -> vulkan::vma::Image
 {
-    auto opt_depth_format = find_depth_format(t_device.physical_device());
-    if (!opt_depth_format) {
-        return vulkan::vma::Image{ nullptr, nullptr, nullptr };
-    }
-    vk::Format depth_format{ *opt_depth_format };
-
     vk::ImageCreateInfo image_create_info = {
         .imageType = vk::ImageType::e2D,
-        .format    = depth_format,
+        .format    = find_depth_format(t_device.physical_device()),
         .extent =
             vk::Extent3D{
                          .width  = t_swapchain_extent.width,
@@ -174,12 +164,12 @@ auto create_depth_image(
 auto create_depth_image_view(
     const renderer::Device& t_device,
     vk::Image               t_depth_image
-) noexcept -> vk::UniqueImageView
+) -> vk::UniqueImageView
 {
     vk::ImageViewCreateInfo image_view_create_info{
         .image    = t_depth_image,
         .viewType = vk::ImageViewType::e2D,
-        .format   = find_depth_format(t_device.physical_device()).value(),
+        .format   = find_depth_format(t_device.physical_device()),
         .subresourceRange =
             vk::ImageSubresourceRange{
                                       .aspectMask     = vk::ImageAspectFlagBits::eDepth,
@@ -190,7 +180,7 @@ auto create_depth_image_view(
                                       },
     };
 
-    return t_device->createImageViewUnique(image_view_create_info).value;
+    return t_device->createImageViewUnique(image_view_create_info);
 }
 
 auto create_framebuffers(
@@ -199,7 +189,7 @@ auto create_framebuffers(
     const std::vector<vk::UniqueImageView>& t_swapchain_image_views,
     vk::RenderPass                          t_render_pass,
     vk::ImageView                           t_depth_image_view
-) noexcept -> std::vector<vk::UniqueFramebuffer>
+) -> std::vector<vk::UniqueFramebuffer>
 {
     std::vector<vk::UniqueFramebuffer> framebuffers;
     framebuffers.reserve(t_swapchain_image_views.size());
@@ -216,18 +206,15 @@ auto create_framebuffers(
             .layers          = 1
         };
 
-        if (!*framebuffers.emplace_back(
-                t_device.createFramebufferUnique(framebuffer_create_info).value
-            ))
-        {
-            return {};
-        }
+        framebuffers.emplace_back(
+            t_device.createFramebufferUnique(framebuffer_create_info)
+        );
     }
 
     return framebuffers;
 }
 
-[[nodiscard]] auto create_descriptor_set_layout(vk::Device t_device) noexcept
+[[nodiscard]] auto create_descriptor_set_layout(vk::Device t_device)
     -> vk::UniqueDescriptorSetLayout
 {
     vk::DescriptorSetLayoutBinding descriptor_set_layout_binding{
@@ -240,9 +227,9 @@ auto create_framebuffers(
         .bindingCount = 1, .pBindings = &descriptor_set_layout_binding
     };
 
-    return t_device
-        .createDescriptorSetLayoutUnique(descriptor_set_layout_create_info)
-        .value;
+    return t_device.createDescriptorSetLayoutUnique(
+        descriptor_set_layout_create_info
+    );
 }
 
 [[nodiscard]] auto create_pipeline_layout(
@@ -262,8 +249,7 @@ auto create_framebuffers(
         .pPushConstantRanges    = &push_constant_range,
     };
 
-    return t_device.createPipelineLayoutUnique(pipeline_layout_create_info)
-        .value;
+    return t_device.createPipelineLayoutUnique(pipeline_layout_create_info);
 }
 
 [[nodiscard]] auto create_pipeline(
@@ -280,7 +266,7 @@ auto create_framebuffers(
     };
     if (!vertex_shader_module || !fragment_shader_module) {
         std::cout << "Failed loading shaders\n";
-        return vk::UniquePipeline{};
+        throw std::runtime_error{ "Failed loading shaders!" };
     }
 
     std::array pipeline_shader_stage_create_infos{
@@ -399,33 +385,31 @@ vk::ShaderStageFlagBits::eVertex,
         .value;
 }
 
-auto create_command_pool(
-    vk::Device t_device,
-    uint32_t   t_queue_family_index
-) noexcept -> vk::UniqueCommandPool
+auto create_command_pool(vk::Device t_device, uint32_t t_queue_family_index)
+    -> vk::UniqueCommandPool
 {
     vk::CommandPoolCreateInfo command_pool_create_info{
         .flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
         .queueFamilyIndex = t_queue_family_index
     };
-    return t_device.createCommandPoolUnique(command_pool_create_info).value;
+    return t_device.createCommandPoolUnique(command_pool_create_info);
 }
 
 [[nodiscard]] auto create_command_buffers(
     vk::Device      t_device,
     vk::CommandPool t_command_pool,
     uint32_t        t_count
-) noexcept -> std::vector<vk::CommandBuffer>
+) -> std::vector<vk::CommandBuffer>
 {
     vk::CommandBufferAllocateInfo command_buffer_allocate_info{
         .commandPool        = t_command_pool,
         .level              = vk::CommandBufferLevel::ePrimary,
         .commandBufferCount = t_count
     };
-    return t_device.allocateCommandBuffers(command_buffer_allocate_info).value;
+    return t_device.allocateCommandBuffers(command_buffer_allocate_info);
 }
 
-auto create_descriptor_pool(vk::Device t_device, uint32_t t_count) noexcept
+auto create_descriptor_pool(vk::Device t_device, uint32_t t_count)
     -> vk::UniqueDescriptorPool
 {
     vk::DescriptorPoolSize descriptor_pool_size{
@@ -437,11 +421,10 @@ auto create_descriptor_pool(vk::Device t_device, uint32_t t_count) noexcept
         .poolSizeCount = 1,
         .pPoolSizes    = &descriptor_pool_size
     };
-    return t_device.createDescriptorPoolUnique(descriptor_pool_create_info)
-        .value;
+    return t_device.createDescriptorPoolUnique(descriptor_pool_create_info);
 }
 
-auto create_semaphores(vk::Device t_device, uint32_t t_count) noexcept
+auto create_semaphores(vk::Device t_device, uint32_t t_count)
     -> std::vector<vk::UniqueSemaphore>
 {
     vk::SemaphoreCreateInfo          createInfo{};
@@ -449,18 +432,13 @@ auto create_semaphores(vk::Device t_device, uint32_t t_count) noexcept
     semaphores.reserve(t_count);
 
     for (uint32_t i = 0; i < t_count; i++) {
-        if (!*semaphores.emplace_back(
-                t_device.createSemaphoreUnique(createInfo).value
-            ))
-        {
-            return {};
-        }
+        semaphores.emplace_back(t_device.createSemaphoreUnique(createInfo));
     }
 
     return semaphores;
 }
 
-auto create_fences(vk::Device t_device, uint32_t t_count) noexcept
+auto create_fences(vk::Device t_device, uint32_t t_count)
     -> std::vector<vk::UniqueFence>
 {
     vk::FenceCreateInfo fence_create_info{
@@ -470,12 +448,7 @@ auto create_fences(vk::Device t_device, uint32_t t_count) noexcept
     fences.reserve(t_count);
 
     for (uint32_t i = 0; i < t_count; i++) {
-        if (!*fences.emplace_back(
-                t_device.createFenceUnique(fence_create_info).value
-            ))
-        {
-            return {};
-        }
+        fences.emplace_back(t_device.createFenceUnique(fence_create_info));
     }
 
     return fences;

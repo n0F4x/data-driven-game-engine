@@ -49,7 +49,7 @@ struct DemoApp {
     static auto flush_model(
         const renderer::Device& t_device,
         renderer::RenderScene&  t_render_scene
-    ) noexcept -> void
+    ) -> void
     {
         auto transfer_command_pool{ init::create_command_pool(
             *t_device, t_device.transfer_queue_family_index()
@@ -61,7 +61,7 @@ struct DemoApp {
         };
         auto command_buffer{
             t_device->allocateCommandBuffers(command_buffer_allocate_info)
-                .value.front()
+                .front()
         };
 
         vk::CommandBufferBeginInfo begin_info{};
@@ -73,7 +73,7 @@ struct DemoApp {
             .commandBufferCount = 1,
             .pCommandBuffers    = &command_buffer,
         };
-        vk::UniqueFence fence{ t_device->createFenceUnique({}).value };
+        vk::UniqueFence fence{ t_device->createFenceUnique({}) };
 
         static_cast<void>(
             t_device.transfer_queue().submit(1, &submit_info, *fence)
@@ -89,7 +89,7 @@ struct DemoApp {
     [[nodiscard]] static auto create(
         Store&             t_store,
         const std::string& t_model_filepath
-    ) noexcept -> tl::optional<DemoApp>
+    ) -> tl::optional<DemoApp>
     {
         auto opt_device{ t_store.find<renderer::Device>() };
         if (!opt_device) {

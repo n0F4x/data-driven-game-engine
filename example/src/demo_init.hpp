@@ -15,7 +15,7 @@ namespace init {
 [[nodiscard]] auto create_render_pass(
     const vk::SurfaceFormatKHR&     t_surface_format,
     const engine::renderer::Device& t_device
-) noexcept -> vk::UniqueRenderPass;
+) -> vk::UniqueRenderPass;
 
 [[nodiscard]] auto create_depth_image(
     const engine::renderer::Device& t_device,
@@ -25,7 +25,7 @@ namespace init {
 [[nodiscard]] auto create_depth_image_view(
     const engine::renderer::Device& t_device,
     vk::Image                       t_depth_image
-) noexcept -> vk::UniqueImageView;
+) -> vk::UniqueImageView;
 
 [[nodiscard]] auto create_framebuffers(
     vk::Device                              t_device,
@@ -33,9 +33,9 @@ namespace init {
     const std::vector<vk::UniqueImageView>& t_swapchain_image_views,
     vk::RenderPass                          t_render_pass,
     vk::ImageView                           t_depth_image_view
-) noexcept -> std::vector<vk::UniqueFramebuffer>;
+) -> std::vector<vk::UniqueFramebuffer>;
 
-[[nodiscard]] auto create_descriptor_set_layout(vk::Device t_device) noexcept
+[[nodiscard]] auto create_descriptor_set_layout(vk::Device t_device)
     -> vk::UniqueDescriptorSetLayout;
 
 [[nodiscard]] auto create_pipeline_layout(
@@ -53,25 +53,21 @@ namespace init {
 [[nodiscard]] auto create_command_pool(
     vk::Device t_device,
     uint32_t   t_queue_family_index
-) noexcept -> vk::UniqueCommandPool;
+) -> vk::UniqueCommandPool;
 
 [[nodiscard]] auto create_command_buffers(
     vk::Device      t_device,
     vk::CommandPool t_command_pool,
     uint32_t        t_count
-) noexcept -> std::vector<vk::CommandBuffer>;
+) -> std::vector<vk::CommandBuffer>;
 
-[[nodiscard]] auto create_descriptor_pool(
-    vk::Device t_device,
-    uint32_t   t_count
-) noexcept -> vk::UniqueDescriptorPool;
+[[nodiscard]] auto create_descriptor_pool(vk::Device t_device, uint32_t t_count)
+    -> vk::UniqueDescriptorPool;
 
-[[nodiscard]] auto create_semaphores(
-    vk::Device t_device,
-    uint32_t   t_count
-) noexcept -> std::vector<vk::UniqueSemaphore>;
+[[nodiscard]] auto create_semaphores(vk::Device t_device, uint32_t t_count)
+    -> std::vector<vk::UniqueSemaphore>;
 
-[[nodiscard]] auto create_fences(vk::Device t_device, uint32_t t_count) noexcept
+[[nodiscard]] auto create_fences(vk::Device t_device, uint32_t t_count)
     -> std::vector<vk::UniqueFence>;
 
 [[nodiscard]] auto create_model(const std::string& t_path) noexcept

@@ -38,31 +38,26 @@ auto Swapchain::get() const noexcept -> const tl::optional<vulkan::Swapchain>&
 
 auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
     -> void
-{
+try {
     if (!m_swapchain.has_value()) {
         recreate_swapchain(t_framebuffer_size);
         return;
     }
 
-    auto surface_capabilities{
-        m_device.physical_device().getSurfaceCapabilitiesKHR(*m_surface)
-    };
-    if (surface_capabilities.result != vk::Result::eSuccess) {
-        return;
-    }
     auto extent = vulkan::Swapchain::choose_extent(
-        t_framebuffer_size, surface_capabilities.value
+        t_framebuffer_size,
+        m_device.physical_device().getSurfaceCapabilitiesKHR(*m_surface)
     );
 
     if (m_swapchain->extent() != extent) {
         recreate_swapchain(t_framebuffer_size);
     }
+} catch (const vk::Error& t_error) {
+    SPDLOG_ERROR(t_error.what());
 }
 
-auto Swapchain::acquire_next_image(
-    vk::Semaphore t_semaphore,
-    vk::Fence     t_fence
-) noexcept -> tl::optional<uint32_t>
+auto Swapchain::acquire_next_image(vk::Semaphore t_semaphore, vk::Fence t_fence)
+    -> tl::optional<uint32_t>
 {
     if (!m_swapchain.has_value()) {
         return tl::nullopt;
@@ -97,8 +92,7 @@ auto Swapchain::acquire_next_image(
     }
 }
 
-auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) noexcept
-    -> void
+auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) -> void
 {
     const std::array<vk::SwapchainKHR, 1> swapchains{ **m_swapchain };
     const vk::PresentInfoKHR              info{
@@ -138,9 +132,7 @@ auto Swapchain::remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void
 auto Swapchain::recreate_swapchain(vk::Extent2D t_framebuffer_size) noexcept
     -> void
 {
-    if (m_device->waitIdle() != vk::Result::eSuccess) {
-        return;
-    }
+    m_device->waitIdle();
 
     auto new_swapchain{ vulkan::Swapchain::create(
         *m_surface,

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <expected>
 #include <functional>
 
 #include <vulkan/vulkan.hpp>
@@ -34,7 +33,7 @@ public:
         vk::Device             t_device,
         vk::CommandBufferLevel t_level     = vk::CommandBufferLevel::ePrimary,
         unsigned               t_thread_id = 0
-    ) noexcept -> std::expected<vk::CommandBuffer, vk::Result>;
+    ) -> vk::CommandBuffer;
 
 private:
     ///******************///
@@ -57,6 +56,15 @@ private:
     ///*************///
     std::vector<FrameData> m_frame_data;
     size_t                 m_frame_index;
+
+    ///****************///
+    /// Static methods ///
+    ///****************///
+    [[nodiscard]] static auto create_frame_data(
+        Device&  t_device,
+        unsigned t_thread_count,
+        unsigned t_frame_count
+    ) -> std::vector<FrameData>;
 
     ///******************************///
     ///  Constructors / Destructors  ///

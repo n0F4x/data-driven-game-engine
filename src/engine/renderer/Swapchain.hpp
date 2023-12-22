@@ -58,10 +58,9 @@ public:
     [[nodiscard]] auto acquire_next_image(
         vk::Semaphore t_semaphore = nullptr,
         vk::Fence     t_fence     = nullptr
-    ) noexcept -> tl::optional<uint32_t>;
+    ) -> tl::optional<uint32_t>;
 
-    auto present(std::span<vk::Semaphore> t_wait_semaphores = {}) noexcept
-        -> void;
+    auto present(std::span<vk::Semaphore> t_wait_semaphores = {}) -> void;
 
     auto on_swapchain_recreated(
         SwapchainRecreatedEvent&& t_swapchain_recreated_event

@@ -34,11 +34,12 @@ auto Device::create(
         return tl::nullopt;
     }
 
-    auto enabled_extension_names{ t_create_info.extensions
+    auto             enabled_extension_names{ t_create_info.extensions
                                   | std::views::transform(&std::string::c_str)
                                   | std::ranges::to<std::vector>() };
-    auto [result, device]{
-        t_physical_device.createDeviceUnique(vk::DeviceCreateInfo{
+    vk::UniqueDevice device;
+    try {
+        device = t_physical_device.createDeviceUnique(vk::DeviceCreateInfo{
             .pNext = t_create_info.next,
             .queueCreateInfoCount =
                 static_cast<uint32_t>(queue_infos->queue_create_infos.size()),
@@ -46,13 +47,9 @@ auto Device::create(
             .enabledExtensionCount =
                 static_cast<uint32_t>(enabled_extension_names.size()),
             .ppEnabledExtensionNames = enabled_extension_names.data(),
-            .pEnabledFeatures        = &t_create_info.features })
-    };
-    if (result != vk::Result::eSuccess) {
-        SPDLOG_ERROR(
-            "vk::PhysicalDevice::createDevice failed with error code {}",
-            std::to_underlying(result)
-        );
+            .pEnabledFeatures        = &t_create_info.features });
+    } catch (const vk::Error& t_error) {
+        SPDLOG_ERROR(t_error.what());
         return tl::nullopt;
     }
 
@@ -71,7 +68,9 @@ auto Device::create(
         .instance         = *t_instance,
     };
     VmaAllocator allocator;
-    vmaCreateAllocator(&allocator_info, &allocator);
+    if (vmaCreateAllocator(&allocator_info, &allocator) != VK_SUCCESS) {
+        return tl::nullopt;
+    }
 
     return Device{ t_physical_device,
                    t_create_info,
@@ -209,7 +208,7 @@ auto Device::create_buffer(
     const VmaAllocationCreateInfo& t_allocation_create_info,
     const void*                    t_data
 ) const noexcept
-    -> tl::optional<std::tuple<vulkan::vma::Buffer, VmaAllocationInfo>>
+    -> tl::optional<std::pair<vulkan::vma::Buffer, VmaAllocationInfo>>
 {
     vk::Buffer        buffer;
     VmaAllocation     allocation;
@@ -280,7 +279,7 @@ auto Device::create_buffer(
         }
     }
 
-    return std::make_tuple(
+    return std::make_pair(
         vulkan::vma::Buffer{ *m_allocator, buffer, allocation }, allocation_info
     );
 }

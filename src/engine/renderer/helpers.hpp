@@ -18,7 +18,7 @@ namespace engine::renderer::helpers {
 [[nodiscard]] auto instance_extensions() noexcept
     -> std::span<const std::string>;
 
-[[nodiscard]] auto create_debug_messenger(vk::Instance t_instance) noexcept
+[[nodiscard]] auto create_debug_messenger(vk::Instance t_instance)
     -> vk::UniqueDebugUtilsMessengerEXT;
 
 struct QueueInfos {
@@ -47,7 +47,7 @@ struct QueueInfos {
 [[nodiscard]] auto choose_physical_device(
     vk::Instance   t_instance,
     vk::SurfaceKHR t_surface
-) noexcept -> vk::PhysicalDevice;
+) -> vk::PhysicalDevice;
 
 [[nodiscard]] auto vma_allocator_create_flags(
     std::span<const std::string> enabled_instance_extensions,

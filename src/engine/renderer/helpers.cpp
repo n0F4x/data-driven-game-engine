@@ -78,28 +78,18 @@ const std::vector<std::string> g_optional_device_extensions{
 auto find_graphics_queue_family(
     vk::PhysicalDevice t_physical_device,
     vk::SurfaceKHR     t_surface
-) noexcept -> tl::optional<uint32_t>
+) -> tl::optional<uint32_t>
 {
     uint32_t index{};
     for (const auto& properties : t_physical_device.getQueueFamilyProperties())
     {
-        if (const auto [result, success]{
-                t_physical_device.getSurfaceSupportKHR(index, t_surface) };
-            result == vk::Result::eSuccess && success
+        if (t_physical_device.getSurfaceSupportKHR(index, t_surface)
             && properties.queueFlags & vk::QueueFlagBits::eGraphics)
         {
             return index;
         }
-        else if (result != vk::Result::eSuccess) {
-            SPDLOG_ERROR(
-                "vk::PhysicalDevice::getQueueFamilyProperties failed with "
-                "error code {}",
-                std::to_underlying(result)
-            );
-        }
         index++;
     }
-
     return tl::nullopt;
 }
 
@@ -195,13 +185,7 @@ auto application_info() noexcept -> const vk::ApplicationInfo&
 auto layers() noexcept -> std::span<const std::string>
 {
     static const std::vector<std::string> layers{
-        vulkan::available_layers()
-            .transform([&](auto&& available_layers) {
-                return filter(
-                    available_layers, g_required_layers, g_optional_layers
-                );
-            })
-            .value_or(g_required_layers)
+        filter(vulkan::available_layers(), g_required_layers, g_optional_layers)
     };
 
     return layers;
@@ -209,17 +193,11 @@ auto layers() noexcept -> std::span<const std::string>
 
 auto instance_extensions() noexcept -> std::span<const std::string>
 {
-    static const std::vector<std::string> instance_extensions{
-        vulkan::available_instance_extensions()
-            .transform([&](auto&& available_instance_extensions) {
-                return filter(
-                    available_instance_extensions,
-                    g_required_instance_extensions,
-                    g_optional_instance_extensions
-                );
-            })
-            .value_or(g_required_instance_extensions)
-    };
+    static const std::vector<std::string> instance_extensions{ filter(
+        vulkan::available_instance_extensions(),
+        g_required_instance_extensions,
+        g_optional_instance_extensions
+    ) };
 
     return instance_extensions;
 }
@@ -311,44 +289,31 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
 
 namespace engine::renderer::helpers {
 
-auto create_debug_messenger(vk::Instance t_instance) noexcept
+auto create_debug_messenger(vk::Instance t_instance)
     -> vk::UniqueDebugUtilsMessengerEXT
 {
-    auto extension_supported{
-        vulkan::available_instance_extensions()
-            .transform([](auto extensions) {
-                return std::ranges::find(
-                           extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-                       )
-                    != std::cend(extensions);
-            })
-            .value_or(false)
-    };
+    auto available_extensions{ vulkan::available_instance_extensions() };
+    auto extension_supported{ std::ranges::find(
+                                  available_extensions,
+                                  VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+                              )
+                              != std::cend(available_extensions) };
     if (!extension_supported) {
-        SPDLOG_ERROR(
-            "{} Vulkan extension is not supported",
-            VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-        );
-        return vk::UniqueDebugUtilsMessengerEXT{};
+        throw vk::ExtensionNotPresentError{
+            std::string{ VK_EXT_DEBUG_UTILS_EXTENSION_NAME }
+            + "Vulkan extension is not supported"
+        };
     }
 
     g_create_debug_utils_messenger_ext =
         reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
             t_instance.getProcAddr("vkCreateDebugUtilsMessengerEXT")
         );
-    if (g_create_debug_utils_messenger_ext == nullptr) {
-        SPDLOG_ERROR("vkCreateDebugUtilsMessengerEXT not found");
-        return vk::UniqueDebugUtilsMessengerEXT{};
-    }
 
     g_destroy_debug_utils_messenger_ext =
         reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
             t_instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT")
         );
-    if (g_destroy_debug_utils_messenger_ext == nullptr) {
-        SPDLOG_ERROR("vkDestroyDebugUtilsMessengerEXT not found");
-        return vk::UniqueDebugUtilsMessengerEXT{};
-    }
 
     const vk::DebugUtilsMessageSeverityFlagsEXT severity_flags(
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
@@ -359,24 +324,16 @@ auto create_debug_messenger(vk::Instance t_instance) noexcept
         | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
         | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation
     );
-    auto [result, debug_utils_messenger]{
-        t_instance.createDebugUtilsMessengerEXTUnique(
-            vk::DebugUtilsMessengerCreateInfoEXT{
-                .messageSeverity = severity_flags,
-                .messageType     = message_type_flags,
-                .pfnUserCallback = &debugMessageFunc }
-        )
-    };
-    if (result != vk::Result::eSuccess) {
-        SPDLOG_ERROR(
-            "vk::Instance::createDebugUtilsMessengerEXT failed with error code "
-            "{}",
-            std::to_underlying(result)
-        );
-        return vk::UniqueDebugUtilsMessengerEXT{};
-    }
 
-    return std::move(debug_utils_messenger);
+    vk::DebugUtilsMessengerCreateInfoEXT debug_utils_messenger_create_info_ext{
+        .messageSeverity = severity_flags,
+        .messageType     = message_type_flags,
+        .pfnUserCallback = &debugMessageFunc
+    };
+
+    return t_instance.createDebugUtilsMessengerEXTUnique(
+        debug_utils_messenger_create_info_ext
+    );
 }
 
 auto find_queue_families(
@@ -473,17 +430,11 @@ auto find_queue_families(
 auto device_extensions(vk::PhysicalDevice t_physical_device) noexcept
     -> std::span<const std::string>
 {
-    static const std::vector<std::string> device_extensions{
-        vulkan::available_device_extensions(t_physical_device)
-            .transform([](auto&& available_device_extensions) {
-                return filter(
-                    available_device_extensions,
-                    g_required_device_extensions,
-                    g_optional_device_extensions
-                );
-            })
-            .value_or(g_required_device_extensions)
-    };
+    static const std::vector<std::string> device_extensions{ filter(
+        vulkan::available_device_extensions(t_physical_device),
+        g_required_device_extensions,
+        g_optional_device_extensions
+    ) };
 
     return device_extensions;
 }
@@ -499,20 +450,10 @@ auto is_adequate(
         );
 }
 
-auto choose_physical_device(
-    vk::Instance   t_instance,
-    vk::SurfaceKHR t_surface
-) noexcept -> vk::PhysicalDevice
+auto choose_physical_device(vk::Instance t_instance, vk::SurfaceKHR t_surface)
+    -> vk::PhysicalDevice
 {
-    const auto [result, physical_devices]{ t_instance.enumeratePhysicalDevices(
-    ) };
-    if (result != vk::Result::eSuccess) {
-        SPDLOG_ERROR(
-            "vk::Instance::enumeratePhysicalDevices failed with error code {}",
-            std::to_underlying(result)
-        );
-        return nullptr;
-    }
+    const auto physical_devices{ t_instance.enumeratePhysicalDevices() };
 
     auto adequate_devices{
         physical_devices

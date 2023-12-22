@@ -1,10 +1,11 @@
 #pragma once
 
-#include <expected>
 #include <functional>
 #include <span>
 #include <string>
 #include <vector>
+
+#include <tl/optional.hpp>
 
 #include <vulkan/vulkan.hpp>
 
@@ -34,10 +35,10 @@ public:
     /// Static methods ///
     ///----------------///
     [[nodiscard]] static auto create(const CreateInfo& t_extension_name
-    ) noexcept -> std::expected<Instance, vk::Result>;
+    ) noexcept -> tl::optional<Instance>;
 
     [[nodiscard]] static auto create_default() noexcept
-        -> std::expected<Instance, vk::Result>;
+        -> tl::optional<Instance>;
 
     ///-------------///
     ///  Operators  ///

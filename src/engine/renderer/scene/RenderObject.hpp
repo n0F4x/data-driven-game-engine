@@ -26,9 +26,9 @@ public:
 
         std::vector<Primitive> primitives;
 
-        vulkan::vma::Buffer uniform_buffer;
-        vk::DescriptorSet   descriptor_set{};
-        void*               mapped{};
+        vulkan::vma::Buffer     uniform_buffer;
+        vk::UniqueDescriptorSet descriptor_set;
+        void*                   mapped{};
 
         UniformBlock uniform_block;
 

@@ -2,7 +2,7 @@
 
 #include <span>
 #include <string_view>
-#include <tuple>
+#include <utility>
 
 #include <tl/optional.hpp>
 
@@ -68,7 +68,7 @@ public:
         const VmaAllocationCreateInfo& t_allocation_create_info,
         const void*                    t_data = nullptr
     ) const noexcept
-        -> tl::optional<std::tuple<vulkan::vma::Buffer, VmaAllocationInfo>>;
+        -> tl::optional<std::pair<vulkan::vma::Buffer, VmaAllocationInfo>>;
 
 private:
     ///*************///

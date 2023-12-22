@@ -98,7 +98,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC sfml-window)
 # Vulkan
 find_package(Vulkan REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-        VULKAN_HPP_NO_EXCEPTIONS
         VULKAN_HPP_NO_TO_STRING
         VULKAN_HPP_NO_CONSTRUCTORS
         VULKAN_HPP_NO_SETTERS
@@ -108,7 +107,6 @@ if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
 endif ()
 target_precompile_headers(${PROJECT_NAME} PRIVATE
-        src/engine/config/vulkan_pre_macros.hpp
         <vulkan/vulkan.hpp>
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)

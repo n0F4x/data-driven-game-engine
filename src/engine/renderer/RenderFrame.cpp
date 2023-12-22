@@ -12,58 +12,18 @@ auto RenderFrame::create(
     unsigned int t_thread_count,
     unsigned     t_frame_count
 ) noexcept -> tl::optional<RenderFrame>
-{
+try {
+    assert(t_thread_count != 0 && "Thread count must be positive");
     assert(t_frame_count != 0 && "Frame count must be positive");
-    if (t_frame_count == 0) {
+    if (t_thread_count == 0 || t_frame_count == 0) {
         return tl::nullopt;
     }
-
-    std::vector<FrameData> frame_data;
-    frame_data.reserve(t_frame_count);
-
-    for ([[maybe_unused]] auto i : std::ranges::iota_view{ 0u, t_frame_count })
-    {
-        std::vector<ThreadData> thread_data;
-        thread_data.reserve(t_thread_count);
-        for ([[maybe_unused]] auto j :
-             std::ranges::iota_view{ 0u, t_thread_count })
-        {
-            auto [result, command_pool]{ t_device->createCommandPoolUnique(
-                vk::CommandPoolCreateInfo{
-                    .flags = vk::CommandPoolCreateFlagBits::eTransient,
-                    .queueFamilyIndex = t_device.graphics_queue_family_index() }
-            ) };
-            if (result != vk::Result::eSuccess) {
-                SPDLOG_ERROR(
-                    "vk::Device::createCommandPool failed with error code {}",
-                    std::to_underlying(result)
-                );
-                return tl::nullopt;
-            }
-
-            thread_data.emplace_back(
-                std::move(command_pool), std::vector<vk::CommandBuffer>{}, 0
-            );
-        }
-
-        auto [result, fence]{ t_device->createFenceUnique(vk::FenceCreateInfo{}
-        ) };
-        if (result != vk::Result::eSuccess) {
-            SPDLOG_ERROR(
-                "vk::Device::createFence failed with error code {}",
-                std::to_underlying(result)
-            );
-            return tl::nullopt;
-        }
-
-        frame_data.emplace_back(
-            std::move(thread_data),
-            std::move(fence),
-            std::vector<std::function<void()>>{}
-        );
-    }
-
-    return RenderFrame{ std::move(frame_data) };
+    return RenderFrame{
+        create_frame_data(t_device, t_thread_count, t_frame_count)
+    };
+} catch (const vk::Error& t_error) {
+    SPDLOG_ERROR(t_error.what());
+    return tl::nullopt;
 }
 
 auto RenderFrame::reset(vk::Device t_device) noexcept -> vk::Result
@@ -97,7 +57,7 @@ auto RenderFrame::request_command_buffer(
     vk::Device             t_device,
     vk::CommandBufferLevel t_level,
     unsigned               t_thread_id
-) noexcept -> std::expected<vk::CommandBuffer, vk::Result>
+) -> vk::CommandBuffer
 {
     assert(t_thread_id < current_frame().thread_data.size());
 
@@ -105,20 +65,16 @@ auto RenderFrame::request_command_buffer(
     if (current_thread.requested_command_buffers
         >= current_thread.command_buffers.size())
     {
-        const auto [result, command_buffer]{
-            t_device.allocateCommandBuffers(vk::CommandBufferAllocateInfo{
-                .commandPool        = *current_thread.command_pool,
-                .level              = t_level,
-                .commandBufferCount = 1 })
+        vk::CommandBufferAllocateInfo command_buffer_allocate_info{
+            .commandPool        = *current_thread.command_pool,
+            .level              = t_level,
+            .commandBufferCount = 1
         };
-        if (result != vk::Result::eSuccess) {
-            SPDLOG_ERROR(
-                "vk::Device::allocateCommandBuffers failed with error code {}",
-                std::to_underlying(result)
-            );
-            return std::unexpected{ result };
-        }
-        current_thread.command_buffers.push_back(command_buffer.front());
+
+        current_thread.command_buffers.push_back(
+            t_device.allocateCommandBuffers(command_buffer_allocate_info)
+                .front()
+        );
     }
 
     return current_thread
@@ -133,6 +89,44 @@ RenderFrame::RenderFrame(std::vector<FrameData>&& t_frame_data)
 auto RenderFrame::current_frame() noexcept -> RenderFrame::FrameData&
 {
     return m_frame_data[m_frame_index];
+}
+
+auto RenderFrame::create_frame_data(
+    Device&  t_device,
+    unsigned t_thread_count,
+    unsigned t_frame_count
+) -> std::vector<FrameData>
+{
+    std::vector<FrameData> frame_data;
+    frame_data.reserve(t_frame_count);
+
+    for ([[maybe_unused]] auto i : std::ranges::iota_view{ 0u, t_frame_count })
+    {
+        std::vector<ThreadData> thread_data;
+        thread_data.reserve(t_thread_count);
+        for ([[maybe_unused]] auto j :
+             std::ranges::iota_view{ 0u, t_thread_count })
+        {
+            vk::CommandPoolCreateInfo command_pool_create_info{
+                .flags            = vk::CommandPoolCreateFlagBits::eTransient,
+                .queueFamilyIndex = t_device.graphics_queue_family_index()
+            };
+
+            thread_data.emplace_back(
+                t_device->createCommandPoolUnique(command_pool_create_info),
+                std::vector<vk::CommandBuffer>{},
+                0
+            );
+        }
+
+        frame_data.emplace_back(
+            std::move(thread_data),
+            t_device->createFenceUnique(vk::FenceCreateInfo{}),
+            std::vector<std::function<void()>>{}
+        );
+    }
+
+    return frame_data;
 }
 
 }   // namespace engine::renderer
