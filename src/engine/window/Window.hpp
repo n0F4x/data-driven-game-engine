@@ -12,14 +12,14 @@ namespace engine::window {
 
 class Window {
 public:
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create(
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    explicit Window(
         const sf::VideoMode& t_video_mode,
         const sf::String&    t_title,
-        Style                t_style
-    ) noexcept -> tl::optional<Window>;
+        sf::Uint32           t_style
+    );
 
     ///-------------///
     ///  Operators  ///
@@ -41,15 +41,6 @@ private:
     ///  Variables  ///
     ///*************///
     std::unique_ptr<sf::WindowBase> m_impl;
-
-    ///******************************///
-    ///  Constructors / Destructors  ///
-    ///******************************///
-    explicit Window(
-        const sf::VideoMode& t_video_mode,
-        const sf::String&    t_title,
-        sf::Uint32           t_style
-    ) noexcept(false);
 };
 
 }   // namespace engine::window

@@ -5,7 +5,7 @@
 namespace engine {
 
 template <typename... Args>
-auto App::run(RunnerConcept<Args...> auto&& t_runner, Args&&... t_args) noexcept
+auto App::run(RunnerConcept<Args...> auto&& t_runner, Args&&... t_args)
     -> std::invoke_result_t<decltype(t_runner), App&, Args...>
 {
     SPDLOG_INFO("App is running");

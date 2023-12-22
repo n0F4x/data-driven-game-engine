@@ -11,13 +11,12 @@ auto Plugin::operator()(
     const sf::VideoMode& t_video_mode,
     std::string_view     t_title,
     Style                t_style
-) noexcept -> void
+) -> void
 {
-    Window::create(t_video_mode, t_title.data(), t_style)
-        .transform([&t_store](Window&& t_window) {
-            t_store.emplace<Window>(std::move(t_window));
-        })
-        .transform([](auto&&) { SPDLOG_TRACE("Added Window plugin"); });
+    t_store.emplace<Window>(
+        t_video_mode, t_title.data(), static_cast<sf::Uint32>(t_style)
+    );
+    SPDLOG_TRACE("Added Window plugin");
 }
 
 }   // namespace engine::window

@@ -10,20 +10,13 @@ namespace engine::window {
 ///---------------------------///
 /////////////////////////////////
 
-auto Window::create(
+Window::Window(
     const sf::VideoMode& t_video_mode,
     const sf::String&    t_title,
-    Style                t_style
-) noexcept -> tl::optional<Window>
-{
-    try {
-        return Window{ t_video_mode,
-                       t_title,
-                       static_cast<sf::Uint32>(t_style) };
-    } catch (...) {
-        return tl::nullopt;
-    }
-}
+    sf::Uint32           t_style
+)
+    : m_impl{ std::make_unique<sf::WindowBase>(t_video_mode, t_title, t_style) }
+{}
 
 auto Window::operator->() const noexcept -> sf::WindowBase*
 {
@@ -56,13 +49,5 @@ auto Window::create_vulkan_surface(
 
     return surface;
 }
-
-Window::Window(
-    const sf::VideoMode& t_video_mode,
-    const sf::String&    t_title,
-    sf::Uint32           t_style
-) noexcept(false)
-    : m_impl{ std::make_unique<sf::WindowBase>(t_video_mode, t_title, t_style) }
-{}
 
 }   // namespace engine::window

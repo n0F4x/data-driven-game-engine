@@ -17,21 +17,21 @@ public:
     auto build_and_run(
         RunnerConcept<Args...> auto&& t_runner,
         Args&&... t_args
-    ) && noexcept
-        -> decltype(std::declval<App>().run(
-            std::forward<decltype(t_runner)>(t_runner),
-            std::forward<decltype(t_args)>(t_args)...
-        ));
+    ) && -> decltype(std::declval<App>()
+                         .run(
+                             std::forward<decltype(t_runner)>(t_runner),
+                             std::forward<decltype(t_args)>(t_args)...
+                         ));
 
 
     template <typename Plugin>
-    auto add_plugin(auto&&... t_args) && noexcept -> Builder;
+    auto add_plugin(auto&&... t_args) && -> Builder;
 
     template <typename... Args>
     auto add_plugin(
         PluginConcept<Args...> auto&& t_plugin,
         Args&&... t_args
-    ) && noexcept -> Builder;
+    ) && -> Builder;
 
 private:
     ///******************///

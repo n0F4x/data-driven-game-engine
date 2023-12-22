@@ -18,7 +18,7 @@ public:
         const sf::VideoMode& t_video_mode,
         std::string_view     t_title,
         Style                t_style
-    ) noexcept -> void;
+    ) -> void;
 };
 
 static_assert(PluginConcept<
