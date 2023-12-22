@@ -1,6 +1,5 @@
 #pragma once
 
-#include <expected>
 #include <functional>
 #include <utility>
 #include <variant>
@@ -12,21 +11,11 @@
 
 #include <entt/signal/sigh.hpp>
 
-#include "engine/utility/vulkan/result_types.hpp"
 #include "engine/utility/vulkan/Swapchain.hpp"
 
 #include "Device.hpp"
 
 namespace engine::renderer {
-
-namespace err {
-
-/**
- * No swapchain is present within Swapchain.
- */
-class NoSwapchain {};
-
-}   // namespace err
 
 class Swapchain {
 public:

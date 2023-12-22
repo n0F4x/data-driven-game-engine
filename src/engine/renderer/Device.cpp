@@ -20,7 +20,7 @@ auto Device::create(
     vk::PhysicalDevice t_physical_device,
     const CreateInfo&  t_create_info
 ) noexcept -> tl::optional<Device>
-{
+try {
     if (!t_surface || !t_physical_device
         || !helpers::is_adequate(t_physical_device, t_surface))
     {
@@ -34,24 +34,22 @@ auto Device::create(
         return tl::nullopt;
     }
 
-    auto             enabled_extension_names{ t_create_info.extensions
+    auto enabled_extension_names{ t_create_info.extensions
                                   | std::views::transform(&std::string::c_str)
                                   | std::ranges::to<std::vector>() };
-    vk::UniqueDevice device;
-    try {
-        device = t_physical_device.createDeviceUnique(vk::DeviceCreateInfo{
-            .pNext = t_create_info.next,
-            .queueCreateInfoCount =
-                static_cast<uint32_t>(queue_infos->queue_create_infos.size()),
-            .pQueueCreateInfos = queue_infos->queue_create_infos.data(),
-            .enabledExtensionCount =
-                static_cast<uint32_t>(enabled_extension_names.size()),
-            .ppEnabledExtensionNames = enabled_extension_names.data(),
-            .pEnabledFeatures        = &t_create_info.features });
-    } catch (const vk::Error& t_error) {
-        SPDLOG_ERROR(t_error.what());
-        return tl::nullopt;
-    }
+
+    vk::DeviceCreateInfo device_create_info{
+        .pNext = t_create_info.next,
+        .queueCreateInfoCount =
+            static_cast<uint32_t>(queue_infos->queue_create_infos.size()),
+        .pQueueCreateInfos = queue_infos->queue_create_infos.data(),
+        .enabledExtensionCount =
+            static_cast<uint32_t>(enabled_extension_names.size()),
+        .ppEnabledExtensionNames = enabled_extension_names.data(),
+        .pEnabledFeatures        = &t_create_info.features
+    };
+
+    auto device = t_physical_device.createDeviceUnique(device_create_info);
 
     const VmaVulkanFunctions vulkan_functions = { .vkGetInstanceProcAddr =
                                                       &vkGetInstanceProcAddr,
@@ -88,6 +86,9 @@ auto Device::create(
                    device->getQueue(
                        queue_infos->transfer_family, queue_infos->transfer_index
                    ) };
+} catch (const vk::Error& t_error) {
+    SPDLOG_ERROR(t_error.what());
+    return tl::nullopt;
 }
 
 auto Device::create_default(
