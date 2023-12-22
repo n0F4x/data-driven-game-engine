@@ -1,3 +1,6 @@
+#include <stdexcept>
+#include <string>
+
 namespace engine {
 
 Store::~Store() noexcept
@@ -32,6 +35,47 @@ auto Store::find() noexcept -> tl::optional<T&>
     }
 
     return entt::any_cast<T&>(m_elements.at(index_iter->second));
+}
+
+template <typename T>
+auto Store::find() const noexcept -> tl::optional<const T&>
+{
+    const auto index_iter{ m_index_map.find(entt::type_index<T>{}) };
+    if (index_iter == m_index_map.cend()) {
+        return tl::nullopt;
+    }
+
+    return entt::any_cast<const T&>(m_elements.at(index_iter->second));
+}
+
+template <typename T>
+auto Store::at() -> T&
+{
+    using namespace std::string_literals;
+
+    const auto index_iter{ m_index_map.find(entt::type_index<T>{}) };
+    if (index_iter == m_index_map.cend()) {
+        throw std::out_of_range{ "Store::at is out of range for type `"s
+                                     .append(entt::type_id<T>().name())
+                                     .append("`") };
+    }
+
+    return entt::any_cast<T&>(m_elements.at(index_iter->second));
+}
+
+template <typename T>
+auto Store::at() const -> const T&
+{
+    using namespace std::string_literals;
+
+    const auto index_iter{ m_index_map.find(entt::type_index<T>{}) };
+    if (index_iter == m_index_map.cend()) {
+        throw std::out_of_range{ "Store::at is out of range for type `"s
+                                     .append(entt::type_id<T>().name())
+                                     .append("`") };
+    }
+
+    return entt::any_cast<const T&>(m_elements.at(index_iter->second));
 }
 
 template <typename T>

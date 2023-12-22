@@ -91,23 +91,15 @@ struct DemoApp {
         const std::string& t_model_filepath
     ) -> tl::optional<DemoApp>
     {
-        auto opt_device{ t_store.find<renderer::Device>() };
-        if (!opt_device) {
-            return tl::nullopt;
-        }
-        auto& device{ *opt_device };
+        auto& device{ t_store.at<renderer::Device>() };
 
-        auto opt_swapchain{ t_store.find<renderer::Swapchain>() };
-        if (!opt_swapchain) {
+        auto& swapchain{ t_store.at<renderer::Swapchain>() };
+        swapchain.set_framebuffer_size(
+            to_extent2D(t_store.at<window::Window>().framebuffer_size())
+        );
+        if (!swapchain.get()) {
             return tl::nullopt;
         }
-        opt_swapchain->set_framebuffer_size(to_extent2D(
-            t_store.find<window::Window>().value().framebuffer_size()
-        ));
-        if (!opt_swapchain->get()) {
-            return tl::nullopt;
-        }
-        auto& swapchain{ opt_swapchain.value() };
 
         auto render_pass{
             init::create_render_pass(swapchain.get()->surface_format(), device)
@@ -397,7 +389,7 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
             );
 
             bool      running{ true };
-            auto&     window{ t_app.store().find<window::Window>().value() };
+            auto&     window{ t_app.store().at<window::Window>() };
             sf::Event event{};
 
             Controller controller;

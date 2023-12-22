@@ -17,6 +17,14 @@ public:
     template <typename Asset>
     [[nodiscard]] auto find(entt::id_type t_id) noexcept
         -> tl::optional<Asset&>;
+    template <typename Asset>
+    [[nodiscard]] auto find(entt::id_type t_id) const noexcept
+        -> tl::optional<const Asset&>;
+
+    template <typename Asset>
+    [[nodiscard]] auto at(entt::id_type t_id) -> Asset&;
+    template <typename Asset>
+    [[nodiscard]] auto at(entt::id_type t_id) const -> const Asset&;
 
 private:
     ///****************///

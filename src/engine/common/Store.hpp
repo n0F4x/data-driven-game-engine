@@ -27,6 +27,13 @@ public:
 
     template <typename T>
     [[nodiscard]] auto find() noexcept -> tl::optional<T&>;
+    template <typename T>
+    [[nodiscard]] auto find() const noexcept -> tl::optional<const T&>;
+
+    template <typename T>
+    [[nodiscard]] auto at() -> T&;
+    template <typename T>
+    [[nodiscard]] auto at() const -> const T&;
 
     template <typename T>
     [[nodiscard]] auto contains() const noexcept -> bool;
