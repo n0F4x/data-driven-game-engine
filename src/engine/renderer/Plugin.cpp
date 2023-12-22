@@ -19,7 +19,7 @@ using namespace engine::renderer;
 
 namespace {
 
-[[nodiscard]] static auto create_instance() -> tl::optional<Instance>
+[[nodiscard]] auto create_instance() -> tl::optional<Instance>
 {
     return Instance::create_default()
         .transform(
@@ -31,7 +31,7 @@ namespace {
         .value_or(tl::nullopt);
 }
 
-[[nodiscard]] static auto inject_instance(Store& t_store)
+[[nodiscard]] auto inject_instance(Store& t_store)
 {
     return [&]<typename Instance>(Instance&& t_instance) -> Instance& {
         return t_store.emplace<Instance>(std::forward<Instance>(t_instance));
@@ -39,7 +39,7 @@ namespace {
 }
 
 template <typename TSurfaceCreator>
-[[nodiscard]] static auto
+[[nodiscard]] auto
     create_surface(Store& t_store, TSurfaceCreator&& t_create_surface)
 {
     return
@@ -61,7 +61,7 @@ template <typename TSurfaceCreator>
         };
 }
 
-[[nodiscard]] static auto create_device(
+[[nodiscard]] auto create_device(
     std::tuple<const Instance&, vk::UniqueSurfaceKHR> t_pack
 )
 {
@@ -82,7 +82,7 @@ template <typename TSurfaceCreator>
         });
 }
 
-[[nodiscard]] static auto inject_device(Store& t_store)
+[[nodiscard]] auto inject_device(Store& t_store)
 {
     return [&t_store](
                std::tuple<vk::Instance, vk::UniqueSurfaceKHR, Device>&& t_pack
@@ -97,7 +97,7 @@ template <typename TSurfaceCreator>
 }
 
 template <typename FramebufferSizeGetterCreator>
-[[nodiscard]] static auto inject_swapchain(
+[[nodiscard]] auto inject_swapchain(
     Store&                         t_store,
     FramebufferSizeGetterCreator&& t_create_framebuffer_size_getter
 )
@@ -120,14 +120,14 @@ template <typename FramebufferSizeGetterCreator>
     };
 }
 
-[[nodiscard]] static auto create_render_frame(Device& t_device)
+[[nodiscard]] auto create_render_frame(Device& t_device)
 {
     return RenderFrame::create(
         t_device, std::max(std::thread::hardware_concurrency(), 2u)
     );
 }
 
-[[nodiscard]] static auto inject_render_frame(Store& t_store)
+[[nodiscard]] auto inject_render_frame(Store& t_store)
 {
     return [&]<typename RenderFrame>(RenderFrame&& t_render_frame) {
         t_store.emplace<RenderFrame>(std::forward<RenderFrame>(t_render_frame));
