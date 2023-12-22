@@ -34,7 +34,7 @@ public:
     [[nodiscard]] auto create_vulkan_surface(
         VkInstance                   t_instance,
         const VkAllocationCallbacks* t_allocator = nullptr
-    ) noexcept -> VkSurfaceKHR;
+    ) -> VkSurfaceKHR;
 
 private:
     ///*************///

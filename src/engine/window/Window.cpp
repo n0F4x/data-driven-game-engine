@@ -31,20 +31,12 @@ auto Window::framebuffer_size() const noexcept -> sf::Vector2u
 auto Window::create_vulkan_surface(
     VkInstance                   t_instance,
     const VkAllocationCallbacks* t_allocator
-) noexcept -> VkSurfaceKHR
+) -> VkSurfaceKHR
 {
     VkSurfaceKHR surface{};
-    bool         success;
 
-    try {
-        success = m_impl->createVulkanSurface(t_instance, surface, t_allocator);
-    } catch (...) {
-        return VkSurfaceKHR{};
-    }
-
-    if (!success) {
+    if (!m_impl->createVulkanSurface(t_instance, surface, t_allocator)) {
         SPDLOG_ERROR("sf::WindowBase::createVulkanSurface failed");
-        return VkSurfaceKHR{};
     }
 
     return surface;
