@@ -59,37 +59,32 @@ try {
 auto Swapchain::acquire_next_image(vk::Semaphore t_semaphore, vk::Fence t_fence)
     -> tl::optional<uint32_t>
 {
-    if (!m_swapchain.has_value()) {
-        return tl::nullopt;
-    }
+    if (m_swapchain.has_value()) {
+        const auto [result, image_index]{ m_device->acquireNextImageKHR(
+            **m_swapchain,
+            std::numeric_limits<uint64_t>::max(),
+            t_semaphore,
+            t_fence
+        ) };
 
-    const auto [result, image_index]{ m_device->acquireNextImageKHR(
-        **m_swapchain,
-        std::numeric_limits<uint64_t>::max(),
-        t_semaphore,
-        t_fence
-    ) };
-    m_image_index = image_index;
-
-    if (result == vk::Result::eErrorOutOfDateKHR) {
-        recreate_swapchain();
-    }
-
-    if (!m_swapchain.has_value()) {
-        return tl::nullopt;
-    }
-
-    switch (result) {
-        case vk::Result::eSuccess:
-        case vk::Result::eSuboptimalKHR: return image_index;
-        default: {
-            SPDLOG_ERROR(
-                "vk::Device::acquireNextImage failed with error code {}",
-                std::to_underlying(result)
-            );
-            return tl::nullopt;
+        switch (result) {
+            case vk::Result::eSuccess:
+            case vk::Result::eSuboptimalKHR: {
+                m_image_index = image_index;
+                return image_index;
+            }
+            case vk::Result::eErrorOutOfDateKHR: break;
+            default: {
+                SPDLOG_ERROR(
+                    "vk::Device::acquireNextImage failed with error code {}",
+                    std::to_underlying(result)
+                );
+            }
         }
     }
+
+    recreate_swapchain();
+    return tl::nullopt;
 }
 
 auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) -> void
@@ -104,8 +99,8 @@ auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) -> void
     };
 
     const auto result{ m_device.graphics_queue().presentKHR(info) };
-    if (result == vk::Result::eErrorOutOfDateKHR
-        || result == vk::Result::eSuboptimalKHR)
+    if (result == vk::Result::eSuboptimalKHR
+        || result == vk::Result::eErrorOutOfDateKHR)
     {
         recreate_swapchain();
     }
