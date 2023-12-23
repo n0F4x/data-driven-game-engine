@@ -129,8 +129,8 @@ template <typename FramebufferSizeGetterCreator>
 
 [[nodiscard]] auto inject_render_frame(Store& t_store)
 {
-    return [&]<typename RenderFrame>(RenderFrame&& t_render_frame) {
-        t_store.emplace<RenderFrame>(std::forward<RenderFrame>(t_render_frame));
+    return [&](RenderFrame&& t_render_frame) {
+        t_store.emplace<RenderFrame>(std::move(t_render_frame));
     };
 }
 
