@@ -2,7 +2,7 @@
 
 namespace engine::renderer {
 
-auto RenderScene::load(const Device& t_device, gfx::Model t_model) noexcept
+auto RenderScene::load(const Device& t_device, gfx::Model& t_model) noexcept
     -> tl::optional<ModelHandle>
 {
     auto opt_mesh_buffer{ renderer::MeshBuffer::create<gfx::Model::Vertex>(
@@ -17,11 +17,9 @@ auto RenderScene::load(const Device& t_device, gfx::Model t_model) noexcept
 
     auto unique_mesh_buffer{ std::make_unique<MeshBuffer>(std::move(mesh_buffer)
     ) };
-    auto unique_model{ std::make_unique<gfx::Model>(std::move(t_model)) };
-    ModelHandle handle{ *unique_mesh_buffer, *unique_model };
+    ModelHandle handle{ *unique_mesh_buffer, t_model };
 
     m_mesh_buffers.push_back(std::move(unique_mesh_buffer));
-    m_models.push_back(std::move(unique_model));
 
     return handle;
 }

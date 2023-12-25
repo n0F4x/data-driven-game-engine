@@ -23,7 +23,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto load(const Device& t_device, gfx::Model t_model) noexcept
+    [[nodiscard]] auto load(const Device& t_device, gfx::Model& t_model) noexcept
         -> tl::optional<ModelHandle>;
 
     auto flush(vk::CommandBuffer t_copy_buffer) noexcept -> void;
@@ -34,8 +34,6 @@ private:
     ///*************///
     std::vector<std::unique_ptr<MeshBuffer>> m_mesh_buffers;
     std::vector<StagingMeshBuffer>           m_staging_mesh_buffers;
-
-    std::vector<std::unique_ptr<gfx::Model>> m_models;
 };
 
 class ModelHandle {

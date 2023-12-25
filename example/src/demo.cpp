@@ -10,6 +10,9 @@
 
 #include <SFML/Window.hpp>
 
+#include <entt/core/hashed_string.hpp>
+
+#include <engine/asset_manager/AssetRegistry.hpp>
 #include <engine/renderer/Device.hpp>
 #include <engine/renderer/scene/RenderScene.hpp>
 #include <engine/renderer/Swapchain.hpp>
@@ -21,6 +24,7 @@
 #include "Controller.hpp"
 #include "demo_init.hpp"
 
+using namespace entt::literals;
 using namespace engine;
 
 constexpr uint32_t g_frame_count{ 2 };
@@ -192,20 +196,18 @@ struct DemoApp {
             std::cout << "Model could not be created properly\n";
             return tl::nullopt;
         }
-        auto descriptor_pool{ init::create_descriptor_pool(
-            *device, init::count_meshes(*opt_model)
+        auto model{ t_store.at<asset_manager::AssetRegistry>().emplace(
+            std::move(*opt_model), "Model 0"_hs
         ) };
+        auto descriptor_pool{
+            init::create_descriptor_pool(*device, init::count_meshes(model))
+        };
         if (!*descriptor_pool) {
             return tl::nullopt;
         }
         auto render_object{
-            std::move(opt_model)
-                .and_then([&](auto&& t_model) {
-                    return render_scene.load(
-                        device, std::forward<decltype(t_model)>(t_model)
-                    );
-                })
-                .and_then([&](auto t_model_handle) {
+            render_scene.load(device, model)
+                .and_then([&](renderer::ModelHandle t_model_handle) {
                     return t_model_handle.spawn(
                         device, *descriptor_set_layout, *descriptor_pool
                     );
