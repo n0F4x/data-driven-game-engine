@@ -8,7 +8,7 @@
 
 #include <engine/gfx/Model.hpp>
 #include <engine/renderer/Device.hpp>
-#include <engine/utility/vulkan/vma/Image.hpp>
+#include <engine/utility/vma/Image.hpp>
 
 namespace init {
 

@@ -10,8 +10,8 @@
 
 #include <vk_mem_alloc.h>
 
-#include "engine/utility/vulkan/vma/Allocator.hpp"
-#include "engine/utility/vulkan/vma/Buffer.hpp"
+#include "engine/utility/vma/Allocator.hpp"
+#include "engine/utility/vma/Buffer.hpp"
 
 #include "Instance.hpp"
 

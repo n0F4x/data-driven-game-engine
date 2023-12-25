@@ -9,7 +9,7 @@
 
 #include "engine/gfx/Model.hpp"
 #include "engine/renderer/Device.hpp"
-#include "engine/utility/vulkan/vma/Buffer.hpp"
+#include "engine/utility/vma/Buffer.hpp"
 
 #include "MeshBuffer.hpp"
 

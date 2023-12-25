@@ -14,7 +14,7 @@
 #include <engine/renderer/scene/RenderScene.hpp>
 #include <engine/renderer/Swapchain.hpp>
 #include <engine/utility/converters.hpp>
-#include <engine/utility/vulkan/vma/Image.hpp>
+#include <engine/utility/vma/Image.hpp>
 #include <engine/window/Window.hpp>
 
 #include "Camera.hpp"
