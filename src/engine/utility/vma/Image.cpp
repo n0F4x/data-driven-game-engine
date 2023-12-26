@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace engine::vulkan::vma {
+namespace engine::vma {
 
 Image::Image(
     VmaAllocator  t_allocator,
@@ -59,4 +59,4 @@ auto Image::reset() noexcept -> void
     m_allocator  = nullptr;
 }
 
-}   // namespace engine::vulkan::vma
+}   // namespace engine::vma

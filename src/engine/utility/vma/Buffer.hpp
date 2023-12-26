@@ -4,7 +4,7 @@
 
 #include <vk_mem_alloc.h>
 
-namespace engine::vulkan::vma {
+namespace engine::vma {
 
 class Buffer {
 public:
@@ -40,4 +40,4 @@ private:
     VmaAllocation m_allocation;
 };
 
-}   // namespace engine::vulkan::vma
+}   // namespace engine::vma

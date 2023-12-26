@@ -21,7 +21,7 @@ namespace init {
 [[nodiscard]] auto create_depth_image(
     const engine::renderer::Device& t_device,
     vk::Extent2D                    t_swapchain_extent
-) noexcept -> engine::vulkan::vma::Image;
+) noexcept -> engine::vma::Image;
 
 [[nodiscard]] auto create_depth_image_view(
     const engine::renderer::Device& t_device,

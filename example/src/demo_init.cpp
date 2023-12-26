@@ -124,7 +124,7 @@ namespace init {
 auto create_depth_image(
     const renderer::Device& t_device,
     vk::Extent2D            t_swapchain_extent
-) noexcept -> vulkan::vma::Image
+) noexcept -> vma::Image
 {
     vk::ImageCreateInfo image_create_info = {
         .imageType = vk::ImageType::e2D,
@@ -159,7 +159,7 @@ auto create_depth_image(
         &allocation,
         nullptr
     );
-    return engine::vulkan::vma::Image(t_device.allocator(), image, allocation);
+    return engine::vma::Image(t_device.allocator(), image, allocation);
 }
 
 auto create_depth_image_view(

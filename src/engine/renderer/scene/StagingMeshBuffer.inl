@@ -44,8 +44,8 @@ auto StagingMeshBuffer::create(
     }
 
     return StagingMeshBuffer{
-        std::move(std::get<vulkan::vma::Buffer>(*vertex_staging_buffer)),
-        std::move(std::get<vulkan::vma::Buffer>(*index_staging_buffer)),
+        std::move(std::get<vma::Buffer>(*vertex_staging_buffer)),
+        std::move(std::get<vma::Buffer>(*index_staging_buffer)),
         vertex_buffer_size,
         index_buffer_size,
         static_cast<uint32_t>(t_indices.size())

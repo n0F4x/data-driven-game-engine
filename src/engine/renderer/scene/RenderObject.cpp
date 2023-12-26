@@ -57,7 +57,7 @@ try {
             buffer_create_info, allocation_create_info, &t_uniform_block
         )
         .and_then(
-            [&](std::pair<vulkan::vma::Buffer, VmaAllocationInfo>&& result
+            [&](std::pair<vma::Buffer, VmaAllocationInfo>&& result
             ) -> tl::optional<Mesh> {
                 vk::DescriptorBufferInfo descriptor_buffer_info{
                     .buffer = *result.first,

@@ -34,7 +34,7 @@ struct DemoApp {
     renderer::Device&                  device;
     renderer::Swapchain&               swapchain;
     vk::UniqueRenderPass               render_pass;
-    vulkan::vma::Image                 depth_image;
+    vma::Image                         depth_image;
     vk::UniqueImageView                depth_image_view;
     std::vector<vk::UniqueFramebuffer> framebuffers;
     vk::UniqueDescriptorSetLayout      descriptor_set_layout;

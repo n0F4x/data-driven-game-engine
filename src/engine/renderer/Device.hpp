@@ -67,23 +67,22 @@ public:
         const vk::BufferCreateInfo&    t_buffer_create_info,
         const VmaAllocationCreateInfo& t_allocation_create_info,
         const void*                    t_data = nullptr
-    ) const noexcept
-        -> tl::optional<std::pair<vulkan::vma::Buffer, VmaAllocationInfo>>;
+    ) const noexcept -> tl::optional<std::pair<vma::Buffer, VmaAllocationInfo>>;
 
 private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::PhysicalDevice     m_physical_device;
-    CreateInfo             m_info;
-    vk::UniqueDevice       m_device;
-    vulkan::vma::Allocator m_allocator;
-    uint32_t               m_graphics_queue_family_index;
-    vk::Queue              m_graphics_queue;
-    uint32_t               m_compute_queue_family_index;
-    vk::Queue              m_compute_queue;
-    uint32_t               m_transfer_queue_family_index;
-    vk::Queue              m_transfer_queue;
+    vk::PhysicalDevice m_physical_device;
+    CreateInfo         m_info;
+    vk::UniqueDevice   m_device;
+    vma::Allocator     m_allocator;
+    uint32_t           m_graphics_queue_family_index;
+    vk::Queue          m_graphics_queue;
+    uint32_t           m_compute_queue_family_index;
+    vk::Queue          m_compute_queue;
+    uint32_t           m_transfer_queue_family_index;
+    vk::Queue          m_transfer_queue;
 
     ///******************************///
     ///  Constructors / Destructors  ///

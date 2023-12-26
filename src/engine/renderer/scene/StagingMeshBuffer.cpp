@@ -41,7 +41,7 @@ auto StagingMeshBuffer::upload(
     vk::BufferCopy copy_region{ .size = m_vertex_buffer_size };
     t_copy_command_buffer.copyBuffer(
         *m_vertex_staging_buffer,
-        *std::get<vulkan::vma::Buffer>(*vertex_buffer),
+        *std::get<vma::Buffer>(*vertex_buffer),
         1,
         &copy_region
     );
@@ -50,7 +50,7 @@ auto StagingMeshBuffer::upload(
         copy_region = { .size = m_index_buffer_size };
         t_copy_command_buffer.copyBuffer(
             *m_index_staging_buffer,
-            *std::get<vulkan::vma::Buffer>(*index_buffer),
+            *std::get<vma::Buffer>(*index_buffer),
             1,
             &copy_region
         );
@@ -58,20 +58,19 @@ auto StagingMeshBuffer::upload(
 
     return MeshBuffer{
         MeshBuffer::Vertices{
-                             .buffer =
-                std::move(std::get<vulkan::vma::Buffer>(*vertex_buffer)) },
+                             .buffer = std::move(std::get<vma::Buffer>(*vertex_buffer)) },
         MeshBuffer::Indices{
                              .count  = m_index_count,
-                             .buffer = std::move(std::get<vulkan::vma::Buffer>(*index_buffer)) }
+                             .buffer = std::move(std::get<vma::Buffer>(*index_buffer)) }
     };
 }
 
 StagingMeshBuffer::StagingMeshBuffer(
-    vulkan::vma::Buffer&& t_vertex_staging_buffer,
-    vulkan::vma::Buffer&& t_index_staging_buffer,
-    uint32_t              t_vertex_buffer_size,
-    uint32_t              t_index_buffer_size,
-    uint32_t              t_index_count
+    vma::Buffer&& t_vertex_staging_buffer,
+    vma::Buffer&& t_index_staging_buffer,
+    uint32_t      t_vertex_buffer_size,
+    uint32_t      t_index_buffer_size,
+    uint32_t      t_index_count
 ) noexcept
     : m_vertex_staging_buffer{ std::move(t_vertex_staging_buffer) },
       m_index_staging_buffer{ std::move(t_index_staging_buffer) },
