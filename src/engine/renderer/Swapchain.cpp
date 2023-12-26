@@ -58,7 +58,7 @@ try {
 
 auto Swapchain::acquire_next_image(vk::Semaphore t_semaphore, vk::Fence t_fence)
     -> tl::optional<uint32_t>
-{
+try {
     if (m_swapchain.has_value()) {
         const auto [result, image_index]{ m_device->acquireNextImageKHR(
             **m_swapchain,
@@ -73,10 +73,9 @@ auto Swapchain::acquire_next_image(vk::Semaphore t_semaphore, vk::Fence t_fence)
                 m_image_index = image_index;
                 return image_index;
             }
-            case vk::Result::eErrorOutOfDateKHR: break;
             default: {
                 SPDLOG_ERROR(
-                    "vk::Device::acquireNextImage failed with error code {}",
+                    "vk::Device::acquireNextImage succeeded with result: {}",
                     std::to_underlying(result)
                 );
             }
@@ -85,10 +84,13 @@ auto Swapchain::acquire_next_image(vk::Semaphore t_semaphore, vk::Fence t_fence)
 
     recreate_swapchain();
     return tl::nullopt;
+} catch (const vk::OutOfDateKHRError& t_out_of_date_error) {
+    recreate_swapchain();
+    return tl::nullopt;
 }
 
 auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) -> void
-{
+try {
     const std::array<vk::SwapchainKHR, 1> swapchains{ **m_swapchain };
     const vk::PresentInfoKHR              info{
                      .waitSemaphoreCount = static_cast<uint32_t>(t_wait_semaphores.size()),
@@ -99,11 +101,11 @@ auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) -> void
     };
 
     const auto result{ m_device.graphics_queue().presentKHR(info) };
-    if (result == vk::Result::eSuboptimalKHR
-        || result == vk::Result::eErrorOutOfDateKHR)
-    {
+    if (result == vk::Result::eSuboptimalKHR) {
         recreate_swapchain();
     }
+} catch (const vk::OutOfDateKHRError& t_out_of_date_error) {
+    recreate_swapchain();
 }
 
 auto Swapchain::on_swapchain_recreated(
