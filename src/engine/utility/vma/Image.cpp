@@ -30,9 +30,9 @@ auto Image::operator=(Image&& t_other) noexcept -> Image&
     if (this != &t_other) {
         reset();
 
-        std::swap(m_allocator, t_other.m_allocator);
-        std::swap(m_image, t_other.m_image);
-        std::swap(m_allocation, t_other.m_allocation);
+        m_allocator  = std::exchange(t_other.m_allocator, nullptr);
+        m_image      = std::exchange(t_other.m_image, nullptr);
+        m_allocation = std::exchange(t_other.m_allocation, nullptr);
     }
     return *this;
 }

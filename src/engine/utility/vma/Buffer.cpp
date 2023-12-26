@@ -30,9 +30,9 @@ auto Buffer::operator=(Buffer&& t_other) noexcept -> Buffer&
     if (this != &t_other) {
         reset();
 
-        std::swap(m_allocator, t_other.m_allocator);
-        std::swap(m_buffer, t_other.m_buffer);
-        std::swap(m_allocation, t_other.m_allocation);
+        m_allocator  = std::exchange(t_other.m_allocator, nullptr);
+        m_buffer     = std::exchange(t_other.m_buffer, nullptr);
+        m_allocation = std::exchange(t_other.m_allocation, nullptr);
     }
     return *this;
 }

@@ -8,6 +8,7 @@
 
 #include <engine/gfx/Model.hpp>
 #include <engine/renderer/Device.hpp>
+#include <engine/renderer/scene/MeshBuffer.hpp>
 #include <engine/utility/vma/Image.hpp>
 
 namespace init {
@@ -75,5 +76,10 @@ namespace init {
 
 [[nodiscard]] auto count_meshes(const engine::gfx::Model& t_model) noexcept
     -> uint32_t;
+
+[[nodiscard]] auto create_mesh_buffer(
+    const engine::renderer::Device& t_device,
+    const engine::gfx::Model&       t_model
+) -> tl::optional<engine::renderer::MeshBuffer>;
 
 }   // namespace init

@@ -7,6 +7,7 @@
 #include <engine/asset_manager/GltfLoader.hpp>
 #include <engine/gfx/Model.hpp>
 #include <engine/gfx/ModelFactory.hpp>
+#include <engine/renderer/scene/StagingMeshBuffer.hpp>
 #include <engine/utility/vulkan/tools.hpp>
 
 using namespace engine;
@@ -273,11 +274,11 @@ auto create_framebuffers(
         vk::PipelineShaderStageCreateInfo{.stage =
 vk::ShaderStageFlagBits::eVertex,
                                           .module = *vertex_shader_module,
-                                          .pName  = "main" },
+                                          .pName  = "main"},
         vk::PipelineShaderStageCreateInfo{
                                           .stage  = vk::ShaderStageFlagBits::eFragment,
                                           .module = *fragment_shader_module,
-                                          .pName  = "main" }
+                                          .pName  = "main"}
     };
 
     using Vertex = engine::gfx::Model::Vertex;
@@ -291,17 +292,17 @@ vk::ShaderStageFlagBits::eVertex,
                                             .location = 0,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex, position)) },
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex, position))},
         vk::VertexInputAttributeDescription{
                                             .location = 1,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,    color)) },
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,    color))},
         vk::VertexInputAttributeDescription{
                                             .location = 2,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,   normal)) }
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,   normal))}
     };
 
     vk::PipelineVertexInputStateCreateInfo
@@ -488,6 +489,57 @@ auto count_meshes(const gfx::Model& t_model) noexcept -> uint32_t
         count += count_meshes(node);
     }
     return count;
+}
+
+auto create_mesh_buffer(
+    const renderer::Device& t_device,
+    const gfx::Model&       t_model
+) -> tl::optional<renderer::MeshBuffer>
+{
+    auto opt_staging_mesh_buffer{
+        renderer::StagingMeshBuffer::create<gfx::Model::Vertex>(
+            t_device, t_model.vertices(), t_model.indices()
+        )
+    };
+    if (!opt_staging_mesh_buffer) {
+        return tl::nullopt;
+    }
+
+    auto transfer_command_pool{ init::create_command_pool(
+        *t_device, t_device.transfer_queue_family_index()
+    ) };
+    vk::CommandBufferAllocateInfo command_buffer_allocate_info{
+        .commandPool        = *transfer_command_pool,
+        .level              = vk::CommandBufferLevel::ePrimary,
+        .commandBufferCount = 1
+    };
+    auto command_buffer{
+        t_device->allocateCommandBuffers(command_buffer_allocate_info).front()
+    };
+
+    vk::CommandBufferBeginInfo begin_info{};
+    static_cast<void>(command_buffer.begin(begin_info));
+    auto opt_mesh_buffer{
+        opt_staging_mesh_buffer->upload(t_device, command_buffer)
+    };
+    static_cast<void>(command_buffer.end());
+
+    vk::SubmitInfo submit_info{
+        .commandBufferCount = 1,
+        .pCommandBuffers    = &command_buffer,
+    };
+    vk::UniqueFence fence{ t_device->createFenceUnique({}) };
+
+    static_cast<void>(t_device.transfer_queue().submit(1, &submit_info, *fence)
+    );
+
+    auto raw_fence{ *fence };
+    static_cast<void>(
+        t_device->waitForFences(1, &raw_fence, true, 100'000'000'000)
+    );
+    t_device->resetCommandPool(*transfer_command_pool);
+
+    return opt_mesh_buffer;
 }
 
 }   // namespace init

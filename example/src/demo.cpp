@@ -3,6 +3,7 @@
 #include <atomic>
 #include <future>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <thread>
 
@@ -14,7 +15,7 @@
 
 #include <engine/asset_manager/AssetRegistry.hpp>
 #include <engine/renderer/Device.hpp>
-#include <engine/renderer/scene/RenderScene.hpp>
+#include <engine/renderer/scene/RenderObject.hpp>
 #include <engine/renderer/Swapchain.hpp>
 #include <engine/utility/converters.hpp>
 #include <engine/utility/vma/Image.hpp>
@@ -47,48 +48,8 @@ struct DemoApp {
     std::vector<vk::UniqueFence>       in_flight_fences;
     uint32_t                           frame_index{};
 
-    renderer::RenderScene  render_scene;
-    renderer::RenderObject render_object;
-
-    static auto flush_model(
-        const renderer::Device& t_device,
-        renderer::RenderScene&  t_render_scene
-    ) -> void
-    {
-        auto transfer_command_pool{ init::create_command_pool(
-            *t_device, t_device.transfer_queue_family_index()
-        ) };
-        vk::CommandBufferAllocateInfo command_buffer_allocate_info{
-            .commandPool        = *transfer_command_pool,
-            .level              = vk::CommandBufferLevel::ePrimary,
-            .commandBufferCount = 1
-        };
-        auto command_buffer{
-            t_device->allocateCommandBuffers(command_buffer_allocate_info)
-                .front()
-        };
-
-        vk::CommandBufferBeginInfo begin_info{};
-        static_cast<void>(command_buffer.begin(begin_info));
-        t_render_scene.flush(command_buffer);
-        static_cast<void>(command_buffer.end());
-
-        vk::SubmitInfo submit_info{
-            .commandBufferCount = 1,
-            .pCommandBuffers    = &command_buffer,
-        };
-        vk::UniqueFence fence{ t_device->createFenceUnique({}) };
-
-        static_cast<void>(
-            t_device.transfer_queue().submit(1, &submit_info, *fence)
-        );
-
-        auto raw_fence{ *fence };
-        static_cast<void>(
-            t_device->waitForFences(1, &raw_fence, true, 100'000'000'000)
-        );
-        t_device->resetCommandPool(*transfer_command_pool);
-    }
+    std::unique_ptr<renderer::MeshBuffer> mesh_buffer;
+    renderer::RenderObject                render_object;
 
     [[nodiscard]] static auto create(
         Store&             t_store,
@@ -190,8 +151,7 @@ struct DemoApp {
             return tl::nullopt;
         }
 
-        renderer::RenderScene render_scene;
-        auto                  opt_model{ init::create_model(t_model_filepath) };
+        auto opt_model{ init::create_model(t_model_filepath) };
         if (!opt_model) {
             std::cout << "Model could not be created properly\n";
             return tl::nullopt;
@@ -205,19 +165,24 @@ struct DemoApp {
         if (!*descriptor_pool) {
             return tl::nullopt;
         }
-        auto render_object{
-            render_scene.load(device, model)
-                .and_then([&](renderer::ModelHandle t_model_handle) {
-                    return t_model_handle.spawn(
-                        device, *descriptor_set_layout, *descriptor_pool
-                    );
-                })
+        auto opt_mesh_buffer{ init::create_mesh_buffer(device, model) };
+        if (!opt_mesh_buffer) {
+            return tl::nullopt;
+        }
+        auto unique_mesh_buffer{
+            std::make_unique<renderer::MeshBuffer>(std::move(*opt_mesh_buffer))
         };
+        auto render_object{ renderer::RenderObject::create(
+            device,
+            *descriptor_set_layout,
+            *descriptor_pool,
+            model,
+            *unique_mesh_buffer
+        ) };
         if (!render_object) {
             std::cout << "Model could not be loaded correctly\n";
             return tl::nullopt;
         }
-        flush_model(device, render_scene);
 
 
         return DemoApp{
@@ -236,13 +201,15 @@ struct DemoApp {
             .image_acquired_semaphores  = std::move(image_acquired_semaphores),
             .render_finished_semaphores = std::move(render_finished_semaphores),
             .in_flight_fences           = std::move(in_flight_fences),
-            .render_scene               = std::move(render_scene),
+            .mesh_buffer                = std::move(unique_mesh_buffer),
             .render_object              = std::move(*render_object),
         };
     }
 
-    auto render(vk::Extent2D t_framebuffer_size, Camera t_camera) noexcept
-        -> void
+    auto render(
+        vk::Extent2D  t_framebuffer_size,
+        const Camera& t_camera
+    ) noexcept -> void
     {
         swapchain.set_framebuffer_size(t_framebuffer_size);
 
@@ -252,43 +219,41 @@ struct DemoApp {
                == vk::Result::eTimeout)
             ;
 
-        auto opt_image_index{ swapchain.acquire_next_image(
-            *image_acquired_semaphores[frame_index], {}
-        ) };
+        swapchain
+            .acquire_next_image(*image_acquired_semaphores[frame_index], {})
+            .transform([&](uint32_t image_index) {
+                device->resetFences({ *in_flight_fences[frame_index] });
+                command_buffers[frame_index].reset();
 
-        if (opt_image_index) {
-            device->resetFences({ *in_flight_fences[frame_index] });
-            command_buffers[frame_index].reset();
+                record_command_buffer(image_index, t_camera);
 
-            record_command_buffer(*opt_image_index, t_camera);
-
-            std::array wait_semaphores{
-                *image_acquired_semaphores[frame_index]
-            };
-            std::array<vk::PipelineStageFlags, wait_semaphores.size()>
-                wait_stages{
-                    vk::PipelineStageFlagBits::eColorAttachmentOutput
+                std::array wait_semaphores{
+                    *image_acquired_semaphores[frame_index]
                 };
-            std::array signal_semaphores{
-                *render_finished_semaphores[frame_index]
-            };
-            vk::SubmitInfo submit_info{
-                .waitSemaphoreCount =
-                    static_cast<uint32_t>(wait_semaphores.size()),
-                .pWaitSemaphores    = wait_semaphores.data(),
-                .pWaitDstStageMask  = wait_stages.data(),
-                .commandBufferCount = 1,
-                .pCommandBuffers    = &command_buffers[frame_index],
-                .signalSemaphoreCount =
-                    static_cast<uint32_t>(signal_semaphores.size()),
-                .pSignalSemaphores = signal_semaphores.data()
-            };
-            static_cast<void>(device.graphics_queue().submit(
-                submit_info, *in_flight_fences[frame_index]
-            ));
+                std::array<vk::PipelineStageFlags, wait_semaphores.size()>
+                    wait_stages{
+                        vk::PipelineStageFlagBits::eColorAttachmentOutput
+                    };
+                std::array signal_semaphores{
+                    *render_finished_semaphores[frame_index]
+                };
+                vk::SubmitInfo submit_info{
+                    .waitSemaphoreCount =
+                        static_cast<uint32_t>(wait_semaphores.size()),
+                    .pWaitSemaphores    = wait_semaphores.data(),
+                    .pWaitDstStageMask  = wait_stages.data(),
+                    .commandBufferCount = 1,
+                    .pCommandBuffers    = &command_buffers[frame_index],
+                    .signalSemaphoreCount =
+                        static_cast<uint32_t>(signal_semaphores.size()),
+                    .pSignalSemaphores = signal_semaphores.data()
+                };
+                static_cast<void>(device.graphics_queue().submit(
+                    submit_info, *in_flight_fences[frame_index]
+                ));
 
-            swapchain.present(signal_semaphores);
-        }
+                swapchain.present(signal_semaphores);
+            });
 
         frame_index = (frame_index + 1) % g_frame_count;
     }
@@ -390,9 +355,9 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
                 }
             );
 
-            bool      running{ true };
-            auto&     window{ t_app.store().at<window::Window>() };
-            sf::Event event{};
+            bool        running{ true };
+            const auto& window{ t_app.store().at<window::Window>() };
+            sf::Event   event{};
 
             Controller controller;
 
