@@ -2,7 +2,7 @@
 
 #include <vk_mem_alloc.h>
 
-namespace engine::vulkan::vma {
+namespace engine::vma {
 
 class Allocator {
 public:
@@ -27,4 +27,4 @@ private:
     VmaAllocator m_allocator;
 };
 
-}   // namespace engine::vulkan::vma
+}   // namespace engine::vma

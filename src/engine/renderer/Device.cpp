@@ -208,8 +208,7 @@ auto Device::create_buffer(
     const vk::BufferCreateInfo&    t_buffer_create_info,
     const VmaAllocationCreateInfo& t_allocation_create_info,
     const void*                    t_data
-) const noexcept
-    -> tl::optional<std::pair<vulkan::vma::Buffer, VmaAllocationInfo>>
+) const noexcept -> tl::optional<std::pair<vma::Buffer, VmaAllocationInfo>>
 {
     vk::Buffer        buffer;
     VmaAllocation     allocation;
@@ -281,7 +280,7 @@ auto Device::create_buffer(
     }
 
     return std::make_pair(
-        vulkan::vma::Buffer{ *m_allocator, buffer, allocation }, allocation_info
+        vma::Buffer{ *m_allocator, buffer, allocation }, allocation_info
     );
 }
 

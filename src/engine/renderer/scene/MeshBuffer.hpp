@@ -12,12 +12,12 @@ public:
     ///  Nested classes  ///
     ///------------------///
     struct Vertices {
-        vulkan::vma::Buffer buffer;
+        vma::Buffer buffer;
     };
 
     struct Indices {
-        uint32_t            count{};
-        vulkan::vma::Buffer buffer;
+        uint32_t    count{};
+        vma::Buffer buffer;
     };
 
     ///------------------------------///

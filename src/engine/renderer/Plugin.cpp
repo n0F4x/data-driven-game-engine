@@ -107,14 +107,13 @@ template <typename FramebufferSizeGetterCreator>
         t_store.emplace<Swapchain>(
             std::move(std::get<vk::UniqueSurfaceKHR>(t_pack)),
             std::get<Device&>(t_pack),
-            t_create_framebuffer_size_getter
-                ? std::invoke(
-                      std::forward<FramebufferSizeGetterCreator>(
-                          t_create_framebuffer_size_getter
-                      ),
-                      t_store
-                  )
-                : nullptr
+            t_create_framebuffer_size_getter ? std::invoke(
+                std::forward<FramebufferSizeGetterCreator>(
+                    t_create_framebuffer_size_getter
+                ),
+                t_store
+            )
+                                             : nullptr
         );
         return std::get<Device&>(t_pack);
     };

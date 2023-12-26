@@ -26,7 +26,7 @@ public:
 
         std::vector<Primitive> primitives;
 
-        vulkan::vma::Buffer     uniform_buffer;
+        vma::Buffer             uniform_buffer;
         vk::UniqueDescriptorSet descriptor_set;
         void*                   mapped{};
 

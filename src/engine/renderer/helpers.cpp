@@ -32,12 +32,13 @@ const std::vector<std::string> g_optional_layers{
 #endif
 };
 
-const std::vector<std::string> g_required_instance_extensions{
+const std::vector<std::string> g_required_instance_extensions
+{
     VK_KHR_SURFACE_EXTENSION_NAME,
 #if defined(_WIN32)
-    VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+        VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 #else
-    VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+        VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 #endif
 };
 const std::vector<std::string> g_optional_instance_extensions{
