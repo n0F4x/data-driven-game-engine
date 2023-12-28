@@ -4,7 +4,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/renderer/Device.hpp"
+#include "engine/renderer/Allocator.hpp"
 #include "engine/utility/vma/Buffer.hpp"
 
 #include "MeshBuffer.hpp"
@@ -20,7 +20,7 @@ public:
     ///----------------///
     template <typename Vertex>
     [[nodiscard]] static auto create(
-        const Device&             t_device,
+        const Allocator&          t_allocator,
         std::span<const Vertex>   t_vertices,
         std::span<const uint32_t> t_indices
     ) noexcept -> tl::optional<StagingMeshBuffer>;
@@ -29,7 +29,7 @@ public:
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto upload(
-        const Device&     t_device,
+        const Allocator&  t_allocator,
         vk::CommandBuffer t_copy_command_buffer
     ) const noexcept -> tl::optional<MeshBuffer>;
 

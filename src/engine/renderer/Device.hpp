@@ -8,8 +8,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <vk_mem_alloc.h>
-
 #include "engine/utility/vma/Allocator.hpp"
 #include "engine/utility/vma/Buffer.hpp"
 
@@ -55,19 +53,12 @@ public:
     ///-----------///
     [[nodiscard]] auto physical_device() const noexcept -> vk::PhysicalDevice;
     [[nodiscard]] auto info() const noexcept -> const CreateInfo&;
-    [[nodiscard]] auto allocator() const noexcept -> VmaAllocator;
     [[nodiscard]] auto graphics_queue_family_index() const noexcept -> uint32_t;
     [[nodiscard]] auto graphics_queue() const noexcept -> vk::Queue;
     [[nodiscard]] auto compute_queue_family_index() const noexcept -> uint32_t;
     [[nodiscard]] auto compute_queue() const noexcept -> vk::Queue;
     [[nodiscard]] auto transfer_queue_family_index() const noexcept -> uint32_t;
     [[nodiscard]] auto transfer_queue() const noexcept -> vk::Queue;
-
-    [[nodiscard]] auto create_buffer(
-        const vk::BufferCreateInfo&    t_buffer_create_info,
-        const VmaAllocationCreateInfo& t_allocation_create_info,
-        const void*                    t_data = nullptr
-    ) const noexcept -> tl::optional<std::pair<vma::Buffer, VmaAllocationInfo>>;
 
 private:
     ///*************///
@@ -76,7 +67,6 @@ private:
     vk::PhysicalDevice m_physical_device;
     CreateInfo         m_info;
     vk::UniqueDevice   m_device;
-    vma::Allocator     m_allocator;
     uint32_t           m_graphics_queue_family_index;
     vk::Queue          m_graphics_queue;
     uint32_t           m_compute_queue_family_index;
@@ -91,7 +81,6 @@ private:
         vk::PhysicalDevice t_physical_device,
         const CreateInfo&  t_info,
         vk::UniqueDevice&& t_device,
-        VmaAllocator       t_allocator,
         uint32_t           t_graphics_family_index,
         vk::Queue          t_graphics_queue,
         uint32_t           t_compute_queue_family_index,

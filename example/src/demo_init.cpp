@@ -122,13 +122,14 @@ namespace init {
 }
 
 auto create_depth_image(
-    const renderer::Device& t_device,
-    vk::Extent2D            t_swapchain_extent
+    vk::PhysicalDevice t_physical_device,
+    VmaAllocator       t_allocator,
+    vk::Extent2D       t_swapchain_extent
 ) noexcept -> vma::Image
 {
     vk::ImageCreateInfo image_create_info = {
         .imageType = vk::ImageType::e2D,
-        .format    = find_depth_format(t_device.physical_device()),
+        .format    = find_depth_format(t_physical_device),
         .extent =
             vk::Extent3D{
                          .width  = t_swapchain_extent.width,
@@ -152,14 +153,14 @@ auto create_depth_image(
     vk::Image     image{};
     VmaAllocation allocation;
     vmaCreateImage(
-        t_device.allocator(),
+        t_allocator,
         reinterpret_cast<const VkImageCreateInfo*>(&image_create_info),
         &allocation_create_info,
         reinterpret_cast<VkImage*>(&image),
         &allocation,
         nullptr
     );
-    return engine::vma::Image(t_device.allocator(), image, allocation);
+    return engine::vma::Image(t_allocator, image, allocation);
 }
 
 auto create_depth_image_view(
@@ -492,13 +493,14 @@ auto count_meshes(const gfx::Model& t_model) noexcept -> uint32_t
 }
 
 auto create_mesh_buffer(
-    const renderer::Device& t_device,
-    const gfx::Model&       t_model
+    const renderer::Device&    t_device,
+    const renderer::Allocator& t_allocator,
+    const gfx::Model&          t_model
 ) -> tl::optional<renderer::MeshBuffer>
 {
     auto opt_staging_mesh_buffer{
         renderer::StagingMeshBuffer::create<gfx::Model::Vertex>(
-            t_device, t_model.vertices(), t_model.indices()
+            t_allocator, t_model.vertices(), t_model.indices()
         )
     };
     if (!opt_staging_mesh_buffer) {
@@ -520,7 +522,7 @@ auto create_mesh_buffer(
     vk::CommandBufferBeginInfo begin_info{};
     static_cast<void>(command_buffer.begin(begin_info));
     auto opt_mesh_buffer{
-        opt_staging_mesh_buffer->upload(t_device, command_buffer)
+        opt_staging_mesh_buffer->upload(t_allocator, command_buffer)
     };
     static_cast<void>(command_buffer.end());
 

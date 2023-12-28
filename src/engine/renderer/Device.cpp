@@ -73,7 +73,6 @@ try {
     return Device{ t_physical_device,
                    t_create_info,
                    std::move(device),
-                   allocator,
                    queue_infos->graphics_family,
                    device->getQueue(
                        queue_infos->graphics_family, queue_infos->graphics_index
@@ -110,7 +109,6 @@ Device::Device(
     vk::PhysicalDevice t_physical_device,
     const CreateInfo&  t_info,
     vk::UniqueDevice&& t_device,
-    VmaAllocator       t_allocator,
     uint32_t           t_graphics_family_index,
     vk::Queue          t_graphics_queue,
     uint32_t           t_compute_queue_family_index,
@@ -121,7 +119,6 @@ Device::Device(
     : m_physical_device{ t_physical_device },
       m_info{ t_info },
       m_device{ std::move(t_device) },
-      m_allocator{ t_allocator },
       m_graphics_queue_family_index{ t_graphics_family_index },
       m_graphics_queue{ t_graphics_queue },
       m_compute_queue_family_index{ t_compute_queue_family_index },
@@ -169,11 +166,6 @@ auto Device::info() const noexcept -> const Device::CreateInfo&
     return m_info;
 }
 
-auto Device::allocator() const noexcept -> VmaAllocator
-{
-    return *m_allocator;
-}
-
 auto Device::graphics_queue_family_index() const noexcept -> uint32_t
 {
     return m_graphics_queue_family_index;
@@ -202,86 +194,6 @@ auto Device::transfer_queue_family_index() const noexcept -> uint32_t
 auto Device::transfer_queue() const noexcept -> vk::Queue
 {
     return m_transfer_queue;
-}
-
-auto Device::create_buffer(
-    const vk::BufferCreateInfo&    t_buffer_create_info,
-    const VmaAllocationCreateInfo& t_allocation_create_info,
-    const void*                    t_data
-) const noexcept -> tl::optional<std::pair<vma::Buffer, VmaAllocationInfo>>
-{
-    vk::Buffer        buffer;
-    VmaAllocation     allocation;
-    VmaAllocationInfo allocation_info;
-    if (const vk::Result result{ vmaCreateBuffer(
-            *m_allocator,
-            reinterpret_cast<const VkBufferCreateInfo*>(&t_buffer_create_info),
-            &t_allocation_create_info,
-            reinterpret_cast<VkBuffer*>(&buffer),
-            &allocation,
-            &allocation_info
-        ) };
-        result != vk::Result::eSuccess)
-    {
-        SPDLOG_WARN(
-            "vmaCreateBuffer failed with error code {}",
-            std::to_underlying(result)
-        );
-        return tl::nullopt;
-    }
-
-    vk::MemoryPropertyFlags memory_property_flags;
-    vmaGetAllocationMemoryProperties(
-        *m_allocator,
-        allocation,
-        reinterpret_cast<VkMemoryPropertyFlags*>(&memory_property_flags)
-    );
-
-    if (t_data != nullptr) {
-        const bool mapped{ static_cast<bool>(
-            t_allocation_create_info.flags & VMA_ALLOCATION_CREATE_MAPPED_BIT
-        ) };
-
-        if (!mapped) {
-            if (const vk::Result result{ vmaMapMemory(
-                    *m_allocator, allocation, &allocation_info.pMappedData
-                ) };
-                result != vk::Result::eSuccess)
-            {
-                SPDLOG_WARN(
-                    "vmaMapMemory failed with error code {}",
-                    std::to_underlying(result)
-                );
-                return tl::nullopt;
-            }
-        }
-
-        memcpy(allocation_info.pMappedData, t_data, t_buffer_create_info.size);
-
-        if (!(memory_property_flags & vk::MemoryPropertyFlagBits::eHostCoherent
-            ))
-        {
-            if (const vk::Result result{ vmaFlushAllocation(
-                    *m_allocator, allocation, 0, VK_WHOLE_SIZE
-                ) };
-                result != vk::Result::eSuccess)
-            {
-                SPDLOG_WARN(
-                    "vmaFlushAllocation failed with error code {}",
-                    std::to_underlying(result)
-                );
-                return tl::nullopt;
-            }
-        }
-
-        if (!mapped) {
-            vmaUnmapMemory(*m_allocator, allocation);
-        }
-    }
-
-    return std::make_pair(
-        vma::Buffer{ *m_allocator, buffer, allocation }, allocation_info
-    );
 }
 
 }   // namespace engine::renderer

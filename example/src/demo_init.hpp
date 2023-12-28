@@ -6,7 +6,10 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <vk_mem_alloc.h>
+
 #include <engine/gfx/Model.hpp>
+#include <engine/renderer/Allocator.hpp>
 #include <engine/renderer/Device.hpp>
 #include <engine/renderer/scene/MeshBuffer.hpp>
 #include <engine/utility/vma/Image.hpp>
@@ -19,8 +22,9 @@ namespace init {
 ) -> vk::UniqueRenderPass;
 
 [[nodiscard]] auto create_depth_image(
-    const engine::renderer::Device& t_device,
-    vk::Extent2D                    t_swapchain_extent
+    vk::PhysicalDevice t_physical_device,
+    VmaAllocator       t_allocator,
+    vk::Extent2D       t_swapchain_extent
 ) noexcept -> engine::vma::Image;
 
 [[nodiscard]] auto create_depth_image_view(
@@ -78,8 +82,9 @@ namespace init {
     -> uint32_t;
 
 [[nodiscard]] auto create_mesh_buffer(
-    const engine::renderer::Device& t_device,
-    const engine::gfx::Model&       t_model
+    const engine::renderer::Device&    t_device,
+    const engine::renderer::Allocator& t_allocator,
+    const engine::gfx::Model&          t_model
 ) -> tl::optional<engine::renderer::MeshBuffer>;
 
 }   // namespace init

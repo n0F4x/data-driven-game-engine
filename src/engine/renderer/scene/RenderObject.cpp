@@ -34,7 +34,8 @@ namespace engine::renderer {
 }
 
 auto RenderObject::Mesh::create(
-    const Device&           t_device,
+    vk::Device              t_device,
+    const Allocator&        t_allocator,
     vk::DescriptorSetLayout t_descriptor_set_layout,
     vk::DescriptorPool      t_descriptor_pool,
     std::vector<Primitive>  t_primitives,
@@ -52,7 +53,7 @@ try {
         .usage = VMA_MEMORY_USAGE_AUTO,
     };
 
-    return t_device
+    return t_allocator
         .create_buffer(
             buffer_create_info, allocation_create_info, &t_uniform_block
         )
@@ -69,7 +70,7 @@ try {
                     .primitives     = std::move(t_primitives),
                     .uniform_buffer = std::move(result.first),
                     .descriptor_set = create_descriptor_set(
-                        *t_device,
+                        t_device,
                         t_descriptor_set_layout,
                         t_descriptor_pool,
                         descriptor_buffer_info
@@ -85,7 +86,8 @@ try {
 }
 
 [[nodiscard]] static auto create_node(
-    const Device&           t_device,
+    vk::Device              t_device,
+    const Allocator&        t_allocator,
     vk::DescriptorSetLayout t_descriptor_set_layout,
     vk::DescriptorPool      t_descriptor_pool,
     const gfx::Model::Node& t_node,
@@ -96,6 +98,7 @@ try {
     if (auto src_mesh = t_node.mesh; src_mesh.has_value()) {
         mesh = { RenderObject::Mesh::create(
             t_device,
+            t_allocator,
             t_descriptor_set_layout,
             t_descriptor_pool,
             src_mesh->primitives,
@@ -116,6 +119,7 @@ try {
     for (const auto& src_node : t_node.children) {
         auto child = create_node(
             t_device,
+            t_allocator,
             t_descriptor_set_layout,
             t_descriptor_pool,
             src_node,
@@ -131,7 +135,8 @@ try {
 }
 
 auto RenderObject::create(
-    const Device&           t_device,
+    vk::Device              t_device,
+    const Allocator&        t_allocator,
     vk::DescriptorSetLayout t_descriptor_set_layout,
     vk::DescriptorPool      t_descriptor_pool,
     const gfx::Model&       t_model,
@@ -143,6 +148,7 @@ auto RenderObject::create(
     for (const auto& src_node : t_model.nodes()) {
         auto node = create_node(
             t_device,
+            t_allocator,
             t_descriptor_set_layout,
             t_descriptor_pool,
             src_node,

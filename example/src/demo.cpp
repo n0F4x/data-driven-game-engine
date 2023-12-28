@@ -14,6 +14,7 @@
 #include <entt/core/hashed_string.hpp>
 
 #include <engine/asset_manager/AssetRegistry.hpp>
+#include <engine/renderer/Allocator.hpp>
 #include <engine/renderer/Device.hpp>
 #include <engine/renderer/scene/RenderObject.hpp>
 #include <engine/renderer/Swapchain.hpp>
@@ -32,6 +33,7 @@ constexpr uint32_t g_frame_count{ 2 };
 
 struct DemoApp {
     renderer::Device&                  device;
+    renderer::Allocator&               allocator;
     renderer::Swapchain&               swapchain;
     vk::UniqueRenderPass               render_pass;
     vma::Image                         depth_image;
@@ -57,6 +59,7 @@ struct DemoApp {
     ) -> tl::optional<DemoApp>
     {
         auto& device{ t_store.at<renderer::Device>() };
+        auto& allocator{ t_store.at<renderer::Allocator>() };
 
         auto& swapchain{ t_store.at<renderer::Swapchain>() };
         swapchain.set_framebuffer_size(
@@ -73,9 +76,9 @@ struct DemoApp {
             return tl::nullopt;
         }
 
-        auto depth_image{
-            init::create_depth_image(device, swapchain.get()->extent())
-        };
+        auto depth_image{ init::create_depth_image(
+            device.physical_device(), *allocator, swapchain.get()->extent()
+        ) };
         if (!*depth_image) {
             return tl::nullopt;
         }
@@ -165,7 +168,7 @@ struct DemoApp {
         if (!*descriptor_pool) {
             return tl::nullopt;
         }
-        auto opt_mesh_buffer{ init::create_mesh_buffer(device, model) };
+        auto opt_mesh_buffer{ init::create_mesh_buffer(device, allocator, model) };
         if (!opt_mesh_buffer) {
             return tl::nullopt;
         }
@@ -173,7 +176,8 @@ struct DemoApp {
             std::make_unique<renderer::MeshBuffer>(std::move(*opt_mesh_buffer))
         };
         auto render_object{ renderer::RenderObject::create(
-            device,
+            *device,
+            allocator,
             *descriptor_set_layout,
             *descriptor_pool,
             model,
@@ -187,6 +191,7 @@ struct DemoApp {
 
         return DemoApp{
             .device                     = device,
+            .allocator                  = allocator,
             .swapchain                  = swapchain,
             .render_pass                = std::move(render_pass),
             .depth_image                = std::move(depth_image),
@@ -330,7 +335,9 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
                 [&t_demo](const vulkan::Swapchain& t_swapchain) {
                     t_demo.depth_image.reset();
                     t_demo.depth_image = init::create_depth_image(
-                        t_demo.device, t_swapchain.extent()
+                        t_demo.device.physical_device(),
+                        *t_demo.allocator,
+                        t_swapchain.extent()
                     );
                 }
             );

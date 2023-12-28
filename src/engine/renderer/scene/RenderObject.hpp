@@ -8,7 +8,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "engine/gfx/Model.hpp"
-#include "engine/renderer/Device.hpp"
+#include "engine/renderer/Allocator.hpp"
 #include "engine/utility/vma/Buffer.hpp"
 
 #include "MeshBuffer.hpp"
@@ -33,7 +33,8 @@ public:
         UniformBlock uniform_block;
 
         [[nodiscard]] static auto create(
-            const Device&           t_device,
+            vk::Device              t_device,
+            const Allocator&        t_allocator,
             vk::DescriptorSetLayout t_descriptor_set_layout,
             vk::DescriptorPool      t_descriptor_pool,
             std::vector<Primitive>  t_primitives,
@@ -52,7 +53,8 @@ public:
     /// Static methods ///
     ///----------------///
     [[nodiscard]] static auto create(
-        const Device&           t_device,
+        vk::Device              t_device,
+        const Allocator&        t_allocator,
         vk::DescriptorSetLayout t_descriptor_set_layout,
         vk::DescriptorPool      t_descriptor_pool,
         const gfx::Model&       t_model,

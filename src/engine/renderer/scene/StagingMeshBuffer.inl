@@ -4,7 +4,7 @@ namespace engine::renderer {
 
 template <typename Vertex>
 auto StagingMeshBuffer::create(
-    const Device&             t_device,
+    const Allocator&          t_allocator,
     std::span<const Vertex>   t_vertices,
     std::span<const uint32_t> t_indices
 ) noexcept -> tl::optional<StagingMeshBuffer>
@@ -26,7 +26,7 @@ auto StagingMeshBuffer::create(
         .usage = VMA_MEMORY_USAGE_AUTO,
     };
 
-    auto vertex_staging_buffer{ t_device.create_buffer(
+    auto vertex_staging_buffer{ t_allocator.create_buffer(
         vertex_staging_buffer_create_info,
         staging_allocation_create_info,
         t_vertices.data()
@@ -34,7 +34,7 @@ auto StagingMeshBuffer::create(
     if (!vertex_staging_buffer) {
         return tl::nullopt;
     }
-    auto index_staging_buffer{ t_device.create_buffer(
+    auto index_staging_buffer{ t_allocator.create_buffer(
         index_staging_buffer_create_info,
         staging_allocation_create_info,
         t_indices.data()

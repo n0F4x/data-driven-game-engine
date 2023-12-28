@@ -93,14 +93,16 @@ IncludeCategories:
     Priority: 5
   - Regex: '^<vulkan/'
     Priority: 6
-  - Regex: '^<glm/'
+  - Regex: '<vk_mem_alloc.h>'
     Priority: 7
-  - Regex: '^<glfw/'
+  - Regex: '^<glm/'
     Priority: 8
-  - Regex: '^<SFML/'
+  - Regex: '^<glfw/'
     Priority: 9
-  - Regex: '^<entt/'
+  - Regex: '^<SFML/'
     Priority: 10
+  - Regex: '^<entt/'
+    Priority: 11
   - Regex: '^<.*\..*'
     Priority: 998
   - Regex: '^<.*'

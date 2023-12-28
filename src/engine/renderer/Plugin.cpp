@@ -7,6 +7,7 @@
 
 #include "engine/window/Window.hpp"
 
+#include "Allocator.hpp"
 #include "Device.hpp"
 #include "helpers.hpp"
 #include "Instance.hpp"
@@ -75,7 +76,7 @@ template <typename TSurfaceCreator>
     )
         .transform([&](Device&& t_device) {
             return std::make_tuple(
-                *std::get<const Instance&>(t_pack),
+                std::cref(std::get<const Instance&>(t_pack)),
                 std::move(std::get<vk::UniqueSurfaceKHR>(t_pack)),
                 std::move(t_device)
             );
@@ -84,14 +85,62 @@ template <typename TSurfaceCreator>
 
 [[nodiscard]] auto inject_device(Store& t_store)
 {
-    return [&t_store](
-               std::tuple<vk::Instance, vk::UniqueSurfaceKHR, Device>&& t_pack
-           ) {
+    return
+        [&t_store](
+            std::tuple<const Instance&, vk::UniqueSurfaceKHR, Device>&& t_pack
+        ) {
+            return std::make_tuple(
+                std::cref(std::get<const Instance&>(t_pack)),
+                std::move(std::get<vk::UniqueSurfaceKHR>(t_pack)),
+                std::ref(
+                    t_store.emplace<Device>(std::move(std::get<Device>(t_pack)))
+                )
+            );
+        };
+}
+
+[[nodiscard]] auto create_allocator(
+    std::tuple<const Instance&, vk::UniqueSurfaceKHR, Device&>&& t_pack
+)
+{
+    const VmaVulkanFunctions vulkan_functions = { .vkGetInstanceProcAddr =
+                                                      &vkGetInstanceProcAddr,
+                                                  .vkGetDeviceProcAddr =
+                                                      &vkGetDeviceProcAddr };
+
+    const VmaAllocatorCreateInfo allocator_info{
+        .flags = helpers::vma_allocator_create_flags(
+            std::get<const Instance&>(t_pack).enabled_extensions(),
+            std::get<Device&>(t_pack).info().extensions
+        ),
+        .physicalDevice   = std::get<Device&>(t_pack).physical_device(),
+        .device           = *std::get<Device&>(t_pack),
+        .pVulkanFunctions = &vulkan_functions,
+        .instance         = *std::get<const Instance&>(t_pack),
+    };
+
+    return Allocator::create(allocator_info)
+        .transform([&]<typename TAllocator>(TAllocator&& t_allocator) {
+            return tl::optional{ std::tuple_cat(
+                std::move(t_pack),
+                std::tuple<Allocator>{ std::forward<TAllocator>(t_allocator) }
+            ) };
+        })
+        .value_or(tl::nullopt);
+}
+
+[[nodiscard]] auto inject_allocator(Store& t_store)
+{
+    return [&](std::tuple<
+               const Instance&,
+               vk::UniqueSurfaceKHR,
+               Device&,
+               Allocator>&& t_pack) {
+        t_store.emplace<Allocator>(std::move(std::get<Allocator>(t_pack)));
         return std::make_tuple(
-            std::get<vk::Instance>(t_pack),
+            *std::get<const Instance&>(t_pack),
             std::move(std::get<vk::UniqueSurfaceKHR>(t_pack)),
-            std::ref(t_store.emplace<Device>(std::move(std::get<Device>(t_pack))
-            ))
+            std::ref(std::get<Device&>(t_pack))
         );
     };
 }
@@ -165,6 +214,8 @@ auto Plugin::operator()(
         .and_then(::create_surface(t_store, t_create_surface))
         .and_then(create_device)
         .transform(inject_device(t_store))
+        .and_then(create_allocator)
+        .transform(inject_allocator(t_store))
         .transform(inject_swapchain(t_store, t_create_framebuffer_size_getter))
         .and_then(create_render_frame)
         .transform(inject_render_frame(t_store))

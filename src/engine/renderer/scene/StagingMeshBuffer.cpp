@@ -3,7 +3,7 @@
 namespace engine::renderer {
 
 auto StagingMeshBuffer::upload(
-    const Device&     t_device,
+    const Allocator&  t_allocator,
     vk::CommandBuffer t_copy_command_buffer
 ) const noexcept -> tl::optional<MeshBuffer>
 {
@@ -15,7 +15,7 @@ auto StagingMeshBuffer::upload(
     constexpr VmaAllocationCreateInfo vertex_allocation_create_info = {
         .usage = VMA_MEMORY_USAGE_AUTO,
     };
-    auto vertex_buffer{ t_device.create_buffer(
+    auto vertex_buffer{ t_allocator.create_buffer(
         vertex_buffer_create_info, vertex_allocation_create_info
     ) };
     if (!vertex_buffer) {
@@ -30,7 +30,7 @@ auto StagingMeshBuffer::upload(
     constexpr VmaAllocationCreateInfo index_allocation_create_info = {
         .usage = VMA_MEMORY_USAGE_AUTO,
     };
-    auto index_buffer{ t_device.create_buffer(
+    auto index_buffer{ t_allocator.create_buffer(
         index_buffer_create_info, index_allocation_create_info
     ) };
     if (!index_buffer) {
