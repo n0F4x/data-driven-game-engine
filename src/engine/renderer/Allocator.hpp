@@ -10,6 +10,9 @@
 #include "engine/utility/vma/Allocator.hpp"
 #include "engine/utility/vma/Buffer.hpp"
 
+#include "Device.hpp"
+#include "Instance.hpp"
+
 namespace engine::renderer {
 
 class Allocator {
@@ -19,6 +22,11 @@ public:
     ///----------------///
     [[nodiscard]] static auto create(
         const VmaAllocatorCreateInfo& t_vma_allocator_create_info
+    ) noexcept -> std::expected<Allocator, vk::Result>;
+
+    [[nodiscard]] static auto create_default(
+        const Instance& t_instance,
+        const Device&   t_device
     ) noexcept -> std::expected<Allocator, vk::Result>;
 
     ///------------------------------///

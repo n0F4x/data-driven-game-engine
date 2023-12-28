@@ -11,8 +11,6 @@
 
 namespace engine::renderer {
 
-class MeshBuffer;
-
 class StagingMeshBuffer {
 public:
     ///----------------///

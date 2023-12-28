@@ -1,5 +1,7 @@
 #include "Allocator.hpp"
 
+#include "helpers.hpp"
+
 namespace engine::renderer {
 
 auto Allocator::create(const VmaAllocatorCreateInfo& t_vma_allocator_create_info
@@ -13,6 +15,29 @@ auto Allocator::create(const VmaAllocatorCreateInfo& t_vma_allocator_create_info
         return std::unexpected{ result };
     }
     return Allocator{ vma::Allocator{ allocator } };
+}
+
+auto Allocator::create_default(
+    const Instance& t_instance,
+    const Device&   t_device
+) noexcept -> std::expected<Allocator, vk::Result>
+{
+    const VmaVulkanFunctions vulkan_functions = { .vkGetInstanceProcAddr =
+                                                      &vkGetInstanceProcAddr,
+                                                  .vkGetDeviceProcAddr =
+                                                      &vkGetDeviceProcAddr };
+
+    const VmaAllocatorCreateInfo allocator_info{
+        .flags = helpers::vma_allocator_create_flags(
+            t_instance.enabled_extensions(), t_device.info().extensions
+        ),
+        .physicalDevice   = t_device.physical_device(),
+        .device           = *t_device,
+        .pVulkanFunctions = &vulkan_functions,
+        .instance         = *t_instance,
+    };
+
+    return Allocator::create(allocator_info);
 }
 
 Allocator::Allocator(vma::Allocator&& t_allocator) noexcept
