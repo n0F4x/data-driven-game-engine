@@ -1,6 +1,8 @@
 #include "Allocator.hpp"
 
+#include "Device.hpp"
 #include "helpers.hpp"
+#include "Instance.hpp"
 
 namespace engine::renderer {
 

@@ -10,10 +10,10 @@
 #include "engine/utility/vma/Allocator.hpp"
 #include "engine/utility/vma/Buffer.hpp"
 
-#include "Device.hpp"
-#include "Instance.hpp"
-
 namespace engine::renderer {
+
+class Instance;
+class Device;
 
 class Allocator {
 public:

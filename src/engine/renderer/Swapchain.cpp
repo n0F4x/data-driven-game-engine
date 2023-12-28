@@ -84,7 +84,7 @@ try {
 
     recreate_swapchain();
     return tl::nullopt;
-} catch (const vk::OutOfDateKHRError& t_out_of_date_error) {
+} catch (const vk::OutOfDateKHRError&) {
     recreate_swapchain();
     return tl::nullopt;
 }
@@ -104,7 +104,7 @@ try {
     if (result == vk::Result::eSuboptimalKHR) {
         recreate_swapchain();
     }
-} catch (const vk::OutOfDateKHRError& t_out_of_date_error) {
+} catch (const vk::OutOfDateKHRError&) {
     recreate_swapchain();
 }
 
