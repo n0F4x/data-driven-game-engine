@@ -215,12 +215,13 @@ auto create_framebuffers(
 [[nodiscard]] auto create_descriptor_set_layout(const vk::Device t_device)
     -> vk::UniqueDescriptorSetLayout
 {
-    static constexpr vk::DescriptorSetLayoutBinding descriptor_set_layout_binding{
-        .binding         = 0,
-        .descriptorType  = vk::DescriptorType::eUniformBuffer,
-        .descriptorCount = 1,
-        .stageFlags      = vk::ShaderStageFlagBits::eVertex
-    };
+    constexpr static vk::DescriptorSetLayoutBinding
+        descriptor_set_layout_binding{ .binding = 0,
+                                       .descriptorType =
+                                           vk::DescriptorType::eUniformBuffer,
+                                       .descriptorCount = 1,
+                                       .stageFlags =
+                                           vk::ShaderStageFlagBits::eVertex };
     constexpr vk::DescriptorSetLayoutCreateInfo
         descriptor_set_layout_create_info{ .bindingCount = 1,
                                            .pBindings =
@@ -295,12 +296,17 @@ vk::ShaderStageFlagBits::eVertex,
                                             .location = 1,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,    color)) },
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,   normal)) },
         vk::VertexInputAttributeDescription{
                                             .location = 2,
                                             .binding  = 0,
-                                            .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,   normal)) }
+                                            .format   = vk::Format::eR32G32Sfloat,
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,       uv)) },
+        vk::VertexInputAttributeDescription{
+                                            .location = 3,
+                                            .binding  = 0,
+                                            .format   = vk::Format::eR32G32B32A32Sfloat,
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,    color)) }
     };
 
     vk::PipelineVertexInputStateCreateInfo

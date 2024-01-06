@@ -284,6 +284,16 @@ auto ModelLoader::load_vertices(
             ) };
             color_accessor != t_attributes.end())
         {
+            fastgltf::iterateAccessorWithIndex<glm::vec3>(
+                t_asset,
+                t_asset.accessors[color_accessor->second],
+                [&, first_vertex_index](
+                    const glm::vec3& color, const size_t index
+                ) {
+                    vertices[first_vertex_index + index].color =
+                        glm::vec4{ color, 1 };
+                }
+            );
             fastgltf::iterateAccessorWithIndex<glm::vec4>(
                 t_asset,
                 t_asset.accessors[color_accessor->second],

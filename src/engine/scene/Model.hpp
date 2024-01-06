@@ -25,7 +25,7 @@ public:
         glm::vec3 position;
         glm::vec3 normal{ 1, 0, 0 };
         glm::vec2 uv{};
-        glm::vec4 color{ 1 };
+        glm::vec4 color{};
     };
 
     struct Primitive {
