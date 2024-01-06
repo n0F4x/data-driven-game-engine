@@ -4,10 +4,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <engine/asset_manager/GltfLoader.hpp>
-#include <engine/gfx/Model.hpp>
-#include <engine/gfx/ModelFactory.hpp>
-#include <engine/renderer/scene/StagingMeshBuffer.hpp>
 #include <engine/utility/vulkan/tools.hpp>
 
 using namespace engine;
@@ -15,13 +11,13 @@ using namespace engine;
 namespace {
 
 [[nodiscard]] auto find_supported_format(
-    vk::PhysicalDevice             t_physical_device,
+    const vk::PhysicalDevice       t_physical_device,
     const std::vector<vk::Format>& t_candidates,
-    vk::ImageTiling                t_tiling,
-    vk::FormatFeatureFlags         t_features
+    const vk::ImageTiling          t_tiling,
+    const vk::FormatFeatureFlags   t_features
 ) -> vk::Format
 {
-    for (auto format : t_candidates) {
+    for (const auto format : t_candidates) {
         vk::FormatProperties format_properties;
         t_physical_device.getFormatProperties(format, &format_properties);
 
@@ -38,7 +34,7 @@ namespace {
     throw std::runtime_error{ "Failed to find supported format!" };
 }
 
-[[nodiscard]] auto find_depth_format(vk::PhysicalDevice t_physical_device
+[[nodiscard]] auto find_depth_format(const vk::PhysicalDevice t_physical_device
 ) noexcept -> vk::Format
 {
     using enum vk::Format;
@@ -59,7 +55,7 @@ namespace init {
     const renderer::Device&     t_device
 ) -> vk::UniqueRenderPass
 {
-    vk::AttachmentDescription color_attachment_description{
+    const vk::AttachmentDescription color_attachment_description{
         .format         = t_surface_format.format,
         .loadOp         = vk::AttachmentLoadOp::eClear,
         .stencilLoadOp  = vk::AttachmentLoadOp::eDontCare,
@@ -71,7 +67,7 @@ namespace init {
         .layout     = vk::ImageLayout::eColorAttachmentOptimal,
     };
 
-    vk::AttachmentDescription depth_attachment_description{
+    const vk::AttachmentDescription depth_attachment_description{
         .format         = find_depth_format(t_device.physical_device()),
         .samples        = vk::SampleCountFlagBits::e1,
         .loadOp         = vk::AttachmentLoadOp::eClear,
@@ -108,7 +104,7 @@ namespace init {
                        | vk::AccessFlagBits::eDepthStencilAttachmentWrite,
     };
 
-    vk::RenderPassCreateInfo render_pass_create_info{
+    const vk::RenderPassCreateInfo render_pass_create_info{
         .attachmentCount =
             static_cast<uint32_t>(attachment_descriptions.size()),
         .pAttachments    = attachment_descriptions.data(),
@@ -122,12 +118,12 @@ namespace init {
 }
 
 auto create_depth_image(
-    vk::PhysicalDevice t_physical_device,
-    VmaAllocator       t_allocator,
-    vk::Extent2D       t_swapchain_extent
+    const vk::PhysicalDevice t_physical_device,
+    VmaAllocator             t_allocator,
+    const vk::Extent2D       t_swapchain_extent
 ) noexcept -> vma::Image
 {
-    vk::ImageCreateInfo image_create_info = {
+    const vk::ImageCreateInfo image_create_info = {
         .imageType = vk::ImageType::e2D,
         .format    = find_depth_format(t_physical_device),
         .extent =
@@ -144,7 +140,7 @@ auto create_depth_image(
         .initialLayout = vk::ImageLayout::eUndefined,
     };
 
-    VmaAllocationCreateInfo allocation_create_info = {
+    constexpr VmaAllocationCreateInfo allocation_create_info = {
         .flags    = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
         .usage    = VMA_MEMORY_USAGE_AUTO,
         .priority = 1.f,
@@ -160,15 +156,15 @@ auto create_depth_image(
         &allocation,
         nullptr
     );
-    return engine::vma::Image(t_allocator, image, allocation);
+    return vma::Image(t_allocator, image, allocation);
 }
 
 auto create_depth_image_view(
     const renderer::Device& t_device,
-    vk::Image               t_depth_image
+    const vk::Image         t_depth_image
 ) -> vk::UniqueImageView
 {
-    vk::ImageViewCreateInfo image_view_create_info{
+    const vk::ImageViewCreateInfo image_view_create_info{
         .image    = t_depth_image,
         .viewType = vk::ImageViewType::e2D,
         .format   = find_depth_format(t_device.physical_device()),
@@ -186,11 +182,11 @@ auto create_depth_image_view(
 }
 
 auto create_framebuffers(
-    vk::Device                              t_device,
-    vk::Extent2D                            t_swapchain_extent,
+    const vk::Device                        t_device,
+    const vk::Extent2D                      t_swapchain_extent,
     const std::vector<vk::UniqueImageView>& t_swapchain_image_views,
-    vk::RenderPass                          t_render_pass,
-    vk::ImageView                           t_depth_image_view
+    const vk::RenderPass                    t_render_pass,
+    const vk::ImageView                     t_depth_image_view
 ) -> std::vector<vk::UniqueFramebuffer>
 {
     std::vector<vk::UniqueFramebuffer> framebuffers;
@@ -216,18 +212,19 @@ auto create_framebuffers(
     return framebuffers;
 }
 
-[[nodiscard]] auto create_descriptor_set_layout(vk::Device t_device)
+[[nodiscard]] auto create_descriptor_set_layout(const vk::Device t_device)
     -> vk::UniqueDescriptorSetLayout
 {
-    vk::DescriptorSetLayoutBinding descriptor_set_layout_binding{
+    static constexpr vk::DescriptorSetLayoutBinding descriptor_set_layout_binding{
         .binding         = 0,
         .descriptorType  = vk::DescriptorType::eUniformBuffer,
         .descriptorCount = 1,
         .stageFlags      = vk::ShaderStageFlagBits::eVertex
     };
-    vk::DescriptorSetLayoutCreateInfo descriptor_set_layout_create_info{
-        .bindingCount = 1, .pBindings = &descriptor_set_layout_binding
-    };
+    constexpr vk::DescriptorSetLayoutCreateInfo
+        descriptor_set_layout_create_info{ .bindingCount = 1,
+                                           .pBindings =
+                                               &descriptor_set_layout_binding };
 
     return t_device.createDescriptorSetLayoutUnique(
         descriptor_set_layout_create_info
@@ -235,16 +232,16 @@ auto create_framebuffers(
 }
 
 [[nodiscard]] auto create_pipeline_layout(
-    vk::Device              t_device,
-    vk::DescriptorSetLayout t_descriptor_set_layout,
-    uint32_t                t_push_constant_size
+    const vk::Device              t_device,
+    const vk::DescriptorSetLayout t_descriptor_set_layout,
+    const uint32_t                t_push_constant_size
 ) -> vk::UniquePipelineLayout
 {
-    vk::PushConstantRange push_constant_range{
+    const vk::PushConstantRange push_constant_range{
         .stageFlags = vk::ShaderStageFlagBits::eVertex,
         .size       = t_push_constant_size,
     };
-    vk::PipelineLayoutCreateInfo pipeline_layout_create_info{
+    const vk::PipelineLayoutCreateInfo pipeline_layout_create_info{
         .setLayoutCount         = 1,
         .pSetLayouts            = &t_descriptor_set_layout,
         .pushConstantRangeCount = 1,
@@ -255,9 +252,9 @@ auto create_framebuffers(
 }
 
 [[nodiscard]] auto create_pipeline(
-    vk::Device         t_device,
-    vk::PipelineLayout t_pipeline_layout,
-    vk::RenderPass     t_render_pass
+    const vk::Device         t_device,
+    const vk::PipelineLayout t_pipeline_layout,
+    const vk::RenderPass     t_render_pass
 ) -> vk::UniquePipeline
 {
     const auto vertex_shader_module{
@@ -275,14 +272,14 @@ auto create_framebuffers(
         vk::PipelineShaderStageCreateInfo{.stage =
 vk::ShaderStageFlagBits::eVertex,
                                           .module = *vertex_shader_module,
-                                          .pName  = "main"},
+                                          .pName  = "main" },
         vk::PipelineShaderStageCreateInfo{
                                           .stage  = vk::ShaderStageFlagBits::eFragment,
                                           .module = *fragment_shader_module,
-                                          .pName  = "main"}
+                                          .pName  = "main" }
     };
 
-    using Vertex = engine::gfx::Model::Vertex;
+    using Vertex = engine::scene::Model::Vertex;
     vk::VertexInputBindingDescription vertex_input_binding_description{
         .binding   = 0,
         .stride    = sizeof(Vertex),
@@ -293,17 +290,17 @@ vk::ShaderStageFlagBits::eVertex,
                                             .location = 0,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex, position))},
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex, position)) },
         vk::VertexInputAttributeDescription{
                                             .location = 1,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,    color))},
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,    color)) },
         vk::VertexInputAttributeDescription{
                                             .location = 2,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,   normal))}
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,   normal)) }
     };
 
     vk::PipelineVertexInputStateCreateInfo
@@ -387,10 +384,12 @@ vk::ShaderStageFlagBits::eVertex,
         .value;
 }
 
-auto create_command_pool(vk::Device t_device, uint32_t t_queue_family_index)
-    -> vk::UniqueCommandPool
+auto create_command_pool(
+    const vk::Device t_device,
+    const uint32_t   t_queue_family_index
+) -> vk::UniqueCommandPool
 {
-    vk::CommandPoolCreateInfo command_pool_create_info{
+    const vk::CommandPoolCreateInfo command_pool_create_info{
         .flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
         .queueFamilyIndex = t_queue_family_index
     };
@@ -398,12 +397,12 @@ auto create_command_pool(vk::Device t_device, uint32_t t_queue_family_index)
 }
 
 [[nodiscard]] auto create_command_buffers(
-    vk::Device      t_device,
-    vk::CommandPool t_command_pool,
-    uint32_t        t_count
+    const vk::Device      t_device,
+    const vk::CommandPool t_command_pool,
+    const uint32_t        t_count
 ) -> std::vector<vk::CommandBuffer>
 {
-    vk::CommandBufferAllocateInfo command_buffer_allocate_info{
+    const vk::CommandBufferAllocateInfo command_buffer_allocate_info{
         .commandPool        = t_command_pool,
         .level              = vk::CommandBufferLevel::ePrimary,
         .commandBufferCount = t_count
@@ -411,13 +410,13 @@ auto create_command_pool(vk::Device t_device, uint32_t t_queue_family_index)
     return t_device.allocateCommandBuffers(command_buffer_allocate_info);
 }
 
-auto create_descriptor_pool(vk::Device t_device, uint32_t t_count)
+auto create_descriptor_pool(const vk::Device t_device, const uint32_t t_count)
     -> vk::UniqueDescriptorPool
 {
     vk::DescriptorPoolSize descriptor_pool_size{
         .type = vk::DescriptorType::eUniformBuffer, .descriptorCount = t_count
     };
-    vk::DescriptorPoolCreateInfo descriptor_pool_create_info{
+    const vk::DescriptorPoolCreateInfo descriptor_pool_create_info{
         .flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
         .maxSets       = t_count,
         .poolSizeCount = 1,
@@ -426,11 +425,11 @@ auto create_descriptor_pool(vk::Device t_device, uint32_t t_count)
     return t_device.createDescriptorPoolUnique(descriptor_pool_create_info);
 }
 
-auto create_semaphores(vk::Device t_device, uint32_t t_count)
+auto create_semaphores(const vk::Device t_device, const uint32_t t_count)
     -> std::vector<vk::UniqueSemaphore>
 {
-    vk::SemaphoreCreateInfo          createInfo{};
-    std::vector<vk::UniqueSemaphore> semaphores;
+    constexpr vk::SemaphoreCreateInfo createInfo{};
+    std::vector<vk::UniqueSemaphore>  semaphores;
     semaphores.reserve(t_count);
 
     for (uint32_t i = 0; i < t_count; i++) {
@@ -440,10 +439,10 @@ auto create_semaphores(vk::Device t_device, uint32_t t_count)
     return semaphores;
 }
 
-auto create_fences(vk::Device t_device, uint32_t t_count)
+auto create_fences(const vk::Device t_device, const uint32_t t_count)
     -> std::vector<vk::UniqueFence>
 {
-    vk::FenceCreateInfo fence_create_info{
+    constexpr vk::FenceCreateInfo fence_create_info{
         .flags = vk::FenceCreateFlagBits::eSignaled
     };
     std::vector<vk::UniqueFence> fences;
@@ -456,22 +455,8 @@ auto create_fences(vk::Device t_device, uint32_t t_count)
     return fences;
 }
 
-auto create_model(const std::string& t_path) noexcept
-    -> tl::optional<gfx::Model>
-{
-    const auto format{ t_path.ends_with(".glb")
-                           ? asset_manager::GltfFormat::eBinary
-                           : asset_manager::GltfFormat::eAscii };
-
-    return asset_manager::GltfLoader::load_model(format, t_path)
-        .transform([]<typename Model>(Model&& t_model) {
-            return gfx::ModelFactory::create_model(std::forward<Model>(t_model)
-            );
-        });
-}
-
-[[nodiscard]] static auto count_meshes(const gfx::Model::Node& t_node) noexcept
-    -> uint32_t
+[[nodiscard]] static auto count_meshes(const scene::StagingModel::Node& t_node
+) noexcept -> uint32_t
 {
     uint32_t count{};
     if (t_node.mesh) {
@@ -483,7 +468,7 @@ auto create_model(const std::string& t_path) noexcept
     return count;
 }
 
-auto count_meshes(const gfx::Model& t_model) noexcept -> uint32_t
+auto count_meshes(const scene::StagingModel& t_model) noexcept -> uint32_t
 {
     uint32_t count{};
     for (const auto& node : t_model.nodes()) {
@@ -492,25 +477,18 @@ auto count_meshes(const gfx::Model& t_model) noexcept -> uint32_t
     return count;
 }
 
-auto create_mesh_buffer(
-    const renderer::Device&    t_device,
-    const renderer::Allocator& t_allocator,
-    const gfx::Model&          t_model
-) -> tl::optional<renderer::MeshBuffer>
+auto upload_model(
+    const renderer::Device&       t_device,
+    const renderer::Allocator&    t_allocator,
+    scene::StagingModel&&         t_staging_model,
+    const vk::DescriptorSetLayout t_descriptor_set_layout,
+    const vk::DescriptorPool      t_descriptor_pool
+) -> tl::optional<scene::Model>
 {
-    auto opt_staging_mesh_buffer{
-        renderer::StagingMeshBuffer::create<gfx::Model::Vertex>(
-            t_allocator, t_model.vertices(), t_model.indices()
-        )
+    auto transfer_command_pool{
+        create_command_pool(*t_device, t_device.transfer_queue_family_index())
     };
-    if (!opt_staging_mesh_buffer) {
-        return tl::nullopt;
-    }
-
-    auto transfer_command_pool{ init::create_command_pool(
-        *t_device, t_device.transfer_queue_family_index()
-    ) };
-    vk::CommandBufferAllocateInfo command_buffer_allocate_info{
+    const vk::CommandBufferAllocateInfo command_buffer_allocate_info{
         .commandPool        = *transfer_command_pool,
         .level              = vk::CommandBufferLevel::ePrimary,
         .commandBufferCount = 1
@@ -519,14 +497,19 @@ auto create_mesh_buffer(
         t_device->allocateCommandBuffers(command_buffer_allocate_info).front()
     };
 
-    vk::CommandBufferBeginInfo begin_info{};
-    static_cast<void>(command_buffer.begin(begin_info));
-    auto opt_mesh_buffer{
-        opt_staging_mesh_buffer->upload(t_allocator, command_buffer)
-    };
-    static_cast<void>(command_buffer.end());
+    constexpr vk::CommandBufferBeginInfo begin_info{};
+    command_buffer.begin(begin_info);
+    auto opt_model{ std::move(t_staging_model)
+                        .upload(
+                            *t_device,
+                            t_allocator,
+                            command_buffer,
+                            t_descriptor_set_layout,
+                            t_descriptor_pool
+                        ) };
+    command_buffer.end();
 
-    vk::SubmitInfo submit_info{
+    const vk::SubmitInfo submit_info{
         .commandBufferCount = 1,
         .pCommandBuffers    = &command_buffer,
     };
@@ -535,13 +518,13 @@ auto create_mesh_buffer(
     static_cast<void>(t_device.transfer_queue().submit(1, &submit_info, *fence)
     );
 
-    auto raw_fence{ *fence };
+    const auto raw_fence{ *fence };
     static_cast<void>(
         t_device->waitForFences(1, &raw_fence, true, 100'000'000'000)
     );
     t_device->resetCommandPool(*transfer_command_pool);
 
-    return opt_mesh_buffer;
+    return opt_model;
 }
 
 }   // namespace init

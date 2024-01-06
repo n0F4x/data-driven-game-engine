@@ -4,7 +4,9 @@
 
 #include "engine/utility/vma/Buffer.hpp"
 
-namespace engine::renderer {
+namespace engine::scene {
+
+class StagingMeshBuffer;
 
 class MeshBuffer {
 public:
@@ -20,10 +22,7 @@ public:
         vma::Buffer buffer;
     };
 
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    explicit MeshBuffer(Vertices&& t_vertices, Indices&& t_indices) noexcept;
+    MeshBuffer(MeshBuffer&&) noexcept = default;
 
     ///-----------///
     ///  Methods  ///
@@ -31,11 +30,21 @@ public:
     auto bind(vk::CommandBuffer t_command_buffer) const noexcept -> void;
 
 private:
+    ///******************///
+    ///  Friend Classes  ///
+    ///******************///
+    friend StagingMeshBuffer;
+
     ///*************///
     ///  Variables  ///
     ///*************///
     Vertices m_vertices;
     Indices  m_indices;
+
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    explicit MeshBuffer(Vertices&& t_vertices, Indices&& t_indices) noexcept;
 };
 
-}   // namespace engine::renderer
+}   // namespace engine::scene

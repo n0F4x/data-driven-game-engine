@@ -1,16 +1,14 @@
 #include "MeshBuffer.hpp"
 
-namespace engine::renderer {
+namespace engine::scene {
 
-MeshBuffer::MeshBuffer(
-    MeshBuffer::Vertices&& t_vertices,
-    MeshBuffer::Indices&&  t_indices
-) noexcept
+MeshBuffer::MeshBuffer(Vertices&& t_vertices, Indices&& t_indices) noexcept
     : m_vertices{ std::move(t_vertices) },
       m_indices{ std::move(t_indices) }
 {}
 
-auto MeshBuffer::bind(vk::CommandBuffer t_command_buffer) const noexcept -> void
+auto MeshBuffer::bind(const vk::CommandBuffer t_command_buffer) const noexcept
+    -> void
 {
     const std::array vertex_buffers{ *m_vertices.buffer };
     constexpr std::array<vk::DeviceSize, 1> offsets{ 0 };
@@ -22,4 +20,4 @@ auto MeshBuffer::bind(vk::CommandBuffer t_command_buffer) const noexcept -> void
     }
 }
 
-}   // namespace engine::renderer
+}   // namespace engine::scene

@@ -11,6 +11,7 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
+    Buffer() = default;
     explicit Buffer(
         VmaAllocator  t_allocator,
         vk::Buffer    t_buffer,
@@ -35,9 +36,9 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    VmaAllocator  m_allocator;
-    vk::Buffer    m_buffer;
-    VmaAllocation m_allocation;
+    VmaAllocator  m_allocator{};
+    vk::Buffer    m_buffer{};
+    VmaAllocation m_allocation{};
 };
 
 }   // namespace engine::vma

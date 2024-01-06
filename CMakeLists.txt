@@ -141,17 +141,14 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_precompile_headers(${PROJECT_NAME} PRIVATE <glm/glm.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 
-# tinygltf
-FetchContent_Declare(tinygltf
-        GIT_REPOSITORY https://github.com/syoyo/tinygltf.git
-        GIT_TAG v2.8.17
-        GIT_PROGRESS TRUE)
-FetchContent_MakeAvailable(tinygltf)
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-        TINYGLTF_NOEXCEPTION
-        TINYGLTF_USE_CPP14
+# fastgltf
+FetchContent_Declare(fastgltf
+    GIT_REPOSITORY https://github.com/spnda/fastgltf.git
+    GIT_TAG v0.6.1
+    GIT_PROGRESS TRUE
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC tinygltf)
+FetchContent_MakeAvailable(fastgltf)
+target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf)
 
 # EnTT
 FetchContent_Declare(EnTT

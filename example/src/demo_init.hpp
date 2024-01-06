@@ -8,10 +8,9 @@
 
 #include <vk_mem_alloc.h>
 
-#include <engine/gfx/Model.hpp>
 #include <engine/renderer/Allocator.hpp>
 #include <engine/renderer/Device.hpp>
-#include <engine/renderer/scene/MeshBuffer.hpp>
+#include <engine/scene/StagingModel.hpp>
 #include <engine/utility/vma/Image.hpp>
 
 namespace init {
@@ -75,16 +74,15 @@ namespace init {
 [[nodiscard]] auto create_fences(vk::Device t_device, uint32_t t_count)
     -> std::vector<vk::UniqueFence>;
 
-[[nodiscard]] auto create_model(const std::string& t_path) noexcept
-    -> tl::optional<engine::gfx::Model>;
+[[nodiscard]] auto count_meshes(const engine::scene::StagingModel& t_model
+) noexcept -> uint32_t;
 
-[[nodiscard]] auto count_meshes(const engine::gfx::Model& t_model) noexcept
-    -> uint32_t;
-
-[[nodiscard]] auto create_mesh_buffer(
+auto upload_model(
     const engine::renderer::Device&    t_device,
     const engine::renderer::Allocator& t_allocator,
-    const engine::gfx::Model&          t_model
-) -> tl::optional<engine::renderer::MeshBuffer>;
+    engine::scene::StagingModel&&      t_staging_model,
+    vk::DescriptorSetLayout            t_descriptor_set_layout,
+    vk::DescriptorPool                 t_descriptor_pool
+) -> tl::optional<engine::scene::Model>;
 
 }   // namespace init

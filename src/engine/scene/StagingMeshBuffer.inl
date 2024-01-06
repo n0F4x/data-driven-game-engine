@@ -1,16 +1,18 @@
 #include <vk_mem_alloc.h>
 
-namespace engine::renderer {
+namespace engine::scene {
 
 template <typename Vertex>
 auto StagingMeshBuffer::create(
-    const Allocator&          t_allocator,
-    std::span<const Vertex>   t_vertices,
-    std::span<const uint32_t> t_indices
+    const renderer::Allocator&      t_allocator,
+    const std::span<const Vertex>   t_vertices,
+    const std::span<const uint32_t> t_indices
 ) noexcept -> tl::optional<StagingMeshBuffer>
 {
-    auto vertex_buffer_size = static_cast<uint32_t>(t_vertices.size_bytes());
-    auto index_buffer_size  = static_cast<uint32_t>(t_indices.size_bytes());
+    const auto vertex_buffer_size =
+        static_cast<uint32_t>(t_vertices.size_bytes());
+    const auto index_buffer_size =
+        static_cast<uint32_t>(t_indices.size_bytes());
 
     const vk::BufferCreateInfo vertex_staging_buffer_create_info = {
         .size  = vertex_buffer_size,
@@ -52,4 +54,4 @@ auto StagingMeshBuffer::create(
     };
 }
 
-}   // namespace engine::renderer
+}   // namespace engine::scene

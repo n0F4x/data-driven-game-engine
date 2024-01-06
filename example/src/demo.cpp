@@ -2,8 +2,6 @@
 
 #include <atomic>
 #include <future>
-#include <iostream>
-#include <memory>
 #include <mutex>
 #include <thread>
 
@@ -16,8 +14,9 @@
 #include <engine/asset_manager/AssetRegistry.hpp>
 #include <engine/renderer/Allocator.hpp>
 #include <engine/renderer/Device.hpp>
-#include <engine/renderer/scene/RenderObject.hpp>
 #include <engine/renderer/Swapchain.hpp>
+#include <engine/scene/Model.hpp>
+#include <engine/scene/ModelFactory.hpp>
 #include <engine/utility/converters.hpp>
 #include <engine/utility/vma/Image.hpp>
 #include <engine/window/Window.hpp>
@@ -50,8 +49,7 @@ struct DemoApp {
     std::vector<vk::UniqueFence>       in_flight_fences;
     uint32_t                           frame_index{};
 
-    std::unique_ptr<renderer::MeshBuffer> mesh_buffer;
-    renderer::RenderObject                render_object;
+    scene::Model model;
 
     [[nodiscard]] static auto create(
         Store&             t_store,
@@ -154,37 +152,26 @@ struct DemoApp {
             return tl::nullopt;
         }
 
-        auto opt_model{ init::create_model(t_model_filepath) };
-        if (!opt_model) {
-            std::cout << "Model could not be created properly\n";
+        auto opt_staging_model{
+            scene::ModelFactory::load_gltf(t_model_filepath, allocator)
+        };
+        if (!opt_staging_model) {
             return tl::nullopt;
         }
-        auto model{ t_store.at<asset_manager::AssetRegistry>().emplace(
-            std::move(*opt_model), "Model 0"_hs
+        auto descriptor_pool{ init::create_descriptor_pool(
+            *device, init::count_meshes(*opt_staging_model)
         ) };
-        auto descriptor_pool{
-            init::create_descriptor_pool(*device, init::count_meshes(model))
-        };
-        if (!*descriptor_pool) {
+        if (!descriptor_pool) {
             return tl::nullopt;
         }
-        auto opt_mesh_buffer{ init::create_mesh_buffer(device, allocator, model) };
-        if (!opt_mesh_buffer) {
-            return tl::nullopt;
-        }
-        auto unique_mesh_buffer{
-            std::make_unique<renderer::MeshBuffer>(std::move(*opt_mesh_buffer))
-        };
-        auto render_object{ renderer::RenderObject::create(
-            *device,
+        auto opt_model{ init::upload_model(
+            device,
             allocator,
+            std::move(*opt_staging_model),
             *descriptor_set_layout,
-            *descriptor_pool,
-            model,
-            *unique_mesh_buffer
+            *descriptor_pool
         ) };
-        if (!render_object) {
-            std::cout << "Model could not be loaded correctly\n";
+        if (!opt_model) {
             return tl::nullopt;
         }
 
@@ -206,14 +193,13 @@ struct DemoApp {
             .image_acquired_semaphores  = std::move(image_acquired_semaphores),
             .render_finished_semaphores = std::move(render_finished_semaphores),
             .in_flight_fences           = std::move(in_flight_fences),
-            .mesh_buffer                = std::move(unique_mesh_buffer),
-            .render_object              = std::move(*render_object),
+            .model                      = std::move(*opt_model),
         };
     }
 
     auto render(
-        vk::Extent2D  t_framebuffer_size,
-        const Camera& t_camera
+        const vk::Extent2D t_framebuffer_size,
+        const Camera&      t_camera
     ) noexcept -> void
     {
         swapchain.set_framebuffer_size(t_framebuffer_size);
@@ -226,7 +212,7 @@ struct DemoApp {
 
         swapchain
             .acquire_next_image(*image_acquired_semaphores[frame_index], {})
-            .transform([&](uint32_t image_index) {
+            .transform([&](const uint32_t image_index) {
                 device->resetFences({ *in_flight_fences[frame_index] });
                 command_buffers[frame_index].reset();
 
@@ -242,7 +228,7 @@ struct DemoApp {
                 std::array signal_semaphores{
                     *render_finished_semaphores[frame_index]
                 };
-                vk::SubmitInfo submit_info{
+                const vk::SubmitInfo submit_info{
                     .waitSemaphoreCount =
                         static_cast<uint32_t>(wait_semaphores.size()),
                     .pWaitSemaphores    = wait_semaphores.data(),
@@ -253,9 +239,9 @@ struct DemoApp {
                         static_cast<uint32_t>(signal_semaphores.size()),
                     .pSignalSemaphores = signal_semaphores.data()
                 };
-                static_cast<void>(device.graphics_queue().submit(
+                device.graphics_queue().submit(
                     submit_info, *in_flight_fences[frame_index]
-                ));
+                );
 
                 swapchain.present(signal_semaphores);
             });
@@ -263,11 +249,13 @@ struct DemoApp {
         frame_index = (frame_index + 1) % g_frame_count;
     }
 
-    auto record_command_buffer(uint32_t t_image_index, Camera t_camera) noexcept
-        -> void
+    auto record_command_buffer(
+        const uint32_t t_image_index,
+        Camera         t_camera
+    ) noexcept -> void
     {
-        auto command_buffer = command_buffers[frame_index];
-        vk::CommandBufferBeginInfo command_buffer_begin_info{};
+        const auto command_buffer = command_buffers[frame_index];
+        constexpr vk::CommandBufferBeginInfo command_buffer_begin_info{};
 
         static_cast<void>(command_buffer.begin(command_buffer_begin_info));
 
@@ -278,7 +266,7 @@ struct DemoApp {
             vk::ClearValue{ .depthStencil = { 1.f, 0 } }
         };
 
-        vk::RenderPassBeginInfo render_pass_begin_info{
+        const vk::RenderPassBeginInfo render_pass_begin_info{
             .renderPass      = *render_pass,
             .framebuffer     = *framebuffers[t_image_index],
             .renderArea      = { .extent = swapchain.get()->extent() },
@@ -290,7 +278,7 @@ struct DemoApp {
             render_pass_begin_info, vk::SubpassContents::eInline
         );
 
-        auto extent{ swapchain.get()->extent() };
+        const auto extent{ swapchain.get()->extent() };
         command_buffer.setViewport(
             0,
             vk::Viewport{ .width    = static_cast<float>(extent.width),
@@ -318,16 +306,15 @@ struct DemoApp {
             &t_camera
         );
 
-        render_object.draw(command_buffer, *pipeline_layout);
+        model.draw(command_buffer, *pipeline_layout);
 
 
         command_buffer.endRenderPass();
-        static_cast<void>(command_buffer.end());
+        command_buffer.end();
     }
 };
 
-auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
-    -> int
+auto demo::run(App& t_app, const std::string& t_model_filepath) noexcept -> int
 {
     return DemoApp::create(t_app.store(), t_model_filepath)
         .transform([&](DemoApp t_demo) {
@@ -370,27 +357,23 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
 
             std::atomic<vk::Extent2D> framebuffer_size{};
             Camera                    camera;
-            std::mutex                camera_lock{};
+            std::mutex                camera_mutex{};
 
             auto rendering = std::async(std::launch::async, [&] {
-                Camera render_camera;
                 while (running) {
-                    camera_lock.lock();
-                    render_camera = camera;
-                    camera_lock.unlock();
+                    camera_mutex.lock();
+                    Camera render_camera{ camera };
+                    camera_mutex.unlock();
                     t_demo.render(framebuffer_size, render_camera);
                 }
             });
 
             auto last_time = std::chrono::high_resolution_clock::now();
             while (running) {
-                std::this_thread::sleep_for(
-                    std::chrono::duration<float, std::chrono::seconds::period>{
-                        1.f / 60.f }
-                );
+                std::this_thread::sleep_for(std::chrono::duration<float>{
+                    1.f / 60.f });
                 auto now = std::chrono::high_resolution_clock::now();
-                std::chrono::duration<float, std::chrono::seconds::period>
-                    delta_time{ now - last_time };
+                std::chrono::duration<float> delta_time{ now - last_time };
                 last_time = now;
 
                 while (window->pollEvent(event)) {
@@ -410,13 +393,13 @@ auto demo::run(engine::App& t_app, const std::string& t_model_filepath) noexcept
                 }
 
                 controller.update(delta_time.count());
-                camera_lock.lock();
+                camera_mutex.lock();
                 camera = controller.update_camera(camera);
-                camera_lock.unlock();
+                camera_mutex.unlock();
             }
 
             rendering.get();
-            static_cast<void>(t_demo.device->waitIdle());
+            t_demo.device->waitIdle();
 
             return 0;
         })

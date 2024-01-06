@@ -6,15 +6,12 @@
 
 using namespace engine;
 
-// const std::string g_model_file_path{
-//     "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
-// };
-//  const std::string g_model_file_path{
-//  "models/Avocado/glTF-Binary/Avocado.glb"
-//  };
-const std::string g_model_file_path{ "models/DamagedHelmet.glb" };
-
-// const std::string g_model_file_path{ "models/Sponza/glTF/Sponza.gltf" };
+const std::string g_model_file_path{
+    //    "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
+    //    "models/Avocado/glTF-Binary/Avocado.glb"
+    //    "models/DamagedHelmet.glb"
+    "models/Sponza/glTF/Sponza.gltf"
+};
 
 auto main() -> int
 {
@@ -25,6 +22,5 @@ auto main() -> int
             sf::VideoMode{ 1'080, 720 }, "My window", window::Style::eDefault
         )
         .add_plugin<plugins::Renderer>(plugins::Renderer::create_surface)
-        .add_plugin<plugins::SceneGraph>()
         .build_and_run(demo::run, g_model_file_path);
 }

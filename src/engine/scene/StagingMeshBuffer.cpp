@@ -1,10 +1,12 @@
 #include "StagingMeshBuffer.hpp"
 
-namespace engine::renderer {
+#include <vk_mem_alloc.h>
+
+namespace engine::scene {
 
 auto StagingMeshBuffer::upload(
-    const Allocator&  t_allocator,
-    vk::CommandBuffer t_copy_command_buffer
+    const renderer::Allocator& t_allocator,
+    const vk::CommandBuffer    t_copy_command_buffer
 ) const noexcept -> tl::optional<MeshBuffer>
 {
     const vk::BufferCreateInfo vertex_buffer_create_info = {
@@ -66,11 +68,11 @@ auto StagingMeshBuffer::upload(
 }
 
 StagingMeshBuffer::StagingMeshBuffer(
-    vma::Buffer&& t_vertex_staging_buffer,
-    vma::Buffer&& t_index_staging_buffer,
-    uint32_t      t_vertex_buffer_size,
-    uint32_t      t_index_buffer_size,
-    uint32_t      t_index_count
+    vma::Buffer&&  t_vertex_staging_buffer,
+    vma::Buffer&&  t_index_staging_buffer,
+    const uint32_t t_vertex_buffer_size,
+    const uint32_t t_index_buffer_size,
+    const uint32_t t_index_count
 ) noexcept
     : m_vertex_staging_buffer{ std::move(t_vertex_staging_buffer) },
       m_index_staging_buffer{ std::move(t_index_staging_buffer) },
@@ -79,4 +81,4 @@ StagingMeshBuffer::StagingMeshBuffer(
       m_index_count{ t_index_count }
 {}
 
-}   // namespace engine::renderer
+}   // namespace engine::scene
