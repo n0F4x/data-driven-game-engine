@@ -1,65 +1,72 @@
 #include "Controller.hpp"
 
-#include <limits>
+#include <iostream>
 
 #include <glm/gtc/matrix_transform.hpp>
 
-auto Controller::update(float t_delta_time) noexcept -> void
+auto Controller::update(
+    const engine::window::Window& t_window,
+    float                         t_delta_time
+) noexcept -> void
 {
-    glm::vec3 rotate{ 0 };
-    if (sf::Keyboard::isKeyPressed(m_turning_key_map.right)) {
-        rotate.y -= 1.f;
-    }
-    if (sf::Keyboard::isKeyPressed(m_turning_key_map.left)) {
-        rotate.y += 1.f;
-    }
-    if (sf::Keyboard::isKeyPressed(m_turning_key_map.up)) {
-        rotate.x += 1.f;
-    }
-    if (sf::Keyboard::isKeyPressed(m_turning_key_map.down)) {
-        rotate.x -= 1.f;
-    }
+    double cursor_x;
+    double cursor_y;
+    glfwGetCursorPos(t_window.get(), &cursor_x, &cursor_y);
 
-    if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
-        m_rotation += m_turning_speed * t_delta_time * glm::normalize(rotate);
-    }
+    int width, height;
+    glfwGetWindowSize(t_window.get(), &width, &height);
 
-    m_rotation.x = glm::mod(m_rotation.x, glm::two_pi<float>());
-    m_rotation.y = glm::mod(m_rotation.y, glm::two_pi<float>());
+    m_vertical_angle = glm::mod(
+        m_vertical_angle
+            + m_mouse_speed
+                  * (static_cast<float>(height) / 2.f
+                     - static_cast<float>(cursor_y)),
+        glm::two_pi<float>()
+    );
+    m_horizontal_angle = glm::mod(
+        m_horizontal_angle
+            + m_mouse_speed
+                  * (static_cast<float>(width) / 2.f
+                     - static_cast<float>(cursor_x)),
+        glm::two_pi<float>()
+    );
 
-    float           yaw = m_rotation.y;
-    const glm::vec3 forward_dir{ -sin(yaw), 0.f, -cos(yaw) };
-    const glm::vec3 right_dir{ -forward_dir.z, 0.f, forward_dir.x };
-    const glm::vec3 up_dir{ 0.f, 1.f, 0.f };
+    glm::vec3 forward{ -std::sin(m_horizontal_angle),
+                       0.f,
+                       -std::cos(m_horizontal_angle) };
+    glm::vec3 right{ -forward.z, 0.f, forward.x };
+    glm::vec3 up{ 0.f, 1.f, 0.f };
 
-    glm::vec3 move_dir{ 0.f };
-    if (sf::Keyboard::isKeyPressed(m_movement_key_map.forward)) {
-        move_dir += forward_dir;
+    glm::vec3 move_dir{};
+    if (glfwGetKey(t_window.get(), m_movement_key_map.forward) == GLFW_PRESS) {
+        move_dir += forward;
     }
-    if (sf::Keyboard::isKeyPressed(m_movement_key_map.backward)) {
-        move_dir -= forward_dir;
+    if (glfwGetKey(t_window.get(), m_movement_key_map.backward) == GLFW_PRESS) {
+        move_dir -= forward;
     }
-    if (sf::Keyboard::isKeyPressed(m_movement_key_map.right)) {
-        move_dir += right_dir;
+    if (glfwGetKey(t_window.get(), m_movement_key_map.right) == GLFW_PRESS) {
+        move_dir += right;
     }
-    if (sf::Keyboard::isKeyPressed(m_movement_key_map.left)) {
-        move_dir -= right_dir;
+    if (glfwGetKey(t_window.get(), m_movement_key_map.left) == GLFW_PRESS) {
+        move_dir -= right;
     }
-    if (sf::Keyboard::isKeyPressed(m_movement_key_map.up)) {
-        move_dir += up_dir;
+    if (glfwGetKey(t_window.get(), m_movement_key_map.up) == GLFW_PRESS) {
+        move_dir += up;
     }
-    if (sf::Keyboard::isKeyPressed(m_movement_key_map.down)) {
-        move_dir -= up_dir;
+    if (glfwGetKey(t_window.get(), m_movement_key_map.down) == GLFW_PRESS) {
+        move_dir -= up;
     }
 
     if (glm::dot(move_dir, move_dir) > std::numeric_limits<float>::epsilon()) {
-        m_translation +=
+        m_position +=
             m_movement_speed * t_delta_time * glm::normalize(move_dir);
     }
 }
 
 auto Controller::update_camera(Camera t_camera) noexcept -> Camera
 {
-    t_camera.set_view_yxz(m_translation, m_rotation);
+    t_camera.set_view_yxz(
+        m_position, glm::vec3{ m_vertical_angle, m_horizontal_angle, 0 }
+    );
     return t_camera;
 }

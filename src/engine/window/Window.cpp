@@ -1,5 +1,9 @@
 #include "Window.hpp"
 
+#include <cstdlib>
+#include <format>
+#include <stdexcept>
+
 #include <spdlog/spdlog.h>
 
 namespace engine::window {
@@ -10,36 +14,29 @@ namespace engine::window {
 ///---------------------------///
 /////////////////////////////////
 
-Window::Window(
-    const sf::VideoMode& t_video_mode,
-    const sf::String&    t_title,
-    sf::Uint32           t_style
-)
-    : m_impl{ std::make_unique<sf::WindowBase>(t_video_mode, t_title, t_style) }
+[[nodiscard]] static auto
+    create_window(uint16_t t_width, uint16_t t_height, const std::string& title)
+        -> GLFWwindow*
+{
+    auto window{
+        glfwCreateWindow(t_width, t_height, title.c_str(), nullptr, nullptr)
+    };
+    if (window == nullptr) {
+        throw std::runtime_error{ std::format(
+            "glfwCreateWindowSurface failed with error code {}",
+            std::to_string(glfwGetError(nullptr))
+        ) };
+    }
+    return window;
+}
+
+Window::Window(uint16_t t_width, uint16_t t_height, const std::string& title)
+    : m_impl{ create_window(t_width, t_height, title), glfwDestroyWindow }
 {}
 
-auto Window::operator->() const noexcept -> sf::WindowBase*
+auto Window::get() const noexcept -> GLFWwindow*
 {
-    return m_impl.operator->();
-}
-
-auto Window::framebuffer_size() const noexcept -> sf::Vector2u
-{
-    return m_impl->getSize();
-}
-
-auto Window::create_vulkan_surface(
-    VkInstance                   t_instance,
-    const VkAllocationCallbacks* t_allocator
-) -> VkSurfaceKHR
-{
-    VkSurfaceKHR surface{};
-
-    if (!m_impl->createVulkanSurface(t_instance, surface, t_allocator)) {
-        SPDLOG_ERROR("sf::WindowBase::createVulkanSurface failed");
-    }
-
-    return surface;
+    return m_impl.get();
 }
 
 }   // namespace engine::window

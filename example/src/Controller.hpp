@@ -1,38 +1,36 @@
 #pragma once
 
 #include <chrono>
+#include <numbers>
 
 #include <glm/glm.hpp>
 
-#include <SFML/Window.hpp>
+#include <engine/window/Window.hpp>
 
 #include "Camera.hpp"
 
 class Controller {
 public:
-    auto               update(float t_delta_time) noexcept -> void;
+    auto update(
+        const engine::window::Window& t_window,
+        float                         t_delta_time
+    ) noexcept -> void;
     [[nodiscard]] auto update_camera(Camera t_camera) noexcept -> Camera;
 
 private:
     struct MovementKeyMap {
-        sf::Keyboard::Key left     = sf::Keyboard::Key::A;
-        sf::Keyboard::Key right    = sf::Keyboard::Key::D;
-        sf::Keyboard::Key forward  = sf::Keyboard::Key::W;
-        sf::Keyboard::Key backward = sf::Keyboard::Key::S;
-        sf::Keyboard::Key up       = sf::Keyboard::Key::Space;
-        sf::Keyboard::Key down     = sf::Keyboard::Key::LShift;
+        int left     = GLFW_KEY_A;
+        int right    = GLFW_KEY_D;
+        int forward  = GLFW_KEY_W;
+        int backward = GLFW_KEY_S;
+        int up       = GLFW_KEY_SPACE;
+        int down     = GLFW_KEY_LEFT_SHIFT;
     } m_movement_key_map;
 
-    struct TurningKeyMap {
-        sf::Keyboard::Key left  = sf::Keyboard::Key::Left;
-        sf::Keyboard::Key right = sf::Keyboard::Key::Right;
-        sf::Keyboard::Key up    = sf::Keyboard::Key::Up;
-        sf::Keyboard::Key down  = sf::Keyboard::Key::Down;
-    } m_turning_key_map;
+    float m_movement_speed{ 5.f };
+    float m_mouse_speed{ 0.002f };
 
-    float m_movement_speed{ 8.f };
-    float m_turning_speed{ 1.5f };
-
-    glm::vec3 m_translation{};
-    glm::vec3 m_rotation{};
+    glm::vec3 m_position{};
+    float     m_horizontal_angle{};
+    float     m_vertical_angle{};
 };

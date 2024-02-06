@@ -7,8 +7,6 @@
 
 #include <tl/optional.hpp>
 
-#include <SFML/Window.hpp>
-
 #include <entt/core/hashed_string.hpp>
 
 #include <engine/asset_manager/AssetRegistry.hpp>
@@ -17,7 +15,6 @@
 #include <engine/renderer/Swapchain.hpp>
 #include <engine/scene/Model.hpp>
 #include <engine/scene/ModelFactory.hpp>
-#include <engine/utility/converters.hpp>
 #include <engine/utility/vma/Image.hpp>
 #include <engine/window/Window.hpp>
 
@@ -56,13 +53,15 @@ struct DemoApp {
         const std::string& t_model_filepath
     ) -> tl::optional<DemoApp>
     {
-        auto& device{ t_store.at<renderer::Device>() };
-        auto& allocator{ t_store.at<renderer::Allocator>() };
+        const auto& window{ t_store.at<window::Window>() };
+        auto&       device{ t_store.at<renderer::Device>() };
+        auto&       allocator{ t_store.at<renderer::Allocator>() };
 
         auto& swapchain{ t_store.at<renderer::Swapchain>() };
-        swapchain.set_framebuffer_size(
-            to_extent2D(t_store.at<window::Window>().framebuffer_size())
-        );
+        int   width, height;
+        glfwGetFramebufferSize(window.get(), &width, &height);
+        swapchain.set_framebuffer_size(vk::Extent2D{
+            static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
         if (!swapchain.get()) {
             return tl::nullopt;
         }
@@ -351,9 +350,18 @@ auto demo::run(App& t_app, const std::string& t_model_filepath) noexcept -> int
 
             bool        running{ true };
             const auto& window{ t_app.store().at<window::Window>() };
-            sf::Event   event{};
 
+            glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glfwSetInputMode(window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+            int width, height;
+            glfwGetWindowSize(window.get(), &width, &height);
+            glfwSetCursorPos(
+                window.get(),
+                static_cast<double>(width) / 2.0,
+                static_cast<double>(height) / 2.0
+            );
             Controller controller;
+            bool       reset_mouse{};
 
             std::atomic<vk::Extent2D> framebuffer_size{};
             Camera                    camera;
@@ -376,26 +384,51 @@ auto demo::run(App& t_app, const std::string& t_model_filepath) noexcept -> int
                 std::chrono::duration<float> delta_time{ now - last_time };
                 last_time = now;
 
-                while (window->pollEvent(event)) {
-                    if (event.type == sf::Event::Closed) {
-                        running = false;
-                    }
-                    if (event.type == sf::Event::KeyPressed
-                        && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-                    {
-                        running = false;
-                    }
-                    if (event.type == sf::Event::Resized) {
-                        framebuffer_size.store(
-                            to_extent2D(window.framebuffer_size())
-                        );
-                    }
+                glfwPollEvents();
+
+                if (glfwWindowShouldClose(window.get())) {
+                    running = false;
                 }
 
-                controller.update(delta_time.count());
-                camera_mutex.lock();
-                camera = controller.update_camera(camera);
-                camera_mutex.unlock();
+                if (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+                    running = false;
+                }
+
+                if (glfwGetKey(window.get(), GLFW_KEY_LEFT_CONTROL)
+                    == GLFW_RELEASE) {
+                    glfwSetInputMode(
+                        window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED
+                    );
+                    glfwSetInputMode(
+                        window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE
+                    );
+
+                    if (!reset_mouse) {
+                        controller.update(window, delta_time.count());
+                        camera_mutex.lock();
+                        camera = controller.update_camera(camera);
+                        camera_mutex.unlock();
+                    }
+
+                    glfwGetWindowSize(window.get(), &width, &height);
+                    glfwSetCursorPos(
+                        window.get(),
+                        static_cast<double>(width) / 2.0,
+                        static_cast<double>(height) / 2.0
+                    );
+
+                    reset_mouse = false;
+                }
+                if (glfwGetKey(window.get(), GLFW_KEY_LEFT_CONTROL)
+                    == GLFW_PRESS) {
+                    glfwSetInputMode(
+                        window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_FALSE
+                    );
+                    glfwSetInputMode(
+                        window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL
+                    );
+                    reset_mouse = true;
+                }
             }
 
             rendering.get();

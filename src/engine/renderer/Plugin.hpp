@@ -21,19 +21,24 @@ public:
     ///--------------------///
     ///  Static variables  ///
     ///--------------------///
-    static SurfaceCreator create_surface;
+    static SurfaceCreator create_default_surface;
 
     ///-------------///
     ///  Operators  ///
     ///-------------///
     auto operator()(
         Store&                              t_store,
-        const SurfaceCreator&               t_create_surface = create_surface,
+        const SurfaceCreator&               t_create_surface = create_default_surface,
         const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter =
             nullptr
     ) const noexcept -> void;
 };
 
-static_assert(PluginConcept<Plugin> && PluginConcept<Plugin, const SurfaceCreator&>);
+static_assert(PluginConcept<Plugin>);
+static_assert(PluginConcept<Plugin, const SurfaceCreator&>);
+static_assert(PluginConcept<
+              Plugin,
+              const SurfaceCreator&,
+              const FramebufferSizeGetterCreator&>);
 
 }   // namespace engine::renderer

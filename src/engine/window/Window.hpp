@@ -1,12 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
-#include <tl/optional.hpp>
-
-#include <SFML/Window/WindowBase.hpp>
-
-#include "Style.hpp"
+#include <GLFW/glfw3.h>
 
 namespace engine::window {
 
@@ -15,32 +12,18 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Window(
-        const sf::VideoMode& t_video_mode,
-        const sf::String&    t_title,
-        sf::Uint32           t_style
-    );
-
-    ///-------------///
-    ///  Operators  ///
-    ///-------------///
-    [[nodiscard]] auto operator->() const noexcept -> sf::WindowBase*;
+    explicit Window(uint16_t t_width, uint16_t t_height, const std::string& title);
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto framebuffer_size() const noexcept -> sf::Vector2u;
-
-    [[nodiscard]] auto create_vulkan_surface(
-        VkInstance                   t_instance,
-        const VkAllocationCallbacks* t_allocator = nullptr
-    ) -> VkSurfaceKHR;
+    [[nodiscard]] auto get() const noexcept -> GLFWwindow*;
 
 private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    std::unique_ptr<sf::WindowBase> m_impl;
+    std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> m_impl;
 };
 
 }   // namespace engine::window

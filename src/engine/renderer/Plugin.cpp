@@ -18,14 +18,37 @@ using namespace engine::renderer;
 
 namespace engine::renderer {
 
+static auto create_vulkan_surface(
+    GLFWwindow*                  t_window,
+    VkInstance                   t_instance,
+    const VkAllocationCallbacks* t_allocator
+) -> VkSurfaceKHR
+{
+    VkSurfaceKHR surface{};
+
+    if (auto error_code{ glfwCreateWindowSurface(
+            t_instance, t_window, t_allocator, &surface
+        ) };
+        error_code != VK_SUCCESS)
+    {
+        SPDLOG_ERROR(
+            "glfwCreateWindowSurface failed with error code {}", error_code
+        );
+    }
+
+    return surface;
+}
+
 std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
-    Plugin::create_surface{ [](Store&                       t_store,
+    Plugin::create_default_surface{ [](Store&                       t_store,
                                VkInstance                   t_instance,
                                const VkAllocationCallbacks* t_allocator) {
         using namespace engine::window;
         return t_store.find<Window>()
-            .transform([=](Window& t_window) {
-                return t_window.create_vulkan_surface(t_instance, t_allocator);
+            .transform([=](const Window& t_window) {
+                return create_vulkan_surface(
+                    t_window.get(), t_instance, t_allocator
+                );
             })
             .or_else([] {
                 SPDLOG_WARN(

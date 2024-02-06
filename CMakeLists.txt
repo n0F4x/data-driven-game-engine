@@ -84,16 +84,19 @@ endif ()
 target_precompile_headers(${PROJECT_NAME} PRIVATE <spdlog/spdlog.h>)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
-# SFML
-set(BUILD_SHARED_LIBS OFF)
-FetchContent_Declare(SFML
-        GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 2.6.1
+# GLFW
+set(GLFW_VULKAN_STATIC ON)
+FetchContent_Declare(GLFW
+        GIT_REPOSITORY https://github.com/glfw/glfw.git
+        GIT_TAG 3.3.9
         GIT_PROGRESS TRUE
         SYSTEM
 )
-FetchContent_MakeAvailable(SFML)
-target_link_libraries(${PROJECT_NAME} PUBLIC sfml-window)
+FetchContent_MakeAvailable(GLFW)
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+        GLFW_INCLUDE_VULKAN
+)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 
 # Vulkan
 find_package(Vulkan REQUIRED)

@@ -14,14 +14,6 @@ auto Camera::set_perspective_projection(
     projection =
         glm::perspective(glm::radians(t_fov_y), t_aspect, t_near, t_far);
     projection[1][1] *= -1.0f;
-    //    assert(glm::abs(t_aspect - std::numeric_limits<float>::epsilon()) >
-    //    0.f); const float tan_half_fov_y{ std::tan(t_fov_y / 2.f) };
-    //    projection       = glm::mat4{ 0.f };
-    //    projection[0][0] = 1.f / (t_aspect * tan_half_fov_y);
-    //    projection[1][1] = 1.f / tan_half_fov_y;
-    //    projection[2][2] = t_far / (t_far - t_near);
-    //    projection[2][3] = 1.f;
-    //    projection[3][2] = -(t_far * t_near) / (t_far - t_near);
 }
 
 auto Camera::set_view_yxz(glm::vec3 t_position, glm::vec3 t_rotation) noexcept
