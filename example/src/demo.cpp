@@ -364,8 +364,19 @@ auto demo::run(App& t_app, const std::string& t_model_filepath) noexcept -> int
             bool       reset_mouse{};
 
             std::atomic<vk::Extent2D> framebuffer_size{};
-            Camera                    camera;
-            std::mutex                camera_mutex{};
+            glfwSetWindowUserPointer(window.get(), &framebuffer_size);
+            glfwSetFramebufferSizeCallback(
+                window.get(),
+                [](GLFWwindow* window, int width, int height) {
+                    static_cast<std::atomic<vk::Extent2D>*>(
+                        glfwGetWindowUserPointer(window)
+                    )
+                        ->store(vk::Extent2D{ static_cast<uint32_t>(width),
+                                              static_cast<uint32_t>(height) });
+                }
+            );
+            Camera     camera;
+            std::mutex camera_mutex{};
 
             auto rendering = std::async(std::launch::async, [&] {
                 while (running) {
