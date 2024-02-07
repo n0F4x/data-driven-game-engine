@@ -1,6 +1,6 @@
 #include "Controller.hpp"
 
-#include <iostream>
+#include <limits>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -31,9 +31,9 @@ auto Controller::update(
         glm::two_pi<float>()
     );
 
-    glm::vec3 forward{ -std::sin(m_horizontal_angle),
+    glm::vec3 forward{ -glm::sin(m_horizontal_angle),
                        0.f,
-                       -std::cos(m_horizontal_angle) };
+                       -glm::cos(m_horizontal_angle) };
     glm::vec3 right{ -forward.z, 0.f, forward.x };
     glm::vec3 up{ 0.f, 1.f, 0.f };
 

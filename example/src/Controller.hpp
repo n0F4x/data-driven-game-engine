@@ -1,8 +1,5 @@
 #pragma once
 
-#include <chrono>
-#include <numbers>
-
 #include <glm/glm.hpp>
 
 #include <engine/window/Window.hpp>
