@@ -8,14 +8,12 @@ namespace engine::window {
 
 auto Plugin::default_configure() -> void
 {
-    glfwSetErrorCallback([](int, const char* description) {
-        SPDLOG_ERROR(description);
-    });
+    glfwSetErrorCallback([](int, const char* description) { SPDLOG_ERROR(description); });
 
     if (auto error_code{ glfwInit() }; error_code != GLFW_TRUE) {
-        throw std::runtime_error{ std::format(
-            "glfwInit failed with error code {}", std::to_string(error_code)
-        ) };
+        throw std::runtime_error{
+            std::format("glfwInit failed with error code {}", std::to_string(error_code))
+        };
     }
     std::atexit(glfwTerminate);
 

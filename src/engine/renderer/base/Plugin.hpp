@@ -10,8 +10,8 @@
 
 namespace engine::renderer {
 
-using SurfaceCreator = std::function<
-    VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>;
+using SurfaceCreator =
+    std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>;
 
 using FramebufferSizeGetterCreator =
     std::function<Swapchain::FramebufferSizeGetter(Store&)>;
@@ -29,8 +29,7 @@ public:
     auto operator()(
         Store&                              t_store,
         const SurfaceCreator&               t_create_surface = create_default_surface,
-        const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter =
-            nullptr
+        const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter = nullptr
     ) const noexcept -> void;
 };
 

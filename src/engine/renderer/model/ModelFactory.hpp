@@ -4,9 +4,8 @@
 
 #include <tl/optional.hpp>
 
-#include <fastgltf/types.hpp>
-
-#include "engine/renderer/Allocator.hpp"
+#include "engine/renderer/base/Allocator.hpp"
+#include "fastgltf/types.hpp"
 
 #include "Model.hpp"
 #include "StagingModel.hpp"

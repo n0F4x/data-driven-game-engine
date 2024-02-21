@@ -6,12 +6,11 @@
 
 namespace engine::renderer {
 
-auto Allocator::create(const VmaAllocatorCreateInfo& t_vma_allocator_create_info
-) noexcept -> std::expected<Allocator, vk::Result>
+auto Allocator::create(const VmaAllocatorCreateInfo& t_vma_allocator_create_info) noexcept
+    -> std::expected<Allocator, vk::Result>
 {
     VmaAllocator allocator;
-    if (vk::Result result{
-            vmaCreateAllocator(&t_vma_allocator_create_info, &allocator) };
+    if (vk::Result result{ vmaCreateAllocator(&t_vma_allocator_create_info, &allocator) };
         result != vk::Result::eSuccess)
     {
         return std::unexpected{ result };
@@ -19,15 +18,13 @@ auto Allocator::create(const VmaAllocatorCreateInfo& t_vma_allocator_create_info
     return Allocator{ vma::Allocator{ allocator } };
 }
 
-auto Allocator::create_default(
-    const Instance& t_instance,
-    const Device&   t_device
-) noexcept -> std::expected<Allocator, vk::Result>
+auto Allocator::create_default(const Instance& t_instance, const Device& t_device) noexcept
+    -> std::expected<Allocator, vk::Result>
 {
-    const VmaVulkanFunctions vulkan_functions = { .vkGetInstanceProcAddr =
-                                                      &vkGetInstanceProcAddr,
-                                                  .vkGetDeviceProcAddr =
-                                                      &vkGetDeviceProcAddr };
+    const VmaVulkanFunctions vulkan_functions = {
+        .vkGetInstanceProcAddr = &vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr   = &vkGetDeviceProcAddr
+    };
 
     const VmaAllocatorCreateInfo allocator_info{
         .flags = helpers::vma_allocator_create_flags(
@@ -76,8 +73,7 @@ auto Allocator::create_buffer(
         result != vk::Result::eSuccess)
     {
         SPDLOG_WARN(
-            "vmaCreateBuffer failed with error code {}",
-            std::to_underlying(result)
+            "vmaCreateBuffer failed with error code {}", std::to_underlying(result)
         );
         return tl::nullopt;
     }
@@ -95,14 +91,12 @@ auto Allocator::create_buffer(
         ) };
 
         if (!mapped) {
-            if (const vk::Result result{ vmaMapMemory(
-                    *m_allocator, allocation, &allocation_info.pMappedData
-                ) };
+            if (const vk::Result result{
+                    vmaMapMemory(*m_allocator, allocation, &allocation_info.pMappedData) };
                 result != vk::Result::eSuccess)
             {
                 SPDLOG_WARN(
-                    "vmaMapMemory failed with error code {}",
-                    std::to_underlying(result)
+                    "vmaMapMemory failed with error code {}", std::to_underlying(result)
                 );
                 return tl::nullopt;
             }
@@ -110,12 +104,9 @@ auto Allocator::create_buffer(
 
         memcpy(allocation_info.pMappedData, t_data, t_buffer_create_info.size);
 
-        if (!(memory_property_flags & vk::MemoryPropertyFlagBits::eHostCoherent
-            ))
-        {
-            if (const vk::Result result{ vmaFlushAllocation(
-                    *m_allocator, allocation, 0, VK_WHOLE_SIZE
-                ) };
+        if (!(memory_property_flags & vk::MemoryPropertyFlagBits::eHostCoherent)) {
+            if (const vk::Result result{
+                    vmaFlushAllocation(*m_allocator, allocation, 0, VK_WHOLE_SIZE) };
                 result != vk::Result::eSuccess)
             {
                 SPDLOG_WARN(

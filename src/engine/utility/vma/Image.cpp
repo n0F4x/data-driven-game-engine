@@ -4,11 +4,7 @@
 
 namespace engine::vma {
 
-Image::Image(
-    VmaAllocator  t_allocator,
-    vk::Image     t_image,
-    VmaAllocation t_allocation
-) noexcept
+Image::Image(VmaAllocator t_allocator, vk::Image t_image, VmaAllocation t_allocation) noexcept
     : m_allocator{ t_allocator },
       m_image{ t_image },
       m_allocation{ t_allocation }
@@ -50,9 +46,7 @@ auto Image::allocation() const noexcept -> VmaAllocation
 auto Image::reset() noexcept -> void
 {
     if (m_allocator) {
-        vmaDestroyImage(
-            m_allocator, static_cast<VkImage>(m_image), m_allocation
-        );
+        vmaDestroyImage(m_allocator, static_cast<VkImage>(m_image), m_allocation);
     }
     m_allocation = nullptr;
     m_image      = nullptr;

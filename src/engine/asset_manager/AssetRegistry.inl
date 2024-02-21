@@ -4,8 +4,7 @@
 namespace engine::asset_manager {
 
 template <typename Asset>
-auto AssetRegistry::emplace(Asset&& t_asset, entt::id_type t_id) noexcept
-    -> Asset&
+auto AssetRegistry::emplace(Asset&& t_asset, entt::id_type t_id) noexcept -> Asset&
 {
     return m_store.emplace<ContainerType<Asset>>()
         .try_emplace(t_id, std::forward<Asset>(t_asset))
@@ -27,12 +26,10 @@ auto AssetRegistry::find(entt::id_type t_id) noexcept -> tl::optional<Asset&>
 }
 
 template <typename Asset>
-auto AssetRegistry::find(entt::id_type t_id) const noexcept
-    -> tl::optional<const Asset&>
+auto AssetRegistry::find(entt::id_type t_id) const noexcept -> tl::optional<const Asset&>
 {
     return m_store.find<ContainerType<Asset>>().and_then(
-        [t_id](const ContainerType<Asset>& t_container
-        ) -> tl::optional<const Asset&> {
+        [t_id](const ContainerType<Asset>& t_container) -> tl::optional<const Asset&> {
             const auto iter{ t_container.find(t_id) };
             if (iter == t_container.cend()) {
                 return tl::nullopt;

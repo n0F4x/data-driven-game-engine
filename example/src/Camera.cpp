@@ -11,13 +11,11 @@ auto Camera::set_perspective_projection(
     float t_far
 ) noexcept -> void
 {
-    projection =
-        glm::perspective(glm::radians(t_fov_y), t_aspect, t_near, t_far);
+    projection = glm::perspective(glm::radians(t_fov_y), t_aspect, t_near, t_far);
     projection[1][1] *= -1.0f;
 }
 
-auto Camera::set_view_yxz(glm::vec3 t_position, glm::vec3 t_rotation) noexcept
-    -> void
+auto Camera::set_view_yxz(glm::vec3 t_position, glm::vec3 t_rotation) noexcept -> void
 {
     const float     c3{ glm::cos(t_rotation.z) };
     const float     s3{ glm::sin(t_rotation.z) };
@@ -25,12 +23,8 @@ auto Camera::set_view_yxz(glm::vec3 t_position, glm::vec3 t_rotation) noexcept
     const float     s2{ glm::sin(t_rotation.x) };
     const float     c1{ glm::cos(t_rotation.y) };
     const float     s1{ glm::sin(t_rotation.y) };
-    const glm::vec3 u{ (c1 * c3 + s1 * s2 * s3),
-                       (c2 * s3),
-                       (c1 * s2 * s3 - c3 * s1) };
-    const glm::vec3 v{ (c3 * s1 * s2 - c1 * s3),
-                       (c2 * c3),
-                       (c1 * c3 * s2 + s1 * s3) };
+    const glm::vec3 u{ (c1 * c3 + s1 * s2 * s3), (c2 * s3), (c1 * s2 * s3 - c3 * s1) };
+    const glm::vec3 v{ (c3 * s1 * s2 - c1 * s3), (c2 * c3), (c1 * c3 * s2 + s1 * s3) };
     const glm::vec3 w{ (c2 * s1), (-s2), (c1 * c2) };
 
     view       = glm::mat4{ 1.f };

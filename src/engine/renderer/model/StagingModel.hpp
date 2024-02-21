@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "engine/renderer/Allocator.hpp"
+#include "engine/renderer/base/Allocator.hpp"
 
 #include "Model.hpp"
 #include "StagingMeshBuffer.hpp"

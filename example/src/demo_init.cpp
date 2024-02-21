@@ -22,11 +22,9 @@ namespace {
         t_physical_device.getFormatProperties(format, &format_properties);
 
         if ((t_tiling == vk::ImageTiling::eLinear
-             && (format_properties.linearTilingFeatures & t_features)
-                    == t_features)
+             && (format_properties.linearTilingFeatures & t_features) == t_features)
             || (t_tiling == vk::ImageTiling::eOptimal
-                && (format_properties.optimalTilingFeatures & t_features)
-                       == t_features))
+                && (format_properties.optimalTilingFeatures & t_features) == t_features))
         {
             return format;
         }
@@ -34,8 +32,8 @@ namespace {
     throw std::runtime_error{ "Failed to find supported format!" };
 }
 
-[[nodiscard]] auto find_depth_format(const vk::PhysicalDevice t_physical_device
-) noexcept -> vk::Format
+[[nodiscard]] auto find_depth_format(const vk::PhysicalDevice t_physical_device) noexcept
+    -> vk::Format
 {
     using enum vk::Format;
     return find_supported_format(
@@ -50,7 +48,7 @@ namespace {
 
 namespace init {
 
-[[nodiscard]] auto create_render_pass(
+auto create_render_pass(
     const vk::SurfaceFormatKHR& t_surface_format,
     const renderer::Device&     t_device
 ) -> vk::UniqueRenderPass
@@ -60,7 +58,7 @@ namespace init {
         .loadOp         = vk::AttachmentLoadOp::eClear,
         .stencilLoadOp  = vk::AttachmentLoadOp::eDontCare,
         .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
-        .finalLayout    = vk::ImageLayout::ePresentSrcKHR
+        .finalLayout    = vk::ImageLayout::ePresentSrcKHR,
     };
     vk::AttachmentReference color_attachment_reference{
         .attachment = 0,
@@ -77,7 +75,7 @@ namespace init {
         .initialLayout  = vk::ImageLayout::eUndefined,
         .finalLayout    = vk::ImageLayout::eDepthStencilAttachmentOptimal,
     };
-    vk::AttachmentReference depth_attachment_ref{
+    vk::AttachmentReference depth_attachment_reference{
         .attachment = 1,
         .layout     = vk::ImageLayout::eDepthStencilAttachmentOptimal,
     };
@@ -89,7 +87,7 @@ namespace init {
         .pipelineBindPoint       = vk::PipelineBindPoint::eGraphics,
         .colorAttachmentCount    = 1,
         .pColorAttachments       = &color_attachment_reference,
-        .pDepthStencilAttachment = &depth_attachment_ref,
+        .pDepthStencilAttachment = &depth_attachment_reference,
     };
 
     vk::SubpassDependency subpass_dependency{
@@ -105,8 +103,7 @@ namespace init {
     };
 
     const vk::RenderPassCreateInfo render_pass_create_info{
-        .attachmentCount =
-            static_cast<uint32_t>(attachment_descriptions.size()),
+        .attachmentCount = static_cast<uint32_t>(attachment_descriptions.size()),
         .pAttachments    = attachment_descriptions.data(),
         .subpassCount    = 1,
         .pSubpasses      = &subpass_description,
@@ -126,12 +123,7 @@ auto create_depth_image(
     const vk::ImageCreateInfo image_create_info = {
         .imageType = vk::ImageType::e2D,
         .format    = find_depth_format(t_physical_device),
-        .extent =
-            vk::Extent3D{
-                         .width  = t_swapchain_extent.width,
-                         .height = t_swapchain_extent.height,
-                         .depth  = 1,
-                         },
+        .extent = vk::Extent3D{ t_swapchain_extent.width, t_swapchain_extent.height, 1 },
         .mipLevels     = 1,
         .arrayLayers   = 1,
         .samples       = vk::SampleCountFlagBits::e1,
@@ -169,13 +161,11 @@ auto create_depth_image_view(
         .viewType = vk::ImageViewType::e2D,
         .format   = find_depth_format(t_device.physical_device()),
         .subresourceRange =
-            vk::ImageSubresourceRange{
-                                      .aspectMask     = vk::ImageAspectFlagBits::eDepth,
+            vk::ImageSubresourceRange{ .aspectMask     = vk::ImageAspectFlagBits::eDepth,
                                       .baseMipLevel   = 0,
                                       .levelCount     = 1,
                                       .baseArrayLayer = 0,
-                                      .layerCount     = 1,
-                                      },
+                                      .layerCount     = 1 },
     };
 
     return t_device->createImageViewUnique(image_view_create_info);
@@ -204,35 +194,38 @@ auto create_framebuffers(
             .layers          = 1
         };
 
-        framebuffers.emplace_back(
-            t_device.createFramebufferUnique(framebuffer_create_info)
-        );
+        framebuffers.emplace_back(t_device.createFramebufferUnique(framebuffer_create_info
+        ));
     }
 
     return framebuffers;
 }
 
-[[nodiscard]] auto create_descriptor_set_layout(const vk::Device t_device)
+auto create_descriptor_set_layout(const vk::Device t_device)
     -> vk::UniqueDescriptorSetLayout
 {
-    constexpr static vk::DescriptorSetLayoutBinding
-        descriptor_set_layout_binding{ .binding = 0,
-                                       .descriptorType =
-                                           vk::DescriptorType::eUniformBuffer,
+    constexpr static std::array descriptor_set_layout_bindings{
+        vk::DescriptorSetLayoutBinding{
+                                       .binding         = 0,
+                                       .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
-                                       .stageFlags =
-                                           vk::ShaderStageFlagBits::eVertex };
-    constexpr vk::DescriptorSetLayoutCreateInfo
-        descriptor_set_layout_create_info{ .bindingCount = 1,
-                                           .pBindings =
-                                               &descriptor_set_layout_binding };
+                                       .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
+        vk::DescriptorSetLayoutBinding{
+                                       .binding         = 1,
+                                       .descriptorType  = vk::DescriptorType::eCombinedImageSampler,
+                                       .descriptorCount = 1,
+                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment }
+    };
 
-    return t_device.createDescriptorSetLayoutUnique(
-        descriptor_set_layout_create_info
-    );
+    constexpr static vk::DescriptorSetLayoutCreateInfo descriptor_set_layout_create_info{
+        .bindingCount = static_cast<uint32_t>(descriptor_set_layout_bindings.size()),
+        .pBindings    = descriptor_set_layout_bindings.data()
+    };
+
+    return t_device.createDescriptorSetLayoutUnique(descriptor_set_layout_create_info);
 }
 
-[[nodiscard]] auto create_pipeline_layout(
+auto create_pipeline_layout(
     const vk::Device              t_device,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const uint32_t                t_push_constant_size
@@ -252,16 +245,16 @@ auto create_framebuffers(
     return t_device.createPipelineLayoutUnique(pipeline_layout_create_info);
 }
 
-[[nodiscard]] auto create_pipeline(
+auto create_pipeline(
     const vk::Device         t_device,
     const vk::PipelineLayout t_pipeline_layout,
     const vk::RenderPass     t_render_pass
 ) -> vk::UniquePipeline
 {
-    const auto vertex_shader_module{
+    const vk::UniqueShaderModule vertex_shader_module{
         vulkan::load_shader(t_device, "shaders/model_test.vert.spv")
     };
-    const auto fragment_shader_module{
+    const vk::UniqueShaderModule fragment_shader_module{
         vulkan::load_shader(t_device, "shaders/model_test.frag.spv")
     };
     if (!vertex_shader_module || !fragment_shader_module) {
@@ -270,21 +263,17 @@ auto create_framebuffers(
     }
 
     std::array pipeline_shader_stage_create_infos{
-        vk::PipelineShaderStageCreateInfo{.stage =
-vk::ShaderStageFlagBits::eVertex,
+        vk::PipelineShaderStageCreateInfo{   .stage  = vk::ShaderStageFlagBits::eVertex,
                                           .module = *vertex_shader_module,
                                           .pName  = "main" },
-        vk::PipelineShaderStageCreateInfo{
-                                          .stage  = vk::ShaderStageFlagBits::eFragment,
+        vk::PipelineShaderStageCreateInfo{ .stage  = vk::ShaderStageFlagBits::eFragment,
                                           .module = *fragment_shader_module,
                                           .pName  = "main" }
     };
 
     using Vertex = engine::scene::Model::Vertex;
     vk::VertexInputBindingDescription vertex_input_binding_description{
-        .binding   = 0,
-        .stride    = sizeof(Vertex),
-        .inputRate = vk::VertexInputRate::eVertex
+        .binding = 0, .stride = sizeof(Vertex), .inputRate = vk::VertexInputRate::eVertex
     };
     std::array vertex_input_attribute_descriptions{
         vk::VertexInputAttributeDescription{
@@ -309,38 +298,32 @@ vk::ShaderStageFlagBits::eVertex,
                                             .offset   = static_cast<uint32_t>(offsetof(Vertex,    color)) }
     };
 
-    vk::PipelineVertexInputStateCreateInfo
-        pipeline_vertex_input_state_create_info{
-            .vertexBindingDescriptionCount = 1,
-            .pVertexBindingDescriptions    = &vertex_input_binding_description,
-            .vertexAttributeDescriptionCount =
-                static_cast<uint32_t>(vertex_input_attribute_descriptions.size()
-                ),
-            .pVertexAttributeDescriptions =
-                vertex_input_attribute_descriptions.data()
-        };
+    vk::PipelineVertexInputStateCreateInfo pipeline_vertex_input_state_create_info{
+        .vertexBindingDescriptionCount = 1,
+        .pVertexBindingDescriptions    = &vertex_input_binding_description,
+        .vertexAttributeDescriptionCount =
+            static_cast<uint32_t>(vertex_input_attribute_descriptions.size()),
+        .pVertexAttributeDescriptions = vertex_input_attribute_descriptions.data()
+    };
 
-    vk::PipelineInputAssemblyStateCreateInfo
-        pipeline_input_assembly_state_create_info{
-            .topology = vk::PrimitiveTopology::eTriangleList
-        };
+    vk::PipelineInputAssemblyStateCreateInfo pipeline_input_assembly_state_create_info{
+        .topology = vk::PrimitiveTopology::eTriangleList
+    };
 
     vk::PipelineViewportStateCreateInfo pipeline_viewport_state_create_info{
         .viewportCount = 1, .scissorCount = 1
     };
 
-    vk::PipelineRasterizationStateCreateInfo
-        pipeline_rasterization_state_create_info{
-            .polygonMode = vk::PolygonMode::eFill,
-            .cullMode    = vk::CullModeFlagBits::eBack,
-            .frontFace   = vk::FrontFace::eCounterClockwise,
-            .lineWidth   = 1.f
-        };
+    vk::PipelineRasterizationStateCreateInfo pipeline_rasterization_state_create_info{
+        .polygonMode = vk::PolygonMode::eFill,
+        .cullMode    = vk::CullModeFlagBits::eBack,
+        .frontFace   = vk::FrontFace::eCounterClockwise,
+        .lineWidth   = 1.f
+    };
 
-    vk::PipelineMultisampleStateCreateInfo
-        pipeline_multisample_state_create_info{
-            .rasterizationSamples = vk::SampleCountFlagBits::e1,
-        };
+    vk::PipelineMultisampleStateCreateInfo pipeline_multisample_state_create_info{
+        .rasterizationSamples = vk::SampleCountFlagBits::e1,
+    };
 
     vk::PipelineDepthStencilStateCreateInfo depth_stencil_state_create_info{
         .depthTestEnable       = true,
@@ -351,28 +334,24 @@ vk::ShaderStageFlagBits::eVertex,
     };
 
     vk::PipelineColorBlendAttachmentState pipeline_color_blend_attachment_state{
-        .blendEnable = false,
-        .colorWriteMask =
-            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
-            | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA,
+        .blendEnable    = false,
+        .colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
+                        | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA,
     };
-    vk::PipelineColorBlendStateCreateInfo
-        pipeline_color_blend_state_create_info{
-            .attachmentCount = 1,
-            .pAttachments    = &pipeline_color_blend_attachment_state,
-        };
+    vk::PipelineColorBlendStateCreateInfo pipeline_color_blend_state_create_info{
+        .attachmentCount = 1,
+        .pAttachments    = &pipeline_color_blend_attachment_state,
+    };
 
-    std::array dynamic_states{ vk::DynamicState::eViewport,
-                               vk::DynamicState::eScissor };
+    std::array dynamic_states{ vk::DynamicState::eViewport, vk::DynamicState::eScissor };
     vk::PipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{
         .dynamicStateCount = static_cast<uint32_t>(dynamic_states.size()),
         .pDynamicStates    = dynamic_states.data()
     };
 
     vk::GraphicsPipelineCreateInfo graphics_pipeline_create_info{
-        .stageCount =
-            static_cast<uint32_t>(pipeline_shader_stage_create_infos.size()),
-        .pStages             = pipeline_shader_stage_create_infos.data(),
+        .stageCount = static_cast<uint32_t>(pipeline_shader_stage_create_infos.size()),
+        .pStages    = pipeline_shader_stage_create_infos.data(),
         .pVertexInputState   = &pipeline_vertex_input_state_create_info,
         .pInputAssemblyState = &pipeline_input_assembly_state_create_info,
         .pViewportState      = &pipeline_viewport_state_create_info,
@@ -385,24 +364,22 @@ vk::ShaderStageFlagBits::eVertex,
         .renderPass          = t_render_pass,
     };
 
-    return t_device
-        .createGraphicsPipelineUnique(nullptr, graphics_pipeline_create_info)
+    return t_device.createGraphicsPipelineUnique(nullptr, graphics_pipeline_create_info)
         .value;
 }
 
-auto create_command_pool(
-    const vk::Device t_device,
-    const uint32_t   t_queue_family_index
-) -> vk::UniqueCommandPool
+auto create_command_pool(const vk::Device t_device, const uint32_t t_queue_family_index)
+    -> vk::UniqueCommandPool
 {
     const vk::CommandPoolCreateInfo command_pool_create_info{
         .flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
         .queueFamilyIndex = t_queue_family_index
     };
+
     return t_device.createCommandPoolUnique(command_pool_create_info);
 }
 
-[[nodiscard]] auto create_command_buffers(
+auto create_command_buffers(
     const vk::Device      t_device,
     const vk::CommandPool t_command_pool,
     const uint32_t        t_count
@@ -413,21 +390,26 @@ auto create_command_pool(
         .level              = vk::CommandBufferLevel::ePrimary,
         .commandBufferCount = t_count
     };
+
     return t_device.allocateCommandBuffers(command_buffer_allocate_info);
 }
 
 auto create_descriptor_pool(const vk::Device t_device, const uint32_t t_count)
     -> vk::UniqueDescriptorPool
 {
-    vk::DescriptorPoolSize descriptor_pool_size{
-        .type = vk::DescriptorType::eUniformBuffer, .descriptorCount = t_count
+    const std::array descriptor_pool_sizes{
+        vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
+                               .descriptorCount = t_count },
+        vk::DescriptorPoolSize{     .type = vk::DescriptorType::eCombinedImageSampler,
+                               .descriptorCount = 1      },
     };
     const vk::DescriptorPoolCreateInfo descriptor_pool_create_info{
         .flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
         .maxSets       = t_count,
-        .poolSizeCount = 1,
-        .pPoolSizes    = &descriptor_pool_size
+        .poolSizeCount = static_cast<uint32_t>(descriptor_pool_sizes.size()),
+        .pPoolSizes    = descriptor_pool_sizes.data()
     };
+
     return t_device.createDescriptorPoolUnique(descriptor_pool_create_info);
 }
 
@@ -461,8 +443,8 @@ auto create_fences(const vk::Device t_device, const uint32_t t_count)
     return fences;
 }
 
-[[nodiscard]] static auto count_meshes(const scene::StagingModel::Node& t_node
-) noexcept -> uint32_t
+[[nodiscard]] static auto count_meshes(const scene::StagingModel::Node& t_node) noexcept
+    -> uint32_t
 {
     uint32_t count{};
     if (t_node.mesh) {
@@ -477,9 +459,11 @@ auto create_fences(const vk::Device t_device, const uint32_t t_count)
 auto count_meshes(const scene::StagingModel& t_model) noexcept -> uint32_t
 {
     uint32_t count{};
+
     for (const auto& node : t_model.nodes()) {
         count += count_meshes(node);
     }
+
     return count;
 }
 
@@ -521,13 +505,10 @@ auto upload_model(
     };
     vk::UniqueFence fence{ t_device->createFenceUnique({}) };
 
-    static_cast<void>(t_device.transfer_queue().submit(1, &submit_info, *fence)
-    );
+    static_cast<void>(t_device.transfer_queue().submit(1, &submit_info, *fence));
 
     const auto raw_fence{ *fence };
-    static_cast<void>(
-        t_device->waitForFences(1, &raw_fence, true, 100'000'000'000)
-    );
+    static_cast<void>(t_device->waitForFences(1, &raw_fence, true, 100'000'000'000));
     t_device->resetCommandPool(*transfer_command_pool);
 
     return opt_model;

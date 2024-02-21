@@ -4,10 +4,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-auto Controller::update(
-    const engine::window::Window& t_window,
-    float                         t_delta_time
-) noexcept -> void
+auto Controller::update(const engine::window::Window& t_window, float t_delta_time) noexcept
+    -> void
 {
     double cursor_x;
     double cursor_y;
@@ -19,21 +17,17 @@ auto Controller::update(
     m_vertical_angle = glm::mod(
         m_vertical_angle
             + m_mouse_speed
-                  * (static_cast<float>(height) / 2.f
-                     - static_cast<float>(cursor_y)),
+                  * (static_cast<float>(height) / 2.f - static_cast<float>(cursor_y)),
         glm::two_pi<float>()
     );
     m_horizontal_angle = glm::mod(
         m_horizontal_angle
             + m_mouse_speed
-                  * (static_cast<float>(width) / 2.f
-                     - static_cast<float>(cursor_x)),
+                  * (static_cast<float>(width) / 2.f - static_cast<float>(cursor_x)),
         glm::two_pi<float>()
     );
 
-    glm::vec3 forward{ -glm::sin(m_horizontal_angle),
-                       0.f,
-                       -glm::cos(m_horizontal_angle) };
+    glm::vec3 forward{ -glm::sin(m_horizontal_angle), 0.f, -glm::cos(m_horizontal_angle) };
     glm::vec3 right{ -forward.z, 0.f, forward.x };
     glm::vec3 up{ 0.f, 1.f, 0.f };
 
@@ -58,8 +52,7 @@ auto Controller::update(
     }
 
     if (glm::dot(move_dir, move_dir) > std::numeric_limits<float>::epsilon()) {
-        m_position +=
-            m_movement_speed * t_delta_time * glm::normalize(move_dir);
+        m_position += m_movement_speed * t_delta_time * glm::normalize(move_dir);
     }
 }
 

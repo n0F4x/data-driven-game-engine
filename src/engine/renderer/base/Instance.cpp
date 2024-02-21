@@ -9,8 +9,7 @@
 
 namespace engine::renderer {
 
-auto Instance::create(const CreateInfo& t_create_info) noexcept
-    -> tl::optional<Instance>
+auto Instance::create(const CreateInfo& t_create_info) noexcept -> tl::optional<Instance>
 try {
     auto enabled_layer_names{ t_create_info.layers
                               | std::views::transform(&std::string::c_str)
@@ -20,13 +19,12 @@ try {
                                   | std::ranges::to<std::vector>() };
 
     const vk::InstanceCreateInfo create_info{
-        .pNext             = t_create_info.next,
-        .flags             = t_create_info.flags,
-        .pApplicationInfo  = &t_create_info.application_info,
-        .enabledLayerCount = static_cast<uint32_t>(enabled_layer_names.size()),
-        .ppEnabledLayerNames = enabled_layer_names.data(),
-        .enabledExtensionCount =
-            static_cast<uint32_t>(enabled_extension_names.size()),
+        .pNext                   = t_create_info.next,
+        .flags                   = t_create_info.flags,
+        .pApplicationInfo        = &t_create_info.application_info,
+        .enabledLayerCount       = static_cast<uint32_t>(enabled_layer_names.size()),
+        .ppEnabledLayerNames     = enabled_layer_names.data(),
+        .enabledExtensionCount   = static_cast<uint32_t>(enabled_extension_names.size()),
         .ppEnabledExtensionNames = enabled_extension_names.data()
     };
 
@@ -34,9 +32,8 @@ try {
 
     vk::UniqueDebugUtilsMessengerEXT debug_messenger{};
     if (t_create_info.create_debug_messenger
-        && std::ranges::find(
-               t_create_info.extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-           ) != std::cend(t_create_info.extensions))
+        && std::ranges::find(t_create_info.extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
+               != std::cend(t_create_info.extensions))
     {
         debug_messenger = t_create_info.create_debug_messenger(instance.get());
     }
@@ -56,13 +53,9 @@ auto Instance::create_default() noexcept -> tl::optional<Instance>
     return create(CreateInfo{
         .application_info = helpers::application_info(),
         .layers           = helpers::layers() | std::ranges::to<std::vector>(),
-        .extensions =
-            helpers::instance_extensions() | std::ranges::to<std::vector>(),
-        .create_debug_messenger =
+        .extensions = helpers::instance_extensions() | std::ranges::to<std::vector>(),
 #ifdef ENGINE_VULKAN_DEBUG
-            helpers::create_debug_messenger
-#else
-            nullptr
+        .create_debug_messenger = helpers::create_debug_messenger
 #endif
     });
 }
@@ -87,8 +80,7 @@ auto Instance::enabled_layers() const noexcept -> std::span<const std::string>
     return m_layers;
 }
 
-auto Instance::enabled_extensions() const noexcept
-    -> std::span<const std::string>
+auto Instance::enabled_extensions() const noexcept -> std::span<const std::string>
 {
     return m_extensions;
 }

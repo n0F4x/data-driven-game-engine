@@ -18,9 +18,7 @@ try {
     if (t_thread_count == 0 || t_frame_count == 0) {
         return tl::nullopt;
     }
-    return RenderFrame{
-        create_frame_data(t_device, t_thread_count, t_frame_count)
-    };
+    return RenderFrame{ create_frame_data(t_device, t_thread_count, t_frame_count) };
 } catch (const vk::Error& t_error) {
     SPDLOG_ERROR(t_error.what());
     return tl::nullopt;
@@ -62,8 +60,7 @@ auto RenderFrame::request_command_buffer(
     assert(t_thread_id < current_frame().thread_data.size());
 
     auto& current_thread{ current_frame().thread_data[t_thread_id] };
-    if (current_thread.requested_command_buffers
-        >= current_thread.command_buffers.size())
+    if (current_thread.requested_command_buffers >= current_thread.command_buffers.size())
     {
         vk::CommandBufferAllocateInfo command_buffer_allocate_info{
             .commandPool        = *current_thread.command_pool,
@@ -72,13 +69,11 @@ auto RenderFrame::request_command_buffer(
         };
 
         current_thread.command_buffers.push_back(
-            t_device.allocateCommandBuffers(command_buffer_allocate_info)
-                .front()
+            t_device.allocateCommandBuffers(command_buffer_allocate_info).front()
         );
     }
 
-    return current_thread
-        .command_buffers[current_thread.requested_command_buffers++];
+    return current_thread.command_buffers[current_thread.requested_command_buffers++];
 }
 
 RenderFrame::RenderFrame(std::vector<FrameData>&& t_frame_data)
@@ -100,13 +95,10 @@ auto RenderFrame::create_frame_data(
     std::vector<FrameData> frame_data;
     frame_data.reserve(t_frame_count);
 
-    for ([[maybe_unused]] auto i : std::ranges::iota_view{ 0u, t_frame_count })
-    {
+    for ([[maybe_unused]] auto i : std::ranges::iota_view{ 0u, t_frame_count }) {
         std::vector<ThreadData> thread_data;
         thread_data.reserve(t_thread_count);
-        for ([[maybe_unused]] auto j :
-             std::ranges::iota_view{ 0u, t_thread_count })
-        {
+        for ([[maybe_unused]] auto j : std::ranges::iota_view{ 0u, t_thread_count }) {
             vk::CommandPoolCreateInfo command_pool_create_info{
                 .flags            = vk::CommandPoolCreateFlagBits::eTransient,
                 .queueFamilyIndex = t_device.graphics_queue_family_index()

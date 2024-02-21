@@ -8,10 +8,8 @@
 
 class Controller {
 public:
-    auto update(
-        const engine::window::Window& t_window,
-        float                         t_delta_time
-    ) noexcept -> void;
+    auto update(const engine::window::Window& t_window, float t_delta_time) noexcept
+        -> void;
     [[nodiscard]] auto update_camera(Camera t_camera) noexcept -> Camera;
 
 private:

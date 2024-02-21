@@ -50,9 +50,7 @@ auto Buffer::allocation() const noexcept -> VmaAllocation
 auto Buffer::reset() noexcept -> void
 {
     if (m_allocator) {
-        vmaDestroyBuffer(
-            m_allocator, static_cast<VkBuffer>(m_buffer), m_allocation
-        );
+        vmaDestroyBuffer(m_allocator, static_cast<VkBuffer>(m_buffer), m_allocation);
     }
     m_allocation = nullptr;
     m_buffer     = nullptr;

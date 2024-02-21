@@ -44,9 +44,8 @@ auto supports_extensions(
         return false;
     }
 
-    const auto extension_properties{
-        t_physical_device.enumerateDeviceExtensionProperties()
-    };
+    const auto extension_properties{ t_physical_device.enumerateDeviceExtensionProperties(
+    ) };
 
     std::set<std::string_view> required_extensions{ t_extensions.begin(),
                                                     t_extensions.end() };
@@ -58,10 +57,8 @@ auto supports_extensions(
     return required_extensions.empty();
 }
 
-auto supports_surface(
-    vk::PhysicalDevice t_physical_device,
-    vk::SurfaceKHR     t_surface
-) noexcept -> bool
+auto supports_surface(vk::PhysicalDevice t_physical_device, vk::SurfaceKHR t_surface) noexcept
+    -> bool
 {
     assert(t_physical_device);
     assert(t_surface);
@@ -70,8 +67,7 @@ auto supports_surface(
     }
 
     uint32_t index{};
-    for (const auto& properties : t_physical_device.getQueueFamilyProperties())
-    {
+    for (const auto& properties : t_physical_device.getQueueFamilyProperties()) {
         if (properties.queueCount > 0
             && t_physical_device.getSurfaceSupportKHR(index, t_surface))
         {
@@ -85,8 +81,7 @@ auto supports_surface(
 auto load_shader(vk::Device t_device, const std::string& t_file_path)
     -> vk::UniqueShaderModule
 {
-    std::ifstream file{ t_file_path,
-                        std::ios::binary | std::ios::in | std::ios::ate };
+    std::ifstream file{ t_file_path, std::ios::binary | std::ios::in | std::ios::ate };
 
     const std::streamsize file_size = file.tellg();
 
@@ -97,8 +92,7 @@ auto load_shader(vk::Device t_device, const std::string& t_file_path)
     file.close();
 
     const vk::ShaderModuleCreateInfo create_info{
-        .codeSize = static_cast<size_t>(file_size),
-        .pCode    = (uint32_t*)buffer.data()
+        .codeSize = static_cast<size_t>(file_size), .pCode = (uint32_t*)buffer.data()
     };
 
     return t_device.createShaderModuleUnique(create_info);

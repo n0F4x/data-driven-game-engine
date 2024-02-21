@@ -32,13 +32,12 @@ const std::vector<std::string> g_optional_layers{
 #endif
 };
 
-const std::vector<std::string> g_required_instance_extensions
-{
+const std::vector<std::string> g_required_instance_extensions{
     VK_KHR_SURFACE_EXTENSION_NAME,
 #if defined(_WIN32)
-        VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 #else
-        VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+    VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 #endif
 };
 const std::vector<std::string> g_optional_instance_extensions{
@@ -66,12 +65,10 @@ const std::vector<std::string> g_optional_device_extensions{
 {
     std::vector<std::string> filtered{ t_required.begin(), t_required.end() };
 
-    filtered.append_range(
-        t_optional | std::views::filter([&](const auto& optional) {
-            return std::ranges::find(t_available, optional)
-                != std::cend(t_available);
-        })
-    );
+    filtered.append_range(t_optional | std::views::filter([&](const auto& optional) {
+                              return std::ranges::find(t_available, optional)
+                                  != std::cend(t_available);
+                          }));
 
     return filtered;
 }
@@ -82,8 +79,7 @@ auto find_graphics_queue_family(
 ) -> tl::optional<uint32_t>
 {
     uint32_t index{};
-    for (const auto& properties : t_physical_device.getQueueFamilyProperties())
-    {
+    for (const auto& properties : t_physical_device.getQueueFamilyProperties()) {
         if (t_physical_device.getSurfaceSupportKHR(index, t_surface)
             && properties.queueFlags & vk::QueueFlagBits::eGraphics)
         {
@@ -177,9 +173,8 @@ namespace engine::renderer::helpers {
 
 auto application_info() noexcept -> const vk::ApplicationInfo&
 {
-    static const vk::ApplicationInfo application_create_info{
-        .apiVersion = g_api_version
-    };
+    static const vk::ApplicationInfo application_create_info{ .apiVersion =
+                                                                  g_api_version };
     return application_create_info;
 }
 
@@ -241,16 +236,14 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
     message << vk::to_string(
         static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)
     ) << ": "
-            << vk::to_string(
-                   static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes)
-               )
+            << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes))
             << ":\n";
-    message << std::string("\t") << "messageIDName   = <"
-            << pCallbackData->pMessageIdName << ">\n";
-    message << std::string("\t")
-            << "messageIdNumber = " << pCallbackData->messageIdNumber << "\n";
-    message << std::string("\t") << "message         = <"
-            << pCallbackData->pMessage << ">\n";
+    message << std::string("\t") << "messageIDName   = <" << pCallbackData->pMessageIdName
+            << ">\n";
+    message << std::string("\t") << "messageIdNumber = " << pCallbackData->messageIdNumber
+            << "\n";
+    message << std::string("\t") << "message         = <" << pCallbackData->pMessage
+            << ">\n";
     if (0 < pCallbackData->queueLabelCount) {
         message << std::string("\t") << "Queue Labels:\n";
         for (uint32_t i = 0; i < pCallbackData->queueLabelCount; i++) {
@@ -269,13 +262,15 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
         message << std::string("\t") << "Objects:\n";
         for (uint32_t i = 0; i < pCallbackData->objectCount; i++) {
             message << std::string("\t\t") << "Object " << i << "\n";
-            message << std::string("\t\t\t") << "objectType   = "
-                    << vk::to_string(static_cast<vk::ObjectType>(
-                           pCallbackData->pObjects[i].objectType
-                       ))
+            message
+                << std::string("\t\t\t") << "objectType   = "
+                << vk::to_string(
+                       static_cast<vk::ObjectType>(pCallbackData->pObjects[i].objectType)
+                   )
+                << "\n";
+            message << std::string("\t\t\t")
+                    << "objectHandle = " << pCallbackData->pObjects[i].objectHandle
                     << "\n";
-            message << std::string("\t\t\t") << "objectHandle = "
-                    << pCallbackData->pObjects[i].objectHandle << "\n";
             if (pCallbackData->pObjects[i].pObjectName) {
                 message << std::string("\t\t\t") << "objectName   = <"
                         << pCallbackData->pObjects[i].pObjectName << ">\n";
@@ -290,20 +285,17 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
 
 namespace engine::renderer::helpers {
 
-auto create_debug_messenger(vk::Instance t_instance)
-    -> vk::UniqueDebugUtilsMessengerEXT
+auto create_debug_messenger(vk::Instance t_instance) -> vk::UniqueDebugUtilsMessengerEXT
 {
     auto available_extensions{ vulkan::available_instance_extensions() };
-    auto extension_supported{ std::ranges::find(
-                                  available_extensions,
-                                  VK_EXT_DEBUG_UTILS_EXTENSION_NAME
-                              )
-                              != std::cend(available_extensions) };
+    auto extension_supported{
+        std::ranges::find(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
+        != std::cend(available_extensions)
+    };
     if (!extension_supported) {
-        throw vk::ExtensionNotPresentError{
-            std::string{ VK_EXT_DEBUG_UTILS_EXTENSION_NAME }
-            + "Vulkan extension is not supported"
-        };
+        throw vk::ExtensionNotPresentError{ std::string{
+                                                VK_EXT_DEBUG_UTILS_EXTENSION_NAME }
+                                            + "Vulkan extension is not supported" };
     }
 
     g_create_debug_utils_messenger_ext =
@@ -337,14 +329,10 @@ auto create_debug_messenger(vk::Instance t_instance)
     );
 }
 
-auto find_queue_families(
-    vk::PhysicalDevice t_physical_device,
-    vk::SurfaceKHR     t_surface
-) -> tl::optional<QueueInfos>
+auto find_queue_families(vk::PhysicalDevice t_physical_device, vk::SurfaceKHR t_surface)
+    -> tl::optional<QueueInfos>
 {
-    const auto graphics_family{
-        find_graphics_queue_family(t_physical_device, t_surface)
-    };
+    const auto graphics_family{ find_graphics_queue_family(t_physical_device, t_surface) };
     if (!graphics_family.has_value()) {
         return tl::nullopt;
     }
@@ -377,15 +365,13 @@ auto find_queue_families(
     queue_infos.graphics_index = 0;
 
     if (compute_family == graphics_family) {
-        if (t_physical_device
-                .getQueueFamilyProperties()[queue_infos.graphics_family]
+        if (t_physical_device.getQueueFamilyProperties()[queue_infos.graphics_family]
                 .queueCount
             > queue_infos.queue_create_infos[0].queueCount)
         {
             queue_infos.queue_create_infos[0].queueCount++;
         }
-        queue_infos.compute_index =
-            queue_infos.queue_create_infos[0].queueCount - 1;
+        queue_infos.compute_index = queue_infos.queue_create_infos[0].queueCount - 1;
     }
     else {
         queue_infos.queue_create_infos.push_back(vk::DeviceQueueCreateInfo{
@@ -396,26 +382,22 @@ auto find_queue_families(
     }
 
     if (transfer_family == graphics_family) {
-        if (t_physical_device
-                .getQueueFamilyProperties()[queue_infos.graphics_family]
+        if (t_physical_device.getQueueFamilyProperties()[queue_infos.graphics_family]
                 .queueCount
             > queue_infos.queue_create_infos[0].queueCount)
         {
             queue_infos.queue_create_infos[0].queueCount++;
         }
-        queue_infos.transfer_index =
-            queue_infos.queue_create_infos[0].queueCount - 1;
+        queue_infos.transfer_index = queue_infos.queue_create_infos[0].queueCount - 1;
     }
     else if (transfer_family == compute_family) {
-        if (t_physical_device
-                .getQueueFamilyProperties()[queue_infos.compute_family]
+        if (t_physical_device.getQueueFamilyProperties()[queue_infos.compute_family]
                 .queueCount
             > queue_infos.queue_create_infos[1].queueCount)
         {
             queue_infos.queue_create_infos[1].queueCount++;
         }
-        queue_infos.transfer_index =
-            queue_infos.queue_create_infos[1].queueCount - 1;
+        queue_infos.transfer_index = queue_infos.queue_create_infos[1].queueCount - 1;
     }
     else {
         queue_infos.queue_create_infos.push_back(vk::DeviceQueueCreateInfo{
@@ -440,10 +422,8 @@ auto device_extensions(vk::PhysicalDevice t_physical_device) noexcept
     return device_extensions;
 }
 
-auto is_adequate(
-    vk::PhysicalDevice t_physical_device,
-    vk::SurfaceKHR     t_surface
-) noexcept -> bool
+auto is_adequate(vk::PhysicalDevice t_physical_device, vk::SurfaceKHR t_surface) noexcept
+    -> bool
 {
     return vulkan::supports_surface(t_physical_device, t_surface)
         && vulkan::supports_extensions(
@@ -458,33 +438,29 @@ auto choose_physical_device(vk::Instance t_instance, vk::SurfaceKHR t_surface)
 
     auto adequate_devices{
         physical_devices
-        | std::views::filter(
-            [t_surface](vk::PhysicalDevice t_physical_device) -> bool {
-                return is_adequate(t_physical_device, t_surface);
-            }
-        )
+        | std::views::filter([t_surface](vk::PhysicalDevice t_physical_device) -> bool {
+              return is_adequate(t_physical_device, t_surface);
+          })
     };
 
     if (std::ranges::empty(adequate_devices)) {
         return nullptr;
     }
 
-    auto ranked_devices{
-        adequate_devices
-        | std::views::transform(
-            [](vk::PhysicalDevice t_physical_device
-            ) -> std::pair<vk::PhysicalDevice, unsigned> {
-                switch (t_physical_device.getProperties().deviceType) {
-                    case vk::PhysicalDeviceType::eDiscreteGpu:
-                        return std::make_pair(t_physical_device, 100);
-                    case vk::PhysicalDeviceType::eIntegratedGpu:
-                        return std::make_pair(t_physical_device, 10);
-                    default: return std::make_pair(t_physical_device, 1);
-                }
-            }
-        )
-        | std::ranges::to<std::vector>()
-    };
+    auto ranked_devices{ adequate_devices
+                         | std::views::transform(
+                             [](vk::PhysicalDevice t_physical_device
+                             ) -> std::pair<vk::PhysicalDevice, unsigned> {
+                                 switch (t_physical_device.getProperties().deviceType) {
+                                     case vk::PhysicalDeviceType::eDiscreteGpu:
+                                         return std::make_pair(t_physical_device, 100);
+                                     case vk::PhysicalDeviceType::eIntegratedGpu:
+                                         return std::make_pair(t_physical_device, 10);
+                                     default: return std::make_pair(t_physical_device, 1);
+                                 }
+                             }
+                         )
+                         | std::ranges::to<std::vector>() };
 
     std::ranges::sort(
         ranked_devices,
@@ -503,20 +479,16 @@ auto vma_allocator_create_flags(
     VmaAllocatorCreateFlags flags{};
 
     if (std::ranges::find(
-            enabled_device_extensions,
-            VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
+            enabled_device_extensions, VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
         ) != std::cend(enabled_device_extensions)
         && std::ranges::find(
-               enabled_device_extensions,
-               VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
+               enabled_device_extensions, VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
            ) != std::cend(enabled_device_extensions))
     {
         flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
     }
 
-    if (std::ranges::find(
-            enabled_device_extensions, VK_KHR_BIND_MEMORY_2_EXTENSION_NAME
-        )
+    if (std::ranges::find(enabled_device_extensions, VK_KHR_BIND_MEMORY_2_EXTENSION_NAME)
         != std::cend(enabled_device_extensions))
     {
         flags |= VMA_ALLOCATOR_CREATE_KHR_BIND_MEMORY2_BIT;

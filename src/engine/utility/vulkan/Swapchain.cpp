@@ -6,8 +6,7 @@
 
 namespace {
 
-[[nodiscard]] auto get_min_image_count(
-    vk::SurfaceCapabilitiesKHR t_surface_capabilities
+[[nodiscard]] auto get_min_image_count(vk::SurfaceCapabilitiesKHR t_surface_capabilities
 ) noexcept -> uint32_t
 {
     uint32_t image_count = t_surface_capabilities.minImageCount + 1;
@@ -28,9 +27,7 @@ auto choose_swapchain_surface_format(
         t_physical_device.getSurfaceFormatsKHR(t_surface)
     };
 
-    for (const auto& surface_format :
-         t_physical_device.getSurfaceFormatsKHR(t_surface))
-    {
+    for (const auto& surface_format : t_physical_device.getSurfaceFormatsKHR(t_surface)) {
         if (surface_format.format == vk::Format::eB8G8R8A8Srgb
             && surface_format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
         {
@@ -46,9 +43,7 @@ auto choose_swapchain_present_mode(
     vk::PhysicalDevice t_physical_device
 ) -> vk::PresentModeKHR
 {
-    const auto present_modes{
-        t_physical_device.getSurfacePresentModesKHR(t_surface)
-    };
+    const auto present_modes{ t_physical_device.getSurfacePresentModesKHR(t_surface) };
     return std::ranges::find(present_modes, vk::PresentModeKHR::eMailbox)
                 != std::cend(present_modes)
              ? vk::PresentModeKHR::eMailbox
@@ -67,29 +62,26 @@ auto create_swapchain(
     vk::SwapchainKHR           t_old_swapchain
 ) -> vk::UniqueSwapchainKHR
 {
-    const std::set buffer{ t_graphics_queue_family, t_present_queue_family };
-    const std::vector<uint32_t> queueFamilyIndices = { buffer.cbegin(),
-                                                       buffer.cend() };
-    const vk::SharingMode       sharingMode = queueFamilyIndices.size() > 1
-                                                ? vk::SharingMode::eConcurrent
-                                                : vk::SharingMode::eExclusive;
+    const std::set              buffer{ t_graphics_queue_family, t_present_queue_family };
+    const std::vector<uint32_t> queueFamilyIndices = { buffer.cbegin(), buffer.cend() };
+    const vk::SharingMode       sharingMode        = queueFamilyIndices.size() > 1
+                                                       ? vk::SharingMode::eConcurrent
+                                                       : vk::SharingMode::eExclusive;
 
     const vk::SwapchainCreateInfoKHR create_info{
-        .surface          = t_surface,
-        .minImageCount    = get_min_image_count(t_surface_capabilities),
-        .imageFormat      = t_surface_format.format,
-        .imageColorSpace  = t_surface_format.colorSpace,
-        .imageExtent      = t_extent,
-        .imageArrayLayers = 1,
-        .imageUsage       = vk::ImageUsageFlagBits::eColorAttachment,
-        .imageSharingMode = sharingMode,
-        .queueFamilyIndexCount =
-            static_cast<uint32_t>(queueFamilyIndices.size()),
-        .pQueueFamilyIndices = queueFamilyIndices.data(),
-        .preTransform        = t_surface_capabilities.currentTransform,
-        .compositeAlpha      = vk::CompositeAlphaFlagBitsKHR::eOpaque,
-        .presentMode =
-            choose_swapchain_present_mode(t_surface, t_physical_device),
+        .surface               = t_surface,
+        .minImageCount         = get_min_image_count(t_surface_capabilities),
+        .imageFormat           = t_surface_format.format,
+        .imageColorSpace       = t_surface_format.colorSpace,
+        .imageExtent           = t_extent,
+        .imageArrayLayers      = 1,
+        .imageUsage            = vk::ImageUsageFlagBits::eColorAttachment,
+        .imageSharingMode      = sharingMode,
+        .queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size()),
+        .pQueueFamilyIndices   = queueFamilyIndices.data(),
+        .preTransform          = t_surface_capabilities.currentTransform,
+        .compositeAlpha        = vk::CompositeAlphaFlagBitsKHR::eOpaque,
+        .presentMode  = choose_swapchain_present_mode(t_surface, t_physical_device),
         .clipped      = true,
         .oldSwapchain = t_old_swapchain
     };
@@ -103,24 +95,22 @@ auto create_image_views(
     vk::SurfaceFormatKHR t_surface_format
 ) -> std::vector<vk::UniqueImageView>
 {
-    const auto images = t_device.getSwapchainImagesKHR(t_swapchain);
+    const auto                       images = t_device.getSwapchainImagesKHR(t_swapchain);
     std::vector<vk::UniqueImageView> image_views;
     image_views.reserve(images.size());
 
     vk::ImageViewCreateInfo image_view_create_info{
         .viewType         = vk::ImageViewType::e2D,
         .format           = t_surface_format.format,
-        .subresourceRange = {.aspectMask     = vk::ImageAspectFlagBits::eColor,
+        .subresourceRange = { .aspectMask     = vk::ImageAspectFlagBits::eColor,
                              .baseMipLevel   = 0,
                              .levelCount     = 1,
                              .baseArrayLayer = 0,
-                             .layerCount     = 1}
+                             .layerCount     = 1 }
     };
     for (auto image : images) {
         image_view_create_info.image = image;
-        image_views.emplace_back(
-            t_device.createImageViewUnique(image_view_create_info)
-        );
+        image_views.emplace_back(t_device.createImageViewUnique(image_view_create_info));
     }
 
     return image_views;
@@ -141,8 +131,7 @@ auto Swapchain::choose_extent(
     const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
 ) noexcept -> vk::Extent2D
 {
-    if (t_surface_capabilities.currentExtent.width
-        != std::numeric_limits<uint32_t>::max())
+    if (t_surface_capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
     {
         return t_surface_capabilities.currentExtent;
     }
@@ -177,9 +166,8 @@ auto Swapchain::create(
     vk::SwapchainKHR   t_old_swapchain
 ) noexcept -> tl::optional<Swapchain>
 try {
-    const auto surface_capabilities{
-        t_physical_device.getSurfaceCapabilitiesKHR(t_surface)
-    };
+    const auto surface_capabilities{ t_physical_device.getSurfaceCapabilitiesKHR(t_surface
+    ) };
 
     const auto extent = choose_extent(t_framebuffer_size, surface_capabilities);
     if (extent.width == 0 || extent.height == 0) {
@@ -202,13 +190,11 @@ try {
         t_old_swapchain
     ) };
 
-    return Swapchain{
-        t_device,
-        extent,
-        surface_format,
-        std::move(swapchain),
-        create_image_views(t_device, swapchain.get(), surface_format)
-    };
+    return Swapchain{ t_device,
+                      extent,
+                      surface_format,
+                      std::move(swapchain),
+                      create_image_views(t_device, swapchain.get(), surface_format) };
 } catch (const vk::Error& t_error) {
     SPDLOG_ERROR(t_error.what());
     return tl::nullopt;
@@ -229,8 +215,7 @@ auto Swapchain::surface_format() const noexcept -> vk::SurfaceFormatKHR
     return m_surface_format;
 }
 
-auto Swapchain::image_views() const noexcept
-    -> const std::vector<vk::UniqueImageView>&
+auto Swapchain::image_views() const noexcept -> const std::vector<vk::UniqueImageView>&
 {
     return m_image_views;
 }

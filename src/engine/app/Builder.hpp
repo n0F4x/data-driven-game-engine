@@ -28,10 +28,7 @@ public:
     auto add_plugin(auto&&... t_args) && -> Builder;
 
     template <typename... Args>
-    auto add_plugin(
-        PluginConcept<Args...> auto&& t_plugin,
-        Args&&... t_args
-    ) && -> Builder;
+    auto add_plugin(PluginConcept<Args...> auto&& t_plugin, Args&&... t_args) && -> Builder;
 
 private:
     ///******************///

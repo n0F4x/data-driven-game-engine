@@ -20,14 +20,13 @@ public:
     ///----------------///
     /// Static methods ///
     ///----------------///
-    [[nodiscard]] static auto create(
-        const VmaAllocatorCreateInfo& t_vma_allocator_create_info
-    ) noexcept -> std::expected<Allocator, vk::Result>;
+    [[nodiscard]] static auto
+        create(const VmaAllocatorCreateInfo& t_vma_allocator_create_info) noexcept
+        -> std::expected<Allocator, vk::Result>;
 
-    [[nodiscard]] static auto create_default(
-        const Instance& t_instance,
-        const Device&   t_device
-    ) noexcept -> std::expected<Allocator, vk::Result>;
+    [[nodiscard]] static auto
+        create_default(const Instance& t_instance, const Device& t_device) noexcept
+        -> std::expected<Allocator, vk::Result>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///

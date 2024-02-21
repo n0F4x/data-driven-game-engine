@@ -4,7 +4,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "engine/renderer/Allocator.hpp"
+#include "engine/renderer/base/Allocator.hpp"
 #include "engine/utility/vma/Buffer.hpp"
 
 #include "MeshBuffer.hpp"

@@ -1,6 +1,8 @@
 #include <engine/app.hpp>
 #include <engine/plugins.hpp>
 #include <engine/window/Window.hpp>
+#include <ktx.h>
+#include <ktxvulkan.h>
 
 #include "demo.hpp"
 
@@ -21,7 +23,6 @@ auto main() -> int
         .add_plugin<plugins::Window>(
             1'280, 720, "My window", plugins::Window::default_configure
         )
-        .add_plugin<plugins::Renderer>(plugins::Renderer::create_default_surface
-        )
+        .add_plugin<plugins::Renderer>(plugins::Renderer::create_default_surface)
         .build_and_run(demo::run, g_model_file_path);
 }

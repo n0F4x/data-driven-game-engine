@@ -21,10 +21,7 @@ auto StagingModel::upload(
 
             for (auto& node : model.m_nodes) {
                 if (!node.upload(
-                        t_device,
-                        t_allocator,
-                        t_descriptor_set_layout,
-                        t_descriptor_pool
+                        t_device, t_allocator, t_descriptor_set_layout, t_descriptor_pool
                     ))
                 {
                     return tl::nullopt;

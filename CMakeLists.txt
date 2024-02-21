@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.25)
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 
-project(engine CXX)
+project(engine C CXX)
 
 
 add_library(${PROJECT_NAME})
@@ -85,7 +85,6 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE <spdlog/spdlog.h>)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # GLFW
-set(GLFW_VULKAN_STATIC ON)
 FetchContent_Declare(GLFW
         GIT_REPOSITORY https://github.com/glfw/glfw.git
         GIT_TAG 3.3.9
@@ -144,11 +143,20 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_precompile_headers(${PROJECT_NAME} PRIVATE <glm/glm.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 
+# KTX
+FetchContent_Declare(ktxlib
+        GIT_REPOSITORY https://github.com/KhronosGroup/KTX-Software.git
+        GIT_TAG v4.3.1
+        GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(ktxlib)
+target_link_libraries(${PROJECT_NAME} PUBLIC ktx)
+
 # fastgltf
 FetchContent_Declare(fastgltf
-    GIT_REPOSITORY https://github.com/spnda/fastgltf.git
-    GIT_TAG v0.6.1
-    GIT_PROGRESS TRUE
+        GIT_REPOSITORY https://github.com/spnda/fastgltf.git
+        GIT_TAG v0.6.1
+        GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(fastgltf)
 target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf)

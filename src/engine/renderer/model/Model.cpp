@@ -5,9 +5,9 @@
 namespace engine::scene {
 
 [[nodiscard]] auto create_descriptor_set(
-    const vk::Device         t_device,
+    const vk::Device               t_device,
     const vk::DescriptorSetLayout  t_descriptor_set_layout,
-    const vk::DescriptorPool t_descriptor_pool,
+    const vk::DescriptorPool       t_descriptor_pool,
     const vk::DescriptorBufferInfo t_descriptor_buffer_info
 ) -> vk::UniqueDescriptorSet
 {
@@ -53,23 +53,16 @@ auto Model::Mesh::upload(
     };
 
     return t_allocator
-        .create_buffer(
-            buffer_create_info, allocation_create_info, &t_uniform_block
-        )
+        .create_buffer(buffer_create_info, allocation_create_info, &t_uniform_block)
         .transform([&](std::pair<vma::Buffer, VmaAllocationInfo>&& result) {
             const vk::DescriptorBufferInfo descriptor_buffer_info{
-                .buffer = *result.first,
-                .offset = 0,
-                .range  = sizeof(UniformBlock)
+                .buffer = *result.first, .offset = 0, .range = sizeof(UniformBlock)
             };
 
             uniform_buffer = std::move(result.first);
             mapped         = result.second.pMappedData;
             descriptor_set = create_descriptor_set(
-                t_device,
-                t_descriptor_set_layout,
-                t_descriptor_pool,
-                descriptor_buffer_info
+                t_device, t_descriptor_set_layout, t_descriptor_pool, descriptor_buffer_info
             );
             return true;
         })
@@ -96,10 +89,7 @@ auto Model::Node::upload(
     {
         for (auto& child : children) {
             if (!child.upload(
-                    t_device,
-                    t_allocator,
-                    t_descriptor_set_layout,
-                    t_descriptor_pool
+                    t_device, t_allocator, t_descriptor_set_layout, t_descriptor_pool
                 ))
             {
                 return false;
@@ -121,8 +111,7 @@ auto Model::Node::draw(
         const Mesh::UniformBlock uniform_block{ .matrix = global_matrix };
         memcpy(mesh->mapped, &uniform_block, sizeof(Mesh::UniformBlock));
 
-        for (const auto& [first_index_index, index_count, vertex_count] :
-             mesh->primitives)
+        for (const auto& [first_index_index, index_count, vertex_count] : mesh->primitives)
         {
             t_graphics_buffer.bindDescriptorSets(
                 vk::PipelineBindPoint::eGraphics,
@@ -133,9 +122,7 @@ auto Model::Node::draw(
             );
 
             if (index_count > 0) {
-                t_graphics_buffer.drawIndexed(
-                    index_count, 1, first_index_index, 0, 0
-                );
+                t_graphics_buffer.drawIndexed(index_count, 1, first_index_index, 0, 0);
             }
             else {
                 t_graphics_buffer.draw(vertex_count, 1, 0, 0);
@@ -156,9 +143,7 @@ auto Model::draw(
     m_mesh_buffer.bind(t_graphics_buffer);
 
     for (const auto& node : m_nodes) {
-        node.draw(
-            t_graphics_buffer, t_pipeline_layout, glm::identity<glm::mat4>()
-        );
+        node.draw(t_graphics_buffer, t_pipeline_layout, glm::identity<glm::mat4>());
     }
 }
 

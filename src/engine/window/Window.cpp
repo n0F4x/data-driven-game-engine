@@ -18,9 +18,7 @@ namespace engine::window {
     create_window(uint16_t t_width, uint16_t t_height, const std::string& title)
         -> GLFWwindow*
 {
-    auto window{
-        glfwCreateWindow(t_width, t_height, title.c_str(), nullptr, nullptr)
-    };
+    auto window{ glfwCreateWindow(t_width, t_height, title.c_str(), nullptr, nullptr) };
     if (window == nullptr) {
         throw std::runtime_error{ std::format(
             "glfwCreateWindowSurface failed with error code {}",

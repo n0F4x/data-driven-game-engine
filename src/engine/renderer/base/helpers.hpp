@@ -15,8 +15,7 @@ namespace engine::renderer::helpers {
 
 [[nodiscard]] auto layers() noexcept -> std::span<const std::string>;
 
-[[nodiscard]] auto instance_extensions() noexcept
-    -> std::span<const std::string>;
+[[nodiscard]] auto instance_extensions() noexcept -> std::span<const std::string>;
 
 [[nodiscard]] auto create_debug_messenger(vk::Instance t_instance)
     -> vk::UniqueDebugUtilsMessengerEXT;
@@ -31,23 +30,20 @@ struct QueueInfos {
     std::vector<vk::DeviceQueueCreateInfo> queue_create_infos;
 };
 
-[[nodiscard]] auto find_queue_families(
-    vk::PhysicalDevice queue_family_index,
-    vk::SurfaceKHR     t_surface
-) -> tl::optional<QueueInfos>;
+[[nodiscard]] auto
+    find_queue_families(vk::PhysicalDevice queue_family_index, vk::SurfaceKHR t_surface)
+        -> tl::optional<QueueInfos>;
 
-[[nodiscard]] auto device_extensions(vk::PhysicalDevice t_physical_device
-) noexcept -> std::span<const std::string>;
+[[nodiscard]] auto device_extensions(vk::PhysicalDevice t_physical_device) noexcept
+    -> std::span<const std::string>;
 
-[[nodiscard]] auto is_adequate(
-    vk::PhysicalDevice t_physical_device,
-    vk::SurfaceKHR     t_surface
-) noexcept -> bool;
+[[nodiscard]] auto
+    is_adequate(vk::PhysicalDevice t_physical_device, vk::SurfaceKHR t_surface) noexcept
+    -> bool;
 
-[[nodiscard]] auto choose_physical_device(
-    vk::Instance   t_instance,
-    vk::SurfaceKHR t_surface
-) -> vk::PhysicalDevice;
+[[nodiscard]] auto
+    choose_physical_device(vk::Instance t_instance, vk::SurfaceKHR t_surface)
+        -> vk::PhysicalDevice;
 
 [[nodiscard]] auto vma_allocator_create_flags(
     std::span<const std::string> enabled_instance_extensions,

@@ -34,11 +34,10 @@ public:
     ///----------------///
     /// Static methods ///
     ///----------------///
-    [[nodiscard]] static auto create(const CreateInfo& t_extension_name
-    ) noexcept -> tl::optional<Instance>;
-
-    [[nodiscard]] static auto create_default() noexcept
+    [[nodiscard]] static auto create(const CreateInfo& t_extension_name) noexcept
         -> tl::optional<Instance>;
+
+    [[nodiscard]] static auto create_default() noexcept -> tl::optional<Instance>;
 
     ///-------------///
     ///  Operators  ///
@@ -49,10 +48,8 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto application_info() const noexcept
-        -> const vk::ApplicationInfo&;
-    [[nodiscard]] auto enabled_layers() const noexcept
-        -> std::span<const std::string>;
+    [[nodiscard]] auto application_info() const noexcept -> const vk::ApplicationInfo&;
+    [[nodiscard]] auto enabled_layers() const noexcept -> std::span<const std::string>;
     [[nodiscard]] auto enabled_extensions() const noexcept
         -> std::span<const std::string>;
 

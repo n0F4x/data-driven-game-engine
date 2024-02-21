@@ -11,9 +11,8 @@ namespace engine::vulkan {
 
 [[nodiscard]] auto available_instance_extensions() -> std::vector<std::string>;
 
-[[nodiscard]] auto available_device_extensions(
-    vk::PhysicalDevice t_physical_device
-) -> std::vector<std::string>;
+[[nodiscard]] auto available_device_extensions(vk::PhysicalDevice t_physical_device)
+    -> std::vector<std::string>;
 
 [[nodiscard]] auto supports_extensions(
     vk::PhysicalDevice           t_physical_device,
@@ -25,9 +24,7 @@ namespace engine::vulkan {
     vk::SurfaceKHR     t_surface
 ) noexcept -> bool;
 
-[[nodiscard]] auto load_shader(
-    vk::Device         t_device,
-    const std::string& t_file_path
-) -> vk::UniqueShaderModule;
+[[nodiscard]] auto load_shader(vk::Device t_device, const std::string& t_file_path)
+    -> vk::UniqueShaderModule;
 
 }   // namespace engine::vulkan

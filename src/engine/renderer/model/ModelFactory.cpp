@@ -7,8 +7,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include <fastgltf/glm_element_traits.hpp>
-#include <fastgltf/parser.hpp>
+#include "fastgltf/glm_element_traits.hpp"
+#include "fastgltf/parser.hpp"
 
 namespace engine::scene {
 
@@ -21,9 +21,7 @@ struct ModelLoader {
 
     auto load(const fastgltf::Asset& t_asset) noexcept -> void
     {
-        const auto [node_indices, _]{
-            t_asset.scenes[t_asset.defaultScene.value_or(0)]
-        };
+        const auto [node_indices, _]{ t_asset.scenes[t_asset.defaultScene.value_or(0)] };
         nodes.resize(node_indices.size());
         for (const auto node_index : node_indices) {
             load_node(nullptr, t_asset, t_asset.nodes[node_index]);
@@ -37,10 +35,9 @@ private:
         const fastgltf::Node&  t_node
     ) noexcept -> void;
 
-    [[nodiscard]] auto load_mesh(
-        const fastgltf::Asset& t_asset,
-        const fastgltf::Mesh&  t_mesh
-    ) noexcept -> StagingModel::Mesh;
+    [[nodiscard]] auto
+        load_mesh(const fastgltf::Asset& t_asset, const fastgltf::Mesh& t_mesh) noexcept
+        -> StagingModel::Mesh;
 
     auto load_primitive(
         StagingModel::Mesh&        t_mesh,
@@ -51,8 +48,7 @@ private:
     auto load_vertices(
         StagingModel::Primitive& t_primitive,
         const fastgltf::Asset&   t_asset,
-        const fastgltf::pmr::
-            SmallVector<fastgltf::Primitive::attribute_type, 4>& t_attributes
+        const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>& t_attributes
     ) noexcept -> void;
 
     auto load_indices(
@@ -84,8 +80,7 @@ private:
         asset = parser.loadGLTF(&data, t_filepath.parent_path(), gltfOptions);
     }
     else if (type == fastgltf::GltfType::GLB) {
-        asset =
-            parser.loadBinaryGLTF(&data, t_filepath.parent_path(), gltfOptions);
+        asset = parser.loadBinaryGLTF(&data, t_filepath.parent_path(), gltfOptions);
     }
     else {
         SPDLOG_ERROR("Failed to determine glTF container");
@@ -93,9 +88,7 @@ private:
     }
 
     if (!asset) {
-        SPDLOG_ERROR(
-            "Failed to load glTF: {}", fastgltf::to_underlying(asset.error())
-        );
+        SPDLOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
         return tl::nullopt;
     }
 
@@ -146,14 +139,10 @@ auto ModelLoader::load_node(
             },
             [](const fastgltf::Node::TRS& transform) {
                 return glm::translate(
-                           glm::mat4(1.f),
-                           glm::make_vec3(transform.translation.data())
+                           glm::mat4(1.f), glm::make_vec3(transform.translation.data())
                        )
                      * glm::toMat4(glm::make_quat(transform.rotation.data()))
-                     * glm::scale(
-                           glm::mat4(1.0f),
-                           glm::make_vec3(transform.scale.data())
-                     );
+                     * glm::scale(glm::mat4(1.0f), glm::make_vec3(transform.scale.data()));
             } },
         t_node.transform
     );
@@ -205,10 +194,9 @@ auto ModelLoader::load_primitive(
 }
 
 auto ModelLoader::load_vertices(
-    StagingModel::Primitive& t_primitive,
-    const fastgltf::Asset&   t_asset,
-    const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>&
-        t_attributes
+    StagingModel::Primitive&                                                  t_primitive,
+    const fastgltf::Asset&                                                    t_asset,
+    const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>& t_attributes
 ) noexcept -> void
 {
     auto first_vertex_index{ vertices.size() };
@@ -223,35 +211,32 @@ auto ModelLoader::load_vertices(
             )
                                   ->second]
         };
-        t_primitive.vertex_count =
-            static_cast<uint32_t>(position_accessor.count);
+        t_primitive.vertex_count = static_cast<uint32_t>(position_accessor.count);
 
         vertices.resize(position_accessor.count + vertices.size());
 
         fastgltf::iterateAccessorWithIndex<glm::vec3>(
             t_asset,
             position_accessor,
-            [&, first_vertex_index](
-                const glm::vec3& position, const size_t index
-            ) { vertices[first_vertex_index + index].position = position; }
+            [&, first_vertex_index](const glm::vec3& position, const size_t index) {
+                vertices[first_vertex_index + index].position = position;
+            }
         );
     }
 
     // load vertex normals
     {
         if (const auto normal_accessor{ std::ranges::find(
-                t_attributes,
-                "NORMAL",
-                &fastgltf::Primitive::attribute_type::first
+                t_attributes, "NORMAL", &fastgltf::Primitive::attribute_type::first
             ) };
             normal_accessor != t_attributes.end())
         {
             fastgltf::iterateAccessorWithIndex<glm::vec3>(
                 t_asset,
                 t_asset.accessors[normal_accessor->second],
-                [&, first_vertex_index](
-                    const glm::vec3& normal, const size_t index
-                ) { vertices[first_vertex_index + index].normal = normal; }
+                [&, first_vertex_index](const glm::vec3& normal, const size_t index) {
+                    vertices[first_vertex_index + index].normal = normal;
+                }
             );
         }
     }
@@ -259,18 +244,16 @@ auto ModelLoader::load_vertices(
     // load UVs
     {
         if (const auto uv_accessor{ std::ranges::find(
-                t_attributes,
-                "TEXCOORD_0",
-                &fastgltf::Primitive::attribute_type::first
+                t_attributes, "TEXCOORD_0", &fastgltf::Primitive::attribute_type::first
             ) };
             uv_accessor != t_attributes.end())
         {
             fastgltf::iterateAccessorWithIndex<glm::vec2>(
                 t_asset,
                 t_asset.accessors[uv_accessor->second],
-                [&, first_vertex_index](
-                    const glm::vec2& uv, const size_t index
-                ) { vertices[first_vertex_index + index].uv = uv; }
+                [&, first_vertex_index](const glm::vec2& uv, const size_t index) {
+                    vertices[first_vertex_index + index].uv = uv;
+                }
             );
         }
     }
@@ -278,28 +261,23 @@ auto ModelLoader::load_vertices(
     // load vertex colors
     {
         if (const auto color_accessor{ std::ranges::find(
-                t_attributes,
-                "COLOR_0",
-                &fastgltf::Primitive::attribute_type::first
+                t_attributes, "COLOR_0", &fastgltf::Primitive::attribute_type::first
             ) };
             color_accessor != t_attributes.end())
         {
             fastgltf::iterateAccessorWithIndex<glm::vec3>(
                 t_asset,
                 t_asset.accessors[color_accessor->second],
-                [&, first_vertex_index](
-                    const glm::vec3& color, const size_t index
-                ) {
-                    vertices[first_vertex_index + index].color =
-                        glm::vec4{ color, 1 };
+                [&, first_vertex_index](const glm::vec3& color, const size_t index) {
+                    vertices[first_vertex_index + index].color = glm::vec4{ color, 1 };
                 }
             );
             fastgltf::iterateAccessorWithIndex<glm::vec4>(
                 t_asset,
                 t_asset.accessors[color_accessor->second],
-                [&, first_vertex_index](
-                    const glm::vec4& color, const size_t index
-                ) { vertices[first_vertex_index + index].color = color; }
+                [&, first_vertex_index](const glm::vec4& color, const size_t index) {
+                    vertices[first_vertex_index + index].color = color;
+                }
             );
         }
     }
@@ -317,13 +295,9 @@ auto ModelLoader::load_indices(
 
     indices.reserve(indices.size() + t_accessor.count);
 
-    fastgltf::iterateAccessor<uint32_t>(
-        t_asset,
-        t_accessor,
-        [&](const uint32_t index) {
-            indices.push_back(t_first_vertex_index + index);
-        }
-    );
+    fastgltf::iterateAccessor<uint32_t>(t_asset, t_accessor, [&](const uint32_t index) {
+        indices.push_back(t_first_vertex_index + index);
+    });
 }
 
 }   // namespace engine::scene

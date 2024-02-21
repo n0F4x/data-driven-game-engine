@@ -36,8 +36,7 @@ auto Swapchain::get() const noexcept -> const tl::optional<vulkan::Swapchain>&
     return m_swapchain;
 }
 
-auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept
-    -> void
+auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void
 try {
     if (!m_swapchain.has_value()) {
         recreate_swapchain(t_framebuffer_size);
@@ -61,10 +60,7 @@ auto Swapchain::acquire_next_image(vk::Semaphore t_semaphore, vk::Fence t_fence)
 try {
     if (m_swapchain.has_value()) {
         const auto [result, image_index]{ m_device->acquireNextImageKHR(
-            **m_swapchain,
-            std::numeric_limits<uint64_t>::max(),
-            t_semaphore,
-            t_fence
+            **m_swapchain, std::numeric_limits<uint64_t>::max(), t_semaphore, t_fence
         ) };
 
         switch (result) {
@@ -95,9 +91,9 @@ try {
     const vk::PresentInfoKHR              info{
                      .waitSemaphoreCount = static_cast<uint32_t>(t_wait_semaphores.size()),
                      .pWaitSemaphores = t_wait_semaphores.data(),
-                     .swapchainCount = static_cast<uint32_t>(swapchains.size()),
-                     .pSwapchains    = swapchains.data(),
-                     .pImageIndices  = &m_image_index
+                     .swapchainCount  = static_cast<uint32_t>(swapchains.size()),
+                     .pSwapchains     = swapchains.data(),
+                     .pImageIndices   = &m_image_index
     };
 
     const auto result{ m_device.graphics_queue().presentKHR(info) };
@@ -113,8 +109,7 @@ auto Swapchain::on_swapchain_recreated(
 ) noexcept -> uint32_t
 {
     m_swapchain_recreated_events.emplace_back(
-        m_swapchain_recreated_events_counter,
-        std::move(t_swapchain_recreated_event)
+        m_swapchain_recreated_events_counter, std::move(t_swapchain_recreated_event)
     );
     return m_swapchain_recreated_events_counter++;
 }
@@ -126,8 +121,7 @@ auto Swapchain::remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void
     });
 }
 
-auto Swapchain::recreate_swapchain(vk::Extent2D t_framebuffer_size) noexcept
-    -> void
+auto Swapchain::recreate_swapchain(vk::Extent2D t_framebuffer_size) noexcept -> void
 {
     m_device->waitIdle();
 

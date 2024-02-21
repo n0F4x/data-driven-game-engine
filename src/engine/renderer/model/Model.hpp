@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include "engine/renderer/Allocator.hpp"
+#include "engine/renderer/base/Allocator.hpp"
 #include "engine/utility/vma/Buffer.hpp"
 
 #include "MeshBuffer.hpp"
@@ -88,10 +88,8 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto draw(
-        vk::CommandBuffer  t_graphics_buffer,
-        vk::PipelineLayout t_pipeline_layout
-    ) const noexcept -> void;
+    auto draw(vk::CommandBuffer t_graphics_buffer, vk::PipelineLayout t_pipeline_layout)
+        const noexcept -> void;
 
 private:
     ///******************///
@@ -108,10 +106,7 @@ private:
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
-    explicit Model(
-        std::vector<Node>&& t_nodes,
-        MeshBuffer&&        t_mesh_buffer
-    ) noexcept;
+    explicit Model(std::vector<Node>&& t_nodes, MeshBuffer&& t_mesh_buffer) noexcept;
 };
 
 }   // namespace engine::scene

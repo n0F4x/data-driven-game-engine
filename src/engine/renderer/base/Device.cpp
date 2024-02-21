@@ -27,9 +27,7 @@ try {
         return tl::nullopt;
     }
 
-    const auto queue_infos{
-        helpers::find_queue_families(t_physical_device, t_surface)
-    };
+    const auto queue_infos{ helpers::find_queue_families(t_physical_device, t_surface) };
     if (!queue_infos.has_value()) {
         return tl::nullopt;
     }
@@ -42,19 +40,18 @@ try {
         .pNext = t_create_info.next,
         .queueCreateInfoCount =
             static_cast<uint32_t>(queue_infos->queue_create_infos.size()),
-        .pQueueCreateInfos = queue_infos->queue_create_infos.data(),
-        .enabledExtensionCount =
-            static_cast<uint32_t>(enabled_extension_names.size()),
+        .pQueueCreateInfos       = queue_infos->queue_create_infos.data(),
+        .enabledExtensionCount   = static_cast<uint32_t>(enabled_extension_names.size()),
         .ppEnabledExtensionNames = enabled_extension_names.data(),
         .pEnabledFeatures        = &t_create_info.features
     };
 
-    auto device = t_physical_device.createDeviceUnique(device_create_info);
+    vk::UniqueDevice device{ t_physical_device.createDeviceUnique(device_create_info) };
 
-    const VmaVulkanFunctions vulkan_functions = { .vkGetInstanceProcAddr =
-                                                      &vkGetInstanceProcAddr,
-                                                  .vkGetDeviceProcAddr =
-                                                      &vkGetDeviceProcAddr };
+    const VmaVulkanFunctions vulkan_functions = {
+        .vkGetInstanceProcAddr = &vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr   = &vkGetDeviceProcAddr
+    };
 
     const VmaAllocatorCreateInfo allocator_info{
         .flags = helpers::vma_allocator_create_flags(
@@ -70,21 +67,17 @@ try {
         return tl::nullopt;
     }
 
-    return Device{ t_physical_device,
-                   t_create_info,
-                   std::move(device),
-                   queue_infos->graphics_family,
-                   device->getQueue(
-                       queue_infos->graphics_family, queue_infos->graphics_index
-                   ),
-                   queue_infos->compute_family,
-                   device->getQueue(
-                       queue_infos->compute_family, queue_infos->compute_index
-                   ),
-                   queue_infos->transfer_family,
-                   device->getQueue(
-                       queue_infos->transfer_family, queue_infos->transfer_index
-                   ) };
+    return Device{
+        t_physical_device,
+        t_create_info,
+        std::move(device),
+        queue_infos->graphics_family,
+        device->getQueue(queue_infos->graphics_family, queue_infos->graphics_index),
+        queue_infos->compute_family,
+        device->getQueue(queue_infos->compute_family, queue_infos->compute_index),
+        queue_infos->transfer_family,
+        device->getQueue(queue_infos->transfer_family, queue_infos->transfer_index)
+    };
 } catch (const vk::Error& t_error) {
     SPDLOG_ERROR(t_error.what());
     return tl::nullopt;
@@ -100,8 +93,7 @@ auto Device::create_default(
         t_instance,
         t_surface,
         t_physical_device,
-        CreateInfo{ .extensions =
-                        helpers::device_extensions(t_physical_device) }
+        CreateInfo{ .extensions = helpers::device_extensions(t_physical_device) }
     );
 }
 

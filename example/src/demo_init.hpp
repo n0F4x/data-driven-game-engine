@@ -8,10 +8,11 @@
 
 #include <vk_mem_alloc.h>
 
-#include <engine/renderer/Allocator.hpp>
-#include <engine/renderer/Device.hpp>
-#include <engine/scene/StagingModel.hpp>
 #include <engine/utility/vma/Image.hpp>
+
+#include "engine/renderer/base/Allocator.hpp"
+#include "engine/renderer/base/Device.hpp"
+#include "engine/renderer/model/StagingModel.hpp"
 
 namespace init {
 
@@ -54,10 +55,8 @@ namespace init {
     vk::RenderPass     t_render_pass
 ) -> vk::UniquePipeline;
 
-[[nodiscard]] auto create_command_pool(
-    vk::Device t_device,
-    uint32_t   t_queue_family_index
-) -> vk::UniqueCommandPool;
+[[nodiscard]] auto create_command_pool(vk::Device t_device, uint32_t t_queue_family_index)
+    -> vk::UniqueCommandPool;
 
 [[nodiscard]] auto create_command_buffers(
     vk::Device      t_device,
@@ -74,8 +73,8 @@ namespace init {
 [[nodiscard]] auto create_fences(vk::Device t_device, uint32_t t_count)
     -> std::vector<vk::UniqueFence>;
 
-[[nodiscard]] auto count_meshes(const engine::scene::StagingModel& t_model
-) noexcept -> uint32_t;
+[[nodiscard]] auto count_meshes(const engine::scene::StagingModel& t_model) noexcept
+    -> uint32_t;
 
 auto upload_model(
     const engine::renderer::Device&    t_device,

@@ -26,14 +26,11 @@ static auto create_vulkan_surface(
 {
     VkSurfaceKHR surface{};
 
-    if (auto error_code{ glfwCreateWindowSurface(
-            t_instance, t_window, t_allocator, &surface
-        ) };
+    if (auto error_code{
+            glfwCreateWindowSurface(t_instance, t_window, t_allocator, &surface) };
         error_code != VK_SUCCESS)
     {
-        SPDLOG_ERROR(
-            "glfwCreateWindowSurface failed with error code {}", error_code
-        );
+        SPDLOG_ERROR("glfwCreateWindowSurface failed with error code {}", error_code);
     }
 
     return surface;
@@ -41,14 +38,12 @@ static auto create_vulkan_surface(
 
 std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
     Plugin::create_default_surface{ [](Store&                       t_store,
-                               VkInstance                   t_instance,
-                               const VkAllocationCallbacks* t_allocator) {
+                                       VkInstance                   t_instance,
+                                       const VkAllocationCallbacks* t_allocator) {
         using namespace engine::window;
         return t_store.find<Window>()
             .transform([=](const Window& t_window) {
-                return create_vulkan_surface(
-                    t_window.get(), t_instance, t_allocator
-                );
+                return create_vulkan_surface(t_window.get(), t_instance, t_allocator);
             })
             .or_else([] {
                 SPDLOG_WARN(
@@ -100,9 +95,9 @@ auto Plugin::operator()(
     }
     t_store.emplace<Allocator>(std::move(*opt_allocator));
 
-    auto render_frame{ RenderFrame::create(
-        device, std::max(std::thread::hardware_concurrency(), 2u)
-    ) };
+    auto render_frame{
+        RenderFrame::create(device, std::max(std::thread::hardware_concurrency(), 2u))
+    };
     if (!render_frame) {
         return;
     }

@@ -68,7 +68,7 @@ BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 BreakStringLiterals: true
-ColumnLimit: 80
+ColumnLimit: 90
 CommentPragmas: ''
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 4
@@ -138,19 +138,19 @@ NamespaceIndentation: None
 NamespaceMacros: [ ]
 PPIndentWidth: 2
 PackConstructorInitializers: CurrentLine
-#PenaltyBreakAssignment: 10
-#PenaltyBreakBeforeFirstCallParameter: 30
-#PenaltyBreakComment: 10
-#PenaltyBreakFirstLessLess: 0
-#PenaltyBreakOpenParenthesis: 10
-#PenaltyBreakString: 10
-#PenaltyBreakTemplateDeclaration: 20
-#PenaltyExcessCharacter: 1
-#PenaltyIndentedWhitespace: 0
-#PenaltyReturnTypeOnItsOwnLine: 5
+PenaltyBreakAssignment: 50
+PenaltyBreakBeforeFirstCallParameter: 0
+PenaltyBreakComment: 0
+PenaltyBreakFirstLessLess: 0
+PenaltyBreakOpenParenthesis: 0
+PenaltyBreakString: 50
+PenaltyBreakTemplateDeclaration: 0
+PenaltyExcessCharacter: 50
+PenaltyIndentedWhitespace: 0
+PenaltyReturnTypeOnItsOwnLine: 100
 PointerAlignment: Left
 QualifierAlignment: Custom
-QualifierOrder: [ 'constexpr', 'static', 'inline', 'volatile', 'const', 'type', 'restrict' ]
+QualifierOrder: [ 'constexpr', 'inline', 'static', 'volatile', 'const', 'type', 'restrict' ]
 RawStringFormats:
   - Language: Cpp
 ReferenceAlignment: Pointer

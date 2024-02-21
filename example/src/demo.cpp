@@ -10,13 +10,14 @@
 #include <entt/core/hashed_string.hpp>
 
 #include <engine/asset_manager/AssetRegistry.hpp>
-#include <engine/renderer/Allocator.hpp>
-#include <engine/renderer/Device.hpp>
-#include <engine/renderer/Swapchain.hpp>
-#include <engine/scene/Model.hpp>
-#include <engine/scene/ModelFactory.hpp>
 #include <engine/utility/vma/Image.hpp>
 #include <engine/window/Window.hpp>
+
+#include "engine/renderer/base/Allocator.hpp"
+#include "engine/renderer/base/Device.hpp"
+#include "engine/renderer/base/Swapchain.hpp"
+#include "engine/renderer/model/Model.hpp"
+#include "engine/renderer/model/ModelFactory.hpp"
 
 #include "Camera.hpp"
 #include "Controller.hpp"
@@ -48,10 +49,8 @@ struct DemoApp {
 
     scene::Model model;
 
-    [[nodiscard]] static auto create(
-        Store&             t_store,
-        const std::string& t_model_filepath
-    ) -> tl::optional<DemoApp>
+    [[nodiscard]] static auto create(Store& t_store, const std::string& t_model_filepath)
+        -> tl::optional<DemoApp>
     {
         const auto& window{ t_store.at<window::Window>() };
         auto&       device{ t_store.at<renderer::Device>() };
@@ -60,8 +59,8 @@ struct DemoApp {
         auto& swapchain{ t_store.at<renderer::Swapchain>() };
         int   width, height;
         glfwGetFramebufferSize(window.get(), &width, &height);
-        swapchain.set_framebuffer_size(vk::Extent2D{
-            static_cast<uint32_t>(width), static_cast<uint32_t>(height) });
+        swapchain.set_framebuffer_size(vk::Extent2D{ static_cast<uint32_t>(width),
+                                                     static_cast<uint32_t>(height) });
         if (!swapchain.get()) {
             return tl::nullopt;
         }
@@ -80,9 +79,7 @@ struct DemoApp {
             return tl::nullopt;
         }
 
-        auto depth_image_view{
-            init::create_depth_image_view(device, *depth_image)
-        };
+        auto depth_image_view{ init::create_depth_image_view(device, *depth_image) };
         if (!*depth_image_view) {
             return tl::nullopt;
         }
@@ -98,29 +95,26 @@ struct DemoApp {
             return tl::nullopt;
         }
 
-        auto descriptor_set_layout{ init::create_descriptor_set_layout(*device
-        ) };
+        auto descriptor_set_layout{ init::create_descriptor_set_layout(*device) };
         if (!*descriptor_set_layout) {
             return tl::nullopt;
         }
 
-        auto pipeline_layout{ init::create_pipeline_layout(
-            *device, *descriptor_set_layout, sizeof(Camera)
-        ) };
+        auto pipeline_layout{
+            init::create_pipeline_layout(*device, *descriptor_set_layout, sizeof(Camera))
+        };
         if (!*pipeline_layout) {
             return tl::nullopt;
         }
 
-        auto pipeline{
-            init::create_pipeline(*device, *pipeline_layout, *render_pass)
-        };
+        auto pipeline{ init::create_pipeline(*device, *pipeline_layout, *render_pass) };
         if (!*pipeline) {
             return tl::nullopt;
         }
 
-        auto command_pool{ init::create_command_pool(
-            *device, device.graphics_queue_family_index()
-        ) };
+        auto command_pool{
+            init::create_command_pool(*device, device.graphics_queue_family_index())
+        };
         if (!*command_pool) {
             return tl::nullopt;
         }
@@ -132,16 +126,12 @@ struct DemoApp {
             return tl::nullopt;
         }
 
-        auto image_acquired_semaphores{
-            init::create_semaphores(*device, g_frame_count)
-        };
+        auto image_acquired_semaphores{ init::create_semaphores(*device, g_frame_count) };
         if (image_acquired_semaphores.empty()) {
             return tl::nullopt;
         }
 
-        auto render_finished_semaphores{
-            init::create_semaphores(*device, g_frame_count)
-        };
+        auto render_finished_semaphores{ init::create_semaphores(*device, g_frame_count) };
         if (render_finished_semaphores.empty()) {
             return tl::nullopt;
         }
@@ -157,9 +147,9 @@ struct DemoApp {
         if (!opt_staging_model) {
             return tl::nullopt;
         }
-        auto descriptor_pool{ init::create_descriptor_pool(
-            *device, init::count_meshes(*opt_staging_model)
-        ) };
+        auto descriptor_pool{
+            init::create_descriptor_pool(*device, init::count_meshes(*opt_staging_model))
+        };
         if (!descriptor_pool) {
             return tl::nullopt;
         }
@@ -196,47 +186,36 @@ struct DemoApp {
         };
     }
 
-    auto render(
-        const vk::Extent2D t_framebuffer_size,
-        const Camera&      t_camera
-    ) noexcept -> void
+    auto render(const vk::Extent2D t_framebuffer_size, const Camera& t_camera) noexcept
+        -> void
     {
         swapchain.set_framebuffer_size(t_framebuffer_size);
 
-        while (device->waitForFences(
-                   { *in_flight_fences[frame_index] }, true, UINT64_MAX
-               )
+        while (device->waitForFences({ *in_flight_fences[frame_index] }, true, UINT64_MAX)
                == vk::Result::eTimeout)
             ;
 
-        swapchain
-            .acquire_next_image(*image_acquired_semaphores[frame_index], {})
+        swapchain.acquire_next_image(*image_acquired_semaphores[frame_index], {})
             .transform([&](const uint32_t image_index) {
                 device->resetFences({ *in_flight_fences[frame_index] });
                 command_buffers[frame_index].reset();
 
                 record_command_buffer(image_index, t_camera);
 
-                std::array wait_semaphores{
-                    *image_acquired_semaphores[frame_index]
+                std::array wait_semaphores{ *image_acquired_semaphores[frame_index] };
+                std::array<vk::PipelineStageFlags, wait_semaphores.size()> wait_stages{
+                    vk::PipelineStageFlagBits::eColorAttachmentOutput
                 };
-                std::array<vk::PipelineStageFlags, wait_semaphores.size()>
-                    wait_stages{
-                        vk::PipelineStageFlagBits::eColorAttachmentOutput
-                    };
-                std::array signal_semaphores{
-                    *render_finished_semaphores[frame_index]
-                };
+                std::array signal_semaphores{ *render_finished_semaphores[frame_index] };
                 const vk::SubmitInfo submit_info{
-                    .waitSemaphoreCount =
-                        static_cast<uint32_t>(wait_semaphores.size()),
-                    .pWaitSemaphores    = wait_semaphores.data(),
-                    .pWaitDstStageMask  = wait_stages.data(),
-                    .commandBufferCount = 1,
-                    .pCommandBuffers    = &command_buffers[frame_index],
-                    .signalSemaphoreCount =
-                        static_cast<uint32_t>(signal_semaphores.size()),
-                    .pSignalSemaphores = signal_semaphores.data()
+                    .waitSemaphoreCount   = static_cast<uint32_t>(wait_semaphores.size()),
+                    .pWaitSemaphores      = wait_semaphores.data(),
+                    .pWaitDstStageMask    = wait_stages.data(),
+                    .commandBufferCount   = 1,
+                    .pCommandBuffers      = &command_buffers[frame_index],
+                    .signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size()
+                    ),
+                    .pSignalSemaphores    = signal_semaphores.data()
                 };
                 device.graphics_queue().submit(
                     submit_info, *in_flight_fences[frame_index]
@@ -248,10 +227,8 @@ struct DemoApp {
         frame_index = (frame_index + 1) % g_frame_count;
     }
 
-    auto record_command_buffer(
-        const uint32_t t_image_index,
-        Camera         t_camera
-    ) noexcept -> void
+    auto record_command_buffer(const uint32_t t_image_index, Camera t_camera) noexcept
+        -> void
     {
         const auto command_buffer = command_buffers[frame_index];
         constexpr vk::CommandBufferBeginInfo command_buffer_begin_info{};
@@ -260,8 +237,7 @@ struct DemoApp {
 
 
         std::array clearValues{
-            vk::ClearValue{
-                .color = { std::array{ 0.01f, 0.01f, 0.01f, 0.01f } } },
+            vk::ClearValue{ .color = { std::array{ 0.01f, 0.01f, 0.01f, 0.01f } } },
             vk::ClearValue{ .depthStencil = { 1.f, 0 } }
         };
 
@@ -286,23 +262,16 @@ struct DemoApp {
         );
         command_buffer.setScissor(0, vk::Rect2D{ {}, extent });
 
-        command_buffer.bindPipeline(
-            vk::PipelineBindPoint::eGraphics, *pipeline
-        );
+        command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline);
 
         t_camera.set_perspective_projection(
             50.f,
-            static_cast<float>(extent.width)
-                / static_cast<float>(extent.height),
+            static_cast<float>(extent.width) / static_cast<float>(extent.height),
             0.1f,
             10000.f
         );
         command_buffer.pushConstants(
-            *pipeline_layout,
-            vk::ShaderStageFlagBits::eVertex,
-            0,
-            sizeof(Camera),
-            &t_camera
+            *pipeline_layout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(Camera), &t_camera
         );
 
         model.draw(command_buffer, *pipeline_layout);
@@ -330,9 +299,8 @@ auto demo::run(App& t_app, const std::string& t_model_filepath) noexcept -> int
             t_demo.swapchain.on_swapchain_recreated(
                 [&t_demo](const vulkan::Swapchain& t_swapchain) {
                     t_demo.depth_image_view.reset();
-                    t_demo.depth_image_view = init::create_depth_image_view(
-                        t_demo.device, *t_demo.depth_image
-                    );
+                    t_demo.depth_image_view =
+                        init::create_depth_image_view(t_demo.device, *t_demo.depth_image);
                 }
             );
             t_demo.swapchain.on_swapchain_recreated(
@@ -389,8 +357,7 @@ auto demo::run(App& t_app, const std::string& t_model_filepath) noexcept -> int
 
             auto last_time = std::chrono::high_resolution_clock::now();
             while (running) {
-                std::this_thread::sleep_for(std::chrono::duration<float>{
-                    1.f / 60.f });
+                std::this_thread::sleep_for(std::chrono::duration<float>{ 1.f / 60.f });
                 auto now = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<float> delta_time{ now - last_time };
                 last_time = now;
@@ -405,14 +372,9 @@ auto demo::run(App& t_app, const std::string& t_model_filepath) noexcept -> int
                     running = false;
                 }
 
-                if (glfwGetKey(window.get(), GLFW_KEY_LEFT_CONTROL)
-                    == GLFW_RELEASE) {
-                    glfwSetInputMode(
-                        window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED
-                    );
-                    glfwSetInputMode(
-                        window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE
-                    );
+                if (glfwGetKey(window.get(), GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
+                    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                    glfwSetInputMode(window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
                     if (!reset_mouse) {
                         controller.update(window, delta_time.count());
@@ -430,14 +392,9 @@ auto demo::run(App& t_app, const std::string& t_model_filepath) noexcept -> int
 
                     reset_mouse = false;
                 }
-                if (glfwGetKey(window.get(), GLFW_KEY_LEFT_CONTROL)
-                    == GLFW_PRESS) {
-                    glfwSetInputMode(
-                        window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_FALSE
-                    );
-                    glfwSetInputMode(
-                        window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL
-                    );
+                if (glfwGetKey(window.get(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+                    glfwSetInputMode(window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+                    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                     reset_mouse = true;
                 }
             }
