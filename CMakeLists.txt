@@ -24,6 +24,8 @@ else ()
     target_compile_options(${PROJECT_NAME} PRIVATE
             -Wall
             -Wextra
+            -Wpedantic
+            -Wconversion
             -Werror
             -Wno-missing-field-initializers
     )
