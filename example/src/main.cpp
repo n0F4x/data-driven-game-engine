@@ -1,8 +1,8 @@
 #include <engine/app.hpp>
 #include <engine/plugins.hpp>
 #include <engine/window/Window.hpp>
-#include <ktx.h>
-#include <ktxvulkan.h>
+//#include <ktx.h>
+//#include <ktxvulkan.h>
 
 #include "demo.hpp"
 

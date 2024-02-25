@@ -146,12 +146,20 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE <glm/glm.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 
 # KTX
-FetchContent_Declare(ktxlib
-        GIT_REPOSITORY https://github.com/KhronosGroup/KTX-Software.git
-        GIT_TAG v4.3.1
-        GIT_PROGRESS TRUE
+add_library(ktx)
+set(KTX_DIR third_party/ktx)
+target_include_directories(ktx PUBLIC
+        ${KTX_DIR}/include
+        ${KTX_DIR}/other_include
 )
-FetchContent_MakeAvailable(ktxlib)
+target_sources(ktx PRIVATE
+        ${KTX_DIR}/lib/texture.c
+        ${KTX_DIR}/lib/hashlist.c
+        ${KTX_DIR}/lib/checkheader.c
+        ${KTX_DIR}/lib/swap.c
+        ${KTX_DIR}/lib/memstream.c
+        ${KTX_DIR}/lib/filestream.c
+)
 target_link_libraries(${PROJECT_NAME} PUBLIC ktx)
 
 # fastgltf
