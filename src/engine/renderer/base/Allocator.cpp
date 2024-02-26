@@ -4,40 +4,40 @@
 #include "helpers.hpp"
 #include "Instance.hpp"
 
-namespace engine::renderer {
+static const VmaVulkanFunctions s_vulkan_functions{
+    .vkGetInstanceProcAddr = &vkGetInstanceProcAddr,
+    .vkGetDeviceProcAddr   = &vkGetDeviceProcAddr
+};
 
-auto Allocator::create(const VmaAllocatorCreateInfo& t_vma_allocator_create_info) noexcept
-    -> std::expected<Allocator, vk::Result>
+[[nodiscard]] static auto
+    create_allocator(const VmaAllocatorCreateInfo& t_vma_allocator_create_info)
+        -> VmaAllocator
 {
     VmaAllocator allocator;
-    if (vk::Result result{ vmaCreateAllocator(&t_vma_allocator_create_info, &allocator) };
-        result != vk::Result::eSuccess)
-    {
-        return std::unexpected{ result };
-    }
-    return Allocator{ vma::Allocator{ allocator } };
+    vk::Result   result{ vmaCreateAllocator(&t_vma_allocator_create_info, &allocator) };
+    resultCheck(static_cast<vk::Result>(result), "vmaCreateAllocator");
+    return allocator;
 }
 
-auto Allocator::create_default(const Instance& t_instance, const Device& t_device) noexcept
-    -> std::expected<Allocator, vk::Result>
-{
-    const VmaVulkanFunctions vulkan_functions = {
-        .vkGetInstanceProcAddr = &vkGetInstanceProcAddr,
-        .vkGetDeviceProcAddr   = &vkGetDeviceProcAddr
-    };
+namespace engine::renderer {
 
-    const VmaAllocatorCreateInfo allocator_info{
-        .flags = helpers::vma_allocator_create_flags(
-            t_instance.enabled_extensions(), t_device.info().extensions
-        ),
-        .physicalDevice   = t_device.physical_device(),
-        .device           = *t_device,
-        .pVulkanFunctions = &vulkan_functions,
-        .instance         = *t_instance,
-    };
+Allocator::Allocator(const VmaAllocatorCreateInfo& t_vma_allocator_create_info)
+    : m_allocator{ create_allocator(t_vma_allocator_create_info) }
+{}
 
-    return Allocator::create(allocator_info);
+Allocator::Allocator(const Instance& t_instance, const Device& t_device)
+    : Allocator{
+          VmaAllocatorCreateInfo{
+                                 .flags = helpers::vma_allocator_create_flags(
+                                 t_instance.enabled_extensions(),
+                                 t_device.info().extensions
+                                 ), .physicalDevice   = t_device.physical_device(),
+                                 .device           = *t_device,
+                                 .pVulkanFunctions = &s_vulkan_functions,
+                                 .instance         = *t_instance,
+                                 }
 }
+{}
 
 Allocator::Allocator(vma::Allocator&& t_allocator) noexcept
     : m_allocator{ std::move(t_allocator) }

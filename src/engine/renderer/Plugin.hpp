@@ -5,8 +5,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "engine/common/Plugin.hpp"
-
-#include "Swapchain.hpp"
+#include "engine/renderer/base/Swapchain.hpp"
 
 namespace engine::renderer {
 

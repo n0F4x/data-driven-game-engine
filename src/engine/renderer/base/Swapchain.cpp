@@ -45,7 +45,7 @@ try {
 
     auto extent = vulkan::Swapchain::choose_extent(
         t_framebuffer_size,
-        m_device.physical_device().getSurfaceCapabilitiesKHR(*m_surface)
+        m_device.get().physical_device().getSurfaceCapabilitiesKHR(*m_surface)
     );
 
     if (m_swapchain->extent() != extent) {
@@ -59,7 +59,7 @@ auto Swapchain::acquire_next_image(vk::Semaphore t_semaphore, vk::Fence t_fence)
     -> tl::optional<uint32_t>
 try {
     if (m_swapchain.has_value()) {
-        const auto [result, image_index]{ m_device->acquireNextImageKHR(
+        const auto [result, image_index]{ m_device.get()->acquireNextImageKHR(
             **m_swapchain, std::numeric_limits<uint64_t>::max(), t_semaphore, t_fence
         ) };
 
@@ -96,7 +96,7 @@ try {
                      .pImageIndices   = &m_image_index
     };
 
-    const auto result{ m_device.graphics_queue().presentKHR(info) };
+    const auto result{ m_device.get().graphics_queue().presentKHR(info) };
     if (result == vk::Result::eSuboptimalKHR) {
         recreate_swapchain();
     }
@@ -123,14 +123,14 @@ auto Swapchain::remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void
 
 auto Swapchain::recreate_swapchain(vk::Extent2D t_framebuffer_size) noexcept -> void
 {
-    m_device->waitIdle();
+    m_device.get()->waitIdle();
 
     auto new_swapchain{ vulkan::Swapchain::create(
         *m_surface,
-        m_device.physical_device(),
-        m_device.graphics_queue_family_index(),
-        m_device.graphics_queue_family_index(),
-        *m_device,
+        m_device.get().physical_device(),
+        m_device.get().graphics_queue_family_index(),
+        m_device.get().graphics_queue_family_index(),
+        *m_device.get(),
         t_framebuffer_size,
         m_swapchain.transform(&vulkan::Swapchain::operator*).value_or(nullptr)
     ) };

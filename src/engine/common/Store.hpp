@@ -23,7 +23,9 @@ public:
     ///  Methods  ///
     ///-----------///
     template <typename T>
-    auto emplace(auto&&... t_args) noexcept -> T&;
+    auto emplace(auto&&... t_args) -> T&;
+    template <typename T>
+    auto emplace_or_replace(auto&&... t_args) -> T&;
 
     template <typename T>
     [[nodiscard]] auto find() noexcept -> tl::optional<T&>;

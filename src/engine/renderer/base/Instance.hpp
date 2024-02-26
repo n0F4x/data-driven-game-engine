@@ -31,13 +31,11 @@ public:
         DebugUtilsMessengerEXTCreator create_debug_messenger{};
     };
 
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create(const CreateInfo& t_extension_name) noexcept
-        -> tl::optional<Instance>;
-
-    [[nodiscard]] static auto create_default() noexcept -> tl::optional<Instance>;
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    Instance();
+    explicit Instance(const CreateInfo& t_create_info);
 
     ///-------------///
     ///  Operators  ///
@@ -48,6 +46,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
+    [[nodiscard]] auto get() const noexcept -> vk::Instance;
     [[nodiscard]] auto application_info() const noexcept -> const vk::ApplicationInfo&;
     [[nodiscard]] auto enabled_layers() const noexcept -> std::span<const std::string>;
     [[nodiscard]] auto enabled_extensions() const noexcept
@@ -66,6 +65,8 @@ private:
     ///******************************///
     ///  Constructors / Destructors  ///
     ///******************************///
+    explicit Instance(const CreateInfo& t_create_info, vk::UniqueInstance&& t_instance);
+
     explicit Instance(
         const vk::ApplicationInfo&         t_application_info,
         std::span<const std::string>       t_layers,

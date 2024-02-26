@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "Store.hpp"
+
 namespace engine {
 
 Store::~Store() noexcept
@@ -11,7 +13,7 @@ Store::~Store() noexcept
 }
 
 template <typename T>
-auto Store::emplace(auto&&... t_args) noexcept -> T&
+auto Store::emplace(auto&&... t_args) -> T&
 {
     auto [iter, success]{ m_index_map.try_emplace(
         entt::type_index<T>{}, static_cast<TypeIndex>(m_elements.size())
@@ -19,6 +21,23 @@ auto Store::emplace(auto&&... t_args) noexcept -> T&
 
     if (!success) {
         return entt::any_cast<T&>(m_elements.at(iter->second));
+    }
+
+    return entt::any_cast<T&>(m_elements.emplace_back(
+        std::in_place_type<T>, std::forward<decltype(t_args)>(t_args)...
+    ));
+}
+
+template <typename T>
+auto Store::emplace_or_replace(auto&&... t_args) -> T&
+{
+    auto [iter, success]{ m_index_map.try_emplace(
+        entt::type_index<T>{}, static_cast<TypeIndex>(m_elements.size())
+    ) };
+
+    if (!success) {
+        return entt::any_cast<T&>(m_elements[iter->second]
+               ) = T{ std::forward<decltype(t_args)>(t_args)... };
     }
 
     return entt::any_cast<T&>(m_elements.emplace_back(

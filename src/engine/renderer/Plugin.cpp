@@ -1,18 +1,15 @@
 #include "Plugin.hpp"
 
-#include <thread>
 #include <tuple>
 
 #include <spdlog/spdlog.h>
 
+#include "engine/renderer/base/Allocator.hpp"
+#include "engine/renderer/base/Device.hpp"
+#include "engine/renderer/base/helpers.hpp"
+#include "engine/renderer/base/Instance.hpp"
+#include "engine/renderer/base/Swapchain.hpp"
 #include "engine/window/Window.hpp"
-
-#include "Allocator.hpp"
-#include "Device.hpp"
-#include "helpers.hpp"
-#include "Instance.hpp"
-#include "RenderFrame.hpp"
-#include "Swapchain.hpp"
 
 using namespace engine::renderer;
 
@@ -60,11 +57,7 @@ auto Plugin::operator()(
     const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter
 ) const noexcept -> void
 {
-    auto opt_instance{ Instance::create_default() };
-    if (!opt_instance) {
-        return;
-    }
-    auto& instance{ t_store.emplace<Instance>(std::move(*opt_instance)) };
+    auto& instance{ t_store.emplace_or_replace<Instance>() };
 
     vk::UniqueSurfaceKHR surface{
         std::invoke(t_create_surface, t_store, *instance, nullptr), *instance
@@ -73,15 +66,11 @@ auto Plugin::operator()(
         return;
     }
 
-    auto opt_device{ Device::create_default(
-        instance, *surface, helpers::choose_physical_device(*instance, *surface)
+    auto& device{ t_store.emplace_or_replace<Device>(
+        surface.get(), helpers::choose_physical_device(*instance, *surface)
     ) };
-    if (!opt_device) {
-        return;
-    }
-    auto& device{ t_store.emplace<Device>(std::move(*opt_device)) };
 
-    t_store.emplace<Swapchain>(
+    t_store.emplace_or_replace<Swapchain>(
         std::move(surface),
         device,
         t_create_framebuffer_size_getter
@@ -89,19 +78,7 @@ auto Plugin::operator()(
             : nullptr
     );
 
-    auto opt_allocator{ Allocator::create_default(instance, device) };
-    if (!opt_allocator) {
-        return;
-    }
-    t_store.emplace<Allocator>(std::move(*opt_allocator));
-
-    auto render_frame{
-        RenderFrame::create(device, std::max(std::thread::hardware_concurrency(), 2u))
-    };
-    if (!render_frame) {
-        return;
-    }
-    t_store.emplace<RenderFrame>(std::move(*render_frame));
+    t_store.emplace_or_replace<Allocator>(instance, device);
 
 
     SPDLOG_TRACE("Added Renderer plugin");

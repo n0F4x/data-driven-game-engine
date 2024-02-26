@@ -30,7 +30,7 @@ public:
     explicit Swapchain(
         vk::UniqueSurfaceKHR&&  t_surface,
         Device&                 t_device,
-        FramebufferSizeGetter&& t_get_framebuffer_size
+        FramebufferSizeGetter&& t_get_framebuffer_size = {}
     ) noexcept;
 
     ///-----------///
@@ -58,7 +58,7 @@ private:
     ///  Variables  ///
     ///*************///
     vk::UniqueSurfaceKHR            m_surface;
-    Device&                         m_device;
+    std::reference_wrapper<Device>  m_device;
     FramebufferSizeGetter           m_get_framebuffer_size;
     tl::optional<vulkan::Swapchain> m_swapchain;
     uint32_t                        m_image_index{};

@@ -1,3 +1,8 @@
 #pragma once
 
-class GraphicsPipelineBuilder {};
+#include <vulkan/vulkan.hpp>
+
+class GraphicsPipelineBuilder {
+public:
+    [[nodiscard]] auto build() -> vk::UniquePipeline;
+};

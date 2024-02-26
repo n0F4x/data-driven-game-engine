@@ -15,6 +15,12 @@
 
 namespace engine::renderer {
 
+namespace helpers {
+
+struct QueueInfos;
+
+}   // namespace helpers
+
 class Device {
 public:
     ///------------------///
@@ -26,21 +32,16 @@ public:
         vk::PhysicalDeviceFeatures   features{};
     };
 
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create(
-        const Instance&    t_instance,
+    ///------------------------------///
+    ///  Constructors / Destructors  ///
+    ///------------------------------///
+    explicit Device(
         vk::SurfaceKHR     t_surface,
         vk::PhysicalDevice t_physical_device,
         const CreateInfo&  t_create_info
-    ) noexcept -> tl::optional<Device>;
+    );
 
-    [[nodiscard]] static auto create_default(
-        const Instance&    t_instance,
-        vk::SurfaceKHR     t_surface,
-        vk::PhysicalDevice t_physical_device
-    ) noexcept -> tl::optional<Device>;
+    explicit Device(vk::SurfaceKHR t_surface, vk::PhysicalDevice t_physical_device);
 
     ///-------------///
     ///  Operators  ///
@@ -51,6 +52,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
+    [[nodiscard]] auto get() const noexcept -> vk::Device;
     [[nodiscard]] auto physical_device() const noexcept -> vk::PhysicalDevice;
     [[nodiscard]] auto info() const noexcept -> const CreateInfo&;
     [[nodiscard]] auto graphics_queue_family_index() const noexcept -> uint32_t;
@@ -78,8 +80,21 @@ private:
     ///  Constructors / Destructors  ///
     ///******************************///
     explicit Device(
+        vk::PhysicalDevice         t_physical_device,
+        const CreateInfo&          t_create_info,
+        const helpers::QueueInfos& t_queue_infos
+    );
+
+    explicit Device(
+        vk::PhysicalDevice         t_physical_device,
+        const CreateInfo&          t_create_info,
+        const helpers::QueueInfos& t_queue_infos,
+        vk::UniqueDevice&&         t_device
+    );
+
+    explicit Device(
         vk::PhysicalDevice t_physical_device,
-        const CreateInfo&  t_info,
+        const CreateInfo&  t_create_info,
         vk::UniqueDevice&& t_device,
         uint32_t           t_graphics_family_index,
         vk::Queue          t_graphics_queue,

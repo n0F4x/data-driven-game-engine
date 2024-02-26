@@ -2,7 +2,7 @@
 
 #include "engine/asset_manager/Plugin.hpp"
 #include "engine/logger/Plugin.hpp"
-#include "engine/renderer/base/Plugin.hpp"
+#include "engine/renderer/Plugin.hpp"
 #include "engine/window/Plugin.hpp"
 
 namespace engine::plugins {
