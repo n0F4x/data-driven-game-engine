@@ -165,8 +165,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ktx)
 # fastgltf
 FetchContent_Declare(fastgltf
         GIT_REPOSITORY https://github.com/spnda/fastgltf.git
-        GIT_TAG v0.6.1
+        GIT_TAG v0.7.0
         GIT_PROGRESS TRUE
+        SYSTEM
 )
 FetchContent_MakeAvailable(fastgltf)
 target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf)
@@ -175,7 +176,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf)
 FetchContent_Declare(EnTT
         GIT_REPOSITORY https://github.com/skypjack/entt.git
         GIT_TAG v3.13.0
-        GIT_PROGRESS TRUE)
+        GIT_PROGRESS TRUE
+        SYSTEM
+)
 FetchContent_MakeAvailable(EnTT)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <entt/entt.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC EnTT)

@@ -7,8 +7,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include "fastgltf/glm_element_traits.hpp"
-#include "fastgltf/parser.hpp"
+#include <fastgltf/core.hpp>
+#include <fastgltf/glm_element_traits.hpp>
+#include <fastgltf/types.hpp>
 
 namespace engine::scene {
 
@@ -64,30 +65,18 @@ private:
 {
     fastgltf::Parser parser;
 
-    constexpr auto gltfOptions{ fastgltf::Options::DontRequireValidAssetMember
-                                | fastgltf::Options::AllowDouble
-                                | fastgltf::Options::LoadGLBBuffers
-                                | fastgltf::Options::LoadExternalBuffers };
+    constexpr auto gltf_options{ fastgltf::Options::DontRequireValidAssetMember
+                                 | fastgltf::Options::LoadGLBBuffers
+                                 | fastgltf::Options::LoadExternalBuffers
+                                 | fastgltf::Options::LoadExternalImages };
 
     fastgltf::GltfDataBuffer data;
     data.loadFromFile(t_filepath);
 
-    fastgltf::Expected<fastgltf::Asset> asset{ fastgltf::Error::None };
-
-    if (auto type{ fastgltf::determineGltfFileType(&data) };
-        type == fastgltf::GltfType::glTF)
-    {
-        asset = parser.loadGLTF(&data, t_filepath.parent_path(), gltfOptions);
-    }
-    else if (type == fastgltf::GltfType::GLB) {
-        asset = parser.loadBinaryGLTF(&data, t_filepath.parent_path(), gltfOptions);
-    }
-    else {
-        SPDLOG_ERROR("Failed to determine glTF container");
-        return tl::nullopt;
-    }
-
-    if (!asset) {
+    fastgltf::Expected<fastgltf::Asset> asset{
+        parser.loadGltf(&data, t_filepath.parent_path(), gltf_options)
+    };
+    if (asset.error() != fastgltf::Error::None) {
         SPDLOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
         return tl::nullopt;
     }
@@ -137,7 +126,7 @@ auto ModelLoader::load_node(
             [](const fastgltf::Node::TransformMatrix& matrix) {
                 return glm::make_mat4x4(matrix.data());
             },
-            [](const fastgltf::Node::TRS& transform) {
+            [](const fastgltf::TRS& transform) {
                 return glm::translate(
                            glm::mat4(1.f), glm::make_vec3(transform.translation.data())
                        )
@@ -199,7 +188,7 @@ auto ModelLoader::load_vertices(
     const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>& t_attributes
 ) noexcept -> void
 {
-    auto first_vertex_index{ vertices.size() };
+    size_t first_vertex_index{ vertices.size() };
 
     // load vertex positions
     {
