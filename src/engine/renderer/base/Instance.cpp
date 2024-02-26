@@ -11,12 +11,11 @@ namespace engine::renderer {
 
 [[nodiscard]] static auto default_create_info() -> Instance::CreateInfo
 {
-    return Instance::CreateInfo{
-        .application_info = helpers::application_info(),
-        .layers           = helpers::layers() | std::ranges::to<std::vector>(),
-        .extensions = helpers::instance_extensions() | std::ranges::to<std::vector>(),
+    return Instance::CreateInfo{ .application_info = helpers::application_info(),
+                                 .layers           = helpers::layers(),
+                                 .extensions       = helpers::instance_extensions(),
 #ifdef ENGINE_VULKAN_DEBUG
-        .create_debug_messenger = helpers::create_debug_messenger
+                                 .create_debug_messenger = helpers::create_debug_messenger
 #endif
     };
 }
