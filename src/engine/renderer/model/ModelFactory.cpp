@@ -60,8 +60,8 @@ private:
     ) noexcept -> void;
 };
 
-[[nodiscard]] auto load_asset(const std::filesystem::path& t_filepath) noexcept
-    -> tl::optional<fastgltf::Asset>
+[[nodiscard]] static auto load_asset(const std::filesystem::path& t_filepath) noexcept
+    -> fastgltf::Expected<fastgltf::Asset>
 {
     fastgltf::Parser parser;
 
@@ -73,15 +73,7 @@ private:
     fastgltf::GltfDataBuffer data;
     data.loadFromFile(t_filepath);
 
-    fastgltf::Expected<fastgltf::Asset> asset{
-        parser.loadGltf(&data, t_filepath.parent_path(), gltf_options)
-    };
-    if (asset.error() != fastgltf::Error::None) {
-        SPDLOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
-        return tl::nullopt;
-    }
-
-    return std::move(asset.get());
+    return parser.loadGltf(&data, t_filepath.parent_path(), gltf_options);
 }
 
 }   // namespace
@@ -91,13 +83,14 @@ auto ModelFactory::load_gltf(
     const renderer::Allocator&   t_allocator
 ) noexcept -> tl::optional<StagingModel>
 {
-    auto opt_asset{ load_asset(t_filepath) };
-    if (!opt_asset) {
+    auto asset{ load_asset(t_filepath) };
+    if (asset.error() != fastgltf::Error::None) {
+        SPDLOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
         return tl::nullopt;
     }
 
     ModelLoader model;
-    model.load(*opt_asset);
+    model.load(asset.get());
 
     return StagingMeshBuffer::create<StagingModel::Vertex>(
                t_allocator, model.vertices, model.indices
