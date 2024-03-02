@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Material.hpp"
+#include "engine/renderer/material_system/Material.hpp"
 
 namespace engine::renderer {
 
@@ -12,9 +12,9 @@ struct Primitive {
     uint32_t vertex_count;
 };
 
-struct Mesh {
-    std::vector<Primitive> primitives;
-    Material*              material;
-};
+//struct Mesh {
+//    std::vector<Primitive> primitives;
+//    Material*              material;
+//};
 
 }   // namespace engine::renderer

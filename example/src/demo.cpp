@@ -17,7 +17,7 @@
 #include "engine/renderer/base/Device.hpp"
 #include "engine/renderer/base/Swapchain.hpp"
 #include "engine/renderer/model/Model.hpp"
-#include "engine/renderer/model/ModelFactory.hpp"
+#include "engine/renderer/model/ModelLoader.hpp"
 
 #include "Camera.hpp"
 #include "Controller.hpp"
@@ -142,7 +142,7 @@ struct DemoApp {
         }
 
         auto opt_staging_model{
-            renderer::ModelFactory::load_gltf(t_model_filepath, allocator)
+            renderer::ModelLoader::load_gltf(t_model_filepath, allocator)
         };
         if (!opt_staging_model) {
             return tl::nullopt;

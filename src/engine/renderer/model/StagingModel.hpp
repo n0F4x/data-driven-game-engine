@@ -9,15 +9,13 @@
 
 namespace engine::renderer {
 
-class ModelFactory;
+class ModelLoader;
 
 class StagingModel {
 public:
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
-    using Vertex    = Model::Vertex;
-    using Primitive = Model::Primitive;
     using Mesh      = Model::Mesh;
     using Node      = Model::Node;
 
@@ -38,7 +36,7 @@ private:
     ///******************///
     ///  Friend Classes  ///
     ///******************///
-    friend ModelFactory;
+    friend ModelLoader;
 
     ///*************///
     ///  Variables  ///

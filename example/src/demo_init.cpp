@@ -6,6 +6,8 @@
 
 #include <engine/utility/vulkan/tools.hpp>
 
+#include "engine/renderer/model/Vertex.hpp"
+
 using namespace engine;
 
 namespace {
@@ -123,7 +125,7 @@ auto create_depth_image(
     const vk::ImageCreateInfo image_create_info = {
         .imageType = vk::ImageType::e2D,
         .format    = find_depth_format(t_physical_device),
-        .extent = vk::Extent3D{ t_swapchain_extent.width, t_swapchain_extent.height, 1 },
+        .extent = vk::Extent3D{t_swapchain_extent.width, t_swapchain_extent.height, 1},
         .mipLevels     = 1,
         .arrayLayers   = 1,
         .samples       = vk::SampleCountFlagBits::e1,
@@ -161,11 +163,11 @@ auto create_depth_image_view(
         .viewType = vk::ImageViewType::e2D,
         .format   = find_depth_format(t_device.physical_device()),
         .subresourceRange =
-            vk::ImageSubresourceRange{ .aspectMask     = vk::ImageAspectFlagBits::eDepth,
+            vk::ImageSubresourceRange{.aspectMask     = vk::ImageAspectFlagBits::eDepth,
                                       .baseMipLevel   = 0,
                                       .levelCount     = 1,
                                       .baseArrayLayer = 0,
-                                      .layerCount     = 1 },
+                                      .layerCount     = 1},
     };
 
     return t_device->createImageViewUnique(image_view_create_info);
@@ -214,7 +216,7 @@ auto create_descriptor_set_layout(const vk::Device t_device)
                                        .binding         = 1,
                                        .descriptorType  = vk::DescriptorType::eCombinedImageSampler,
                                        .descriptorCount = 1,
-                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment }
+                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment}
     };
 
     constexpr static vk::DescriptorSetLayoutCreateInfo descriptor_set_layout_create_info{
@@ -263,15 +265,15 @@ auto create_pipeline(
     }
 
     std::array pipeline_shader_stage_create_infos{
-        vk::PipelineShaderStageCreateInfo{   .stage  = vk::ShaderStageFlagBits::eVertex,
+        vk::PipelineShaderStageCreateInfo{  .stage  = vk::ShaderStageFlagBits::eVertex,
                                           .module = *vertex_shader_module,
-                                          .pName  = "main" },
-        vk::PipelineShaderStageCreateInfo{ .stage  = vk::ShaderStageFlagBits::eFragment,
+                                          .pName  = "main"},
+        vk::PipelineShaderStageCreateInfo{.stage  = vk::ShaderStageFlagBits::eFragment,
                                           .module = *fragment_shader_module,
-                                          .pName  = "main" }
+                                          .pName  = "main"}
     };
 
-    using Vertex = engine::renderer::Model::Vertex;
+    using Vertex = renderer::Vertex;
     vk::VertexInputBindingDescription vertex_input_binding_description{
         .binding = 0, .stride = sizeof(Vertex), .inputRate = vk::VertexInputRate::eVertex
     };
@@ -280,22 +282,22 @@ auto create_pipeline(
                                             .location = 0,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex, position)) },
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex, position))},
         vk::VertexInputAttributeDescription{
                                             .location = 1,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,   normal)) },
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,   normal))},
         vk::VertexInputAttributeDescription{
                                             .location = 2,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,       uv)) },
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,     uv_0))},
         vk::VertexInputAttributeDescription{
                                             .location = 3,
                                             .binding  = 0,
                                             .format   = vk::Format::eR32G32B32A32Sfloat,
-                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,    color)) }
+                                            .offset   = static_cast<uint32_t>(offsetof(Vertex,    color))}
     };
 
     vk::PipelineVertexInputStateCreateInfo pipeline_vertex_input_state_create_info{
@@ -398,9 +400,9 @@ auto create_descriptor_pool(const vk::Device t_device, const uint32_t t_count)
     -> vk::UniqueDescriptorPool
 {
     const std::array descriptor_pool_sizes{
-        vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
-                               .descriptorCount = t_count },
-        vk::DescriptorPoolSize{     .type = vk::DescriptorType::eCombinedImageSampler,
+        vk::DescriptorPoolSize{.type            = vk::DescriptorType::eUniformBuffer,
+                               .descriptorCount = t_count},
+        vk::DescriptorPoolSize{    .type = vk::DescriptorType::eCombinedImageSampler,
                                .descriptorCount = 1      },
     };
     const vk::DescriptorPoolCreateInfo descriptor_pool_create_info{
@@ -443,8 +445,8 @@ auto create_fences(const vk::Device t_device, const uint32_t t_count)
     return fences;
 }
 
-[[nodiscard]] static auto count_meshes(const renderer::StagingModel::Node& t_node) noexcept
-    -> uint32_t
+[[nodiscard]] static auto count_meshes(const renderer::StagingModel::Node& t_node
+) noexcept -> uint32_t
 {
     uint32_t count{};
     if (t_node.mesh) {
@@ -470,7 +472,7 @@ auto count_meshes(const renderer::StagingModel& t_model) noexcept -> uint32_t
 auto upload_model(
     const renderer::Device&       t_device,
     const renderer::Allocator&    t_allocator,
-    renderer::StagingModel&&         t_staging_model,
+    renderer::StagingModel&&      t_staging_model,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool
 ) -> tl::optional<renderer::Model>

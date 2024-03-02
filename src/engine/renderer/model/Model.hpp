@@ -10,6 +10,7 @@
 #include "engine/renderer/base/Allocator.hpp"
 #include "engine/utility/vma/Buffer.hpp"
 
+#include "Mesh.hpp"
 #include "MeshBuffer.hpp"
 
 namespace engine::renderer {
@@ -21,19 +22,6 @@ public:
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
-    struct Vertex {
-        glm::vec3 position;
-        glm::vec3 normal{ 1, 0, 0 };
-        glm::vec2 uv{};
-        glm::vec4 color{};
-    };
-
-    struct Primitive {
-        uint32_t first_index_index;
-        uint32_t index_count;
-        uint32_t vertex_count;
-    };
-
     struct Mesh {
         struct UniformBlock {
             glm::mat4 matrix{ glm::identity<glm::mat4>() };
