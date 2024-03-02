@@ -7,7 +7,7 @@
 #include "Model.hpp"
 #include "StagingMeshBuffer.hpp"
 
-namespace engine::scene {
+namespace engine::renderer {
 
 class ModelFactory;
 
@@ -52,4 +52,4 @@ private:
     ) noexcept;
 };
 
-}   // namespace engine::scene
+}   // namespace engine::renderer

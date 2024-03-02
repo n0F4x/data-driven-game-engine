@@ -73,15 +73,15 @@ namespace init {
 [[nodiscard]] auto create_fences(vk::Device t_device, uint32_t t_count)
     -> std::vector<vk::UniqueFence>;
 
-[[nodiscard]] auto count_meshes(const engine::scene::StagingModel& t_model) noexcept
+[[nodiscard]] auto count_meshes(const engine::renderer::StagingModel& t_model) noexcept
     -> uint32_t;
 
 auto upload_model(
     const engine::renderer::Device&    t_device,
     const engine::renderer::Allocator& t_allocator,
-    engine::scene::StagingModel&&      t_staging_model,
+    engine::renderer::StagingModel&&      t_staging_model,
     vk::DescriptorSetLayout            t_descriptor_set_layout,
     vk::DescriptorPool                 t_descriptor_pool
-) -> tl::optional<engine::scene::Model>;
+) -> tl::optional<engine::renderer::Model>;
 
 }   // namespace init

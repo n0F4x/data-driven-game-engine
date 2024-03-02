@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-namespace engine::scene {
+namespace engine::renderer {
 
 [[nodiscard]] auto create_descriptor_set(
     const vk::Device               t_device,
@@ -152,4 +152,4 @@ Model::Model(std::vector<Node>&& t_nodes, MeshBuffer&& t_mesh_buffer) noexcept
       m_mesh_buffer{ std::move(t_mesh_buffer) }
 {}
 
-}   // namespace engine::scene
+}   // namespace engine::renderer

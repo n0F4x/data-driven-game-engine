@@ -1,6 +1,6 @@
 #include <vk_mem_alloc.h>
 
-namespace engine::scene {
+namespace engine::renderer {
 
 template <typename Vertex>
 auto StagingMeshBuffer::create(
@@ -48,4 +48,4 @@ auto StagingMeshBuffer::create(
                               static_cast<uint32_t>(t_indices.size()) };
 }
 
-}   // namespace engine::scene
+}   // namespace engine::renderer

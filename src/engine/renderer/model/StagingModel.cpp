@@ -1,6 +1,6 @@
 #include "StagingModel.hpp"
 
-namespace engine::scene {
+namespace engine::renderer {
 
 auto StagingModel::nodes() const noexcept -> const std::vector<Node>&
 {
@@ -40,4 +40,4 @@ StagingModel::StagingModel(
       m_nodes{ std::move(t_nodes) }
 {}
 
-}   // namespace engine::scene
+}   // namespace engine::renderer

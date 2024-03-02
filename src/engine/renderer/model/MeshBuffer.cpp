@@ -1,6 +1,6 @@
 #include "MeshBuffer.hpp"
 
-namespace engine::scene {
+namespace engine::renderer {
 
 MeshBuffer::MeshBuffer(Vertices&& t_vertices, Indices&& t_indices) noexcept
     : m_vertices{ std::move(t_vertices) },
@@ -17,4 +17,4 @@ auto MeshBuffer::bind(const vk::CommandBuffer t_command_buffer) const noexcept -
     }
 }
 
-}   // namespace engine::scene
+}   // namespace engine::renderer

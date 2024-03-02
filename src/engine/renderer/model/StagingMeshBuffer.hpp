@@ -9,7 +9,7 @@
 
 #include "MeshBuffer.hpp"
 
-namespace engine::scene {
+namespace engine::renderer {
 
 class StagingMeshBuffer {
 public:
@@ -53,6 +53,6 @@ private:
     ) noexcept;
 };
 
-}   // namespace engine::scene
+}   // namespace engine::renderer
 
 #include "StagingMeshBuffer.inl"

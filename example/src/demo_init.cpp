@@ -271,7 +271,7 @@ auto create_pipeline(
                                           .pName  = "main" }
     };
 
-    using Vertex = engine::scene::Model::Vertex;
+    using Vertex = engine::renderer::Model::Vertex;
     vk::VertexInputBindingDescription vertex_input_binding_description{
         .binding = 0, .stride = sizeof(Vertex), .inputRate = vk::VertexInputRate::eVertex
     };
@@ -443,7 +443,7 @@ auto create_fences(const vk::Device t_device, const uint32_t t_count)
     return fences;
 }
 
-[[nodiscard]] static auto count_meshes(const scene::StagingModel::Node& t_node) noexcept
+[[nodiscard]] static auto count_meshes(const renderer::StagingModel::Node& t_node) noexcept
     -> uint32_t
 {
     uint32_t count{};
@@ -456,7 +456,7 @@ auto create_fences(const vk::Device t_device, const uint32_t t_count)
     return count;
 }
 
-auto count_meshes(const scene::StagingModel& t_model) noexcept -> uint32_t
+auto count_meshes(const renderer::StagingModel& t_model) noexcept -> uint32_t
 {
     uint32_t count{};
 
@@ -470,10 +470,10 @@ auto count_meshes(const scene::StagingModel& t_model) noexcept -> uint32_t
 auto upload_model(
     const renderer::Device&       t_device,
     const renderer::Allocator&    t_allocator,
-    scene::StagingModel&&         t_staging_model,
+    renderer::StagingModel&&         t_staging_model,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool
-) -> tl::optional<scene::Model>
+) -> tl::optional<renderer::Model>
 {
     auto transfer_command_pool{
         create_command_pool(*t_device, t_device.transfer_queue_family_index())

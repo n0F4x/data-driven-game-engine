@@ -10,7 +10,7 @@
 #include "Model.hpp"
 #include "StagingModel.hpp"
 
-namespace engine::scene {
+namespace engine::renderer {
 
 class ModelFactory {
 public:
@@ -20,4 +20,4 @@ public:
     ) noexcept -> tl::optional<StagingModel>;
 };
 
-}   // namespace engine::scene
+}   // namespace engine::renderer

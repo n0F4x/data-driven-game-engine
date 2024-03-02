@@ -2,7 +2,7 @@
 
 #include <vk_mem_alloc.h>
 
-namespace engine::scene {
+namespace engine::renderer {
 
 auto StagingMeshBuffer::upload(
     const renderer::Allocator& t_allocator,
@@ -73,4 +73,4 @@ StagingMeshBuffer::StagingMeshBuffer(
       m_index_count{ t_index_count }
 {}
 
-}   // namespace engine::scene
+}   // namespace engine::renderer

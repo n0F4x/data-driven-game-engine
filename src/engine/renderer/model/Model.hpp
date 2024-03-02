@@ -12,7 +12,7 @@
 
 #include "MeshBuffer.hpp"
 
-namespace engine::scene {
+namespace engine::renderer {
 
 class StagingModel;
 
@@ -109,4 +109,4 @@ private:
     explicit Model(std::vector<Node>&& t_nodes, MeshBuffer&& t_mesh_buffer) noexcept;
 };
 
-}   // namespace engine::scene
+}   // namespace engine::renderer

@@ -4,7 +4,7 @@
 
 #include "engine/utility/vma/Buffer.hpp"
 
-namespace engine::scene {
+namespace engine::renderer {
 
 class StagingMeshBuffer;
 
@@ -47,4 +47,4 @@ private:
     explicit MeshBuffer(Vertices&& t_vertices, Indices&& t_indices) noexcept;
 };
 
-}   // namespace engine::scene
+}   // namespace engine::renderer

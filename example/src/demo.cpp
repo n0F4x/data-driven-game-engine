@@ -47,7 +47,7 @@ struct DemoApp {
     std::vector<vk::UniqueFence>       in_flight_fences;
     uint32_t                           frame_index{};
 
-    scene::Model model;
+    renderer::Model model;
 
     [[nodiscard]] static auto create(Store& t_store, const std::string& t_model_filepath)
         -> tl::optional<DemoApp>
@@ -142,7 +142,7 @@ struct DemoApp {
         }
 
         auto opt_staging_model{
-            scene::ModelFactory::load_gltf(t_model_filepath, allocator)
+            renderer::ModelFactory::load_gltf(t_model_filepath, allocator)
         };
         if (!opt_staging_model) {
             return tl::nullopt;
