@@ -109,6 +109,7 @@ static auto make_accessor_loader(
             Projection                project,
             Transformation            transform = {}
         )
+            ->void
     {
         using AttributeType =
             std::remove_cvref_t<std::invoke_result_t<Projection, const Vertex&>>;

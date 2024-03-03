@@ -21,7 +21,6 @@ namespace engine::renderer {
 struct GltfLoader {
     std::vector<Vertex>             vertices;
     std::vector<uint32_t>           indices;
-    std::vector<StagingModel::Mesh> meshes;
     std::vector<StagingModel::Node> nodes;
     std::vector<StagingModel>       models;
 
