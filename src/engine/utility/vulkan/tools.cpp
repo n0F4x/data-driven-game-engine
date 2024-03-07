@@ -84,6 +84,9 @@ auto load_shader(vk::Device t_device, const std::string& t_file_path)
     std::ifstream file{ t_file_path, std::ios::binary | std::ios::in | std::ios::ate };
 
     const std::streamsize file_size = file.tellg();
+    if (file_size == -1) {
+        return {};
+    }
 
     std::vector<char> buffer(static_cast<size_t>(file_size));
 
