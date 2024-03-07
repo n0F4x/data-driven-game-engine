@@ -1,23 +1,40 @@
 #pragma once
 
 #include <filesystem>
+#include <functional>
+#include <variant>
 
 #include <tl/optional.hpp>
 
-#include "engine/renderer/base/Allocator.hpp"
-#include "fastgltf/types.hpp"
+#include <entt/core/fwd.hpp>
 
-#include "Model.hpp"
+#include "engine/renderer/base/Allocator.hpp"
+#include "engine/renderer/ResourceManager.hpp"
+
+#include "ImageLoader.hpp"
+#include "ModelInfo.hpp"
 #include "StagingModel.hpp"
 
 namespace engine::renderer {
 
 class ModelLoader {
 public:
-    [[nodiscard]] static auto load_gltf(
+    [[nodiscard]] static auto hash(const std::filesystem::path& t_filepath)
+        -> entt::id_type;
+
+    ModelLoader() noexcept = default;
+    explicit ModelLoader(ResourceManager& t_resource_manager) noexcept;
+
+    [[nodiscard]] static auto load_from_file(
         const std::filesystem::path& t_filepath,
         const renderer::Allocator&   t_allocator
     ) noexcept -> tl::optional<StagingModel>;
+
+    [[nodiscard]] auto load(const std::filesystem::path& t_filepath) noexcept
+        -> tl::optional<ModelInfo>;
+
+private:
+    tl::optional<ResourceManager&> m_resource_manager{};
 };
 
 }   // namespace engine::renderer

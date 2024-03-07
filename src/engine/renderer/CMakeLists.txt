@@ -8,5 +8,4 @@ target_sources(${PROJECT_NAME} PRIVATE
         ResourceManager.cpp
         Scene.cpp
         SceneBuilder.cpp
-        SceneManager.cpp
 )

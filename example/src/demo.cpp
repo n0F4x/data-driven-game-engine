@@ -142,7 +142,7 @@ struct DemoApp {
         }
 
         auto opt_staging_model{
-            renderer::ModelLoader::load_gltf(t_model_filepath, allocator)
+            renderer::ModelLoader::load_from_file(t_model_filepath, allocator)
         };
         if (!opt_staging_model) {
             return tl::nullopt;

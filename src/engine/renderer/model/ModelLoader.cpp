@@ -1,11 +1,14 @@
+#include "ModelLoader.hpp"
+
 #include <ranges>
 
 #include <spdlog/spdlog.h>
 
+#include <entt/core/hashed_string.hpp>
+
 #include <fastgltf/core.hpp>
 
 #include "GltfLoader.hpp"
-#include "ModelLoader.hpp"
 
 [[nodiscard]] static auto load_asset(const std::filesystem::path& t_filepath) noexcept
     -> fastgltf::Expected<fastgltf::Asset>
@@ -15,7 +18,6 @@
     constexpr auto gltf_options{ fastgltf::Options::DontRequireValidAssetMember
                                  | fastgltf::Options::LoadGLBBuffers
                                  | fastgltf::Options::LoadExternalBuffers
-                                 | fastgltf::Options::LoadExternalImages
                                  | fastgltf::Options::GenerateMeshIndices };
 
     fastgltf::GltfDataBuffer data;
@@ -26,7 +28,17 @@
 
 namespace engine::renderer {
 
-auto ModelLoader::load_gltf(
+auto ModelLoader::hash(const std::filesystem::path& t_filepath) -> entt::id_type
+{
+    std::string absolute_path{ std::filesystem::absolute(t_filepath).generic_string() };
+    return entt::hashed_string{ absolute_path.c_str(), absolute_path.size() };
+}
+
+ModelLoader::ModelLoader(ResourceManager& t_resource_manager) noexcept
+    : m_resource_manager{ t_resource_manager }
+{}
+
+auto ModelLoader::load_from_file(
     const std::filesystem::path& t_filepath,
     const renderer::Allocator&   t_allocator
 ) noexcept -> tl::optional<StagingModel>
@@ -40,9 +52,7 @@ auto ModelLoader::load_gltf(
     GltfLoader model;
     model.load(asset.get());
 
-    return StagingMeshBuffer::create<Vertex>(
-               t_allocator, model.vertices, model.indices
-    )
+    return StagingMeshBuffer::create<Vertex>(t_allocator, model.vertices, model.indices)
         .transform([&](StagingMeshBuffer&& t_staging_mesh_buffer) {
             return StagingModel{ std::move(t_staging_mesh_buffer),
                                  std::move(model.nodes) };

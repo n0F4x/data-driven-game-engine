@@ -7,6 +7,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <entt/core/fwd.hpp>
+
 #include "engine/renderer/base/Allocator.hpp"
 #include "engine/utility/vma/Buffer.hpp"
 
@@ -88,6 +90,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
+    entt::id_type     m_id;
     std::vector<Node> m_nodes;
     MeshBuffer        m_mesh_buffer;
 

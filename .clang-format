@@ -101,8 +101,12 @@ IncludeCategories:
     Priority: 9
   - Regex: '^<SFML/'
     Priority: 10
-  - Regex: '^<entt/'
+  - Regex: '^<stb_.*.h>'
     Priority: 11
+  - Regex: '^<ktx.*.h>'
+    Priority: 12
+  - Regex: '^<entt/'
+    Priority: 13
   - Regex: '^<.*\..*'
     Priority: 998
   - Regex: '^<.*'

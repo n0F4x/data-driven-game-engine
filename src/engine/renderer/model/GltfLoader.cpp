@@ -18,7 +18,106 @@ auto GltfLoader::load(const fastgltf::Asset& t_asset) -> void
     }
 }
 
-auto GltfLoader::load_image(const fastgltf::Image&) -> void {}
+// auto GltfLoader::load_image(const fastgltf::Image& t_image) -> void
+//{
+//     auto getLevelCount = [](int width, int height) -> GLsizei {
+//         return static_cast<GLsizei>(1 + floor(log2(width > height ? width : height)));
+//     };
+//
+//     std::visit(
+//         fastgltf::visitor{
+//             [](auto&) {},
+//             [&](fastgltf::sources::URI& filePath) {
+//                 assert(filePath.fileByteOffset == 0);   // We don't support offsets
+//                 with
+//                     // stbi.
+//                     assert(filePath.uri.isLocalPath());   // We're only capable of
+//                 loading
+//                     // local files.
+//                     int width,
+//                     height, nrChannels;
+//
+//                 const path{ filePath.uri.fspath() };   // Thanks C++.
+//                 unsigned char* data = stbi_load(
+//                     path.generic_string().c_str(), &width, &height, &nrChannels, 4
+//                 );
+//                 glTextureStorage2D(
+//                     texture, getLevelCount(width, height), GL_RGBA8, width, height
+//                 );
+//                 glTextureSubImage2D(
+//                     texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data
+//                 );
+//                 stbi_image_free(data);
+//             },
+//             [&](fastgltf::sources::Array& vector) {
+//                 int            width, height, nrChannels;
+//                 unsigned char* data = stbi_load_from_memory(
+//                     vector.bytes.data(),
+//                     static_cast<int>(vector.bytes.size()),
+//                     &width,
+//                     &height,
+//                     &nrChannels,
+//                     4
+//                 );
+//                 glTextureStorage2D(
+//                     texture, getLevelCount(width, height), GL_RGBA8, width, height
+//                 );
+//                 glTextureSubImage2D(
+//                     texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data
+//                 );
+//                 stbi_image_free(data);
+//             },
+//             [&](fastgltf::sources::BufferView& view) {
+//                 auto& bufferView = viewer->asset.bufferViews[view.bufferViewIndex];
+//                 auto& buffer     = viewer->asset.buffers[bufferView.bufferIndex];
+//                 // Yes, we've already loaded every buffer into some GL buffer. However,
+//                 // with GL it's simpler to just copy the buffer data again for the
+//                 // texture. Besides, this is just an example.
+//                 std::visit(
+//                     fastgltf::visitor{ // We only care about VectorWithMime here,
+//                                        because
+//                                            // we specify LoadExternalBuffers, meaning
+//                                            all
+//                                            // buffers are already loaded into a vector.
+//                                            [](auto& arg){},
+//                                        [&](fastgltf::sources::Array& vector) {
+//                                            int            width, height, nrChannels;
+//                                            unsigned char* data = stbi_load_from_memory(
+//                                                vector.bytes.data() +
+//                                                bufferView.byteOffset,
+//                                                static_cast<int>(bufferView.byteLength),
+//                                                &width,
+//                                                &height,
+//                                                &nrChannels,
+//                                                4
+//                                            );
+//                                            glTextureStorage2D(
+//                                                texture,
+//                                                getLevelCount(width, height),
+//                                                GL_RGBA8,
+//                                                width,
+//                                                height
+//                                            );
+//                                            glTextureSubImage2D(
+//                                                texture,
+//                                                0,
+//                                                0,
+//                                                0,
+//                                                width,
+//                                                height,
+//                                                GL_RGBA,
+//                                                GL_UNSIGNED_BYTE,
+//                                                data
+//                                            );
+//                                            stbi_image_free(data);
+//                                        } },
+//                     buffer.data
+//                 );
+//             },
+//         },
+//         t_image.data
+//     );
+// }
 
 auto GltfLoader::load_node(
     StagingModel::Node*    t_parent,
