@@ -45,15 +45,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 
 # Vulkan
 message(NOTICE "Configuring Vulkan")
-set(VULKAN_VER_MAJOR 1)
-set(VULKAN_VER_MINOR 3)
-set(VULKAN_VER_PATCH 275)
-set(VULKAN_VERSION "${VULKAN_VER_MAJOR}.${VULKAN_VER_MINOR}.${VULKAN_VER_PATCH}")
 find_package(Vulkan REQUIRED)
-message(STATUS "Found Vulkan version ${Vulkan_VERSION}")
-if (NOT ${Vulkan_VERSION} STRGREATER_EQUAL ${VULKAN_VERSION})
-    message(FATAL_ERROR "Required minimum Vulkan version is ${VULKAN_VERSION}. Consider updating your Vulkan SDK.")
-endif ()
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         VULKAN_HPP_NO_TO_STRING
         VULKAN_HPP_NO_CONSTRUCTORS
