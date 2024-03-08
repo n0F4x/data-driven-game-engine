@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 
 include(FetchContent)
-set(FETCHCONTENT_QUIET OFF)
 
 project(engine C CXX)
 
