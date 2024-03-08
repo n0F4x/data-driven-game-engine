@@ -55,7 +55,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
         <variant>
 )
 
-add_subdirectory(third_party)
+add_subdirectory(external)
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC src)

@@ -1,5 +1,7 @@
 #include "Allocator.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include "Device.hpp"
 #include "helpers.hpp"
 #include "Instance.hpp"

@@ -4,6 +4,8 @@
 #include <set>
 #include <utility>
 
+#include <spdlog/spdlog.h>
+
 namespace {
 
 [[nodiscard]] auto get_min_image_count(vk::SurfaceCapabilitiesKHR t_surface_capabilities

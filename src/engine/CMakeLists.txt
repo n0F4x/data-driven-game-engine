@@ -1,5 +1,5 @@
 add_subdirectory(app)
-add_subdirectory(asset_manager)
+add_subdirectory(asset)
 add_subdirectory(common)
 add_subdirectory(config)
 add_subdirectory(logger)

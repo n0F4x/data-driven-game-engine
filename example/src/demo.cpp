@@ -9,15 +9,14 @@
 
 #include <entt/core/hashed_string.hpp>
 
-#include <engine/asset_manager/AssetRegistry.hpp>
+#include <engine/asset/AssetRegistry.hpp>
+#include <engine/renderer/base/Allocator.hpp>
+#include <engine/renderer/base/Device.hpp>
+#include <engine/renderer/base/Swapchain.hpp>
+#include <engine/renderer/model/Model.hpp>
+#include <engine/renderer/model/ModelLoader.hpp>
 #include <engine/utility/vma/Image.hpp>
 #include <engine/window/Window.hpp>
-
-#include "engine/renderer/base/Allocator.hpp"
-#include "engine/renderer/base/Device.hpp"
-#include "engine/renderer/base/Swapchain.hpp"
-#include "engine/renderer/model/Model.hpp"
-#include "engine/renderer/model/ModelLoader.hpp"
 
 #include "Camera.hpp"
 #include "Controller.hpp"
