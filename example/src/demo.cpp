@@ -9,7 +9,7 @@
 
 #include <entt/core/hashed_string.hpp>
 
-#include <engine/asset/AssetRegistry.hpp>
+#include <engine/asset/Registry.hpp>
 #include <engine/renderer/base/Allocator.hpp>
 #include <engine/renderer/base/Device.hpp>
 #include <engine/renderer/base/Swapchain.hpp>

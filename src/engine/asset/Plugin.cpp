@@ -2,15 +2,15 @@
 
 #include <spdlog/spdlog.h>
 
-#include "AssetRegistry.hpp"
+#include "Registry.hpp"
 
 namespace engine::asset {
 
 auto Plugin::operator()(Store& t_store) noexcept -> void
 {
-    t_store.emplace<AssetRegistry>();
+    t_store.emplace<Registry>();
 
-    SPDLOG_TRACE("Added AssetRegistry plugin");
+    SPDLOG_TRACE("Added Registry plugin");
 }
 
 }   // namespace engine::asset

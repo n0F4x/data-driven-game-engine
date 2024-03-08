@@ -1,8 +1,6 @@
 #include <stdexcept>
 #include <string>
 
-#include "Store.hpp"
-
 namespace engine {
 
 Store::~Store() noexcept
