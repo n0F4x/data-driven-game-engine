@@ -51,7 +51,7 @@ set(VULKAN_VER_PATCH 275)
 set(VULKAN_VERSION "${VULKAN_VER_MAJOR}.${VULKAN_VER_MINOR}.${VULKAN_VER_PATCH}")
 find_package(Vulkan REQUIRED)
 message(STATUS "Found Vulkan version ${Vulkan_VERSION}")
-if (NOT Vulkan_VERSION STRGREATER_EQUAL VULKAN_VERSION)
+if (NOT ${Vulkan_VERSION} STRGREATER_EQUAL ${VULKAN_VERSION})
     message(FATAL_ERROR "Required minimum Vulkan version is ${VULKAN_VERSION}. Consider updating your Vulkan SDK.")
 endif ()
 target_compile_definitions(${PROJECT_NAME} PRIVATE

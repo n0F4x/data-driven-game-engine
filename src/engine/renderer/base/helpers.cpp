@@ -233,9 +233,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
 {
     std::ostringstream message;
 
-    message << vk::to_string(
-        static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageSeverity)
-    ) << ": "
+    message << "Vulkan message "
             << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes))
             << ":\n";
     message << std::string("\t") << "messageIDName   = <" << pCallbackData->pMessageIdName
@@ -278,7 +276,21 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
         }
     }
 
-    std::cout << message.str() << std::endl;
+    switch (messageSeverity) {
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+            spdlog::trace(message.str());
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+            spdlog::info(message.str());
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+            spdlog::warn(message.str());
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+            spdlog::error(message.str());
+            break;
+        default: std::cout << message.str() << std::endl; break;
+    }
 
     return false;
 }
@@ -313,7 +325,8 @@ auto create_debug_messenger(vk::Instance t_instance) -> vk::UniqueDebugUtilsMess
         | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
     );
     const vk::DebugUtilsMessageTypeFlagsEXT message_type_flags(
-        vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
+        vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding
+        | vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
         | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
         | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation
     );
