@@ -2,6 +2,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include "engine/app/Builder.hpp"
+
 #include "Window.hpp"
 
 namespace engine::window {
@@ -22,13 +24,13 @@ auto Plugin::default_configure() -> void
 }
 
 auto Plugin::operator()(
-    Store&             t_store,
+    App::Builder&      t_builder,
     uint16_t           t_width,
     uint16_t           t_height,
     const std::string& t_title
 ) -> void
 {
-    t_store.emplace<Window>(t_width, t_height, t_title);
+    t_builder.store().emplace<Window>(t_width, t_height, t_title);
     SPDLOG_TRACE("Added Window plugin");
 }
 

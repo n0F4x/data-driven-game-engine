@@ -29,6 +29,9 @@ public:
     template <typename... Args>
     auto add_plugin(PluginConcept<Args...> auto&& t_plugin, Args&&... t_args) && -> Builder;
 
+    [[nodiscard]] auto store() noexcept -> Store&;
+    [[nodiscard]] auto store() const noexcept -> const Store&;
+
 private:
     ///******************///
     ///  Friend Classes  ///

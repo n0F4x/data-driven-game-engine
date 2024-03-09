@@ -21,7 +21,7 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(Store& t_store, Level t_log_level = Level::eDebug) noexcept -> void;
+    auto operator()(App::Builder& t_builder, Level t_log_level = Level::eDebug) noexcept -> void;
 };
 
 static_assert(PluginConcept<Plugin, Level>);

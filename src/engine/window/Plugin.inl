@@ -1,7 +1,7 @@
 namespace engine::window {
 
 auto Plugin::operator()(
-    Store&              t_store,
+    App::Builder& t_builder,
     uint16_t            t_width,
     uint16_t            t_height,
     const std::string&  t_title,
@@ -9,7 +9,7 @@ auto Plugin::operator()(
 ) -> void
 {
     std::invoke(t_configure);
-    operator()(t_store, t_width, t_height, t_title);
+    operator()(t_builder, t_width, t_height, t_title);
 }
 
 }   // namespace engine::window

@@ -9,7 +9,7 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(Store& t_store) noexcept -> void;
+    auto operator()(App::Builder& t_builder) noexcept -> void;
 };
 
 static_assert(PluginConcept<Plugin>);

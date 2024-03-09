@@ -4,6 +4,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "engine/app/Builder.hpp"
 #include "engine/renderer/base/Allocator.hpp"
 #include "engine/renderer/base/Device.hpp"
 #include "engine/renderer/base/helpers.hpp"
@@ -52,33 +53,33 @@ std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
     } };
 
 auto Plugin::operator()(
-    Store&                              t_store,
+    App::Builder&                       t_builder,
     const SurfaceCreator&               t_create_surface,
     const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter
 ) const noexcept -> void
 {
-    auto& instance{ t_store.emplace_or_replace<Instance>() };
+    auto& instance{ t_builder.store().emplace_or_replace<Instance>() };
 
     vk::UniqueSurfaceKHR surface{
-        std::invoke(t_create_surface, t_store, *instance, nullptr), *instance
+        std::invoke(t_create_surface, t_builder.store(), *instance, nullptr), *instance
     };
     if (!surface) {
         return;
     }
 
-    auto& device{ t_store.emplace_or_replace<Device>(
+    auto& device{ t_builder.store().emplace_or_replace<Device>(
         surface.get(), helpers::choose_physical_device(*instance, *surface)
     ) };
 
-    t_store.emplace_or_replace<Swapchain>(
+    t_builder.store().emplace_or_replace<Swapchain>(
         std::move(surface),
         device,
         t_create_framebuffer_size_getter
-            ? std::invoke(t_create_framebuffer_size_getter, t_store)
+            ? std::invoke(t_create_framebuffer_size_getter, t_builder.store())
             : nullptr
     );
 
-    t_store.emplace_or_replace<Allocator>(instance, device);
+    t_builder.store().emplace_or_replace<Allocator>(instance, device);
 
 
     SPDLOG_TRACE("Added Renderer plugin");

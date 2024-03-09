@@ -32,6 +32,7 @@ public:
         -> std::invoke_result_t<decltype(t_runner), App&, Args...>;
 
     [[nodiscard]] auto store() noexcept -> Store&;
+    [[nodiscard]] auto store() const noexcept -> const Store&;
 
 private:
     ///******************///

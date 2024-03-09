@@ -18,14 +18,14 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        Store&             t_store,
+        App::Builder&      t_builder,
         uint16_t           t_width,
         uint16_t           t_height,
         const std::string& t_title
     ) -> void;
 
     auto operator()(
-        Store&              t_store,
+        App::Builder&       t_builder,
         uint16_t            t_width,
         uint16_t            t_height,
         const std::string&  t_title,

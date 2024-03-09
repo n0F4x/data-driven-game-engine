@@ -26,7 +26,7 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        Store&                              t_store,
+        App::Builder&                       t_builder,
         const SurfaceCreator&               t_create_surface = create_default_surface,
         const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter = nullptr
     ) const noexcept -> void;
