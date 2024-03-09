@@ -7,7 +7,7 @@
 
 using namespace engine::window;
 
-namespace app::plugins {
+namespace plugins {
 
 auto Window::default_configure() -> void
 {
@@ -25,7 +25,7 @@ auto Window::default_configure() -> void
 }
 
 auto Window::operator()(
-    App::Builder&      t_builder,
+    app::App::Builder&      t_builder,
     uint16_t           t_width,
     uint16_t           t_height,
     const std::string& t_title

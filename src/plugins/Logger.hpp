@@ -4,7 +4,7 @@
 
 #include "app/core/Plugin.hpp"
 
-namespace app::plugins {
+namespace plugins {
 
 class Logger {
 public:
@@ -21,9 +21,9 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(App::Builder& t_builder, Level t_log_level = Level::eDebug) noexcept -> void;
+    auto operator()(app::App::Builder& t_builder, Level t_log_level = Level::eDebug) noexcept -> void;
 };
 
-static_assert(PluginConcept<Logger, Logger::Level>);
+static_assert(app::PluginConcept<Logger, Logger::Level>);
 
 }   // namespace engine::logger

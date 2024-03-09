@@ -7,7 +7,7 @@
 #include "app/core/Plugin.hpp"
 #include "engine/renderer/base/Swapchain.hpp"
 
-namespace app::plugins {
+namespace plugins {
 
 class Renderer {
 public:
@@ -26,15 +26,15 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        App::Builder&                       t_builder,
+        app::App::Builder&                       t_builder,
         const SurfaceCreator&               t_create_surface = create_default_surface,
         const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter = nullptr
     ) const noexcept -> void;
 };
 
-static_assert(PluginConcept<Renderer>);
-static_assert(PluginConcept<Renderer, const Renderer::SurfaceCreator&>);
-static_assert(PluginConcept<
+static_assert(app::PluginConcept<Renderer>);
+static_assert(app::PluginConcept<Renderer, const Renderer::SurfaceCreator&>);
+static_assert(app::PluginConcept<
               Renderer,
               const Renderer::SurfaceCreator&,
               const Renderer::FramebufferSizeGetterCreator&>);

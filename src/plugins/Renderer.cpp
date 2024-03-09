@@ -14,7 +14,7 @@
 
 using namespace engine::renderer;
 
-namespace app::plugins {
+namespace plugins {
 
 static auto create_vulkan_surface(
     GLFWwindow*                  t_window,
@@ -53,7 +53,7 @@ std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
     } };
 
 auto Renderer::operator()(
-    App::Builder&                       t_builder,
+    app::App::Builder&                       t_builder,
     const SurfaceCreator&               t_create_surface,
     const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter
 ) const noexcept -> void

@@ -1,7 +1,7 @@
-namespace app::plugins {
+namespace plugins {
 
 auto Window::operator()(
-    App::Builder& t_builder,
+    app::App::Builder& t_builder,
     uint16_t            t_width,
     uint16_t            t_height,
     const std::string&  t_title,

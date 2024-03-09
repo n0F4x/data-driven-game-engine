@@ -2,16 +2,16 @@
 
 #include "app/core/Plugin.hpp"
 
-namespace app::plugins {
+namespace plugins {
 
 class Common {
 public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(App::Builder& t_builder) noexcept -> void;
+    auto operator()(app::App::Builder& t_builder) noexcept -> void;
 };
 
-static_assert(PluginConcept<Common>);
+static_assert(app::PluginConcept<Common>);
 
 }   // namespace engine::common

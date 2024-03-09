@@ -5,7 +5,7 @@
 
 #include "app/core/Plugin.hpp"
 
-namespace app::plugins {
+namespace plugins {
 
 class Window {
 public:
@@ -18,14 +18,14 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        App::Builder&      t_builder,
+        app::App::Builder&      t_builder,
         uint16_t           t_width,
         uint16_t           t_height,
         const std::string& t_title
     ) -> void;
 
     auto operator()(
-        App::Builder&       t_builder,
+        app::App::Builder&       t_builder,
         uint16_t            t_width,
         uint16_t            t_height,
         const std::string&  t_title,
@@ -33,7 +33,7 @@ public:
     ) -> void;
 };
 
-static_assert(PluginConcept<Window, uint16_t, uint16_t, const std::string&>);
+static_assert(app::PluginConcept<Window, uint16_t, uint16_t, const std::string&>);
 
 }   // namespace engine::window
 

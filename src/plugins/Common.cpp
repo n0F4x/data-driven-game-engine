@@ -5,9 +5,9 @@
 
 #include "Common.hpp"
 
-namespace app::plugins {
+namespace plugins {
 
-auto Common::operator()(App::Builder& t_builder) noexcept -> void
+auto Common::operator()(app::App::Builder& t_builder) noexcept -> void
 {
     t_builder.store().emplace<engine::Cache>();
 
