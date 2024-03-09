@@ -1,3 +1,15 @@
+# Microsoft GSL
+FetchContent_Declare(GSL
+        GIT_REPOSITORY "https://github.com/microsoft/GSL"
+        GIT_TAG "v4.0.0"
+        GIT_SHALLOW ON
+        GIT_PROGRESS TRUE
+        SYSTEM
+)
+FetchContent_MakeAvailable(GSL)
+target_precompile_headers(${PROJECT_NAME} PRIVATE <gsl/gsl>)
+target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft.GSL::GSL)
+
 # tl-optional
 message(NOTICE "Configuring tl-optional")
 set(BUILD_TESTING OFF)

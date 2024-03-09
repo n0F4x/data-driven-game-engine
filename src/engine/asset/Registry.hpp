@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
 #include <unordered_map>
+
+#include <gsl/pointers>
 
 #include <entt/core/fwd.hpp>
 
@@ -11,29 +14,33 @@ namespace engine::asset {
 template <typename IdType, template <typename...> typename ContainerTemplate>
 class BasicRegistry {
 public:
+    using Id = IdType;
+
+    template <typename Resource>
+    using Handle = gsl::not_null<std::shared_ptr<Resource>>;
+
     ///-----------///
     ///  Methods  ///
     ///-----------///
     template <typename Resource>
-    auto emplace(entt::id_type t_id, Resource&& t_resource) noexcept -> Resource&;
+    auto emplace(Id t_id, auto&&... t_args) noexcept
+        -> Handle<Resource>;
 
     template <typename Resource>
-    [[nodiscard]] auto find(entt::id_type t_id) noexcept -> tl::optional<Resource&>;
-    template <typename Resource>
-    [[nodiscard]] auto find(entt::id_type t_id) const noexcept
-        -> tl::optional<const Resource&>;
+    [[nodiscard]] auto find(Id t_id) noexcept -> tl::optional<Handle<Resource>>;
 
     template <typename Resource>
-    [[nodiscard]] auto at(entt::id_type t_id) -> Resource&;
+    [[nodiscard]] auto at(Id t_id) -> Handle<Resource>;
+
     template <typename Resource>
-    [[nodiscard]] auto at(entt::id_type t_id) const -> const Resource&;
+    auto remove(Id t_id) -> tl::optional<Handle<Resource>>;
 
 private:
     ///****************///
     ///  Type aliases  ///
     ///****************///
     template <typename Resource>
-    using ContainerType = ContainerTemplate<IdType, Resource>;
+    using ContainerType = ContainerTemplate<IdType, Handle<Resource>>;
 
     ///*************///
     ///  Variables  ///
