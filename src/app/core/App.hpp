@@ -17,12 +17,13 @@ public:
     ///  Nested classes  ///
     ///------------------///
     class Builder;
-    class Instance;
 
     ///----------------///
     /// Static methods ///
     ///----------------///
     [[nodiscard]] static auto create() noexcept -> Builder;
+
+    explicit App(Builder&& t_builder) noexcept;
 
     ///-----------///
     ///  Methods  ///
@@ -35,20 +36,10 @@ public:
     [[nodiscard]] auto store() const noexcept -> const Store&;
 
 private:
-    ///******************///
-    ///  Friend Classes  ///
-    ///******************///
-    friend Builder;
-
     ///*************///
     ///  Variables  ///
     ///*************///
     Store m_store;
-
-    ///******************************///
-    ///  Constructors / Destructors  ///
-    ///******************************///
-    explicit App(Store&& t_store) noexcept;
 };
 
 }   // namespace engine

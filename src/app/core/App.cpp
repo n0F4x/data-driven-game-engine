@@ -11,7 +11,7 @@ namespace app {
 ///  App   IMPLEMENTATION  ///
 ///------------------------///
 //////////////////////////////
-App::App(Store&& t_store) noexcept : m_store{ std::move(t_store) } {}
+App::App(Builder&& t_builder) noexcept : m_store{ std::move(t_builder.store()) } {}
 
 auto App::create() noexcept -> App::Builder
 {
@@ -29,4 +29,4 @@ auto App::store() const noexcept -> const Store&
     return m_store;
 }
 
-}   // namespace engine
+}   // namespace app

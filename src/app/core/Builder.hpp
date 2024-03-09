@@ -33,20 +33,10 @@ public:
     [[nodiscard]] auto store() const noexcept -> const Store&;
 
 private:
-    ///******************///
-    ///  Friend Classes  ///
-    ///******************///
-    friend App;
-
     ///*************///
     ///  Variables  ///
     ///*************///
     Store m_store{};
-
-    ///******************************///
-    ///  Constructors / Destructors  ///
-    ///******************************///
-    Builder() noexcept = default;
 };
 
 }   // namespace engine

@@ -14,7 +14,7 @@ auto App::Builder::store() const noexcept -> const Store&
 
 auto App::Builder::build() && noexcept -> App
 {
-    return App{ std::move(m_store) };
+    return App{ std::move(*this) };
 }
 
-}   // namespace engine
+}   // namespace app
