@@ -1,6 +1,6 @@
-namespace engine::window {
+namespace app::plugins {
 
-auto Plugin::operator()(
+auto Window::operator()(
     App::Builder& t_builder,
     uint16_t            t_width,
     uint16_t            t_height,

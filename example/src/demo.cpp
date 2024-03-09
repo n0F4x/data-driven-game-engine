@@ -282,7 +282,7 @@ struct DemoApp {
     }
 };
 
-auto demo::run(App& t_app, const std::string& t_model_filepath) noexcept -> int
+auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept -> int
 {
     return DemoApp::create(t_app.store(), t_model_filepath)
         .transform([&](DemoApp t_demo) {

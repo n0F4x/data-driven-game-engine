@@ -2,9 +2,9 @@
 
 #include <type_traits>
 
-#include "Store.hpp"
+#include "store/Store.hpp"
 
-namespace engine {
+namespace app {
 
 class App;
 

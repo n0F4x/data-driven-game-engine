@@ -3,7 +3,7 @@
 #include "App.hpp"
 #include "Plugin.hpp"
 
-namespace engine {
+namespace app {
 
 class App::Builder {
 public:

@@ -1,14 +1,15 @@
-#include "Plugin.hpp"
-
 #include <spdlog/spdlog.h>
 
-#include "engine/app/Builder.hpp"
+#include "app/core/Builder.hpp"
+#include "engine/window/Window.hpp"
 
 #include "Window.hpp"
 
-namespace engine::window {
+using namespace engine::window;
 
-auto Plugin::default_configure() -> void
+namespace app::plugins {
+
+auto Window::default_configure() -> void
 {
     glfwSetErrorCallback([](int, const char* description) { SPDLOG_ERROR(description); });
 
@@ -23,14 +24,14 @@ auto Plugin::default_configure() -> void
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 }
 
-auto Plugin::operator()(
+auto Window::operator()(
     App::Builder&      t_builder,
     uint16_t           t_width,
     uint16_t           t_height,
     const std::string& t_title
 ) -> void
 {
-    t_builder.store().emplace<Window>(t_width, t_height, t_title);
+    t_builder.store().emplace<engine::window::Window>(t_width, t_height, t_title);
     SPDLOG_TRACE("Added Window plugin");
 }
 

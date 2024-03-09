@@ -1,6 +1,6 @@
 #include "Builder.hpp"
 
-namespace engine {
+namespace app {
 
 auto App::Builder::store() noexcept -> Store&
 {

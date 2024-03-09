@@ -1,12 +1,13 @@
-#include <engine/app.hpp>
-#include <engine/plugins.hpp>
 #include <engine/window/Window.hpp>
+
+#include "app/app.hpp"
+#include "app/plugins.hpp"
 // #include <ktx.h>
 // #include <ktxvulkan.h>
 
 #include "demo.hpp"
 
-using namespace engine;
+using namespace app;
 
 const std::string g_model_file_path{
     //    "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
@@ -18,7 +19,7 @@ const std::string g_model_file_path{
 auto main() -> int
 {
     return App::create()
-        .add_plugin<plugins::Logger>(logger::Level::eTrace)
+        .add_plugin<plugins::Logger>(plugins::Logger::Level::eTrace)
         .add_plugin<plugins::Common>()
         .add_plugin<plugins::Window>(
             1'280, 720, "My window", plugins::Window::default_configure

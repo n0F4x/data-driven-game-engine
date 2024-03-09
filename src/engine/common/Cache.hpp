@@ -7,7 +7,7 @@
 
 #include <entt/core/fwd.hpp>
 
-#include "engine/app/Store.hpp"
+#include "store/Store.hpp"
 
 namespace engine {
 

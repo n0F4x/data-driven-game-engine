@@ -1,10 +1,10 @@
-#include "Plugin.hpp"
+#include "Renderer.hpp"
 
 #include <tuple>
 
 #include <spdlog/spdlog.h>
 
-#include "engine/app/Builder.hpp"
+#include "app/core/Builder.hpp"
 #include "engine/renderer/base/Allocator.hpp"
 #include "engine/renderer/base/Device.hpp"
 #include "engine/renderer/base/helpers.hpp"
@@ -14,7 +14,7 @@
 
 using namespace engine::renderer;
 
-namespace engine::renderer {
+namespace app::plugins {
 
 static auto create_vulkan_surface(
     GLFWwindow*                  t_window,
@@ -35,9 +35,9 @@ static auto create_vulkan_surface(
 }
 
 std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
-    Plugin::create_default_surface{ [](Store&                       t_store,
-                                       VkInstance                   t_instance,
-                                       const VkAllocationCallbacks* t_allocator) {
+    Renderer::create_default_surface{ [](Store&                       t_store,
+                                         VkInstance                   t_instance,
+                                         const VkAllocationCallbacks* t_allocator) {
         using namespace engine::window;
         return t_store.find<Window>()
             .transform([=](const Window& t_window) {
@@ -52,7 +52,7 @@ std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
             .value_or(nullptr);
     } };
 
-auto Plugin::operator()(
+auto Renderer::operator()(
     App::Builder&                       t_builder,
     const SurfaceCreator&               t_create_surface,
     const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter
@@ -85,4 +85,4 @@ auto Plugin::operator()(
     SPDLOG_TRACE("Added Renderer plugin");
 }
 
-}   // namespace engine::renderer
+}   // namespace app::plugins

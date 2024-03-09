@@ -1,4 +1,3 @@
-#define STBI_FAILURE_USERMSG
 #include "ImageLoader.hpp"
 
 #include <spdlog/spdlog.h>
@@ -17,7 +16,7 @@ auto ImageLoader::load_from_file(const std::filesystem::path& t_filepath)
     -> tl::optional<Image>
 {
     return asset::StbImage::load_from_file(t_filepath)
-        .transform([](asset::StbImage&& stbImage) -> Image { return stbImage; })
+        .transform([](asset::StbImage&& image) -> Image { return image; })
         .or_else([&]() { return asset::KtxImage::load_from_file(t_filepath); });
 }
 
@@ -25,7 +24,7 @@ auto ImageLoader::load_from_memory(const std::span<const std::uint8_t> t_data)
     -> tl::optional<Image>
 {
     return asset::StbImage::load_from_memory(t_data)
-        .transform([](asset::StbImage&& stbImage) -> Image { return stbImage; })
+        .transform([](asset::StbImage&& image) -> Image { return image; })
         .or_else([&]() { return asset::KtxImage::load_from_memory(t_data); });
 }
 

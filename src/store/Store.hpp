@@ -3,12 +3,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include <tl/optional.hpp>
-
-#include <entt/core/any.hpp>
-#include <entt/core/type_info.hpp>
-
-namespace engine {
+#include "entt/core/any.hpp"
+#include "entt/core/type_info.hpp"
+#include "tl/optional.hpp"
 
 class Store {
 public:
@@ -53,7 +50,5 @@ private:
     std::unordered_map<TypeIndex, TypeIndex> m_index_map;
     std::vector<Any>                         m_elements;
 };
-
-}   // namespace engine
 
 #include "Store.inl"

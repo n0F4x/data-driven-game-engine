@@ -1,10 +1,10 @@
 #pragma once
 
-#include "engine/app/Plugin.hpp"
+#include "app/core/Plugin.hpp"
 
-namespace engine::common {
+namespace app::plugins {
 
-class Plugin {
+class Common {
 public:
     ///-------------///
     ///  Operators  ///
@@ -12,6 +12,6 @@ public:
     auto operator()(App::Builder& t_builder) noexcept -> void;
 };
 
-static_assert(PluginConcept<Plugin>);
+static_assert(PluginConcept<Common>);
 
 }   // namespace engine::common

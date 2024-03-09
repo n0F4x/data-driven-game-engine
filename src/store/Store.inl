@@ -1,8 +1,6 @@
 #include <stdexcept>
 #include <string>
 
-namespace engine {
-
 Store::~Store() noexcept
 {
     while (!m_elements.empty()) {
@@ -100,5 +98,3 @@ auto Store::contains() const noexcept -> bool
 {
     return m_index_map.contains(entt::type_index<T>{});
 }
-
-}   // namespace engine

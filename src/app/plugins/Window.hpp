@@ -3,11 +3,11 @@
 #include <concepts>
 #include <string>
 
-#include "engine/app/Plugin.hpp"
+#include "app/core/Plugin.hpp"
 
-namespace engine::window {
+namespace app::plugins {
 
-class Plugin {
+class Window {
 public:
     ///------------------///
     ///  Static methods  ///
@@ -33,8 +33,8 @@ public:
     ) -> void;
 };
 
-static_assert(PluginConcept<Plugin, uint16_t, uint16_t, const std::string&>);
+static_assert(PluginConcept<Window, uint16_t, uint16_t, const std::string&>);
 
 }   // namespace engine::window
 
-#include "Plugin.inl"
+#include "Window.inl"

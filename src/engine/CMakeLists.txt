@@ -1,8 +1,6 @@
-add_subdirectory(app)
 add_subdirectory(asset)
 add_subdirectory(common)
 add_subdirectory(config)
-add_subdirectory(logger)
 add_subdirectory(renderer)
 add_subdirectory(utility)
 add_subdirectory(window)

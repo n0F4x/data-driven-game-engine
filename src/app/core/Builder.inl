@@ -1,4 +1,4 @@
-namespace engine {
+namespace app {
 
 template <typename... Args>
 auto App::Builder::build_and_run(
