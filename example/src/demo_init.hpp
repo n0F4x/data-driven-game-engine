@@ -8,11 +8,10 @@
 
 #include <vk_mem_alloc.h>
 
+#include <engine/renderer/base/Allocator.hpp>
+#include <engine/renderer/base/Device.hpp>
+#include <engine/renderer/model/StagingModel.hpp>
 #include <engine/utility/vma/Image.hpp>
-
-#include "engine/renderer/base/Allocator.hpp"
-#include "engine/renderer/base/Device.hpp"
-#include "engine/renderer/model/StagingModel.hpp"
 
 namespace init {
 
@@ -79,7 +78,7 @@ namespace init {
 auto upload_model(
     const engine::renderer::Device&    t_device,
     const engine::renderer::Allocator& t_allocator,
-    engine::renderer::StagingModel&&      t_staging_model,
+    engine::renderer::StagingModel&&   t_staging_model,
     vk::DescriptorSetLayout            t_descriptor_set_layout,
     vk::DescriptorPool                 t_descriptor_pool
 ) -> tl::optional<engine::renderer::RenderModel>;

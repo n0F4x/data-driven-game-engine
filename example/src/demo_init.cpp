@@ -4,9 +4,8 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <engine/renderer/model/Vertex.hpp>
 #include <engine/utility/vulkan/tools.hpp>
-
-#include "engine/renderer/model/Vertex.hpp"
 
 using namespace engine;
 
