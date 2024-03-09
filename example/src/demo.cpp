@@ -9,7 +9,6 @@
 
 #include <entt/core/hashed_string.hpp>
 
-#include <engine/asset/Registry.hpp>
 #include <engine/renderer/base/Allocator.hpp>
 #include <engine/renderer/base/Device.hpp>
 #include <engine/renderer/base/Swapchain.hpp>
@@ -17,6 +16,7 @@
 #include <engine/utility/vma/Image.hpp>
 #include <engine/window/Window.hpp>
 
+#include "engine/common/Cache.hpp"
 #include "engine/renderer/model/RenderModel.hpp"
 
 #include "Camera.hpp"

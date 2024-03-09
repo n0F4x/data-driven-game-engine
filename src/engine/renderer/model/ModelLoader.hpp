@@ -8,8 +8,8 @@
 
 #include <entt/core/fwd.hpp>
 
+#include "engine/common/Cache.hpp"
 #include "engine/renderer/base/Allocator.hpp"
-#include "engine/renderer/ResourceManager.hpp"
 
 #include "ImageLoader.hpp"
 #include "Model.hpp"
@@ -24,7 +24,7 @@ public:
         -> entt::id_type;
 
     ModelLoader() noexcept = default;
-    explicit ModelLoader(ResourceManager& t_resource_manager) noexcept;
+    explicit ModelLoader(Cache& t_cache) noexcept;
 
     [[nodiscard]] static auto load_from_file(
         const std::filesystem::path& t_filepath,
@@ -35,7 +35,7 @@ public:
         -> tl::optional<Model>;
 
 private:
-    tl::optional<ResourceManager&> m_resource_manager{};
+    tl::optional<Cache&> m_cache{};
 };
 
 }   // namespace engine::renderer

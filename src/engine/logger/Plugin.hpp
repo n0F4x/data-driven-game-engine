@@ -2,7 +2,7 @@
 
 #include <spdlog/common.h>
 
-#include "engine/common/Plugin.hpp"
+#include "engine/app/Plugin.hpp"
 
 namespace engine::logger {
 

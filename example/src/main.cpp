@@ -1,8 +1,8 @@
 #include <engine/app.hpp>
 #include <engine/plugins.hpp>
 #include <engine/window/Window.hpp>
-//#include <ktx.h>
-//#include <ktxvulkan.h>
+// #include <ktx.h>
+// #include <ktxvulkan.h>
 
 #include "demo.hpp"
 
@@ -19,7 +19,7 @@ auto main() -> int
 {
     return App::create()
         .add_plugin<plugins::Logger>(logger::Level::eTrace)
-        .add_plugin<plugins::AssetManager>()
+        .add_plugin<plugins::Common>()
         .add_plugin<plugins::Window>(
             1'280, 720, "My window", plugins::Window::default_configure
         )

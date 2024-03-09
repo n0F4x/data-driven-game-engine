@@ -1,12 +1,17 @@
 #pragma once
 
-#include <concepts>
+#include "engine/app/Plugin.hpp"
 
-#include "Store.hpp"
+namespace engine::common {
 
-namespace engine {
+class Plugin {
+public:
+    ///-------------///
+    ///  Operators  ///
+    ///-------------///
+    auto operator()(Store& t_store) noexcept -> void;
+};
 
-template <typename Plugin, typename... Args>
-concept PluginConcept = std::invocable<Plugin, Store&, Args...>;
+static_assert(PluginConcept<Plugin>);
 
-}   // namespace engine
+}   // namespace engine::common

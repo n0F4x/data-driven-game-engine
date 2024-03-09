@@ -34,9 +34,7 @@ auto ModelLoader::hash(const std::filesystem::path& t_filepath) -> entt::id_type
     return entt::hashed_string{ absolute_path.c_str(), absolute_path.size() };
 }
 
-ModelLoader::ModelLoader(ResourceManager& t_resource_manager) noexcept
-    : m_resource_manager{ t_resource_manager }
-{}
+ModelLoader::ModelLoader(Cache& t_cache) noexcept : m_cache{ t_cache } {}
 
 auto ModelLoader::load_from_file(
     const std::filesystem::path& t_filepath,

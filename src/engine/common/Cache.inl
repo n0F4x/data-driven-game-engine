@@ -1,11 +1,8 @@
-#include <stdexcept>
-#include <string>
-
-namespace engine::asset {
+namespace engine {
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
-auto BasicRegistry<IdType, ContainerTemplate>::emplace(Id t_id, auto&&... t_args) noexcept
+auto BasicCache<IdType, ContainerTemplate>::emplace(Id t_id, auto&&... t_args) noexcept
     -> Handle<Resource>
 {
     return m_store.emplace<ContainerType<Resource>>()
@@ -17,7 +14,7 @@ auto BasicRegistry<IdType, ContainerTemplate>::emplace(Id t_id, auto&&... t_args
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
-auto BasicRegistry<IdType, ContainerTemplate>::find(Id t_id) noexcept
+auto BasicCache<IdType, ContainerTemplate>::find(Id t_id) noexcept
     -> tl::optional<Handle<Resource>>
 {
     return m_store.find<ContainerType<Resource>>().and_then(
@@ -33,14 +30,14 @@ auto BasicRegistry<IdType, ContainerTemplate>::find(Id t_id) noexcept
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
-auto BasicRegistry<IdType, ContainerTemplate>::at(Id t_id) -> Handle<Resource>
+auto BasicCache<IdType, ContainerTemplate>::at(Id t_id) -> Handle<Resource>
 {
     return m_store.at<ContainerType<Resource>>().at(t_id);
 }
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
-auto BasicRegistry<IdType, ContainerTemplate>::remove(Id t_id)
+auto BasicCache<IdType, ContainerTemplate>::remove(Id t_id) noexcept
     -> tl::optional<Handle<Resource>>
 {
     return m_store.find<ContainerType<Resource>>().and_then(
@@ -57,4 +54,4 @@ auto BasicRegistry<IdType, ContainerTemplate>::remove(Id t_id)
     );
 }
 
-}   // namespace engine::asset
+}   // namespace engine

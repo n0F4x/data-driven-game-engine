@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#include "engine/common/Store.hpp"
+#include "Store.hpp"
 
 namespace engine {
 

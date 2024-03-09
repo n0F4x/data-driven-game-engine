@@ -3,7 +3,7 @@
 #include <concepts>
 #include <string>
 
-#include "engine/common/Plugin.hpp"
+#include "engine/app/Plugin.hpp"
 
 namespace engine::window {
 

@@ -7,12 +7,12 @@
 
 #include <entt/core/fwd.hpp>
 
-#include "engine/common/Store.hpp"
+#include "engine/app/Store.hpp"
 
-namespace engine::asset {
+namespace engine {
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
-class BasicRegistry {
+class BasicCache {
 public:
     using Id = IdType;
 
@@ -23,8 +23,7 @@ public:
     ///  Methods  ///
     ///-----------///
     template <typename Resource>
-    auto emplace(Id t_id, auto&&... t_args) noexcept
-        -> Handle<Resource>;
+    auto emplace(Id t_id, auto&&... t_args) noexcept -> Handle<Resource>;
 
     template <typename Resource>
     [[nodiscard]] auto find(Id t_id) noexcept -> tl::optional<Handle<Resource>>;
@@ -33,7 +32,7 @@ public:
     [[nodiscard]] auto at(Id t_id) -> Handle<Resource>;
 
     template <typename Resource>
-    auto remove(Id t_id) -> tl::optional<Handle<Resource>>;
+    auto remove(Id t_id) noexcept -> tl::optional<Handle<Resource>>;
 
 private:
     ///****************///
@@ -48,8 +47,8 @@ private:
     Store m_store;
 };
 
-using Registry = BasicRegistry<entt::id_type, std::unordered_map>;
+using Cache = BasicCache<entt::id_type, std::unordered_map>;
 
-}   // namespace engine::asset
+}   // namespace engine
 
-#include "Registry.inl"
+#include "Cache.inl"
