@@ -28,7 +28,7 @@ public:
 private:
     std::reference_wrapper<ResourceManager> m_resource_manager;
     std::set<entt::id_type>                 m_cached_models;
-    std::vector<ModelInfo>                  m_models;
+//    std::vector<>                  m_models;
 };
 
 }   // namespace engine::renderer

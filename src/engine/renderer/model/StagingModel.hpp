@@ -4,7 +4,7 @@
 
 #include "engine/renderer/base/Allocator.hpp"
 
-#include "Model.hpp"
+#include "RenderModel.hpp"
 #include "StagingMeshBuffer.hpp"
 
 namespace engine::renderer {
@@ -16,8 +16,8 @@ public:
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
-    using Mesh      = Model::Mesh;
-    using Node      = Model::Node;
+    using Mesh      = RenderModel::Mesh;
+    using Node      = RenderModel::Node;
 
     ///-----------///
     ///  Methods  ///
@@ -30,7 +30,7 @@ public:
         vk::CommandBuffer          t_copy_command_buffer,
         vk::DescriptorSetLayout    t_descriptor_set_layout,
         vk::DescriptorPool         t_descriptor_pool
-    ) && noexcept -> tl::optional<Model>;
+    ) && noexcept -> tl::optional<RenderModel>;
 
 private:
     ///******************///

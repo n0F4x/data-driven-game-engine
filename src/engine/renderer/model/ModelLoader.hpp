@@ -12,7 +12,8 @@
 #include "engine/renderer/ResourceManager.hpp"
 
 #include "ImageLoader.hpp"
-#include "ModelInfo.hpp"
+#include "Model.hpp"
+#include "RenderModel.hpp"
 #include "StagingModel.hpp"
 
 namespace engine::renderer {
@@ -31,7 +32,7 @@ public:
     ) noexcept -> tl::optional<StagingModel>;
 
     [[nodiscard]] auto load(const std::filesystem::path& t_filepath) noexcept
-        -> tl::optional<ModelInfo>;
+        -> tl::optional<Model>;
 
 private:
     tl::optional<ResourceManager&> m_resource_manager{};

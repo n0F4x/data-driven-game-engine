@@ -13,10 +13,11 @@
 #include <engine/renderer/base/Allocator.hpp>
 #include <engine/renderer/base/Device.hpp>
 #include <engine/renderer/base/Swapchain.hpp>
-#include <engine/renderer/model/Model.hpp>
 #include <engine/renderer/model/ModelLoader.hpp>
 #include <engine/utility/vma/Image.hpp>
 #include <engine/window/Window.hpp>
+
+#include "engine/renderer/model/RenderModel.hpp"
 
 #include "Camera.hpp"
 #include "Controller.hpp"
@@ -46,7 +47,7 @@ struct DemoApp {
     std::vector<vk::UniqueFence>       in_flight_fences;
     uint32_t                           frame_index{};
 
-    renderer::Model model;
+    renderer::RenderModel model;
 
     [[nodiscard]] static auto create(Store& t_store, const std::string& t_model_filepath)
         -> tl::optional<DemoApp>

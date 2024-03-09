@@ -98,6 +98,7 @@ FetchContent_Declare(ktxlib
         GIT_REPOSITORY https://github.com/KhronosGroup/KTX-Software.git
         GIT_TAG v4.3.1
         GIT_PROGRESS TRUE
+        SYSTEM
 )
 FetchContent_MakeAvailable(ktxlib)
 target_link_libraries(${PROJECT_NAME} PUBLIC ktx)

@@ -82,6 +82,6 @@ auto upload_model(
     engine::renderer::StagingModel&&      t_staging_model,
     vk::DescriptorSetLayout            t_descriptor_set_layout,
     vk::DescriptorPool                 t_descriptor_pool
-) -> tl::optional<engine::renderer::Model>;
+) -> tl::optional<engine::renderer::RenderModel>;
 
 }   // namespace init

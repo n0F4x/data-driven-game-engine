@@ -475,7 +475,7 @@ auto upload_model(
     renderer::StagingModel&&      t_staging_model,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool
-) -> tl::optional<renderer::Model>
+) -> tl::optional<renderer::RenderModel>
 {
     auto transfer_command_pool{
         create_command_pool(*t_device, t_device.transfer_queue_family_index())
