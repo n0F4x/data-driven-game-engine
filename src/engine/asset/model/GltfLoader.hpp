@@ -12,9 +12,10 @@
 #include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/types.hpp>
 
-#include "Mesh.hpp"
+#include "engine/renderer/model/Mesh.hpp"
+#include "engine/renderer/model/Vertex.hpp"
+
 #include "StagingModel.hpp"
-#include "Vertex.hpp"
 
 namespace engine::renderer {
 

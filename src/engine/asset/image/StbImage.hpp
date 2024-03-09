@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <span>
 
 #include <tl/optional.hpp>
 
@@ -17,8 +18,8 @@ public:
         -> tl::optional<StbImage>;
 
 private:
-//    StbImageInfo m_info;
-//    stbi_uc      m_data;
+    //    StbImageInfo m_info;
+    //    stbi_uc      m_data;
 };
 
 }   // namespace engine::asset

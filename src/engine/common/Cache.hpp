@@ -1,38 +1,33 @@
 #pragma once
 
-#include <memory>
 #include <unordered_map>
 
-#include <gsl/pointers>
-
-#include <entt/core/fwd.hpp>
-
 #include "store/Store.hpp"
+
+#include "Handle.hpp"
+#include "ID.hpp"
 
 namespace engine {
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 class BasicCache {
 public:
-    using Id = IdType;
-
-    template <typename Resource>
-    using Handle = gsl::not_null<std::shared_ptr<Resource>>;
+    using ID = IdType;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
     template <typename Resource>
-    auto emplace(Id t_id, auto&&... t_args) noexcept -> Handle<Resource>;
+    auto emplace(ID t_id, auto&&... t_args) noexcept -> Handle<Resource>;
 
     template <typename Resource>
-    [[nodiscard]] auto find(Id t_id) noexcept -> tl::optional<Handle<Resource>>;
+    [[nodiscard]] auto find(ID t_id) noexcept -> tl::optional<Handle<Resource>>;
 
     template <typename Resource>
-    [[nodiscard]] auto at(Id t_id) -> Handle<Resource>;
+    [[nodiscard]] auto at(ID t_id) -> Handle<Resource>;
 
     template <typename Resource>
-    auto remove(Id t_id) noexcept -> tl::optional<Handle<Resource>>;
+    auto remove(ID t_id) noexcept -> tl::optional<Handle<Resource>>;
 
 private:
     ///****************///
@@ -47,7 +42,7 @@ private:
     Store m_store;
 };
 
-using Cache = BasicCache<entt::id_type, std::unordered_map>;
+using Cache = BasicCache<ID, std::unordered_map>;
 
 }   // namespace engine
 

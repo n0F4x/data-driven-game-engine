@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "engine/renderer/base/Allocator.hpp"
+#include "engine/renderer/model/RenderModel.hpp"
 
-#include "RenderModel.hpp"
 #include "StagingMeshBuffer.hpp"
 
 namespace engine::renderer {

@@ -1,7 +1,9 @@
 #pragma once
 
+#include "engine/asset/model/GltfModel.hpp"
+
 namespace engine::renderer {
 
-class Model {};
+using Model = engine::asset::GltfModel;
 
 }   // namespace engine::renderer

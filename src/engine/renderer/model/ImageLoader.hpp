@@ -2,29 +2,32 @@
 
 #include <filesystem>
 #include <span>
-#include <variant>
 
 #include <tl/optional.hpp>
 
-#include <entt/core/fwd.hpp>
+#include "engine/common/Cache.hpp"
+#include "engine/common/Handle.hpp"
+#include "engine/common/ID.hpp"
 
-#include "engine/asset/image/KtxImage.hpp"
-#include "engine/asset/image/StbImage.hpp"
+#include "Image.hpp"
 
 namespace engine::renderer {
 
-using Image = std::variant<asset::StbImage, asset::KtxImage>;
-
 class ImageLoader {
 public:
-    [[nodiscard]] static auto hash(const std::filesystem::path& t_filepath)
-        -> entt::id_type;
+    [[nodiscard]] static auto hash(const std::filesystem::path& t_filepath) -> ID;
 
-    [[nodiscard]] static auto load_from_file(const std::filesystem::path& t_filepath)
-        -> tl::optional<Image>;
+    ImageLoader() noexcept = default;
+    explicit ImageLoader(Cache& t_cache) noexcept;
 
-    [[nodiscard]] static auto load_from_memory(std::span<const std::uint8_t> t_data)
-        -> tl::optional<Image>;
+    [[nodiscard]] auto load_from_file(const std::filesystem::path& t_filepath)
+        -> tl::optional<Handle<Image>>;
+
+    [[nodiscard]] auto load_from_memory(std::span<const std::uint8_t> t_data)
+        -> tl::optional<Handle<Image>>;
+
+private:
+    tl::optional<Cache&> m_cache;
 };
 
 }   // namespace engine::renderer

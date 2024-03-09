@@ -3,6 +3,8 @@
 #include <expected>
 #include <utility>
 
+#include <tl/optional.hpp>
+
 #include <vulkan/vulkan.hpp>
 
 #include <vk_mem_alloc.h>

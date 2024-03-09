@@ -1,5 +1,7 @@
 #include "KtxImage.hpp"
 
+#include <spdlog/spdlog.h>
+
 namespace engine::asset {
 
 auto KtxImage::load_from_file(const std::filesystem::path& t_filepath)

@@ -1,25 +1,26 @@
 #pragma once
 
 #include <filesystem>
-#include <functional>
-#include <variant>
 
 #include <tl/optional.hpp>
 
-#include <entt/core/fwd.hpp>
-
+#include "engine/asset/model/StagingModel.hpp"
 #include "engine/common/Cache.hpp"
+#include "engine/common/Handle.hpp"
 #include "engine/renderer/base/Allocator.hpp"
 
 #include "ImageLoader.hpp"
 #include "Model.hpp"
 #include "RenderModel.hpp"
-#include "StagingModel.hpp"
 
 namespace engine::renderer {
 
 class ModelLoader {
 public:
+    struct Tag {
+        struct FromFile;
+    };
+
     [[nodiscard]] static auto hash(const std::filesystem::path& t_filepath)
         -> entt::id_type;
 
@@ -31,11 +32,13 @@ public:
         const renderer::Allocator&   t_allocator
     ) noexcept -> tl::optional<StagingModel>;
 
-    [[nodiscard]] auto load(const std::filesystem::path& t_filepath) noexcept
-        -> tl::optional<Model>;
+    [[nodiscard]] auto
+        load(Tag::FromFile t_tag, const std::filesystem::path& t_filepath) noexcept
+        -> tl::optional<Handle<Model>>;
 
 private:
-    tl::optional<Cache&> m_cache{};
+    tl::optional<Cache&>       m_cache;
+    std::vector<Handle<Image>> m_images;
 };
 
 }   // namespace engine::renderer

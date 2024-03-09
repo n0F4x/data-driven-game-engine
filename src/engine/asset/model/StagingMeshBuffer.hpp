@@ -5,9 +5,8 @@
 #include <vulkan/vulkan.hpp>
 
 #include "engine/renderer/base/Allocator.hpp"
+#include "engine/renderer/model/MeshBuffer.hpp"
 #include "engine/utility/vma/Buffer.hpp"
-
-#include "MeshBuffer.hpp"
 
 namespace engine::renderer {
 

@@ -8,7 +8,7 @@
 
 #include <fastgltf/core.hpp>
 
-#include "GltfLoader.hpp"
+#include "engine/asset/model/GltfLoader.hpp"
 
 [[nodiscard]] static auto load_asset(const std::filesystem::path& t_filepath) noexcept
     -> fastgltf::Expected<fastgltf::Asset>
