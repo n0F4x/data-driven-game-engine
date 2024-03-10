@@ -12,7 +12,6 @@
 #include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/types.hpp>
 
-#include "engine/renderer/model/Mesh.hpp"
 #include "engine/renderer/model/Vertex.hpp"
 
 #include "StagingModel.hpp"
@@ -23,11 +22,13 @@ struct GltfLoader {
     std::vector<Vertex>             vertices;
     std::vector<uint32_t>           indices;
     std::vector<StagingModel::Node> nodes;
-    std::vector<StagingModel>       models;
+    std::vector<StagingModel>       scenes;
 
     auto load(const fastgltf::Asset& t_asset) -> void;
 
 private:
+    using Primitive = StagingModel::Primitive;
+
     auto load_image(const fastgltf::Image&) -> void;
 
     auto load_node(

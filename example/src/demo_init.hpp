@@ -12,7 +12,7 @@
 #include <engine/renderer/base/Device.hpp>
 #include <engine/utility/vma/Image.hpp>
 
-#include "engine/asset/model/StagingModel.hpp"
+#include "engine/renderer/model/StagingModel.hpp"
 
 namespace init {
 

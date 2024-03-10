@@ -16,6 +16,7 @@ public:
     ///------------------///
     ///  Nested classes  ///
     ///------------------///
+    using Primitive = RenderModel::Primitive;
     using Mesh      = RenderModel::Mesh;
     using Node      = RenderModel::Node;
 

@@ -8,17 +8,17 @@
 
 #include <fastgltf/core.hpp>
 
-#include "engine/asset/model/GltfLoader.hpp"
+#include "GltfLoader.hpp"
 
 [[nodiscard]] static auto load_asset(const std::filesystem::path& t_filepath) noexcept
     -> fastgltf::Expected<fastgltf::Asset>
 {
     fastgltf::Parser parser;
 
-    constexpr auto gltf_options{ fastgltf::Options::DontRequireValidAssetMember
-                                 | fastgltf::Options::LoadGLBBuffers
+    constexpr auto gltf_options{ fastgltf::Options::LoadGLBBuffers
                                  | fastgltf::Options::LoadExternalBuffers
-                                 | fastgltf::Options::GenerateMeshIndices };
+                                 | fastgltf::Options::GenerateMeshIndices
+                                 | fastgltf::Options::DecomposeNodeMatrices };
 
     fastgltf::GltfDataBuffer data;
     data.loadFromFile(t_filepath);

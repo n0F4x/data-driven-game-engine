@@ -4,7 +4,6 @@
 
 #include <tl/optional.hpp>
 
-#include "engine/asset/model/StagingModel.hpp"
 #include "engine/common/Cache.hpp"
 #include "engine/common/Handle.hpp"
 #include "engine/renderer/base/Allocator.hpp"
@@ -12,6 +11,7 @@
 #include "ImageLoader.hpp"
 #include "Model.hpp"
 #include "RenderModel.hpp"
+#include "StagingModel.hpp"
 
 namespace engine::renderer {
 
