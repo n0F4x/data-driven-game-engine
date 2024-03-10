@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         Model.cpp
         ModelLoader.cpp
         RenderModel.cpp
+        RenderModelLoader.cpp
         StagingMeshBuffer.cpp
         StagingModel.cpp
 )

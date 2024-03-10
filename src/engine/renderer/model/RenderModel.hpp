@@ -24,9 +24,9 @@ public:
     ///  Nested classes  ///
     ///------------------///
     struct Primitive {
-        uint32_t             first_index_index;
-        uint32_t             index_count;
-        uint32_t             vertex_count;
+        uint32_t first_index_index;
+        uint32_t index_count;
+        uint32_t vertex_count;
     };
 
     struct Mesh {
@@ -41,12 +41,12 @@ public:
         vk::UniqueDescriptorSet descriptor_set;
 
         [[nodiscard]] auto upload(
-            vk::Device                 t_device,
-            const renderer::Allocator& t_allocator,
-            vk::DescriptorSetLayout    t_descriptor_set_layout,
-            vk::DescriptorPool         t_descriptor_pool,
-            const UniformBlock&        t_uniform_block
-        ) noexcept -> bool;
+            vk::Device              t_device,
+            const Allocator&        t_allocator,
+            vk::DescriptorSetLayout t_descriptor_set_layout,
+            vk::DescriptorPool      t_descriptor_pool,
+            const UniformBlock&     t_uniform_block
+        ) -> bool;
     };
 
     struct Node {
@@ -59,7 +59,7 @@ public:
             const renderer::Allocator& t_allocator,
             vk::DescriptorSetLayout    t_descriptor_set_layout,
             vk::DescriptorPool         t_descriptor_pool
-        ) noexcept -> bool;
+        ) -> bool;
 
         auto draw(
             vk::CommandBuffer  t_graphics_buffer,
@@ -67,18 +67,6 @@ public:
             const glm::mat4&   t_transform
         ) const noexcept -> void;
     };
-
-    ///----------------///
-    /// Static methods ///
-    ///----------------///
-    [[nodiscard]] static auto create(
-        vk::Device                 t_device,
-        const renderer::Allocator& t_allocator,
-        vk::DescriptorSetLayout    t_descriptor_set_layout,
-        vk::DescriptorPool         t_descriptor_pool,
-        const RenderModel&               t_model,
-        MeshBuffer&                t_mesh_buffer
-    ) noexcept -> tl::optional<RenderModel>;
 
     ///-----------///
     ///  Methods  ///

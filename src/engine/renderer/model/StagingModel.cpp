@@ -13,7 +13,7 @@ auto StagingModel::upload(
     const vk::CommandBuffer       t_copy_command_buffer,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool
-) && noexcept -> tl::optional<RenderModel>
+) && -> tl::optional<RenderModel>
 {
     return m_staging_mesh_buffer.upload(t_allocator, t_copy_command_buffer)
         .and_then([&](MeshBuffer&& mesh_buffer) -> tl::optional<RenderModel> {

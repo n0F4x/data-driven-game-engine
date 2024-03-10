@@ -31,7 +31,7 @@ public:
         vk::CommandBuffer          t_copy_command_buffer,
         vk::DescriptorSetLayout    t_descriptor_set_layout,
         vk::DescriptorPool         t_descriptor_pool
-    ) && noexcept -> tl::optional<RenderModel>;
+    ) && -> tl::optional<RenderModel>;
 
 private:
     ///******************///

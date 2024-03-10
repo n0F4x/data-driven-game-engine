@@ -2,12 +2,21 @@ namespace engine {
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
-auto BasicCache<IdType, ContainerTemplate>::emplace(ID t_id, auto&&... t_args) noexcept
+auto BasicCache<IdType, ContainerTemplate>::insert(ID t_id, Handle<Resource> t_handle)
+    -> Handle<Resource>
+{
+    m_store.emplace<ContainerType<Resource>>().try_emplace(t_id, t_handle);
+    return t_handle;
+}
+
+template <typename IdType, template <typename...> typename ContainerTemplate>
+template <typename Resource>
+auto BasicCache<IdType, ContainerTemplate>::emplace(ID t_id, auto&&... t_args)
     -> Handle<Resource>
 {
     return m_store.emplace<ContainerType<Resource>>()
         .try_emplace(
-            t_id, std::make_shared<Resource>(std::forward<decltype(t_args)>(t_args)...)
+            t_id, make_handle<Resource>(std::forward<decltype(t_args)>(t_args)...)
         )
         .first->second;
 }
@@ -23,7 +32,8 @@ auto BasicCache<IdType, ContainerTemplate>::find(ID t_id) noexcept
             if (iter == t_container.cend()) {
                 return tl::nullopt;
             }
-            return iter->second;
+            const auto result{ iter->second.lock() };
+            return result ? tl::make_optional(std::move(result)) : tl::nullopt;
         }
     );
 }
@@ -32,7 +42,7 @@ template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
 auto BasicCache<IdType, ContainerTemplate>::at(ID t_id) -> Handle<Resource>
 {
-    return m_store.at<ContainerType<Resource>>().at(t_id);
+    return m_store.at<ContainerType<Resource>>().at(t_id).lock();
 }
 
 template <typename IdType, template <typename...> typename ContainerTemplate>

@@ -93,17 +93,17 @@ public:
         bool                               doubleSided{ false };
     };
 
-    enum class Topology {
-        ePoints,
-        eLineStrips,
-        eLineLoops,
-        eLines,
-        eTriangles,
-        eTriangleStrips,
-        eTriangleFans
-    };
-
     struct Primitive {
+        enum class Topology {
+            ePoints,
+            eLineStrips,
+            eLineLoops,
+            eLines,
+            eTriangles,
+            eTriangleStrips,
+            eTriangleFans
+        };
+
         Topology             mode;
         tl::optional<size_t> material;
         uint32_t             first_index_index;
@@ -137,6 +137,10 @@ public:
 private:
     std::vector<Vertex>   vertices;
     std::vector<uint32_t> indices;
+    std::vector<Image>    images;
+    std::vector<Sampler>  samplers;
+    std::vector<Texture>  textures;
+    std::vector<Material> materials;
     std::vector<Node>     nodes;
     std::vector<Scene>    scenes;
     std::vector<size_t>   scene;

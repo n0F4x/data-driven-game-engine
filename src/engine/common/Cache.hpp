@@ -18,7 +18,10 @@ public:
     ///  Methods  ///
     ///-----------///
     template <typename Resource>
-    auto emplace(ID t_id, auto&&... t_args) noexcept -> Handle<Resource>;
+    auto insert(ID t_id, Handle<Resource> t_handle) -> Handle<Resource>;
+
+    template <typename Resource>
+    auto emplace(ID t_id, auto&&... t_args) -> Handle<Resource>;
 
     template <typename Resource>
     [[nodiscard]] auto find(ID t_id) noexcept -> tl::optional<Handle<Resource>>;
@@ -34,7 +37,10 @@ private:
     ///  Type aliases  ///
     ///****************///
     template <typename Resource>
-    using ContainerType = ContainerTemplate<IdType, Handle<Resource>>;
+    using WeakHandle = std::weak_ptr<Resource>;
+
+    template <typename Resource>
+    using ContainerType = ContainerTemplate<IdType, WeakHandle<Resource>>;
 
     ///*************///
     ///  Variables  ///

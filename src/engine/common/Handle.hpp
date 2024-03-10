@@ -12,9 +12,6 @@ using Handle = gsl::not_null<std::shared_ptr<Resource>>;
 template <typename Resource>
 [[nodiscard]] auto make_handle(auto&&... t_args) -> Handle<Resource>;
 
-template <typename Resource>
-using WeakHandle = std::weak_ptr<Resource>;
-
 }   // namespace engine
 
 #include "Handle.inl"

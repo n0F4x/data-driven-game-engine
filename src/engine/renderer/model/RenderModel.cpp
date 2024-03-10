@@ -39,7 +39,7 @@ auto RenderModel::Mesh::upload(
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool,
     const UniformBlock&           t_uniform_block
-) noexcept -> bool
+) -> bool
 {
     const vk::BufferCreateInfo buffer_create_info = {
         .size  = sizeof(t_uniform_block),
@@ -74,7 +74,7 @@ auto RenderModel::Node::upload(
     const renderer::Allocator&    t_allocator,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool
-) noexcept -> bool
+) -> bool
 {
     if (mesh.transform([&](Mesh& t_mesh) {
                 return t_mesh.upload(
