@@ -16,7 +16,8 @@ public:
     [[nodiscard]] auto vertex_shader() const noexcept -> const Shader&;
     [[nodiscard]] auto fragment_shader() const noexcept -> const Shader&;
 
-    [[nodiscard]] auto pipeline_stages() const -> std::span<const vk::PipelineShaderStageCreateInfo>;
+    [[nodiscard]] auto pipeline_stages() const
+        -> std::span<const vk::PipelineShaderStageCreateInfo>;
 
 private:
     Handle<Shader>                                   m_vertex_shader;
@@ -27,3 +28,14 @@ private:
 };
 
 }   // namespace engine::renderer
+
+namespace std {
+
+template <>
+class hash<engine::renderer::Effect> {
+public:
+    [[nodiscard]] auto operator()(const engine::renderer::Effect& t_effect) const
+        -> size_t;
+};
+
+}   // namespace std

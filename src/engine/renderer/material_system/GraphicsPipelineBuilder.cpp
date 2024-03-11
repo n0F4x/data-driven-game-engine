@@ -23,14 +23,6 @@ auto GraphicsPipelineBuilder::set_effect(Effect t_effect) noexcept
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_vertex_input_state(
-    const vk::PipelineVertexInputStateCreateInfo* t_vertex_input
-) noexcept -> GraphicsPipelineBuilder&
-{
-    m_vertex_input_state = t_vertex_input;
-    return *this;
-}
-
 auto GraphicsPipelineBuilder::set_primitive_topology(
     const vk::PrimitiveTopology t_primitive_topology
 ) noexcept -> GraphicsPipelineBuilder&
@@ -46,11 +38,15 @@ auto GraphicsPipelineBuilder::set_cull_mode(const vk::CullModeFlags t_cull_mode)
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_color_blend_state(
-    const vk::PipelineColorBlendStateCreateInfo* t_color_blend_state
-) noexcept -> GraphicsPipelineBuilder&
+auto GraphicsPipelineBuilder::enable_blending() noexcept -> GraphicsPipelineBuilder&
 {
-    m_color_blend_state = t_color_blend_state;
+    m_enable_blending = true;
+    return *this;
+}
+
+auto GraphicsPipelineBuilder::disable_blending() noexcept -> GraphicsPipelineBuilder&
+{
+    m_enable_blending = false;
     return *this;
 }
 
@@ -77,6 +73,8 @@ auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
     {
         return cached.value();
     }
+
+    vk::PipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
 
     const vk::PipelineInputAssemblyStateCreateInfo input_assembly_state_create_info{
         .topology = m_primitive_topology
@@ -105,6 +103,26 @@ auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
         .stencilTestEnable     = false,
     };
 
+    vk::PipelineColorBlendAttachmentState color_blend_attachment_state{
+        .blendEnable    = m_enable_blending,
+        .colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
+                        | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA,
+    };
+    if (m_enable_blending) {
+        color_blend_attachment_state.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+        color_blend_attachment_state.dstColorBlendFactor =
+            vk::BlendFactor::eOneMinusSrcAlpha;
+        color_blend_attachment_state.colorBlendOp = vk::BlendOp::eAdd;
+        color_blend_attachment_state.srcAlphaBlendFactor =
+            vk::BlendFactor::eOneMinusSrcAlpha;
+        color_blend_attachment_state.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+        color_blend_attachment_state.alphaBlendOp        = vk::BlendOp::eAdd;
+    }
+    vk::PipelineColorBlendStateCreateInfo color_blend_state_create_info{
+        .attachmentCount = 1,
+        .pAttachments    = &color_blend_attachment_state,
+    };
+
     const std::array                         dynamic_states{ vk::DynamicState::eViewport,
                                      vk::DynamicState::eScissor };
     const vk::PipelineDynamicStateCreateInfo dynamic_state_create_info{
@@ -115,13 +133,13 @@ auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
     const vk::GraphicsPipelineCreateInfo create_info{
         .stageCount          = static_cast<uint32_t>(m_effect.pipeline_stages().size()),
         .pStages             = m_effect.pipeline_stages().data(),
-        .pVertexInputState   = m_vertex_input_state,
+        .pVertexInputState   = &vertex_input_state_create_info,
         .pInputAssemblyState = &input_assembly_state_create_info,
         .pViewportState      = &viewport_state_create_info,
         .pRasterizationState = &rasterization_state_create_info,
         .pMultisampleState   = &multisample_state_create_info,
         .pDepthStencilState  = &depth_stencil_state_create_info,
-        .pColorBlendState    = m_color_blend_state,
+        .pColorBlendState    = &color_blend_state_create_info,
         .pDynamicState       = &dynamic_state_create_info,
         .layout              = m_layout,
         .renderPass          = m_render_pass,
@@ -143,10 +161,10 @@ auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
 ) noexcept -> size_t
 {
     return hash_combine(
-        t_graphics_pipeline_builder.m_vertex_input_state,
+        t_graphics_pipeline_builder.m_effect,
         t_graphics_pipeline_builder.m_primitive_topology,
         t_graphics_pipeline_builder.m_cull_mode,
-        t_graphics_pipeline_builder.m_color_blend_state,
+        t_graphics_pipeline_builder.m_enable_blending,
         t_graphics_pipeline_builder.m_layout,
         t_graphics_pipeline_builder.m_render_pass
     );

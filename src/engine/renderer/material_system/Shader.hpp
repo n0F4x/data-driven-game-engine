@@ -32,7 +32,7 @@ template <>
 class hash<engine::renderer::Shader> {
 public:
     [[nodiscard]] auto operator()(const engine::renderer::Shader& t_shader) const
-        -> engine::ID;
+        -> size_t;
 };
 
 }   // namespace std

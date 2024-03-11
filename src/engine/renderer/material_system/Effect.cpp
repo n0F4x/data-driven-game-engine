@@ -36,3 +36,13 @@ auto Effect::pipeline_stages() const -> std::span<const vk::PipelineShaderStageC
 }
 
 }   // namespace engine::renderer
+
+namespace std {
+
+auto hash<engine::renderer::Effect>::operator()(const engine::renderer::Effect& t_effect
+) const -> size_t
+{
+    return engine::renderer::hash_value(t_effect);
+}
+
+}   // namespace std
