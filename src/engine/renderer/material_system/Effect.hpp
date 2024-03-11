@@ -16,9 +16,12 @@ public:
     [[nodiscard]] auto vertex_shader() const noexcept -> const Shader&;
     [[nodiscard]] auto fragment_shader() const noexcept -> const Shader&;
 
+    [[nodiscard]] auto pipeline_stages() const -> std::span<const vk::PipelineShaderStageCreateInfo>;
+
 private:
-    Handle<Shader> m_vertex_shader;
-    Handle<Shader> m_fragment_shader;
+    Handle<Shader>                                   m_vertex_shader;
+    Handle<Shader>                                   m_fragment_shader;
+    std::array<vk::PipelineShaderStageCreateInfo, 2> m_stages;
 
     friend auto hash_value(const Effect& t_shader) noexcept -> size_t;
 };

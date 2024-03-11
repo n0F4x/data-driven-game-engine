@@ -36,15 +36,18 @@ public:
     auto set_render_pass(vk::RenderPass t_render_pass) noexcept
         -> GraphicsPipelineBuilder&;
 
-    [[nodiscard]] auto build() -> Handle<vk::UniquePipeline>;
+    [[nodiscard]] auto build() const -> Handle<vk::UniquePipeline>;
 
 private:
-    vk::Device                     m_device;
-    tl::optional<Cache&>           m_cache;
-    Effect                         m_effect;
-    vk::PrimitiveTopology          m_primitive_topology{};
-    vk::CullModeFlags              m_cull_mode{};
-    vk::GraphicsPipelineCreateInfo m_create_info{};
+    vk::Device                                    m_device;
+    tl::optional<std::reference_wrapper<Cache>>   m_cache;
+    Effect                                        m_effect;
+    const vk::PipelineVertexInputStateCreateInfo* m_vertex_input_state{};
+    vk::PrimitiveTopology                         m_primitive_topology{};
+    vk::CullModeFlags                             m_cull_mode{};
+    const vk::PipelineColorBlendStateCreateInfo*  m_color_blend_state{};
+    vk::PipelineLayout                            m_layout;
+    vk::RenderPass                                m_render_pass;
 
     friend auto hash_value(const GraphicsPipelineBuilder& t_graphics_pipeline_builder
     ) noexcept -> size_t;

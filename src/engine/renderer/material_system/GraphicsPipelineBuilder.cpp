@@ -1,5 +1,9 @@
 #include "GraphicsPipelineBuilder.hpp"
 
+#include <vulkan/vulkan_hash.hpp>
+
+#include "engine/utility/hashing.hpp"
+
 namespace engine::renderer {
 
 GraphicsPipelineBuilder::GraphicsPipelineBuilder(
@@ -8,7 +12,7 @@ GraphicsPipelineBuilder::GraphicsPipelineBuilder(
     tl::optional<Cache&> t_cache
 ) noexcept
     : m_device{ t_device },
-      m_cache{ t_cache },
+      m_cache{ t_cache.transform([](Cache& cache) { return std::ref(cache); }) },
       m_effect{ std::move(t_effect) }
 {}
 
@@ -23,7 +27,7 @@ auto GraphicsPipelineBuilder::set_vertex_input_state(
     const vk::PipelineVertexInputStateCreateInfo* t_vertex_input
 ) noexcept -> GraphicsPipelineBuilder&
 {
-    m_create_info.pVertexInputState = t_vertex_input;
+    m_vertex_input_state = t_vertex_input;
     return *this;
 }
 
@@ -46,28 +50,106 @@ auto GraphicsPipelineBuilder::set_color_blend_state(
     const vk::PipelineColorBlendStateCreateInfo* t_color_blend_state
 ) noexcept -> GraphicsPipelineBuilder&
 {
-    m_create_info.pColorBlendState = t_color_blend_state;
+    m_color_blend_state = t_color_blend_state;
     return *this;
 }
 
 auto GraphicsPipelineBuilder::set_layout(const vk::PipelineLayout t_layout) noexcept
     -> GraphicsPipelineBuilder&
 {
-    m_create_info.layout = t_layout;
+    m_layout = t_layout;
     return *this;
 }
 
 auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass t_render_pass) noexcept
     -> GraphicsPipelineBuilder&
 {
-    m_create_info.renderPass = t_render_pass;
+    m_render_pass = t_render_pass;
     return *this;
 }
 
-// auto GraphicsPipelineBuilder::build() -> Handle<vk::UniquePipeline> {}
+auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
+{
+    if (const auto cached{ m_cache.and_then([&](const Cache& cache) {
+            return cache.find<vk::UniquePipeline>(hash_value(*this));
+        }) };
+        cached.has_value())
+    {
+        return cached.value();
+    }
 
-//[[nodiscard]] auto hash_value(const GraphicsPipelineBuilder& t_graphics_pipeline_builder
-//) noexcept -> size_t
-//{}
+    const vk::PipelineInputAssemblyStateCreateInfo input_assembly_state_create_info{
+        .topology = m_primitive_topology
+    };
+
+    const vk::PipelineViewportStateCreateInfo viewport_state_create_info{
+        .viewportCount = 1, .scissorCount = 1
+    };
+
+    const vk::PipelineRasterizationStateCreateInfo rasterization_state_create_info{
+        .polygonMode = vk::PolygonMode::eFill,
+        .cullMode    = m_cull_mode,
+        .frontFace   = vk::FrontFace::eCounterClockwise,
+        .lineWidth   = 1.f
+    };
+
+    const vk::PipelineMultisampleStateCreateInfo multisample_state_create_info{
+        .rasterizationSamples = vk::SampleCountFlagBits::e1,
+    };
+
+    const vk::PipelineDepthStencilStateCreateInfo depth_stencil_state_create_info{
+        .depthTestEnable       = true,
+        .depthWriteEnable      = true,
+        .depthCompareOp        = vk::CompareOp::eLess,
+        .depthBoundsTestEnable = false,
+        .stencilTestEnable     = false,
+    };
+
+    const std::array                         dynamic_states{ vk::DynamicState::eViewport,
+                                     vk::DynamicState::eScissor };
+    const vk::PipelineDynamicStateCreateInfo dynamic_state_create_info{
+        .dynamicStateCount = static_cast<uint32_t>(dynamic_states.size()),
+        .pDynamicStates    = dynamic_states.data()
+    };
+
+    const vk::GraphicsPipelineCreateInfo create_info{
+        .stageCount          = static_cast<uint32_t>(m_effect.pipeline_stages().size()),
+        .pStages             = m_effect.pipeline_stages().data(),
+        .pVertexInputState   = m_vertex_input_state,
+        .pInputAssemblyState = &input_assembly_state_create_info,
+        .pViewportState      = &viewport_state_create_info,
+        .pRasterizationState = &rasterization_state_create_info,
+        .pMultisampleState   = &multisample_state_create_info,
+        .pDepthStencilState  = &depth_stencil_state_create_info,
+        .pColorBlendState    = m_color_blend_state,
+        .pDynamicState       = &dynamic_state_create_info,
+        .layout              = m_layout,
+        .renderPass          = m_render_pass,
+    };
+
+    return m_cache
+        .transform([&](Cache& cache) {
+            return cache.emplace<vk::UniquePipeline>(
+                hash_value(*this),
+                m_device.createGraphicsPipelineUnique(nullptr, create_info).value
+            );
+        })
+        .value_or(make_handle<vk::UniquePipeline>(
+            m_device.createGraphicsPipelineUnique(nullptr, create_info).value
+        ));
+}
+
+[[nodiscard]] auto hash_value(const GraphicsPipelineBuilder& t_graphics_pipeline_builder
+) noexcept -> size_t
+{
+    return hash_combine(
+        t_graphics_pipeline_builder.m_vertex_input_state,
+        t_graphics_pipeline_builder.m_primitive_topology,
+        t_graphics_pipeline_builder.m_cull_mode,
+        t_graphics_pipeline_builder.m_color_blend_state,
+        t_graphics_pipeline_builder.m_layout,
+        t_graphics_pipeline_builder.m_render_pass
+    );
+}
 
 }   // namespace engine::renderer
