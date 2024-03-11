@@ -1,9 +1,7 @@
 #pragma once
 
-#include <entt/core/fwd.hpp>
-
 namespace engine {
 
-using ID = entt::id_type;
+using ID = size_t;
 
-}
+}   // namespace engine

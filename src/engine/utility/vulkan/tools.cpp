@@ -78,10 +78,10 @@ auto supports_surface(vk::PhysicalDevice t_physical_device, vk::SurfaceKHR t_sur
     return false;
 }
 
-auto load_shader(vk::Device t_device, const std::string& t_file_path)
+auto load_shader(vk::Device t_device, const std::filesystem::path& t_filepath)
     -> vk::UniqueShaderModule
 {
-    std::ifstream file{ t_file_path, std::ios::binary | std::ios::in | std::ios::ate };
+    std::ifstream file{ t_filepath, std::ios::binary | std::ios::in | std::ios::ate };
 
     const std::streamsize file_size = file.tellg();
     if (file_size == -1) {

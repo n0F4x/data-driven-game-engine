@@ -6,19 +6,15 @@
 
 namespace engine::renderer {
 
-auto ImageLoader::hash(const std::filesystem::path& t_filepath) -> entt::id_type
-{
-    std::string absolute_path{ std::filesystem::absolute(t_filepath).generic_string() };
-    return entt::hashed_string{ absolute_path.c_str(), absolute_path.size() };
-}
-
 ImageLoader::ImageLoader(Cache& t_cache) noexcept : m_cache{ t_cache } {}
 
 auto ImageLoader::load_from_file(const std::filesystem::path& t_filepath)
     -> tl::optional<Handle<Image>>
 {
     return m_cache
-        .and_then([&](Cache& cache) { return cache.find<Image>(hash(t_filepath)); })
+        .and_then([&](Cache& cache) {
+            return cache.find<Image>(std::filesystem::hash_value(t_filepath));
+        })
         .or_else([&]() {
             return asset::StbImage::load_from_file(t_filepath)
                 .transform([](asset::StbImage&& image) {

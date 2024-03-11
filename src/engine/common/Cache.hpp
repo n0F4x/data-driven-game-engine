@@ -24,10 +24,10 @@ public:
     auto emplace(ID t_id, auto&&... t_args) -> Handle<Resource>;
 
     template <typename Resource>
-    [[nodiscard]] auto find(ID t_id) noexcept -> tl::optional<Handle<Resource>>;
+    [[nodiscard]] auto find(ID t_id) const noexcept -> tl::optional<Handle<Resource>>;
 
     template <typename Resource>
-    [[nodiscard]] auto at(ID t_id) -> Handle<Resource>;
+    [[nodiscard]] auto at(ID t_id) const -> Handle<Resource>;
 
     template <typename Resource>
     auto remove(ID t_id) noexcept -> tl::optional<Handle<Resource>>;

@@ -15,8 +15,6 @@ namespace engine::renderer {
 
 class ImageLoader {
 public:
-    [[nodiscard]] static auto hash(const std::filesystem::path& t_filepath) -> ID;
-
     ImageLoader() noexcept = default;
     explicit ImageLoader(Cache& t_cache) noexcept;
 

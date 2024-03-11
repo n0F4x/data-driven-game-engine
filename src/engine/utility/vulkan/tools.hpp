@@ -2,6 +2,7 @@
 
 #include <span>
 #include <string>
+#include <filesystem>
 
 #include <vulkan/vulkan.hpp>
 
@@ -24,7 +25,7 @@ namespace engine::vulkan {
     vk::SurfaceKHR     t_surface
 ) noexcept -> bool;
 
-[[nodiscard]] auto load_shader(vk::Device t_device, const std::string& t_file_path)
+[[nodiscard]] auto load_shader(vk::Device t_device, const std::filesystem::path& t_filepath)
     -> vk::UniqueShaderModule;
 
 }   // namespace engine::vulkan
