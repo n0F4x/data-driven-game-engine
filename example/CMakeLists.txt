@@ -17,34 +17,24 @@ target_link_libraries(test PRIVATE ${PROJECT_NAME})
 ###################
 ## Build shaders ##
 ###################
+set(SHADERS_IN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
+set(SHADERS_OUT_DIR ${SHADERS_IN_DIR})
 
-find_program(GLSL_VALIDATOR glslangValidator HINTS
-        ${Vulkan_GLSLANG_VALIDATOR_EXECUTABLE}
-        /usr/bin
-        /usr/local/bin
-        ${VULKAN_SDK_PATH}/Bin
-        ${VULKAN_SDK_PATH}/Bin32
-        "$ENV{VULKAN_SDK}/Bin/"
-        "$ENV{VULKAN_SDK}/Bin32/"
-)
+file(GLOB_RECURSE SHADERS "${SHADERS_IN_DIR}/*.vert" "${SHADERS_IN_DIR}/*.frag")
 
-# get all .vert and .frag files in shaders directory
-file(GLOB_RECURSE GLSL_SOURCE_FILES
-        "${PROJECT_SOURCE_DIR}/example/shaders/*.frag"
-        "${PROJECT_SOURCE_DIR}/example/shaders/*.vert"
-)
+file(MAKE_DIRECTORY ${SHADERS_OUT_DIR})
 
-foreach (GLSL ${GLSL_SOURCE_FILES})
-    get_filename_component(FILE_NAME ${GLSL} NAME)
-    set(SPIRV "${PROJECT_SOURCE_DIR}/example/shaders/${FILE_NAME}.spv")
+foreach(SHADER ${SHADERS})
+    get_filename_component(SHADER_NAME ${SHADER} NAME)
+    set(SHADER_OUT_NAME "${SHADERS_OUT_DIR}/${SHADER_NAME}.spv")
+    list(APPEND SHADER_OUT_NAMES ${SHADER_OUT_NAME})
     add_custom_command(
-            OUTPUT ${SPIRV}
-            COMMAND ${GLSL_VALIDATOR} -V ${GLSL} -o ${SPIRV}
-            DEPENDS ${GLSL})
-    list(APPEND SPIRV_BINARY_FILES ${SPIRV})
-endforeach (GLSL)
+            MAIN_DEPENDENCY ${SHADER}
+            OUTPUT ${SHADER_OUT_NAME}
+            COMMAND ${Vulkan_GLSLC_EXECUTABLE} ${SHADER} "-o" ${SHADER_OUT_NAME}
+            VERBATIM)
+endforeach()
 
-add_custom_target(
-        shaders
-        DEPENDS ${SPIRV_BINARY_FILES}
-)
+add_custom_target(build_shaders DEPENDS ${SHADER_OUT_NAMES})
+
+add_dependencies(test build_shaders)
