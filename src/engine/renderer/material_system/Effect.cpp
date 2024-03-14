@@ -30,9 +30,9 @@ auto Effect::pipeline_stages() const -> std::span<const vk::PipelineShaderStageC
     return m_stages;
 }
 
-[[nodiscard]] auto hash_value(const Effect& t_shader) noexcept -> size_t
+[[nodiscard]] auto hash_value(const Effect& t_effect) noexcept -> size_t
 {
-    return hash_combine(*t_shader.m_vertex_shader, *t_shader.m_fragment_shader);
+    return hash_combine(*t_effect.m_vertex_shader, *t_effect.m_fragment_shader);
 }
 
 }   // namespace engine::renderer

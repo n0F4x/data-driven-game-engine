@@ -40,6 +40,11 @@ ShaderModule::ShaderModule(
       m_module{ std::move(t_module) }
 {}
 
+auto ShaderModule::attribute_locations() const noexcept -> const AttributeLocations&
+{
+    return m_attributes;
+}
+
 auto ShaderModule::filepath() const noexcept -> const std::filesystem::path&
 {
     return m_filepath;

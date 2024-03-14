@@ -23,6 +23,13 @@ auto GraphicsPipelineBuilder::set_effect(Effect t_effect) noexcept
     return *this;
 }
 
+auto GraphicsPipelineBuilder::set_vertex_input_state(VertexInputLayout t_vertex_input_layout
+) noexcept -> GraphicsPipelineBuilder&
+{
+    m_vertex_input_state = std::move(t_vertex_input_layout);
+    return *this;
+}
+
 auto GraphicsPipelineBuilder::set_primitive_topology(
     const vk::PrimitiveTopology t_primitive_topology
 ) noexcept -> GraphicsPipelineBuilder&
@@ -73,8 +80,6 @@ auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
     {
         return cached.value();
     }
-
-    vk::PipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
 
     const vk::PipelineInputAssemblyStateCreateInfo input_assembly_state_create_info{
         .topology = m_primitive_topology
@@ -133,7 +138,7 @@ auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
     const vk::GraphicsPipelineCreateInfo create_info{
         .stageCount          = static_cast<uint32_t>(m_effect.pipeline_stages().size()),
         .pStages             = m_effect.pipeline_stages().data(),
-        .pVertexInputState   = &vertex_input_state_create_info,
+        .pVertexInputState   = &m_vertex_input_state->info(),
         .pInputAssemblyState = &input_assembly_state_create_info,
         .pViewportState      = &viewport_state_create_info,
         .pRasterizationState = &rasterization_state_create_info,
@@ -162,6 +167,7 @@ auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
 {
     return hash_combine(
         t_graphics_pipeline_builder.m_effect,
+        t_graphics_pipeline_builder.m_vertex_input_state,
         t_graphics_pipeline_builder.m_primitive_topology,
         t_graphics_pipeline_builder.m_cull_mode,
         t_graphics_pipeline_builder.m_enable_blending,
@@ -171,3 +177,14 @@ auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
 }
 
 }   // namespace engine::renderer
+
+namespace std {
+
+auto hash<engine::renderer::GraphicsPipelineBuilder>::operator()(
+    const engine::renderer::GraphicsPipelineBuilder& t_graphics_pipeline_builder
+) const -> size_t
+{
+    return engine::renderer::hash_value(t_graphics_pipeline_builder);
+}
+
+}   // namespace std

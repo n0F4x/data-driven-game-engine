@@ -6,19 +6,16 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <fastgltf/core.hpp>
-
 #include "engine/common/Cache.hpp"
 #include "engine/renderer/base/Allocator.hpp"
 
+#include "Model.hpp"
 #include "RenderModel.hpp"
 
 namespace engine::renderer {
 
 class RenderModelLoader {
 public:
-    using Model = fastgltf::Asset;
-
     explicit RenderModelLoader(
         vk::Device           t_device,
         const Allocator&     t_allocator,

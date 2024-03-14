@@ -24,7 +24,7 @@ private:
     Handle<Shader>                                   m_fragment_shader;
     std::array<vk::PipelineShaderStageCreateInfo, 2> m_stages;
 
-    friend auto hash_value(const Effect& t_shader) noexcept -> size_t;
+    friend auto hash_value(const Effect& t_effect) noexcept -> size_t;
 };
 
 }   // namespace engine::renderer

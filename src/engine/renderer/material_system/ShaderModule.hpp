@@ -9,10 +9,15 @@
 #include "engine/common/Cache.hpp"
 #include "engine/common/Handle.hpp"
 
+#include "VertexAttribute.hpp"
+
 namespace engine::renderer {
 
 class ShaderModule {
 public:
+    using AttributeLocations =
+        std::array<tl::optional<uint32_t>, static_cast<size_t>(VertexAttribute::COUNT)>;
+
     [[nodiscard]] static auto load(
         vk::Device                   t_device,
         const std::filesystem::path& t_filepath,
@@ -24,10 +29,12 @@ public:
         vk::UniqueShaderModule&& t_module
     ) noexcept;
 
+    [[nodiscard]] auto attribute_locations() const noexcept -> const AttributeLocations&;
     [[nodiscard]] auto filepath() const noexcept -> const std::filesystem::path&;
     [[nodiscard]] auto module() const noexcept -> vk::ShaderModule;
 
 private:
+    AttributeLocations     m_attributes;
     std::filesystem::path  m_filepath;
     vk::UniqueShaderModule m_module;
 
