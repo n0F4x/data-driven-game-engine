@@ -19,6 +19,10 @@ VertexInputState::VertexInputState(
     m_bindings.reserve(t_builder.bindings().size());
 
     for (size_t binding : std::views::iota(0u, t_builder.bindings().size())) {
+        m_bindings.push_back(vk::VertexInputBindingDescription{
+            .binding   = static_cast<uint32_t>(binding),
+            .stride    = t_builder.bindings()[binding].stride(),
+            .inputRate = vk::VertexInputRate::eVertex });
         for (size_t attribute : std::views::iota(
                  0u, static_cast<size_t>(std::to_underlying(VertexAttribute::COUNT))
              ))
@@ -33,8 +37,6 @@ VertexInputState::VertexInputState(
                                     .value();
                 auto [format, offset] =
                     t_builder.bindings()[binding].attributes()[attribute].value();
-
-                m_bindings[binding].stride += t_builder.bindings()[binding].stride();
 
                 m_attributes.push_back(vk::VertexInputAttributeDescription{
                     .location = location,
