@@ -1,5 +1,9 @@
 #include "ShaderModule.hpp"
 
+#include <vector>
+
+#include <tl/optional.hpp>
+
 #include "engine/utility/vulkan/tools.hpp"
 
 namespace engine::renderer {
@@ -26,10 +30,15 @@ auto ShaderModule::load(
     return t_cache
         .transform([&](Cache& cache) {
             return cache.emplace<ShaderModule>(
-                std::filesystem::hash_value(t_filepath), t_filepath, std::move(module)
+                std::filesystem::hash_value(t_filepath),
+                t_filepath,
+                std::move(module)
             );
         })
-        .value_or(make_handle<ShaderModule>(t_filepath, std::move(module)));
+        .value_or(make_handle<ShaderModule>(
+            t_filepath,
+            std::move(module)
+        ));
 }
 
 ShaderModule::ShaderModule(
@@ -39,11 +48,6 @@ ShaderModule::ShaderModule(
     : m_filepath{ std::move(t_filepath) },
       m_module{ std::move(t_module) }
 {}
-
-auto ShaderModule::attribute_locations() const noexcept -> const AttributeLocations&
-{
-    return m_attributes;
-}
 
 auto ShaderModule::filepath() const noexcept -> const std::filesystem::path&
 {

@@ -4,7 +4,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "ShaderModule.hpp"
+#include "Effect.hpp"
 
 namespace engine::renderer {
 
@@ -13,7 +13,7 @@ class VertexInputLayoutBuilder;
 class VertexInputLayout {
 public:
     explicit VertexInputLayout(
-        const ShaderModule& t_vertex_shader,
+        const Effect& t_effect,
         const VertexInputLayoutBuilder& t_builder
     ) noexcept;
 

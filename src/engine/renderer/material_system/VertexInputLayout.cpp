@@ -13,7 +13,7 @@
 namespace engine::renderer {
 
 VertexInputLayout::VertexInputLayout(
-    const ShaderModule&             t_vertex_shader,
+    const Effect& t_effect,
     const VertexInputLayoutBuilder& t_builder
 ) noexcept
 {
@@ -22,9 +22,13 @@ VertexInputLayout::VertexInputLayout(
          ))
     {
         if (t_builder.attributes()[attribute].has_value()
-            && t_vertex_shader.attribute_locations()[attribute].has_value())
+            && t_effect.input_attribute_locations()
+                   .get(static_cast<VertexAttribute>(attribute))
+                   .has_value())
         {
-            auto location = t_vertex_shader.attribute_locations()[attribute].value();
+            auto location = t_effect.input_attribute_locations()
+                                .get(static_cast<VertexAttribute>(attribute))
+                                .value();
             auto [binding, format, offset] = t_builder.attributes()[attribute].value();
 
             while (m_bindings.size() < binding + 1) {

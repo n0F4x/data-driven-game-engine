@@ -2,7 +2,7 @@
 
 #include <tl/optional.hpp>
 
-#include "ShaderModule.hpp"
+#include "Effect.hpp"
 #include "VertexAttribute.hpp"
 
 namespace engine::renderer {
@@ -27,7 +27,7 @@ public:
     auto unset_attribute(VertexAttribute t_attribute) noexcept
         -> VertexInputLayoutBuilder&;
 
-    [[nodiscard]] auto build(const ShaderModule& t_vertex_shader) const noexcept
+    [[nodiscard]] auto build(const Effect& t_effect) const noexcept
         -> VertexInputLayout;
 
 private:

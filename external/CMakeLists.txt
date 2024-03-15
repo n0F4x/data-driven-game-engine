@@ -72,6 +72,17 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 
+# SPIRV-Cross
+message(NOTICE "Configuring SPIRV-Cross")
+FetchContent_Declare(SPIRV_Cross
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+        GIT_TAG vulkan-sdk-1.3.275.0
+        GIT_PROGRESS TRUE
+        SYSTEM
+)
+FetchContent_MakeAvailable(SPIRV_Cross)
+target_link_libraries(${PROJECT_NAME} PRIVATE spirv-cross-cpp)
+
 # VulkanMemoryAllocator
 message(NOTICE "Configuring VulkanMemoryAllocator")
 set(STATIC_VULKAN_FUNCTIONS 0)

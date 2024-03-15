@@ -26,10 +26,10 @@ auto VertexInputLayoutBuilder::unset_attribute(VertexAttribute t_attribute) noex
     return *this;
 }
 
-auto VertexInputLayoutBuilder::build(const ShaderModule& t_vertex_shader) const noexcept
+auto VertexInputLayoutBuilder::build(const Effect& t_effect) const noexcept
     -> VertexInputLayout
 {
-    return VertexInputLayout{ t_vertex_shader, *this };
+    return VertexInputLayout{ t_effect, *this };
 }
 
 }   // namespace engine::renderer
