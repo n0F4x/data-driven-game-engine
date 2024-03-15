@@ -8,13 +8,13 @@
 
 namespace engine::renderer {
 
-class VertexInputLayoutBuilder;
+class VertexInputStateBuilder;
 
-class VertexInputLayout {
+class VertexInputState {
 public:
-    explicit VertexInputLayout(
+    explicit VertexInputState(
         const Effect& t_effect,
-        const VertexInputLayoutBuilder& t_builder
+        const VertexInputStateBuilder& t_builder
     ) noexcept;
 
     [[nodiscard]] auto bindings() const noexcept
@@ -29,7 +29,7 @@ private:
     std::vector<vk::VertexInputAttributeDescription> m_attributes;
     vk::PipelineVertexInputStateCreateInfo           m_state;
 
-    friend auto hash_value(const VertexInputLayout& t_vertex_input_layout) noexcept
+    friend auto hash_value(const VertexInputState& t_vertex_input_layout) noexcept
         -> size_t;
 };
 
@@ -38,10 +38,10 @@ private:
 namespace std {
 
 template <>
-class hash<engine::renderer::VertexInputLayout> {
+class hash<engine::renderer::VertexInputState> {
 public:
     [[nodiscard]] auto
-        operator()(const engine::renderer::VertexInputLayout& t_vertex_input_layout) const
+        operator()(const engine::renderer::VertexInputState& t_vertex_input_layout) const
         -> size_t;
 };
 

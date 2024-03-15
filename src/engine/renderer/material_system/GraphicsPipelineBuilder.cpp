@@ -23,7 +23,7 @@ auto GraphicsPipelineBuilder::set_effect(Effect t_effect) noexcept
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_vertex_input_state(VertexInputLayout t_vertex_input_layout
+auto GraphicsPipelineBuilder::set_vertex_input_state(VertexInputState t_vertex_input_layout
 ) noexcept -> GraphicsPipelineBuilder&
 {
     m_vertex_input_state = std::move(t_vertex_input_layout);

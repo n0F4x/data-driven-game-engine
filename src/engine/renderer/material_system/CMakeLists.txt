@@ -4,6 +4,6 @@ target_sources(${PROJECT_NAME} PRIVATE
         Material.cpp
         Shader.cpp
         ShaderModule.cpp
-        VertexInputLayout.cpp
-        VertexInputLayoutBuilder.cpp
+        VertexInputState.cpp
+        VertexInputStateBuilder.cpp
 )
