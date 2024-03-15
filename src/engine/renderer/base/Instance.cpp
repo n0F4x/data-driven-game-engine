@@ -5,20 +5,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include "helpers.hpp"
-
 namespace engine::renderer {
-
-[[nodiscard]] static auto default_create_info() -> Instance::CreateInfo
-{
-    return Instance::CreateInfo{ .application_info = helpers::application_info(),
-                                 .layers           = helpers::layers(),
-                                 .extensions       = helpers::instance_extensions(),
-#ifdef ENGINE_VULKAN_DEBUG
-                                 .create_debug_messenger = helpers::create_debug_messenger
-#endif
-    };
-}
 
 [[nodiscard]] static auto create_instance(const Instance::CreateInfo& t_create_info)
     -> vk::UniqueInstance
@@ -62,8 +49,6 @@ Instance::Instance(const CreateInfo& t_create_info)
     : Instance{ t_create_info, create_instance(t_create_info) }
 {}
 
-Instance::Instance() : Instance{ default_create_info() } {}
-
 auto Instance::operator*() const noexcept -> vk::Instance
 {
     return *m_instance;
@@ -94,27 +79,20 @@ auto Instance::enabled_extensions() const noexcept -> std::span<const std::strin
     return m_extensions;
 }
 
-Instance::Instance(
-    const Instance::CreateInfo& t_create_info,
-    vk::UniqueInstance&&        t_instance
-)
-    : Instance{ t_create_info.application_info,
-                t_create_info.layers,
-                t_create_info.extensions,
+Instance::Instance(const CreateInfo& t_create_info, vk::UniqueInstance&& t_instance)
+    : Instance{ t_create_info,
                 std::move(t_instance),
                 create_debug_messenger(t_create_info, t_instance.get()) }
 {}
 
 Instance::Instance(
-    const vk::ApplicationInfo&         t_application_info,
-    std::span<const std::string>       t_layers,
-    std::span<const std::string>       t_extensions,
+    const CreateInfo&                  t_create_info,
     vk::UniqueInstance&&               t_instance,
     vk::UniqueDebugUtilsMessengerEXT&& t_debug_utils_messenger
 ) noexcept
-    : m_application_info{ t_application_info },
-      m_layers{ t_layers.begin(), t_layers.end() },
-      m_extensions{ t_extensions.begin(), t_extensions.end() },
+    : m_application_info{ t_create_info.application_info },
+      m_layers{ std::from_range, t_create_info.layers },
+      m_extensions{ std::from_range, t_create_info.extensions },
       m_instance{ std::move(t_instance) },
       m_debug_utils_messenger{ std::move(t_debug_utils_messenger) }
 {

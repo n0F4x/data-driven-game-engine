@@ -1,8 +1,11 @@
 #include "Swapchain.hpp"
 
+#include <array>
 #include <limits>
 
 #include <spdlog/spdlog.h>
+
+#include <GLFW/glfw3.h>
 
 #include "helpers.hpp"
 
@@ -13,6 +16,43 @@ namespace engine::renderer {
 ///  Swapchain   IMPLEMENTATION  ///
 ///-----------------------------///
 ///////////////////////////////////
+
+auto Swapchain::required_instance_extensions() noexcept -> std::span<const std::string>
+{
+    static const std::vector<std::string> s_extensions_names{
+        []() -> std::vector<std::string> {
+            if (!glfwInit()) {
+                return {};
+            }
+
+            uint32_t count;
+            const char** glfw_extension_names{ glfwGetRequiredInstanceExtensions(&count) };
+            if (glfw_extension_names == nullptr) {
+                return {};
+            }
+
+            std::vector<std::string> result{};
+            result.reserve(count);
+
+            for (uint32_t i{}; i < count; i++) {
+                result.emplace_back(glfw_extension_names[i]);
+            }
+
+            return result;
+        }()
+    };
+
+    return s_extensions_names;
+}
+
+auto Swapchain::required_device_extensions() noexcept -> std::span<const std::string>
+{
+    static const std::array<std::string, 1> s_extensions_names{
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
+
+    return s_extensions_names;
+}
 
 Swapchain::Swapchain(
     vk::UniqueSurfaceKHR&&  t_surface,

@@ -54,12 +54,6 @@ namespace engine::renderer {
 ///---------------------------------///
 ///////////////////////////////////////
 
-Device::Device(const vk::SurfaceKHR t_surface, const vk::PhysicalDevice t_physical_device)
-    : Device{ t_surface,
-              t_physical_device,
-              CreateInfo{ .extensions = helpers::device_extensions(t_physical_device) } }
-{}
-
 Device::Device(
     const vk::SurfaceKHR     t_surface,
     const vk::PhysicalDevice t_physical_device,
@@ -90,9 +84,9 @@ auto Device::physical_device() const noexcept -> vk::PhysicalDevice
     return m_physical_device;
 }
 
-auto Device::info() const noexcept -> const Device::CreateInfo&
+auto Device::enabled_extensions() const noexcept -> std::span<const std::string>
 {
-    return m_info;
+    return m_extensions;
 }
 
 auto Device::graphics_queue_family_index() const noexcept -> uint32_t
@@ -167,7 +161,7 @@ Device::Device(
     const vk::Queue          t_transfer_queue
 ) noexcept
     : m_physical_device{ t_physical_device },
-      m_info{ t_info },
+      m_extensions{ std::from_range, t_info.extensions },
       m_device{ std::move(t_device) },
       m_graphics_queue_family_index{ t_graphics_family_index },
       m_graphics_queue{ t_graphics_queue },
@@ -179,7 +173,7 @@ Device::Device(
     const auto properties{ t_physical_device.getProperties() };
 
     std::string enabled_extensions{ "\nEnabled device extensions:" };
-    for (const auto& extension : m_info.extensions) {
+    for (const auto& extension : m_extensions) {
         enabled_extensions += '\n';
         enabled_extensions += '\t';
         enabled_extensions += extension;

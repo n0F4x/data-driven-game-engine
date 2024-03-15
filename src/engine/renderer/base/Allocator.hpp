@@ -1,6 +1,7 @@
 #pragma once
 
-#include <expected>
+#include <span>
+#include <string>
 #include <utility>
 
 #include <tl/optional.hpp>
@@ -19,12 +20,24 @@ class Device;
 
 class Allocator {
 public:
+    [[nodiscard]] static auto recommended_instance_extensions() noexcept
+        -> std::span<const std::string>;
+    [[nodiscard]] static auto recommended_device_extensions() noexcept
+        -> std::span<const std::string>;
+    [[nodiscard]] static auto recommended_device_extension_structs(
+        std::span<const std::string> t_enabled_device_extensions
+    ) noexcept
+        -> vk::StructureChain<
+            vk::DeviceCreateInfo,
+            vk::PhysicalDeviceCoherentMemoryFeaturesAMD,
+            vk::PhysicalDeviceBufferDeviceAddressFeatures,
+            vk::PhysicalDeviceMemoryPriorityFeaturesEXT,
+            vk::PhysicalDeviceMaintenance4Features>;
+
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Allocator(const VmaAllocatorCreateInfo& t_vma_allocator_create_info);
     explicit Allocator(const Instance& t_instance, const Device& t_device);
-    explicit Allocator(vma::Allocator&& t_allocator) noexcept;
 
     ///-------------///
     ///  Operators  ///

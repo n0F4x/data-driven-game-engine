@@ -11,4 +11,4 @@ auto Logger::operator()(app::App::Builder&, Level t_log_level) noexcept -> void
     SPDLOG_TRACE("Added Logger plugin");
 }
 
-}   // namespace engine::logger
+}   // namespace plugins

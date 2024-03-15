@@ -89,7 +89,7 @@ set(STATIC_VULKAN_FUNCTIONS 0)
 set(DYNAMIC_VULKAN_FUNCTIONS 1)
 FetchContent_Declare(VulkanMemoryAllocator
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        GIT_TAG 2f382df
+        GIT_TAG 19b940e864bd3a5afb3c79e3c6788869d01a19eb
         GIT_PROGRESS TRUE
         SYSTEM
 )

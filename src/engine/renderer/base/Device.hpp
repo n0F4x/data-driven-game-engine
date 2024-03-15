@@ -1,7 +1,7 @@
 #pragma once
 
 #include <span>
-#include <string_view>
+#include <string>
 #include <utility>
 
 #include <tl/optional.hpp>
@@ -27,9 +27,9 @@ public:
     ///  Nested classes  ///
     ///------------------///
     struct CreateInfo {
-        const void*                  next{};
-        std::span<const std::string> extensions{};
-        vk::PhysicalDeviceFeatures   features{};
+        const void*                next{};
+        std::set<std::string>      extensions;
+        vk::PhysicalDeviceFeatures features{};
     };
 
     ///------------------------------///
@@ -40,8 +40,6 @@ public:
         vk::PhysicalDevice t_physical_device,
         const CreateInfo&  t_create_info
     );
-
-    explicit Device(vk::SurfaceKHR t_surface, vk::PhysicalDevice t_physical_device);
 
     ///-------------///
     ///  Operators  ///
@@ -54,7 +52,8 @@ public:
     ///-----------///
     [[nodiscard]] auto get() const noexcept -> vk::Device;
     [[nodiscard]] auto physical_device() const noexcept -> vk::PhysicalDevice;
-    [[nodiscard]] auto info() const noexcept -> const CreateInfo&;
+    [[nodiscard]] auto enabled_extensions() const noexcept
+        -> std::span<const std::string>;
     [[nodiscard]] auto graphics_queue_family_index() const noexcept -> uint32_t;
     [[nodiscard]] auto graphics_queue() const noexcept -> vk::Queue;
     [[nodiscard]] auto compute_queue_family_index() const noexcept -> uint32_t;
@@ -66,15 +65,15 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::PhysicalDevice m_physical_device;
-    CreateInfo         m_info;
-    vk::UniqueDevice   m_device;
-    uint32_t           m_graphics_queue_family_index;
-    vk::Queue          m_graphics_queue;
-    uint32_t           m_compute_queue_family_index;
-    vk::Queue          m_compute_queue;
-    uint32_t           m_transfer_queue_family_index;
-    vk::Queue          m_transfer_queue;
+    vk::PhysicalDevice       m_physical_device;
+    std::vector<std::string> m_extensions;
+    vk::UniqueDevice         m_device;
+    uint32_t                 m_graphics_queue_family_index;
+    vk::Queue                m_graphics_queue;
+    uint32_t                 m_compute_queue_family_index;
+    vk::Queue                m_compute_queue;
+    uint32_t                 m_transfer_queue_family_index;
+    vk::Queue                m_transfer_queue;
 
     ///******************************///
     ///  Constructors / Destructors  ///

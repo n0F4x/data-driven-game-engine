@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <set>
 #include <span>
 #include <string>
 #include <vector>
@@ -26,15 +27,14 @@ public:
         const void*                   next{};
         vk::InstanceCreateFlags       flags{};
         vk::ApplicationInfo           application_info{};
-        std::span<const std::string>  layers{};
-        std::span<const std::string>  extensions{};
-        DebugUtilsMessengerEXTCreator create_debug_messenger{};
+        std::set<std::string>         layers;
+        std::set<std::string>         extensions;
+        DebugUtilsMessengerEXTCreator create_debug_messenger;
     };
 
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    Instance();
     explicit Instance(const CreateInfo& t_create_info);
 
     ///-------------///
@@ -68,9 +68,7 @@ private:
     explicit Instance(const CreateInfo& t_create_info, vk::UniqueInstance&& t_instance);
 
     explicit Instance(
-        const vk::ApplicationInfo&         t_application_info,
-        std::span<const std::string>       t_layers,
-        std::span<const std::string>       t_extensions,
+        const Instance::CreateInfo&        t_create_info,
         vk::UniqueInstance&&               t_instance,
         vk::UniqueDebugUtilsMessengerEXT&& t_debug_utils_messenger
     ) noexcept;

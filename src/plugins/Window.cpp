@@ -1,7 +1,8 @@
+#include "engine/window/Window.hpp"
+
 #include <spdlog/spdlog.h>
 
 #include "app/core/Builder.hpp"
-#include "engine/window/Window.hpp"
 
 #include "Window.hpp"
 
@@ -25,7 +26,7 @@ auto Window::default_configure() -> void
 }
 
 auto Window::operator()(
-    app::App::Builder&      t_builder,
+    app::App::Builder& t_builder,
     uint16_t           t_width,
     uint16_t           t_height,
     const std::string& t_title
@@ -35,4 +36,4 @@ auto Window::operator()(
     SPDLOG_TRACE("Added Window plugin");
 }
 
-}   // namespace engine::window
+}   // namespace plugins

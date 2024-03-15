@@ -30,15 +30,10 @@ auto ShaderModule::load(
     return t_cache
         .transform([&](Cache& cache) {
             return cache.emplace<ShaderModule>(
-                std::filesystem::hash_value(t_filepath),
-                t_filepath,
-                std::move(module)
+                std::filesystem::hash_value(t_filepath), t_filepath, std::move(module)
             );
         })
-        .value_or(make_handle<ShaderModule>(
-            t_filepath,
-            std::move(module)
-        ));
+        .value_or(make_handle<ShaderModule>(t_filepath, std::move(module)));
 }
 
 ShaderModule::ShaderModule(

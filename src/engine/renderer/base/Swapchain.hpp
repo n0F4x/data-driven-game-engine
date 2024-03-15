@@ -1,6 +1,8 @@
 #pragma once
 
 #include <functional>
+#include <span>
+#include <string>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -23,6 +25,11 @@ public:
     ///----------------///
     using FramebufferSizeGetter   = std::function<vk::Extent2D()>;
     using SwapchainRecreatedEvent = std::function<void(const vulkan::Swapchain&)>;
+
+    [[nodiscard]] static auto required_instance_extensions() noexcept
+        -> std::span<const std::string>;
+    [[nodiscard]] static auto required_device_extensions() noexcept
+        -> std::span<const std::string>;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///

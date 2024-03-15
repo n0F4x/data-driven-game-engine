@@ -47,8 +47,7 @@ auto supports_extensions(
     const auto extension_properties{ t_physical_device.enumerateDeviceExtensionProperties(
     ) };
 
-    std::set<std::string_view> required_extensions{ t_extensions.begin(),
-                                                    t_extensions.end() };
+    std::set<std::string_view> required_extensions{ std::from_range, t_extensions };
 
     for (const auto& extension : extension_properties) {
         required_extensions.erase(extension.extensionName);

@@ -104,11 +104,11 @@ auto create_image_views(
     vk::ImageViewCreateInfo image_view_create_info{
         .viewType         = vk::ImageViewType::e2D,
         .format           = t_surface_format.format,
-        .subresourceRange = { .aspectMask     = vk::ImageAspectFlagBits::eColor,
+        .subresourceRange = {.aspectMask     = vk::ImageAspectFlagBits::eColor,
                              .baseMipLevel   = 0,
                              .levelCount     = 1,
                              .baseArrayLayer = 0,
-                             .layerCount     = 1 }
+                             .layerCount     = 1}
     };
     for (auto image : images) {
         image_view_create_info.image = image;
