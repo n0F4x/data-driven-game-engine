@@ -11,6 +11,7 @@
 
 #include "Effect.hpp"
 #include "VertexInputState.hpp"
+#include "VertexInputStateBuilder.hpp"
 
 namespace engine::renderer {
 
@@ -23,8 +24,8 @@ public:
     ) noexcept;
 
     auto set_effect(Effect t_effect) noexcept -> GraphicsPipelineBuilder&;
-    auto set_vertex_input_state(VertexInputState t_vertex_input_layout) noexcept
-        -> GraphicsPipelineBuilder&;
+    auto set_vertex_input_state(const VertexInputStateBuilder& t_vertex_input_state_builder
+    ) noexcept -> GraphicsPipelineBuilder&;
     auto set_primitive_topology(vk::PrimitiveTopology t_primitive_topology) noexcept
         -> GraphicsPipelineBuilder&;
     auto set_cull_mode(vk::CullModeFlags t_cull_mode) noexcept
@@ -41,7 +42,7 @@ private:
     vk::Device                                  m_device;
     tl::optional<std::reference_wrapper<Cache>> m_cache;
     Effect                                      m_effect;
-    tl::optional<VertexInputState>             m_vertex_input_state;
+    tl::optional<VertexInputState>              m_vertex_input_state;
     vk::PrimitiveTopology m_primitive_topology{ vk::PrimitiveTopology::eTriangleList };
     vk::CullModeFlags     m_cull_mode{};
     bool                  m_enable_blending{};
