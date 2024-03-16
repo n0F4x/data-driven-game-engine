@@ -4,6 +4,22 @@
 
 namespace core::renderer {
 
+auto VertexInputStateBuilder::Binding::Attributes::operator[](
+    const VertexAttribute t_attributes
+) noexcept -> tl::optional<AttributeInfo>&
+{
+    assert(t_attributes < VertexAttribute::COUNT);
+    return m_attributes[static_cast<size_t>(std::to_underlying(t_attributes))];
+}
+
+auto VertexInputStateBuilder::Binding::Attributes::operator[](
+    const VertexAttribute t_attributes
+) const noexcept -> const tl::optional<AttributeInfo>&
+{
+    assert(t_attributes < VertexAttribute::COUNT);
+    return m_attributes[static_cast<size_t>(std::to_underlying(t_attributes))];
+}
+
 VertexInputStateBuilder::Binding::Binding(uint32_t t_stride) noexcept
     : m_stride{ t_stride }
 {}
@@ -17,20 +33,6 @@ auto VertexInputStateBuilder::Binding::attributes() const noexcept
     -> const VertexInputStateBuilder::Binding::Attributes&
 {
     return m_attributes;
-}
-
-auto VertexInputStateBuilder::Binding::set_attribute(
-    VertexAttribute                               t_attribute,
-    const VertexInputStateBuilder::AttributeInfo& t_info
-) noexcept -> void
-{
-    m_attributes[static_cast<size_t>(std::to_underlying(t_attribute))] = t_info;
-}
-
-auto VertexInputStateBuilder::Binding::unset_attribute(VertexAttribute t_attribute
-) noexcept -> void
-{
-    m_attributes[static_cast<size_t>(std::to_underlying(t_attribute))] = tl::nullopt;
 }
 
 auto VertexInputStateBuilder::bindings() const noexcept -> const std::vector<Binding>&

@@ -18,18 +18,24 @@ public:
 
     class Binding {
     public:
-        using Attributes = std::array<
-            tl::optional<AttributeInfo>,
-            static_cast<size_t>(VertexAttribute::COUNT)>;
+        class Attributes {
+        public:
+            [[nodiscard]] auto operator[](VertexAttribute t_attributes) noexcept
+                -> tl::optional<AttributeInfo>&;
+            [[nodiscard]] auto operator[](VertexAttribute t_attributes) const noexcept
+                -> const tl::optional<AttributeInfo>&;
+
+        private:
+            std::array<
+                tl::optional<AttributeInfo>,
+                static_cast<size_t>(VertexAttribute::COUNT)>
+                m_attributes;
+        };
 
         explicit Binding(uint32_t t_stride) noexcept;
 
         [[nodiscard]] auto stride() const noexcept -> uint32_t;
         [[nodiscard]] auto attributes() const noexcept -> const Attributes&;
-
-        auto set_attribute(VertexAttribute t_attribute, const AttributeInfo& t_info) noexcept
-            -> void;
-        auto unset_attribute(VertexAttribute t_attribute) noexcept -> void;
 
     private:
         uint32_t   m_stride;

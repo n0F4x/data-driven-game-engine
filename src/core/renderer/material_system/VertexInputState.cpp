@@ -27,7 +27,9 @@ VertexInputState::VertexInputState(
                  0u, static_cast<size_t>(std::to_underlying(VertexAttribute::COUNT))
              ))
         {
-            if (t_builder.bindings()[binding].attributes()[attribute].has_value()
+            if (t_builder.bindings()[binding]
+                    .attributes()[static_cast<VertexAttribute>(attribute)]
+                    .has_value()
                 && t_effect.input_attribute_locations()
                        .get(static_cast<VertexAttribute>(attribute))
                        .has_value())
@@ -35,8 +37,10 @@ VertexInputState::VertexInputState(
                 auto location = t_effect.input_attribute_locations()
                                     .get(static_cast<VertexAttribute>(attribute))
                                     .value();
-                auto [format, offset] =
-                    t_builder.bindings()[binding].attributes()[attribute].value();
+                auto [format, offset] = t_builder.bindings()[binding]
+                                            .attributes(
+                                            )[static_cast<VertexAttribute>(attribute)]
+                                            .value();
 
                 m_attributes.push_back(vk::VertexInputAttributeDescription{
                     .location = location,

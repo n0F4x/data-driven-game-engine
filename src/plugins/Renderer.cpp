@@ -131,7 +131,7 @@ auto Renderer::operator()(
         return;
     }
 
-    auto       enabled_device_extensions{ device_extension_names(physical_device) };
+    const auto enabled_device_extensions{ device_extension_names(physical_device) };
     const auto enabled_device_extension_structs{
         device_extension_structs(enabled_device_extensions)
     };
