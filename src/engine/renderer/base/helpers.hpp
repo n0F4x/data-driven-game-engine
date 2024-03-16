@@ -1,12 +1,8 @@
 #pragma once
 
-#include <span>
-
 #include <tl/optional.hpp>
 
 #include <vulkan/vulkan.hpp>
-
-#include <vk_mem_alloc.h>
 
 namespace engine::renderer::helpers {
 

@@ -113,7 +113,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc(
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
             spdlog::error(message.str());
             break;
-        default: std::cout << message.str() << std::endl; break;
+        default: break;
     }
 
     return false;
