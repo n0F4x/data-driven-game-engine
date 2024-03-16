@@ -9,20 +9,20 @@
 
 #include <entt/core/hashed_string.hpp>
 
-#include <engine/renderer/base/Allocator.hpp>
-#include <engine/renderer/base/Device.hpp>
-#include <engine/renderer/base/Swapchain.hpp>
-#include <engine/renderer/model/ModelLoader.hpp>
-#include <engine/renderer/model/RenderModel.hpp>
-#include <engine/utility/vma/Image.hpp>
-#include <engine/window/Window.hpp>
+#include <core/renderer/base/Allocator.hpp>
+#include <core/renderer/base/Device.hpp>
+#include <core/renderer/base/Swapchain.hpp>
+#include <core/renderer/model/ModelLoader.hpp>
+#include <core/renderer/model/RenderModel.hpp>
+#include <core/utility/vma/Image.hpp>
+#include <core/window/Window.hpp>
 
 #include "Camera.hpp"
 #include "Controller.hpp"
 #include "demo_init.hpp"
 
 using namespace entt::literals;
-using namespace engine;
+using namespace core;
 
 constexpr uint32_t g_frame_count{ 2 };
 

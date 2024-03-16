@@ -4,17 +4,17 @@
 
 #include <spdlog/spdlog.h>
 
-#include "app/core/Builder.hpp"
-#include "engine/renderer/base/Allocator.hpp"
-#include "engine/renderer/base/Device.hpp"
-#include "engine/renderer/base/Instance.hpp"
-#include "engine/renderer/base/Swapchain.hpp"
-#include "engine/utility/vulkan/tools.hpp"
-#include "engine/window/Window.hpp"
+#include "app/Builder.hpp"
+#include "core/renderer/base/Allocator.hpp"
+#include "core/renderer/base/Device.hpp"
+#include "core/renderer/base/Instance.hpp"
+#include "core/renderer/base/Swapchain.hpp"
+#include "core/utility/vulkan/tools.hpp"
+#include "core/window/Window.hpp"
 #include "plugins/renderer/helpers.hpp"
 
-using namespace engine;
-using namespace engine::renderer;
+using namespace core;
+using namespace core::renderer;
 
 namespace plugins {
 
@@ -42,7 +42,7 @@ std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
     Renderer::create_default_surface{ [](Store&                       t_store,
                                          VkInstance                   t_instance,
                                          const VkAllocationCallbacks* t_allocator) {
-        using namespace engine::window;
+        using namespace core::window;
         return t_store.find<Window>()
             .transform([=](const Window& t_window) {
                 return create_vulkan_surface(t_window.get(), t_instance, t_allocator);
@@ -75,7 +75,7 @@ std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
         .application_info = application_info(),
         .layers           = std::set{std::from_range, layers()},
         .extensions       = instance_extension_names(),
-#ifdef ENGINE_VULKAN_DEBUG
+#ifdef core_VULKAN_DEBUG
         .create_debug_messenger = create_debug_messenger
 #endif
     };

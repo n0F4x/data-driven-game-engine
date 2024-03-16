@@ -1,1 +1,4 @@
-add_subdirectory(core)
+target_sources(${PROJECT_NAME} PRIVATE
+        App.cpp
+        Builder.cpp
+)

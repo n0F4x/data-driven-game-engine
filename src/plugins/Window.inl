@@ -12,4 +12,4 @@ auto Window::operator()(
     operator()(t_builder, t_width, t_height, t_title);
 }
 
-}   // namespace engine::window
+}   // namespace core::window

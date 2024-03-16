@@ -1,5 +1,5 @@
-#include <app/app.hpp>
-#include <engine/window/Window.hpp>
+#include <app/app.h>
+#include <core/window/Window.hpp>
 #include <plugins/plugins.hpp>
 
 #include "demo.hpp"

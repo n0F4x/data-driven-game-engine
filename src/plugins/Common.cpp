@@ -2,14 +2,14 @@
 
 #include <spdlog/spdlog.h>
 
-#include "app/core/Builder.hpp"
-#include "engine/common/Cache.hpp"
+#include "app/Builder.hpp"
+#include "core/common/Cache.hpp"
 
 namespace plugins {
 
 auto Common::operator()(app::App::Builder& t_builder) noexcept -> void
 {
-    t_builder.store().emplace<engine::Cache>();
+    t_builder.store().emplace<core::Cache>();
 
     SPDLOG_TRACE("Added Common plugin");
 }

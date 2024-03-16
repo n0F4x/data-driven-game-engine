@@ -1,12 +1,12 @@
-#include "engine/window/Window.hpp"
+#include "core/window/Window.hpp"
 
 #include <spdlog/spdlog.h>
 
-#include "app/core/Builder.hpp"
+#include "app/Builder.hpp"
 
 #include "Window.hpp"
 
-using namespace engine::window;
+using namespace core::window;
 
 namespace plugins {
 
@@ -32,7 +32,7 @@ auto Window::operator()(
     const std::string& t_title
 ) -> void
 {
-    t_builder.store().emplace<engine::window::Window>(t_width, t_height, t_title);
+    t_builder.store().emplace<core::window::Window>(t_width, t_height, t_title);
     SPDLOG_TRACE("Added Window plugin");
 }
 

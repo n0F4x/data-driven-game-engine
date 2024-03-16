@@ -4,20 +4,20 @@
 
 #include <vulkan/vulkan_to_string.hpp>
 
-#include "engine/utility/vulkan/tools.hpp"
+#include "core/utility/vulkan/tools.hpp"
 
 const uint32_t g_api_version{ VK_API_VERSION_1_3 };
 
 const std::vector<std::string> g_required_layers{};
 const std::vector<std::string> g_optional_layers{
-#ifdef ENGINE_VULKAN_DEBUG
+#ifdef core_VULKAN_DEBUG
     "VK_LAYER_KHRONOS_validation"
 #endif
 };
 
 const std::vector<std::string> g_required_instance_extensions{};
 const std::vector<std::string> g_optional_instance_extensions{
-#ifdef ENGINE_VULKAN_DEBUG
+#ifdef core_VULKAN_DEBUG
     VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
 };
@@ -131,7 +131,7 @@ auto application_info() noexcept -> const vk::ApplicationInfo&
 auto layers() noexcept -> std::span<const std::string>
 {
     static const std::vector<std::string> layers{
-        filter(engine::vulkan::available_layers(), g_required_layers, g_optional_layers)
+        filter(core::vulkan::available_layers(), g_required_layers, g_optional_layers)
     };
 
     return layers;
@@ -140,7 +140,7 @@ auto layers() noexcept -> std::span<const std::string>
 auto instance_extensions() noexcept -> std::span<const std::string>
 {
     static const std::vector<std::string> instance_extensions{ filter(
-        engine::vulkan::available_instance_extensions(),
+        core::vulkan::available_instance_extensions(),
         g_required_instance_extensions,
         g_optional_instance_extensions
     ) };
@@ -151,7 +151,7 @@ auto instance_extensions() noexcept -> std::span<const std::string>
 auto create_debug_messenger(const vk::Instance t_instance)
     -> vk::UniqueDebugUtilsMessengerEXT
 {
-    auto available_extensions{ engine::vulkan::available_instance_extensions() };
+    auto available_extensions{ core::vulkan::available_instance_extensions() };
     auto extension_supported{
         std::ranges::find(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
         != std::cend(available_extensions)
@@ -216,8 +216,8 @@ auto is_adequate(
     std::span<const std::string> t_required_extension_names
 ) noexcept -> bool
 {
-    return engine::vulkan::supports_surface(t_physical_device, t_surface)
-        && engine::vulkan::supports_extensions(
+    return core::vulkan::supports_surface(t_physical_device, t_surface)
+        && core::vulkan::supports_extensions(
                t_physical_device, t_required_extension_names
         );
 }

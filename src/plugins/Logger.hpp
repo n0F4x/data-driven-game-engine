@@ -2,7 +2,7 @@
 
 #include <spdlog/common.h>
 
-#include "app/core/Plugin.hpp"
+#include "app/Plugin.hpp"
 
 namespace plugins {
 
@@ -26,4 +26,4 @@ public:
 
 static_assert(app::PluginConcept<Logger, Logger::Level>);
 
-}   // namespace engine::logger
+}   // namespace core::logger

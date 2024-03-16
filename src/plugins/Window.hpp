@@ -3,7 +3,7 @@
 #include <concepts>
 #include <string>
 
-#include "app/core/Plugin.hpp"
+#include "app/Plugin.hpp"
 
 namespace plugins {
 
@@ -35,6 +35,6 @@ public:
 
 static_assert(app::PluginConcept<Window, uint16_t, uint16_t, const std::string&>);
 
-}   // namespace engine::window
+}   // namespace core::window
 
 #include "Window.inl"

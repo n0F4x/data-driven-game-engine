@@ -2,13 +2,13 @@
 
 #include <glm/glm.hpp>
 
-#include <engine/window/Window.hpp>
+#include <core/window/Window.hpp>
 
 #include "Camera.hpp"
 
 class Controller {
 public:
-    auto update(const engine::window::Window& t_window, float t_delta_time) noexcept
+    auto update(const core::window::Window& t_window, float t_delta_time) noexcept
         -> void;
     [[nodiscard]] auto update_camera(Camera t_camera) noexcept -> Camera;
 

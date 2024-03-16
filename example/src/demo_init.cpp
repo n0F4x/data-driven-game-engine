@@ -4,10 +4,10 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <engine/renderer/model/Vertex.hpp>
-#include <engine/utility/vulkan/tools.hpp>
+#include <core/renderer/model/Vertex.hpp>
+#include <core/utility/vulkan/tools.hpp>
 
-using namespace engine;
+using namespace core;
 
 namespace {
 

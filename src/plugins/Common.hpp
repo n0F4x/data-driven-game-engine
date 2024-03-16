@@ -1,6 +1,6 @@
 #pragma once
 
-#include "app/core/Plugin.hpp"
+#include "app/Plugin.hpp"
 
 namespace plugins {
 
@@ -14,4 +14,4 @@ public:
 
 static_assert(app::PluginConcept<Common>);
 
-}   // namespace engine::common
+}   // namespace core::common

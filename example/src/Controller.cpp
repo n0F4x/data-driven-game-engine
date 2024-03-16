@@ -4,7 +4,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-auto Controller::update(const engine::window::Window& t_window, float t_delta_time) noexcept
+auto Controller::update(const core::window::Window& t_window, float t_delta_time) noexcept
     -> void
 {
     double cursor_x;
