@@ -1,6 +1,6 @@
 #pragma once
 
-#include <app/app.h>
+#include <app.hpp>
 
 namespace demo {
 

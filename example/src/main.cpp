@@ -1,6 +1,6 @@
-#include <app/app.h>
+#include <app.hpp>
 #include <core/window/Window.hpp>
-#include <plugins/plugins.hpp>
+#include <plugins.hpp>
 
 #include "demo.hpp"
 
