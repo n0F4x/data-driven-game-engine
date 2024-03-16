@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include <fastgltf/core.hpp>
+
 #include "Image.hpp"
 #include "Vertex.hpp"
 
@@ -135,8 +137,7 @@ public:
     };
 
 private:
-    std::vector<Vertex>   vertices;
-    std::vector<uint32_t> indices;
+    fastgltf::Asset       m_asset;
     std::vector<Image>    images;
     std::vector<Sampler>  samplers;
     std::vector<Texture>  textures;
