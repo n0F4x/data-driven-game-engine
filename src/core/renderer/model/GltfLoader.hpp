@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>

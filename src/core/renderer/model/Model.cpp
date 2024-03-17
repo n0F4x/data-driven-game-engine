@@ -1,12 +1,12 @@
 #include "Model.hpp"
 
-#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace core::renderer {
 
 auto Model::Node::local_matrix() const -> glm::mat4
 {
-    return glm::translate(glm::mat4(1.f), translation) * glm::toMat4(rotation)
+    return glm::translate(glm::mat4(1.f), translation) * glm::mat4_cast(rotation)
          * glm::scale(glm::mat4(1.f), scale);
 }
 

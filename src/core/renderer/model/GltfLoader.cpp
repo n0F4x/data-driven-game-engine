@@ -141,7 +141,7 @@ auto GltfLoader::load_node(
                 return glm::translate(
                            glm::mat4(1.f), glm::make_vec3(transform.translation.data())
                        )
-                     * glm::toMat4(glm::make_quat(transform.rotation.data()))
+                     * glm::mat4_cast(glm::make_quat(transform.rotation.data()))
                      * glm::scale(glm::mat4(1.0f), glm::make_vec3(transform.scale.data()));
             } },
         t_node.transform
