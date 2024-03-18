@@ -1,5 +1,6 @@
 target_sources(${PROJECT_NAME} PRIVATE
         Effect.cpp
+        GraphicsPipeline.cpp
         GraphicsPipelineBuilder.cpp
         Material.cpp
         Shader.cpp

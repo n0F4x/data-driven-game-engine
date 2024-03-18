@@ -72,10 +72,10 @@ auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass t_render_pass
     return *this;
 }
 
-auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
+auto GraphicsPipelineBuilder::build() const -> Handle<GraphicsPipeline>
 {
     if (const auto cached{ m_cache.and_then([&](const Cache& cache) {
-            return cache.find<vk::UniquePipeline>(hash_value(*this));
+            return cache.find<GraphicsPipeline>(GraphicsPipeline::hash(*this));
         }) };
         cached.has_value())
     {
@@ -153,14 +153,11 @@ auto GraphicsPipelineBuilder::build() const -> Handle<vk::UniquePipeline>
 
     return m_cache
         .transform([&](Cache& cache) {
-            return cache.emplace<vk::UniquePipeline>(
-                hash_value(*this),
-                m_device.createGraphicsPipelineUnique(nullptr, create_info).value
+            return cache.emplace<GraphicsPipeline>(
+                GraphicsPipeline::hash(*this), m_device, create_info
             );
         })
-        .value_or(make_handle<vk::UniquePipeline>(
-            m_device.createGraphicsPipelineUnique(nullptr, create_info).value
-        ));
+        .value_or(make_handle<GraphicsPipeline>(m_device, create_info));
 }
 
 [[nodiscard]] auto hash_value(const GraphicsPipelineBuilder& t_graphics_pipeline_builder

@@ -19,4 +19,24 @@ auto Model::Node::matrix() const -> glm::mat4
     return result;
 }
 
+auto Model::hash(const std::filesystem::path& t_filepath) noexcept -> size_t
+{
+    return std::filesystem::hash_value(t_filepath);
+}
+
+[[nodiscard]] auto hash_value(const Model& t_model) noexcept -> size_t
+{
+    return Model::hash(t_model.m_filepath);
+}
+
 }   // namespace core::renderer
+
+namespace std {
+
+auto hash<core::renderer::Model>::operator()(const core::renderer::Model& t_model) const
+    -> size_t
+{
+    return core::renderer::hash_value(t_model);
+}
+
+}   // namespace std

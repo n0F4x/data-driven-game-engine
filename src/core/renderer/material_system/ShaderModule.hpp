@@ -13,6 +13,9 @@ namespace core::renderer {
 
 class ShaderModule {
 public:
+    [[nodiscard]] static auto hash(const std::filesystem::path& t_filepath) noexcept
+        -> size_t;
+
     [[nodiscard]] static auto load(
         vk::Device                   t_device,
         const std::filesystem::path& t_filepath,

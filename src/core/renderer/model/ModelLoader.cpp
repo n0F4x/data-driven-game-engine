@@ -28,12 +28,6 @@
 
 namespace core::renderer {
 
-auto ModelLoader::hash(const std::filesystem::path& t_filepath) -> entt::id_type
-{
-    std::string absolute_path{ std::filesystem::absolute(t_filepath).generic_string() };
-    return entt::hashed_string{ absolute_path.c_str(), absolute_path.size() };
-}
-
 ModelLoader::ModelLoader(Cache& t_cache) noexcept : m_cache{ t_cache } {}
 
 auto ModelLoader::load_from_file(
@@ -56,5 +50,11 @@ auto ModelLoader::load_from_file(
                                  std::move(model.nodes) };
         });
 }
+
+//auto ModelLoader::load_from_file(
+//    const std::filesystem::path&   t_filepath,
+//    const VertexInputStateBuilder& t_vertex_input_state
+//) noexcept -> tl::optional<Handle<Model>>
+//{}
 
 }   // namespace core::renderer

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -14,6 +15,8 @@
 #include "Vertex.hpp"
 
 namespace core::renderer {
+
+class ModelLoader;
 
 class Model {
 public:
@@ -39,7 +42,6 @@ public:
             eRepeat
         };
 
-        std::string             name;
         tl::optional<MagFilter> magFilter;
         tl::optional<MinFilter> minFilter;
         WrappingMode            wrapS{ WrappingMode::eRepeat };
@@ -47,9 +49,8 @@ public:
     };
 
     struct Texture {
-        std::string          name;
         tl::optional<size_t> sampler;
-        tl::optional<size_t> source;
+        size_t               source;
     };
 
     struct TextureInfo {
@@ -84,7 +85,6 @@ public:
             eBlend
         };
 
-        std::string                        name;
         tl::optional<PbrMetallicRoughness> pbrMetallicRoughness;
         tl::optional<NormalTextureInfo>    normalTextureInfo;
         tl::optional<OcclusionTextureInfo> occlusionTextureInfo;
@@ -114,12 +114,10 @@ public:
     };
 
     struct Mesh {
-        std::string            name;
         std::vector<Primitive> primitives;
     };
 
     struct Node {
-        std::string         name;
         Node*               parent;
         std::vector<size_t> children;
         glm::vec3           translation;
@@ -131,20 +129,31 @@ public:
         [[nodiscard]] auto matrix() const -> glm::mat4;
     };
 
-    struct Scene {
-        std::string         name;
-        std::vector<size_t> nodes;
-    };
+    [[nodiscard]] static auto hash(const std::filesystem::path& t_filepath) noexcept -> size_t;
 
 private:
-    fastgltf::Asset       m_asset;
+    friend ModelLoader;
+
+    std::filesystem::path m_filepath;
+    std::vector<float>    m_vertices;
+    std::vector<uint32_t> m_indices;
     std::vector<Image>    images;
     std::vector<Sampler>  samplers;
     std::vector<Texture>  textures;
     std::vector<Material> materials;
     std::vector<Node>     nodes;
-    std::vector<Scene>    scenes;
-    std::vector<size_t>   scene;
+
+    friend auto hash_value(const Model& t_model) noexcept -> size_t;
 };
 
 }   // namespace core::renderer
+
+namespace std {
+
+template <>
+class hash<core::renderer::Model> {
+public:
+    [[nodiscard]] auto operator()(const core::renderer::Model& t_model) const -> size_t;
+};
+
+}   // namespace std

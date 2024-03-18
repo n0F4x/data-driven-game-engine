@@ -10,6 +10,7 @@
 #include "core/common/Handle.hpp"
 
 #include "Effect.hpp"
+#include "GraphicsPipeline.hpp"
 #include "VertexInputState.hpp"
 #include "VertexInputStateBuilder.hpp"
 
@@ -36,7 +37,7 @@ public:
     auto set_render_pass(vk::RenderPass t_render_pass) noexcept
         -> GraphicsPipelineBuilder&;
 
-    [[nodiscard]] auto build() const -> Handle<vk::UniquePipeline>;
+    [[nodiscard]] auto build() const -> Handle<GraphicsPipeline>;
 
 private:
     vk::Device                                  m_device;

@@ -8,6 +8,11 @@
 
 namespace core::renderer {
 
+auto ShaderModule::hash(const std::filesystem::path& t_filepath) noexcept -> size_t
+{
+    return std::filesystem::hash_value(t_filepath);
+}
+
 auto ShaderModule::load(
     vk::Device                   t_device,
     const std::filesystem::path& t_filepath,
@@ -15,7 +20,7 @@ auto ShaderModule::load(
 ) -> tl::optional<Handle<ShaderModule>>
 {
     if (auto cached{ t_cache.and_then([&](const Cache& cache) {
-            return cache.find<ShaderModule>(std::filesystem::hash_value(t_filepath));
+            return cache.find<ShaderModule>(ShaderModule::hash(t_filepath));
         }) };
         cached.has_value())
     {
@@ -30,7 +35,7 @@ auto ShaderModule::load(
     return t_cache
         .transform([&](Cache& cache) {
             return cache.emplace<ShaderModule>(
-                std::filesystem::hash_value(t_filepath), t_filepath, std::move(module)
+                ShaderModule::hash(t_filepath), t_filepath, std::move(module)
             );
         })
         .value_or(make_handle<ShaderModule>(t_filepath, std::move(module)));
