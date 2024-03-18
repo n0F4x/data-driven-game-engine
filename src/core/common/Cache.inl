@@ -2,10 +2,25 @@ namespace core {
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
-auto BasicCache<IdType, ContainerTemplate>::insert(ID t_id, Handle<Resource> t_handle)
+auto BasicCache<IdType, ContainerTemplate>::insert(
+    ID                      t_id,
+    const Handle<Resource>& t_handle
+) -> Handle<Resource>
+{
+    m_store.emplace<ContainerType<Resource>>().try_emplace(
+        t_id, static_cast<std::shared_ptr<Resource>>(t_handle)
+    );
+    return t_handle;
+}
+
+template <typename IdType, template <typename...> typename ContainerTemplate>
+template <typename Resource>
+auto BasicCache<IdType, ContainerTemplate>::insert(ID t_id, Handle<Resource>&& t_handle)
     -> Handle<Resource>
 {
-    m_store.emplace<ContainerType<Resource>>().try_emplace(t_id, t_handle);
+    m_store.emplace<ContainerType<Resource>>().try_emplace(
+        t_id, static_cast<std::shared_ptr<Resource>>(t_handle)
+    );
     return t_handle;
 }
 

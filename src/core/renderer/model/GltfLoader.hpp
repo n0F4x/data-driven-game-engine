@@ -5,24 +5,22 @@
 
 #include <spdlog/spdlog.h>
 
-#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/types.hpp>
 
-#include "core/renderer/model/Vertex.hpp"
-
+#include "Model.hpp"
 #include "StagingModel.hpp"
 
 namespace core::renderer {
 
 struct GltfLoader {
-    std::vector<Vertex>             vertices;
+    std::vector<Model::Vertex>      vertices;
     std::vector<uint32_t>           indices;
     std::vector<StagingModel::Node> nodes;
-    std::vector<StagingModel>       scenes;
 
     auto load(const fastgltf::Asset& t_asset) -> void;
 

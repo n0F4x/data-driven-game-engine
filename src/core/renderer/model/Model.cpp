@@ -2,6 +2,8 @@
 
 #include <glm/gtc/quaternion.hpp>
 
+#include "core/utility/hashing.hpp"
+
 namespace core::renderer {
 
 auto Model::Node::local_matrix() const -> glm::mat4
@@ -19,14 +21,17 @@ auto Model::Node::matrix() const -> glm::mat4
     return result;
 }
 
-auto Model::hash(const std::filesystem::path& t_filepath) noexcept -> size_t
+auto Model::hash(
+    const std::filesystem::path& t_filepath,
+    tl::optional<size_t>         t_scene_id
+) noexcept -> size_t
 {
-    return std::filesystem::hash_value(t_filepath);
+    return hash_combine(t_filepath, t_scene_id);
 }
 
 [[nodiscard]] auto hash_value(const Model& t_model) noexcept -> size_t
 {
-    return Model::hash(t_model.m_filepath);
+    return Model::hash(t_model.filepath, t_model.scene_id);
 }
 
 }   // namespace core::renderer

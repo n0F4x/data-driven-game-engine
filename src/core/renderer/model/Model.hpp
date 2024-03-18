@@ -12,14 +12,22 @@
 #include <fastgltf/core.hpp>
 
 #include "Image.hpp"
-#include "Vertex.hpp"
 
 namespace core::renderer {
 
 class ModelLoader;
 
-class Model {
+struct Model {
 public:
+    struct Vertex {
+        glm::vec3 position{};
+        glm::vec3 normal{};
+        glm::vec4 tangent{};
+        glm::vec2 uv_0{};
+        glm::vec2 uv_1{};
+        glm::vec4 color{};
+    };
+
     using Image = Image;
 
     struct Sampler {
@@ -119,29 +127,31 @@ public:
 
     struct Node {
         Node*               parent;
-        std::vector<size_t> children;
         glm::vec3           translation;
         glm::quat           rotation;
         glm::vec3           scale;
         tl::optional<Mesh>  mesh;
+        std::vector<size_t> children;
 
         [[nodiscard]] auto local_matrix() const -> glm::mat4;
         [[nodiscard]] auto matrix() const -> glm::mat4;
     };
 
-    [[nodiscard]] static auto hash(const std::filesystem::path& t_filepath) noexcept -> size_t;
+    [[nodiscard]] static auto hash(
+        const std::filesystem::path& t_filepath,
+        tl::optional<size_t>         t_scene_id
+    ) noexcept -> size_t;
 
-private:
-    friend ModelLoader;
-
-    std::filesystem::path m_filepath;
-    std::vector<float>    m_vertices;
-    std::vector<uint32_t> m_indices;
+    std::filesystem::path filepath;
+    tl::optional<size_t>  scene_id;
+    std::vector<Vertex>   vertices;
+    std::vector<uint32_t> indices;
     std::vector<Image>    images;
     std::vector<Sampler>  samplers;
     std::vector<Texture>  textures;
     std::vector<Material> materials;
     std::vector<Node>     nodes;
+    std::vector<size_t>   root_nodes;
 
     friend auto hash_value(const Model& t_model) noexcept -> size_t;
 };

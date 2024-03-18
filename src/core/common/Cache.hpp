@@ -18,7 +18,9 @@ public:
     ///  Methods  ///
     ///-----------///
     template <typename Resource>
-    auto insert(ID t_id, Handle<Resource> t_handle) -> Handle<Resource>;
+    auto insert(ID t_id, const Handle<Resource>& t_handle) -> Handle<Resource>;
+    template <typename Resource>
+    auto insert(ID t_id, Handle<Resource>&& t_handle) -> Handle<Resource>;
 
     template <typename Resource>
     auto emplace(ID t_id, auto&&... t_args) -> Handle<Resource>;

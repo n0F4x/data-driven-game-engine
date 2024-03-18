@@ -196,9 +196,9 @@ auto GltfLoader::load_primitive(
 }
 
 static auto make_accessor_loader(
-    const fastgltf::Asset& t_asset,
-    std::vector<Vertex>&   t_vertices,
-    size_t                 t_first_vertex_index
+    const fastgltf::Asset&      t_asset,
+    std::vector<Model::Vertex>& t_vertices,
+    size_t                      t_first_vertex_index
 )
 {
     return
@@ -211,7 +211,7 @@ static auto make_accessor_loader(
             ->void
     {
         using AttributeType =
-            std::remove_cvref_t<std::invoke_result_t<Projection, const Vertex&>>;
+            std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
 
         fastgltf::iterateAccessorWithIndex<AttributeType>(
             t_asset,
@@ -244,26 +244,26 @@ auto GltfLoader::load_vertices(
     t_primitive.vertex_count = static_cast<uint32_t>(position_accessor.count);
     vertices.resize(position_accessor.count + vertices.size());
 
-    load_accessor(position_accessor, &Vertex::position);
+    load_accessor(position_accessor, &Model::Vertex::position);
 
     for (const auto& [name, accessor_index] : t_attributes) {
         if (name == "NORMAL") {
-            load_accessor(t_asset.accessors[accessor_index], &Vertex::normal);
+            load_accessor(t_asset.accessors[accessor_index], &Model::Vertex::normal);
         }
         else if (name == "TANGENT") {
-            load_accessor(t_asset.accessors[accessor_index], &Vertex::tangent);
+            load_accessor(t_asset.accessors[accessor_index], &Model::Vertex::tangent);
         }
         else if (name == "TEXCOORD_0") {
-            load_accessor(t_asset.accessors[accessor_index], &Vertex::uv_0);
+            load_accessor(t_asset.accessors[accessor_index], &Model::Vertex::uv_0);
         }
         else if (name == "TEXCOORD_1") {
-            load_accessor(t_asset.accessors[accessor_index], &Vertex::uv_1);
+            load_accessor(t_asset.accessors[accessor_index], &Model::Vertex::uv_1);
         }
         else if (name == "COLOR_0") {
-            load_accessor(t_asset.accessors[accessor_index], &Vertex::color);
+            load_accessor(t_asset.accessors[accessor_index], &Model::Vertex::color);
             load_accessor(
                 t_asset.accessors[accessor_index],
-                &Vertex::color,
+                &Model::Vertex::color,
                 [](glm::vec3 vec3) { return glm::make_vec4(vec3); }
             );
         }

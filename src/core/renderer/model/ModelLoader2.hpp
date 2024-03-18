@@ -6,22 +6,24 @@
 
 #include "core/common/Cache.hpp"
 #include "core/common/Handle.hpp"
-#include "core/renderer/base/Allocator.hpp"
 #include "core/renderer/material_system/VertexInputStateBuilder.hpp"
 
-#include "ImageLoader.hpp"
 #include "Model.hpp"
-#include "RenderModel.hpp"
-#include "StagingModel.hpp"
 
 namespace core::renderer {
 
 class ModelLoader {
 public:
-    [[nodiscard]] static auto load_from_file(
+    ModelLoader() noexcept = default;
+    explicit ModelLoader(Cache& t_cache) noexcept;
+
+    [[nodiscard]] auto load_from_file(
         const std::filesystem::path& t_filepath,
-        const renderer::Allocator&   t_allocator
-    ) noexcept -> tl::optional<StagingModel>;
+        tl::optional<size_t>         t_scene_id
+    ) noexcept -> tl::optional<Handle<Model>>;
+
+private:
+    tl::optional<Cache&> m_cache;
 };
 
 }   // namespace core::renderer

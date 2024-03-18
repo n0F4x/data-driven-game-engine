@@ -153,8 +153,9 @@ auto GraphicsPipelineBuilder::build() const -> Handle<GraphicsPipeline>
 
     return m_cache
         .transform([&](Cache& cache) {
-            return cache.emplace<GraphicsPipeline>(
-                GraphicsPipeline::hash(*this), m_device, create_info
+            return cache.insert<GraphicsPipeline>(
+                GraphicsPipeline::hash(*this),
+                make_handle<GraphicsPipeline>(m_device, create_info)
             );
         })
         .value_or(make_handle<GraphicsPipeline>(m_device, create_info));
