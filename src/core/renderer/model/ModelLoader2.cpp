@@ -33,8 +33,7 @@ using namespace core::renderer::detail;
 }
 
 [[nodiscard]] static auto
-    load_scene(const fastgltf::Asset& t_asset, const fastgltf::Scene& t_scene)
-        -> tl::optional<Model>;
+    load_model(const fastgltf::Asset& t_asset, const fastgltf::Scene& t_scene) -> Model;
 
 static auto load_node(
     GltfLoader2&           t_loader,
@@ -71,6 +70,8 @@ static auto load_indices(
     const fastgltf::Accessor& t_accessor
 ) noexcept -> void;
 
+static auto adjust_node_indices(GltfLoader2& t_loader) -> void;
+
 namespace core::renderer {
 
 ModelLoader::ModelLoader(Cache& t_cache) noexcept : m_cache{ t_cache } {}
@@ -95,30 +96,25 @@ auto ModelLoader::load_from_file(
         return tl::nullopt;
     }
 
-    return load_scene(
-               asset.get(),
-               asset->scenes[t_scene_id.value_or(asset->defaultScene.value_or(0))]
-    )
-        .transform([](Model&& model) { return make_handle<Model>(std::move(model)); })
-        .transform([&](Handle<Model>&& model) {
-            return m_cache
-                .transform([&](Cache& cache) {
-                    return cache.insert<Model>(
-                        Model::hash(
-                            t_filepath,
-                            t_scene_id.value_or(asset->defaultScene.value_or(0))
-                        ),
-                        std::move(model)
-                    );
-                })
-                .value_or(std::move(model));
-        });
+    size_t scene_id{ t_scene_id.value_or(asset->defaultScene.value_or(0)) };
+    if (asset->scenes.size() <= scene_id) {
+        return tl::nullopt;
+    }
+    auto& scene{ asset->scenes[scene_id] };
+
+    return m_cache
+        .transform([&](Cache& cache) {
+            return cache.insert<Model>(
+                Model::hash(t_filepath, scene_id),
+                make_handle<Model>(load_model(asset.get(), scene))
+            );
+        })
+        .value_or(make_handle<Model>(load_model(asset.get(), scene)));
 }
 
 }   // namespace core::renderer
 
-auto load_scene(const fastgltf::Asset& t_asset, const fastgltf::Scene& t_scene)
-    -> tl::optional<Model>
+auto load_model(const fastgltf::Asset& t_asset, const fastgltf::Scene& t_scene) -> Model
 {
     GltfLoader2 loader;
 
@@ -132,7 +128,16 @@ auto load_scene(const fastgltf::Asset& t_asset, const fastgltf::Scene& t_scene)
         );
     }
 
-    return Model();
+    adjust_node_indices(loader);
+
+    return Model{ .vertices   = std::move(loader.vertices),
+                  .indices    = std::move(loader.indices),
+                  .images     = {},
+                  .samplers   = {},
+                  .textures   = {},
+                  .materials  = {},
+                  .nodes      = std::move(loader.nodes),
+                  .root_nodes = std::move(loader.root_nodes) };
 }
 
 auto load_node(
@@ -329,4 +334,17 @@ auto load_indices(
     fastgltf::iterateAccessor<uint32_t>(t_asset, t_accessor, [&](const uint32_t index) {
         t_loader.indices.push_back(t_first_vertex_index + index);
     });
+}
+
+auto adjust_node_indices(GltfLoader2& t_loader) -> void
+{
+    for (size_t& root_node_index : t_loader.root_nodes) {
+        root_node_index = t_loader.node_indices.at(root_node_index);
+    }
+
+    for (Model::Node& node : t_loader.nodes) {
+        for (size_t& child_index : node.children) {
+            child_index = t_loader.node_indices.at(child_index);
+        }
+    }
 }

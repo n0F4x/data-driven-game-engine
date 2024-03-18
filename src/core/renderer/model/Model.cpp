@@ -29,19 +29,4 @@ auto Model::hash(
     return hash_combine(t_filepath, t_scene_id);
 }
 
-[[nodiscard]] auto hash_value(const Model& t_model) noexcept -> size_t
-{
-    return Model::hash(t_model.filepath, t_model.scene_id);
-}
-
 }   // namespace core::renderer
-
-namespace std {
-
-auto hash<core::renderer::Model>::operator()(const core::renderer::Model& t_model) const
-    -> size_t
-{
-    return core::renderer::hash_value(t_model);
-}
-
-}   // namespace std

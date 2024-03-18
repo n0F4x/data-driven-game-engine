@@ -142,8 +142,6 @@ public:
         tl::optional<size_t>         t_scene_id
     ) noexcept -> size_t;
 
-    std::filesystem::path filepath;
-    tl::optional<size_t>  scene_id;
     std::vector<Vertex>   vertices;
     std::vector<uint32_t> indices;
     std::vector<Image>    images;
@@ -152,18 +150,6 @@ public:
     std::vector<Material> materials;
     std::vector<Node>     nodes;
     std::vector<size_t>   root_nodes;
-
-    friend auto hash_value(const Model& t_model) noexcept -> size_t;
 };
 
 }   // namespace core::renderer
-
-namespace std {
-
-template <>
-class hash<core::renderer::Model> {
-public:
-    [[nodiscard]] auto operator()(const core::renderer::Model& t_model) const -> size_t;
-};
-
-}   // namespace std
