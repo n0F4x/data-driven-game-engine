@@ -18,7 +18,7 @@ VertexInputState::VertexInputState(
 {
     m_bindings.reserve(t_builder.bindings().size());
 
-    for (size_t binding : std::views::iota(0u, t_builder.bindings().size())) {
+    for (const size_t binding : std::views::iota(0u, t_builder.bindings().size())) {
         m_bindings.push_back(vk::VertexInputBindingDescription{
             .binding   = static_cast<uint32_t>(binding),
             .stride    = t_builder.bindings()[binding].stride(),
@@ -34,9 +34,9 @@ VertexInputState::VertexInputState(
                        .get(static_cast<VertexAttribute>(attribute))
                        .has_value())
             {
-                auto location = t_effect.input_attribute_locations()
-                                    .get(static_cast<VertexAttribute>(attribute))
-                                    .value();
+                const auto location = t_effect.input_attribute_locations()
+                                          .get(static_cast<VertexAttribute>(attribute))
+                                          .value();
                 auto [format, offset] = t_builder.bindings()[binding]
                                             .attributes(
                                             )[static_cast<VertexAttribute>(attribute)]
@@ -88,13 +88,9 @@ auto VertexInputState::info() const noexcept
 
 }   // namespace core::renderer
 
-namespace std {
-
-auto hash<core::renderer::VertexInputState>::operator()(
+auto std::hash<core::renderer::VertexInputState>::operator()(
     const core::renderer::VertexInputState& t_vertex_input_layout
-) const -> size_t
+) const noexcept -> size_t
 {
     return core::renderer::hash_value(t_vertex_input_layout);
 }
-
-}   // namespace std

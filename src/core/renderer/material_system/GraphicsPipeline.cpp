@@ -10,7 +10,7 @@ auto GraphicsPipeline::hash(const GraphicsPipelineBuilder& t_builder) noexcept -
 }
 
 GraphicsPipeline::GraphicsPipeline(
-    vk::Device                            t_device,
+    const vk::Device                      t_device,
     const vk::GraphicsPipelineCreateInfo& t_create_info
 )
     : m_pipeline{ t_device.createGraphicsPipelineUnique(nullptr, t_create_info).value }

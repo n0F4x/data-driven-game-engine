@@ -39,13 +39,8 @@ private:
 
 }   // namespace core::renderer
 
-namespace std {
-
 template <>
-class hash<core::renderer::ShaderModule> {
-public:
+struct std::hash<core::renderer::ShaderModule> {
     [[nodiscard]] auto operator()(const core::renderer::ShaderModule& t_shader_module
     ) const noexcept -> size_t;
-};
-
-}   // namespace std
+};   // namespace std

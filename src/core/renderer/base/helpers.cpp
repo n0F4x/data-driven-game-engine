@@ -1,18 +1,16 @@
 #include "helpers.hpp"
 
-#include <ranges>
-
-#include "core/utility/vulkan/tools.hpp"
-
 [[nodiscard]] static auto find_graphics_queue_family(
-    vk::PhysicalDevice t_physical_device,
-    vk::SurfaceKHR     t_surface
+    const vk::PhysicalDevice t_physical_device,
+    const vk::SurfaceKHR     t_surface
 ) -> tl::optional<uint32_t>
 {
     uint32_t index{};
-    for (const auto& properties : t_physical_device.getQueueFamilyProperties()) {
+    for (const auto& [queue_flags, queue_count, timestamp_valid_bits, min_image_transfer_granularity] :
+         t_physical_device.getQueueFamilyProperties())
+    {
         if (t_physical_device.getSurfaceSupportKHR(index, t_surface)
-            && properties.queueFlags & vk::QueueFlagBits::eGraphics)
+            && queue_flags & vk::QueueFlagBits::eGraphics)
         {
             return index;
         }
@@ -22,8 +20,8 @@
 }
 
 [[nodiscard]] static auto find_transfer_queue_family(
-    vk::PhysicalDevice t_physical_device,
-    uint32_t           t_graphics_queue_family
+    const vk::PhysicalDevice t_physical_device,
+    const uint32_t           t_graphics_queue_family
 ) -> tl::optional<uint32_t>
 {
     const auto queue_families{ t_physical_device.getQueueFamilyProperties() };
@@ -100,8 +98,10 @@
 
 namespace core::renderer::helpers {
 
-auto find_queue_families(vk::PhysicalDevice t_physical_device, vk::SurfaceKHR t_surface)
-    -> tl::optional<QueueInfos>
+auto find_queue_families(
+    const vk::PhysicalDevice t_physical_device,
+    const vk::SurfaceKHR     t_surface
+) -> tl::optional<QueueInfos>
 {
     const auto graphics_family{ find_graphics_queue_family(t_physical_device, t_surface) };
     if (!graphics_family.has_value()) {
@@ -127,7 +127,7 @@ auto find_queue_families(vk::PhysicalDevice t_physical_device, vk::SurfaceKHR t_
     queue_infos.compute_family  = *compute_family;
     queue_infos.transfer_family = *transfer_family;
 
-    auto queue_priority{ 1.f };
+    constexpr auto queue_priority{ 1.f };
 
     queue_infos.queue_create_infos.push_back(vk::DeviceQueueCreateInfo{
         .queueFamilyIndex = *graphics_family,

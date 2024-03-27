@@ -17,17 +17,17 @@ public:
     ///----------------///
     template <typename Vertex>
     [[nodiscard]] static auto create(
-        const renderer::Allocator& t_allocator,
-        std::span<const Vertex>    t_vertices,
-        std::span<const uint32_t>  t_indices
+        const Allocator&          t_allocator,
+        std::span<const Vertex>   t_vertices,
+        std::span<const uint32_t> t_indices
     ) noexcept -> tl::optional<StagingMeshBuffer>;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
     [[nodiscard]] auto upload(
-        const renderer::Allocator& t_allocator,
-        vk::CommandBuffer          t_copy_command_buffer
+        const Allocator&  t_allocator,
+        vk::CommandBuffer t_copy_command_buffer
     ) const noexcept -> tl::optional<MeshBuffer>;
 
 private:

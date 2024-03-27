@@ -33,7 +33,7 @@ using namespace core::renderer;
                                         | std::views::transform(&std::string::c_str)
                                         | std::ranges::to<std::vector>() };
 
-    vk::DeviceCreateInfo device_create_info{
+    const vk::DeviceCreateInfo device_create_info{
         .pNext = t_create_info.next,
         .queueCreateInfoCount =
             static_cast<uint32_t>(t_queue_infos.queue_create_infos.size()),
@@ -151,17 +151,17 @@ Device::Device(
 
 Device::Device(
     const vk::PhysicalDevice t_physical_device,
-    const CreateInfo&        t_info,
+    const CreateInfo&        t_create_info,
     vk::UniqueDevice&&       t_device,
-    uint32_t                 t_graphics_family_index,
+    const uint32_t           t_graphics_family_index,
     const vk::Queue          t_graphics_queue,
-    uint32_t                 t_compute_queue_family_index,
+    const uint32_t           t_compute_queue_family_index,
     const vk::Queue          t_compute_queue,
-    uint32_t                 t_transfer_queue_family_index,
+    const uint32_t           t_transfer_queue_family_index,
     const vk::Queue          t_transfer_queue
 ) noexcept
     : m_physical_device{ t_physical_device },
-      m_extensions{ std::from_range, t_info.extensions },
+      m_extensions{ std::from_range, t_create_info.extensions },
       m_device{ std::move(t_device) },
       m_graphics_queue_family_index{ t_graphics_family_index },
       m_graphics_queue{ t_graphics_queue },

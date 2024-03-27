@@ -17,7 +17,7 @@ auto App::Builder::build_and_run(
 }
 
 template <typename Plugin>
-auto App::Builder::add_plugin(auto&&... t_args) && -> App::Builder
+auto App::Builder::add_plugin(auto&&... t_args) && -> Builder
 {
     return std::move(*this).add_plugin(
         Plugin{}, std::forward<decltype(t_args)>(t_args)...
@@ -28,7 +28,7 @@ template <typename... Args>
 auto App::Builder::add_plugin(
     PluginConcept<Args...> auto&& t_plugin,
     Args&&... t_args
-) && -> App::Builder
+) && -> Builder
 {
     std::invoke(
         std::forward<decltype(t_plugin)>(t_plugin),

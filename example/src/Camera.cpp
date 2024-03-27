@@ -5,17 +5,18 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 auto Camera::set_perspective_projection(
-    float t_fov_y,
-    float t_aspect,
-    float t_near,
-    float t_far
+    const float t_fov_y,
+    const float t_aspect,
+    const float t_near,
+    const float t_far
 ) noexcept -> void
 {
     projection = glm::perspective(glm::radians(t_fov_y), t_aspect, t_near, t_far);
     projection[1][1] *= -1.0f;
 }
 
-auto Camera::set_view_yxz(glm::vec3 t_position, glm::vec3 t_rotation) noexcept -> void
+auto Camera::set_view_yxz(const glm::vec3& t_position, const glm::vec3& t_rotation) noexcept
+    -> void
 {
     const float     c3{ glm::cos(t_rotation.z) };
     const float     s3{ glm::sin(t_rotation.z) };

@@ -1,13 +1,11 @@
 #include "Buffer.hpp"
 
-#include <utility>
-
 namespace core::vma {
 
 Buffer::Buffer(
-    VmaAllocator  t_allocator,
-    vk::Buffer    t_buffer,
-    VmaAllocation t_allocation
+    const VmaAllocator  t_allocator,
+    const vk::Buffer    t_buffer,
+    const VmaAllocation t_allocation
 ) noexcept
     : m_allocator{ t_allocator },
       m_buffer{ t_buffer },
@@ -50,7 +48,7 @@ auto Buffer::allocation() const noexcept -> VmaAllocation
 auto Buffer::reset() noexcept -> void
 {
     if (m_allocator) {
-        vmaDestroyBuffer(m_allocator, static_cast<VkBuffer>(m_buffer), m_allocation);
+        vmaDestroyBuffer(m_allocator, m_buffer, m_allocation);
     }
     m_allocation = nullptr;
     m_buffer     = nullptr;

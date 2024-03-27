@@ -13,7 +13,7 @@ class VertexInputStateBuilder;
 class VertexInputState {
 public:
     explicit VertexInputState(
-        const Effect& t_effect,
+        const Effect&                  t_effect,
         const VertexInputStateBuilder& t_builder
     ) noexcept;
 
@@ -35,14 +35,9 @@ private:
 
 }   // namespace core::renderer
 
-namespace std {
-
 template <>
-class hash<core::renderer::VertexInputState> {
-public:
+struct std::hash<core::renderer::VertexInputState> {
     [[nodiscard]] auto
-        operator()(const core::renderer::VertexInputState& t_vertex_input_layout) const
-        -> size_t;
+        operator()(const core::renderer::VertexInputState& t_vertex_input_layout
+        ) const noexcept -> size_t;
 };
-
-}   // namespace std

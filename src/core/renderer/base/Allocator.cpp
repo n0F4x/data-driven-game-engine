@@ -9,7 +9,7 @@
 #include "Device.hpp"
 #include "Instance.hpp"
 
-static const VmaVulkanFunctions s_vulkan_functions{
+constexpr static VmaVulkanFunctions s_vulkan_functions{
     .vkGetInstanceProcAddr = &vkGetInstanceProcAddr,
     .vkGetDeviceProcAddr   = &vkGetDeviceProcAddr
 };
@@ -24,9 +24,9 @@ static const VmaVulkanFunctions s_vulkan_functions{
         || vk::isPromotedExtension(t_extension_name);
 }
 
-[[nodiscard]] static auto
-    vma_allocator_create_flags(std::span<const std::string> enabled_device_extensions
-    ) noexcept -> VmaAllocatorCreateFlags
+[[nodiscard]] static auto vma_allocator_create_flags(
+    const std::span<const std::string> enabled_device_extensions
+) noexcept -> VmaAllocatorCreateFlags
 {
     VmaAllocatorCreateFlags flags{};
 
@@ -67,7 +67,7 @@ namespace core::renderer {
 [[nodiscard]] static auto
     create_allocator(const Instance& t_instance, const Device& t_device) -> VmaAllocator
 {
-    VmaAllocatorCreateInfo create_info{
+    const VmaAllocatorCreateInfo create_info{
         .flags            = vma_allocator_create_flags(t_device.enabled_extensions()),
         .physicalDevice   = t_device.physical_device(),
         .device           = t_device.get(),
@@ -75,9 +75,9 @@ namespace core::renderer {
         .instance         = t_instance.get(),
     };
 
-    VmaAllocator allocator;
-    vk::Result   result{ vmaCreateAllocator(&create_info, &allocator) };
-    resultCheck(static_cast<vk::Result>(result), "vmaCreateAllocator");
+    VmaAllocator     allocator;
+    const vk::Result result{ vmaCreateAllocator(&create_info, &allocator) };
+    resultCheck(result, "vmaCreateAllocator");
     return allocator;
 }
 
@@ -132,7 +132,7 @@ auto Allocator::recommended_device_extensions() noexcept -> std::span<const std:
 }
 
 auto Allocator::recommended_device_extension_structs(
-    std::span<const std::string> t_enabled_device_extensions
+    const std::span<const std::string> t_enabled_device_extensions
 ) noexcept
     -> vk::StructureChain<
         vk::DeviceCreateInfo,

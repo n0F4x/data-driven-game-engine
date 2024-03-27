@@ -1,15 +1,7 @@
 #pragma once
 
-#include <ranges>
 #include <vector>
 
-#include <spdlog/spdlog.h>
-
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include <fastgltf/core.hpp>
-#include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/types.hpp>
 
 #include "Model.hpp"

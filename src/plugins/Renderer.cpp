@@ -73,7 +73,7 @@ std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
 {
     return Instance::CreateInfo{
         .application_info = application_info(),
-        .layers           = std::set{std::from_range, layers()},
+        .layers           = std::set{ std::from_range, layers() },
         .extensions       = instance_extension_names(),
 #ifdef core_VULKAN_DEBUG
         .create_debug_messenger = create_debug_messenger
@@ -86,10 +86,10 @@ std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
     return Swapchain::required_device_extensions() | std::ranges::to<std::vector>();
 }
 
-[[nodiscard]] static auto device_extension_names(vk::PhysicalDevice t_physical_device)
-    -> std::vector<std::string>
+[[nodiscard]] static auto device_extension_names(const vk::PhysicalDevice t_physical_device
+) -> std::vector<std::string>
 {
-    std::vector<std::string> result{ required_device_extension_names() };
+    std::vector result{ required_device_extension_names() };
 
     result.append_range(filter(
         vulkan::available_device_extensions(t_physical_device),
@@ -100,8 +100,9 @@ std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
     return result;
 }
 
-[[nodiscard]] static auto
-    device_extension_structs(std::span<const std::string> t_enabled_device_extension_names)
+[[nodiscard]] static auto device_extension_structs(
+    const std::span<const std::string> t_enabled_device_extension_names
+)
 {
     return Allocator::recommended_device_extension_structs(t_enabled_device_extension_names
     );
@@ -141,7 +142,7 @@ auto Renderer::operator()(
             physical_device,
             Device::CreateInfo{
                                .next       = enabled_device_extension_structs.get().pNext,
-                               .extensions = std::set{ std::from_range, enabled_device_extensions }}
+                               .extensions = std::set{ std::from_range, enabled_device_extensions } }
         )
     };
 

@@ -1,10 +1,7 @@
 #include "Window.hpp"
 
-#include <cstdlib>
 #include <format>
 #include <stdexcept>
-
-#include <spdlog/spdlog.h>
 
 namespace core::window {
 
@@ -15,10 +12,10 @@ namespace core::window {
 /////////////////////////////////
 
 [[nodiscard]] static auto
-    create_window(uint16_t t_width, uint16_t t_height, const std::string& title)
+    create_window(const uint16_t t_width, uint16_t const t_height, const std::string& title)
         -> GLFWwindow*
 {
-    auto window{ glfwCreateWindow(t_width, t_height, title.c_str(), nullptr, nullptr) };
+    const auto window{ glfwCreateWindow(t_width, t_height, title.c_str(), nullptr, nullptr) };
     if (window == nullptr) {
         throw std::runtime_error{ std::format(
             "glfwCreateWindowSurface failed with error code {}",
@@ -28,7 +25,7 @@ namespace core::window {
     return window;
 }
 
-Window::Window(uint16_t t_width, uint16_t t_height, const std::string& title)
+Window::Window(const uint16_t t_width, const uint16_t t_height, const std::string& title)
     : m_impl{ create_window(t_width, t_height, title), glfwDestroyWindow }
 {}
 

@@ -3,8 +3,6 @@
 #include <functional>
 #include <span>
 #include <string>
-#include <utility>
-#include <variant>
 #include <vector>
 
 #include <tl/optional.hpp>
@@ -12,7 +10,6 @@
 #include <vulkan/vulkan.hpp>
 
 #include "core/utility/vulkan/Swapchain.hpp"
-#include "entt/signal/sigh.hpp"
 
 #include "Device.hpp"
 

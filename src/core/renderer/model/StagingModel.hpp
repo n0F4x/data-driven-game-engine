@@ -26,11 +26,11 @@ public:
     [[nodiscard]] auto nodes() const noexcept -> const std::vector<Node>&;
 
     [[nodiscard]] auto upload(
-        vk::Device                 t_device,
-        const renderer::Allocator& t_allocator,
-        vk::CommandBuffer          t_copy_command_buffer,
-        vk::DescriptorSetLayout    t_descriptor_set_layout,
-        vk::DescriptorPool         t_descriptor_pool
+        vk::Device              t_device,
+        const Allocator&        t_allocator,
+        vk::CommandBuffer       t_copy_command_buffer,
+        vk::DescriptorSetLayout t_descriptor_set_layout,
+        vk::DescriptorPool      t_descriptor_pool
     ) && -> tl::optional<RenderModel>;
 
 private:

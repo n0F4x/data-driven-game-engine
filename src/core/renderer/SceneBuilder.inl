@@ -1,4 +1,3 @@
-#include "core/renderer/model/ImageLoader.hpp"
 #include "core/renderer/model/ModelLoader.hpp"
 
 namespace core::renderer {

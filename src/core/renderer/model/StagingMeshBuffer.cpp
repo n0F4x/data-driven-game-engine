@@ -5,8 +5,8 @@
 namespace core::renderer {
 
 auto StagingMeshBuffer::upload(
-    const renderer::Allocator& t_allocator,
-    const vk::CommandBuffer    t_copy_command_buffer
+    const Allocator&        t_allocator,
+    const vk::CommandBuffer t_copy_command_buffer
 ) const noexcept -> tl::optional<MeshBuffer>
 {
     const vk::BufferCreateInfo vertex_buffer_create_info = {

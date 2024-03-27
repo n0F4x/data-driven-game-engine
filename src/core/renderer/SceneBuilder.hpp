@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include <vector>
 
 #include <tl/optional.hpp>
@@ -19,7 +18,7 @@ public:
 
     auto load_model(auto&&... t_args) -> tl::optional<Handle<Model>>;
 
-    [[nodiscard]] auto build(const renderer::Allocator& t_allocator) && -> Scene;
+    [[nodiscard]] auto build(const Allocator& t_allocator) && -> Scene;
 
 private:
     std::reference_wrapper<Cache> m_cache;

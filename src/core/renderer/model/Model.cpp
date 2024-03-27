@@ -15,7 +15,7 @@ auto Model::Node::local_matrix() const -> glm::mat4
 auto Model::Node::matrix() const -> glm::mat4
 {
     glm::mat4 result{ local_matrix() };
-    for (Node* p{ parent }; p != nullptr; p = p->parent) {
+    for (const Node* p{ parent }; p != nullptr; p = p->parent) {
         result = p->local_matrix() * result;
     }
     return result;
@@ -23,7 +23,7 @@ auto Model::Node::matrix() const -> glm::mat4
 
 auto Model::hash(
     const std::filesystem::path& t_filepath,
-    tl::optional<size_t>         t_scene_id
+    const tl::optional<size_t>   t_scene_id
 ) noexcept -> size_t
 {
     return hash_combine(t_filepath, t_scene_id);

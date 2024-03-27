@@ -4,7 +4,7 @@ namespace core::renderer {
 
 template <typename Vertex>
 auto StagingMeshBuffer::create(
-    const renderer::Allocator&      t_allocator,
+    const Allocator&                t_allocator,
     const std::span<const Vertex>   t_vertices,
     const std::span<const uint32_t> t_indices
 ) noexcept -> tl::optional<StagingMeshBuffer>

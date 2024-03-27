@@ -4,6 +4,7 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <core/renderer/base/Device.hpp>
 #include <core/renderer/model/Model.hpp>
 #include <core/utility/vulkan/tools.hpp>
 

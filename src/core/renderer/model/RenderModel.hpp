@@ -7,8 +7,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include <entt/core/fwd.hpp>
-
 #include "core/renderer/base/Allocator.hpp"
 #include "core/utility/vma/Buffer.hpp"
 
@@ -55,10 +53,10 @@ public:
         glm::mat4          matrix{ glm::identity<glm::mat4>() };
 
         [[nodiscard]] auto upload(
-            vk::Device                 t_device,
-            const renderer::Allocator& t_allocator,
-            vk::DescriptorSetLayout    t_descriptor_set_layout,
-            vk::DescriptorPool         t_descriptor_pool
+            vk::Device              t_device,
+            const Allocator&        t_allocator,
+            vk::DescriptorSetLayout t_descriptor_set_layout,
+            vk::DescriptorPool      t_descriptor_pool
         ) -> bool;
 
         auto draw(
@@ -83,7 +81,6 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    entt::id_type     m_id;
     std::vector<Node> m_nodes;
     MeshBuffer        m_mesh_buffer;
 

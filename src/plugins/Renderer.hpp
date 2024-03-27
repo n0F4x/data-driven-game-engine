@@ -26,7 +26,7 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        app::App::Builder&                       t_builder,
+        app::App::Builder&                  t_builder,
         const SurfaceCreator&               t_create_surface = create_default_surface,
         const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter = nullptr
     ) const noexcept -> void;
@@ -39,4 +39,4 @@ static_assert(app::PluginConcept<
               const Renderer::SurfaceCreator&,
               const Renderer::FramebufferSizeGetterCreator&>);
 
-}   // namespace app::plugins
+}   // namespace plugins

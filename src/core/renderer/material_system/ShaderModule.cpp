@@ -14,7 +14,7 @@ auto ShaderModule::hash(const std::filesystem::path& t_filepath) noexcept -> siz
 }
 
 auto ShaderModule::load(
-    vk::Device                   t_device,
+    const vk::Device             t_device,
     const std::filesystem::path& t_filepath,
     tl::optional<Cache&>         t_cache
 ) -> tl::optional<Handle<ShaderModule>>
@@ -66,13 +66,9 @@ auto ShaderModule::module() const noexcept -> vk::ShaderModule
 
 }   // namespace core::renderer
 
-namespace std {
-
-auto hash<core::renderer::ShaderModule>::operator()(
+auto std::hash<core::renderer::ShaderModule>::operator()(
     const core::renderer::ShaderModule& t_shader_module
 ) const noexcept -> size_t
 {
     return core::renderer::hash_value(t_shader_module);
 }
-
-}   // namespace std

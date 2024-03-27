@@ -14,7 +14,7 @@ public:
     [[nodiscard]] static auto load_from_file(const std::filesystem::path& t_filepath)
         -> tl::optional<StbImage>;
 
-    [[nodiscard]] static auto load_from_memory(const std::span<const std::uint8_t> t_data)
+    [[nodiscard]] static auto load_from_memory(std::span<const std::uint8_t> t_data)
         -> tl::optional<StbImage>;
 
 private:

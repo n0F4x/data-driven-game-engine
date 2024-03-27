@@ -9,7 +9,6 @@
 #include <vk_mem_alloc.h>
 
 #include <core/renderer/base/Allocator.hpp>
-#include <core/renderer/base/Device.hpp>
 #include <core/utility/vma/Image.hpp>
 
 #include "core/renderer/model/StagingModel.hpp"
@@ -17,7 +16,7 @@
 namespace init {
 
 [[nodiscard]] auto create_render_pass(
-    const vk::SurfaceFormatKHR&     t_surface_format,
+    const vk::SurfaceFormatKHR&   t_surface_format,
     const core::renderer::Device& t_device
 ) -> vk::UniqueRenderPass;
 
@@ -29,7 +28,7 @@ namespace init {
 
 [[nodiscard]] auto create_depth_image_view(
     const core::renderer::Device& t_device,
-    vk::Image                       t_depth_image
+    vk::Image                     t_depth_image
 ) -> vk::UniqueImageView;
 
 [[nodiscard]] auto create_framebuffers(
@@ -80,8 +79,8 @@ auto upload_model(
     const core::renderer::Device&    t_device,
     const core::renderer::Allocator& t_allocator,
     core::renderer::StagingModel&&   t_staging_model,
-    vk::DescriptorSetLayout            t_descriptor_set_layout,
-    vk::DescriptorPool                 t_descriptor_pool
+    vk::DescriptorSetLayout          t_descriptor_set_layout,
+    vk::DescriptorPool               t_descriptor_pool
 ) -> tl::optional<core::renderer::RenderModel>;
 
 }   // namespace init

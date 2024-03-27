@@ -13,7 +13,7 @@ namespace app {
 //////////////////////////////
 App::App(Builder&& t_builder) noexcept : m_store{ std::move(t_builder.store()) } {}
 
-auto App::create() noexcept -> App::Builder
+auto App::create() noexcept -> Builder
 {
     SPDLOG_TRACE("Creating App...");
     return Builder{};

@@ -20,7 +20,7 @@ auto VertexInputStateBuilder::Binding::Attributes::operator[](
     return m_attributes[static_cast<size_t>(std::to_underlying(t_attributes))];
 }
 
-VertexInputStateBuilder::Binding::Binding(uint32_t t_stride) noexcept
+VertexInputStateBuilder::Binding::Binding(const uint32_t t_stride) noexcept
     : m_stride{ t_stride }
 {}
 
@@ -29,8 +29,7 @@ auto VertexInputStateBuilder::Binding::stride() const noexcept -> uint32_t
     return m_stride;
 }
 
-auto VertexInputStateBuilder::Binding::attributes() const noexcept
-    -> const VertexInputStateBuilder::Binding::Attributes&
+auto VertexInputStateBuilder::Binding::attributes() const noexcept -> const Attributes&
 {
     return m_attributes;
 }

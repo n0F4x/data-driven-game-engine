@@ -1,7 +1,6 @@
 #pragma once
 
 #include <filesystem>
-#include <string>
 #include <vector>
 
 #include <tl/optional.hpp>
@@ -18,7 +17,6 @@ namespace core::renderer {
 class ModelLoader;
 
 struct Model {
-public:
     struct Vertex {
         glm::vec3 position{};
         glm::vec3 normal{};

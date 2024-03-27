@@ -17,7 +17,7 @@ struct QueueInfos {
 };
 
 [[nodiscard]] auto
-    find_queue_families(vk::PhysicalDevice queue_family_index, vk::SurfaceKHR t_surface)
+    find_queue_families(vk::PhysicalDevice t_physical_device, vk::SurfaceKHR t_surface)
         -> tl::optional<QueueInfos>;
 
 }   // namespace core::renderer::helpers

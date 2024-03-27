@@ -8,8 +8,9 @@
 
 namespace {
 
-[[nodiscard]] auto get_min_image_count(vk::SurfaceCapabilitiesKHR t_surface_capabilities
-) noexcept -> uint32_t
+[[nodiscard]] auto
+    get_min_image_count(const vk::SurfaceCapabilitiesKHR& t_surface_capabilities) noexcept
+    -> uint32_t
 {
     uint32_t image_count = t_surface_capabilities.minImageCount + 1;
     if (t_surface_capabilities.maxImageCount > 0
@@ -20,10 +21,10 @@ namespace {
     return image_count;
 }
 
-auto choose_swapchain_surface_format(
-    vk::SurfaceKHR     t_surface,
-    vk::PhysicalDevice t_physical_device
-) -> vk::SurfaceFormatKHR
+vk::SurfaceFormatKHR choose_swapchain_surface_format(
+    const vk::SurfaceKHR     t_surface,
+    const vk::PhysicalDevice t_physical_device
+)
 {
     const auto t_available_surface_formats{
         t_physical_device.getSurfaceFormatsKHR(t_surface)
@@ -41,8 +42,8 @@ auto choose_swapchain_surface_format(
 }
 
 auto choose_swapchain_present_mode(
-    vk::SurfaceKHR     t_surface,
-    vk::PhysicalDevice t_physical_device
+    const vk::SurfaceKHR     t_surface,
+    const vk::PhysicalDevice t_physical_device
 ) -> vk::PresentModeKHR
 {
     const auto present_modes{ t_physical_device.getSurfacePresentModesKHR(t_surface) };
@@ -53,15 +54,15 @@ auto choose_swapchain_present_mode(
 }
 
 auto create_swapchain(
-    vk::SurfaceKHR             t_surface,
-    vk::PhysicalDevice         t_physical_device,
-    uint32_t                   t_graphics_queue_family,
-    uint32_t                   t_present_queue_family,
-    vk::Device                 t_device,
-    vk::SurfaceCapabilitiesKHR t_surface_capabilities,
-    vk::Extent2D               t_extent,
-    vk::SurfaceFormatKHR       t_surface_format,
-    vk::SwapchainKHR           t_old_swapchain
+    const vk::SurfaceKHR              t_surface,
+    const vk::PhysicalDevice          t_physical_device,
+    const uint32_t                    t_graphics_queue_family,
+    const uint32_t                    t_present_queue_family,
+    const vk::Device                  t_device,
+    const vk::SurfaceCapabilitiesKHR& t_surface_capabilities,
+    const vk::Extent2D                t_extent,
+    const vk::SurfaceFormatKHR        t_surface_format,
+    const vk::SwapchainKHR            t_old_swapchain
 ) -> vk::UniqueSwapchainKHR
 {
     const std::set              buffer{ t_graphics_queue_family, t_present_queue_family };
@@ -92,9 +93,9 @@ auto create_swapchain(
 }
 
 auto create_image_views(
-    vk::Device           t_device,
-    vk::SwapchainKHR     t_swapchain,
-    vk::SurfaceFormatKHR t_surface_format
+    const vk::Device           t_device,
+    const vk::SwapchainKHR     t_swapchain,
+    const vk::SurfaceFormatKHR t_surface_format
 ) -> std::vector<vk::UniqueImageView>
 {
     const auto                       images = t_device.getSwapchainImagesKHR(t_swapchain);
@@ -104,13 +105,13 @@ auto create_image_views(
     vk::ImageViewCreateInfo image_view_create_info{
         .viewType         = vk::ImageViewType::e2D,
         .format           = t_surface_format.format,
-        .subresourceRange = {.aspectMask     = vk::ImageAspectFlagBits::eColor,
+        .subresourceRange = { .aspectMask     = vk::ImageAspectFlagBits::eColor,
                              .baseMipLevel   = 0,
                              .levelCount     = 1,
                              .baseArrayLayer = 0,
-                             .layerCount     = 1}
+                             .layerCount     = 1 }
     };
-    for (auto image : images) {
+    for (const auto image : images) {
         image_view_create_info.image = image;
         image_views.emplace_back(t_device.createImageViewUnique(image_view_create_info));
     }
@@ -137,35 +138,33 @@ auto Swapchain::choose_extent(
     {
         return t_surface_capabilities.currentExtent;
     }
-    else {
-        vk::Extent2D actual_extent{
-            .width  = static_cast<uint32_t>(t_framebuffer_size.width),
-            .height = static_cast<uint32_t>(t_framebuffer_size.height)
-        };
 
-        actual_extent.width = std::clamp(
-            actual_extent.width,
-            t_surface_capabilities.minImageExtent.width,
-            t_surface_capabilities.maxImageExtent.width
-        );
-        actual_extent.height = std::clamp(
-            actual_extent.height,
-            t_surface_capabilities.minImageExtent.height,
-            t_surface_capabilities.maxImageExtent.height
-        );
+    vk::Extent2D actual_extent{ .width  = static_cast<uint32_t>(t_framebuffer_size.width),
+                                .height = static_cast<uint32_t>(t_framebuffer_size.height
+                                ) };
 
-        return actual_extent;
-    }
+    actual_extent.width = std::clamp(
+        actual_extent.width,
+        t_surface_capabilities.minImageExtent.width,
+        t_surface_capabilities.maxImageExtent.width
+    );
+    actual_extent.height = std::clamp(
+        actual_extent.height,
+        t_surface_capabilities.minImageExtent.height,
+        t_surface_capabilities.maxImageExtent.height
+    );
+
+    return actual_extent;
 }
 
 auto Swapchain::create(
-    vk::SurfaceKHR     t_surface,
-    vk::PhysicalDevice t_physical_device,
-    uint32_t           t_graphics_queue_family,
-    uint32_t           t_present_queue_family,
-    vk::Device         t_device,
-    vk::Extent2D       t_framebuffer_size,
-    vk::SwapchainKHR   t_old_swapchain
+    const vk::SurfaceKHR     t_surface,
+    const vk::PhysicalDevice t_physical_device,
+    const uint32_t           t_graphics_queue_family,
+    const uint32_t           t_present_queue_family,
+    const vk::Device         t_device,
+    const vk::Extent2D       t_framebuffer_size,
+    const vk::SwapchainKHR   t_old_swapchain
 ) noexcept -> tl::optional<Swapchain>
 try {
     const auto surface_capabilities{ t_physical_device.getSurfaceCapabilitiesKHR(t_surface
@@ -223,9 +222,9 @@ auto Swapchain::image_views() const noexcept -> const std::vector<vk::UniqueImag
 }
 
 Swapchain::Swapchain(
-    vk::Device                         t_device,
-    vk::Extent2D                       t_extent,
-    vk::SurfaceFormatKHR               t_surface_format,
+    const vk::Device                   t_device,
+    const vk::Extent2D                 t_extent,
+    const vk::SurfaceFormatKHR         t_surface_format,
     vk::UniqueSwapchainKHR&&           t_swapchain,
     std::vector<vk::UniqueImageView>&& t_image_views
 ) noexcept

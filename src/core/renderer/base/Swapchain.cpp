@@ -7,8 +7,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include "helpers.hpp"
-
 namespace core::renderer {
 
 //////////////////////////////////!
@@ -19,28 +17,26 @@ namespace core::renderer {
 
 auto Swapchain::required_instance_extensions() noexcept -> std::span<const std::string>
 {
-    static const std::vector<std::string> s_extensions_names{
-        []() -> std::vector<std::string> {
-            if (!glfwInit()) {
-                return {};
-            }
+    static const std::vector s_extensions_names{ []() -> std::vector<std::string> {
+        if (!glfwInit()) {
+            return {};
+        }
 
-            uint32_t count;
-            const char** glfw_extension_names{ glfwGetRequiredInstanceExtensions(&count) };
-            if (glfw_extension_names == nullptr) {
-                return {};
-            }
+        uint32_t             count;
+        const char**         glfw_extension_names{ glfwGetRequiredInstanceExtensions(&count) };
+        if (glfw_extension_names == nullptr) {
+            return {};
+        }
 
-            std::vector<std::string> result{};
-            result.reserve(count);
+        std::vector<std::string> result{};
+        result.reserve(count);
 
-            for (uint32_t i{}; i < count; i++) {
-                result.emplace_back(glfw_extension_names[i]);
-            }
+        for (uint32_t i{}; i < count; i++) {
+            result.emplace_back(glfw_extension_names[i]);
+        }
 
-            return result;
-        }()
-    };
+        return result;
+    }() };
 
     return s_extensions_names;
 }
@@ -76,34 +72,35 @@ auto Swapchain::get() const noexcept -> const tl::optional<vulkan::Swapchain>&
     return m_swapchain;
 }
 
-auto Swapchain::set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void
+auto Swapchain::set_framebuffer_size(const vk::Extent2D t_framebuffer_size) noexcept
+    -> void
 try {
     if (!m_swapchain.has_value()) {
         recreate_swapchain(t_framebuffer_size);
         return;
     }
 
-    auto extent = vulkan::Swapchain::choose_extent(
-        t_framebuffer_size,
-        m_device.get().physical_device().getSurfaceCapabilitiesKHR(*m_surface)
-    );
-
-    if (m_swapchain->extent() != extent) {
+    if (const auto extent = vulkan::Swapchain::choose_extent(
+            t_framebuffer_size,
+            m_device.get().physical_device().getSurfaceCapabilitiesKHR(*m_surface)
+        );
+        m_swapchain->extent() != extent)
+    {
         recreate_swapchain(t_framebuffer_size);
     }
 } catch (const vk::Error& t_error) {
     SPDLOG_ERROR(t_error.what());
 }
 
-auto Swapchain::acquire_next_image(vk::Semaphore t_semaphore, vk::Fence t_fence)
+auto Swapchain::acquire_next_image(const vk::Semaphore t_semaphore, const vk::Fence t_fence)
     -> tl::optional<uint32_t>
 try {
     if (m_swapchain.has_value()) {
-        const auto [result, image_index]{ m_device.get()->acquireNextImageKHR(
+        switch (const auto [result, image_index]{ m_device.get()->acquireNextImageKHR(
             **m_swapchain, std::numeric_limits<uint64_t>::max(), t_semaphore, t_fence
         ) };
-
-        switch (result) {
+                result)
+        {
             case vk::Result::eSuccess:
             case vk::Result::eSuboptimalKHR: {
                 m_image_index = image_index;
@@ -136,8 +133,9 @@ try {
                      .pImageIndices   = &m_image_index
     };
 
-    const auto result{ m_device.get().graphics_queue().presentKHR(info) };
-    if (result == vk::Result::eSuboptimalKHR) {
+    if (const auto result{ m_device.get().graphics_queue().presentKHR(info) };
+        result == vk::Result::eSuboptimalKHR)
+    {
         recreate_swapchain();
     }
 } catch (const vk::OutOfDateKHRError&) {
@@ -161,7 +159,7 @@ auto Swapchain::remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void
     });
 }
 
-auto Swapchain::recreate_swapchain(vk::Extent2D t_framebuffer_size) noexcept -> void
+auto Swapchain::recreate_swapchain(const vk::Extent2D t_framebuffer_size) noexcept -> void
 {
     m_device.get()->waitIdle();
 
@@ -178,7 +176,7 @@ auto Swapchain::recreate_swapchain(vk::Extent2D t_framebuffer_size) noexcept -> 
     m_swapchain = std::move(new_swapchain);
 
     if (m_swapchain.has_value()) {
-        for (const auto& [id, event] : m_swapchain_recreated_events) {
+        for (const auto& event : m_swapchain_recreated_events | std::views::values) {
             std::invoke(event, m_swapchain.value());
         }
     }

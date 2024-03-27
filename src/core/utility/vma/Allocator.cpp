@@ -1,10 +1,9 @@
 #include "Allocator.hpp"
 
-#include <utility>
-
 namespace core::vma {
 
-Allocator::Allocator(VmaAllocator t_allocator) noexcept : m_allocator{ t_allocator } {}
+Allocator::Allocator(const VmaAllocator t_allocator) noexcept : m_allocator{ t_allocator }
+{}
 
 Allocator::Allocator(Allocator&& t_other) noexcept
     : Allocator{ std::exchange(t_other.m_allocator, nullptr) }

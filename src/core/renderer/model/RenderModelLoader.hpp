@@ -1,7 +1,5 @@
 #pragma once
 
-#include <functional>
-
 #include <tl/optional.hpp>
 
 #include <vulkan/vulkan.hpp>

@@ -24,7 +24,7 @@ auto available_instance_extensions() -> std::vector<std::string>
          | std::ranges::to<std::vector>();
 }
 
-auto available_device_extensions(vk::PhysicalDevice t_physical_device)
+auto available_device_extensions(const vk::PhysicalDevice t_physical_device)
     -> std::vector<std::string>
 {
     return t_physical_device.enumerateDeviceExtensionProperties()
@@ -35,7 +35,7 @@ auto available_device_extensions(vk::PhysicalDevice t_physical_device)
 }
 
 auto supports_extensions(
-    vk::PhysicalDevice           t_physical_device,
+    const vk::PhysicalDevice     t_physical_device,
     std::span<const std::string> t_extensions
 ) -> bool
 {
@@ -56,8 +56,10 @@ auto supports_extensions(
     return required_extensions.empty();
 }
 
-auto supports_surface(vk::PhysicalDevice t_physical_device, vk::SurfaceKHR t_surface) noexcept
-    -> bool
+auto supports_surface(
+    const vk::PhysicalDevice t_physical_device,
+    const vk::SurfaceKHR     t_surface
+) noexcept -> bool
 {
     assert(t_physical_device);
     assert(t_surface);
@@ -77,7 +79,7 @@ auto supports_surface(vk::PhysicalDevice t_physical_device, vk::SurfaceKHR t_sur
     return false;
 }
 
-auto load_shader(vk::Device t_device, const std::filesystem::path& t_filepath)
+auto load_shader(const vk::Device t_device, const std::filesystem::path& t_filepath)
     -> vk::UniqueShaderModule
 {
     std::ifstream file{ t_filepath, std::ios::binary | std::ios::in | std::ios::ate };
@@ -94,7 +96,7 @@ auto load_shader(vk::Device t_device, const std::filesystem::path& t_filepath)
     file.close();
 
     const vk::ShaderModuleCreateInfo create_info{
-        .codeSize = static_cast<size_t>(file_size), .pCode = (uint32_t*)buffer.data()
+        .codeSize = static_cast<size_t>(file_size), .pCode = reinterpret_cast<uint32_t*>(buffer.data())
     };
 
     return t_device.createShaderModuleUnique(create_info);

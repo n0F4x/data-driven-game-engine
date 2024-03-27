@@ -6,17 +6,17 @@
 
 #include "core/utility/vulkan/tools.hpp"
 
-const uint32_t g_api_version{ VK_API_VERSION_1_3 };
+constexpr uint32_t g_api_version{ VK_API_VERSION_1_3 };
 
-const std::vector<std::string> g_required_layers{};
-const std::vector<std::string> g_optional_layers{
+constexpr std::vector<std::string> g_required_layers{};
+constexpr std::vector<std::string> g_optional_layers{
 #ifdef core_VULKAN_DEBUG
     "VK_LAYER_KHRONOS_validation"
 #endif
 };
 
-const std::vector<std::string> g_required_instance_extensions{};
-const std::vector<std::string> g_optional_instance_extensions{
+constexpr std::vector<std::string> g_required_instance_extensions{};
+constexpr std::vector<std::string> g_optional_instance_extensions{
 #ifdef core_VULKAN_DEBUG
     VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
@@ -123,8 +123,8 @@ namespace plugins::renderer {
 
 auto application_info() noexcept -> const vk::ApplicationInfo&
 {
-    static const vk::ApplicationInfo application_create_info{ .apiVersion =
-                                                                  g_api_version };
+    constexpr static vk::ApplicationInfo application_create_info{ .apiVersion =
+                                                                      g_api_version };
     return application_create_info;
 }
 
@@ -139,7 +139,7 @@ auto layers() noexcept -> std::span<const std::string>
 
 auto instance_extensions() noexcept -> std::span<const std::string>
 {
-    static const std::vector<std::string> instance_extensions{ filter(
+    static const std::vector instance_extensions{ filter(
         core::vulkan::available_instance_extensions(),
         g_required_instance_extensions,
         g_optional_instance_extensions
@@ -152,11 +152,11 @@ auto create_debug_messenger(const vk::Instance t_instance)
     -> vk::UniqueDebugUtilsMessengerEXT
 {
     auto available_extensions{ core::vulkan::available_instance_extensions() };
-    auto extension_supported{
-        std::ranges::find(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
-        != std::cend(available_extensions)
-    };
-    if (!extension_supported) {
+    if (const auto extension_supported{
+            std::ranges::find(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
+            != std::cend(available_extensions) };
+        !extension_supported)
+    {
         throw vk::ExtensionNotPresentError{ std::string{
                                                 VK_EXT_DEBUG_UTILS_EXTENSION_NAME }
                                             + "Vulkan extension is not supported" };
@@ -183,7 +183,7 @@ auto create_debug_messenger(const vk::Instance t_instance)
         | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation
     );
 
-    vk::DebugUtilsMessengerCreateInfoEXT debug_utils_messenger_create_info_ext{
+    const vk::DebugUtilsMessengerCreateInfoEXT debug_utils_messenger_create_info_ext{
         .messageSeverity = severity_flags,
         .messageType     = message_type_flags,
         .pfnUserCallback = &debugMessageFunc
@@ -200,7 +200,7 @@ auto filter(
     const std::span<const std::string> t_optional
 ) noexcept -> std::vector<std::string>
 {
-    std::vector<std::string> filtered{ std::from_range, t_required };
+    std::vector filtered{ std::from_range, t_required };
 
     filtered.append_range(t_optional | std::views::filter([&](const auto& optional) {
                               return std::ranges::find(t_available, optional)
@@ -211,9 +211,9 @@ auto filter(
 }
 
 auto is_adequate(
-    vk::PhysicalDevice           t_physical_device,
-    vk::SurfaceKHR               t_surface,
-    std::span<const std::string> t_required_extension_names
+    const vk::PhysicalDevice           t_physical_device,
+    const vk::SurfaceKHR               t_surface,
+    const std::span<const std::string> t_required_extension_names
 ) noexcept -> bool
 {
     return core::vulkan::supports_surface(t_physical_device, t_surface)
@@ -223,24 +223,25 @@ auto is_adequate(
 }
 
 auto choose_physical_device(
-    vk::Instance                 t_instance,
-    vk::SurfaceKHR               t_surface,
-    std::span<const std::string> t_required_extension_names
+    const vk::Instance                 t_instance,
+    const vk::SurfaceKHR               t_surface,
+    const std::span<const std::string> t_required_extension_names
 ) -> vk::PhysicalDevice
 {
     const auto physical_devices{ t_instance.enumeratePhysicalDevices() };
 
-    auto adequate_devices{
-        physical_devices
-        | std::views::filter(
-            [t_surface,
-             t_required_extension_names](vk::PhysicalDevice t_physical_device) -> bool {
-                return is_adequate(
-                    t_physical_device, t_surface, t_required_extension_names
-                );
-            }
-        )
-    };
+    auto adequate_devices{ physical_devices
+                           | std::views::filter(
+                               [t_surface, t_required_extension_names](
+                                   const vk::PhysicalDevice t_physical_device
+                               ) -> bool {
+                                   return is_adequate(
+                                       t_physical_device,
+                                       t_surface,
+                                       t_required_extension_names
+                                   );
+                               }
+                           ) };
 
     if (std::ranges::empty(adequate_devices)) {
         return vk::PhysicalDevice{};

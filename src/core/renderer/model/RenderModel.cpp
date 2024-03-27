@@ -1,14 +1,12 @@
 #include "RenderModel.hpp"
 
-#include <spdlog/spdlog.h>
-
 namespace core::renderer {
 
 [[nodiscard]] auto create_descriptor_set(
-    const vk::Device               t_device,
-    const vk::DescriptorSetLayout  t_descriptor_set_layout,
-    const vk::DescriptorPool       t_descriptor_pool,
-    const vk::DescriptorBufferInfo t_descriptor_buffer_info
+    const vk::Device                t_device,
+    const vk::DescriptorSetLayout   t_descriptor_set_layout,
+    const vk::DescriptorPool        t_descriptor_pool,
+    const vk::DescriptorBufferInfo& t_descriptor_buffer_info
 ) -> vk::UniqueDescriptorSet
 {
     const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{

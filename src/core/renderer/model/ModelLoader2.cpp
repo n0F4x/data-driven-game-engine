@@ -78,7 +78,7 @@ ModelLoader::ModelLoader(Cache& t_cache) noexcept : m_cache{ t_cache } {}
 
 auto ModelLoader::load_from_file(
     const std::filesystem::path& t_filepath,
-    tl::optional<size_t>         t_scene_id
+    const tl::optional<size_t>   t_scene_id
 ) noexcept -> tl::optional<Handle<Model>>
 {
     if (const auto cached{
@@ -100,7 +100,7 @@ auto ModelLoader::load_from_file(
     if (asset->scenes.size() <= scene_id) {
         return tl::nullopt;
     }
-    auto& scene{ asset->scenes[scene_id] };
+    const auto& scene{ asset->scenes[scene_id] };
 
     return m_cache
         .transform([&](Cache& cache) {
@@ -201,8 +201,8 @@ auto load_mesh(
     Model::Mesh mesh;
 
     mesh.primitives.reserve(t_source_mesh.primitives.size());
-    for (const auto& primitive : t_source_mesh.primitives) {
-        load_primitive(t_loader, t_asset, primitive)
+    for (const auto& source_primitive : t_source_mesh.primitives) {
+        load_primitive(t_loader, t_asset, source_primitive)
             .transform([&](Model::Primitive&& primitive) {
                 mesh.primitives.push_back(primitive);
             });
@@ -310,7 +310,7 @@ auto load_vertices(
             load_accessor(
                 t_asset.accessors[accessor_index],
                 &Model::Vertex::color,
-                [](glm::vec3 vec3) { return glm::make_vec4(vec3); }
+                [](const glm::vec3& vec3) { return glm::make_vec4(vec3); }
             );
         }
     }

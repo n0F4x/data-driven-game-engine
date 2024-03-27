@@ -1,7 +1,9 @@
 #include "GltfLoader.hpp"
 
-#include <functional>
-#include <type_traits>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <fastgltf/glm_element_traits.hpp>
+#include <fastgltf/tools.hpp>
 
 namespace core::renderer {
 
@@ -264,7 +266,7 @@ auto GltfLoader::load_vertices(
             load_accessor(
                 t_asset.accessors[accessor_index],
                 &Model::Vertex::color,
-                [](glm::vec3 vec3) { return glm::make_vec4(vec3); }
+                [](const glm::vec3& vec3) { return glm::make_vec4(vec3); }
             );
         }
     }

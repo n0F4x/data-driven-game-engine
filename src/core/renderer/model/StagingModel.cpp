@@ -9,7 +9,7 @@ auto StagingModel::nodes() const noexcept -> const std::vector<Node>&
 
 auto StagingModel::upload(
     const vk::Device              t_device,
-    const renderer::Allocator&    t_allocator,
+    const Allocator&              t_allocator,
     const vk::CommandBuffer       t_copy_command_buffer,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool

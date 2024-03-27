@@ -65,7 +65,7 @@ auto Effect::InputAttributeLocations::load_from_shader_file(
 ) -> InputAttributeLocations
 {
     std::vector<uint32_t>        spirv = load_spirv_from_file(t_filepath);
-    spirv_cross::Compiler        compiler{ std::move(spirv) };
+    const spirv_cross::Compiler  compiler{ std::move(spirv) };
     spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
     InputAttributeLocations locations;
@@ -89,9 +89,9 @@ auto Effect::InputAttributeLocations::get(const VertexAttribute t_attribute
     return m_locations[static_cast<size_t>(std::to_underlying(t_attribute))];
 }
 
-Effect::Effect(Handle<Shader> t_vertex_shader, Handle<Shader> t_fragment_shader) noexcept
-    : m_vertex_shader{ std::move(t_vertex_shader) },
-      m_fragment_shader{ std::move(t_fragment_shader) },
+Effect::Effect(const Handle<Shader>& t_vertex_shader, const Handle<Shader>& t_fragment_shader) noexcept
+    : m_vertex_shader{ t_vertex_shader },
+      m_fragment_shader{ t_fragment_shader },
       m_stages{ vk::PipelineShaderStageCreateInfo{   .stage  = vk::ShaderStageFlagBits::eVertex,
                                                    .module = m_vertex_shader->module(),
                                                    .pName  = m_vertex_shader->entry_point().c_str() },
@@ -123,12 +123,8 @@ auto Effect::pipeline_stages() const -> std::span<const vk::PipelineShaderStageC
 
 }   // namespace core::renderer
 
-namespace std {
-
-auto hash<core::renderer::Effect>::operator()(const core::renderer::Effect& t_effect
-) const -> size_t
+auto std::hash<core::renderer::Effect>::operator()(const core::renderer::Effect& t_effect
+) const noexcept -> size_t
 {
     return core::renderer::hash_value(t_effect);
 }
-
-}   // namespace std

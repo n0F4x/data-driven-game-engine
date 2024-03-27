@@ -4,8 +4,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include <entt/core/hashed_string.hpp>
-
 #include <fastgltf/core.hpp>
 
 #include "GltfLoader.hpp"
@@ -30,7 +28,7 @@ namespace core::renderer {
 
 auto ModelLoader::load_from_file(
     const std::filesystem::path& t_filepath,
-    const renderer::Allocator&   t_allocator
+    const Allocator&             t_allocator
 ) noexcept -> tl::optional<StagingModel>
 {
     auto asset{ load_asset(t_filepath) };
@@ -42,7 +40,9 @@ auto ModelLoader::load_from_file(
     GltfLoader model;
     model.load(asset.get());
 
-    return StagingMeshBuffer::create<Model::Vertex>(t_allocator, model.vertices, model.indices)
+    return StagingMeshBuffer::create<Model::Vertex>(
+               t_allocator, model.vertices, model.indices
+    )
         .transform([&](StagingMeshBuffer&& t_staging_mesh_buffer) {
             return StagingModel{ std::move(t_staging_mesh_buffer),
                                  std::move(model.nodes) };

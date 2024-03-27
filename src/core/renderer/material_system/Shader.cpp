@@ -4,8 +4,8 @@
 
 namespace core::renderer {
 
-Shader::Shader(Handle<ShaderModule> t_shader_module, std::string t_entry_point) noexcept
-    : m_module{ std::move(t_shader_module) },
+Shader::Shader(const Handle<ShaderModule>& t_shader_module, std::string t_entry_point) noexcept
+    : m_module{ t_shader_module },
       m_entry_point{ std::move(t_entry_point) }
 {}
 
@@ -31,12 +31,8 @@ auto Shader::entry_point() const noexcept -> const std::string&
 
 }   // namespace core::renderer
 
-namespace std {
-
-auto hash<core::renderer::Shader>::operator()(const core::renderer::Shader& t_shader
-) const -> size_t
+auto std::hash<core::renderer::Shader>::operator()(const core::renderer::Shader& t_shader
+) const noexcept -> size_t
 {
     return core::renderer::hash_value(t_shader);
 }
-
-}   // namespace std

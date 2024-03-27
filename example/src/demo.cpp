@@ -294,13 +294,11 @@ auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept ->
                     );
                 }
             );
-            t_demo.swapchain.on_swapchain_recreated(
-                [&t_demo](const vulkan::Swapchain& t_swapchain) {
-                    t_demo.depth_image_view.reset();
-                    t_demo.depth_image_view =
-                        init::create_depth_image_view(t_demo.device, *t_demo.depth_image);
-                }
-            );
+            t_demo.swapchain.on_swapchain_recreated([&t_demo](const vulkan::Swapchain&) {
+                t_demo.depth_image_view.reset();
+                t_demo.depth_image_view =
+                    init::create_depth_image_view(t_demo.device, *t_demo.depth_image);
+            });
             t_demo.swapchain.on_swapchain_recreated(
                 [&t_demo](const vulkan::Swapchain& t_swapchain) {
                     t_demo.framebuffers.clear();
@@ -319,12 +317,12 @@ auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept ->
 
             glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             glfwSetInputMode(window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-            int width, height;
-            glfwGetWindowSize(window.get(), &width, &height);
+            int window_width, window_height;
+            glfwGetWindowSize(window.get(), &window_width, &window_height);
             glfwSetCursorPos(
                 window.get(),
-                static_cast<double>(width) / 2.0,
-                static_cast<double>(height) / 2.0
+                static_cast<double>(window_width) / 2.0,
+                static_cast<double>(window_height) / 2.0
             );
             Controller controller;
             bool       reset_mouse{};
@@ -333,9 +331,9 @@ auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept ->
             glfwSetWindowUserPointer(window.get(), &framebuffer_size);
             glfwSetFramebufferSizeCallback(
                 window.get(),
-                [](GLFWwindow* window, int width, int height) {
+                [](GLFWwindow* raw_window, const int width, const int height) {
                     static_cast<std::atomic<vk::Extent2D>*>(
-                        glfwGetWindowUserPointer(window)
+                        glfwGetWindowUserPointer(raw_window)
                     )
                         ->store(vk::Extent2D{ static_cast<uint32_t>(width),
                                               static_cast<uint32_t>(height) });
@@ -381,11 +379,11 @@ auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept ->
                         camera_mutex.unlock();
                     }
 
-                    glfwGetWindowSize(window.get(), &width, &height);
+                    glfwGetWindowSize(window.get(), &window_width, &window_height);
                     glfwSetCursorPos(
                         window.get(),
-                        static_cast<double>(width) / 2.0,
-                        static_cast<double>(height) / 2.0
+                        static_cast<double>(window_width) / 2.0,
+                        static_cast<double>(window_height) / 2.0
                     );
 
                     reset_mouse = false;

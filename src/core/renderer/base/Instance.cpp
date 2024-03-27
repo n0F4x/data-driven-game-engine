@@ -32,7 +32,7 @@ namespace core::renderer {
 
 [[nodiscard]] static auto create_debug_messenger(
     const Instance::CreateInfo& t_create_info,
-    vk::Instance                t_instance
+    const vk::Instance          t_instance
 ) -> vk::UniqueDebugUtilsMessengerEXT
 {
     vk::UniqueDebugUtilsMessengerEXT debug_messenger{};

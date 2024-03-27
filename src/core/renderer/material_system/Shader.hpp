@@ -9,8 +9,8 @@ namespace core::renderer {
 class Shader {
 public:
     explicit Shader(
-        Handle<ShaderModule> t_shader_module,
-        std::string          t_entry_point
+        const Handle<ShaderModule>& t_shader_module,
+        std::string                 t_entry_point
     ) noexcept;
 
     [[nodiscard]] auto filepath() const noexcept -> const std::filesystem::path&;
@@ -26,13 +26,8 @@ private:
 
 }   // namespace core::renderer
 
-namespace std {
-
 template <>
-class hash<core::renderer::Shader> {
-public:
-    [[nodiscard]] auto operator()(const core::renderer::Shader& t_shader) const
+struct std::hash<core::renderer::Shader> {
+    [[nodiscard]] auto operator()(const core::renderer::Shader& t_shader) const noexcept
         -> size_t;
 };
-
-}   // namespace std

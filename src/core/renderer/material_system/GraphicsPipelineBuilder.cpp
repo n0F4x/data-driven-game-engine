@@ -4,10 +4,12 @@
 
 #include "core/utility/hashing.hpp"
 
+#include "VertexInputStateBuilder.hpp"
+
 namespace core::renderer {
 
 GraphicsPipelineBuilder::GraphicsPipelineBuilder(
-    vk::Device           t_device,
+    const vk::Device     t_device,
     Effect               t_effect,
     tl::optional<Cache&> t_cache
 ) noexcept
@@ -86,7 +88,7 @@ auto GraphicsPipelineBuilder::build() const -> Handle<GraphicsPipeline>
         .topology = m_primitive_topology
     };
 
-    const vk::PipelineViewportStateCreateInfo viewport_state_create_info{
+    constexpr vk::PipelineViewportStateCreateInfo viewport_state_create_info{
         .viewportCount = 1, .scissorCount = 1
     };
 
@@ -97,11 +99,11 @@ auto GraphicsPipelineBuilder::build() const -> Handle<GraphicsPipeline>
         .lineWidth   = 1.f
     };
 
-    const vk::PipelineMultisampleStateCreateInfo multisample_state_create_info{
+    constexpr vk::PipelineMultisampleStateCreateInfo multisample_state_create_info{
         .rasterizationSamples = vk::SampleCountFlagBits::e1,
     };
 
-    const vk::PipelineDepthStencilStateCreateInfo depth_stencil_state_create_info{
+    constexpr vk::PipelineDepthStencilStateCreateInfo depth_stencil_state_create_info{
         .depthTestEnable       = true,
         .depthWriteEnable      = true,
         .depthCompareOp        = vk::CompareOp::eLess,
@@ -129,9 +131,9 @@ auto GraphicsPipelineBuilder::build() const -> Handle<GraphicsPipeline>
         .pAttachments    = &color_blend_attachment_state,
     };
 
-    const std::array                         dynamic_states{ vk::DynamicState::eViewport,
-                                     vk::DynamicState::eScissor };
-    const vk::PipelineDynamicStateCreateInfo dynamic_state_create_info{
+    constexpr static std::array dynamic_states{ vk::DynamicState::eViewport,
+                                                vk::DynamicState::eScissor };
+    constexpr vk::PipelineDynamicStateCreateInfo dynamic_state_create_info{
         .dynamicStateCount = static_cast<uint32_t>(dynamic_states.size()),
         .pDynamicStates    = dynamic_states.data()
     };
@@ -177,13 +179,9 @@ auto GraphicsPipelineBuilder::build() const -> Handle<GraphicsPipeline>
 
 }   // namespace core::renderer
 
-namespace std {
-
-auto hash<core::renderer::GraphicsPipelineBuilder>::operator()(
+auto std::hash<core::renderer::GraphicsPipelineBuilder>::operator()(
     const core::renderer::GraphicsPipelineBuilder& t_graphics_pipeline_builder
-) const -> size_t
+) const noexcept -> size_t
 {
     return core::renderer::hash_value(t_graphics_pipeline_builder);
 }
-
-}   // namespace std

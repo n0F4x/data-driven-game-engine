@@ -56,7 +56,7 @@ auto Controller::update(const core::window::Window& t_window, float t_delta_time
     }
 }
 
-auto Controller::update_camera(Camera t_camera) noexcept -> Camera
+auto Controller::update_camera(Camera t_camera) const noexcept -> Camera
 {
     t_camera.set_view_yxz(
         m_position, glm::vec3{ m_vertical_angle, m_horizontal_angle, 0 }

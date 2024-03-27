@@ -45,9 +45,9 @@ template <template <typename> typename Hasher>
     std::size_t seed = std::ranges::size(t_range);
     for (auto x : t_range) {
         auto hash{ hasher(x) };
-        hash = ((hash >> 16) ^ hash) * 0x4'5d'9f'3b;
-        hash = ((hash >> 16) ^ hash) * 0x4'5d'9f'3b;
-        hash = (hash >> 16) ^ hash;
+        hash = (hash >> 16 ^ hash) * 0x4'5d'9f'3b;
+        hash = (hash >> 16 ^ hash) * 0x4'5d'9f'3b;
+        hash = hash >> 16 ^ hash;
         seed ^= hash + 0x9e'37'79'b9 + (seed << 6) + (seed >> 2);
     }
     return seed;

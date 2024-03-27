@@ -6,7 +6,6 @@
 
 #include "core/common/Cache.hpp"
 #include "core/common/Handle.hpp"
-#include "core/renderer/material_system/VertexInputStateBuilder.hpp"
 
 #include "Model.hpp"
 

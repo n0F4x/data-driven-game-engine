@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "entt/core/any.hpp"
-#include "entt/core/type_info.hpp"
 #include "tl/optional.hpp"
 
 class Store {
@@ -12,8 +11,8 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    Store()                 = default;
-    Store(Store&&) noexcept = default;
+            Store()                 = default;
+            Store(Store&&) noexcept = default;
     inline ~Store() noexcept;
 
     ///-----------///

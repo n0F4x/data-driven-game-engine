@@ -1,7 +1,5 @@
 #pragma once
 
-#include <array>
-
 #include <tl/optional.hpp>
 
 #include <vulkan/vulkan.hpp>
@@ -12,7 +10,6 @@
 #include "Effect.hpp"
 #include "GraphicsPipeline.hpp"
 #include "VertexInputState.hpp"
-#include "VertexInputStateBuilder.hpp"
 
 namespace core::renderer {
 
@@ -56,14 +53,9 @@ private:
 
 }   // namespace core::renderer
 
-namespace std {
-
 template <>
-class hash<core::renderer::GraphicsPipelineBuilder> {
-public:
+struct std::hash<core::renderer::GraphicsPipelineBuilder> {
     [[nodiscard]] auto operator()(
         const core::renderer::GraphicsPipelineBuilder& t_graphics_pipeline_builder
-    ) const -> size_t;
+    ) const noexcept -> size_t;
 };
-
-}   // namespace std

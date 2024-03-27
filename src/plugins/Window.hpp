@@ -1,6 +1,5 @@
 #pragma once
 
-#include <concepts>
 #include <string>
 
 #include "app/Plugin.hpp"
@@ -18,23 +17,23 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        app::App::Builder&      t_builder,
+        app::App::Builder& t_builder,
         uint16_t           t_width,
         uint16_t           t_height,
         const std::string& t_title
-    ) -> void;
+    ) const -> void;
 
     auto operator()(
-        app::App::Builder&       t_builder,
+        app::App::Builder&  t_builder,
         uint16_t            t_width,
         uint16_t            t_height,
         const std::string&  t_title,
         std::invocable auto t_configure
-    ) -> void;
+    ) const -> void;
 };
 
 static_assert(app::PluginConcept<Window, uint16_t, uint16_t, const std::string&>);
 
-}   // namespace core::window
+}   // namespace plugins
 
 #include "Window.inl"

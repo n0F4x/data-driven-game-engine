@@ -26,8 +26,8 @@ public:
     };
 
     explicit Effect(
-        Handle<Shader> t_vertex_shader,
-        Handle<Shader> t_fragment_shader
+        const Handle<Shader>& t_vertex_shader,
+        const Handle<Shader>& t_fragment_shader
     ) noexcept;
 
     [[nodiscard]] auto vertex_shader() const noexcept -> const Shader&;
@@ -49,13 +49,8 @@ private:
 
 }   // namespace core::renderer
 
-namespace std {
-
 template <>
-class hash<core::renderer::Effect> {
-public:
-    [[nodiscard]] auto operator()(const core::renderer::Effect& t_effect) const
+struct std::hash<core::renderer::Effect> {
+    [[nodiscard]] auto operator()(const core::renderer::Effect& t_effect) const noexcept
         -> size_t;
 };
-
-}   // namespace std

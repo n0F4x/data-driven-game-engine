@@ -3,9 +3,9 @@
 namespace core::renderer {
 
 RenderModelLoader::RenderModelLoader(
-    vk::Device           t_device,
-    const Allocator&     t_allocator,
-    tl::optional<Cache&> t_cache
+    const vk::Device           t_device,
+    const Allocator&           t_allocator,
+    const tl::optional<Cache&> t_cache
 ) noexcept
     : m_device{ t_device },
       m_allocator{ t_allocator },

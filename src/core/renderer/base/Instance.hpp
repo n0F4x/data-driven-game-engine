@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-#include <tl/optional.hpp>
-
 #include <vulkan/vulkan.hpp>
 
 namespace core::renderer {
