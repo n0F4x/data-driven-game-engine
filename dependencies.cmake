@@ -1,3 +1,5 @@
+set(BUILD_SHARED_LIBS OFF)
+
 # Microsoft GSL
 find_package(Microsoft.GSL)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <gsl/gsl>)
@@ -21,6 +23,9 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE <spdlog/spdlog.h>)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # GLFW
+set(GLFW_BUILD_EXAMPLES OFF)
+set(GLFW_BUILD_TESTS OFF)
+set(GLFW_BUILD_DOCS OFF)
 find_package(glfw3)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
         GLFW_INCLUDE_VULKAN
@@ -45,6 +50,9 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 
 # SPIRV-Cross
+set(SPIRV_CROSS_STATIC ON)
+set(SPIRV_CROSS_SHARED OFF)
+set(SPIRV_CROSS_CLI OFF)
 find_package(spirv-cross)
 target_link_libraries(${PROJECT_NAME} PRIVATE spirv-cross::spirv-cross)
 
@@ -82,6 +90,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 
 # KTX
 message(NOTICE "Configuring KTX")
+set(KTX_FEATURE_STATIC_LIBRARY ON)
 FetchContent_Declare(ktxlib
         GIT_REPOSITORY https://github.com/KhronosGroup/KTX-Software.git
         GIT_TAG v4.3.1
