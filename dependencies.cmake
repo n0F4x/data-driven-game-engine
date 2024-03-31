@@ -1,37 +1,16 @@
 # Microsoft GSL
-FetchContent_Declare(GSL
-        GIT_REPOSITORY "https://github.com/microsoft/GSL"
-        GIT_TAG "v4.0.0"
-        GIT_SHALLOW ON
-        GIT_PROGRESS TRUE
-        SYSTEM
-)
-FetchContent_MakeAvailable(GSL)
+find_package(Microsoft.GSL)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <gsl/gsl>)
 target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft.GSL::GSL)
 
 # tl-optional
-message(NOTICE "Configuring tl-optional")
 set(BUILD_TESTING OFF)
-FetchContent_Declare(tl-optional
-        GIT_REPOSITORY https://github.com/TartanLlama/optional.git
-        GIT_TAG v1.1.0
-        GIT_PROGRESS TRUE
-        SYSTEM
-)
-FetchContent_MakeAvailable(tl-optional)
+find_package(tl-optional)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <tl/optional.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC tl::optional)
 
 # spdlog
-message(NOTICE "Configuring spdlog")
-FetchContent_Declare(spdlog
-        GIT_REPOSITORY https://github.com/gabime/spdlog.git
-        GIT_TAG v1.13.0
-        GIT_PROGRESS TRUE
-        SYSTEM
-)
-FetchContent_MakeAvailable(spdlog)
+find_package(spdlog)
 if (engine_debug)
     set(spdlog_level SPDLOG_LEVEL_TRACE)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -42,14 +21,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE <spdlog/spdlog.h>)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # GLFW
-message(NOTICE "Configuring GLFW")
-FetchContent_Declare(GLFW
-        GIT_REPOSITORY https://github.com/glfw/glfw.git
-        GIT_TAG 3.3.9
-        GIT_PROGRESS TRUE
-        SYSTEM
-)
-FetchContent_MakeAvailable(GLFW)
+find_package(glfw3)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
         GLFW_INCLUDE_VULKAN
 )
@@ -73,15 +45,8 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 
 # SPIRV-Cross
-message(NOTICE "Configuring SPIRV-Cross")
-FetchContent_Declare(SPIRV_Cross
-        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
-        GIT_TAG vulkan-sdk-1.3.275.0
-        GIT_PROGRESS TRUE
-        SYSTEM
-)
-FetchContent_MakeAvailable(SPIRV_Cross)
-target_link_libraries(${PROJECT_NAME} PRIVATE spirv-cross-cpp)
+find_package(spirv-cross)
+target_link_libraries(${PROJECT_NAME} PRIVATE spirv-cross::spirv-cross)
 
 # VulkanMemoryAllocator
 message(NOTICE "Configuring VulkanMemoryAllocator")
@@ -127,29 +92,14 @@ FetchContent_MakeAvailable(ktxlib)
 target_link_libraries(${PROJECT_NAME} PUBLIC ktx)
 
 # stb
-message(NOTICE "Configuring stb")
-add_subdirectory(stb SYSTEM)
-target_link_libraries(${PROJECT_NAME} PUBLIC stb)
+find_package(stb)
+target_link_libraries(${PROJECT_NAME} PUBLIC stb::stb)
 
 # fastgltf
-message(NOTICE "Configuring fastgltf")
-FetchContent_Declare(fastgltf
-        GIT_REPOSITORY https://github.com/spnda/fastgltf.git
-        GIT_TAG v0.7.0
-        GIT_PROGRESS TRUE
-        SYSTEM
-)
-FetchContent_MakeAvailable(fastgltf)
-target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf)
+find_package(fastgltf)
+target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)
 
 # EnTT
-message(NOTICE "Configuring EnTT")
-FetchContent_Declare(EnTT
-        GIT_REPOSITORY https://github.com/skypjack/entt.git
-        GIT_TAG v3.13.0
-        GIT_PROGRESS TRUE
-        SYSTEM
-)
-FetchContent_MakeAvailable(EnTT)
+find_package(EnTT)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <entt/entt.hpp>)
-target_link_libraries(${PROJECT_NAME} PUBLIC EnTT)
+target_link_libraries(${PROJECT_NAME} PUBLIC EnTT::EnTT)

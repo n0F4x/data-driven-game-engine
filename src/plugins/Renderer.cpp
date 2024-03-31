@@ -28,11 +28,11 @@ static auto create_vulkan_surface(
 {
     VkSurfaceKHR surface{};
 
-    if (auto error_code{
+    if (vk::Result error_code{
             glfwCreateWindowSurface(t_instance, t_window, t_allocator, &surface) };
-        error_code != VK_SUCCESS)
+        error_code != vk::Result::eSuccess)
     {
-        SPDLOG_ERROR("glfwCreateWindowSurface failed with error code {}", error_code);
+        SPDLOG_ERROR("glfwCreateWindowSurface failed with error code {}", std::to_underlying(error_code));
     }
 
     return surface;

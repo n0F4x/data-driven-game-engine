@@ -55,7 +55,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
         <variant>
 )
 
-add_subdirectory(external SYSTEM)
+include(dependencies.cmake)
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC src)

@@ -181,7 +181,7 @@ Device::Device(
 
     SPDLOG_INFO(
         "Found GPU({}) with Vulkan version: {}.{}.{}",
-        properties.deviceName,
+        static_cast<std::string>(properties.deviceName),
         VK_VERSION_MAJOR(properties.apiVersion),
         VK_VERSION_MINOR(properties.apiVersion),
         VK_VERSION_PATCH(properties.apiVersion)

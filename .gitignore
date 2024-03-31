@@ -1,3 +1,4 @@
+.venv
 .vs
 .vscode
 .idea
@@ -8,8 +9,6 @@ cmake-build-*/
 
 build.sh
 build.bat
-CMakeSettings.json
-CMakePresets.json
 cpp.hint
 
 */shaders/*.spv
