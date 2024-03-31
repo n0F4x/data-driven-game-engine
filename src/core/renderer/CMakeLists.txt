@@ -3,6 +3,5 @@ add_subdirectory(material_system)
 add_subdirectory(model)
 
 target_sources(${PROJECT_NAME} PRIVATE
-        Scene.cpp
-        SceneBuilder.cpp
+        RenderScene.cpp
 )

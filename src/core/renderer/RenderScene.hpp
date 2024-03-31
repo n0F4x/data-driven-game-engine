@@ -4,7 +4,7 @@
 
 namespace core::renderer {
 
-class Scene {
+class RenderScene {
 public:
     auto draw(vk::CommandBuffer t_graphics_command_buffer) const -> void;
 };

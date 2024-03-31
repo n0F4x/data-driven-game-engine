@@ -98,6 +98,11 @@ auto ModelLoader::load_from_file(
 
     size_t scene_id{ t_scene_id.value_or(asset->defaultScene.value_or(0)) };
     if (asset->scenes.size() <= scene_id) {
+        SPDLOG_WARN(
+            "The glTF file at {} does not contain the requested scene: {}",
+            t_filepath.generic_string(),
+            scene_id
+        );
         return tl::nullopt;
     }
     const auto& scene{ asset->scenes[scene_id] };
