@@ -1,18 +1,20 @@
 #pragma once
 
+#include <typeindex>
 #include <unordered_map>
 #include <vector>
 
-#include "entt/core/any.hpp"
-#include "tl/optional.hpp"
+#include <tl/optional.hpp>
+
+#include <entt/core/any.hpp>
 
 class Store {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-            Store()                 = default;
-            Store(Store&&) noexcept = default;
+    Store()                 = default;
+    Store(Store&&) noexcept = default;
     inline ~Store() noexcept;
 
     ///-----------///
@@ -37,17 +39,11 @@ public:
     [[nodiscard]] auto contains() const noexcept -> bool;
 
 private:
-    ///****************///
-    ///  Type aliases  ///
-    ///****************///
-    using Any       = entt::basic_any<0>;
-    using TypeIndex = entt::id_type;
-
     ///*************///
     ///  Variables  ///
     ///*************///
-    std::unordered_map<TypeIndex, TypeIndex> m_index_map;
-    std::vector<Any>                         m_elements;
+    std::unordered_map<std::type_index, size_t> m_index_map;
+    std::vector<entt::any>                      m_elements;
 };
 
 #include "Store.inl"
