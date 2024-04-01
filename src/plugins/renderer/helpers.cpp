@@ -8,16 +8,16 @@
 
 constexpr uint32_t g_api_version{ VK_API_VERSION_1_3 };
 
-constexpr std::vector<std::string> g_required_layers{};
-constexpr std::vector<std::string> g_optional_layers{
-#ifdef core_VULKAN_DEBUG
+const std::vector<std::string> g_required_layers{};
+const std::vector<std::string> g_optional_layers{
+#ifdef ENGINE_VULKAN_DEBUG
     "VK_LAYER_KHRONOS_validation"
 #endif
 };
 
-constexpr std::vector<std::string> g_required_instance_extensions{};
-constexpr std::vector<std::string> g_optional_instance_extensions{
-#ifdef core_VULKAN_DEBUG
+const std::vector<std::string> g_required_instance_extensions{};
+const std::vector<std::string> g_optional_instance_extensions{
+#ifdef ENGINE_VULKAN_DEBUG
     VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
 };

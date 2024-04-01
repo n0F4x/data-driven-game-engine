@@ -75,7 +75,7 @@ std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
         .application_info = application_info(),
         .layers           = std::set{ std::from_range, layers() },
         .extensions       = instance_extension_names(),
-#ifdef core_VULKAN_DEBUG
+#ifdef ENGINE_VULKAN_DEBUG
         .create_debug_messenger = create_debug_messenger
 #endif
     };

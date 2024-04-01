@@ -1,0 +1,90 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "generator": "Ninja"
+    },
+    {
+      "name": "release",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "debug",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "vcpkg",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "vcpkg-MinGW",
+      "hidden": true,
+      "inherits": "vcpkg",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-mingw-static",
+        "VCPKG_HOST_TRIPLET": "x64-mingw-static"
+      }
+    },
+    {
+      "name": "vcpkg-VisualStudio",
+      "hidden": true,
+      "inherits": "vcpkg",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+      }
+    },
+    {
+      "name": "Clang-debug",
+      "inherits": "debug",
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Clang"
+        }
+      }
+    },
+    {
+      "name": "Clang-vcpkg-MinGW-debug",
+      "inherits": ["Clang-debug", "vcpkg-MinGW"],
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Clang"
+        }
+      }
+    },
+    {
+      "name": "MSVC-debug",
+      "inherits": "debug",
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "MSVC"
+        }
+      }
+    },
+    {
+      "name": "MSVC-vcpkg-VisualStudio-debug",
+      "inherits": ["MSVC-debug", "vcpkg-VisualStudio"],
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "MSVC"
+        }
+      }
+    }
+  ]
+}
