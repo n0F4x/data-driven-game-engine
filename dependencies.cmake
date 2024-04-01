@@ -1,5 +1,9 @@
 set(BUILD_SHARED_LIBS OFF)
 
+if (DEFINED CMAKE_TOOLCHAIN_FILE)
+    message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
+endif ()
+
 # Microsoft GSL
 find_package(Microsoft.GSL CONFIG REQUIRED)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <gsl/gsl>)
