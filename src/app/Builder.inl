@@ -38,4 +38,4 @@ auto App::Builder::add_plugin(
     return std::move(*this);
 }
 
-}   // namespace core
+}   // namespace app

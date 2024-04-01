@@ -12,4 +12,4 @@ enum class VertexAttribute {
     COUNT
 };
 
-}
+}   // namespace core::renderer

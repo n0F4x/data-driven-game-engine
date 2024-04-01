@@ -96,7 +96,8 @@ auto load_shader(const vk::Device t_device, const std::filesystem::path& t_filep
     file.close();
 
     const vk::ShaderModuleCreateInfo create_info{
-        .codeSize = static_cast<size_t>(file_size), .pCode = reinterpret_cast<uint32_t*>(buffer.data())
+        .codeSize = static_cast<size_t>(file_size),
+        .pCode    = reinterpret_cast<uint32_t*>(buffer.data())
     };
 
     return t_device.createShaderModuleUnique(create_info);

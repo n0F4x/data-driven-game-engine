@@ -1,8 +1,8 @@
 #pragma once
 
+#include <filesystem>
 #include <span>
 #include <string>
-#include <filesystem>
 
 #include <vulkan/vulkan.hpp>
 
@@ -25,7 +25,8 @@ namespace core::vulkan {
     vk::SurfaceKHR     t_surface
 ) noexcept -> bool;
 
-[[nodiscard]] auto load_shader(vk::Device t_device, const std::filesystem::path& t_filepath)
-    -> vk::UniqueShaderModule;
+[[nodiscard]] auto
+    load_shader(vk::Device t_device, const std::filesystem::path& t_filepath)
+        -> vk::UniqueShaderModule;
 
 }   // namespace core::vulkan

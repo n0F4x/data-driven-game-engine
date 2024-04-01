@@ -11,11 +11,15 @@ namespace core::window {
 ///---------------------------///
 /////////////////////////////////
 
-[[nodiscard]] static auto
-    create_window(const uint16_t t_width, uint16_t const t_height, const std::string& title)
-        -> GLFWwindow*
+[[nodiscard]] static auto create_window(
+    const uint16_t     t_width,
+    const uint16_t     t_height,
+    const std::string& title
+) -> GLFWwindow*
 {
-    const auto window{ glfwCreateWindow(t_width, t_height, title.c_str(), nullptr, nullptr) };
+    const auto window{
+        glfwCreateWindow(t_width, t_height, title.c_str(), nullptr, nullptr)
+    };
     if (window == nullptr) {
         throw std::runtime_error{ std::format(
             "glfwCreateWindowSurface failed with error code {}",

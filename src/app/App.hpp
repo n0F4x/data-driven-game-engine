@@ -42,6 +42,6 @@ private:
     Store m_store;
 };
 
-}   // namespace core
+}   // namespace app
 
 #include "app/App.inl"

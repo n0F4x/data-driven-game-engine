@@ -1,6 +1,6 @@
 #include <functional>
 
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 namespace app {
 
@@ -14,4 +14,4 @@ auto App::run(RunnerConcept<Args...> auto&& t_runner, Args&&... t_args)
     );
 }
 
-}   // namespace core
+}   // namespace app

@@ -14,4 +14,4 @@ public:
 
 static_assert(app::PluginConcept<Common>);
 
-}   // namespace core::common
+}   // namespace plugins
