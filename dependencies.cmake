@@ -11,9 +11,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft.GSL::GSL)
 
 # tl-optional
 set(BUILD_TESTING OFF)
-find_package(tl-optional)
+find_package(tl-optional CONFIG REQUIRED)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <tl/optional.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC tl::optional)
+
+# ordered_map
+find_package(tsl-ordered-map CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC tsl::ordered_map)
 
 # spdlog
 find_package(spdlog CONFIG REQUIRED)
@@ -91,11 +95,11 @@ find_package(Ktx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME}  PUBLIC KTX::ktx)
 
 # stb
-find_package(Stb)
+find_package(Stb REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Stb_INCLUDE_DIR})
 
 # fastgltf
-find_package(fastgltf)
+find_package(fastgltf CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)
 
 # EnTT

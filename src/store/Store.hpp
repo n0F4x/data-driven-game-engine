@@ -6,6 +6,8 @@
 
 #include <tl/optional.hpp>
 
+#include <tsl/ordered_map.h>
+
 #include <entt/core/any.hpp>
 
 class Store {
@@ -22,8 +24,6 @@ public:
     ///-----------///
     template <typename T>
     auto emplace(auto&&... t_args) -> T&;
-    template <typename T>
-    auto emplace_or_replace(auto&&... t_args) -> T&;
 
     template <typename T>
     [[nodiscard]] auto find() noexcept -> tl::optional<T&>;
@@ -39,11 +39,21 @@ public:
     [[nodiscard]] auto contains() const noexcept -> bool;
 
 private:
+    using Key       = std::type_index;
+    using Value     = entt::any;
+    using Allocator = std::allocator<std::pair<Key, Value>>;
+
     ///*************///
     ///  Variables  ///
     ///*************///
-    std::unordered_map<std::type_index, size_t> m_index_map;
-    std::vector<entt::any>                      m_elements;
+    tsl::ordered_map<
+        Key,
+        Value,
+        std::hash<Key>,
+        std::equal_to<>,
+        Allocator,
+        std::vector<std::pair<Key, Value>, Allocator>>
+        m_map;
 };
 
 #include "Store.inl"

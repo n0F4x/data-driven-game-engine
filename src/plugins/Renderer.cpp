@@ -32,7 +32,10 @@ static auto create_vulkan_surface(
             glfwCreateWindowSurface(t_instance, t_window, t_allocator, &surface) };
         error_code != vk::Result::eSuccess)
     {
-        SPDLOG_ERROR("glfwCreateWindowSurface failed with error code {}", std::to_underlying(error_code));
+        SPDLOG_ERROR(
+            "glfwCreateWindowSurface failed with error code {}",
+            std::to_underlying(error_code)
+        );
     }
 
     return surface;
@@ -114,8 +117,7 @@ auto Renderer::operator()(
     const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter
 ) const noexcept -> void
 {
-    auto& instance{ t_builder.store().emplace_or_replace<Instance>(instance_create_info()
-    ) };
+    auto& instance{ t_builder.store().emplace<Instance>(instance_create_info()) };
 
     vk::UniqueSurfaceKHR surface{
         std::invoke(t_create_surface, t_builder.store(), instance.get(), nullptr),
@@ -137,7 +139,7 @@ auto Renderer::operator()(
         device_extension_structs(enabled_device_extensions)
     };
     auto& device{
-        t_builder.store().emplace_or_replace<Device>(
+        t_builder.store().emplace<Device>(
             surface.get(),
             physical_device,
             Device::CreateInfo{
@@ -146,7 +148,7 @@ auto Renderer::operator()(
         )
     };
 
-    t_builder.store().emplace_or_replace<Swapchain>(
+    t_builder.store().emplace<Swapchain>(
         std::move(surface),
         device,
         t_create_framebuffer_size_getter
@@ -154,7 +156,7 @@ auto Renderer::operator()(
             : nullptr
     );
 
-    t_builder.store().emplace_or_replace<Allocator>(instance, device);
+    t_builder.store().emplace<Allocator>(instance, device);
 
 
     SPDLOG_TRACE("Added Renderer plugin");
