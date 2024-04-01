@@ -1,7 +1,7 @@
 set(BUILD_SHARED_LIBS OFF)
 
 # Microsoft GSL
-find_package(Microsoft.GSL)
+find_package(Microsoft.GSL CONFIG REQUIRED)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <gsl/gsl>)
 target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft.GSL::GSL)
 
@@ -12,7 +12,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE <tl/optional.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC tl::optional)
 
 # spdlog
-find_package(spdlog)
+find_package(spdlog CONFIG REQUIRED)
 if (engine_debug)
     set(spdlog_level SPDLOG_LEVEL_TRACE)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -26,7 +26,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:w
 set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
-find_package(glfw3)
+find_package(glfw3 CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
         GLFW_INCLUDE_VULKAN
 )
@@ -53,8 +53,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 set(SPIRV_CROSS_STATIC ON)
 set(SPIRV_CROSS_SHARED OFF)
 set(SPIRV_CROSS_CLI OFF)
-find_package(spirv-cross)
-target_link_libraries(${PROJECT_NAME} PRIVATE spirv-cross::spirv-cross)
+find_package(spirv_cross_reflect CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE spirv-cross-reflect)
 
 # VulkanMemoryAllocator
 message(NOTICE "Configuring VulkanMemoryAllocator")
@@ -71,17 +71,10 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         VMA_STATIC_VULKAN_FUNCTIONS=${STATIC_VULKAN_FUNCTIONS}
         VMA_DYNAMIC_VULKAN_FUNCTIONS=${DYNAMIC_VULKAN_FUNCTIONS}
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC VulkanMemoryAllocator)
+target_link_libraries(${PROJECT_NAME} PUBLIC GPUOpen::VulkanMemoryAllocator)
 
 # glm
-message(NOTICE "Configuring glm")
-FetchContent_Declare(glm
-        GIT_REPOSITORY https://github.com/g-truc/glm.git
-        GIT_TAG 1.0.1
-        GIT_PROGRESS TRUE
-        SYSTEM
-)
-FetchContent_MakeAvailable(glm)
+find_package(glm CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         GLM_FORCE_DEPTH_ZERO_TO_ONE
 )
@@ -89,26 +82,19 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE <glm/glm.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 
 # KTX
-message(NOTICE "Configuring KTX")
 set(KTX_FEATURE_STATIC_LIBRARY ON)
-FetchContent_Declare(ktxlib
-        GIT_REPOSITORY https://github.com/KhronosGroup/KTX-Software.git
-        GIT_TAG v4.3.1
-        GIT_PROGRESS TRUE
-        SYSTEM
-)
-FetchContent_MakeAvailable(ktxlib)
-target_link_libraries(${PROJECT_NAME} PUBLIC ktx)
+find_package(Ktx CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME}  PUBLIC KTX::ktx)
 
 # stb
-find_package(stb)
-target_link_libraries(${PROJECT_NAME} PUBLIC stb::stb)
+find_package(Stb)
+target_include_directories(${PROJECT_NAME} PUBLIC ${Stb_INCLUDE_DIR})
 
 # fastgltf
 find_package(fastgltf)
 target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)
 
 # EnTT
-find_package(EnTT)
+find_package(EnTT CONFIG REQUIRED)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <entt/entt.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC EnTT::EnTT)
