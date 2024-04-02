@@ -5,7 +5,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "core/common/Cache.hpp"
-#include "core/renderer/base/Allocator.hpp"
+#include "core/renderer/base/allocator/Allocator.hpp"
 #include "core/renderer/material_system/VertexInputStateBuilder.hpp"
 
 #include "Model.hpp"

@@ -5,10 +5,10 @@
 #include <spdlog/spdlog.h>
 
 #include "app/Builder.hpp"
-#include "core/renderer/base/Allocator.hpp"
-#include "core/renderer/base/Device.hpp"
-#include "core/renderer/base/Instance.hpp"
-#include "core/renderer/base/Swapchain.hpp"
+#include "core/renderer/base/allocator/Allocator.hpp"
+#include "core/renderer/base/device/Device.hpp"
+#include "core/renderer/base/instance/Instance.hpp"
+#include "core/renderer/base/swapchain/Swapchain.hpp"
 #include "core/utility/vulkan/tools.hpp"
 #include "core/window/Window.hpp"
 #include "plugins/renderer/helpers.hpp"

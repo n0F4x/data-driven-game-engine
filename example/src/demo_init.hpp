@@ -8,9 +8,10 @@
 
 #include <vk_mem_alloc.h>
 
-#include <core/renderer/base/Allocator.hpp>
 #include <core/renderer/model/StagingModel.hpp>
 #include <core/utility/vma/Image.hpp>
+
+#include "core/renderer/base/allocator/Allocator.hpp"
 
 namespace init {
 

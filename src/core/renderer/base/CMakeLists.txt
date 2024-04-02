@@ -1,7 +1,4 @@
-target_sources(${PROJECT_NAME} PRIVATE
-        Allocator.cpp
-        Device.cpp
-        helpers.cpp
-        Instance.cpp
-        Swapchain.cpp
-)
+add_subdirectory(allocator)
+add_subdirectory(device)
+add_subdirectory(instance)
+add_subdirectory(swapchain)

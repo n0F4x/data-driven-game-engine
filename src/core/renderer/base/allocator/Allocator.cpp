@@ -6,8 +6,8 @@
 
 #include <vulkan/vulkan_extension_inspection.hpp>
 
-#include "Device.hpp"
-#include "Instance.hpp"
+#include "core/renderer/base/device/Device.hpp"
+#include "core/renderer/base/instance/Instance.hpp"
 
 constexpr static VmaVulkanFunctions s_vulkan_functions{
     .vkGetInstanceProcAddr = &vkGetInstanceProcAddr,

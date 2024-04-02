@@ -9,13 +9,14 @@
 
 #include <entt/core/hashed_string.hpp>
 
-#include <core/renderer/base/Allocator.hpp>
-#include <core/renderer/base/Device.hpp>
-#include <core/renderer/base/Swapchain.hpp>
 #include <core/renderer/model/ModelLoader.hpp>
 #include <core/renderer/model/RenderModel.hpp>
 #include <core/utility/vma/Image.hpp>
 #include <core/window/Window.hpp>
+
+#include "core/renderer/base/allocator/Allocator.hpp"
+#include "core/renderer/base/device/Device.hpp"
+#include "core/renderer/base/swapchain/Swapchain.hpp"
 
 #include "Camera.hpp"
 #include "Controller.hpp"

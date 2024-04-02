@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "core/renderer/base/Allocator.hpp"
+#include "core/renderer/base/allocator/Allocator.hpp"
 #include "core/utility/vma/Buffer.hpp"
 
 #include "MeshBuffer.hpp"

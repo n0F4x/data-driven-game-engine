@@ -9,9 +9,8 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "core/renderer/base/device/Device.hpp"
 #include "core/utility/vulkan/Swapchain.hpp"
-
-#include "Device.hpp"
 
 namespace core::renderer {
 

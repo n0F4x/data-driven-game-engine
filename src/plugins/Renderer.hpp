@@ -5,7 +5,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "app/Plugin.hpp"
-#include "core/renderer/base/Swapchain.hpp"
+#include "core/renderer/base/swapchain/Swapchain.hpp"
 
 namespace plugins {
 

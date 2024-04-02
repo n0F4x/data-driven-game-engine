@@ -4,7 +4,7 @@
 
 #include <tl/optional.hpp>
 
-#include "core/renderer/base/Allocator.hpp"
+#include "core/renderer/base/allocator/Allocator.hpp"
 
 #include "Model.hpp"
 #include "StagingModel.hpp"
