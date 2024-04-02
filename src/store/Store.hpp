@@ -19,6 +19,8 @@ public:
     Store(Store&&) noexcept = default;
     inline ~Store() noexcept;
 
+    auto operator=(Store&&) noexcept -> Store& = default;
+
     ///-----------///
     ///  Methods  ///
     ///-----------///
