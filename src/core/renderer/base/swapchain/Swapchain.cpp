@@ -5,50 +5,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <GLFW/glfw3.h>
-
 namespace core::renderer {
-
-//////////////////////////////////!
-///-----------------------------///
-///  Swapchain   IMPLEMENTATION  ///
-///-----------------------------///
-///////////////////////////////////
-
-auto Swapchain::required_instance_extensions() noexcept -> std::span<const std::string>
-{
-    static const std::vector s_extensions_names{ []() -> std::vector<std::string> {
-        if (!glfwInit()) {
-            return {};
-        }
-
-        uint32_t             count;
-        const char**         glfw_extension_names{ glfwGetRequiredInstanceExtensions(&count) };
-        if (glfw_extension_names == nullptr) {
-            return {};
-        }
-
-        std::vector<std::string> result{};
-        result.reserve(count);
-
-        for (uint32_t i{}; i < count; i++) {
-            result.emplace_back(glfw_extension_names[i]);
-        }
-
-        return result;
-    }() };
-
-    return s_extensions_names;
-}
-
-auto Swapchain::required_device_extensions() noexcept -> std::span<const std::string>
-{
-    static const std::array<std::string, 1> s_extensions_names{
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
-
-    return s_extensions_names;
-}
 
 Swapchain::Swapchain(
     vk::UniqueSurfaceKHR&&  t_surface,
@@ -72,8 +29,8 @@ auto Swapchain::get() const noexcept -> const tl::optional<vulkan::Swapchain>&
     return m_swapchain;
 }
 
-auto Swapchain::set_framebuffer_size(const vk::Extent2D t_framebuffer_size) noexcept
-    -> void
+auto Swapchain::set_framebuffer_size(const vk::Extent2D t_framebuffer_size
+) noexcept -> void
 try {
     if (!m_swapchain.has_value()) {
         recreate_swapchain(t_framebuffer_size);
@@ -92,8 +49,10 @@ try {
     SPDLOG_ERROR(t_error.what());
 }
 
-auto Swapchain::acquire_next_image(const vk::Semaphore t_semaphore, const vk::Fence t_fence)
-    -> tl::optional<uint32_t>
+auto Swapchain::acquire_next_image(
+    const vk::Semaphore t_semaphore,
+    const vk::Fence     t_fence
+) -> tl::optional<uint32_t>
 try {
     if (m_swapchain.has_value()) {
         switch (const auto [result, image_index]{ m_device.get()->acquireNextImageKHR(
@@ -133,7 +92,11 @@ try {
                      .pImageIndices   = &m_image_index
     };
 
-    if (const auto result{ m_device.get().graphics_queue().presentKHR(info) };
+    if (const auto result{
+            static_cast<vk::Queue>(
+                m_device.get().info().get_queue(vkb::QueueType::present).value()
+            )
+                .presentKHR(info) };
         result == vk::Result::eSuboptimalKHR)
     {
         recreate_swapchain();
@@ -166,8 +129,8 @@ auto Swapchain::recreate_swapchain(const vk::Extent2D t_framebuffer_size) noexce
     auto new_swapchain{ vulkan::Swapchain::create(
         *m_surface,
         m_device.get().physical_device(),
-        m_device.get().graphics_queue_family_index(),
-        m_device.get().graphics_queue_family_index(),
+        m_device.get().info().get_queue_index(vkb::QueueType::graphics).value(),
+        m_device.get().info().get_queue_index(vkb::QueueType::present).value(),
         *m_device.get(),
         t_framebuffer_size,
         m_swapchain.transform(&vulkan::Swapchain::operator*).value_or(nullptr)

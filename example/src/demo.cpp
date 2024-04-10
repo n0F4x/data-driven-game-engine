@@ -111,9 +111,9 @@ struct DemoApp {
             return tl::nullopt;
         }
 
-        auto command_pool{
-            init::create_command_pool(*device, device.graphics_queue_family_index())
-        };
+        auto command_pool{ init::create_command_pool(
+            *device, device.info().get_queue_index(vkb::QueueType::graphics).value()
+        ) };
         if (!*command_pool) {
             return tl::nullopt;
         }
@@ -216,9 +216,8 @@ struct DemoApp {
                     ),
                     .pSignalSemaphores    = signal_semaphores.data()
                 };
-                device.graphics_queue().submit(
-                    submit_info, *in_flight_fences[frame_index]
-                );
+                vk::Queue(device.info().get_queue(vkb::QueueType::graphics).value())
+                    .submit(submit_info, *in_flight_fences[frame_index]);
 
                 swapchain.present(signal_semaphores);
             });

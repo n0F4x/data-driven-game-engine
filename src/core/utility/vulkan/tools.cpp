@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <ranges>
-#include <set>
 
 namespace core::vulkan {
 
@@ -32,28 +31,6 @@ auto available_device_extensions(const vk::PhysicalDevice t_physical_device)
                return t_property.extensionName.operator std::string();
            })
          | std::ranges::to<std::vector<std::string>>();
-}
-
-auto supports_extensions(
-    const vk::PhysicalDevice     t_physical_device,
-    std::span<const std::string> t_extensions
-) -> bool
-{
-    assert(t_physical_device);
-    if (!t_physical_device) {
-        return false;
-    }
-
-    const auto extension_properties{ t_physical_device.enumerateDeviceExtensionProperties(
-    ) };
-
-    std::set<std::string_view> required_extensions{ std::from_range, t_extensions };
-
-    for (const auto& extension : extension_properties) {
-        required_extensions.erase(extension.extensionName);
-    }
-
-    return required_extensions.empty();
 }
 
 auto supports_surface(

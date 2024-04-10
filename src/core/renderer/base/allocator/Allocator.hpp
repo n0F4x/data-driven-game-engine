@@ -9,6 +9,8 @@
 
 #include <vk_mem_alloc.h>
 
+#include <VkBootstrap.h>
+
 #include "core/utility/vma/Allocator.hpp"
 #include "core/utility/vma/Buffer.hpp"
 
@@ -19,19 +21,7 @@ class Device;
 
 class Allocator {
 public:
-    [[nodiscard]] static auto recommended_instance_extensions() noexcept
-        -> std::span<const std::string>;
-    [[nodiscard]] static auto recommended_device_extensions() noexcept
-        -> std::span<const std::string>;
-    [[nodiscard]] static auto recommended_device_extension_structs(
-        std::span<const std::string> t_enabled_device_extensions
-    ) noexcept
-        -> vk::StructureChain<
-            vk::DeviceCreateInfo,
-            vk::PhysicalDeviceCoherentMemoryFeaturesAMD,
-            vk::PhysicalDeviceBufferDeviceAddressFeatures,
-            vk::PhysicalDeviceMemoryPriorityFeaturesEXT,
-            vk::PhysicalDeviceMaintenance4Features>;
+    class Requirements;
 
     ///------------------------------///
     ///  Constructors / Destructors  ///

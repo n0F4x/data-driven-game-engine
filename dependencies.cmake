@@ -81,6 +81,10 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC GPUOpen::VulkanMemoryAllocator)
 
+# vk-bootstrap
+find_package(vk-bootstrap CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC vk-bootstrap::vk-bootstrap)
+
 # glm
 find_package(glm CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE

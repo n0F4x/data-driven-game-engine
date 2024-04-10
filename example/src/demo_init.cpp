@@ -35,8 +35,8 @@ namespace {
     throw std::runtime_error{ "Failed to find supported format!" };
 }
 
-[[nodiscard]] auto find_depth_format(const vk::PhysicalDevice t_physical_device) noexcept
-    -> vk::Format
+[[nodiscard]] auto find_depth_format(const vk::PhysicalDevice t_physical_device
+) noexcept -> vk::Format
 {
     using enum vk::Format;
     return find_supported_format(
@@ -204,8 +204,8 @@ auto create_framebuffers(
     return framebuffers;
 }
 
-auto create_descriptor_set_layout(const vk::Device t_device)
-    -> vk::UniqueDescriptorSetLayout
+auto create_descriptor_set_layout(const vk::Device t_device
+) -> vk::UniqueDescriptorSetLayout
 {
     constexpr static std::array descriptor_set_layout_bindings{
         vk::DescriptorSetLayoutBinding{
@@ -478,9 +478,9 @@ auto upload_model(
     const vk::DescriptorPool      t_descriptor_pool
 ) -> tl::optional<renderer::RenderModel>
 {
-    auto transfer_command_pool{
-        create_command_pool(*t_device, t_device.transfer_queue_family_index())
-    };
+    auto                                transfer_command_pool{ create_command_pool(
+        t_device.get(), t_device.info().get_queue_index(vkb::QueueType::graphics).value()
+    ) };
     const vk::CommandBufferAllocateInfo command_buffer_allocate_info{
         .commandPool        = *transfer_command_pool,
         .level              = vk::CommandBufferLevel::ePrimary,
@@ -508,7 +508,10 @@ auto upload_model(
     };
     vk::UniqueFence fence{ t_device->createFenceUnique({}) };
 
-    static_cast<void>(t_device.transfer_queue().submit(1, &submit_info, *fence));
+    static_cast<void>(static_cast<vk::Queue>(
+                          t_device.info().get_queue(vkb::QueueType::graphics).value()
+    )
+                          .submit(1, &submit_info, *fence));
 
     const auto raw_fence{ *fence };
     static_cast<void>(t_device->waitForFences(1, &raw_fence, true, 100'000'000'000));

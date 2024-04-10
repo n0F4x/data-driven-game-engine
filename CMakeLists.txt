@@ -23,7 +23,7 @@ else ()
     target_compile_options(${PROJECT_NAME} PRIVATE
             -Wall
             -Wextra
-            -Wpedantic
+            -pedantic-errors
             -Wconversion
             -Werror
             -Wno-missing-field-initializers

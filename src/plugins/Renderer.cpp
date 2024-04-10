@@ -4,11 +4,13 @@
 
 #include <spdlog/spdlog.h>
 
+#include <VkBootstrap.h>
+
 #include "app/Builder.hpp"
-#include "core/renderer/base/allocator/Allocator.hpp"
+#include "core/renderer/base/allocator/Requirements.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
-#include "core/renderer/base/swapchain/Swapchain.hpp"
+#include "core/renderer/base/swapchain/Requirements.hpp"
 #include "core/utility/vulkan/tools.hpp"
 #include "core/window/Window.hpp"
 #include "plugins/renderer/helpers.hpp"
@@ -59,56 +61,40 @@ std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
             .value_or(nullptr);
     } };
 
-[[nodiscard]] static auto instance_extension_names() -> std::set<std::string>
+static auto log_renderer_setup(const vkb::Device& t_device)
 {
-    std::set<std::string> result{ std::from_range, instance_extensions() };
+    try {
+        const auto instance_version{ t_device.instance_version };
 
-    result.insert_range(filter(
-        vulkan::available_instance_extensions(),
-        Swapchain::required_instance_extensions(),
-        Allocator::recommended_instance_extensions()
-    ));
+        SPDLOG_INFO(
+            "Created Vulkan Instance with version: {}.{}.{}",
+            VK_VERSION_MAJOR(instance_version),
+            VK_VERSION_MINOR(instance_version),
+            VK_VERSION_PATCH(instance_version)
+        );
 
-    return result;
-}
+        const auto properties{
+            vk::PhysicalDevice(t_device.physical_device.physical_device).getProperties()
+        };
 
-[[nodiscard]] static auto instance_create_info() -> Instance::CreateInfo
-{
-    return Instance::CreateInfo{
-        .application_info = application_info(),
-        .layers           = std::set{ std::from_range, layers() },
-        .extensions       = instance_extension_names(),
-#ifdef ENGINE_VULKAN_DEBUG
-        .create_debug_messenger = create_debug_messenger
-#endif
-    };
-}
+        SPDLOG_INFO(
+            "Chose GPU({}) with Vulkan version: {}.{}.{}",
+            t_device.physical_device.name,
+            VK_VERSION_MAJOR(properties.apiVersion),
+            VK_VERSION_MINOR(properties.apiVersion),
+            VK_VERSION_PATCH(properties.apiVersion)
+        );
 
-[[nodiscard]] static auto required_device_extension_names() -> std::vector<std::string>
-{
-    return Swapchain::required_device_extensions() | std::ranges::to<std::vector>();
-}
-
-[[nodiscard]] static auto device_extension_names(const vk::PhysicalDevice t_physical_device
-) -> std::vector<std::string>
-{
-    std::vector result{ required_device_extension_names() };
-
-    result.append_range(filter(
-        vulkan::available_device_extensions(t_physical_device),
-        {},
-        Allocator::recommended_device_extensions()
-    ));
-
-    return result;
-}
-
-[[nodiscard]] static auto device_extension_structs(
-    const std::span<const std::string> t_enabled_device_extension_names
-)
-{
-    return Allocator::recommended_device_extension_structs(t_enabled_device_extension_names
-    );
+        std::string enabled_extensions{ "\nEnabled device extensions:" };
+        for (const auto& extension : t_device.physical_device.get_extensions()) {
+            enabled_extensions += '\n';
+            enabled_extensions += '\t';
+            enabled_extensions += extension;
+        }
+        SPDLOG_DEBUG(enabled_extensions);
+    } catch (const vk::Error& t_error) {
+        SPDLOG_ERROR(t_error.what());
+    }
 }
 
 auto Renderer::operator()(
@@ -117,7 +103,33 @@ auto Renderer::operator()(
     const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter
 ) const noexcept -> void
 {
-    auto& instance{ t_builder.store().emplace<Instance>(instance_create_info()) };
+    const auto system_info_result{ vkb::SystemInfo::get_system_info() };
+    if (!system_info_result.has_value()) {
+        SPDLOG_ERROR(system_info_result.error().message());
+        return;
+    }
+    const auto& system_info{ system_info_result.value() };
+
+    if (!default_required_instance_settings_are_available(system_info)
+        || !Allocator::Requirements::required_instance_settings_are_available(system_info)
+        || !Swapchain::Requirements::required_instance_settings_are_available(system_info))
+    {
+        return;
+    }
+
+    vkb::InstanceBuilder builder;
+    enable_default_instance_settings(system_info, builder);
+    Allocator::Requirements::enable_instance_settings(system_info, builder);
+    Swapchain::Requirements::enable_instance_settings(system_info, builder);
+
+    const auto instance_result{ builder.build() };
+    if (!instance_result.has_value()) {
+        SPDLOG_ERROR(instance_result.error().message());
+        return;
+    }
+
+    auto& instance{ t_builder.store().emplace<Instance>(instance_result.value()) };
+
 
     vk::UniqueSurfaceKHR surface{
         std::invoke(t_create_surface, t_builder.store(), instance.get(), nullptr),
@@ -127,26 +139,33 @@ auto Renderer::operator()(
         return;
     }
 
-    const vk::PhysicalDevice physical_device{ choose_physical_device(
-        instance.get(), surface.get(), required_device_extension_names()
-    ) };
-    if (!physical_device) {
+
+    vkb::PhysicalDeviceSelector physical_device_selector(
+        static_cast<const vkb::Instance>(instance), surface.get()
+    );
+    Allocator::Requirements::require_device_settings(physical_device_selector);
+    Swapchain::Requirements::require_device_settings(physical_device_selector);
+
+    auto physical_device_result{ physical_device_selector.select() };
+    if (!physical_device_result.has_value()) {
+        SPDLOG_ERROR(physical_device_result.error().message());
         return;
     }
 
-    const auto enabled_device_extensions{ device_extension_names(physical_device) };
-    const auto enabled_device_extension_structs{
-        device_extension_structs(enabled_device_extensions)
-    };
-    auto& device{
-        t_builder.store().emplace<Device>(
-            surface.get(),
-            physical_device,
-            Device::CreateInfo{
-                               .next       = enabled_device_extension_structs.get().pNext,
-                               .extensions = std::set{ std::from_range, enabled_device_extensions } }
-        )
-    };
+    Allocator::Requirements::enable_optional_device_settings(physical_device_result.value(
+    ));
+    Swapchain::Requirements::enable_optional_device_settings(physical_device_result.value(
+    ));
+
+    vkb::DeviceBuilder device_builder{ physical_device_result.value() };
+    const auto         device_result{ device_builder.build() };
+    if (!device_result.has_value()) {
+        SPDLOG_ERROR(device_result.error().message());
+        return;
+    }
+
+    auto& device{ t_builder.store().emplace<Device>(device_result.value()) };
+
 
     t_builder.store().emplace<Swapchain>(
         std::move(surface),
@@ -159,6 +178,7 @@ auto Renderer::operator()(
     t_builder.store().emplace<Allocator>(instance, device);
 
 
+    log_renderer_setup(static_cast<const vkb::Device>(device));
     SPDLOG_TRACE("Added Renderer plugin");
 }
 

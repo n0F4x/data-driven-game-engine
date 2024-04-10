@@ -97,18 +97,20 @@ IncludeCategories:
     Priority: 7
   - Regex: '<vk_mem_alloc.h>'
     Priority: 8
-  - Regex: '^<glm/'
+  - Regex: '<VkBootstrap.*.h>'
     Priority: 9
-  - Regex: '^<glfw/'
+  - Regex: '^<glm/'
     Priority: 10
-  - Regex: '^<SFML/'
+  - Regex: '^<glfw/'
     Priority: 11
-  - Regex: '^<stb_.*.h>'
+  - Regex: '^<SFML/'
     Priority: 12
-  - Regex: '^<ktx.*.h>'
+  - Regex: '^<stb_.*.h>'
     Priority: 13
-  - Regex: '^<entt/'
+  - Regex: '^<ktx.*.h>'
     Priority: 14
+  - Regex: '^<entt/'
+    Priority: 15
   - Regex: '^<.*\..*'
     Priority: 998
   - Regex: '^<.*'
