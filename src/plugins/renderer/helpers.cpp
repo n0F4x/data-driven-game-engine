@@ -52,7 +52,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
                    )
                 << "\n";
             message << std::string("\t\t\t")
-                    << "objectHandle = " << pCallbackData->pObjects[i].objectHandle
+                    << "objectcache::Handle = " << pCallbackData->pObjects[i].objectHandle
                     << "\n";
             if (pCallbackData->pObjects[i].pObjectName) {
                 message << std::string("\t\t\t") << "objectName   = <"

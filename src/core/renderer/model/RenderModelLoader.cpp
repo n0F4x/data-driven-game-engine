@@ -5,7 +5,7 @@ namespace core::renderer {
 RenderModelLoader::RenderModelLoader(
     const vk::Device           t_device,
     const Allocator&           t_allocator,
-    const tl::optional<Cache&> t_cache
+    const tl::optional<cache::Cache&> t_cache
 ) noexcept
     : m_device{ t_device },
       m_allocator{ t_allocator },

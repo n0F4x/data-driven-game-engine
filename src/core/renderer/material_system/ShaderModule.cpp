@@ -16,10 +16,10 @@ auto ShaderModule::hash(const std::filesystem::path& t_filepath) noexcept -> siz
 auto ShaderModule::load(
     const vk::Device             t_device,
     const std::filesystem::path& t_filepath,
-    tl::optional<Cache&>         t_cache
-) -> tl::optional<Handle<ShaderModule>>
+    tl::optional<cache::Cache&>         t_cache
+) -> tl::optional<cache::Handle<ShaderModule>>
 {
-    if (auto cached{ t_cache.and_then([&](const Cache& cache) {
+    if (auto cached{ t_cache.and_then([&](const cache::Cache& cache) {
             return cache.find<ShaderModule>(ShaderModule::hash(t_filepath));
         }) };
         cached.has_value())
@@ -33,12 +33,12 @@ auto ShaderModule::load(
     }
 
     return t_cache
-        .transform([&](Cache& cache) {
+        .transform([&](cache::Cache& cache) {
             return cache.emplace<ShaderModule>(
                 ShaderModule::hash(t_filepath), t_filepath, std::move(module)
             );
         })
-        .value_or(make_handle<ShaderModule>(t_filepath, std::move(module)));
+        .value_or(cache::make_handle<ShaderModule>(t_filepath, std::move(module)));
 }
 
 ShaderModule::ShaderModule(

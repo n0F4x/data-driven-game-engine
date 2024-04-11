@@ -89,7 +89,7 @@ auto Effect::InputAttributeLocations::get(const VertexAttribute t_attribute
     return m_locations[static_cast<size_t>(std::to_underlying(t_attribute))];
 }
 
-Effect::Effect(const Handle<Shader>& t_vertex_shader, const Handle<Shader>& t_fragment_shader) noexcept
+Effect::Effect(const cache::Handle<Shader>& t_vertex_shader, const cache::Handle<Shader>& t_fragment_shader) noexcept
     : m_vertex_shader{ t_vertex_shader },
       m_fragment_shader{ t_fragment_shader },
       m_stages{ vk::PipelineShaderStageCreateInfo{   .stage  = vk::ShaderStageFlagBits::eVertex,

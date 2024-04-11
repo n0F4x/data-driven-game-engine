@@ -74,15 +74,15 @@ static auto adjust_node_indices(GltfLoader2& t_loader) -> void;
 
 namespace core::renderer {
 
-ModelLoader::ModelLoader(Cache& t_cache) noexcept : m_cache{ t_cache } {}
+ModelLoader::ModelLoader(cache::Cache& t_cache) noexcept : m_cache{ t_cache } {}
 
 auto ModelLoader::load_from_file(
     const std::filesystem::path& t_filepath,
     const tl::optional<size_t>   t_scene_id
-) noexcept -> tl::optional<Handle<Model>>
+) noexcept -> tl::optional<cache::Handle<Model>>
 {
     if (const auto cached{
-            m_cache.and_then([&](const Cache& cache) -> tl::optional<Handle<Model>> {
+            m_cache.and_then([&](const cache::Cache& cache) -> tl::optional<cache::Handle<Model>> {
                 return cache.find<Model>(Model::hash(t_filepath, t_scene_id));
             }) };
         cached.has_value())
@@ -108,13 +108,13 @@ auto ModelLoader::load_from_file(
     const auto& scene{ asset->scenes[scene_id] };
 
     return m_cache
-        .transform([&](Cache& cache) {
+        .transform([&](cache::Cache& cache) {
             return cache.insert<Model>(
                 Model::hash(t_filepath, scene_id),
-                make_handle<Model>(load_model(asset.get(), scene))
+                cache::make_handle<Model>(load_model(asset.get(), scene))
             );
         })
-        .value_or(make_handle<Model>(load_model(asset.get(), scene)));
+        .value_or(cache::make_handle<Model>(load_model(asset.get(), scene)));
 }
 
 }   // namespace core::renderer

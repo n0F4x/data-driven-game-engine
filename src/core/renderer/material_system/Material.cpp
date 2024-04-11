@@ -2,7 +2,7 @@
 
 namespace core::renderer {
 
-Material::Material(Handle<GraphicsPipeline> t_pipeline) noexcept
+Material::Material(cache::Handle<GraphicsPipeline> t_pipeline) noexcept
     : m_pipeline{ std::move(t_pipeline) }
 {}
 

@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include "core/common/Handle.hpp"
+#include "core/cache/Handle.hpp"
 
 #include "Shader.hpp"
 #include "VertexAttribute.hpp"
@@ -26,8 +26,8 @@ public:
     };
 
     explicit Effect(
-        const Handle<Shader>& t_vertex_shader,
-        const Handle<Shader>& t_fragment_shader
+        const cache::Handle<Shader>& t_vertex_shader,
+        const cache::Handle<Shader>& t_fragment_shader
     ) noexcept;
 
     [[nodiscard]] auto vertex_shader() const noexcept -> const Shader&;
@@ -39,8 +39,8 @@ public:
         -> std::span<const vk::PipelineShaderStageCreateInfo>;
 
 private:
-    Handle<Shader>                                   m_vertex_shader;
-    Handle<Shader>                                   m_fragment_shader;
+    cache::Handle<Shader>                                   m_vertex_shader;
+    cache::Handle<Shader>                                   m_fragment_shader;
     std::array<vk::PipelineShaderStageCreateInfo, 2> m_stages;
     InputAttributeLocations                          m_attribute_locations;
 

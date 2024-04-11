@@ -6,8 +6,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/common/Cache.hpp"
-#include "core/common/Handle.hpp"
+#include "core/cache/Cache.hpp"
+#include "core/cache/Handle.hpp"
 
 namespace core::renderer {
 
@@ -19,8 +19,8 @@ public:
     [[nodiscard]] static auto load(
         vk::Device                   t_device,
         const std::filesystem::path& t_filepath,
-        tl::optional<Cache&>         t_cache = {}
-    ) -> tl::optional<Handle<ShaderModule>>;
+        tl::optional<cache::Cache&>         t_cache = {}
+    ) -> tl::optional<cache::Handle<ShaderModule>>;
 
     explicit ShaderModule(
         std::filesystem::path    t_filepath,

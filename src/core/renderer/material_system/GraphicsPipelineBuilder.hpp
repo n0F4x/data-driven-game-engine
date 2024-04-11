@@ -4,8 +4,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/common/Cache.hpp"
-#include "core/common/Handle.hpp"
+#include "core/cache/Cache.hpp"
+#include "core/cache/Handle.hpp"
 
 #include "Effect.hpp"
 #include "GraphicsPipeline.hpp"
@@ -18,7 +18,7 @@ public:
     explicit GraphicsPipelineBuilder(
         vk::Device           t_device,
         Effect               t_effect,
-        tl::optional<Cache&> t_cache = {}
+        tl::optional<cache::Cache&> t_cache = {}
     ) noexcept;
 
     auto set_effect(Effect t_effect) noexcept -> GraphicsPipelineBuilder&;
@@ -34,11 +34,11 @@ public:
     auto set_render_pass(vk::RenderPass t_render_pass) noexcept
         -> GraphicsPipelineBuilder&;
 
-    [[nodiscard]] auto build() const -> Handle<GraphicsPipeline>;
+    [[nodiscard]] auto build() const -> cache::Handle<GraphicsPipeline>;
 
 private:
     vk::Device                                  m_device;
-    tl::optional<std::reference_wrapper<Cache>> m_cache;
+    tl::optional<std::reference_wrapper<cache::Cache>> m_cache;
     Effect                                      m_effect;
     tl::optional<VertexInputState>              m_vertex_input_state;
     vk::PrimitiveTopology m_primitive_topology{ vk::PrimitiveTopology::eTriangleList };

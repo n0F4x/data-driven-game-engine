@@ -2,7 +2,7 @@
 
 #include <gsl/pointers>
 
-namespace core {
+namespace core::cache {
 
 template <typename Resource>
 using Handle = gsl::not_null<std::shared_ptr<Resource>>;

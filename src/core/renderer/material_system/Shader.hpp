@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/common/Handle.hpp"
+#include "core/cache/Handle.hpp"
 
 #include "ShaderModule.hpp"
 
@@ -9,7 +9,7 @@ namespace core::renderer {
 class Shader {
 public:
     explicit Shader(
-        const Handle<ShaderModule>& t_shader_module,
+        const cache::Handle<ShaderModule>& t_shader_module,
         std::string                 t_entry_point
     ) noexcept;
 
@@ -18,7 +18,7 @@ public:
     [[nodiscard]] auto entry_point() const noexcept -> const std::string&;
 
 private:
-    Handle<ShaderModule> m_module;
+    cache::Handle<ShaderModule> m_module;
     std::string          m_entry_point;
 
     friend auto hash_value(const Shader& t_shader) noexcept -> size_t;

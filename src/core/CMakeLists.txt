@@ -1,5 +1,5 @@
 add_subdirectory(asset)
-add_subdirectory(common)
+add_subdirectory(cache)
 add_subdirectory(config)
 add_subdirectory(renderer)
 add_subdirectory(utility)

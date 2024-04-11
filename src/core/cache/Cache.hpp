@@ -5,9 +5,8 @@
 #include "store/Store.hpp"
 
 #include "Handle.hpp"
-#include "ID.hpp"
 
-namespace core {
+namespace core::cache {
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 class BasicCache {
@@ -18,7 +17,8 @@ public:
     ///  Methods  ///
     ///-----------///
     template <typename Resource>
-    auto insert(ID t_id, const Handle<Resource>& t_handle) -> Handle<Resource>;
+    auto insert(ID t_id, const Handle<Resource>& t_handle)
+        -> Handle<Resource>;
     template <typename Resource>
     auto insert(ID t_id, Handle<Resource>&& t_handle) -> Handle<Resource>;
 
@@ -26,7 +26,8 @@ public:
     auto emplace(ID t_id, auto&&... t_args) -> Handle<Resource>;
 
     template <typename Resource>
-    [[nodiscard]] auto find(ID t_id) const noexcept -> tl::optional<Handle<Resource>>;
+    [[nodiscard]] auto find(ID t_id
+    ) const noexcept -> tl::optional<Handle<Resource>>;
 
     template <typename Resource>
     [[nodiscard]] auto at(ID t_id) const -> Handle<Resource>;
@@ -50,8 +51,8 @@ private:
     Store m_store;
 };
 
-using Cache = BasicCache<ID, std::unordered_map>;
+using Cache = BasicCache<size_t, std::unordered_map>;
 
-}   // namespace core
+}   // namespace core::cache
 
 #include "Cache.inl"

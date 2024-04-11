@@ -4,7 +4,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/common/Cache.hpp"
+#include "core/cache/Cache.hpp"
 #include "core/renderer/base/allocator/Allocator.hpp"
 #include "core/renderer/material_system/VertexInputStateBuilder.hpp"
 
@@ -18,7 +18,7 @@ public:
     explicit RenderModelLoader(
         vk::Device           t_device,
         const Allocator&     t_allocator,
-        tl::optional<Cache&> t_cache = {}
+        tl::optional<cache::Cache&> t_cache = {}
     ) noexcept;
 
     [[nodiscard]] auto load(
@@ -30,7 +30,7 @@ public:
 private:
     vk::Device                              m_device;
     std::reference_wrapper<const Allocator> m_allocator;
-    tl::optional<Cache&>                    m_cache;
+    tl::optional<cache::Cache&>                    m_cache;
 };
 
 }   // namespace core::renderer

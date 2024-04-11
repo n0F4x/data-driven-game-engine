@@ -11,10 +11,10 @@ namespace core::renderer {
 GraphicsPipelineBuilder::GraphicsPipelineBuilder(
     const vk::Device     t_device,
     Effect               t_effect,
-    tl::optional<Cache&> t_cache
+    tl::optional<cache::Cache&> t_cache
 ) noexcept
     : m_device{ t_device },
-      m_cache{ t_cache.transform([](Cache& cache) { return std::ref(cache); }) },
+      m_cache{ t_cache.transform([](cache::Cache& cache) { return std::ref(cache); }) },
       m_effect{ std::move(t_effect) }
 {}
 
@@ -74,9 +74,9 @@ auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass t_render_pass
     return *this;
 }
 
-auto GraphicsPipelineBuilder::build() const -> Handle<GraphicsPipeline>
+auto GraphicsPipelineBuilder::build() const -> cache::Handle<GraphicsPipeline>
 {
-    if (const auto cached{ m_cache.and_then([&](const Cache& cache) {
+    if (const auto cached{ m_cache.and_then([&](const cache::Cache& cache) {
             return cache.find<GraphicsPipeline>(GraphicsPipeline::hash(*this));
         }) };
         cached.has_value())
@@ -154,13 +154,13 @@ auto GraphicsPipelineBuilder::build() const -> Handle<GraphicsPipeline>
     };
 
     return m_cache
-        .transform([&](Cache& cache) {
+        .transform([&](cache::Cache& cache) {
             return cache.insert<GraphicsPipeline>(
                 GraphicsPipeline::hash(*this),
-                make_handle<GraphicsPipeline>(m_device, create_info)
+                cache::make_handle<GraphicsPipeline>(m_device, create_info)
             );
         })
-        .value_or(make_handle<GraphicsPipeline>(m_device, create_info));
+        .value_or(cache::make_handle<GraphicsPipeline>(m_device, create_info));
 }
 
 [[nodiscard]] auto hash_value(const GraphicsPipelineBuilder& t_graphics_pipeline_builder

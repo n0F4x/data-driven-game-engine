@@ -4,7 +4,7 @@
 
 namespace core::renderer {
 
-Shader::Shader(const Handle<ShaderModule>& t_shader_module, std::string t_entry_point) noexcept
+Shader::Shader(const cache::Handle<ShaderModule>& t_shader_module, std::string t_entry_point) noexcept
     : m_module{ t_shader_module },
       m_entry_point{ std::move(t_entry_point) }
 {}

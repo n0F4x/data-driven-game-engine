@@ -1,4 +1,4 @@
-namespace core {
+namespace core::cache {
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>

@@ -4,7 +4,7 @@
 
 namespace plugins {
 
-class Common {
+class Cache {
 public:
     ///-------------///
     ///  Operators  ///
@@ -12,6 +12,6 @@ public:
     auto operator()(app::App::Builder& t_builder) const noexcept -> void;
 };
 
-static_assert(app::PluginConcept<Common>);
+static_assert(app::PluginConcept<Cache>);
 
 }   // namespace plugins
