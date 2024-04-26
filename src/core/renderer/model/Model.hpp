@@ -14,9 +14,10 @@
 
 namespace core::renderer {
 
-class ModelLoader;
+class ModelLoader2;
 
-struct Model {
+class Model {
+public:
     struct Vertex {
         glm::vec3 position{};
         glm::vec3 normal{};
@@ -140,14 +141,26 @@ struct Model {
         tl::optional<size_t>         t_scene_id
     ) noexcept -> size_t;
 
-    std::vector<Vertex>   vertices;
-    std::vector<uint32_t> indices;
-    std::vector<Image>    images;
-    std::vector<Sampler>  samplers;
-    std::vector<Texture>  textures;
-    std::vector<Material> materials;
-    std::vector<Node>     nodes;
-    std::vector<size_t>   root_nodes;
+    [[nodiscard]] auto vertices() const noexcept -> const std::vector<Vertex>&;
+    [[nodiscard]] auto indices() const noexcept -> const std::vector<uint32_t>&;
+    [[nodiscard]] auto images() const noexcept -> const std::vector<Image>&;
+    [[nodiscard]] auto samplers() const noexcept -> const std::vector<Sampler>&;
+    [[nodiscard]] auto textures() const noexcept -> const std::vector<Texture>&;
+    [[nodiscard]] auto materials() const noexcept -> const std::vector<Material>&;
+    [[nodiscard]] auto nodes() const noexcept -> const std::vector<Node>&;
+    [[nodiscard]] auto root_node_indices() const noexcept -> const std::vector<size_t>&;
+
+private:
+    friend ModelLoader2;
+
+    std::vector<Vertex>   m_vertices;
+    std::vector<uint32_t> m_indices;
+    std::vector<Image>    m_images;
+    std::vector<Sampler>  m_samplers;
+    std::vector<Texture>  m_textures;
+    std::vector<Material> m_materials;
+    std::vector<Node>     m_nodes;
+    std::vector<size_t>   m_root_node_indices;
 };
 
 }   // namespace core::renderer

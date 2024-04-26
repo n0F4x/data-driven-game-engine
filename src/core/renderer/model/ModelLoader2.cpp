@@ -15,8 +15,8 @@
 using namespace core::renderer;
 using namespace core::renderer::detail;
 
-[[nodiscard]] static auto load_asset(const std::filesystem::path& t_filepath) noexcept
-    -> fastgltf::Expected<fastgltf::Asset>
+[[nodiscard]] static auto load_asset(const std::filesystem::path& t_filepath
+) noexcept -> fastgltf::Expected<fastgltf::Asset>
 {
     fastgltf::Parser parser;
 
@@ -31,9 +31,6 @@ using namespace core::renderer::detail;
             | fastgltf::Options::DecomposeNodeMatrices
     );
 }
-
-[[nodiscard]] static auto
-    load_model(const fastgltf::Asset& t_asset, const fastgltf::Scene& t_scene) -> Model;
 
 static auto load_node(
     GltfLoader2&           t_loader,
@@ -74,17 +71,18 @@ static auto adjust_node_indices(GltfLoader2& t_loader) -> void;
 
 namespace core::renderer {
 
-ModelLoader::ModelLoader(cache::Cache& t_cache) noexcept : m_cache{ t_cache } {}
+ModelLoader2::ModelLoader2(cache::Cache& t_cache) noexcept : m_cache{ t_cache } {}
 
-auto ModelLoader::load_from_file(
+auto ModelLoader2::load_from_file(
     const std::filesystem::path& t_filepath,
     const tl::optional<size_t>   t_scene_id
 ) noexcept -> tl::optional<cache::Handle<Model>>
 {
-    if (const auto cached{
-            m_cache.and_then([&](const cache::Cache& cache) -> tl::optional<cache::Handle<Model>> {
+    if (const auto cached{ m_cache.and_then(
+            [&](const cache::Cache& cache) -> tl::optional<cache::Handle<Model>> {
                 return cache.find<Model>(Model::hash(t_filepath, t_scene_id));
-            }) };
+            }
+        ) };
         cached.has_value())
     {
         return cached.value();
@@ -97,33 +95,32 @@ auto ModelLoader::load_from_file(
     }
 
     size_t scene_id{ t_scene_id.value_or(asset->defaultScene.value_or(0)) };
-    if (asset->scenes.size() <= scene_id) {
-        SPDLOG_WARN(
-            "The glTF file at {} does not contain the requested scene: {}",
-            t_filepath.generic_string(),
-            scene_id
-        );
-        return tl::nullopt;
-    }
-    const auto& scene{ asset->scenes[scene_id] };
 
     return m_cache
         .transform([&](cache::Cache& cache) {
             return cache.insert<Model>(
                 Model::hash(t_filepath, scene_id),
-                cache::make_handle<Model>(load_model(asset.get(), scene))
+                cache::make_handle<Model>(load_model(asset.get(), scene_id))
             );
         })
-        .value_or(cache::make_handle<Model>(load_model(asset.get(), scene)));
+        .value_or(cache::make_handle<Model>(load_model(asset.get(), scene_id)));
 }
 
 }   // namespace core::renderer
 
-auto load_model(const fastgltf::Asset& t_asset, const fastgltf::Scene& t_scene) -> Model
+auto ModelLoader2::load_model(const fastgltf::Asset& t_asset, size_t t_scene_id) -> Model
 {
+    // TODO: make this an assertion
+    if (t_asset.scenes.size() <= t_scene_id) {
+        SPDLOG_ERROR(
+            "The provided glTF model does not contain the requested scene: {}", t_scene_id
+        );
+    }
+
+    const auto& scene{ t_asset.scenes[t_scene_id] };
     GltfLoader2 loader;
 
-    const auto [node_indices, _]{ t_scene };
+    const auto [node_indices, _]{ scene };
     loader.root_nodes.reserve(node_indices.size());
     for (const auto node_index : node_indices) {
         loader.root_nodes.push_back(node_index);
@@ -135,14 +132,16 @@ auto load_model(const fastgltf::Asset& t_asset, const fastgltf::Scene& t_scene) 
 
     adjust_node_indices(loader);
 
-    return Model{ .vertices   = std::move(loader.vertices),
-                  .indices    = std::move(loader.indices),
-                  .images     = {},
-                  .samplers   = {},
-                  .textures   = {},
-                  .materials  = {},
-                  .nodes      = std::move(loader.nodes),
-                  .root_nodes = std::move(loader.root_nodes) };
+    Model result;
+    result.m_vertices   = std::move(loader.vertices);
+    result.m_indices    = std::move(loader.indices);
+    //    result.m_images     = {};
+    //    result.m_samplers   = {};
+    //    result.m_textures   = {};
+    //    result.m_materials  = {};
+    result.m_nodes      = std::move(loader.nodes);
+    result.m_root_node_indices = std::move(loader.root_nodes);
+    return result;
 }
 
 auto load_node(
@@ -255,21 +254,21 @@ auto load_primitive(
             const fastgltf::Accessor& t_accessor,
             Projection                project,
             Transformation            transform = {}
-        )
-            ->void
-    {
-        using AttributeType =
-            std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
+        ) -> void {
+            using AttributeType =
+                std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
 
-        fastgltf::iterateAccessorWithIndex<AttributeType>(
-            t_asset,
-            t_accessor,
-            [&, t_first_vertex_index](const AttributeType& attribute, const size_t index) {
-                std::invoke(project, t_vertices[t_first_vertex_index + index]) =
-                    std::invoke(transform, attribute);
-            }
-        );
-    };
+            fastgltf::iterateAccessorWithIndex<AttributeType>(
+                t_asset,
+                t_accessor,
+                [&, t_first_vertex_index](
+                    const AttributeType& attribute, const size_t index
+                ) {
+                    std::invoke(project, t_vertices[t_first_vertex_index + index]) =
+                        std::invoke(transform, attribute);
+                }
+            );
+        };
 }
 
 auto load_vertices(
