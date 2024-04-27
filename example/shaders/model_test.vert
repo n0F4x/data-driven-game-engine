@@ -6,8 +6,8 @@ layout(location = 2) in vec2 in_uv;
 layout(location = 3) in vec4 in_color;
 
 layout(push_constant) uniform Camera {
-    mat4 projection;
     mat4 view;
+    mat4 projection;
 } camera;
 
 layout (set = 0, binding = 0) uniform NodeUBO {

@@ -2,7 +2,8 @@
 
 #include <glm/glm.hpp>
 
-struct Camera {
+class Camera {
+public:
     auto set_perspective_projection(
         float t_fov_y,
         float t_aspect,
@@ -13,6 +14,11 @@ struct Camera {
     auto set_view_yxz(const glm::vec3& t_position, const glm::vec3& t_rotation) noexcept
         -> void;
 
-    glm::mat4 projection{ 1.f };
-    glm::mat4 view{ 1.f };
+
+    [[nodiscard]] auto view() const noexcept -> const glm::mat4&;
+    [[nodiscard]] auto projection() const noexcept -> const glm::mat4&;
+
+private:
+    glm::mat4 m_view{ 1.f };
+    glm::mat4 m_projection{ 1.f };
 };
