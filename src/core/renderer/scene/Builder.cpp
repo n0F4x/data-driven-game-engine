@@ -14,7 +14,8 @@ static auto create_global_descriptor_set_layout(const vk::Device t_device
                                        .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
-                                       .stageFlags      = vk::ShaderStageFlagBits::eAll },
+                                       .stageFlags      = vk::ShaderStageFlagBits::eVertex
+                        | vk::ShaderStageFlagBits::eFragment },
     };
 
     constexpr static vk::DescriptorSetLayoutCreateInfo create_info{

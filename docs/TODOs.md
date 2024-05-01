@@ -1,3 +1,6 @@
+- use clang-tidy 
+- use volk
+- use vma-hpp
 - separate logger for debug and actual use
 - let compute queue present according to https://gpuopen.com/learn/rdna-performance-guide/#presenting
 - separate project to multiple libs 

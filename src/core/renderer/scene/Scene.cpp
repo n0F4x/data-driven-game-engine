@@ -17,6 +17,13 @@ auto Scene::draw(
 ) const -> void
 {
     m_global_buffer.set(GlobalUniformBlock{ .camera = t_camera });
+    t_graphics_command_buffer.bindDescriptorSets(
+        vk::PipelineBindPoint::eGraphics,
+        m_pipeline_layout.get(),
+        0,
+        m_global_descriptor_set.get(),
+        nullptr
+    );
 
     for (const auto& model : m_models) {
         model.draw(t_graphics_command_buffer, m_pipeline_layout.get());

@@ -37,8 +37,10 @@ public:
     [[nodiscard]]
     static auto push_constant_range() noexcept -> vk::PushConstantRange;
 
-    auto draw(vk::CommandBuffer t_graphics_buffer, vk::PipelineLayout t_pipeline_layout)
-        const noexcept -> void;
+    auto draw(
+        vk::CommandBuffer  t_graphics_command_buffer,
+        vk::PipelineLayout t_pipeline_layout
+    ) const noexcept -> void;
 
 private:
     MappedBuffer            m_uniform_buffer;

@@ -116,6 +116,7 @@ auto Renderer::operator()(
     }
 
     vkb::InstanceBuilder builder;
+    builder.require_api_version(1, 2);
     enable_default_instance_settings(system_info, builder);
     Allocator::Requirements::enable_instance_settings(system_info, builder);
     Swapchain::Requirements::enable_instance_settings(system_info, builder);

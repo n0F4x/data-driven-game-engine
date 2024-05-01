@@ -233,26 +233,32 @@ auto RenderModel2::push_constant_range() noexcept -> vk::PushConstantRange
 }
 
 auto RenderModel2::draw(
-    vk::CommandBuffer  t_graphics_buffer,
+    vk::CommandBuffer  t_graphics_command_buffer,
     vk::PipelineLayout t_pipeline_layout
 ) const noexcept -> void
 {
-    t_graphics_buffer.bindDescriptorSets(
+    t_graphics_command_buffer.bindIndexBuffer(
+        m_index_buffer.get(), 0, vk::IndexType::eUint32
+    );
+
+    t_graphics_command_buffer.bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics,
         t_pipeline_layout,
-        0,
+        1,
         m_descriptor_set.get(),
         nullptr
     );
 
-    t_graphics_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline.get());
+    t_graphics_command_buffer.bindPipeline(
+        vk::PipelineBindPoint::eGraphics, m_pipeline.get()
+    );
 
     for (const auto& [mesh, mesh_index] : std::views::zip(
              m_model->meshes(), std::views::iota(0u, m_model->meshes().size())
          ))
     {
         PushConstants push_constants{ .transform_index = mesh_index };
-        t_graphics_buffer.pushConstants(
+        t_graphics_command_buffer.pushConstants(
             t_pipeline_layout,
             vk::ShaderStageFlagBits::eVertex,
             0,
@@ -261,7 +267,7 @@ auto RenderModel2::draw(
         );
 
         for (const auto& primitive : mesh.primitives) {
-            t_graphics_buffer.drawIndexed(
+            t_graphics_command_buffer.drawIndexed(
                 primitive.index_count, 1, primitive.first_index_index, 0, 0
             );
         }
