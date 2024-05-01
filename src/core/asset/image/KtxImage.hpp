@@ -11,17 +11,23 @@ namespace core::asset {
 
 class KtxImage {
 public:
-    [[nodiscard]] static auto load_from_file(const std::filesystem::path& t_filepath)
-        -> tl::optional<KtxImage>;
+    [[nodiscard]]
+    static auto load_from_file(const std::filesystem::path& t_filepath
+    ) -> tl::optional<KtxImage>;
 
-    [[nodiscard]] static auto load_from_memory(std::span<const std::uint8_t> t_data)
-        -> tl::optional<KtxImage>;
+    [[nodiscard]]
+    static auto load_from_memory(std::span<const std::uint8_t> t_data
+    ) -> tl::optional<KtxImage>;
 
-    [[nodiscard]] auto operator->() const noexcept -> ktxTexture*;
-    [[nodiscard]] auto operator*() noexcept -> ktxTexture&;
-    [[nodiscard]] auto operator*() const noexcept -> const ktxTexture&;
+    [[nodiscard]]
+    auto operator->() const noexcept -> ktxTexture*;
+    [[nodiscard]]
+    auto operator*() noexcept -> ktxTexture&;
+    [[nodiscard]]
+    auto operator*() const noexcept -> const ktxTexture&;
 
-    [[nodiscard]] auto get() const noexcept -> ktxTexture*;
+    [[nodiscard]]
+    auto get() const noexcept -> ktxTexture*;
 
 private:
     struct Deleter {

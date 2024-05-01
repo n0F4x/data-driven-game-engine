@@ -21,7 +21,8 @@ public:
     ///----------------///
     /// Static methods ///
     ///----------------///
-    [[nodiscard]] static auto create() noexcept -> Builder;
+    [[nodiscard]]
+    static auto create() noexcept -> Builder;
 
     explicit App(Builder&& t_builder) noexcept;
 
@@ -32,8 +33,10 @@ public:
     auto run(RunnerConcept<Args...> auto&& t_runner, Args&&... t_args)
         -> std::invoke_result_t<decltype(t_runner), App&, Args...>;
 
-    [[nodiscard]] auto store() noexcept -> Store&;
-    [[nodiscard]] auto store() const noexcept -> const Store&;
+    [[nodiscard]]
+    auto store() noexcept -> Store&;
+    [[nodiscard]]
+    auto store() const noexcept -> const Store&;
 
 private:
     ///*************///

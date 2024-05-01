@@ -11,7 +11,8 @@ namespace core::window {
 ///---------------------------///
 /////////////////////////////////
 
-[[nodiscard]] static auto create_window(
+[[nodiscard]]
+static auto create_window(
     const uint16_t     t_width,
     const uint16_t     t_height,
     const std::string& title

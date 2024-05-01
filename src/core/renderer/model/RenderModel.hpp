@@ -8,7 +8,6 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "core/renderer/base/allocator/Allocator.hpp"
-#include "core/utility/vma/Buffer.hpp"
 
 #include "MeshBuffer.hpp"
 
@@ -34,17 +33,16 @@ public:
 
         std::pmr::vector<Primitive> primitives;
 
-        vma::Buffer             uniform_buffer;
-        void*                   mapped{};
+        MappedBuffer            uniform_buffer;
         vk::UniqueDescriptorSet descriptor_set;
 
-        [[nodiscard]] auto upload(
+        auto upload(
             vk::Device              t_device,
             const Allocator&        t_allocator,
             vk::DescriptorSetLayout t_descriptor_set_layout,
             vk::DescriptorPool      t_descriptor_pool,
             const UniformBlock&     t_uniform_block
-        ) -> bool;
+        ) -> void;
     };
 
     struct Node {
@@ -52,12 +50,12 @@ public:
         tl::optional<Mesh> mesh;
         glm::mat4          matrix{ glm::identity<glm::mat4>() };
 
-        [[nodiscard]] auto upload(
+        auto upload(
             vk::Device              t_device,
             const Allocator&        t_allocator,
             vk::DescriptorSetLayout t_descriptor_set_layout,
             vk::DescriptorPool      t_descriptor_pool
-        ) -> bool;
+        ) -> void;
 
         auto draw(
             vk::CommandBuffer  t_graphics_buffer,

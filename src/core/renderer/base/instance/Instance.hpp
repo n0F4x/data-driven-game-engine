@@ -18,16 +18,21 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto                   operator=(Instance&&) noexcept -> Instance& = default;
-    [[nodiscard]] auto     operator*() const noexcept -> vk::Instance;
-    [[nodiscard]] auto     operator->() const noexcept -> const vk::Instance*;
-    [[nodiscard]] explicit operator vkb::Instance() const noexcept;
+    auto operator=(Instance&&) noexcept -> Instance& = default;
+    [[nodiscard]]
+    auto operator*() const noexcept -> vk::Instance;
+    [[nodiscard]]
+    auto operator->() const noexcept -> const vk::Instance*;
+    [[nodiscard]]
+    explicit operator vkb::Instance() const noexcept;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto get() const noexcept -> vk::Instance;
-    [[nodiscard]] auto debug_messenger() const noexcept -> vk::DebugUtilsMessengerEXT;
+    [[nodiscard]]
+    auto get() const noexcept -> vk::Instance;
+    [[nodiscard]]
+    auto debug_messenger() const noexcept -> vk::DebugUtilsMessengerEXT;
 
 private:
     ///*************///

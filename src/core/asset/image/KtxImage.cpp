@@ -4,8 +4,8 @@
 
 namespace core::asset {
 
-auto KtxImage::load_from_file(const std::filesystem::path& t_filepath)
-    -> tl::optional<KtxImage>
+auto KtxImage::load_from_file(const std::filesystem::path& t_filepath
+) -> tl::optional<KtxImage>
 {
     ktxTexture* ktxTexture;
 
@@ -26,8 +26,8 @@ auto KtxImage::load_from_file(const std::filesystem::path& t_filepath)
     return KtxImage{ ktxTexture };
 }
 
-auto KtxImage::load_from_memory(const std::span<const std::uint8_t> t_data)
-    -> tl::optional<KtxImage>
+auto KtxImage::load_from_memory(const std::span<const std::uint8_t> t_data
+) -> tl::optional<KtxImage>
 {
     ktxTexture* ktxTexture;
 

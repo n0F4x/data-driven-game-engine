@@ -23,15 +23,17 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto nodes() const noexcept -> const std::vector<Node>&;
+    [[nodiscard]]
+    auto nodes() const noexcept -> const std::vector<Node>&;
 
-    [[nodiscard]] auto upload(
+    [[nodiscard]]
+    auto upload(
         vk::Device              t_device,
         const Allocator&        t_allocator,
         vk::CommandBuffer       t_copy_command_buffer,
         vk::DescriptorSetLayout t_descriptor_set_layout,
         vk::DescriptorPool      t_descriptor_pool
-    ) && -> tl::optional<RenderModel>;
+    ) && -> RenderModel;
 
 private:
     ///******************///

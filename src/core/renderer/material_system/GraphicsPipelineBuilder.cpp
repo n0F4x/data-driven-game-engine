@@ -4,32 +4,20 @@
 
 #include "core/utility/hashing.hpp"
 
-#include "VertexInputStateBuilder.hpp"
-
 namespace core::renderer {
 
 GraphicsPipelineBuilder::GraphicsPipelineBuilder(
-    const vk::Device     t_device,
-    Effect               t_effect,
+    Effect                      t_effect,
     tl::optional<cache::Cache&> t_cache
 ) noexcept
-    : m_device{ t_device },
-      m_cache{ t_cache.transform([](cache::Cache& cache) { return std::ref(cache); }) },
+    : m_cache{ t_cache.transform([](cache::Cache& cache) { return std::ref(cache); }) },
       m_effect{ std::move(t_effect) }
 {}
 
-auto GraphicsPipelineBuilder::set_effect(Effect t_effect) noexcept
-    -> GraphicsPipelineBuilder&
-{
-    m_effect = std::move(t_effect);
-    return *this;
-}
-
-auto GraphicsPipelineBuilder::set_vertex_input_state(
-    const VertexInputStateBuilder& t_vertex_input_state_builder
+auto GraphicsPipelineBuilder::set_effect(Effect t_effect
 ) noexcept -> GraphicsPipelineBuilder&
 {
-    m_vertex_input_state = t_vertex_input_state_builder.build(m_effect);
+    m_effect = std::move(t_effect);
     return *this;
 }
 
@@ -41,8 +29,8 @@ auto GraphicsPipelineBuilder::set_primitive_topology(
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_cull_mode(const vk::CullModeFlags t_cull_mode) noexcept
-    -> GraphicsPipelineBuilder&
+auto GraphicsPipelineBuilder::set_cull_mode(const vk::CullModeFlags t_cull_mode
+) noexcept -> GraphicsPipelineBuilder&
 {
     m_cull_mode = t_cull_mode;
     return *this;
@@ -60,29 +48,34 @@ auto GraphicsPipelineBuilder::disable_blending() noexcept -> GraphicsPipelineBui
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_layout(const vk::PipelineLayout t_layout) noexcept
-    -> GraphicsPipelineBuilder&
+auto GraphicsPipelineBuilder::set_layout(const vk::PipelineLayout t_layout
+) noexcept -> GraphicsPipelineBuilder&
 {
     m_layout = t_layout;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass t_render_pass) noexcept
-    -> GraphicsPipelineBuilder&
+auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass t_render_pass
+) noexcept -> GraphicsPipelineBuilder&
 {
     m_render_pass = t_render_pass;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::build() const -> cache::Handle<GraphicsPipeline>
+auto GraphicsPipelineBuilder::build(const vk::Device t_device) const -> vk::UniquePipeline
 {
-    if (const auto cached{ m_cache.and_then([&](const cache::Cache& cache) {
-            return cache.find<GraphicsPipeline>(GraphicsPipeline::hash(*this));
-        }) };
-        cached.has_value())
-    {
-        return cached.value();
-    }
+    // TODO: move caching
+    //    if (const auto cached{ m_cache.and_then([&](const cache::Cache& cache) {
+    //            return cache.find<GraphicsPipeline>(GraphicsPipeline::hash(*this));
+    //        }) };
+    //        cached.has_value())
+    //    {
+    //        return cached.value();
+    //    }
+
+    // TODO: allow vertex input states
+    constexpr static vk::PipelineVertexInputStateCreateInfo
+        vertex_input_state_create_info{};
 
     const vk::PipelineInputAssemblyStateCreateInfo input_assembly_state_create_info{
         .topology = m_primitive_topology
@@ -141,7 +134,7 @@ auto GraphicsPipelineBuilder::build() const -> cache::Handle<GraphicsPipeline>
     const vk::GraphicsPipelineCreateInfo create_info{
         .stageCount          = static_cast<uint32_t>(m_effect.pipeline_stages().size()),
         .pStages             = m_effect.pipeline_stages().data(),
-        .pVertexInputState   = &m_vertex_input_state->info(),
+        .pVertexInputState   = &vertex_input_state_create_info,
         .pInputAssemblyState = &input_assembly_state_create_info,
         .pViewportState      = &viewport_state_create_info,
         .pRasterizationState = &rasterization_state_create_info,
@@ -153,22 +146,30 @@ auto GraphicsPipelineBuilder::build() const -> cache::Handle<GraphicsPipeline>
         .renderPass          = m_render_pass,
     };
 
-    return m_cache
-        .transform([&](cache::Cache& cache) {
-            return cache.insert<GraphicsPipeline>(
-                GraphicsPipeline::hash(*this),
-                cache::make_handle<GraphicsPipeline>(m_device, create_info)
-            );
-        })
-        .value_or(cache::make_handle<GraphicsPipeline>(m_device, create_info));
+    // TODO: move caching
+    //    return m_cache
+    //        .transform([&](cache::Cache& cache) {
+    //            return cache.insert<vk::UniquePipeline>(
+    //                GraphicsPipeline::hash(*this),
+    //                cache::make_handle<vk::UniquePipeline>(
+    //                    t_device.createGraphicsPipelineUnique(nullptr,
+    //                    create_info).value
+    //                )
+    //            );
+    //        })
+    //        .value_or(cache::make_handle<vk::UniquePipeline>(
+    //            t_device.createGraphicsPipelineUnique(nullptr, create_info).value
+    //        ));
+
+    return t_device.createGraphicsPipelineUnique(nullptr, create_info).value;
 }
 
-[[nodiscard]] auto hash_value(const GraphicsPipelineBuilder& t_graphics_pipeline_builder
+[[nodiscard]]
+auto hash_value(const GraphicsPipelineBuilder& t_graphics_pipeline_builder
 ) noexcept -> size_t
 {
     return hash_combine(
         t_graphics_pipeline_builder.m_effect,
-        t_graphics_pipeline_builder.m_vertex_input_state,
         t_graphics_pipeline_builder.m_primitive_topology,
         t_graphics_pipeline_builder.m_cull_mode,
         t_graphics_pipeline_builder.m_enable_blending,

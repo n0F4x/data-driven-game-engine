@@ -10,7 +10,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "core/renderer/base/device/Device.hpp"
-#include "core/utility/vulkan/Swapchain.hpp"
+#include "core/renderer/wrappers/vulkan/Swapchain.hpp"
 
 namespace core::renderer {
 
@@ -36,12 +36,15 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto surface() const noexcept -> vk::SurfaceKHR;
-    [[nodiscard]] auto get() const noexcept -> const tl::optional<vulkan::Swapchain>&;
+    [[nodiscard]]
+    auto surface() const noexcept -> vk::SurfaceKHR;
+    [[nodiscard]]
+    auto get() const noexcept -> const tl::optional<vulkan::Swapchain>&;
 
     auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void;
 
-    [[nodiscard]] auto acquire_next_image(
+    [[nodiscard]]
+    auto acquire_next_image(
         vk::Semaphore t_semaphore = nullptr,
         vk::Fence     t_fence     = nullptr
     ) -> tl::optional<uint32_t>;

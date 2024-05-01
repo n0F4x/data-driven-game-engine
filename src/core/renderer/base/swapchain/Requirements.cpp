@@ -4,8 +4,8 @@
 
 namespace core::renderer {
 
-[[nodiscard]] static auto
-    required_instance_extension_names() noexcept -> std::span<const std::string>
+[[nodiscard]]
+static auto required_instance_extension_names() noexcept -> std::span<const std::string>
 {
     static const std::vector s_extensions_names{ []() -> std::vector<std::string> {
         if (!glfwInit()) {

@@ -2,8 +2,8 @@
 
 namespace core::renderer {
 
-[[nodiscard]] static auto
-    optional_instance_extension_names() noexcept -> std::span<const std::string>
+[[nodiscard]]
+static auto optional_instance_extension_names() noexcept -> std::span<const std::string>
 {
     static const std::array<std::string, 5> s_extension_names{
         // VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT
@@ -62,63 +62,8 @@ auto Allocator::Requirements::enable_optional_device_settings(
     // VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT
     t_physical_device.enable_extension_if_present(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
 
-    // TODO: enable optional features and their extensions as well
-    // TODO: See https://github.com/charles-lunarg/vk-bootstrap/issues/269
-}
-
-auto Allocator::Requirements::optional_device_extension_structs(
-    const vkb::PhysicalDevice& t_physical_device
-)
-    -> vk::StructureChain<
-        vk::DeviceCreateInfo,
-        vk::PhysicalDeviceCoherentMemoryFeaturesAMD,
-        vk::PhysicalDeviceBufferDeviceAddressFeatures,
-        vk::PhysicalDeviceMemoryPriorityFeaturesEXT,
-        vk::PhysicalDeviceMaintenance4Features>
-{
-    vk::StructureChain<
-        vk::DeviceCreateInfo,
-        vk::PhysicalDeviceCoherentMemoryFeaturesAMD,
-        vk::PhysicalDeviceBufferDeviceAddressFeatures,
-        vk::PhysicalDeviceMemoryPriorityFeaturesEXT,
-        vk::PhysicalDeviceMaintenance4Features>
-        result;
-
-    if (t_physical_device.is_extension_present(VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME
-        ))
-    {
-        result.get<vk::PhysicalDeviceCoherentMemoryFeaturesAMD>().deviceCoherentMemory =
-            true;
-    }
-    else {
-        result.unlink<vk::PhysicalDeviceCoherentMemoryFeaturesAMD>();
-    }
-
-    if (t_physical_device.is_extension_present(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
-        ))
-    {
-        result.get<vk::PhysicalDeviceBufferDeviceAddressFeatures>().bufferDeviceAddress =
-            true;
-    }
-    else {
-        result.unlink<vk::PhysicalDeviceBufferDeviceAddressFeatures>();
-    }
-
-    if (t_physical_device.is_extension_present(VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME)) {
-        result.get<vk::PhysicalDeviceMemoryPriorityFeaturesEXT>().memoryPriority = true;
-    }
-    else {
-        result.unlink<vk::PhysicalDeviceMemoryPriorityFeaturesEXT>();
-    }
-
-    if (t_physical_device.is_extension_present(VK_KHR_MAINTENANCE_4_EXTENSION_NAME)) {
-        result.get<vk::PhysicalDeviceMaintenance4Features>().maintenance4 = true;
-    }
-    else {
-        result.unlink<vk::PhysicalDeviceMaintenance4Features>();
-    }
-
-    return result;
+    // TODO: Enable optional features and their extensions as well
+    //       See https://github.com/charles-lunarg/vk-bootstrap/issues/269
 }
 
 }   // namespace core::renderer

@@ -61,10 +61,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 set(SPIRV_CROSS_STATIC ON)
 set(SPIRV_CROSS_SHARED OFF)
 set(SPIRV_CROSS_CLI OFF)
+find_package(spirv_cross_core CONFIG REQUIRED)
+find_package(spirv_cross_glsl CONFIG REQUIRED)
 find_package(spirv_cross_reflect CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE spirv-cross-reflect)
+target_link_libraries(${PROJECT_NAME} PRIVATE spirv-cross-core spirv-cross-glsl spirv-cross-reflect)
 
 # VulkanMemoryAllocator
+# vcpkg port(3.0.1#4) is deprecated and doesn't compile
 message(NOTICE "Configuring VulkanMemoryAllocator")
 set(STATIC_VULKAN_FUNCTIONS 0)
 set(DYNAMIC_VULKAN_FUNCTIONS 1)
@@ -96,7 +99,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 # KTX
 set(KTX_FEATURE_STATIC_LIBRARY ON)
 find_package(Ktx CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME}  PUBLIC KTX::ktx)
+target_link_libraries(${PROJECT_NAME} PUBLIC KTX::ktx)
 
 # stb
 find_package(Stb REQUIRED)

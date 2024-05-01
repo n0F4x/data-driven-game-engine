@@ -6,7 +6,8 @@ namespace core::renderer {
 
 class Swapchain::Requirements {
 public:
-    [[nodiscard]] static auto
+    [[nodiscard]]
+    static auto
         required_instance_settings_are_available(const vkb::SystemInfo& t_system_info
         ) -> bool;
 

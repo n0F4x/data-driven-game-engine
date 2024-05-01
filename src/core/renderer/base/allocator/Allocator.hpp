@@ -3,6 +3,8 @@
 #include <span>
 #include <string>
 
+#include <gsl/pointers>
+
 #include <tl/optional.hpp>
 
 #include <vulkan/vulkan.hpp>
@@ -11,8 +13,9 @@
 
 #include <VkBootstrap.h>
 
-#include "core/utility/vma/Allocator.hpp"
-#include "core/utility/vma/Buffer.hpp"
+#include "core/renderer/memory/Buffer.hpp"
+#include "core/renderer/memory/MappedBuffer.hpp"
+#include "core/renderer/wrappers/vma/Allocator.hpp"
 
 namespace core::renderer {
 
@@ -31,17 +34,34 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    [[nodiscard]] auto operator*() const noexcept -> VmaAllocator;
-    [[nodiscard]] auto operator->() const noexcept -> const VmaAllocator*;
+    [[nodiscard]]
+    auto operator*() const noexcept -> VmaAllocator;
+    [[nodiscard]]
+    auto operator->() const noexcept -> const VmaAllocator*;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto create_buffer(
+    [[nodiscard]] auto get() const noexcept -> VmaAllocator;
+
+    [[nodiscard]]
+    auto create_buffer(
         const vk::BufferCreateInfo&    t_buffer_create_info,
-        const VmaAllocationCreateInfo& t_allocation_create_info,
-        const void*                    t_data = nullptr
-    ) const noexcept -> tl::optional<std::pair<vma::Buffer, VmaAllocationInfo>>;
+        const VmaAllocationCreateInfo& t_allocation_create_info = {
+            .usage = VMA_MEMORY_USAGE_AUTO,
+        }
+    ) const -> Buffer;
+
+    [[nodiscard]]
+    auto create_mapped_buffer(
+        const vk::BufferCreateInfo& t_buffer_create_info
+    ) const -> MappedBuffer;
+
+    [[nodiscard]]
+    auto create_mapped_buffer(
+        const vk::BufferCreateInfo& t_buffer_create_info,
+        gsl::not_null<const void*>  t_data
+    ) const -> MappedBuffer;
 
 private:
     ///*************///

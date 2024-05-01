@@ -11,28 +11,29 @@
 
 #include <core/renderer/model/ModelLoader.hpp>
 #include <core/renderer/model/RenderModel.hpp>
-#include <core/utility/vma/Image.hpp>
 #include <core/window/Window.hpp>
 
 #include "core/renderer/base/allocator/Allocator.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/swapchain/Swapchain.hpp"
+#include "core/renderer/memory/Image.hpp"
 
 #include "Camera.hpp"
 #include "Controller.hpp"
 #include "demo_init.hpp"
+#include "DemoRenderer.hpp"
 
 using namespace entt::literals;
 using namespace core;
 
-constexpr uint32_t g_frame_count{ 2 };
+constexpr static uint32_t g_frame_count{ 2 };
 
 struct DemoApp {
     renderer::Device&                  device;
     renderer::Allocator&               allocator;
     renderer::Swapchain&               swapchain;
     vk::UniqueRenderPass               render_pass;
-    vma::Image                         depth_image;
+    renderer::Image                    depth_image;
     vk::UniqueImageView                depth_image_view;
     std::vector<vk::UniqueFramebuffer> framebuffers;
     vk::UniqueDescriptorSetLayout      descriptor_set_layout;
@@ -48,7 +49,8 @@ struct DemoApp {
 
     renderer::RenderModel model;
 
-    [[nodiscard]] static auto create(Store& t_store, const std::string& t_model_filepath)
+    [[nodiscard]]
+    static auto create(Store& t_store, const std::string& t_model_filepath)
         -> tl::optional<DemoApp>
     {
         const auto& window{ t_store.at<window::Window>() };
@@ -239,18 +241,6 @@ struct DemoApp {
             vk::ClearValue{ .depthStencil = { 1.f, 0 } }
         };
 
-        const vk::RenderPassBeginInfo render_pass_begin_info{
-            .renderPass      = *render_pass,
-            .framebuffer     = *framebuffers[t_image_index],
-            .renderArea      = { .extent = swapchain.get()->extent() },
-            .clearValueCount = static_cast<uint32_t>(clearValues.size()),
-            .pClearValues    = clearValues.data()
-        };
-
-        command_buffer.beginRenderPass(
-            render_pass_begin_info, vk::SubpassContents::eInline
-        );
-
         const auto extent{ swapchain.get()->extent() };
         command_buffer.setViewport(
             0,
@@ -260,7 +250,18 @@ struct DemoApp {
         );
         command_buffer.setScissor(0, vk::Rect2D{ {}, extent });
 
-        command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline);
+        const vk::RenderPassBeginInfo render_pass_begin_info{
+            .renderPass      = *render_pass,
+            .framebuffer     = *framebuffers[t_image_index],
+            .renderArea      = { .extent = swapchain.get()->extent() },
+            .clearValueCount = static_cast<uint32_t>(clearValues.size()),
+            .pClearValues    = clearValues.data()
+        };
+        command_buffer.beginRenderPass(
+            render_pass_begin_info, vk::SubpassContents::eInline
+        );
+
+        command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.get());
 
         t_camera.set_perspective_projection(
             50.f,
@@ -269,7 +270,11 @@ struct DemoApp {
             10000.f
         );
         command_buffer.pushConstants(
-            *pipeline_layout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(Camera), &t_camera
+            pipeline_layout.get(),
+            vk::ShaderStageFlagBits::eVertex,
+            0,
+            sizeof(Camera),
+            &t_camera
         );
 
         model.draw(command_buffer, *pipeline_layout);
@@ -282,10 +287,10 @@ struct DemoApp {
 
 auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept -> int
 {
-    return DemoApp::create(t_app.store(), t_model_filepath)
-        .transform([&](DemoApp t_demo) {
+    return DemoRenderer::create(t_app.store(), t_model_filepath)
+        .transform([&](DemoRenderer t_demo) {
             t_demo.swapchain.on_swapchain_recreated(
-                [&t_demo](const vulkan::Swapchain& t_swapchain) {
+                [&t_demo](const renderer::vulkan::Swapchain& t_swapchain) {
                     t_demo.depth_image.reset();
                     t_demo.depth_image = init::create_depth_image(
                         t_demo.device.physical_device(),
@@ -294,13 +299,15 @@ auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept ->
                     );
                 }
             );
-            t_demo.swapchain.on_swapchain_recreated([&t_demo](const vulkan::Swapchain&) {
-                t_demo.depth_image_view.reset();
-                t_demo.depth_image_view =
-                    init::create_depth_image_view(t_demo.device, *t_demo.depth_image);
-            });
             t_demo.swapchain.on_swapchain_recreated(
-                [&t_demo](const vulkan::Swapchain& t_swapchain) {
+                [&t_demo](const renderer::vulkan::Swapchain&) {
+                    t_demo.depth_image_view.reset();
+                    t_demo.depth_image_view =
+                        init::create_depth_image_view(t_demo.device, *t_demo.depth_image);
+                }
+            );
+            t_demo.swapchain.on_swapchain_recreated(
+                [&t_demo](const renderer::vulkan::Swapchain& t_swapchain) {
                     t_demo.framebuffers.clear();
                     t_demo.framebuffers = init::create_framebuffers(
                         *t_demo.device,
@@ -339,13 +346,13 @@ auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept ->
                                               static_cast<uint32_t>(height) });
                 }
             );
-            Camera     camera;
-            std::mutex camera_mutex{};
+            graphics::Camera camera;
+            std::mutex       camera_mutex{};
 
             auto rendering = std::async(std::launch::async, [&] {
                 while (running) {
                     camera_mutex.lock();
-                    Camera render_camera{ camera };
+                    graphics::Camera render_camera{ camera };
                     camera_mutex.unlock();
                     t_demo.render(framebuffer_size, render_camera);
                 }

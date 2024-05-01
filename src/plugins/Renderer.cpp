@@ -1,7 +1,5 @@
 #include "Renderer.hpp"
 
-#include <ranges>
-
 #include <spdlog/spdlog.h>
 
 #include <VkBootstrap.h>
@@ -11,7 +9,7 @@
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
 #include "core/renderer/base/swapchain/Requirements.hpp"
-#include "core/utility/vulkan/tools.hpp"
+#include "core/renderer/model/Requirements.hpp"
 #include "core/window/Window.hpp"
 #include "plugins/renderer/helpers.hpp"
 
@@ -145,6 +143,7 @@ auto Renderer::operator()(
     );
     Allocator::Requirements::require_device_settings(physical_device_selector);
     Swapchain::Requirements::require_device_settings(physical_device_selector);
+    RenderModel2::Requirements::require_device_settings(physical_device_selector);
 
     auto physical_device_result{ physical_device_selector.select() };
     if (!physical_device_result.has_value()) {

@@ -6,17 +6,17 @@
 
 #include "core/renderer/base/allocator/Allocator.hpp"
 
-#include "Model.hpp"
 #include "StagingModel.hpp"
 
 namespace core::renderer {
 
 class ModelLoader {
 public:
-    [[nodiscard]] static auto load_from_file(
+    [[nodiscard]]
+    static auto load_from_file(
         const std::filesystem::path& t_filepath,
         const Allocator&             t_allocator
-    ) noexcept -> tl::optional<StagingModel>;
+    ) -> tl::optional<StagingModel>;
 };
 
 }   // namespace core::renderer

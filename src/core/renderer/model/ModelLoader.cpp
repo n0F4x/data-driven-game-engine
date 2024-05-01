@@ -8,8 +8,9 @@
 
 #include "GltfLoader.hpp"
 
-[[nodiscard]] static auto load_asset(const std::filesystem::path& t_filepath) noexcept
-    -> fastgltf::Expected<fastgltf::Asset>
+[[nodiscard]]
+static auto load_asset(const std::filesystem::path& t_filepath
+) noexcept -> fastgltf::Expected<fastgltf::Asset>
 {
     fastgltf::Parser parser;
 
@@ -29,7 +30,7 @@ namespace core::renderer {
 auto ModelLoader::load_from_file(
     const std::filesystem::path& t_filepath,
     const Allocator&             t_allocator
-) noexcept -> tl::optional<StagingModel>
+) -> tl::optional<StagingModel>
 {
     auto asset{ load_asset(t_filepath) };
     if (asset.error() != fastgltf::Error::None) {
@@ -40,13 +41,10 @@ auto ModelLoader::load_from_file(
     GltfLoader model;
     model.load(asset.get());
 
-    return StagingMeshBuffer::create<Model::Vertex>(
-               t_allocator, model.vertices, model.indices
-    )
-        .transform([&](StagingMeshBuffer&& t_staging_mesh_buffer) {
-            return StagingModel{ std::move(t_staging_mesh_buffer),
-                                 std::move(model.nodes) };
-        });
+    return StagingModel{ StagingMeshBuffer::create<graphics::Model::Vertex>(
+                             t_allocator, model.vertices, model.indices
+                         ),
+                         std::move(model.nodes) };
 }
 
 }   // namespace core::renderer

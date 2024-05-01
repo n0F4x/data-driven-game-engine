@@ -4,16 +4,17 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <core/renderer/model/Model.hpp>
-#include <core/utility/vulkan/tools.hpp>
+#include <core/renderer/material_system/ShaderModule.hpp>
 
+#include "core/graphics/model/Model.hpp"
 #include "core/renderer/base/device/Device.hpp"
 
 using namespace core;
 
 namespace {
 
-[[nodiscard]] auto find_supported_format(
+[[nodiscard]]
+auto find_supported_format(
     const vk::PhysicalDevice       t_physical_device,
     const std::vector<vk::Format>& t_candidates,
     const vk::ImageTiling          t_tiling,
@@ -35,8 +36,8 @@ namespace {
     throw std::runtime_error{ "Failed to find supported format!" };
 }
 
-[[nodiscard]] auto find_depth_format(const vk::PhysicalDevice t_physical_device
-) noexcept -> vk::Format
+[[nodiscard]]
+auto find_depth_format(const vk::PhysicalDevice t_physical_device) noexcept -> vk::Format
 {
     using enum vk::Format;
     return find_supported_format(
@@ -121,7 +122,7 @@ auto create_depth_image(
     const vk::PhysicalDevice t_physical_device,
     VmaAllocator             t_allocator,
     const vk::Extent2D       t_swapchain_extent
-) noexcept -> vma::Image
+) noexcept -> renderer::Image
 {
     const vk::ImageCreateInfo image_create_info = {
         .imageType = vk::ImageType::e2D,
@@ -151,7 +152,7 @@ auto create_depth_image(
         &allocation,
         nullptr
     );
-    return vma::Image(t_allocator, image, allocation);
+    return renderer::Image(image, allocation, t_allocator);
 }
 
 auto create_depth_image_view(
@@ -254,27 +255,26 @@ auto create_pipeline(
     const vk::RenderPass     t_render_pass
 ) -> vk::UniquePipeline
 {
-    const vk::UniqueShaderModule vertex_shader_module{
-        vulkan::load_shader(t_device, "shaders/model_test.vert.spv")
+    const auto vertex_shader_module{
+        renderer::ShaderModule::create(t_device, "shaders/model_test.vert.spv")
     };
-    const vk::UniqueShaderModule fragment_shader_module{
-        vulkan::load_shader(t_device, "shaders/model_test.frag.spv")
+    const auto fragment_shader_module{
+        renderer::ShaderModule::create(t_device, "shaders/model_test.frag.spv")
     };
-    if (!vertex_shader_module || !fragment_shader_module) {
-        std::println("Failed loading shaders");
+    if (!vertex_shader_module.has_value() || !fragment_shader_module.has_value()) {
         throw std::runtime_error{ "Failed loading shaders!" };
     }
 
     std::array pipeline_shader_stage_create_infos{
         vk::PipelineShaderStageCreateInfo{   .stage  = vk::ShaderStageFlagBits::eVertex,
-                                          .module = *vertex_shader_module,
+                                          .module = vertex_shader_module->module(),
                                           .pName  = "main" },
         vk::PipelineShaderStageCreateInfo{ .stage  = vk::ShaderStageFlagBits::eFragment,
-                                          .module = *fragment_shader_module,
+                                          .module = fragment_shader_module->module(),
                                           .pName  = "main" }
     };
 
-    using Vertex = renderer::Model::Vertex;
+    using Vertex = graphics::Model::Vertex;
     vk::VertexInputBindingDescription vertex_input_binding_description{
         .binding = 0, .stride = sizeof(Vertex), .inputRate = vk::VertexInputRate::eVertex
     };
@@ -446,8 +446,8 @@ auto create_fences(const vk::Device t_device, const uint32_t t_count)
     return fences;
 }
 
-[[nodiscard]] static auto count_meshes(const renderer::StagingModel::Node& t_node
-) noexcept -> uint32_t
+[[nodiscard]]
+static auto count_meshes(const renderer::StagingModel::Node& t_node) noexcept -> uint32_t
 {
     uint32_t count{};
     if (t_node.mesh) {

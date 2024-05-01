@@ -4,7 +4,30 @@
 
 #include <tl/optional.hpp>
 
-#include "core/utility/vulkan/tools.hpp"
+[[nodiscard]]
+auto load_shader(vk::Device t_device, const std::filesystem::path& t_filepath)
+    -> vk::UniqueShaderModule
+{
+    std::ifstream file{ t_filepath, std::ios::binary | std::ios::in | std::ios::ate };
+
+    const std::streamsize file_size = file.tellg();
+    if (file_size == -1) {
+        return {};
+    }
+
+    std::vector<char> buffer(static_cast<size_t>(file_size));
+
+    file.seekg(0, std::ios::beg);
+    file.read(buffer.data(), file_size);
+    file.close();
+
+    const vk::ShaderModuleCreateInfo create_info{
+        .codeSize = static_cast<size_t>(file_size),
+        .pCode    = reinterpret_cast<uint32_t*>(buffer.data())
+    };
+
+    return t_device.createShaderModuleUnique(create_info);
+}
 
 namespace core::renderer {
 
@@ -13,32 +36,16 @@ auto ShaderModule::hash(const std::filesystem::path& t_filepath) noexcept -> siz
     return std::filesystem::hash_value(t_filepath);
 }
 
-auto ShaderModule::load(
-    const vk::Device             t_device,
-    const std::filesystem::path& t_filepath,
-    tl::optional<cache::Cache&>         t_cache
-) -> tl::optional<cache::Handle<ShaderModule>>
+auto ShaderModule::create(const vk::Device t_device, const std::filesystem::path& t_filepath)
+    -> tl::optional<ShaderModule>
 {
-    if (auto cached{ t_cache.and_then([&](const cache::Cache& cache) {
-            return cache.find<ShaderModule>(ShaderModule::hash(t_filepath));
-        }) };
-        cached.has_value())
-    {
-        return cached.value();
-    }
+    vk::UniqueShaderModule module{ load_shader(t_device, t_filepath) };
 
-    vk::UniqueShaderModule module{ vulkan::load_shader(t_device, t_filepath) };
     if (!module) {
         return tl::nullopt;
     }
 
-    return t_cache
-        .transform([&](cache::Cache& cache) {
-            return cache.emplace<ShaderModule>(
-                ShaderModule::hash(t_filepath), t_filepath, std::move(module)
-            );
-        })
-        .value_or(cache::make_handle<ShaderModule>(t_filepath, std::move(module)));
+    return ShaderModule{ t_filepath, std::move(module) };
 }
 
 ShaderModule::ShaderModule(
@@ -59,7 +66,8 @@ auto ShaderModule::module() const noexcept -> vk::ShaderModule
     return m_module.get();
 }
 
-[[nodiscard]] auto hash_value(const ShaderModule& t_shader_module) noexcept -> size_t
+[[nodiscard]]
+auto hash_value(const ShaderModule& t_shader_module) noexcept -> size_t
 {
     return std::filesystem::hash_value(t_shader_module.m_filepath);
 }

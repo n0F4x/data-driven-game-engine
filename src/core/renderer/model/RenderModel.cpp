@@ -2,7 +2,8 @@
 
 namespace core::renderer {
 
-[[nodiscard]] auto create_descriptor_set(
+[[nodiscard]]
+auto create_descriptor_set(
     const vk::Device                t_device,
     const vk::DescriptorSetLayout   t_descriptor_set_layout,
     const vk::DescriptorPool        t_descriptor_pool,
@@ -37,34 +38,24 @@ auto RenderModel::Mesh::upload(
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool,
     const UniformBlock&           t_uniform_block
-) -> bool
+) -> void
 {
     const vk::BufferCreateInfo buffer_create_info = {
-        .size  = sizeof(t_uniform_block),
-        .usage = vk::BufferUsageFlagBits::eUniformBuffer
-               | vk::BufferUsageFlagBits::eTransferDst
-    };
-    constexpr VmaAllocationCreateInfo allocation_create_info = {
-        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
-               | VMA_ALLOCATION_CREATE_MAPPED_BIT,
-        .usage = VMA_MEMORY_USAGE_AUTO,
+        .size = sizeof(t_uniform_block), .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    return t_allocator
-        .create_buffer(buffer_create_info, allocation_create_info, &t_uniform_block)
-        .transform([&](std::pair<vma::Buffer, VmaAllocationInfo>&& result) {
-            const vk::DescriptorBufferInfo descriptor_buffer_info{
-                .buffer = *result.first, .offset = 0, .range = sizeof(UniformBlock)
-            };
-
-            uniform_buffer = std::move(result.first);
-            mapped         = result.second.pMappedData;
-            descriptor_set = create_descriptor_set(
-                t_device, t_descriptor_set_layout, t_descriptor_pool, descriptor_buffer_info
-            );
-            return true;
-        })
-        .value_or(false);
+    uniform_buffer =
+        t_allocator.create_mapped_buffer(buffer_create_info, &t_uniform_block);
+    descriptor_set = create_descriptor_set(
+        t_device,
+        t_descriptor_set_layout,
+        t_descriptor_pool,
+        vk::DescriptorBufferInfo{
+            .buffer = uniform_buffer.get(),
+            .offset = 0,
+            .range  = sizeof(UniformBlock),
+        }
+    );
 }
 
 auto RenderModel::Node::upload(
@@ -72,29 +63,21 @@ auto RenderModel::Node::upload(
     const renderer::Allocator&    t_allocator,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool
-) -> bool
+) -> void
 {
-    if (mesh.transform([&](Mesh& t_mesh) {
-                return t_mesh.upload(
-                    t_device,
-                    t_allocator,
-                    t_descriptor_set_layout,
-                    t_descriptor_pool,
-                    Mesh::UniformBlock{ .matrix = matrix }
-                );
-            }
-        ).value_or(true))
-    {
-        for (auto& child : children) {
-            if (!child.upload(
-                    t_device, t_allocator, t_descriptor_set_layout, t_descriptor_pool
-                ))
-            {
-                return false;
-            }
-        }
+    mesh.transform([&](Mesh& t_mesh) {
+        return t_mesh.upload(
+            t_device,
+            t_allocator,
+            t_descriptor_set_layout,
+            t_descriptor_pool,
+            Mesh::UniformBlock{ .matrix = matrix }
+        );
+    });
+
+    for (auto& child : children) {
+        child.upload(t_device, t_allocator, t_descriptor_set_layout, t_descriptor_pool);
     }
-    return true;
 }
 
 auto RenderModel::Node::draw(
@@ -107,7 +90,7 @@ auto RenderModel::Node::draw(
 
     if (mesh) {
         const Mesh::UniformBlock uniform_block{ .matrix = global_matrix };
-        memcpy(mesh->mapped, &uniform_block, sizeof(Mesh::UniformBlock));
+        mesh->uniform_buffer.set(uniform_block);
 
         for (const auto& [first_index_index, index_count, vertex_count] : mesh->primitives)
         {

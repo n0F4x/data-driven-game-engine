@@ -1,7 +1,6 @@
 add_subdirectory(base)
 add_subdirectory(material_system)
+add_subdirectory(memory)
 add_subdirectory(model)
-
-target_sources(${PROJECT_NAME} PRIVATE
-        RenderScene.cpp
-)
+add_subdirectory(scene)
+add_subdirectory(wrappers)

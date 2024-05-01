@@ -17,7 +17,8 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto get() const noexcept -> GLFWwindow*;
+    [[nodiscard]]
+    auto get() const noexcept -> GLFWwindow*;
 
 private:
     ///*************///

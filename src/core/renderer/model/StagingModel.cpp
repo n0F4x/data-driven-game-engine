@@ -13,23 +13,16 @@ auto StagingModel::upload(
     const vk::CommandBuffer       t_copy_command_buffer,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool
-) && -> tl::optional<RenderModel>
+) && -> RenderModel
 {
-    return m_staging_mesh_buffer.upload(t_allocator, t_copy_command_buffer)
-        .and_then([&](MeshBuffer&& mesh_buffer) -> tl::optional<RenderModel> {
-            RenderModel model{ std::move(m_nodes), std::move(mesh_buffer) };
+    RenderModel model{ std::move(m_nodes),
+                       m_staging_mesh_buffer.upload(t_allocator, t_copy_command_buffer) };
 
-            for (auto& node : model.m_nodes) {
-                if (!node.upload(
-                        t_device, t_allocator, t_descriptor_set_layout, t_descriptor_pool
-                    ))
-                {
-                    return tl::nullopt;
-                }
-            }
+    for (auto& node : model.m_nodes) {
+        node.upload(t_device, t_allocator, t_descriptor_set_layout, t_descriptor_pool);
+    }
 
-            return model;
-        });
+    return model;
 }
 
 StagingModel::StagingModel(

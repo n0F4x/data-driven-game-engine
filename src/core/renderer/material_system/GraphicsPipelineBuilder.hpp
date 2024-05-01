@@ -9,38 +9,32 @@
 
 #include "Effect.hpp"
 #include "GraphicsPipeline.hpp"
-#include "VertexInputState.hpp"
 
 namespace core::renderer {
 
 class GraphicsPipelineBuilder {
 public:
     explicit GraphicsPipelineBuilder(
-        vk::Device           t_device,
-        Effect               t_effect,
+        Effect                      t_effect,
         tl::optional<cache::Cache&> t_cache = {}
     ) noexcept;
 
     auto set_effect(Effect t_effect) noexcept -> GraphicsPipelineBuilder&;
-    auto set_vertex_input_state(const VertexInputStateBuilder& t_vertex_input_state_builder
+    auto set_primitive_topology(vk::PrimitiveTopology t_primitive_topology
     ) noexcept -> GraphicsPipelineBuilder&;
-    auto set_primitive_topology(vk::PrimitiveTopology t_primitive_topology) noexcept
-        -> GraphicsPipelineBuilder&;
-    auto set_cull_mode(vk::CullModeFlags t_cull_mode) noexcept
-        -> GraphicsPipelineBuilder&;
+    auto set_cull_mode(vk::CullModeFlags t_cull_mode) noexcept -> GraphicsPipelineBuilder&;
     auto enable_blending() noexcept -> GraphicsPipelineBuilder&;
     auto disable_blending() noexcept -> GraphicsPipelineBuilder&;
     auto set_layout(vk::PipelineLayout t_layout) noexcept -> GraphicsPipelineBuilder&;
-    auto set_render_pass(vk::RenderPass t_render_pass) noexcept
-        -> GraphicsPipelineBuilder&;
+    auto set_render_pass(vk::RenderPass t_render_pass
+    ) noexcept -> GraphicsPipelineBuilder&;
 
-    [[nodiscard]] auto build() const -> cache::Handle<GraphicsPipeline>;
+    [[nodiscard]]
+    auto build(vk::Device t_device) const -> vk::UniquePipeline;
 
 private:
-    vk::Device                                  m_device;
     tl::optional<std::reference_wrapper<cache::Cache>> m_cache;
-    Effect                                      m_effect;
-    tl::optional<VertexInputState>              m_vertex_input_state;
+    Effect                                             m_effect;
     vk::PrimitiveTopology m_primitive_topology{ vk::PrimitiveTopology::eTriangleList };
     vk::CullModeFlags     m_cull_mode{};
     bool                  m_enable_blending{};
@@ -55,7 +49,8 @@ private:
 
 template <>
 struct std::hash<core::renderer::GraphicsPipelineBuilder> {
-    [[nodiscard]] auto operator()(
+    [[nodiscard]]
+    auto operator()(
         const core::renderer::GraphicsPipelineBuilder& t_graphics_pipeline_builder
     ) const noexcept -> size_t;
 };

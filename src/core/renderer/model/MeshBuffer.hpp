@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/utility/vma/Buffer.hpp"
+#include "core/renderer/memory/Buffer.hpp"
 
 namespace core::renderer {
 
@@ -14,12 +14,12 @@ public:
     ///  Nested classes  ///
     ///------------------///
     struct Vertices {
-        vma::Buffer buffer;
+        Buffer buffer;
     };
 
     struct Indices {
-        uint32_t    count{};
-        vma::Buffer buffer;
+        uint32_t count{};
+        Buffer   buffer;
     };
 
     MeshBuffer(MeshBuffer&&) noexcept = default;

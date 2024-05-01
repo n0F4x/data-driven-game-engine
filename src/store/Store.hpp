@@ -27,17 +27,22 @@ public:
     auto emplace(auto&&... t_args) -> T&;
 
     template <typename T>
-    [[nodiscard]] auto find() noexcept -> tl::optional<T&>;
+    [[nodiscard]]
+    auto find() noexcept -> tl::optional<T&>;
     template <typename T>
-    [[nodiscard]] auto find() const noexcept -> tl::optional<const T&>;
+    [[nodiscard]]
+    auto find() const noexcept -> tl::optional<const T&>;
 
     template <typename T>
-    [[nodiscard]] auto at() -> T&;
+    [[nodiscard]]
+    auto at() -> T&;
     template <typename T>
-    [[nodiscard]] auto at() const -> const T&;
+    [[nodiscard]]
+    auto at() const -> const T&;
 
     template <typename T>
-    [[nodiscard]] auto contains() const noexcept -> bool;
+    [[nodiscard]]
+    auto contains() const noexcept -> bool;
 
 private:
     using Key       = std::type_index;

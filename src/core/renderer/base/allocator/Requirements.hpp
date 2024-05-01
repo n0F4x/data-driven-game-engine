@@ -6,7 +6,8 @@ namespace core::renderer {
 
 class Allocator::Requirements {
 public:
-    [[nodiscard]] static auto
+    [[nodiscard]]
+    static auto
         required_instance_settings_are_available(const vkb::SystemInfo& t_system_info
         ) -> bool;
 
@@ -19,17 +20,8 @@ public:
         require_device_settings(vkb::PhysicalDeviceSelector& t_physical_device_selector
         ) -> void;
 
-    static auto enable_optional_device_settings(vkb::PhysicalDevice& t_physical_device) -> void;
-
-    [[deprecated("The current setup doesn't support setting these options"
-    )]] [[nodiscard]] static auto
-        optional_device_extension_structs(const vkb::PhysicalDevice& t_physical_device)
-            -> vk::StructureChain<
-                vk::DeviceCreateInfo,
-                vk::PhysicalDeviceCoherentMemoryFeaturesAMD,
-                vk::PhysicalDeviceBufferDeviceAddressFeatures,
-                vk::PhysicalDeviceMemoryPriorityFeaturesEXT,
-                vk::PhysicalDeviceMaintenance4Features>;
+    static auto enable_optional_device_settings(vkb::PhysicalDevice& t_physical_device
+    ) -> void;
 };
 
 }   // namespace core::renderer

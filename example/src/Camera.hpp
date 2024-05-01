@@ -15,8 +15,10 @@ public:
         -> void;
 
 
-    [[nodiscard]] auto view() const noexcept -> const glm::mat4&;
-    [[nodiscard]] auto projection() const noexcept -> const glm::mat4&;
+    [[nodiscard]]
+    auto view() const noexcept -> const glm::mat4&;
+    [[nodiscard]]
+    auto projection() const noexcept -> const glm::mat4&;
 
 private:
     glm::mat4 m_view{ 1.f };

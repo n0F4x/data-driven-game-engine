@@ -19,17 +19,23 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto                   operator=(Device&&) noexcept -> Device& = default;
-    [[nodiscard]] auto     operator*() const noexcept -> vk::Device;
-    [[nodiscard]] auto     operator->() const noexcept -> const vk::Device*;
-    [[nodiscard]] explicit operator vkb::Device() const noexcept;
+    auto operator=(Device&&) noexcept -> Device& = default;
+    [[nodiscard]]
+    auto operator*() const noexcept -> vk::Device;
+    [[nodiscard]]
+    auto operator->() const noexcept -> const vk::Device*;
+    [[nodiscard]]
+    explicit operator vkb::Device() const noexcept;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto get() const noexcept -> vk::Device;
-    [[nodiscard]] auto physical_device() const noexcept -> vk::PhysicalDevice;
-    [[nodiscard]] auto info() const noexcept -> vkb::Device;
+    [[nodiscard]]
+    auto get() const noexcept -> vk::Device;
+    [[nodiscard]]
+    auto physical_device() const noexcept -> vk::PhysicalDevice;
+    [[nodiscard]]
+    auto info() const noexcept -> vkb::Device;
 
 private:
     ///*************///

@@ -9,9 +9,9 @@
 
 namespace plugins::renderer {
 
-[[nodiscard]] auto
-    default_required_instance_settings_are_available(const vkb::SystemInfo& t_system_info
-    ) -> bool;
+[[nodiscard]]
+auto default_required_instance_settings_are_available(const vkb::SystemInfo& t_system_info
+) -> bool;
 
 auto enable_default_instance_settings(
     const vkb::SystemInfo& t_system_info,
