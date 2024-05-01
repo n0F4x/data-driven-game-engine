@@ -114,30 +114,37 @@ static auto create_pipeline(
     return builder.build(t_device);
 }
 
+template <typename T>
 [[nodiscard]]
 static auto create_gpu_only_buffer(
-    const Allocator&                 t_allocator,
-    const vk::CommandBuffer          t_copy_command_buffer,
-    const vk::BufferUsageFlags       t_usage_flags,
-    const uint32_t                   t_buffer_size,
-    const gsl::not_null<const void*> t_data
+    const Allocator&           t_allocator,
+    const vk::CommandBuffer    t_copy_command_buffer,
+    const vk::BufferUsageFlags t_usage_flags,
+    const std::span<T>         t_data,
+    const VkDeviceSize         t_min_alignment = 8
 ) -> Buffer
 {
+    uint32_t                   size{ static_cast<uint32_t>(t_data.size_bytes()) };
     const vk::BufferCreateInfo staging_buffer_create_info = {
-        .size  = t_buffer_size,
+        .size  = size,
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
-    const auto staging_buffer{
-        t_allocator.create_mapped_buffer(staging_buffer_create_info, t_data)
-    };
+    const auto staging_buffer{ t_allocator.create_mapped_buffer(
+        staging_buffer_create_info, t_data.data(), t_min_alignment
+    ) };
 
     const vk::BufferCreateInfo buffer_create_info = {
-        .size  = t_buffer_size,
-        .usage = t_usage_flags | vk::BufferUsageFlagBits::eTransferDst
+        .size = size, .usage = t_usage_flags | vk::BufferUsageFlagBits::eTransferDst
     };
-    Buffer buffer{ t_allocator.create_buffer(buffer_create_info) };
+    Buffer buffer{ t_allocator.create_buffer(
+        buffer_create_info,
+        VmaAllocationCreateInfo{
+            .usage = VMA_MEMORY_USAGE_AUTO,
+        },
+        t_min_alignment
+    ) };
 
-    vk::BufferCopy copy_region{ .size = t_buffer_size };
+    vk::BufferCopy copy_region{ .size = size };
     t_copy_command_buffer.copyBuffer(staging_buffer.get(), buffer.get(), 1, &copy_region);
 
     return buffer;
@@ -165,6 +172,22 @@ auto RenderModel2::load(
 {
     MappedBuffer uniform_buffer{ create_buffer<UniformBlock>(t_allocator) };
 
+    auto vertex_buffer{ create_gpu_only_buffer(
+        t_allocator,
+        t_transfer_command_buffer,
+        vk::BufferUsageFlagBits::eStorageBuffer
+            | vk::BufferUsageFlagBits::eShaderDeviceAddress,
+        std::span{ t_model->vertices() },
+        16
+    ) };
+
+    auto index_buffer{ create_gpu_only_buffer(
+        t_allocator,
+        t_transfer_command_buffer,
+        vk::BufferUsageFlagBits::eIndexBuffer,
+        std::span{ t_model->indices() }
+    ) };
+
     std::vector nodes_with_mesh{
         t_model->nodes() | std::views::filter([](const graphics::Model::Node& node) {
             return node.mesh_index.has_value();
@@ -181,6 +204,13 @@ auto RenderModel2::load(
             transforms.at(node.mesh_index.value()) = node.matrix();
         }
     );
+    auto transform_buffer{ create_gpu_only_buffer(
+        t_allocator,
+        t_transfer_command_buffer,
+        vk::BufferUsageFlagBits::eStorageBuffer
+            | vk::BufferUsageFlagBits::eShaderDeviceAddress,
+        std::span{ transforms }
+    ) };
 
     return RenderModel2{
         t_device,
@@ -189,31 +219,9 @@ auto RenderModel2::load(
             t_device, t_descriptor_set_layout, t_descriptor_pool, uniform_buffer.get()
         ),
         create_pipeline(t_device, t_pipeline_create_info),
-        create_gpu_only_buffer(
-            t_allocator,
-            t_transfer_command_buffer,
-            vk::BufferUsageFlagBits::eStorageBuffer
-                | vk::BufferUsageFlagBits::eShaderDeviceAddress,
-            static_cast<uint32_t>(
-                t_model->vertices().size() * sizeof(graphics::Model::Vertex)
-            ),
-            t_model->vertices().data()
-        ),
-        create_gpu_only_buffer(
-            t_allocator,
-            t_transfer_command_buffer,
-            vk::BufferUsageFlagBits::eIndexBuffer,
-            static_cast<uint32_t>(t_model->indices().size() * sizeof(uint32_t)),
-            t_model->indices().data()
-        ),
-        create_gpu_only_buffer(
-            t_allocator,
-            t_transfer_command_buffer,
-            vk::BufferUsageFlagBits::eStorageBuffer
-                | vk::BufferUsageFlagBits::eShaderDeviceAddress,
-            static_cast<uint32_t>(transforms.size() * sizeof(glm::mat4)),
-            transforms.data()
-        ),
+        std::move(vertex_buffer),
+        std::move(index_buffer),
+        std::move(transform_buffer),
         std::move(t_model)
     };
 }

@@ -5,10 +5,10 @@
 #include "demo.hpp"
 
 const std::string g_model_file_path{
-    //    "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
+    "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
     //    "models/Avocado/glTF-Binary/Avocado.glb"
     //    "models/DamagedHelmet.glb"
-    "models/Sponza/glTF/Sponza.gltf"
+    //    "models/Sponza/glTF/Sponza.gltf"
 };
 
 auto main() -> int

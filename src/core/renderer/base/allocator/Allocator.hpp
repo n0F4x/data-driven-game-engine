@@ -42,25 +42,29 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]] auto get() const noexcept -> VmaAllocator;
+    [[nodiscard]]
+    auto get() const noexcept -> VmaAllocator;
 
     [[nodiscard]]
     auto create_buffer(
         const vk::BufferCreateInfo&    t_buffer_create_info,
         const VmaAllocationCreateInfo& t_allocation_create_info = {
             .usage = VMA_MEMORY_USAGE_AUTO,
-        }
+        },
+        VkDeviceSize             t_min_alignment = 8
     ) const -> Buffer;
 
     [[nodiscard]]
     auto create_mapped_buffer(
-        const vk::BufferCreateInfo& t_buffer_create_info
+        const vk::BufferCreateInfo& t_buffer_create_info,
+        VkDeviceSize                t_min_alignment = 8
     ) const -> MappedBuffer;
 
     [[nodiscard]]
     auto create_mapped_buffer(
         const vk::BufferCreateInfo& t_buffer_create_info,
-        gsl::not_null<const void*>  t_data
+        gsl::not_null<const void*>  t_data,
+        VkDeviceSize                t_min_alignment = 8
     ) const -> MappedBuffer;
 
 private:
