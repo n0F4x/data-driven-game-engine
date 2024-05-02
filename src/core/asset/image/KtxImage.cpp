@@ -5,7 +5,7 @@
 namespace core::asset {
 
 auto KtxImage::load_from_file(const std::filesystem::path& t_filepath
-) -> tl::optional<KtxImage>
+) -> std::optional<KtxImage>
 {
     ktxTexture* ktxTexture;
 
@@ -17,17 +17,19 @@ auto KtxImage::load_from_file(const std::filesystem::path& t_filepath
         result != KTX_SUCCESS && result != KTX_UNKNOWN_FILE_FORMAT)
     {
         SPDLOG_ERROR(
-            "ktxTexture_CreateFromNamedFile failed with {}", ktxErrorString(result)
+            "ktxTexture_CreateFromNamedFile failed loading file {} with '{}'",
+            t_filepath.generic_string(),
+            ktxErrorString(result)
         );
 
-        return tl::nullopt;
+        return std::nullopt;
     }
 
     return KtxImage{ ktxTexture };
 }
 
 auto KtxImage::load_from_memory(const std::span<const std::uint8_t> t_data
-) -> tl::optional<KtxImage>
+) -> std::optional<KtxImage>
 {
     ktxTexture* ktxTexture;
 
@@ -37,10 +39,10 @@ auto KtxImage::load_from_memory(const std::span<const std::uint8_t> t_data
         result != KTX_SUCCESS && result != KTX_UNKNOWN_FILE_FORMAT)
     {
         SPDLOG_ERROR(
-            "ktxTexture_CreateFromNamedFile failed with {}", ktxErrorString(result)
+            "ktxTexture_CreateFromMemory failed with '{}'", ktxErrorString(result)
         );
 
-        return tl::nullopt;
+        return std::nullopt;
     }
 
     return KtxImage{ ktxTexture };

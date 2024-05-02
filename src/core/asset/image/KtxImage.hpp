@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <span>
 
-#include <tl/optional.hpp>
+#include <optional>
 
 #include <ktx.h>
 
@@ -13,11 +13,11 @@ class KtxImage {
 public:
     [[nodiscard]]
     static auto load_from_file(const std::filesystem::path& t_filepath
-    ) -> tl::optional<KtxImage>;
+    ) -> std::optional<KtxImage>;
 
     [[nodiscard]]
     static auto load_from_memory(std::span<const std::uint8_t> t_data
-    ) -> tl::optional<KtxImage>;
+    ) -> std::optional<KtxImage>;
 
     [[nodiscard]]
     auto operator->() const noexcept -> ktxTexture*;

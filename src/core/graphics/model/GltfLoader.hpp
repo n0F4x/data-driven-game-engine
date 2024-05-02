@@ -18,7 +18,11 @@ public:
 
 private:
     [[nodiscard]]
-    static auto load_model(const fastgltf::Asset& t_asset, size_t t_scene_id) -> Model;
+    static auto load_model(
+        const std::filesystem::path& t_filepath,
+        const fastgltf::Asset&       t_asset,
+        size_t                       t_scene_id
+    ) -> Model;
 };
 
 }   // namespace core::graphics

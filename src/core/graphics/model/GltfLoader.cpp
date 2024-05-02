@@ -12,6 +12,8 @@
 
 #include "core/utility/functional.hpp"
 
+#include "ImageLoader.hpp"
+
 using namespace core::graphics;
 
 namespace internal {
@@ -25,6 +27,8 @@ struct GltfModel {
     std::vector<uint32_t>      indices;
 
     std::vector<Model::Mesh> meshes;
+
+    std::vector<Model::Image> images;
 };
 
 }   // namespace internal
@@ -87,6 +91,13 @@ static auto load_indices(
 
 static auto adjust_node_indices(internal::GltfModel& t_loader) -> void;
 
+[[nodiscard]]
+static auto load_image(
+    const std::filesystem::path& t_filepath,
+    const fastgltf::Asset&       t_asset,
+    const fastgltf::Image&       t_image
+) -> std::optional<Image>;
+
 namespace core::graphics {
 
 auto GltfLoader::load_from_file(const std::filesystem::path& t_filepath
@@ -98,7 +109,7 @@ auto GltfLoader::load_from_file(const std::filesystem::path& t_filepath
         return std::nullopt;
     }
 
-    return load_model(asset.get(), asset->defaultScene.value_or(0));
+    return load_model(t_filepath, asset.get(), asset->defaultScene.value_or(0));
 }
 
 auto GltfLoader::load_from_file(
@@ -112,12 +123,16 @@ auto GltfLoader::load_from_file(
         return std::nullopt;
     }
 
-    return load_model(asset.get(), t_scene_id);
+    return load_model(t_filepath, asset.get(), t_scene_id);
 }
 
 }   // namespace core::graphics
 
-auto GltfLoader::load_model(const fastgltf::Asset& t_asset, size_t t_scene_id) -> Model
+auto GltfLoader::load_model(
+    const std::filesystem::path& t_filepath,
+    const fastgltf::Asset&       t_asset,
+    size_t                       t_scene_id
+) -> Model
 {
     // TODO: make this an assertion
     if (t_asset.scenes.size() <= t_scene_id) {
@@ -138,8 +153,26 @@ auto GltfLoader::load_model(const fastgltf::Asset& t_asset, size_t t_scene_id) -
             loader, loader.nodes.emplace_back(), t_asset, t_asset.nodes[node_index], nullptr
         );
     }
-
     adjust_node_indices(loader);
+
+    size_t counter{};
+    for (const fastgltf::Image& image : t_asset.images) {
+        std::optional<Image> loaded_image = load_image(t_filepath, t_asset, image);
+
+        if (loaded_image.has_value()) {
+            loader.images.push_back(std::move(loaded_image.value()));
+            //            file.images[image.name.c_str()] = *img;
+        }
+        else {
+            throw std::runtime_error{
+                //                std::format("Failed to load image from gltf asset {}",
+                //                image.name)
+                std::format("Failed to load image from gltf asset {}", counter)
+            };
+        }
+
+        counter++;
+    }
 
     Model result;
     result.m_vertices          = std::move(loader.vertices);
@@ -401,4 +434,74 @@ auto adjust_node_indices(internal::GltfModel& t_loader) -> void
             child_index = t_loader.node_indices.at(child_index);
         }
     }
+}
+
+auto load_image(
+    const std::filesystem::path& t_filepath,
+    const fastgltf::Asset&       t_asset,
+    const fastgltf::Image&       t_image
+) -> std::optional<Image>
+{
+    return std::visit(
+        fastgltf::visitor{
+            [](const auto&) -> std::optional<Image> {
+                throw std::runtime_error(
+                    "Got an unexpected glTF image data source. Can't load image."
+                );
+            },
+            [&](const fastgltf::sources::URI& filePath) {
+                assert(
+                    filePath.fileByteOffset == 0 && "We don't support offsets with stbi"
+                );   // TODO: Support offsets?
+                assert(filePath.uri.isLocalPath());
+
+                return ImageLoader::load_from_file(std::filesystem::absolute(
+                    t_filepath.parent_path() / filePath.uri.fspath()
+                ));
+            },
+            [&](const fastgltf::sources::Array& array) {
+                return ImageLoader::load_from_memory(
+                    std::span{ array.bytes }, array.mimeType
+                );
+            },
+            [&](const fastgltf::sources::Vector& vector) {
+                return ImageLoader::load_from_memory(
+                    std::span{ vector.bytes }, vector.mimeType
+                );
+            },
+            [&](const fastgltf::sources::BufferView& buffer_view) {
+                const auto& view   = t_asset.bufferViews[buffer_view.bufferViewIndex];
+                const auto& buffer = t_asset.buffers[view.bufferIndex];
+
+                return std::visit(
+                    fastgltf::visitor{ [](const auto&) -> std::optional<Image> {
+                                          throw std::runtime_error(
+                                              "Got an unexpected glTF image data source. "
+                                              "Can't load image from buffer view."
+                                          );
+                                      },
+                                       [&](const fastgltf::sources::Array& array) {
+                                           return ImageLoader::load_from_memory(
+                                               std::span(
+                                                   array.bytes.data() + view.byteOffset,
+                                                   array.bytes.size()
+                                               ),
+                                               buffer_view.mimeType
+                                           );
+                                       },
+                                       [&](const fastgltf::sources::Vector& vector) {
+                                           return ImageLoader::load_from_memory(
+                                               std::span(
+                                                   vector.bytes.data() + view.byteOffset,
+                                                   vector.bytes.size()
+                                               ),
+                                               buffer_view.mimeType
+                                           );
+                                       } },
+                    buffer.data
+                );
+            },
+        },
+        t_image.data
+    );
 }

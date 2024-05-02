@@ -1,9 +1,10 @@
 #pragma once
 
 #include <filesystem>
+#include <optional>
 #include <span>
 
-#include <tl/optional.hpp>
+#include <fastgltf/core.hpp>
 
 #include "core/cache/Cache.hpp"
 #include "core/cache/Handle.hpp"
@@ -13,19 +14,15 @@ namespace core::graphics {
 
 class ImageLoader {
 public:
-    ImageLoader() noexcept = default;
-    explicit ImageLoader(cache::Cache& t_cache) noexcept;
+    [[nodiscard]]
+    static auto load_from_file(const std::filesystem::path& t_filepath
+    ) -> std::optional<Image>;
 
     [[nodiscard]]
-    auto load_from_file(const std::filesystem::path& t_filepath
-    ) -> tl::optional<cache::Handle<Image>>;
-
-    [[nodiscard]]
-    auto load_from_memory(std::span<const std::uint8_t> t_data
-    ) -> tl::optional<cache::Handle<Image>>;
-
-private:
-    tl::optional<cache::Cache&> m_cache;
+    static auto load_from_memory(
+        std::span<const std::uint8_t> t_data,
+        fastgltf::MimeType            t_mime_type
+    ) -> std::optional<Image>;
 };
 
 }   // namespace core::graphics
