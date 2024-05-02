@@ -37,7 +37,7 @@ Scene::Scene(
     DescriptorPool&&                t_descriptor_pool,
     MappedBuffer&&                  t_global_buffer,
     vk::UniqueDescriptorSet&&       t_global_descriptor_set,
-    std::vector<RenderModel2>&&     t_models
+    std::vector<RenderModel>&&     t_models
 ) noexcept
     : m_global_descriptor_set_layout(std::move(t_global_descriptor_set_layout)),
       m_model_descriptor_set_layout(std::move(t_model_descriptor_set_layout)),

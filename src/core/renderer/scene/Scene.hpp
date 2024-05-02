@@ -6,7 +6,7 @@
 #include "core/graphics/camera/Camera.hpp"
 #include "core/graphics/model/Model.hpp"
 #include "core/renderer/base/descriptor_pool/DescriptorPool.hpp"
-#include "core/renderer/model/RenderModel2.hpp"
+#include "core/renderer/model/RenderModel.hpp"
 
 namespace core::renderer {
 
@@ -37,7 +37,7 @@ private:
     MappedBuffer            m_global_buffer;
     vk::UniqueDescriptorSet m_global_descriptor_set;
 
-    std::vector<RenderModel2> m_models;
+    std::vector<RenderModel> m_models;
 
     explicit Scene(
         vk::UniqueDescriptorSetLayout&& t_global_descriptor_set_layout,
@@ -46,7 +46,7 @@ private:
         DescriptorPool&&                t_descriptor_pool,
         MappedBuffer&&                  t_global_buffer,
         vk::UniqueDescriptorSet&&       t_global_descriptor_set,
-        std::vector<RenderModel2>&&     t_models
+        std::vector<RenderModel>&&     t_models
     ) noexcept;
 };
 

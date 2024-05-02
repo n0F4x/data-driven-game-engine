@@ -116,6 +116,7 @@ auto Renderer::operator()(
     }
 
     vkb::InstanceBuilder builder;
+    // TODO: figure out Vulkan version
     builder.require_api_version(1, 2);
     enable_default_instance_settings(system_info, builder);
     Allocator::Requirements::enable_instance_settings(system_info, builder);
@@ -144,7 +145,7 @@ auto Renderer::operator()(
     );
     Allocator::Requirements::require_device_settings(physical_device_selector);
     Swapchain::Requirements::require_device_settings(physical_device_selector);
-    RenderModel2::Requirements::require_device_settings(physical_device_selector);
+    RenderModel::Requirements::require_device_settings(physical_device_selector);
 
     auto physical_device_result{ physical_device_selector.select() };
     if (!physical_device_result.has_value()) {

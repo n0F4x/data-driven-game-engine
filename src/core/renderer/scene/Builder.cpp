@@ -31,7 +31,7 @@ static auto request_descriptors(
     DescriptorPool::Builder& t_descriptor_pool_builder
 ) -> void
 {
-    t_descriptor_pool_builder.request_descriptors(RenderModel2::descriptor_pool_sizes());
+    t_descriptor_pool_builder.request_descriptors(RenderModel::descriptor_pool_sizes());
 }
 
 [[nodiscard]]
@@ -67,7 +67,7 @@ static auto create_pipeline_layout(
 {
     std::array descriptor_set_layouts{ t_global_descriptor_set_layout,
                                        t_model_descriptor_set_layout };
-    std::array push_constant_ranges{ RenderModel2::push_constant_range() };
+    std::array push_constant_ranges{ RenderModel::push_constant_range() };
 
     const vk::PipelineLayoutCreateInfo pipeline_layout_create_info{
         .setLayoutCount         = static_cast<uint32_t>(descriptor_set_layouts.size()),
@@ -159,7 +159,7 @@ auto Scene::Builder::build(
     };
 
     vk::UniqueDescriptorSetLayout model_descriptor_set_layout{
-        RenderModel2::create_descriptor_set_layout(t_device)
+        RenderModel::create_descriptor_set_layout(t_device)
     };
 
     vk::UniquePipelineLayout pipeline_layout{ create_pipeline_layout(
@@ -183,11 +183,11 @@ auto Scene::Builder::build(
 
     std::vector model_loaders{
         m_models | std::views::transform([&](const ModelInfo& model_info) {
-            return RenderModel2::create_loader(
+            return RenderModel::create_loader(
                 t_device,
                 t_allocator,
                 model_descriptor_set_layout.get(),
-                RenderModel2::PipelineCreateInfo{ .effect      = model_info.effect,
+                RenderModel::PipelineCreateInfo{ .effect      = model_info.effect,
                                                   .layout      = pipeline_layout.get(),
                                                   .render_pass = t_render_pass },
                 descriptor_pool.get(),
@@ -216,7 +216,7 @@ auto Scene::Builder::build(
                 model_loaders
                     | std::views::transform(
                         [t_transfer_command_buffer](
-                            std::packaged_task<RenderModel2(vk::CommandBuffer)>& model_task
+                            std::packaged_task<RenderModel(vk::CommandBuffer)>& model_task
                         ) {
                             std::invoke(model_task, t_transfer_command_buffer);
                             return model_task.get_future().get();

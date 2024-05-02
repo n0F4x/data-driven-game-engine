@@ -2,11 +2,11 @@
 
 #include <VkBootstrap.h>
 
-#include "RenderModel2.hpp"
+#include "RenderModel.hpp"
 
 namespace core::renderer {
 
-class RenderModel2::Requirements {
+class RenderModel::Requirements {
 public:
     [[nodiscard]]
     static auto

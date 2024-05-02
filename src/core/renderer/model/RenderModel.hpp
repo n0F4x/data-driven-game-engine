@@ -1,91 +1,71 @@
 #pragma once
 
-#include <tl/optional.hpp>
+#include <future>
 
-#include <vulkan/vulkan.hpp>
-
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-
+#include "core/graphics/model/Model.hpp"
 #include "core/renderer/base/allocator/Allocator.hpp"
-
-#include "MeshBuffer.hpp"
+#include "core/renderer/base/descriptor_pool/DescriptorPool.hpp"
+#include "core/renderer/material_system/Effect.hpp"
 
 namespace core::renderer {
 
-class StagingModel;
-
 class RenderModel {
 public:
-    ///------------------///
-    ///  Nested classes  ///
-    ///------------------///
-    struct Primitive {
-        uint32_t first_index_index;
-        uint32_t index_count;
-        uint32_t vertex_count;
+    class Requirements;
+
+    struct PipelineCreateInfo {
+        Effect             effect;
+        vk::PipelineLayout layout;
+        vk::RenderPass     render_pass;
     };
 
-    struct Mesh {
-        struct UniformBlock {
-            glm::mat4 matrix{ glm::identity<glm::mat4>() };
-        };
+    [[nodiscard]]
+    static auto descriptor_pool_sizes() -> std::vector<vk::DescriptorPoolSize>;
 
-        std::pmr::vector<Primitive> primitives;
+    [[nodiscard]]
+    static auto create_loader(
+        vk::Device                     t_device,
+        const Allocator&               t_allocator,
+        vk::DescriptorSetLayout        t_descriptor_set_layout,
+        const PipelineCreateInfo&      t_pipeline_create_info,
+        vk::DescriptorPool             t_descriptor_pool,
+        const cache::Handle<graphics::Model>& t_model
+    ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>;
 
-        MappedBuffer            uniform_buffer;
-        vk::UniqueDescriptorSet descriptor_set;
+    [[nodiscard]]
+    static auto create_descriptor_set_layout(vk::Device t_device
+    ) noexcept -> vk::UniqueDescriptorSetLayout;
+    [[nodiscard]]
+    static auto push_constant_range() noexcept -> vk::PushConstantRange;
 
-        auto upload(
-            vk::Device              t_device,
-            const Allocator&        t_allocator,
-            vk::DescriptorSetLayout t_descriptor_set_layout,
-            vk::DescriptorPool      t_descriptor_pool,
-            const UniformBlock&     t_uniform_block
-        ) -> void;
-    };
-
-    struct Node {
-        std::vector<Node>  children;
-        tl::optional<Mesh> mesh;
-        glm::mat4          matrix{ glm::identity<glm::mat4>() };
-
-        auto upload(
-            vk::Device              t_device,
-            const Allocator&        t_allocator,
-            vk::DescriptorSetLayout t_descriptor_set_layout,
-            vk::DescriptorPool      t_descriptor_pool
-        ) -> void;
-
-        auto draw(
-            vk::CommandBuffer  t_graphics_buffer,
-            vk::PipelineLayout t_pipeline_layout,
-            const glm::mat4&   t_transform
-        ) const noexcept -> void;
-    };
-
-    ///-----------///
-    ///  Methods  ///
-    ///-----------///
-    auto draw(vk::CommandBuffer t_graphics_buffer, vk::PipelineLayout t_pipeline_layout)
-        const noexcept -> void;
+    auto draw(
+        vk::CommandBuffer  t_graphics_command_buffer,
+        vk::PipelineLayout t_pipeline_layout
+    ) const noexcept -> void;
 
 private:
-    ///******************///
-    ///  Friend Classes  ///
-    ///******************///
-    friend StagingModel;
+    MappedBuffer            m_uniform_buffer;
+    vk::UniqueDescriptorSet m_descriptor_set;
+    vk::UniquePipeline      m_pipeline;
 
-    ///*************///
-    ///  Variables  ///
-    ///*************///
-    std::vector<Node> m_nodes;
-    MeshBuffer        m_mesh_buffer;
+    Buffer            m_vertex_buffer;
+    vk::DeviceAddress m_vertex_buffer_address;
+    Buffer            m_index_buffer;
+    Buffer            m_transform_buffer;
+    vk::DeviceAddress m_transform_buffer_address{};
 
-    ///******************************///
-    ///  Constructors / Destructors  ///
-    ///******************************///
-    explicit RenderModel(std::vector<Node>&& t_nodes, MeshBuffer&& t_mesh_buffer) noexcept;
+    cache::Handle<graphics::Model> m_model;
+
+    explicit RenderModel(
+        vk::Device                       t_device,
+        MappedBuffer&&                   t_uniform_buffer,
+        vk::UniqueDescriptorSet&&        t_descriptor_set,
+        vk::UniquePipeline&&             t_pipeline,
+        Buffer&&                         t_vertex_buffer,
+        Buffer&&                         t_index_buffer,
+        Buffer&&                         t_transform_buffer,
+        cache::Handle<graphics::Model>&& t_model
+    );
 };
 
 }   // namespace core::renderer

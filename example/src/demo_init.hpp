@@ -8,10 +8,8 @@
 
 #include <vk_mem_alloc.h>
 
-#include <core/renderer/model/StagingModel.hpp>
-
-#include "core/renderer/base/allocator/Allocator.hpp"
-#include "core/renderer/memory/Image.hpp"
+#include <core/renderer/base/allocator/Allocator.hpp>
+#include <core/renderer/memory/Image.hpp>
 
 namespace init {
 
@@ -44,23 +42,6 @@ auto create_framebuffers(
 ) -> std::vector<vk::UniqueFramebuffer>;
 
 [[nodiscard]]
-auto create_descriptor_set_layout(vk::Device t_device) -> vk::UniqueDescriptorSetLayout;
-
-[[nodiscard]]
-auto create_pipeline_layout(
-    vk::Device              t_device,
-    vk::DescriptorSetLayout t_descriptor_set_layout,
-    uint32_t                t_push_constant_size
-) -> vk::UniquePipelineLayout;
-
-[[nodiscard]]
-auto create_pipeline(
-    vk::Device         t_device,
-    vk::PipelineLayout t_pipeline_layout,
-    vk::RenderPass     t_render_pass
-) -> vk::UniquePipeline;
-
-[[nodiscard]]
 auto create_command_pool(vk::Device t_device, uint32_t t_queue_family_index)
     -> vk::UniqueCommandPool;
 
@@ -72,25 +53,10 @@ auto create_command_buffers(
 ) -> std::vector<vk::CommandBuffer>;
 
 [[nodiscard]]
-auto create_descriptor_pool(vk::Device t_device, uint32_t t_count)
-    -> vk::UniqueDescriptorPool;
-
-[[nodiscard]]
 auto create_semaphores(vk::Device t_device, uint32_t t_count)
     -> std::vector<vk::UniqueSemaphore>;
 
 [[nodiscard]]
 auto create_fences(vk::Device t_device, uint32_t t_count) -> std::vector<vk::UniqueFence>;
-
-[[nodiscard]]
-auto count_meshes(const core::renderer::StagingModel& t_model) noexcept -> uint32_t;
-
-auto upload_model(
-    const core::renderer::Device&    t_device,
-    const core::renderer::Allocator& t_allocator,
-    core::renderer::StagingModel&&   t_staging_model,
-    vk::DescriptorSetLayout          t_descriptor_set_layout,
-    vk::DescriptorPool               t_descriptor_pool
-) -> tl::optional<core::renderer::RenderModel>;
 
 }   // namespace init

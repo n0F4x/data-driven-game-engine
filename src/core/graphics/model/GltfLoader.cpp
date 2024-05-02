@@ -1,4 +1,4 @@
-#include "ModelLoader.hpp"
+#include "GltfLoader.hpp"
 
 #include <array>
 #include <ranges>
@@ -12,14 +12,26 @@
 
 #include "core/utility/functional.hpp"
 
-#include "GltfLoader2.hpp"
-
 using namespace core::graphics;
-using namespace core::graphics::detail;
+
+namespace internal {
+
+struct GltfModel {
+    std::vector<size_t>                root_nodes;
+    std::unordered_map<size_t, size_t> node_indices;
+    std::vector<Model::Node>           nodes;
+
+    std::vector<Model::Vertex> vertices;
+    std::vector<uint32_t>      indices;
+
+    std::vector<Model::Mesh> meshes;
+};
+
+}   // namespace internal
 
 [[nodiscard]]
 static auto load_asset(const std::filesystem::path& t_filepath
-) noexcept -> fastgltf::Expected<fastgltf::Asset>
+) -> fastgltf::Expected<fastgltf::Asset>
 {
     fastgltf::Parser parser;
 
@@ -36,7 +48,7 @@ static auto load_asset(const std::filesystem::path& t_filepath
 }
 
 static auto load_node(
-    GltfLoader2&           t_loader,
+    internal::GltfModel&   t_loader,
     Model::Node&           t_node,
     const fastgltf::Asset& t_asset,
     const fastgltf::Node&  t_source_node,
@@ -45,76 +57,67 @@ static auto load_node(
 
 [[nodiscard]]
 static auto load_mesh(
-    GltfLoader2&           t_loader,
+    internal::GltfModel&   t_loader,
     const fastgltf::Asset& t_asset,
     const fastgltf::Mesh&  t_source_mesh
 ) noexcept -> size_t;
 
 [[nodiscard]]
 static auto load_primitive(
-    GltfLoader2&               t_loader,
+    internal::GltfModel&       t_loader,
     const fastgltf::Asset&     t_asset,
     const fastgltf::Primitive& t_source_primitive
 ) noexcept -> tl::optional<Model::Primitive>;
 
 [[nodiscard]]
 static auto load_vertices(
-    GltfLoader2&                                                              t_loader,
+    internal::GltfModel&                                                      t_loader,
     Model::Primitive&                                                         t_primitive,
     const fastgltf::Asset&                                                    t_asset,
     const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>& t_attributes
 ) noexcept -> bool;
 
 static auto load_indices(
-    GltfLoader2&              t_loader,
+    internal::GltfModel&      t_loader,
     Model::Primitive&         t_primitive,
     uint32_t                  t_first_vertex_index,
     const fastgltf::Asset&    t_asset,
     const fastgltf::Accessor& t_accessor
 ) noexcept -> void;
 
-static auto adjust_node_indices(GltfLoader2& t_loader) -> void;
+static auto adjust_node_indices(internal::GltfModel& t_loader) -> void;
 
 namespace core::graphics {
 
-ModelLoader::ModelLoader(cache::Cache& t_cache) noexcept : m_cache{ t_cache } {}
-
-auto ModelLoader::load_from_file(
-    const std::filesystem::path& t_filepath,
-    const tl::optional<size_t>   t_scene_id
-) noexcept -> tl::optional<cache::Handle<Model>>
+auto GltfLoader::load_from_file(const std::filesystem::path& t_filepath
+) -> std::optional<Model>
 {
-    if (const auto cached{ m_cache.and_then(
-            [&](const cache::Cache& cache) -> tl::optional<cache::Handle<Model>> {
-                return cache.find<Model>(Model::hash(t_filepath, t_scene_id));
-            }
-        ) };
-        cached.has_value())
-    {
-        return cached.value();
-    }
-
     auto asset{ load_asset(t_filepath) };
     if (asset.error() != fastgltf::Error::None) {
         SPDLOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
-        return tl::nullopt;
+        return std::nullopt;
     }
 
-    size_t scene_id{ t_scene_id.value_or(asset->defaultScene.value_or(0)) };
+    return load_model(asset.get(), asset->defaultScene.value_or(0));
+}
 
-    return m_cache
-        .transform([&](cache::Cache& cache) {
-            return cache.insert<Model>(
-                Model::hash(t_filepath, scene_id),
-                cache::make_handle<Model>(load_model(asset.get(), scene_id))
-            );
-        })
-        .value_or(cache::make_handle<Model>(load_model(asset.get(), scene_id)));
+auto GltfLoader::load_from_file(
+    const std::filesystem::path& t_filepath,
+    const size_t                 t_scene_id
+) -> std::optional<Model>
+{
+    auto asset{ load_asset(t_filepath) };
+    if (asset.error() != fastgltf::Error::None) {
+        SPDLOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
+        return std::nullopt;
+    }
+
+    return load_model(asset.get(), t_scene_id);
 }
 
 }   // namespace core::graphics
 
-auto ModelLoader::load_model(const fastgltf::Asset& t_asset, size_t t_scene_id) -> Model
+auto GltfLoader::load_model(const fastgltf::Asset& t_asset, size_t t_scene_id) -> Model
 {
     // TODO: make this an assertion
     if (t_asset.scenes.size() <= t_scene_id) {
@@ -123,8 +126,8 @@ auto ModelLoader::load_model(const fastgltf::Asset& t_asset, size_t t_scene_id) 
         );
     }
 
-    const auto& scene{ t_asset.scenes[t_scene_id] };
-    GltfLoader2 loader;
+    const auto&         scene{ t_asset.scenes[t_scene_id] };
+    internal::GltfModel loader;
 
     const auto [node_indices, _]{ scene };
     loader.root_nodes.reserve(node_indices.size());
@@ -152,7 +155,7 @@ auto ModelLoader::load_model(const fastgltf::Asset& t_asset, size_t t_scene_id) 
 }
 
 auto load_node(
-    GltfLoader2&           t_loader,
+    internal::GltfModel&   t_loader,
     Model::Node&           t_node,
     const fastgltf::Asset& t_asset,
     const fastgltf::Node&  t_source_node,
@@ -204,7 +207,7 @@ auto load_node(
 }
 
 auto load_mesh(
-    GltfLoader2&           t_loader,
+    internal::GltfModel&   t_loader,
     const fastgltf::Asset& t_asset,
     const fastgltf::Mesh&  t_source_mesh
 ) noexcept -> size_t
@@ -224,7 +227,7 @@ auto load_mesh(
 }
 
 auto load_primitive(
-    GltfLoader2&               t_loader,
+    internal::GltfModel&       t_loader,
     const fastgltf::Asset&     t_asset,
     const fastgltf::Primitive& t_source_primitive
 ) noexcept -> tl::optional<Model::Primitive>
@@ -257,27 +260,25 @@ static auto make_accessor_loader(
     size_t                      t_first_vertex_index
 )
 {
-    return
-        [&,
-         t_first_vertex_index]<typename Projection, typename Transformation = std::identity>(
-            const fastgltf::Accessor& t_accessor,
-            Projection                project,
-            Transformation            transform
-        ) -> void {
-            using ElementType = std::remove_cvref_t<
-                std::tuple_element_t<0, decltype(core::utils::arguments(transform))>>;
-            using AttributeType =
-                std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
+    return [&, t_first_vertex_index]<typename Projection, typename Transformation>(
+               const fastgltf::Accessor& t_accessor,
+               Projection                project,
+               Transformation            transform
+           ) -> void {
+        using ElementType = std::remove_cvref_t<
+            std::tuple_element_t<0, decltype(core::utils::arguments(transform))>>;
+        using AttributeType =
+            std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
 
-            fastgltf::iterateAccessorWithIndex<ElementType>(
-                t_asset,
-                t_accessor,
-                [&, t_first_vertex_index](const ElementType& element, const size_t index) {
-                    std::invoke(project, t_vertices[t_first_vertex_index + index]) =
-                        std::invoke_r<AttributeType>(transform, element);
-                }
-            );
-        };
+        fastgltf::iterateAccessorWithIndex<ElementType>(
+            t_asset,
+            t_accessor,
+            [&, t_first_vertex_index](const ElementType& element, const size_t index) {
+                std::invoke(project, t_vertices[t_first_vertex_index + index]) =
+                    std::invoke_r<AttributeType>(transform, element);
+            }
+        );
+    };
 }
 
 [[nodiscard]]
@@ -304,7 +305,7 @@ static auto make_identity_accessor_loader(
 }
 
 auto load_vertices(
-    GltfLoader2&                                                              t_loader,
+    internal::GltfModel&                                                      t_loader,
     Model::Primitive&                                                         t_primitive,
     const fastgltf::Asset&                                                    t_asset,
     const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>& t_attributes
@@ -372,7 +373,7 @@ auto load_vertices(
 }
 
 auto load_indices(
-    GltfLoader2&              t_loader,
+    internal::GltfModel&      t_loader,
     Model::Primitive&         t_primitive,
     const uint32_t            t_first_vertex_index,
     const fastgltf::Asset&    t_asset,
@@ -389,7 +390,7 @@ auto load_indices(
     });
 }
 
-auto adjust_node_indices(GltfLoader2& t_loader) -> void
+auto adjust_node_indices(internal::GltfModel& t_loader) -> void
 {
     for (size_t& root_node_index : t_loader.root_nodes) {
         root_node_index = t_loader.node_indices.at(root_node_index);

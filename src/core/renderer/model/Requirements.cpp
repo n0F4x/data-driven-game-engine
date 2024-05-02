@@ -5,7 +5,7 @@
 
 namespace core::renderer {
 
-auto RenderModel2::Requirements::required_instance_settings_are_available(
+auto RenderModel::Requirements::required_instance_settings_are_available(
     const vkb::SystemInfo& t_system_info
 ) -> bool
 {
@@ -14,7 +14,7 @@ auto RenderModel2::Requirements::required_instance_settings_are_available(
     );
 }
 
-auto RenderModel2::Requirements::enable_instance_settings(
+auto RenderModel::Requirements::enable_instance_settings(
     const vkb::SystemInfo&,
     vkb::InstanceBuilder& t_instance_builder
 ) -> void
@@ -24,7 +24,7 @@ auto RenderModel2::Requirements::enable_instance_settings(
     );
 }
 
-auto RenderModel2::Requirements::require_device_settings(
+auto RenderModel::Requirements::require_device_settings(
     vkb::PhysicalDeviceSelector& t_physical_device_selector
 ) -> void
 {
@@ -39,7 +39,7 @@ auto RenderModel2::Requirements::require_device_settings(
     );
 }
 
-auto RenderModel2::Requirements::enable_optional_device_settings(vkb::PhysicalDevice&)
+auto RenderModel::Requirements::enable_optional_device_settings(vkb::PhysicalDevice&)
     -> void
 {}
 

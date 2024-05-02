@@ -1,6 +1,5 @@
 add_executable(test
         src/main.cpp
-        src/Camera.cpp
         src/Controller.cpp
         src/demo.cpp
         src/DemoRenderer.cpp

@@ -1,6 +1,6 @@
 #include "DemoRenderer.hpp"
 
-#include <core/graphics/model/ModelLoader.hpp>
+#include <core/graphics/model/GltfLoader.hpp>
 #include <core/renderer/scene/Builder.hpp>
 #include <core/window/Window.hpp>
 
@@ -12,20 +12,20 @@ constexpr static uint32_t g_frame_count{ 1 };
 
 [[nodiscard]]
 static auto load_scene(
-    const renderer::Device&          t_device,
-    const renderer::Allocator&       t_allocator,
-    vk::RenderPass                   t_render_pass,
-    cache::Handle<graphics::Model>&& t_model
+    const renderer::Device&    t_device,
+    const renderer::Allocator& t_allocator,
+    vk::RenderPass             t_render_pass,
+    graphics::Model&&          t_model
 ) -> tl::optional<renderer::Scene>
 {
     auto opt_vertex_shader_module{
-        renderer::ShaderModule::create(t_device.get(), "shaders/model_test2.vert.spv")
+        renderer::ShaderModule::create(t_device.get(), "shaders/model_test.vert.spv")
     };
     if (!opt_vertex_shader_module.has_value()) {
         return tl::nullopt;
     }
     auto opt_fragment_shader_module{
-        renderer::ShaderModule::create(t_device.get(), "shaders/model_test2.frag.spv")
+        renderer::ShaderModule::create(t_device.get(), "shaders/model_test.frag.spv")
     };
     if (!opt_fragment_shader_module.has_value()) {
         return tl::nullopt;
@@ -47,7 +47,7 @@ static auto load_scene(
     auto packaged_scene{
         renderer::Scene::create()
             .add_model(
-                std::move(t_model),
+                cache::make_handle<graphics::Model>(std::move(t_model)),
                 renderer::Effect{
                                  renderer::Shader{ cache::make_handle<renderer::ShaderModule>(
                                           std::move(opt_vertex_shader_module.value())
@@ -162,7 +162,7 @@ auto DemoRenderer::create(Store& t_store, const std::string& t_model_filepath)
         return tl::nullopt;
     }
 
-    auto opt_model{ graphics::ModelLoader{}.load_from_file(t_model_filepath) };
+    auto opt_model{ core::graphics::GltfLoader::load_from_file(t_model_filepath) };
     if (!opt_model.has_value()) {
         return tl::nullopt;
     }

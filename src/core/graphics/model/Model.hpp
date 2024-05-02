@@ -14,7 +14,7 @@
 
 namespace core::graphics {
 
-class ModelLoader;
+class GltfLoader;
 
 class Model {
 public:
@@ -164,7 +164,7 @@ public:
     auto root_node_indices() const noexcept -> const std::vector<size_t>&;
 
 private:
-    friend ModelLoader;
+    friend GltfLoader;
 
     std::vector<Vertex>   m_vertices;
     std::vector<uint32_t> m_indices;

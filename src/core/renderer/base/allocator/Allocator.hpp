@@ -50,21 +50,39 @@ public:
         const vk::BufferCreateInfo&    t_buffer_create_info,
         const VmaAllocationCreateInfo& t_allocation_create_info = {
             .usage = VMA_MEMORY_USAGE_AUTO,
-        },
-        VkDeviceSize             t_min_alignment = 8
+        }
     ) const -> Buffer;
 
     [[nodiscard]]
-    auto create_mapped_buffer(
+    auto create_buffer_with_alignment(
+         const vk::BufferCreateInfo&    t_buffer_create_info,
+         vk::DeviceSize                     t_min_alignment,
+         const VmaAllocationCreateInfo& t_allocation_create_info = {
+            .usage = VMA_MEMORY_USAGE_AUTO,
+        }
+    ) const -> Buffer;
+
+    [[nodiscard]]
+    auto create_mapped_buffer(const vk::BufferCreateInfo& t_buffer_create_info
+    ) const -> MappedBuffer;
+
+    [[nodiscard]]
+    auto create_mapped_buffer_with_alignment(
         const vk::BufferCreateInfo& t_buffer_create_info,
-        VkDeviceSize                t_min_alignment = 8
+        vk::DeviceSize              t_min_alignment
     ) const -> MappedBuffer;
 
     [[nodiscard]]
     auto create_mapped_buffer(
         const vk::BufferCreateInfo& t_buffer_create_info,
-        gsl::not_null<const void*>  t_data,
-        VkDeviceSize                t_min_alignment = 8
+        gsl::not_null<const void*>  t_data
+    ) const -> MappedBuffer;
+
+    [[nodiscard]]
+    auto create_mapped_buffer_with_alignment(
+        const vk::BufferCreateInfo& t_buffer_create_info,
+        vk::DeviceSize              t_min_alignment,
+        gsl::not_null<const void*>  t_data
     ) const -> MappedBuffer;
 
 private:
