@@ -116,25 +116,33 @@ static auto create_pipeline(
 
 template <typename T>
 [[nodiscard]]
-static auto create_gpu_only_buffer(
-    const Allocator&           t_allocator,
-    const vk::CommandBuffer    t_copy_command_buffer,
-    const vk::BufferUsageFlags t_usage_flags,
-    const std::span<T>         t_data,
-    const VkDeviceSize         t_min_alignment = 8
-) -> Buffer
+static auto create_staging_buffer(
+    const Allocator&   t_allocator,
+    const std::span<T> t_data,
+    const VkDeviceSize t_min_alignment = 8
+) -> MappedBuffer
 {
     uint32_t                   size{ static_cast<uint32_t>(t_data.size_bytes()) };
     const vk::BufferCreateInfo staging_buffer_create_info = {
         .size  = size,
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
-    const auto staging_buffer{ t_allocator.create_mapped_buffer(
-        staging_buffer_create_info, t_data.data(), t_min_alignment
-    ) };
 
+    return t_allocator.create_mapped_buffer(
+        staging_buffer_create_info, t_data.data(), t_min_alignment
+    );
+}
+
+[[nodiscard]]
+static auto create_gpu_only_buffer(
+    const Allocator&           t_allocator,
+    const vk::BufferUsageFlags t_usage_flags,
+    const uint32_t             t_size,
+    const VkDeviceSize         t_min_alignment = 8
+) -> Buffer
+{
     const vk::BufferCreateInfo buffer_create_info = {
-        .size = size, .usage = t_usage_flags | vk::BufferUsageFlagBits::eTransferDst
+        .size = t_size, .usage = t_usage_flags | vk::BufferUsageFlagBits::eTransferDst
     };
     Buffer buffer{ t_allocator.create_buffer(
         buffer_create_info,
@@ -143,9 +151,6 @@ static auto create_gpu_only_buffer(
         },
         t_min_alignment
     ) };
-
-    vk::BufferCopy copy_region{ .size = size };
-    t_copy_command_buffer.copyBuffer(staging_buffer.get(), buffer.get(), 1, &copy_region);
 
     return buffer;
 }
@@ -160,32 +165,41 @@ auto RenderModel2::descriptor_pool_sizes() -> std::vector<vk::DescriptorPoolSize
     };
 }
 
-auto RenderModel2::load(
-    vk::Device                     t_device,
-    const Allocator&               t_allocator,
-    const vk::DescriptorSetLayout  t_descriptor_set_layout,
-    const PipelineCreateInfo&      t_pipeline_create_info,
-    const vk::DescriptorPool       t_descriptor_pool,
-    vk::CommandBuffer              t_transfer_command_buffer,
-    cache::Handle<graphics::Model> t_model
-) -> RenderModel2
+auto RenderModel2::create_loader(
+    vk::Device                            t_device,
+    const Allocator&                      t_allocator,
+    const vk::DescriptorSetLayout         t_descriptor_set_layout,
+    const PipelineCreateInfo&             t_pipeline_create_info,
+    const vk::DescriptorPool              t_descriptor_pool,
+    const cache::Handle<graphics::Model>& t_model
+) -> std::packaged_task<RenderModel2(vk::CommandBuffer)>
 {
     MappedBuffer uniform_buffer{ create_buffer<UniformBlock>(t_allocator) };
 
-    auto vertex_buffer{ create_gpu_only_buffer(
+    vk::UniqueDescriptorSet descriptor_set{ create_descriptor_set<UniformBlock>(
+        t_device, t_descriptor_set_layout, t_descriptor_pool, uniform_buffer.get()
+    ) };
+
+    vk::UniquePipeline pipeline{ create_pipeline(t_device, t_pipeline_create_info) };
+
+    MappedBuffer vertex_staging_buffer{
+        create_staging_buffer(t_allocator, std::span{ t_model->vertices() }, 16)
+    };
+    Buffer vertex_buffer{ create_gpu_only_buffer(
         t_allocator,
-        t_transfer_command_buffer,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
-        std::span{ t_model->vertices() },
+        static_cast<uint32_t>(std::span{ t_model->vertices() }.size_bytes()),
         16
     ) };
 
-    auto index_buffer{ create_gpu_only_buffer(
+    MappedBuffer index_staging_buffer{
+        create_staging_buffer(t_allocator, std::span{ t_model->indices() })
+    };
+    Buffer index_buffer{ create_gpu_only_buffer(
         t_allocator,
-        t_transfer_command_buffer,
         vk::BufferUsageFlagBits::eIndexBuffer,
-        std::span{ t_model->indices() }
+        static_cast<uint32_t>(std::span{ t_model->indices() }.size_bytes())
     ) };
 
     std::vector nodes_with_mesh{
@@ -204,25 +218,59 @@ auto RenderModel2::load(
             transforms.at(node.mesh_index.value()) = node.matrix();
         }
     );
-    auto transform_buffer{ create_gpu_only_buffer(
+    MappedBuffer transform_staging_buffer{
+        create_staging_buffer(t_allocator, std::span{ transforms })
+    };
+    Buffer transform_buffer{ create_gpu_only_buffer(
         t_allocator,
-        t_transfer_command_buffer,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
-        std::span{ transforms }
+        static_cast<uint32_t>(std::span{ transforms }.size_bytes())
     ) };
 
-    return RenderModel2{
-        t_device,
-        std::move(uniform_buffer),
-        create_descriptor_set<UniformBlock>(
-            t_device, t_descriptor_set_layout, t_descriptor_pool, uniform_buffer.get()
-        ),
-        create_pipeline(t_device, t_pipeline_create_info),
-        std::move(vertex_buffer),
-        std::move(index_buffer),
-        std::move(transform_buffer),
-        std::move(t_model)
+    return std::packaged_task<RenderModel2(vk::CommandBuffer)>{
+        [device                = t_device,
+         uniform_buffer        = auto{ std::move(uniform_buffer) },
+         descriptor_set        = auto{ std::move(descriptor_set) },
+         pipeline              = auto{ std::move(pipeline) },
+         vertex_staging_buffer = auto{ std::move(vertex_staging_buffer) },
+         vertex_buffer         = auto{ std::move(vertex_buffer) },
+         index_staging_buffer  = auto{ std::move(index_staging_buffer) },
+         index_buffer          = auto{ std::move(index_buffer) },
+         transform_buffer_size =
+             static_cast<uint32_t>(std::span{ transforms }.size_bytes()),
+         transform_staging_buffer = auto{ std::move(transform_staging_buffer) },
+         transform_buffer         = auto{ std::move(transform_buffer) },
+         model = auto{ t_model }](const vk::CommandBuffer t_transfer_command_buffer
+        ) mutable -> RenderModel2 {
+            vk::BufferCopy copy_region{
+                .size = static_cast<uint32_t>(std::span{ model->vertices() }.size_bytes())
+            };
+            t_transfer_command_buffer.copyBuffer(
+                vertex_staging_buffer.get(), vertex_buffer.get(), 1, &copy_region
+            );
+
+            copy_region = {
+                .size = static_cast<uint32_t>(std::span{ model->indices() }.size_bytes())
+            };
+            t_transfer_command_buffer.copyBuffer(
+                index_staging_buffer.get(), index_buffer.get(), 1, &copy_region
+            );
+
+            copy_region = { .size = transform_buffer_size };
+            t_transfer_command_buffer.copyBuffer(
+                transform_staging_buffer.get(), transform_buffer.get(), 1, &copy_region
+            );
+
+            return RenderModel2{ device,
+                                 std::move(uniform_buffer),
+                                 std::move(descriptor_set),
+                                 std::move(pipeline),
+                                 std::move(vertex_buffer),
+                                 std::move(index_buffer),
+                                 std::move(transform_buffer),
+                                 std::move(model) };
+        }
     };
 }
 

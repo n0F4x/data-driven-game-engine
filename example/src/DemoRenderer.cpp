@@ -44,9 +44,7 @@ static auto load_scene(
         t_device->allocateCommandBuffers(command_buffer_allocate_info).front()
     };
 
-    constexpr vk::CommandBufferBeginInfo begin_info{};
-    command_buffer.begin(begin_info);
-    renderer::Scene scene{
+    auto packaged_scene{
         renderer::Scene::create()
             .add_model(
                 std::move(t_model),
@@ -60,8 +58,12 @@ static auto load_scene(
                                       ),
                                       "main" } }
             )
-            .build(t_device.get(), t_allocator, command_buffer, t_render_pass)
+            .build(t_device.get(), t_allocator, t_render_pass)
     };
+
+    constexpr vk::CommandBufferBeginInfo begin_info{};
+    command_buffer.begin(begin_info);
+    std::invoke(packaged_scene, command_buffer);
     command_buffer.end();
 
     const vk::SubmitInfo submit_info{
@@ -80,7 +82,7 @@ static auto load_scene(
     );
     t_device->resetCommandPool(transfer_command_pool.get());
 
-    return scene;
+    return packaged_scene.get_future().get();
 }
 
 auto DemoRenderer::create(Store& t_store, const std::string& t_model_filepath)

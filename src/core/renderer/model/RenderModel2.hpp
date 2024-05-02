@@ -1,5 +1,7 @@
 #pragma once
 
+#include <future>
+
 #include "core/graphics/model/Model.hpp"
 #include "core/renderer/base/allocator/Allocator.hpp"
 #include "core/renderer/base/descriptor_pool/DescriptorPool.hpp"
@@ -21,15 +23,14 @@ public:
     static auto descriptor_pool_sizes() -> std::vector<vk::DescriptorPoolSize>;
 
     [[nodiscard]]
-    static auto load(
+    static auto create_loader(
         vk::Device                     t_device,
         const Allocator&               t_allocator,
         vk::DescriptorSetLayout        t_descriptor_set_layout,
         const PipelineCreateInfo&      t_pipeline_create_info,
         vk::DescriptorPool             t_descriptor_pool,
-        vk::CommandBuffer              t_transfer_command_buffer,
-        cache::Handle<graphics::Model> t_model
-    ) -> RenderModel2;
+        const cache::Handle<graphics::Model>& t_model
+    ) -> std::packaged_task<RenderModel2(vk::CommandBuffer)>;
 
     [[nodiscard]]
     static auto create_descriptor_set_layout(vk::Device t_device

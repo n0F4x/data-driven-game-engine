@@ -19,15 +19,15 @@ public:
 
     auto add_model(const cache::Handle<graphics::Model>& t_model, const Effect& t_effect)
         -> Builder&;
-    auto add_model(cache::Handle<graphics::Model>&& t_model, const Effect& t_effect) -> Builder&;
+    auto add_model(cache::Handle<graphics::Model>&& t_model, const Effect& t_effect)
+        -> Builder&;
 
     [[nodiscard]]
     auto build(
         vk::Device        t_device,
         const Allocator&  t_allocator,
-        vk::CommandBuffer t_transfer_command_buffer,
         vk::RenderPass    t_render_pass
-    ) const -> Scene;
+    ) const -> std::packaged_task<Scene(vk::CommandBuffer)>;
 
 private:
     std::vector<ModelInfo> m_models;

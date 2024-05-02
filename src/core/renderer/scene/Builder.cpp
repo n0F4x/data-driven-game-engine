@@ -149,11 +149,10 @@ auto Scene::Builder::add_model(
 }
 
 auto Scene::Builder::build(
-    vk::Device        t_device,
-    const Allocator&  t_allocator,
-    vk::CommandBuffer t_transfer_command_buffer,
-    vk::RenderPass    t_render_pass
-) const -> Scene
+    vk::Device       t_device,
+    const Allocator& t_allocator,
+    vk::RenderPass   t_render_pass
+) const -> std::packaged_task<Scene(vk::CommandBuffer)>
 {
     vk::UniqueDescriptorSetLayout global_descriptor_set_layout{
         create_global_descriptor_set_layout(t_device)
@@ -173,20 +172,18 @@ auto Scene::Builder::build(
         create_global_buffer<Scene::GlobalUniformBlock>(t_allocator)
     };
 
-    return Scene(
-        std::move(global_descriptor_set_layout),
-        std::move(model_descriptor_set_layout),
-        std::move(pipeline_layout),
-        std::move(descriptor_pool),
-        std::move(global_buffer),
+    vk::UniqueDescriptorSet global_descriptor_set{
         create_global_descriptor_set<Scene::GlobalUniformBlock>(
             t_device,
             global_descriptor_set_layout.get(),
             descriptor_pool.get(),
             global_buffer.get()
-        ),
+        )
+    };
+
+    std::vector model_loaders{
         m_models | std::views::transform([&](const ModelInfo& model_info) {
-            return RenderModel2::load(
+            return RenderModel2::create_loader(
                 t_device,
                 t_allocator,
                 model_descriptor_set_layout.get(),
@@ -194,11 +191,41 @@ auto Scene::Builder::build(
                                                   .layout      = pipeline_layout.get(),
                                                   .render_pass = t_render_pass },
                 descriptor_pool.get(),
-                t_transfer_command_buffer,
                 model_info.handle
             );
-        }) | std::ranges::to<std::vector>()
-    );
+        })
+        | std::ranges::to<std::vector>()
+    };
+
+    return std::packaged_task<Scene(vk::CommandBuffer)>{
+        [global_descriptor_set_layout = auto{ std::move(global_descriptor_set_layout) },
+         model_descriptor_set_layout  = auto{ std::move(model_descriptor_set_layout) },
+         pipeline_layout              = auto{ std::move(pipeline_layout) },
+         descriptor_pool              = auto{ std::move(descriptor_pool) },
+         global_buffer                = auto{ std::move(global_buffer) },
+         global_descriptor_set        = auto{ std::move(global_descriptor_set) },
+         model_loaders                = auto{ std::move(model_loaders
+         ) }](vk::CommandBuffer t_transfer_command_buffer) mutable -> Scene {
+            return Scene(
+                std::move(global_descriptor_set_layout),
+                std::move(model_descriptor_set_layout),
+                std::move(pipeline_layout),
+                std::move(descriptor_pool),
+                std::move(global_buffer),
+                std::move(global_descriptor_set),
+                model_loaders
+                    | std::views::transform(
+                        [t_transfer_command_buffer](
+                            std::packaged_task<RenderModel2(vk::CommandBuffer)>& model_task
+                        ) {
+                            std::invoke(model_task, t_transfer_command_buffer);
+                            return model_task.get_future().get();
+                        }
+                    )
+                    | std::ranges::to<std::vector>()
+            );
+        }
+    };
 }
 
 }   // namespace core::renderer
