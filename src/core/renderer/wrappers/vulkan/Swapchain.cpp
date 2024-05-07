@@ -66,10 +66,10 @@ auto create_swapchain(
 ) -> vk::UniqueSwapchainKHR
 {
     const std::set              buffer{ t_graphics_queue_family, t_present_queue_family };
-    const std::vector<uint32_t> queueFamilyIndices = { buffer.cbegin(), buffer.cend() };
-    const vk::SharingMode       sharingMode        = queueFamilyIndices.size() > 1
-                                                       ? vk::SharingMode::eConcurrent
-                                                       : vk::SharingMode::eExclusive;
+    const std::vector<uint32_t> queue_family_indices = { buffer.cbegin(), buffer.cend() };
+    const vk::SharingMode       sharing_mode         = queue_family_indices.size() > 1
+                                                         ? vk::SharingMode::eConcurrent
+                                                         : vk::SharingMode::eExclusive;
 
     const vk::SwapchainCreateInfoKHR create_info{
         .surface               = t_surface,
@@ -79,13 +79,13 @@ auto create_swapchain(
         .imageExtent           = t_extent,
         .imageArrayLayers      = 1,
         .imageUsage            = vk::ImageUsageFlagBits::eColorAttachment,
-        .imageSharingMode      = sharingMode,
-        .queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size()),
-        .pQueueFamilyIndices   = queueFamilyIndices.data(),
+        .imageSharingMode      = sharing_mode,
+        .queueFamilyIndexCount = static_cast<uint32_t>(queue_family_indices.size()),
+        .pQueueFamilyIndices   = queue_family_indices.data(),
         .preTransform          = t_surface_capabilities.currentTransform,
         .compositeAlpha        = vk::CompositeAlphaFlagBitsKHR::eOpaque,
         .presentMode  = choose_swapchain_present_mode(t_surface, t_physical_device),
-        .clipped      = true,
+        .clipped      = vk::True,
         .oldSwapchain = t_old_swapchain
     };
 
@@ -165,7 +165,7 @@ auto Swapchain::create(
     const vk::Device         t_device,
     const vk::Extent2D       t_framebuffer_size,
     const vk::SwapchainKHR   t_old_swapchain
-) noexcept -> tl::optional<Swapchain>
+) -> tl::optional<Swapchain>
 try {
     const auto surface_capabilities{ t_physical_device.getSurfaceCapabilitiesKHR(t_surface
     ) };

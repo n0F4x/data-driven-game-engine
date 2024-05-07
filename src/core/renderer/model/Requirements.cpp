@@ -33,7 +33,7 @@ auto RenderModel::Requirements::require_device_settings(
         VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
     );
     constexpr static vk::PhysicalDeviceBufferDeviceAddressFeatures
-        buffer_device_address_features{ .bufferDeviceAddress = true };
+        buffer_device_address_features{ .bufferDeviceAddress = vk::True };
     t_physical_device_selector.add_required_extension_features(
         buffer_device_address_features
     );

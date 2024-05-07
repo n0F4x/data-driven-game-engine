@@ -5,14 +5,14 @@
 namespace core::renderer {
 
 [[nodiscard]]
-static auto required_instance_extension_names() noexcept -> std::span<const std::string>
+static auto required_instance_extension_names() -> std::span<const std::string>
 {
     static const std::vector s_extensions_names{ []() -> std::vector<std::string> {
-        if (!glfwInit()) {
+        if (glfwInit() != GLFW_TRUE) {
             return {};
         }
 
-        uint32_t             count;
+        uint32_t             count{};
         const char**         glfw_extension_names{ glfwGetRequiredInstanceExtensions(&count) };
         if (glfw_extension_names == nullptr) {
             return {};
@@ -21,8 +21,8 @@ static auto required_instance_extension_names() noexcept -> std::span<const std:
         std::vector<std::string> result{};
         result.reserve(count);
 
-        for (uint32_t i{}; i < count; i++) {
-            result.emplace_back(glfw_extension_names[i]);
+        for (auto glfw_extension_name : std::span{ glfw_extension_names, count }) {
+            result.emplace_back(glfw_extension_name);
         }
 
         return result;

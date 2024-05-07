@@ -3,7 +3,7 @@
 namespace core::renderer {
 
 [[nodiscard]]
-static auto optional_instance_extension_names() noexcept -> std::span<const std::string>
+static auto optional_instance_extension_names() -> std::span<const std::string>
 {
     static const std::array<std::string, 5> s_extension_names{
         // VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT

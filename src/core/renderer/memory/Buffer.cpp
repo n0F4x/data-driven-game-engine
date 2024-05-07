@@ -57,7 +57,7 @@ auto Buffer::allocator() const noexcept -> VmaAllocator
 
 auto Buffer::reset() noexcept -> void
 {
-    if (m_allocator) {
+    if (m_allocator != nullptr) {
         vmaDestroyBuffer(m_allocator, m_buffer, m_allocation);
     }
     m_allocation = nullptr;

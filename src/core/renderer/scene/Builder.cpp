@@ -118,7 +118,7 @@ static auto create_global_descriptor_set(
     const vk::WriteDescriptorSet write_descriptor_set{
         .dstSet          = descriptor_sets.front().get(),
         .dstBinding      = 0,
-        .descriptorCount = 1u,
+        .descriptorCount = 1U,
         .descriptorType  = vk::DescriptorType::eUniformBuffer,
         .pBufferInfo     = &buffer_info,
     };

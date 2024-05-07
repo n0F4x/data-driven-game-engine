@@ -39,7 +39,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    Store m_store{};
+    Store m_store;
 };
 
 }   // namespace app

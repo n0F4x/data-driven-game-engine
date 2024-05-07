@@ -14,7 +14,7 @@ auto Camera::set_perspective_projection(
 ) noexcept -> void
 {
     m_projection = glm::perspective(glm::radians(t_fov_y), t_aspect, t_near, t_far);
-    m_projection[1][1] *= -1.0f;
+    m_projection[1][1] *= -1.f;
 }
 
 auto Camera::set_view_yxz(const glm::vec3& t_position, const glm::vec3& t_rotation) noexcept

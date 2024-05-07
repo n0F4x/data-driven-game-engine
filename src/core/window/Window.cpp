@@ -15,11 +15,11 @@ namespace core::window {
 static auto create_window(
     const uint16_t     t_width,
     const uint16_t     t_height,
-    const std::string& title
+    const std::string& t_title
 ) -> GLFWwindow*
 {
     const auto window{
-        glfwCreateWindow(t_width, t_height, title.c_str(), nullptr, nullptr)
+        glfwCreateWindow(t_width, t_height, t_title.c_str(), nullptr, nullptr)
     };
     if (window == nullptr) {
         throw std::runtime_error{ std::format(
@@ -30,8 +30,8 @@ static auto create_window(
     return window;
 }
 
-Window::Window(const uint16_t t_width, const uint16_t t_height, const std::string& title)
-    : m_impl{ create_window(t_width, t_height, title), glfwDestroyWindow }
+Window::Window(const uint16_t t_width, const uint16_t t_height, const std::string& t_title)
+    : m_impl{ create_window(t_width, t_height, t_title), glfwDestroyWindow }
 {}
 
 auto Window::get() const noexcept -> GLFWwindow*

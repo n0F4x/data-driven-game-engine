@@ -20,15 +20,17 @@ namespace plugins {
 
 using namespace renderer;
 
+vk::AllocationCallbacks a{};
+
 static auto create_vulkan_surface(
     GLFWwindow*                  t_window,
-    VkInstance                   t_instance,
+    vk::Instance                 t_instance,
     const VkAllocationCallbacks* t_allocator
 ) -> VkSurfaceKHR
 {
     VkSurfaceKHR surface{};
 
-    if (vk::Result error_code{
+    if (const vk::Result error_code{
             glfwCreateWindowSurface(t_instance, t_window, t_allocator, &surface) };
         error_code != vk::Result::eSuccess)
     {
@@ -41,23 +43,27 @@ static auto create_vulkan_surface(
     return surface;
 }
 
-std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>
-    Renderer::create_default_surface{ [](Store&                       t_store,
-                                         VkInstance                   t_instance,
-                                         const VkAllocationCallbacks* t_allocator) {
-        using namespace core::window;
-        return t_store.find<Window>()
-            .transform([=](const Window& t_window) {
-                return create_vulkan_surface(t_window.get(), t_instance, t_allocator);
-            })
-            .or_else([] {
-                SPDLOG_WARN(
-                    "Default window could not be found in store. "
-                    "Consider using another surface creator than the default."
-                );
-            })
-            .value_or(nullptr);
-    } };
+auto Renderer::create_default_surface(
+    Store&                       t_store,
+    vk::Instance                 t_instance,
+    const VkAllocationCallbacks* t_allocation_callbacks
+) -> vk::SurfaceKHR
+{
+    using namespace core::window;
+    return t_store.find<Window>()
+        .transform([=](const Window& t_window) {
+            return create_vulkan_surface(
+                t_window.get(), t_instance, t_allocation_callbacks
+            );
+        })
+        .or_else([] {
+            SPDLOG_WARN(
+                "Default window could not be found in store. "
+                "Consider using another surface creator than the default."
+            );
+        })
+        .value_or(nullptr);
+}
 
 static auto log_renderer_setup(const vkb::Device& t_device)
 {
@@ -99,7 +105,7 @@ auto Renderer::operator()(
     app::App::Builder&                  t_builder,
     const SurfaceCreator&               t_create_surface,
     const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter
-) const noexcept -> void
+) const -> void
 {
     const auto system_info_result{ vkb::SystemInfo::get_system_info() };
     if (!system_info_result.has_value()) {
@@ -158,7 +164,7 @@ auto Renderer::operator()(
     Swapchain::Requirements::enable_optional_device_settings(physical_device_result.value(
     ));
 
-    vkb::DeviceBuilder device_builder{ physical_device_result.value() };
+    const vkb::DeviceBuilder device_builder{ physical_device_result.value() };
     const auto         device_result{ device_builder.build() };
     if (!device_result.has_value()) {
         SPDLOG_ERROR(device_result.error().message());

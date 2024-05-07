@@ -22,9 +22,9 @@ public:
     /// Static methods ///
     ///----------------///
     [[nodiscard]]
-    static auto create() noexcept -> Builder;
+    static auto create() -> Builder;
 
-    explicit App(Builder&& t_builder) noexcept;
+    explicit App(Builder&& t_builder);
 
     ///-----------///
     ///  Methods  ///

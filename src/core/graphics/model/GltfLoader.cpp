@@ -57,14 +57,14 @@ static auto load_node(
     const fastgltf::Asset& t_asset,
     const fastgltf::Node&  t_source_node,
     Model::Node*           t_parent
-) noexcept -> void;
+) -> void;
 
 [[nodiscard]]
 static auto load_mesh(
     internal::GltfModel&   t_loader,
     const fastgltf::Asset& t_asset,
     const fastgltf::Mesh&  t_source_mesh
-) noexcept -> size_t;
+) -> size_t;
 
 [[nodiscard]]
 static auto load_primitive(
@@ -79,7 +79,7 @@ static auto load_vertices(
     Model::Primitive&                                                         t_primitive,
     const fastgltf::Asset&                                                    t_asset,
     const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>& t_attributes
-) noexcept -> bool;
+) -> bool;
 
 static auto load_indices(
     internal::GltfModel&      t_loader,
@@ -87,7 +87,7 @@ static auto load_indices(
     uint32_t                  t_first_vertex_index,
     const fastgltf::Asset&    t_asset,
     const fastgltf::Accessor& t_accessor
-) noexcept -> void;
+) -> void;
 
 static auto adjust_node_indices(internal::GltfModel& t_loader) -> void;
 
@@ -193,14 +193,14 @@ auto load_node(
     const fastgltf::Asset& t_asset,
     const fastgltf::Node&  t_source_node,
     Model::Node*           t_parent
-) noexcept -> void
+) -> void
 {
-    if (t_parent) {
+    if (t_parent != nullptr) {
         t_node.parent = t_parent;
     }
 
     std::array<float, 3> scale{ 1.f, 1.f, 1.f };
-    std::array<float, 4> rotation{ 0.f, 0.f, 0.f, 1.f };
+    std::array<float, 4> rotation{ 0.f, 0.f, 0.f, 1.f }; // NOLINT(*-uppercase-literal-suffix)
     std::array<float, 3> translation{};
     std::visit(
         fastgltf::visitor{
@@ -243,15 +243,15 @@ auto load_mesh(
     internal::GltfModel&   t_loader,
     const fastgltf::Asset& t_asset,
     const fastgltf::Mesh&  t_source_mesh
-) noexcept -> size_t
+) -> size_t
 {
-    size_t       index = t_loader.meshes.size();
+    const size_t index = t_loader.meshes.size();
     Model::Mesh& mesh{ t_loader.meshes.emplace_back() };
 
     mesh.primitives.reserve(t_source_mesh.primitives.size());
     for (const auto& source_primitive : t_source_mesh.primitives) {
         load_primitive(t_loader, t_asset, source_primitive)
-            .transform([&](Model::Primitive&& primitive) {
+            .transform([&](Model::Primitive primitive) {
                 mesh.primitives.push_back(primitive);
             });
     }
@@ -342,9 +342,9 @@ auto load_vertices(
     Model::Primitive&                                                         t_primitive,
     const fastgltf::Asset&                                                    t_asset,
     const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>& t_attributes
-) noexcept -> bool
+) -> bool
 {
-    const auto position_iter{ std::ranges::find(
+    const auto* const position_iter{ std::ranges::find(
         t_attributes, "POSITION", &fastgltf::Primitive::attribute_type::first
     ) };
     if (position_iter == t_attributes.end()) {
@@ -411,7 +411,7 @@ auto load_indices(
     const uint32_t            t_first_vertex_index,
     const fastgltf::Asset&    t_asset,
     const fastgltf::Accessor& t_accessor
-) noexcept -> void
+) -> void
 {
     t_primitive.first_index_index = static_cast<uint32_t>(t_loader.indices.size());
     t_primitive.index_count       = static_cast<uint32_t>(t_accessor.count);
@@ -449,14 +449,14 @@ auto load_image(
                     "Got an unexpected glTF image data source. Can't load image."
                 );
             },
-            [&](const fastgltf::sources::URI& filePath) {
+            [&](const fastgltf::sources::URI& filepath) {
                 assert(
-                    filePath.fileByteOffset == 0 && "We don't support offsets with stbi"
+                    filepath.fileByteOffset == 0 && "We don't support offsets with stbi"
                 );   // TODO: Support offsets?
-                assert(filePath.uri.isLocalPath());
+                assert(filepath.uri.isLocalPath());
 
                 return ImageLoader::load_from_file(std::filesystem::absolute(
-                    t_filepath.parent_path() / filePath.uri.fspath()
+                    t_filepath.parent_path() / filepath.uri.fspath()
                 ));
             },
             [&](const fastgltf::sources::Array& array) {
@@ -483,18 +483,18 @@ auto load_image(
                                        [&](const fastgltf::sources::Array& array) {
                                            return ImageLoader::load_from_memory(
                                                std::span(
-                                                   array.bytes.data() + view.byteOffset,
+                                                   array.bytes.data(),
                                                    array.bytes.size()
-                                               ),
+                                               ).subspan(view.byteOffset),
                                                buffer_view.mimeType
                                            );
                                        },
                                        [&](const fastgltf::sources::Vector& vector) {
                                            return ImageLoader::load_from_memory(
                                                std::span(
-                                                   vector.bytes.data() + view.byteOffset,
+                                                   vector.bytes.data(),
                                                    vector.bytes.size()
-                                               ),
+                                               ).subspan(view.byteOffset),
                                                buffer_view.mimeType
                                            );
                                        } },

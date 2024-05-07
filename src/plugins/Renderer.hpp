@@ -20,7 +20,9 @@ public:
     ///--------------------///
     ///  Static variables  ///
     ///--------------------///
-    static SurfaceCreator create_default_surface;
+    [[nodiscard]]
+    static auto create_default_surface(Store&, vk::Instance, const VkAllocationCallbacks*)
+        -> vk::SurfaceKHR;
 
     ///-------------///
     ///  Operators  ///
@@ -29,7 +31,7 @@ public:
         app::App::Builder&                  t_builder,
         const SurfaceCreator&               t_create_surface = create_default_surface,
         const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter = nullptr
-    ) const noexcept -> void;
+    ) const -> void;
 };
 
 static_assert(app::PluginConcept<Renderer>);

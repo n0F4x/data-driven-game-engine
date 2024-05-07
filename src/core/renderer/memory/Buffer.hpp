@@ -17,12 +17,14 @@ public:
         VmaAllocation t_allocation,
         VmaAllocator  t_allocator
     ) noexcept;
+    Buffer(const Buffer&) = delete;
     Buffer(Buffer&&) noexcept;
     ~Buffer() noexcept;
 
     ///-------------///
     ///  Operators  ///
     ///-------------///
+    auto operator=(const Buffer&) -> Buffer& = delete;
     auto operator=(Buffer&&) noexcept -> Buffer&;
     [[nodiscard]]
     auto operator*() const noexcept -> vk::Buffer;
@@ -43,7 +45,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::Buffer    m_buffer{};
+    vk::Buffer    m_buffer;
     VmaAllocation m_allocation{};
     VmaAllocator  m_allocator{};
 };

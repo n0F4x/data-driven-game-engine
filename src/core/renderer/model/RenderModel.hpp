@@ -24,17 +24,17 @@ public:
 
     [[nodiscard]]
     static auto create_loader(
-        vk::Device                     t_device,
-        const Allocator&               t_allocator,
-        vk::DescriptorSetLayout        t_descriptor_set_layout,
-        const PipelineCreateInfo&      t_pipeline_create_info,
-        vk::DescriptorPool             t_descriptor_pool,
+        vk::Device                            t_device,
+        const Allocator&                      t_allocator,
+        vk::DescriptorSetLayout               t_descriptor_set_layout,
+        const PipelineCreateInfo&             t_pipeline_create_info,
+        vk::DescriptorPool                    t_descriptor_pool,
         const cache::Handle<graphics::Model>& t_model
     ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>;
 
     [[nodiscard]]
     static auto create_descriptor_set_layout(vk::Device t_device
-    ) noexcept -> vk::UniqueDescriptorSetLayout;
+    ) -> vk::UniqueDescriptorSetLayout;
     [[nodiscard]]
     static auto push_constant_range() noexcept -> vk::PushConstantRange;
 

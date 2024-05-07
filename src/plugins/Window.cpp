@@ -16,10 +16,14 @@ auto Window::default_configure() -> void
 
     if (const auto error_code{ glfwInit() }; error_code != GLFW_TRUE) {
         throw std::runtime_error{
-            std::format("glfwInit failed with error code {}", std::to_string(error_code))
+            std::format("glfwInit failed with error code {}", error_code)
         };
     }
-    std::atexit(glfwTerminate);
+    if (auto result{ std::atexit(glfwTerminate) }; result != 0) {
+        throw std::runtime_error{
+            std::format("std::atexit(glfwTerminate) failed with error code {}", result)
+        };
+    }
 
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);

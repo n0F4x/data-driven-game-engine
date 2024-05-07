@@ -1,0 +1,48 @@
+Checks: '-*,
+bugprone-*,
+-bugprone-easily-swappable-parameters,
+cert-*,
+concurrency-*,
+cppcoreguidelines-*,
+-cppcoreguidelines-avoid-magic-numbers,
+-cppcoreguidelines-missing-std-forward,
+-cppcoreguidelines-pro-type-union-access,
+-cppcoreguidelines-pro-type-reinterpret-cast,
+-cppcoreguidelines-rvalue-reference-param-not-moved,
+google-default-arguments,
+google-explicit-constructor,
+google-runtime-operator,
+hicpp-*,
+-hicpp-named-parameter,
+-hicpp-uppercase-literal-suffix,
+misc-*,
+-misc-include-cleaner,
+-misc-misplaced-const,
+-misc-non-private-member-variables-in-classes,
+-misc-use-anonymous-namespace,
+modernize-*
+performance-*,
+portability-*,
+readability-*,
+-readability-identifier-length,
+-readability-magic-numbers,
+-readability-named-parameter,
+-readability-uppercase-literal-suffix'
+
+CheckOptions:
+  - { key: readability-identifier-naming.ClassCase,                 value: CamelCase }
+  - { key: readability-identifier-naming.ClassMemberCase,           value: lower_case }
+  - { key: readability-identifier-naming.ClassMethodCase,           value: lower_case }
+  - { key: readability-identifier-naming.ConceptCase,               value: CamelCase }
+  - { key: readability-identifier-naming.EnumCase,                  value: CamelCase }
+  - { key: readability-identifier-naming.EnumConstantCase,          value: CamelCase }
+  - { key: readability-identifier-naming.EnumConstantPrefix,        value: e }
+  - { key: readability-identifier-naming.FunctionCase,              value: lower_case }
+  - { key: readability-identifier-naming.GlobalConstantPrefix,      value: g_ }
+  - { key: readability-identifier-naming.NamespaceCase,             value: lower_case }
+  - { key: readability-identifier-naming.PrivateMemberPrefix,       value: m_ }
+  - { key: readability-identifier-naming.StructCase,                value: CamelCase }
+  - { key: readability-identifier-naming.TypeAliasCase,             value: CamelCase }
+  - { key: readability-identifier-naming.TypedefCase,               value: CamelCase }
+  - { key: readability-identifier-naming.UnionCase,                 value: CamelCase }
+  - { key: readability-identifier-naming.VariableCase,              value: lower_case }

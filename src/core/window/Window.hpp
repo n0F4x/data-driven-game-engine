@@ -12,7 +12,7 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Window(uint16_t t_width, uint16_t t_height, const std::string& title);
+    explicit Window(uint16_t t_width, uint16_t t_height, const std::string& t_title);
 
     ///-----------///
     ///  Methods  ///

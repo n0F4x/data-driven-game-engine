@@ -93,7 +93,8 @@ auto DemoRenderer::create(Store& t_store, const std::string& t_model_filepath)
     auto&       allocator{ t_store.at<renderer::Allocator>() };
 
     auto& swapchain{ t_store.at<renderer::Swapchain>() };
-    int   width, height;
+    int   width;
+    int   height;
     glfwGetFramebufferSize(window.get(), &width, &height);
     swapchain.set_framebuffer_size(vk::Extent2D{ static_cast<uint32_t>(width),
                                                  static_cast<uint32_t>(height) });

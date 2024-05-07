@@ -52,7 +52,7 @@ auto Image::allocation() const noexcept -> VmaAllocation
 
 auto Image::reset() noexcept -> void
 {
-    if (m_allocator) {
+    if (m_allocator != nullptr) {
         vmaDestroyImage(m_allocator, m_image, m_allocation);
     }
     m_allocation = nullptr;

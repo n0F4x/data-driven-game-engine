@@ -1,5 +1,4 @@
 - use std::optional instead of tl::optional
-- use clang-tidy
 - use volk
 - use vma-hpp
 - separate logger for debug and actual use

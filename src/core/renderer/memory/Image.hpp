@@ -16,12 +16,14 @@ public:
         VmaAllocation t_allocation,
         VmaAllocator  t_allocator
     ) noexcept;
+    Image(const Image&) = delete;
     Image(Image&&) noexcept;
     ~Image() noexcept;
 
     ///-------------///
     ///  Operators  ///
     ///-------------///
+    auto operator=(const Image&) -> Image& = delete;
     auto operator=(Image&&) noexcept -> Image&;
     [[nodiscard]]
     auto operator*() const noexcept -> vk::Image;

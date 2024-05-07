@@ -25,7 +25,7 @@ static auto create_descriptor_set_layout(const vk::Device t_device
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex },
     };
-    vk::DescriptorSetLayoutCreateInfo create_info{
+    const vk::DescriptorSetLayoutCreateInfo create_info{
         .bindingCount = static_cast<uint32_t>(bindings.size()),
         .pBindings    = bindings.data(),
     };
@@ -103,7 +103,7 @@ static auto create_staging_buffer(
     const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
 ) -> MappedBuffer
 {
-    uint32_t                   size{ static_cast<uint32_t>(t_data.size_bytes()) };
+    const uint32_t             size{ static_cast<uint32_t>(t_data.size_bytes()) };
     const vk::BufferCreateInfo staging_buffer_create_info = {
         .size  = size,
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
@@ -261,7 +261,7 @@ auto RenderModel::create_loader(
 }
 
 auto RenderModel::create_descriptor_set_layout(const vk::Device t_device
-) noexcept -> vk::UniqueDescriptorSetLayout
+) -> vk::UniqueDescriptorSetLayout
 {
     return ::create_descriptor_set_layout(t_device);
 }

@@ -8,9 +8,9 @@
 namespace plugins::renderer {
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
-    const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    const VkDebugUtilsMessageTypeFlagsEXT        messageTypes,
-    const VkDebugUtilsMessengerCallbackDataEXT*  pCallbackData,
+    const VkDebugUtilsMessageSeverityFlagBitsEXT t_message_severity,
+    const VkDebugUtilsMessageTypeFlagsEXT        t_message_types,
+    const VkDebugUtilsMessengerCallbackDataEXT*  t_callback_data,
     void* /*pUserData*/
 )
 {
@@ -18,50 +18,50 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
 
     message
         << "Vulkan message "
-        << vk::to_string(static_cast<const vk::DebugUtilsMessageTypeFlagsEXT>(messageTypes
-           ))
+        << vk::to_string(static_cast<const vk::DebugUtilsMessageTypeFlagsEXT>(t_message_types))
         << ":\n";
-    message << std::string("\t") << "messageIDName   = <" << pCallbackData->pMessageIdName
+    message << std::string("\t") << "messageIDName   = <" << t_callback_data->pMessageIdName
             << ">\n";
-    message << std::string("\t") << "messageIdNumber = " << pCallbackData->messageIdNumber
+    message << std::string("\t") << "messageIdNumber = " << t_callback_data->messageIdNumber
             << "\n";
-    message << std::string("\t") << "message         = <" << pCallbackData->pMessage
+    message << std::string("\t") << "message         = <" << t_callback_data->pMessage
             << ">\n";
-    if (0 < pCallbackData->queueLabelCount) {
+    if (0 < t_callback_data->queueLabelCount) {
         message << std::string("\t") << "Queue Labels:\n";
-        for (uint32_t i = 0; i < pCallbackData->queueLabelCount; i++) {
+        for (uint32_t i = 0; i < t_callback_data->queueLabelCount; i++) {
             message << std::string("\t\t") << "labelName = <"
-                    << pCallbackData->pQueueLabels[i].pLabelName << ">\n";
+                    << t_callback_data->pQueueLabels[i].pLabelName << ">\n";
         }
     }
-    if (0 < pCallbackData->cmdBufLabelCount) {
+    if (0 < t_callback_data->cmdBufLabelCount) {
         message << std::string("\t") << "CommandBuffer Labels:\n";
-        for (uint32_t i = 0; i < pCallbackData->cmdBufLabelCount; i++) {
+        for (uint32_t i = 0; i < t_callback_data->cmdBufLabelCount; i++) {
             message << std::string("\t\t") << "labelName = <"
-                    << pCallbackData->pCmdBufLabels[i].pLabelName << ">\n";
+                    << t_callback_data->pCmdBufLabels[i].pLabelName << ">\n";
         }
     }
-    if (0 < pCallbackData->objectCount) {
+    if (0 < t_callback_data->objectCount) {
         message << std::string("\t") << "Objects:\n";
-        for (uint32_t i = 0; i < pCallbackData->objectCount; i++) {
+        for (uint32_t i = 0; i < t_callback_data->objectCount; i++) {
             message << std::string("\t\t") << "Object " << i << "\n";
             message
                 << std::string("\t\t\t") << "objectType   = "
                 << vk::to_string(
-                       static_cast<vk::ObjectType>(pCallbackData->pObjects[i].objectType)
+                       static_cast<vk::ObjectType>(
+                           t_callback_data->pObjects[i].objectType)
                    )
                 << "\n";
             message << std::string("\t\t\t")
-                    << "objectcache::Handle = " << pCallbackData->pObjects[i].objectHandle
+                    << "objectcache::Handle = " << t_callback_data->pObjects[i].objectHandle
                     << "\n";
-            if (pCallbackData->pObjects[i].pObjectName) {
+            if (t_callback_data->pObjects[i].pObjectName) {
                 message << std::string("\t\t\t") << "objectName   = <"
-                        << pCallbackData->pObjects[i].pObjectName << ">\n";
+                        << t_callback_data->pObjects[i].pObjectName << ">\n";
             }
         }
     }
 
-    switch (messageSeverity) {
+    switch (t_message_severity) {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
             spdlog::trace(message.str());
             break;
@@ -77,7 +77,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
         default: break;
     }
 
-    return false;
+    return vk::False;
 }
 
 static auto set_debug_messenger(vkb::InstanceBuilder& t_builder) -> void

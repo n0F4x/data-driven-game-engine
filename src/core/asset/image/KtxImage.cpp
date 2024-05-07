@@ -7,12 +7,12 @@ namespace core::asset {
 auto KtxImage::load_from_file(const std::filesystem::path& t_filepath
 ) -> std::optional<KtxImage>
 {
-    ktxTexture* ktxTexture;
+    ktxTexture* texture{};
 
     if (const ktxResult result{ ktxTexture_CreateFromNamedFile(
             t_filepath.generic_string().c_str(),
             KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
-            &ktxTexture
+            &texture
         ) };
         result != KTX_SUCCESS && result != KTX_UNKNOWN_FILE_FORMAT)
     {
@@ -25,16 +25,16 @@ auto KtxImage::load_from_file(const std::filesystem::path& t_filepath
         return std::nullopt;
     }
 
-    return KtxImage{ ktxTexture };
+    return KtxImage{ texture };
 }
 
 auto KtxImage::load_from_memory(const std::span<const std::uint8_t> t_data
 ) -> std::optional<KtxImage>
 {
-    ktxTexture* ktxTexture;
+    ktxTexture* texture{};
 
     if (const ktxResult result{ ktxTexture_CreateFromMemory(
-            t_data.data(), t_data.size(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &ktxTexture
+            t_data.data(), t_data.size(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &texture
         ) };
         result != KTX_SUCCESS && result != KTX_UNKNOWN_FILE_FORMAT)
     {
@@ -45,7 +45,7 @@ auto KtxImage::load_from_memory(const std::span<const std::uint8_t> t_data
         return std::nullopt;
     }
 
-    return KtxImage{ ktxTexture };
+    return KtxImage{ texture };
 }
 
 auto KtxImage::operator->() const noexcept -> ktxTexture*

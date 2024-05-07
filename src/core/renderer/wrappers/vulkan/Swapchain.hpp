@@ -26,17 +26,11 @@ public:
         vk::Device         t_device,
         vk::Extent2D       t_frame_buffer_size,
         vk::SwapchainKHR   t_old_swapchain = nullptr
-    ) noexcept -> tl::optional<Swapchain>;
-
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    Swapchain(Swapchain&&) noexcept = default;
+    ) -> tl::optional<Swapchain>;
 
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator=(Swapchain&&) noexcept -> Swapchain& = default;
     [[nodiscard]]
     auto operator*() const noexcept -> vk::SwapchainKHR;
 

@@ -5,13 +5,12 @@ namespace core::asset {
 auto StbImage::load_from_file(const std::filesystem::path& t_filepath
 ) -> std::optional<StbImage>
 {
-    int width;
-    int height;
-    int channels_in_file;
+    int width{};
+    int height{};
+    int channels_in_file{};
 
-    if (!stbi_info(
-            t_filepath.generic_string().c_str(), &width, &height, &channels_in_file
-        ))
+    if (stbi_info(t_filepath.generic_string().c_str(), &width, &height, &channels_in_file)
+        != 1)
     {
         return std::nullopt;
     }
@@ -31,13 +30,14 @@ auto StbImage::load_from_file(const std::filesystem::path& t_filepath
 auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
 ) -> std::optional<StbImage>
 {
-    int width;
-    int height;
-    int channels_in_file;
+    int width{};
+    int height{};
+    int channels_in_file{};
 
-    if (!stbi_info_from_memory(
+    if (stbi_info_from_memory(
             t_data.data(), static_cast<int>(t_data.size()), &width, &height, &channels_in_file
-        ))
+        )
+        != 1)
     {
         return std::nullopt;
     }

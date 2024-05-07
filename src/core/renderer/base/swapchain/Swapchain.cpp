@@ -107,7 +107,7 @@ try {
 
 auto Swapchain::on_swapchain_recreated(
     Swapchain::SwapchainRecreatedEvent&& t_swapchain_recreated_event
-) noexcept -> uint32_t
+) -> uint32_t
 {
     m_swapchain_recreated_events.emplace_back(
         m_swapchain_recreated_events_counter, std::move(t_swapchain_recreated_event)
@@ -122,7 +122,7 @@ auto Swapchain::remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void
     });
 }
 
-auto Swapchain::recreate_swapchain(const vk::Extent2D t_framebuffer_size) noexcept -> void
+auto Swapchain::recreate_swapchain(const vk::Extent2D t_framebuffer_size) -> void
 {
     m_device.get()->waitIdle();
 

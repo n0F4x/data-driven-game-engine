@@ -11,7 +11,7 @@ Allocator::Allocator(Allocator&& t_other) noexcept
 
 Allocator::~Allocator() noexcept
 {
-    if (m_allocator) {
+    if (m_allocator != nullptr) {
         vmaDestroyAllocator(m_allocator);
     }
 }

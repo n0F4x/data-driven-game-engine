@@ -52,7 +52,7 @@ public:
     auto present(std::span<vk::Semaphore> t_wait_semaphores = {}) -> void;
 
     auto on_swapchain_recreated(SwapchainRecreatedEvent&& t_swapchain_recreated_event
-    ) noexcept -> uint32_t;
+    ) -> uint32_t;
 
     auto remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void;
 
@@ -71,7 +71,7 @@ private:
     ///***********///
     ///  Methods  ///
     ///***********///
-    auto recreate_swapchain(vk::Extent2D t_framebuffer_size) noexcept -> void;
+    auto recreate_swapchain(vk::Extent2D t_framebuffer_size) -> void;
     auto recreate_swapchain() noexcept -> void;
 };
 
