@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <memory>
 #include <vector>
 
 #include <tl/optional.hpp>
@@ -10,7 +11,7 @@
 
 #include <fastgltf/core.hpp>
 
-#include "Image.hpp"
+#include "core/asset/image/Image.hpp"
 
 namespace core::graphics {
 
@@ -27,7 +28,7 @@ public:
         glm::vec4 color{};
     };
 
-    using Image = Image;
+    using Image = std::unique_ptr<asset::Image>;
 
     struct Sampler {
         enum class MagFilter {

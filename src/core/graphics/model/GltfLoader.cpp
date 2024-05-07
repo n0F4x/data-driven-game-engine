@@ -96,7 +96,7 @@ static auto load_image(
     const std::filesystem::path& t_filepath,
     const fastgltf::Asset&       t_asset,
     const fastgltf::Image&       t_image
-) -> std::optional<Image>;
+) -> std::optional<Model::Image>;
 
 namespace core::graphics {
 
@@ -157,7 +157,7 @@ auto GltfLoader::load_model(
 
     size_t counter{};
     for (const fastgltf::Image& image : t_asset.images) {
-        std::optional<Image> loaded_image = load_image(t_filepath, t_asset, image);
+        std::optional<Model::Image> loaded_image = load_image(t_filepath, t_asset, image);
 
         if (loaded_image.has_value()) {
             loader.images.push_back(std::move(loaded_image.value()));
@@ -440,11 +440,11 @@ auto load_image(
     const std::filesystem::path& t_filepath,
     const fastgltf::Asset&       t_asset,
     const fastgltf::Image&       t_image
-) -> std::optional<Image>
+) -> std::optional<Model::Image>
 {
     return std::visit(
         fastgltf::visitor{
-            [](const auto&) -> std::optional<Image> {
+            [](const auto&) -> std::optional<Model::Image> {
                 throw std::runtime_error(
                     "Got an unexpected glTF image data source. Can't load image."
                 );
@@ -474,7 +474,7 @@ auto load_image(
                 const auto& buffer = t_asset.buffers[view.bufferIndex];
 
                 return std::visit(
-                    fastgltf::visitor{ [](const auto&) -> std::optional<Image> {
+                    fastgltf::visitor{ [](const auto&) -> std::optional<Model::Image> {
                                           throw std::runtime_error(
                                               "Got an unexpected glTF image data source. "
                                               "Can't load image from buffer view."

@@ -6,9 +6,11 @@
 
 #include <stb_image.h>
 
+#include "Image.hpp"
+
 namespace core::asset {
 
-class StbImage {
+class StbImage : public Image {
 public:
     [[nodiscard]]
     static auto load_from_file(const std::filesystem::path& t_filepath

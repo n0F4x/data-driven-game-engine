@@ -1,15 +1,16 @@
 #pragma once
 
 #include <filesystem>
-#include <span>
-
 #include <optional>
+#include <span>
 
 #include <ktx.h>
 
+#include "Image.hpp"
+
 namespace core::asset {
 
-class KtxImage {
+class KtxImage : public Image {
 public:
     [[nodiscard]]
     static auto load_from_file(const std::filesystem::path& t_filepath
