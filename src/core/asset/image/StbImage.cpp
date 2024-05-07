@@ -59,19 +59,39 @@ auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
     return StbImage{ data, width, height };
 }
 
-auto StbImage::data() const noexcept -> stbi_uc*
+auto StbImage::data() const noexcept -> void*
 {
     return m_data.get();
 }
 
-auto StbImage::width() const noexcept -> int
+auto StbImage::size() const noexcept -> size_t
 {
-    return m_width;
+    return static_cast<size_t>(m_width * m_height * 4);
 }
 
-auto StbImage::height() const noexcept -> int
+auto StbImage::width() const noexcept -> uint32_t
 {
-    return m_height;
+    return static_cast<uint32_t>(m_width);
+}
+
+auto StbImage::height() const noexcept -> uint32_t
+{
+    return static_cast<uint32_t>(m_height);
+}
+
+auto StbImage::depth() const noexcept -> uint32_t
+{
+    return 1u;
+}
+
+auto StbImage::mip_levels() const noexcept -> uint32_t
+{
+    return 1u;
+}
+
+auto StbImage::format() const noexcept -> vk::Format
+{
+    return vk::Format::eR8G8B8A8Srgb;
 }
 
 StbImage::StbImage(stbi_uc* t_data, int t_width, int t_height) noexcept

@@ -44,20 +44,20 @@ public:
             eLinearMipmapLinear,
         };
 
-        enum class WrappingMode {
+        enum class WrapMode {
             eClampToEdge,
             eMirroredRepeat,
             eRepeat
         };
 
-        tl::optional<MagFilter> magFilter;
-        tl::optional<MinFilter> minFilter;
-        WrappingMode            wrapS{ WrappingMode::eRepeat };
-        WrappingMode            wrapT{ WrappingMode::eRepeat };
+        std::optional<MagFilter> magFilter;
+        std::optional<MinFilter> minFilter;
+        WrapMode                 wrapS{ WrapMode::eRepeat };
+        WrapMode                 wrapT{ WrapMode::eRepeat };
     };
 
     struct Texture {
-        tl::optional<size_t> sampler_index;
+        std::optional<size_t> sampler_index;
         size_t               image_index;
     };
 

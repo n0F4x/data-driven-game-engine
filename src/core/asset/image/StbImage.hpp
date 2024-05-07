@@ -10,7 +10,7 @@
 
 namespace core::asset {
 
-class StbImage : public Image {
+class StbImage final : public Image {
 public:
     [[nodiscard]]
     static auto load_from_file(const std::filesystem::path& t_filepath
@@ -21,11 +21,22 @@ public:
     ) -> std::optional<StbImage>;
 
     [[nodiscard]]
-    auto data() const noexcept -> stbi_uc*;
+    auto data() const noexcept -> void* override;
     [[nodiscard]]
-    auto width() const noexcept -> int;
+    auto size() const noexcept -> size_t override;
+
     [[nodiscard]]
-    auto height() const noexcept -> int;
+    auto width() const noexcept -> uint32_t override;
+    [[nodiscard]]
+    auto height() const noexcept -> uint32_t override;
+    [[nodiscard]]
+    auto depth() const noexcept -> uint32_t override;
+
+    [[nodiscard]]
+    auto mip_levels() const noexcept -> uint32_t override;
+
+    [[nodiscard]]
+    auto format() const noexcept -> vk::Format override;
 
 private:
     std::unique_ptr<stbi_uc, decltype(&stbi_image_free)> m_data;

@@ -28,7 +28,9 @@ struct GltfModel {
 
     std::vector<Model::Mesh> meshes;
 
-    std::vector<Model::Image> images;
+    std::vector<Model::Image>   images;
+    std::vector<Model::Sampler> samplers;
+    std::vector<Model::Texture> textures;
 };
 
 }   // namespace internal
@@ -71,7 +73,7 @@ static auto load_primitive(
     internal::GltfModel&       t_loader,
     const fastgltf::Asset&     t_asset,
     const fastgltf::Primitive& t_source_primitive
-) noexcept -> tl::optional<Model::Primitive>;
+) -> tl::optional<Model::Primitive>;
 
 [[nodiscard]]
 static auto load_vertices(
@@ -97,6 +99,12 @@ static auto load_image(
     const fastgltf::Asset&       t_asset,
     const fastgltf::Image&       t_image
 ) -> std::optional<Model::Image>;
+
+[[nodiscard]]
+static auto create_sampler(const fastgltf::Sampler& t_sampler) -> Model::Sampler;
+
+[[nodiscard]]
+static auto create_texture(const fastgltf::Texture& t_texture) -> Model::Texture;
 
 namespace core::graphics {
 
@@ -155,31 +163,37 @@ auto GltfLoader::load_model(
     }
     adjust_node_indices(loader);
 
-    size_t counter{};
+    loader.images.reserve(t_asset.images.size());
     for (const fastgltf::Image& image : t_asset.images) {
         std::optional<Model::Image> loaded_image = load_image(t_filepath, t_asset, image);
-
         if (loaded_image.has_value()) {
             loader.images.push_back(std::move(loaded_image.value()));
-            //            file.images[image.name.c_str()] = *img;
         }
         else {
-            throw std::runtime_error{
-                //                std::format("Failed to load image from gltf asset {}",
-                //                image.name)
-                std::format("Failed to load image from gltf asset {}", counter)
-            };
+            throw std::runtime_error{ std::format(
+                "Failed to load image {} from gltf asset {}",
+                image.name,
+                t_filepath.generic_string()
+            ) };
         }
+    }
 
-        counter++;
+    loader.samplers.reserve(t_asset.samplers.size());
+    for (const fastgltf::Sampler& sampler : t_asset.samplers) {
+        loader.samplers.push_back(create_sampler(sampler));
+    }
+
+    loader.textures.reserve(t_asset.textures.size());
+    for (const fastgltf::Texture& texture : t_asset.textures) {
+        loader.textures.push_back(create_texture(texture));
     }
 
     Model result;
     result.m_vertices          = std::move(loader.vertices);
     result.m_indices           = std::move(loader.indices);
-    //    result.m_images     = {};
-    //    result.m_samplers   = {};
-    //    result.m_textures   = {};
+    result.m_images            = std::move(loader.images);
+    result.m_samplers          = std::move(loader.samplers);
+    result.m_textures          = std::move(loader.textures);
     //    result.m_materials  = {};
     result.m_meshes            = std::move(loader.meshes);
     result.m_nodes             = std::move(loader.nodes);
@@ -200,7 +214,9 @@ auto load_node(
     }
 
     std::array<float, 3> scale{ 1.f, 1.f, 1.f };
-    std::array<float, 4> rotation{ 0.f, 0.f, 0.f, 1.f }; // NOLINT(*-uppercase-literal-suffix)
+    std::array<float, 4> rotation{
+        0.f, 0.f, 0.f, 1.f
+    };   // NOLINT(*-uppercase-literal-suffix)
     std::array<float, 3> translation{};
     std::visit(
         fastgltf::visitor{
@@ -263,7 +279,7 @@ auto load_primitive(
     internal::GltfModel&       t_loader,
     const fastgltf::Asset&     t_asset,
     const fastgltf::Primitive& t_source_primitive
-) noexcept -> tl::optional<Model::Primitive>
+) -> tl::optional<Model::Primitive>
 {
     Model::Primitive primitive;
 
@@ -474,34 +490,110 @@ auto load_image(
                 const auto& buffer = t_asset.buffers[view.bufferIndex];
 
                 return std::visit(
-                    fastgltf::visitor{ [](const auto&) -> std::optional<Model::Image> {
-                                          throw std::runtime_error(
-                                              "Got an unexpected glTF image data source. "
-                                              "Can't load image from buffer view."
-                                          );
-                                      },
-                                       [&](const fastgltf::sources::Array& array) {
-                                           return ImageLoader::load_from_memory(
-                                               std::span(
-                                                   array.bytes.data(),
-                                                   array.bytes.size()
-                                               ).subspan(view.byteOffset),
-                                               buffer_view.mimeType
-                                           );
-                                       },
-                                       [&](const fastgltf::sources::Vector& vector) {
-                                           return ImageLoader::load_from_memory(
-                                               std::span(
-                                                   vector.bytes.data(),
-                                                   vector.bytes.size()
-                                               ).subspan(view.byteOffset),
-                                               buffer_view.mimeType
-                                           );
-                                       } },
+                    fastgltf::visitor{
+                        [](const auto&) -> std::optional<Model::Image> {
+                            throw std::runtime_error(
+                                "Got an unexpected glTF image data source. "
+                                "Can't load image from buffer view."
+                            );
+                        },
+                        [&](const fastgltf::sources::Array& array) {
+                            return ImageLoader::load_from_memory(
+                                std::span(array.bytes.data(), array.bytes.size())
+                                    .subspan(view.byteOffset),
+                                buffer_view.mimeType
+                            );
+                        },
+                        [&](const fastgltf::sources::Vector& vector) {
+                            return ImageLoader::load_from_memory(
+                                std::span(vector.bytes.data(), vector.bytes.size())
+                                    .subspan(view.byteOffset),
+                                buffer_view.mimeType
+                            );
+                        } },
                     buffer.data
                 );
             },
         },
         t_image.data
     );
+}
+
+[[nodiscard]]
+auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> t_filter
+) -> std::optional<Model::Sampler::MagFilter>
+{
+    if (!t_filter.has_value()) {
+        return std::nullopt;
+    }
+
+    using enum fastgltf::Filter;
+    using enum Model::Sampler::MagFilter;
+    switch (t_filter.value()) {
+        case Nearest: return eNearest;
+        case Linear: return eLinear;
+        default: std::unreachable();
+    }
+}
+
+[[nodiscard]]
+auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> t_filter
+) -> std::optional<Model::Sampler::MinFilter>
+{
+    if (!t_filter.has_value()) {
+        return std::nullopt;
+    }
+
+    using enum fastgltf::Filter;
+    using enum Model::Sampler::MinFilter;
+    switch (t_filter.value()) {
+        case Nearest: return eNearest;
+        case Linear: return eLinear;
+        case NearestMipMapNearest: return eNearestMipmapNearest;
+        case LinearMipMapNearest: return eLinearMipmapNearest;
+        case NearestMipMapLinear: return eNearestMipmapLinear;
+        case LinearMipMapLinear: return eLinearMipmapLinear;
+    }
+}
+
+[[nodiscard]]
+auto convert(fastgltf::Wrap t_wrap) noexcept -> Model::Sampler::WrapMode
+{
+    using enum fastgltf::Wrap;
+    using enum Model::Sampler::WrapMode;
+    switch (t_wrap) {
+        case ClampToEdge: return eClampToEdge;
+        case MirroredRepeat: return eMirroredRepeat;
+        case Repeat: return eRepeat;
+    }
+}
+
+[[nodiscard]]
+auto create_sampler(const fastgltf::Sampler& t_sampler) -> Model::Sampler
+{
+    return Model::Sampler{
+        .magFilter = convert_to_mag_filter(t_sampler.magFilter),
+        .minFilter = convert_to_min_filter(t_sampler.minFilter),
+        .wrapS     = convert(t_sampler.wrapS),
+        .wrapT     = convert(t_sampler.wrapT),
+    };
+}
+
+template <typename T>
+[[nodiscard]]
+auto convert(const fastgltf::Optional<T>& t_optional) noexcept -> std::optional<T>
+{
+    if (!t_optional.has_value()) {
+        return std::nullopt;
+    }
+    return t_optional.value();
+}
+
+auto create_texture(const fastgltf::Texture& t_texture) -> Model::Texture
+{
+    assert(t_texture.imageIndex.has_value() && "glTF Image extensions are not handled");
+    return Model::Texture{
+        .sampler_index = convert<size_t>(t_texture.samplerIndex),
+        .image_index   = t_texture.imageIndex.value(),
+    };
 }

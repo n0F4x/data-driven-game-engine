@@ -251,7 +251,7 @@ auto Allocator::create_mapped_buffer(
         ::create_buffer(m_allocator.get(), t_buffer_create_info, allocation_create_info)
     };
 
-    memcpy(allocation_info.pMappedData, t_data, t_buffer_create_info.size);
+    std::memcpy(allocation_info.pMappedData, t_data, t_buffer_create_info.size);
 
     vk::MemoryPropertyFlags memory_property_flags;
     vmaGetAllocationMemoryProperties(
@@ -285,7 +285,7 @@ auto Allocator::create_mapped_buffer_with_alignment(
         m_allocator.get(), t_buffer_create_info, t_min_alignment, allocation_create_info
     ) };
 
-    memcpy(allocation_info.pMappedData, t_data, t_buffer_create_info.size);
+    std::memcpy(allocation_info.pMappedData, t_data, t_buffer_create_info.size);
 
     vk::MemoryPropertyFlags memory_property_flags;
     vmaGetAllocationMemoryProperties(
