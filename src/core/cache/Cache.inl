@@ -39,17 +39,17 @@ auto BasicCache<IdType, ContainerTemplate>::emplace(ID t_id, auto&&... t_args)
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
 auto BasicCache<IdType, ContainerTemplate>::find(ID t_id
-) const noexcept -> tl::optional<Handle<Resource>>
+) const noexcept -> std::optional<Handle<Resource>>
 {
     return m_store.find<ContainerType<Resource>>().and_then(
         [t_id](const ContainerType<Resource>& t_container
-        ) -> tl::optional<Handle<Resource>> {
+        ) -> std::optional<Handle<Resource>> {
             const auto iter{ t_container.find(t_id) };
             if (iter == t_container.cend()) {
-                return tl::nullopt;
+                return std::nullopt;
             }
             const auto result{ iter->second.lock() };
-            return result ? tl::make_optional(std::move(result)) : tl::nullopt;
+            return result ? result : std::nullopt;
         }
     );
 }
@@ -64,13 +64,13 @@ auto BasicCache<IdType, ContainerTemplate>::at(ID t_id) const -> Handle<Resource
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
 auto BasicCache<IdType, ContainerTemplate>::remove(ID t_id
-) noexcept -> tl::optional<Handle<Resource>>
+) noexcept -> std::optional<Handle<Resource>>
 {
     return m_store.find<ContainerType<Resource>>().and_then(
-        [t_id](ContainerType<Resource>& t_container) -> tl::optional<Handle<Resource>> {
+        [t_id](ContainerType<Resource>& t_container) -> std::optional<Handle<Resource>> {
             const auto iter{ t_container.find(t_id) };
             if (iter == t_container.cend()) {
-                return tl::nullopt;
+                return std::nullopt;
             }
 
             t_container.erase(iter);

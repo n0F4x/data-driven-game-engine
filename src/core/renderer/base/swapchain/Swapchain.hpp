@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include <tl/optional.hpp>
+#include <optional>
 
 #include <vulkan/vulkan.hpp>
 
@@ -39,7 +39,7 @@ public:
     [[nodiscard]]
     auto surface() const noexcept -> vk::SurfaceKHR;
     [[nodiscard]]
-    auto get() const noexcept -> const tl::optional<vulkan::Swapchain>&;
+    auto get() const noexcept -> const std::optional<vulkan::Swapchain>&;
 
     auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void;
 
@@ -47,7 +47,7 @@ public:
     auto acquire_next_image(
         vk::Semaphore t_semaphore = nullptr,
         vk::Fence     t_fence     = nullptr
-    ) -> tl::optional<uint32_t>;
+    ) -> std::optional<uint32_t>;
 
     auto present(std::span<vk::Semaphore> t_wait_semaphores = {}) -> void;
 
@@ -63,7 +63,7 @@ private:
     vk::UniqueSurfaceKHR            m_surface;
     std::reference_wrapper<Device>  m_device;
     FramebufferSizeGetter           m_get_framebuffer_size;
-    tl::optional<vulkan::Swapchain> m_swapchain;
+    std::optional<vulkan::Swapchain> m_swapchain;
     uint32_t                        m_image_index{};
     std::vector<std::pair<uint32_t, SwapchainRecreatedEvent>> m_swapchain_recreated_events;
     uint32_t m_swapchain_recreated_events_counter{};

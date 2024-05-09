@@ -73,7 +73,7 @@ static auto load_primitive(
     internal::GltfModel&       t_loader,
     const fastgltf::Asset&     t_asset,
     const fastgltf::Primitive& t_source_primitive
-) -> tl::optional<Model::Primitive>;
+) -> std::optional<Model::Primitive>;
 
 [[nodiscard]]
 static auto load_vertices(
@@ -266,10 +266,10 @@ auto load_mesh(
 
     mesh.primitives.reserve(t_source_mesh.primitives.size());
     for (const auto& source_primitive : t_source_mesh.primitives) {
-        load_primitive(t_loader, t_asset, source_primitive)
-            .transform([&](Model::Primitive primitive) {
-                mesh.primitives.push_back(primitive);
-            });
+        auto primitive{ load_primitive(t_loader, t_asset, source_primitive) };
+        if (primitive.has_value()) {
+            mesh.primitives.push_back(primitive.value());
+        }
     }
 
     return index;
@@ -279,14 +279,14 @@ auto load_primitive(
     internal::GltfModel&       t_loader,
     const fastgltf::Asset&     t_asset,
     const fastgltf::Primitive& t_source_primitive
-) -> tl::optional<Model::Primitive>
+) -> std::optional<Model::Primitive>
 {
     Model::Primitive primitive;
 
     const auto first_vertex_index{ t_loader.vertices.size() };
 
     if (!load_vertices(t_loader, primitive, t_asset, t_source_primitive.attributes)) {
-        return tl::nullopt;
+        return std::nullopt;
     }
 
     if (auto indices_accessor_index{ t_source_primitive.indicesAccessor }) {

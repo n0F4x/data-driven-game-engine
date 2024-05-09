@@ -24,7 +24,7 @@ auto Swapchain::surface() const noexcept -> vk::SurfaceKHR
     return *m_surface;
 }
 
-auto Swapchain::get() const noexcept -> const tl::optional<vulkan::Swapchain>&
+auto Swapchain::get() const noexcept -> const std::optional<vulkan::Swapchain>&
 {
     return m_swapchain;
 }
@@ -52,7 +52,7 @@ try {
 auto Swapchain::acquire_next_image(
     const vk::Semaphore t_semaphore,
     const vk::Fence     t_fence
-) -> tl::optional<uint32_t>
+) -> std::optional<uint32_t>
 try {
     if (m_swapchain.has_value()) {
         switch (const auto [result, image_index]{ m_device.get()->acquireNextImageKHR(
@@ -75,10 +75,10 @@ try {
     }
 
     recreate_swapchain();
-    return tl::nullopt;
+    return std::nullopt;
 } catch (const vk::OutOfDateKHRError&) {
     recreate_swapchain();
-    return tl::nullopt;
+    return std::nullopt;
 }
 
 auto Swapchain::present(std::span<vk::Semaphore> t_wait_semaphores) -> void

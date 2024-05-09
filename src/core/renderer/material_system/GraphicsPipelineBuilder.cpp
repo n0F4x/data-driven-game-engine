@@ -7,10 +7,10 @@
 namespace core::renderer {
 
 GraphicsPipelineBuilder::GraphicsPipelineBuilder(
-    Effect                      t_effect,
-    tl::optional<cache::Cache&> t_cache
+    Effect                                              t_effect,
+    std::optional<std::reference_wrapper<cache::Cache>> t_cache
 ) noexcept
-    : m_cache{ t_cache.transform([](cache::Cache& cache) { return std::ref(cache); }) },
+    : m_cache{ t_cache },
       m_effect{ std::move(t_effect) }
 {}
 

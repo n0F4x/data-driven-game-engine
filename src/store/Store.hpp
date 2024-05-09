@@ -1,9 +1,9 @@
 #pragma once
 
+#include <functional>
+#include <optional>
 #include <typeindex>
 #include <vector>
-
-#include <tl/optional.hpp>
 
 #include <tsl/ordered_map.h>
 
@@ -30,10 +30,10 @@ public:
 
     template <typename T>
     [[nodiscard]]
-    auto find() noexcept -> tl::optional<T&>;
+    auto find() noexcept -> std::optional<std::reference_wrapper<T>>;
     template <typename T>
     [[nodiscard]]
-    auto find() const noexcept -> tl::optional<const T&>;
+    auto find() const noexcept -> std::optional<std::reference_wrapper<const T>>;
 
     template <typename T>
     [[nodiscard]]

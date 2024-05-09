@@ -24,16 +24,15 @@ struct DemoRenderer {
 
     [[nodiscard]]
     static auto create(Store& t_store, const std::string& t_model_filepath)
-        -> tl::optional<DemoRenderer>;
+        -> std::optional<DemoRenderer>;
 
-    auto render(
-        vk::Extent2D                  t_framebuffer_size,
-        const core::graphics::Camera& t_camera
-    ) noexcept -> void;
+    auto render(vk::Extent2D t_framebuffer_size, const core::graphics::Camera& t_camera)
+        -> void;
 
 private:
     auto record_command_buffer(
-        uint32_t               t_image_index,
-        core::graphics::Camera t_camera
-    ) noexcept -> void;
+        const core::renderer::vulkan::Swapchain& t_swapchain,
+        uint32_t                                 t_image_index,
+        core::graphics::Camera                   t_camera
+    ) -> void;
 };

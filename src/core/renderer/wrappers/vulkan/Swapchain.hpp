@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tl/optional.hpp>
+#include <optional>
 
 #include <vulkan/vulkan.hpp>
 
@@ -26,7 +26,7 @@ public:
         vk::Device         t_device,
         vk::Extent2D       t_frame_buffer_size,
         vk::SwapchainKHR   t_old_swapchain = nullptr
-    ) -> tl::optional<Swapchain>;
+    ) -> std::optional<Swapchain>;
 
     ///-------------///
     ///  Operators  ///

@@ -23,7 +23,7 @@ auto Model::Node::matrix() const -> glm::mat4
 
 auto Model::hash(
     const std::filesystem::path& t_filepath,
-    const tl::optional<size_t>   t_scene_id
+    const std::optional<size_t>   t_scene_id
 ) noexcept -> size_t
 {
     return hash_combine(t_filepath, t_scene_id);

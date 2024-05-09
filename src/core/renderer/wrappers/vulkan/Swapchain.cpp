@@ -165,14 +165,14 @@ auto Swapchain::create(
     const vk::Device         t_device,
     const vk::Extent2D       t_framebuffer_size,
     const vk::SwapchainKHR   t_old_swapchain
-) -> tl::optional<Swapchain>
+) -> std::optional<Swapchain>
 try {
     const auto surface_capabilities{ t_physical_device.getSurfaceCapabilitiesKHR(t_surface
     ) };
 
     const auto extent = choose_extent(t_framebuffer_size, surface_capabilities);
     if (extent.width == 0 || extent.height == 0) {
-        return tl::nullopt;
+        return std::nullopt;
     }
 
     const auto surface_format{
@@ -198,7 +198,7 @@ try {
                       create_image_views(t_device, swapchain.get(), surface_format) };
 } catch (const vk::Error& t_error) {
     SPDLOG_ERROR(t_error.what());
-    return tl::nullopt;
+    return std::nullopt;
 }
 
 auto Swapchain::operator*() const noexcept -> vk::SwapchainKHR

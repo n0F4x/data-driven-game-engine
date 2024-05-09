@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include <tl/optional.hpp>
+#include <optional>
 
 #include <vulkan/vulkan.hpp>
 
@@ -18,7 +18,7 @@ public:
 
     [[nodiscard]]
     static auto create(vk::Device t_device, const std::filesystem::path& t_filepath)
-        -> tl::optional<ShaderModule>;
+        -> std::optional<ShaderModule>;
 
     explicit ShaderModule(
         std::filesystem::path    t_filepath,

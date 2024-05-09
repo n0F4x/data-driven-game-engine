@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <tl/optional.hpp>
+#include <optional>
 
 [[nodiscard]]
 auto load_shader(vk::Device t_device, const std::filesystem::path& t_filepath)
@@ -37,12 +37,12 @@ auto ShaderModule::hash(const std::filesystem::path& t_filepath) noexcept -> siz
 }
 
 auto ShaderModule::create(const vk::Device t_device, const std::filesystem::path& t_filepath)
-    -> tl::optional<ShaderModule>
+    -> std::optional<ShaderModule>
 {
     vk::UniqueShaderModule module{ load_shader(t_device, t_filepath) };
 
     if (!module) {
-        return tl::nullopt;
+        return std::nullopt;
     }
 
     return ShaderModule{ t_filepath, std::move(module) };

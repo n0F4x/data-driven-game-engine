@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include <tl/optional.hpp>
+#include <optional>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -72,7 +72,7 @@ public:
             TextureInfo               baseColorTexture;
             float                     metallicFactor{ 1.f };
             float                     roughnessFactor{ 1.f };
-            tl::optional<TextureInfo> metallicRoughnessTexture;
+            std::optional<TextureInfo> metallicRoughnessTexture;
         };
 
         struct NormalTextureInfo {
@@ -93,10 +93,10 @@ public:
             eBlend
         };
 
-        tl::optional<PbrMetallicRoughness> pbrMetallicRoughness;
-        tl::optional<NormalTextureInfo>    normalTextureInfo;
-        tl::optional<OcclusionTextureInfo> occlusionTextureInfo;
-        tl::optional<TextureInfo>          emissiveTexture;
+        std::optional<PbrMetallicRoughness> pbrMetallicRoughness;
+        std::optional<NormalTextureInfo>    normalTextureInfo;
+        std::optional<OcclusionTextureInfo> occlusionTextureInfo;
+        std::optional<TextureInfo>          emissiveTexture;
         glm::vec3                          emissiveFactor{};
         AlphaMode                          alphaMode{ AlphaMode::eOpaque };
         float                              alphaCutoff{ 0.5f };
@@ -115,7 +115,7 @@ public:
         };
 
         Topology             mode;
-        tl::optional<size_t> material_index;
+        std::optional<size_t> material_index;
         uint32_t             first_index_index;
         uint32_t             index_count;
         uint32_t             vertex_count;
@@ -130,7 +130,7 @@ public:
         glm::vec3            translation;
         glm::quat            rotation;
         glm::vec3            scale;
-        tl::optional<size_t> mesh_index;
+        std::optional<size_t> mesh_index;
         std::vector<size_t>  child_indices;
 
         [[nodiscard]]
@@ -142,7 +142,7 @@ public:
     [[nodiscard]]
     static auto hash(
         const std::filesystem::path& t_filepath,
-        tl::optional<size_t>         t_scene_id
+        std::optional<size_t>         t_scene_id
     ) noexcept -> size_t;
 
     [[nodiscard]]

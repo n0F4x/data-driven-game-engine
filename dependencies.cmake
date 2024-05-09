@@ -9,12 +9,6 @@ find_package(Microsoft.GSL CONFIG REQUIRED)
 target_precompile_headers(${PROJECT_NAME} PRIVATE <gsl/gsl>)
 target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft.GSL::GSL)
 
-# tl-optional
-set(BUILD_TESTING OFF)
-find_package(tl-optional CONFIG REQUIRED)
-target_precompile_headers(${PROJECT_NAME} PRIVATE <tl/optional.hpp>)
-target_link_libraries(${PROJECT_NAME} PUBLIC tl::optional)
-
 # ordered_map
 find_package(tsl-ordered-map CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC tsl::ordered_map)

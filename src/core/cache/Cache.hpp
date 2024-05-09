@@ -26,14 +26,14 @@ public:
 
     template <typename Resource>
     [[nodiscard]]
-    auto find(ID t_id) const noexcept -> tl::optional<Handle<Resource>>;
+    auto find(ID t_id) const noexcept -> std::optional<Handle<Resource>>;
 
     template <typename Resource>
     [[nodiscard]]
     auto at(ID t_id) const -> Handle<Resource>;
 
     template <typename Resource>
-    auto remove(ID t_id) noexcept -> tl::optional<Handle<Resource>>;
+    auto remove(ID t_id) noexcept -> std::optional<Handle<Resource>>;
 
 private:
     ///****************///

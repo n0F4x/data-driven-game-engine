@@ -18,22 +18,22 @@ auto Store::emplace(auto&&... t_args) -> T&
 }
 
 template <typename T>
-auto Store::find() noexcept -> tl::optional<T&>
+auto Store::find() noexcept -> std::optional<std::reference_wrapper<T>>
 {
     auto iter{ m_map.find(typeid(T)) };
     if (iter == m_map.cend()) {
-        return tl::nullopt;
+        return std::nullopt;
     }
 
     return entt::any_cast<T&>(iter.value());
 }
 
 template <typename T>
-auto Store::find() const noexcept -> tl::optional<const T&>
+auto Store::find() const noexcept -> std::optional<std::reference_wrapper<const T>>
 {
     const auto iter{ m_map.find(typeid(T)) };
     if (iter == m_map.cend()) {
-        return tl::nullopt;
+        return std::nullopt;
     }
 
     return entt::any_cast<const T&>(iter.value());

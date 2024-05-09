@@ -57,13 +57,13 @@ auto Renderer::create_default_surface(
                 t_window.get(), t_instance, t_allocation_callbacks
             );
         })
-        .or_else([] {
+        .value_or([] {
             SPDLOG_WARN(
                 "Default window could not be found in store. "
                 "Consider using another surface creator than the default."
             );
-        })
-        .value_or(nullptr);
+            return vk::SurfaceKHR{};
+        }());
 }
 
 static auto log_renderer_setup(const vkb::Device& t_device)
