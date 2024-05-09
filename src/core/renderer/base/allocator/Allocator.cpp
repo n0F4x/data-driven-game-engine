@@ -4,15 +4,11 @@
 
 #include <spdlog/spdlog.h>
 
+#include "core/config/vulkan.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
 
 using namespace core::renderer;
-
-constexpr static VmaVulkanFunctions s_vulkan_functions{
-    .vkGetInstanceProcAddr = &vkGetInstanceProcAddr,
-    .vkGetDeviceProcAddr   = &vkGetDeviceProcAddr
-};
 
 [[nodiscard]]
 static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_device_info
@@ -92,6 +88,11 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_dev
 static auto
     create_allocator(const Instance& t_instance, const Device& t_device) -> VmaAllocator
 {
+    static const VmaVulkanFunctions s_vulkan_functions{
+        .vkGetInstanceProcAddr = core::config::vulkan::instance_proc_address(),
+        .vkGetDeviceProcAddr   = core::config::vulkan::device_proc_address()
+    };
+
     const VmaAllocatorCreateInfo create_info{
         .flags            = vma_allocator_create_flags(t_device.info().physical_device),
         .physicalDevice   = t_device.physical_device(),
@@ -100,7 +101,7 @@ static auto
         .instance         = t_instance.get(),
     };
 
-    VmaAllocator     allocator;
+    VmaAllocator     allocator{};
     const vk::Result result{ vmaCreateAllocator(&create_info, &allocator) };
     vk::resultCheck(result, "vmaCreateAllocator");
     return allocator;
@@ -114,7 +115,7 @@ static auto create_buffer(
 ) -> std::tuple<vk::Buffer, VmaAllocation, VmaAllocationInfo>
 {
     vk::Buffer        buffer;
-    VmaAllocation     allocation;
+    VmaAllocation     allocation{};
     VmaAllocationInfo allocation_info;
 
     const vk::Result result{ vmaCreateBuffer(
@@ -139,7 +140,7 @@ static auto create_buffer_with_alignment(
 ) -> std::tuple<vk::Buffer, VmaAllocation, VmaAllocationInfo>
 {
     vk::Buffer        buffer;
-    VmaAllocation     allocation;
+    VmaAllocation     allocation{};
     VmaAllocationInfo allocation_info;
 
     const vk::Result result{ vmaCreateBufferWithAlignment(

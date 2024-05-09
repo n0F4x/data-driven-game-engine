@@ -5,6 +5,7 @@
 #include <VkBootstrap.h>
 
 #include "app/Builder.hpp"
+#include "core/config/vulkan.hpp"
 #include "core/renderer/base/allocator/Requirements.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
@@ -107,6 +108,8 @@ auto Renderer::operator()(
     const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter
 ) const -> void
 {
+    config::vulkan::init();
+
     const auto system_info_result{ vkb::SystemInfo::get_system_info() };
     if (!system_info_result.has_value()) {
         SPDLOG_ERROR(system_info_result.error().message());
@@ -135,6 +138,7 @@ auto Renderer::operator()(
     }
 
     auto& instance{ t_builder.store().emplace<Instance>(instance_result.value()) };
+    config::vulkan::init(instance.get());
 
 
     vk::UniqueSurfaceKHR surface{
@@ -165,13 +169,14 @@ auto Renderer::operator()(
     ));
 
     const vkb::DeviceBuilder device_builder{ physical_device_result.value() };
-    const auto         device_result{ device_builder.build() };
+    const auto               device_result{ device_builder.build() };
     if (!device_result.has_value()) {
         SPDLOG_ERROR(device_result.error().message());
         return;
     }
 
     auto& device{ t_builder.store().emplace<Device>(device_result.value()) };
+    config::vulkan::init(device.get());
 
 
     t_builder.store().emplace<Swapchain>(

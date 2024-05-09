@@ -41,13 +41,22 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 
 # Vulkan
-message(NOTICE "Configuring Vulkan")
-find_package(Vulkan REQUIRED)
+set(VULKAN_DYNAMIC_FUNCTIONS 1)
+if (${VULKAN_DYNAMIC_FUNCTIONS})
+    find_package(VulkanHeaders CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
+else ()
+    find_package(Vulkan REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
+endif ()
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         VULKAN_HPP_NO_TO_STRING
         VULKAN_HPP_NO_CONSTRUCTORS
         VULKAN_HPP_NO_SETTERS
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
+)
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+        VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=${VULKAN_DYNAMIC_FUNCTIONS}
 )
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
@@ -55,7 +64,6 @@ endif ()
 target_precompile_headers(${PROJECT_NAME} PRIVATE
         <vulkan/vulkan.hpp>
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
 
 # SPIRV-Cross
 set(SPIRV_CROSS_STATIC ON)
@@ -69,8 +77,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE spirv-cross-core spirv-cross-glsl 
 # VulkanMemoryAllocator
 # vcpkg port(3.0.1#4) is deprecated and doesn't compile
 message(NOTICE "Configuring VulkanMemoryAllocator")
-set(STATIC_VULKAN_FUNCTIONS 0)
-set(DYNAMIC_VULKAN_FUNCTIONS 1)
 FetchContent_Declare(VulkanMemoryAllocator
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
         GIT_TAG 19b940e864bd3a5afb3c79e3c6788869d01a19eb
@@ -79,8 +85,8 @@ FetchContent_Declare(VulkanMemoryAllocator
 )
 FetchContent_MakeAvailable(VulkanMemoryAllocator)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-        VMA_STATIC_VULKAN_FUNCTIONS=${STATIC_VULKAN_FUNCTIONS}
-        VMA_DYNAMIC_VULKAN_FUNCTIONS=${DYNAMIC_VULKAN_FUNCTIONS}
+        VMA_STATIC_VULKAN_FUNCTIONS=$<NOT:${VULKAN_DYNAMIC_FUNCTIONS}>
+        VMA_DYNAMIC_VULKAN_FUNCTIONS=${VULKAN_DYNAMIC_FUNCTIONS}
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC GPUOpen::VulkanMemoryAllocator)
 

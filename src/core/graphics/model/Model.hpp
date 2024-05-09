@@ -62,7 +62,7 @@ public:
     };
 
     struct TextureInfo {
-        size_t index;
+        size_t texture_index;
         size_t tex_coord_index{};
     };
 
@@ -76,13 +76,13 @@ public:
         };
 
         struct NormalTextureInfo {
-            size_t texture_info_index;
+            size_t texture_index;
             size_t tex_coord_index{};
             float  scale{ 1.f };
         };
 
         struct OcclusionTextureInfo {
-            size_t texture_info_index;
+            size_t texture_index;
             size_t tex_coord_index{};
             float  strength{ 1.f };
         };

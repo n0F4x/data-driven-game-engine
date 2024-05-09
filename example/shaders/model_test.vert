@@ -57,6 +57,6 @@ void main() {
     if (vertex.color != vec4(0, 0, 0, 0)) {
         out_color = vertex.color;
     } else {
-        out_color = vec4((vertex.normal.xyz + vec3(vertex.uv_0, 0)) / 2, 0);
+        out_color = vec4((vertex.normal.xyz + vec3(vertex.uv_0, 0)) / 2, 1);
     }
 }

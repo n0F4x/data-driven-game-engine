@@ -1,5 +1,4 @@
 - use std::optional instead of tl::optional
-- use volk
 - use vma-hpp
 - separate logger for debug and actual use
 - let compute queue present according to https://gpuopen.com/learn/rdna-performance-guide/#presenting
