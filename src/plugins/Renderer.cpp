@@ -21,8 +21,6 @@ namespace plugins {
 
 using namespace renderer;
 
-vk::AllocationCallbacks a{};
-
 static auto create_vulkan_surface(
     GLFWwindow*                  t_window,
     vk::Instance                 t_instance,
@@ -57,13 +55,14 @@ auto Renderer::create_default_surface(
                 t_window.get(), t_instance, t_allocation_callbacks
             );
         })
-        .value_or([] {
+        .or_else([] -> std::optional<VkSurfaceKHR> {
             SPDLOG_WARN(
                 "Default window could not be found in store. "
                 "Consider using another surface creator than the default."
             );
-            return vk::SurfaceKHR{};
-        }());
+            return std::nullopt;
+        })
+        .value_or(vk::SurfaceKHR{});
 }
 
 static auto log_renderer_setup(const vkb::Device& t_device)
@@ -125,8 +124,6 @@ auto Renderer::operator()(
     }
 
     vkb::InstanceBuilder builder;
-    // TODO: figure out Vulkan version
-    builder.require_api_version(1, 2);
     enable_default_instance_settings(system_info, builder);
     Allocator::Requirements::enable_instance_settings(system_info, builder);
     Swapchain::Requirements::enable_instance_settings(system_info, builder);
