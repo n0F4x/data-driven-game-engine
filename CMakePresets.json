@@ -69,6 +69,24 @@
       }
     },
     {
+      "name": "Clang-release",
+      "inherits": "release",
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Clang"
+        }
+      }
+    },
+    {
+      "name": "Clang-vcpkg-MinGW-release",
+      "inherits": ["Clang-release", "vcpkg-MinGW"],
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Clang"
+        }
+      }
+    },
+    {
       "name": "MSVC-debug",
       "inherits": "debug",
       "vendor": {

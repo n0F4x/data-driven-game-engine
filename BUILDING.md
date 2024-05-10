@@ -18,5 +18,5 @@ Using [vcpkg](https://github.com/microsoft/vcpkg?tab=readme-ov-file#vcpkg-overvi
 The setup is currently moving away from using the Vulkan SDK.
 Statically linking to Vulkan is already not required, as CMake only depends on the VulkanHeaders package, that helps loading the Vulkan functions dynamically.
 
-To use the Vulkan Validation Layers (in `Debug` mode) local installation is still required.
+To use the Vulkan Validation Layers (in `Debug` mode) a local installation is still required.
 The repository has not yet been tested in `Release` mode.
