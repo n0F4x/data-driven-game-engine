@@ -594,6 +594,6 @@ auto create_texture(const fastgltf::Texture& t_texture) -> Model::Texture
     assert(t_texture.imageIndex.has_value() && "glTF Image extensions are not handled");
     return Model::Texture{
         .sampler_index = convert<size_t>(t_texture.samplerIndex),
-        .image_index   = t_texture.imageIndex.value(),
+        .image_index   = static_cast<uint32_t>(t_texture.imageIndex.value()),
     };
 }

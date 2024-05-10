@@ -2,9 +2,8 @@
 
 #include <filesystem>
 #include <memory>
-#include <vector>
-
 #include <optional>
+#include <vector>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -57,34 +56,34 @@ public:
     };
 
     struct Texture {
-        std::optional<size_t> sampler_index;
-        size_t               image_index;
+        std::optional<uint32_t> sampler_index;
+        uint32_t                image_index;
     };
 
     struct TextureInfo {
-        size_t texture_index;
-        size_t tex_coord_index{};
+        uint32_t texture_index;
+        uint32_t tex_coord_index{};
     };
 
     struct Material {
         struct PbrMetallicRoughness {
-            glm::vec4                 baseColorFactor{ 1.f };
-            TextureInfo               baseColorTexture;
-            float                     metallicFactor{ 1.f };
-            float                     roughnessFactor{ 1.f };
+            glm::vec4                  baseColorFactor{ 1.f };
+            std::optional<TextureInfo> baseColorTexture;
+            float                      metallicFactor{ 1.f };
+            float                      roughnessFactor{ 1.f };
             std::optional<TextureInfo> metallicRoughnessTexture;
         };
 
         struct NormalTextureInfo {
-            size_t texture_index;
-            size_t tex_coord_index{};
-            float  scale{ 1.f };
+            uint32_t texture_index;
+            uint32_t tex_coord_index{};
+            float    scale{ 1.f };
         };
 
         struct OcclusionTextureInfo {
-            size_t texture_index;
-            size_t tex_coord_index{};
-            float  strength{ 1.f };
+            uint32_t texture_index;
+            uint32_t tex_coord_index{};
+            float    strength{ 1.f };
         };
 
         enum class AlphaMode {
@@ -93,14 +92,14 @@ public:
             eBlend
         };
 
-        std::optional<PbrMetallicRoughness> pbrMetallicRoughness;
+        PbrMetallicRoughness                pbrMetallicRoughness;
         std::optional<NormalTextureInfo>    normalTextureInfo;
         std::optional<OcclusionTextureInfo> occlusionTextureInfo;
         std::optional<TextureInfo>          emissiveTexture;
-        glm::vec3                          emissiveFactor{};
-        AlphaMode                          alphaMode{ AlphaMode::eOpaque };
-        float                              alphaCutoff{ 0.5f };
-        bool                               doubleSided{ false };
+        glm::vec3                           emissiveFactor{};
+        AlphaMode                           alphaMode{ AlphaMode::eOpaque };
+        float                               alphaCutoff{ 0.5f };
+        bool                                doubleSided{ false };
     };
 
     struct Primitive {
@@ -114,11 +113,11 @@ public:
             eTriangleFans
         };
 
-        Topology             mode;
+        Topology              mode;
         std::optional<size_t> material_index;
-        uint32_t             first_index_index;
-        uint32_t             index_count;
-        uint32_t             vertex_count;
+        uint32_t              first_index_index;
+        uint32_t              index_count;
+        uint32_t              vertex_count;
     };
 
     struct Mesh {
@@ -126,12 +125,12 @@ public:
     };
 
     struct Node {
-        Node*                parent;
-        glm::vec3            translation;
-        glm::quat            rotation;
-        glm::vec3            scale;
+        Node*                 parent;
+        glm::vec3             translation;
+        glm::quat             rotation;
+        glm::vec3             scale;
         std::optional<size_t> mesh_index;
-        std::vector<size_t>  child_indices;
+        std::vector<size_t>   child_indices;
 
         [[nodiscard]]
         auto local_matrix() const -> glm::mat4;
@@ -142,7 +141,7 @@ public:
     [[nodiscard]]
     static auto hash(
         const std::filesystem::path& t_filepath,
-        std::optional<size_t>         t_scene_id
+        std::optional<size_t>        t_scene_id
     ) noexcept -> size_t;
 
     [[nodiscard]]
