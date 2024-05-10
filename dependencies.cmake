@@ -59,15 +59,6 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
         <vulkan/vulkan.hpp>
 )
 
-# SPIRV-Cross
-set(SPIRV_CROSS_STATIC ON)
-set(SPIRV_CROSS_SHARED OFF)
-set(SPIRV_CROSS_CLI OFF)
-find_package(spirv_cross_core CONFIG REQUIRED)
-find_package(spirv_cross_glsl CONFIG REQUIRED)
-find_package(spirv_cross_reflect CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE spirv-cross-core spirv-cross-glsl spirv-cross-reflect)
-
 # VulkanMemoryAllocator
 # vcpkg port(3.0.1#4) is deprecated and doesn't compile
 message(NOTICE "Configuring VulkanMemoryAllocator")
