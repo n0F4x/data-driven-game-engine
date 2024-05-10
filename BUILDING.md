@@ -12,6 +12,7 @@ This got too slow as the project grew, hence the move to vcpkg.
 ## vcpkg
 
 Using [vcpkg](https://github.com/microsoft/vcpkg?tab=readme-ov-file#vcpkg-overview) is highly recommended as the vcpkg manifest file describes versions of the project's dependencies.
+Check that the `VCPKG_ROOT` environment variable is properly set when using a provided CMakePreset.
 
 ## Vulkan
 

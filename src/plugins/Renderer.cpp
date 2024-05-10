@@ -101,11 +101,13 @@ static auto log_renderer_setup(const vkb::Device& t_device)
     }
 }
 
-auto Renderer::operator()(
-    app::App::Builder&                  t_builder,
-    const SurfaceCreator&               t_create_surface,
-    const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter
-) const -> void
+auto Renderer::operator()(app::App::Builder& t_builder) const -> void
+{
+    operator()(t_builder, Options{});
+}
+
+auto Renderer::operator()(app::App::Builder& t_builder, const Options& t_options) const
+    -> void
 {
     config::vulkan::init();
 
@@ -124,6 +126,7 @@ auto Renderer::operator()(
     }
 
     vkb::InstanceBuilder builder;
+    builder.require_api_version(t_options.required_vulkan_version());
     enable_default_instance_settings(system_info, builder);
     Allocator::Requirements::enable_instance_settings(system_info, builder);
     Swapchain::Requirements::enable_instance_settings(system_info, builder);
@@ -139,7 +142,9 @@ auto Renderer::operator()(
 
 
     vk::UniqueSurfaceKHR surface{
-        std::invoke(t_create_surface, t_builder.store(), instance.get(), nullptr),
+        std::invoke(
+            t_options.surface_creator(), t_builder.store(), instance.get(), nullptr
+        ),
         instance.get()
     };
     if (!surface) {
@@ -179,8 +184,8 @@ auto Renderer::operator()(
     t_builder.store().emplace<Swapchain>(
         std::move(surface),
         device,
-        t_create_framebuffer_size_getter
-            ? std::invoke(t_create_framebuffer_size_getter, t_builder.store())
+        t_options.framebuffer_size_getter()
+            ? std::invoke(t_options.framebuffer_size_getter(), t_builder.store())
             : nullptr
     );
 

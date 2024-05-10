@@ -17,6 +17,8 @@ public:
     using FramebufferSizeGetterCreator =
         std::function<core::renderer::Swapchain::FramebufferSizeGetter(Store&)>;
 
+    class Options;
+
     ///--------------------///
     ///  Static variables  ///
     ///--------------------///
@@ -27,18 +29,12 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(
-        app::App::Builder&                  t_builder,
-        const SurfaceCreator&               t_create_surface = create_default_surface,
-        const FramebufferSizeGetterCreator& t_create_framebuffer_size_getter = nullptr
-    ) const -> void;
+    auto operator()(app::App::Builder& builder) const -> void;
+    auto operator()(app::App::Builder& builder, const Options& options) const -> void;
 };
 
 static_assert(app::PluginConcept<Renderer>);
-static_assert(app::PluginConcept<Renderer, const Renderer::SurfaceCreator&>);
-static_assert(app::PluginConcept<
-              Renderer,
-              const Renderer::SurfaceCreator&,
-              const Renderer::FramebufferSizeGetterCreator&>);
 
 }   // namespace plugins
+
+#include "plugins/renderer/Options.hpp"
