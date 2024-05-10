@@ -1,3 +1,5 @@
+- set up release builds 
+- build the vulkan validation layers
 - use proper assertions 
 - separate logger for debug and actual use
 - let compute queue present according to https://gpuopen.com/learn/rdna-performance-guide/#presenting
