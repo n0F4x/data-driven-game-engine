@@ -16,16 +16,19 @@ layout (set = 0, binding = 0) uniform Scene {
     Camera camera;
 };
 
+layout(set = 1, binding = 2) uniform texture2D images[];
+layout(set = 1, binding = 3) uniform sampler samplers[];
+
 layout(std430, buffer_reference, buffer_reference_align = 16) readonly buffer MaterialBuffer
 {
     Material materials[];
 };
-layout (set = 1, binding = 2) uniform Materials {
+layout(set = 1, binding = 4) uniform Materials {
     MaterialBuffer materialBuffer;
 };
 
 
-layout (location = 0) out vec4 out_color;
+layout(location = 0) out vec4 out_color;
 
 void main() {
     out_color = in_color;

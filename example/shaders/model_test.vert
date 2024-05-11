@@ -26,15 +26,14 @@ layout(std430, buffer_reference, buffer_reference_align = 16) readonly buffer Ve
 {
     Vertex vertices[];
 };
-layout (set = 1, binding = 0) uniform Vertices {
-    VertexBuffer vertexBuffer;
-};
 
 layout(std430, buffer_reference, buffer_reference_align = 4) readonly buffer TransformBuffer
 {
     mat4 transforms[];
 };
-layout (set = 1, binding = 1) uniform Transforms {
+
+layout (set = 1, binding = 0) uniform Model {
+    VertexBuffer vertexBuffer;
     TransformBuffer transformBuffer;
 };
 

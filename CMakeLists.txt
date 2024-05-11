@@ -8,7 +8,7 @@ project(engine C CXX)
 add_library(${PROJECT_NAME})
 
 
-option(engine_debug "Turn on debug mode for library" ON)
+option(engine_debug "Turn on debug mode for library" OFF)
 
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)

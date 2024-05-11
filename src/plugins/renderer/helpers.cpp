@@ -16,14 +16,15 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
 {
     std::ostringstream message;
 
-    message
-        << "Vulkan message "
-        << vk::to_string(static_cast<const vk::DebugUtilsMessageTypeFlagsEXT>(t_message_types))
-        << ":\n";
-    message << std::string("\t") << "messageIDName   = <" << t_callback_data->pMessageIdName
-            << ">\n";
-    message << std::string("\t") << "messageIdNumber = " << t_callback_data->messageIdNumber
-            << "\n";
+    message << "Vulkan message "
+            << vk::to_string(
+                   static_cast<const vk::DebugUtilsMessageTypeFlagsEXT>(t_message_types)
+               )
+            << ":\n";
+    message << std::string("\t") << "messageIDName   = <"
+            << t_callback_data->pMessageIdName << ">\n";
+    message << std::string("\t")
+            << "messageIdNumber = " << t_callback_data->messageIdNumber << "\n";
     message << std::string("\t") << "message         = <" << t_callback_data->pMessage
             << ">\n";
     if (0 < t_callback_data->queueLabelCount) {
@@ -44,16 +45,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
         message << std::string("\t") << "Objects:\n";
         for (uint32_t i = 0; i < t_callback_data->objectCount; i++) {
             message << std::string("\t\t") << "Object " << i << "\n";
-            message
-                << std::string("\t\t\t") << "objectType   = "
-                << vk::to_string(
-                       static_cast<vk::ObjectType>(
-                           t_callback_data->pObjects[i].objectType)
-                   )
-                << "\n";
-            message << std::string("\t\t\t")
-                    << "objectcache::Handle = " << t_callback_data->pObjects[i].objectHandle
+            message << std::string("\t\t\t") << "objectType   = "
+                    << vk::to_string(static_cast<vk::ObjectType>(
+                           t_callback_data->pObjects[i].objectType
+                       ))
                     << "\n";
+            message << std::string("\t\t\t") << "objectcache::Handle = "
+                    << t_callback_data->pObjects[i].objectHandle << "\n";
             if (t_callback_data->pObjects[i].pObjectName) {
                 message << std::string("\t\t\t") << "objectName   = <"
                         << t_callback_data->pObjects[i].pObjectName << ">\n";
@@ -80,6 +78,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
     return vk::False;
 }
 
+[[maybe_unused]]
 static auto set_debug_messenger(vkb::InstanceBuilder& t_builder) -> void
 {
     t_builder.set_debug_callback(debug_message);
@@ -103,7 +102,8 @@ static auto set_debug_messenger(vkb::InstanceBuilder& t_builder) -> void
     );
 }
 
-auto default_required_instance_settings_are_available(const vkb::SystemInfo& t_system_info
+auto default_required_instance_settings_are_available(
+    [[maybe_unused]] const vkb::SystemInfo& t_system_info
 ) -> bool
 {
 #ifdef ENGINE_VULKAN_DEBUG
@@ -116,7 +116,7 @@ auto default_required_instance_settings_are_available(const vkb::SystemInfo& t_s
 
 auto enable_default_instance_settings(
     const vkb::SystemInfo&,
-    vkb::InstanceBuilder& t_builder
+    [[maybe_unused]] vkb::InstanceBuilder& t_builder
 ) -> void
 {
 #ifdef ENGINE_VULKAN_DEBUG
