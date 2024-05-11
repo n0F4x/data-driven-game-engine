@@ -24,6 +24,7 @@ file(GLOB_RECURSE SHADERS "${SHADERS_IN_DIR}/*.vert" "${SHADERS_IN_DIR}/*.frag")
 
 file(MAKE_DIRECTORY ${SHADERS_OUT_DIR})
 
+find_program(GLSLC glslc)
 foreach (SHADER ${SHADERS})
     get_filename_component(SHADER_NAME ${SHADER} NAME)
     set(SHADER_OUT_NAME "${SHADERS_OUT_DIR}/${SHADER_NAME}.spv")
@@ -31,7 +32,7 @@ foreach (SHADER ${SHADERS})
     add_custom_command(
             MAIN_DEPENDENCY ${SHADER}
             OUTPUT ${SHADER_OUT_NAME}
-            COMMAND ${Vulkan_GLSLC_EXECUTABLE} ${SHADER} "-o" ${SHADER_OUT_NAME}
+            COMMAND ${GLSLC} ${SHADER} "-o" ${SHADER_OUT_NAME}
             VERBATIM)
 endforeach ()
 

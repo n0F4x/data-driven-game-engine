@@ -139,5 +139,5 @@ auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept ->
 
             return 0;
         })
-        .value_or(-1);
+        .value_or(1);
 }
