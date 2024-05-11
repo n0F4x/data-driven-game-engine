@@ -28,9 +28,10 @@ struct GltfModel {
 
     std::vector<Model::Mesh> meshes;
 
-    std::vector<Model::Image>   images;
-    std::vector<Model::Sampler> samplers;
-    std::vector<Model::Texture> textures;
+    std::vector<Model::Image>    images;
+    std::vector<Model::Sampler>  samplers;
+    std::vector<Model::Texture>  textures;
+    std::vector<Model::Material> materials;
 };
 
 }   // namespace internal
@@ -101,10 +102,13 @@ static auto load_image(
 ) -> std::optional<Model::Image>;
 
 [[nodiscard]]
-static auto create_sampler(const fastgltf::Sampler& t_sampler) -> Model::Sampler;
+static auto create_sampler(const fastgltf::Sampler& sampler) -> Model::Sampler;
 
 [[nodiscard]]
-static auto create_texture(const fastgltf::Texture& t_texture) -> Model::Texture;
+static auto create_texture(const fastgltf::Texture& texture) -> Model::Texture;
+
+[[nodiscard]]
+static auto create_material(const fastgltf::Material& material) -> Model::Material;
 
 namespace core::graphics {
 
@@ -188,13 +192,18 @@ auto GltfLoader::load_model(
         loader.textures.push_back(create_texture(texture));
     }
 
+    loader.materials.reserve(t_asset.materials.size());
+    for (const fastgltf::Material& material : t_asset.materials) {
+        loader.materials.push_back(create_material(material));
+    }
+
     Model result;
     result.m_vertices          = std::move(loader.vertices);
     result.m_indices           = std::move(loader.indices);
     result.m_images            = std::move(loader.images);
     result.m_samplers          = std::move(loader.samplers);
     result.m_textures          = std::move(loader.textures);
-    //    result.m_materials  = {};
+    result.m_materials         = std::move(loader.materials);
     result.m_meshes            = std::move(loader.meshes);
     result.m_nodes             = std::move(loader.nodes);
     result.m_root_node_indices = std::move(loader.root_nodes);
@@ -275,13 +284,42 @@ auto load_mesh(
     return index;
 }
 
+[[nodiscard]]
+static auto convert(fastgltf::PrimitiveType t_topology
+) noexcept -> Model::Primitive::Topology
+{
+    using enum Model::Primitive::Topology;
+    switch (t_topology) {
+        case fastgltf::PrimitiveType::Points: return ePoints;
+        case fastgltf::PrimitiveType::Lines: return eLines;
+        case fastgltf::PrimitiveType::LineLoop: return eLineLoops;
+        case fastgltf::PrimitiveType::LineStrip: return eLineStrips;
+        case fastgltf::PrimitiveType::Triangles: return eTriangles;
+        case fastgltf::PrimitiveType::TriangleStrip: return eTriangleStrips;
+        case fastgltf::PrimitiveType::TriangleFan: return eTriangleFans;
+    }
+}
+
+[[nodiscard]]
+static auto convert(fastgltf::Optional<std::size_t> optional
+) noexcept -> std::optional<uint32_t>
+{
+    if (!optional.has_value()) {
+        return std::nullopt;
+    }
+    return optional.value();
+}
+
 auto load_primitive(
     internal::GltfModel&       t_loader,
     const fastgltf::Asset&     t_asset,
     const fastgltf::Primitive& t_source_primitive
 ) -> std::optional<Model::Primitive>
 {
-    Model::Primitive primitive;
+    Model::Primitive primitive{
+        .mode           = convert(t_source_primitive.type),
+        .material_index = convert(t_source_primitive.materialIndex),
+    };
 
     const auto first_vertex_index{ t_loader.vertices.size() };
 
@@ -572,10 +610,10 @@ auto convert(fastgltf::Wrap t_wrap) noexcept -> Model::Sampler::WrapMode
 auto create_sampler(const fastgltf::Sampler& t_sampler) -> Model::Sampler
 {
     return Model::Sampler{
-        .magFilter = convert_to_mag_filter(t_sampler.magFilter),
-        .minFilter = convert_to_min_filter(t_sampler.minFilter),
-        .wrapS     = convert(t_sampler.wrapS),
-        .wrapT     = convert(t_sampler.wrapT),
+        .mag_filter = convert_to_mag_filter(t_sampler.magFilter),
+        .min_filter = convert_to_min_filter(t_sampler.minFilter),
+        .wrap_s     = convert(t_sampler.wrapS),
+        .wrap_t     = convert(t_sampler.wrapT),
     };
 }
 
@@ -595,5 +633,82 @@ auto create_texture(const fastgltf::Texture& t_texture) -> Model::Texture
     return Model::Texture{
         .sampler_index = convert<size_t>(t_texture.samplerIndex),
         .image_index   = static_cast<uint32_t>(t_texture.imageIndex.value()),
+    };
+}
+
+[[nodiscard]]
+static auto convert(const fastgltf::Optional<fastgltf::TextureInfo>& t_optional
+) -> std::optional<Model::TextureInfo>
+{
+    if (!t_optional.has_value()) {
+        return std::nullopt;
+    }
+    return Model::TextureInfo{
+        .texture_index   = static_cast<uint32_t>(t_optional->textureIndex),
+        .tex_coord_index = static_cast<uint32_t>(t_optional->texCoordIndex),
+    };
+}
+
+[[nodiscard]]
+static auto convert(const fastgltf::Optional<fastgltf::NormalTextureInfo>& t_optional
+) -> std::optional<Model::Material::NormalTextureInfo>
+{
+    if (!t_optional.has_value()) {
+        return std::nullopt;
+    }
+    return Model::Material::NormalTextureInfo{
+        .texture_index   = static_cast<uint32_t>(t_optional->textureIndex),
+        .tex_coord_index = static_cast<uint32_t>(t_optional->texCoordIndex),
+        .scale           = t_optional->scale,
+    };
+}
+
+[[nodiscard]]
+static auto convert(const fastgltf::Optional<fastgltf::OcclusionTextureInfo>& t_optional
+) -> std::optional<Model::Material::OcclusionTextureInfo>
+{
+    if (!t_optional.has_value()) {
+        return std::nullopt;
+    }
+    return Model::Material::OcclusionTextureInfo{
+        .texture_index   = static_cast<uint32_t>(t_optional->textureIndex),
+        .tex_coord_index = static_cast<uint32_t>(t_optional->texCoordIndex),
+        .strength        = t_optional->strength,
+    };
+}
+
+[[nodiscard]]
+static auto convert(fastgltf::AlphaMode t_alpha_mode
+) noexcept -> Model::Material::AlphaMode
+{
+    using enum Model::Material::AlphaMode;
+    switch (t_alpha_mode) {
+        case fastgltf::AlphaMode::Opaque: return eOpaque;
+        case fastgltf::AlphaMode::Mask: return eMask;
+        case fastgltf::AlphaMode::Blend: return eBlend;
+    }
+}
+
+auto create_material(const fastgltf::Material& t_material) -> Model::Material
+{
+    using PbrMetallicRoughness = Model::Material::PbrMetallicRoughness;
+    return Model::Material{
+        .pbr_metallic_roughness =
+            PbrMetallicRoughness{
+                                 .base_color_factor =
+                    glm::make_vec4(t_material.pbrData.baseColorFactor.data()),
+                                 .base_color_texture_info = convert(t_material.pbrData.baseColorTexture),
+                                 .metallic_factor         = t_material.pbrData.metallicFactor,
+                                 .roughness_factor        = t_material.pbrData.roughnessFactor,
+                                 .metallic_roughness_texture_info =
+                    convert(t_material.pbrData.metallicRoughnessTexture),
+                                 },
+        .normal_texture_info  = convert(t_material.normalTexture),
+        .occlusion_texture_info = convert(t_material.occlusionTexture),
+        .emissive_texture_info  = convert(t_material.emissiveTexture),
+        .emissive_factor        = glm::make_vec3(t_material.emissiveFactor.data()),
+        .alpha_mode             = convert(t_material.alphaMode),
+        .alpha_cutoff           = t_material.alphaCutoff,
+        .double_sided           = t_material.doubleSided
     };
 }

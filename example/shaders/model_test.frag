@@ -4,7 +4,7 @@
 
 #include "material.glsl"
 
-layout (location = 0) in vec4 in_color;
+layout(location = 0) in vec4 in_color;
 
 
 struct Camera {
@@ -12,7 +12,7 @@ struct Camera {
     mat4 projection;
 };
 
-layout (set = 0, binding = 0) uniform Scene {
+layout(set = 0, binding = 0) uniform Scene {
     Camera camera;
 };
 

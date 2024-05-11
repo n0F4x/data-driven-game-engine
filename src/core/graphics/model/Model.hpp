@@ -49,10 +49,10 @@ public:
             eRepeat
         };
 
-        std::optional<MagFilter> magFilter;
-        std::optional<MinFilter> minFilter;
-        WrapMode                 wrapS{ WrapMode::eRepeat };
-        WrapMode                 wrapT{ WrapMode::eRepeat };
+        std::optional<MagFilter> mag_filter;
+        std::optional<MinFilter> min_filter;
+        WrapMode                 wrap_s{ WrapMode::eRepeat };
+        WrapMode                 wrap_t{ WrapMode::eRepeat };
     };
 
     struct Texture {
@@ -67,11 +67,11 @@ public:
 
     struct Material {
         struct PbrMetallicRoughness {
-            glm::vec4                  baseColorFactor{ 1.f };
-            std::optional<TextureInfo> baseColorTexture;
-            float                      metallicFactor{ 1.f };
-            float                      roughnessFactor{ 1.f };
-            std::optional<TextureInfo> metallicRoughnessTexture;
+            glm::vec4                  base_color_factor{ 1.f };
+            std::optional<TextureInfo> base_color_texture_info;
+            float                      metallic_factor{ 1.f };
+            float                      roughness_factor{ 1.f };
+            std::optional<TextureInfo> metallic_roughness_texture_info;
         };
 
         struct NormalTextureInfo {
@@ -92,14 +92,14 @@ public:
             eBlend
         };
 
-        PbrMetallicRoughness                pbrMetallicRoughness;
-        std::optional<NormalTextureInfo>    normalTextureInfo;
-        std::optional<OcclusionTextureInfo> occlusionTextureInfo;
-        std::optional<TextureInfo>          emissiveTexture;
-        glm::vec3                           emissiveFactor{};
-        AlphaMode                           alphaMode{ AlphaMode::eOpaque };
-        float                               alphaCutoff{ 0.5f };
-        bool                                doubleSided{ false };
+        PbrMetallicRoughness                pbr_metallic_roughness;
+        std::optional<NormalTextureInfo>    normal_texture_info;
+        std::optional<OcclusionTextureInfo> occlusion_texture_info;
+        std::optional<TextureInfo>          emissive_texture_info;
+        glm::vec3                           emissive_factor{};
+        AlphaMode                           alpha_mode{ AlphaMode::eOpaque };
+        float                               alpha_cutoff{ 0.5f };
+        bool                                double_sided{ false };
     };
 
     struct Primitive {
@@ -113,11 +113,11 @@ public:
             eTriangleFans
         };
 
-        Topology              mode;
-        std::optional<size_t> material_index;
-        uint32_t              first_index_index;
-        uint32_t              index_count;
-        uint32_t              vertex_count;
+        Topology                mode;
+        std::optional<uint32_t> material_index;
+        uint32_t                first_index_index;
+        uint32_t                index_count;
+        uint32_t                vertex_count;
     };
 
     struct Mesh {

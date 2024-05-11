@@ -8,7 +8,7 @@ struct Camera {
     mat4 projection;
 };
 
-layout (set = 0, binding = 0) uniform Scene {
+layout(set = 0, binding = 0) uniform Scene {
     Camera camera;
 };
 
