@@ -44,7 +44,8 @@ public:
     ) const noexcept -> void;
 
 private:
-    MappedBuffer            m_uniform_buffer;
+    MappedBuffer            m_vertex_uniform;
+    MappedBuffer            m_transform_uniform;
     vk::UniqueDescriptorSet m_descriptor_set;
     vk::UniquePipeline      m_pipeline;
 
@@ -58,7 +59,8 @@ private:
 
     explicit RenderModel(
         vk::Device                       t_device,
-        MappedBuffer&&                   t_uniform_buffer,
+        MappedBuffer&&                   t_vertex_uniform,
+        MappedBuffer&&                   t_transform_uniform,
         vk::UniqueDescriptorSet&&        t_descriptor_set,
         vk::UniquePipeline&&             t_pipeline,
         Buffer&&                         t_vertex_buffer,
