@@ -12,8 +12,8 @@ struct PushConstants {
 
 [[nodiscard]]
 static auto create_descriptor_set_layouts(
-    const vk::Device                                                   t_device,
-    [[maybe_unused]] const RenderModel::DescriptorSetLayoutCreateInfo& t_info
+    const vk::Device                                  t_device,
+    const RenderModel::DescriptorSetLayoutCreateInfo& t_info
 ) -> std::array<vk::UniqueDescriptorSetLayout, 3>
 {
     const std::array bindings_0{
@@ -37,7 +37,7 @@ static auto create_descriptor_set_layouts(
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eSampledImage,
-                                       .descriptorCount = 0,
+                                       .descriptorCount = static_cast<uint32_t>(t_info.max_image_count),
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
     const std::array flags_1{
@@ -55,10 +55,11 @@ static auto create_descriptor_set_layouts(
     };
 
     const std::array bindings_2{
-        vk::DescriptorSetLayoutBinding{ .binding         = 0,
+        vk::DescriptorSetLayoutBinding{
+                                       .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eSampler,
-                                       .descriptorCount = 0,
-                                       .stageFlags = vk::ShaderStageFlagBits::eFragment },
+                                       .descriptorCount = static_cast<uint32_t>(t_info.max_sampler_count),
+                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
     const std::array flags_2{
         vk::DescriptorBindingFlags{
@@ -180,7 +181,7 @@ static auto create_base_descriptor_set(
         .range  = sizeof(UniformBlock1),
     };
 
-    std::array<vk::WriteDescriptorSet, 2> write_descriptor_sets{
+    std::array write_descriptor_sets{
         vk::WriteDescriptorSet{
                                .dstSet          = descriptor_sets.front().get(),
                                .dstBinding      = 0,
@@ -259,6 +260,63 @@ static auto create_image_view(
     };
 
     return t_device.createImageViewUnique(view_create_info);
+}
+
+[[nodiscard]]
+static auto create_image_descriptor_set(
+    const vk::Device                        t_device,
+    const vk::DescriptorSetLayout           t_descriptor_set_layout,
+    const vk::DescriptorPool                t_descriptor_pool,
+    const std::vector<vk::UniqueImageView>& t_image_views
+) -> vk::UniqueDescriptorSet
+{
+    const uint32_t descriptor_count{ static_cast<uint32_t>(t_image_views.size()) };
+    const vk::DescriptorSetVariableDescriptorCountAllocateInfo variable_info{
+        .descriptorSetCount = 1,
+        .pDescriptorCounts  = &descriptor_count,
+    };
+    const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
+        .pNext              = &variable_info,
+        .descriptorPool     = t_descriptor_pool,
+        .descriptorSetCount = 1,
+        .pSetLayouts        = &t_descriptor_set_layout,
+    };
+    auto descriptor_sets{
+        t_device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
+    };
+
+    const std::vector image_infos{
+        t_image_views | std::views::transform([](const vk::UniqueImageView& image_view) {
+            return vk::DescriptorImageInfo{
+                .imageView   = image_view.get(),
+                .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
+            };
+        })
+        | std::ranges::to<std::vector>()
+    };
+
+    std::vector write_descriptor_sets{ std::views::iota(0u, image_infos.size())
+                                       | std::views::transform([&](const uint32_t index) {
+                                             return vk::WriteDescriptorSet{
+                                                 .dstSet = descriptor_sets.front().get(),
+                                                 .dstBinding      = 0,
+                                                 .dstArrayElement = index,
+                                                 .descriptorCount = 1,
+                                                 .descriptorType =
+                                                     vk::DescriptorType::eSampledImage,
+                                                 .pImageInfo = &image_infos.at(index),
+                                             };
+                                         })
+                                       | std::ranges::to<std::vector>() };
+
+    t_device.updateDescriptorSets(
+        static_cast<uint32_t>(write_descriptor_sets.size()),
+        write_descriptor_sets.data(),
+        0,
+        nullptr
+    );
+
+    return std::move(descriptor_sets.front());
 }
 
 [[nodiscard]]
@@ -430,7 +488,13 @@ void copy_buffer_to_image(
 
 namespace core::renderer {
 
-auto RenderModel::descriptor_pool_sizes() -> std::vector<vk::DescriptorPoolSize>
+auto RenderModel::descriptor_set_count() noexcept -> uint32_t
+{
+    return 3;
+}
+
+auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_info
+) -> std::vector<vk::DescriptorPoolSize>
 {
     return std::vector<vk::DescriptorPoolSize>{
         vk::DescriptorPoolSize{
@@ -440,7 +504,9 @@ auto RenderModel::descriptor_pool_sizes() -> std::vector<vk::DescriptorPoolSize>
         vk::DescriptorPoolSize{
                                .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u,
-                               }
+                               },
+        vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eSampledImage,
+                               .descriptorCount = t_info.max_image_count },
     };
 }
 
@@ -549,6 +615,9 @@ auto RenderModel::create_loader(
           })
         | std::ranges::to<std::vector>()
     };
+    vk::UniqueDescriptorSet image_descriptor_set{ create_image_descriptor_set(
+        t_device, t_descriptor_set_layouts[1], t_descriptor_pool, image_views
+    ) };
 
     std::vector<vk::UniqueSampler> samplers{
         t_model->samplers()
@@ -574,6 +643,7 @@ auto RenderModel::create_loader(
          image_staging_buffers    = auto{ std::move(image_staging_buffers) },
          images                   = auto{ std::move(images) },
          image_views              = auto{ std::move(image_views) },
+         image_descriptor_set     = auto{ std::move(image_descriptor_set) },
          samplers                 = auto{ std::move(samplers) },
          pipeline                 = auto{ std::move(pipeline) },
          model                    = auto{ std::move(t_model
@@ -633,7 +703,7 @@ auto RenderModel::create_loader(
                                 std::move(base_descriptor_set),
                                 std::move(images),
                                 std::move(image_views),
-                                {},
+                                std::move(image_descriptor_set),
                                 std::move(samplers),
                                 {},
                                 std::move(pipeline),
@@ -673,6 +743,7 @@ auto RenderModel::draw(
         1,
         std::array{
             m_base_descriptor_set.get(),
+            m_image_descriptor_set.get(),
         },
         nullptr
     );

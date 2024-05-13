@@ -57,11 +57,17 @@ static auto max_sampler_count(const std::vector<Scene::Builder::ModelInfo>& t_mo
 }
 
 static auto request_descriptors(
-    const graphics::Model&,
+    const graphics::Model&   t_model,
     DescriptorPool::Builder& t_descriptor_pool_builder
 ) -> void
 {
-    t_descriptor_pool_builder.request_descriptors(RenderModel::descriptor_pool_sizes());
+    t_descriptor_pool_builder.request_descriptor_sets(RenderModel::descriptor_set_count());
+    t_descriptor_pool_builder.request_descriptors(
+        RenderModel::descriptor_pool_sizes(RenderModel::DescriptorSetLayoutCreateInfo{
+            .max_image_count   = static_cast<uint32_t>(t_model.images().size()),
+            .max_sampler_count = static_cast<uint32_t>(t_model.samplers().size()),
+        })
+    );
 }
 
 [[nodiscard]]
@@ -72,9 +78,10 @@ static auto create_descriptor_pool(
 {
     auto builder{ DescriptorPool::create() };
 
+    builder.request_descriptor_sets(1);
     builder.request_descriptors(vk::DescriptorPoolSize{
         .type            = vk::DescriptorType::eUniformBuffer,
-        .descriptorCount = 1u,
+        .descriptorCount = 1,
     });
 
     std::ranges::for_each(
@@ -85,7 +92,7 @@ static auto create_descriptor_pool(
         }
     );
 
-    return builder.build(t_device, 2);
+    return builder.build(t_device);
 }
 
 [[nodiscard]]
@@ -145,7 +152,7 @@ static auto create_global_descriptor_set(
     const vk::WriteDescriptorSet write_descriptor_set{
         .dstSet          = descriptor_sets.front().get(),
         .dstBinding      = 0,
-        .descriptorCount = 1U,
+        .descriptorCount = 1,
         .descriptorType  = vk::DescriptorType::eUniformBuffer,
         .pBufferInfo     = &buffer_info,
     };
