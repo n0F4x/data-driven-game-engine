@@ -304,4 +304,24 @@ auto Allocator::create_mapped_buffer_with_alignment(
     return MappedBuffer{ buffer, allocation, m_allocator.get() };
 }
 
+auto Allocator::create_image(
+    const vk::ImageCreateInfo&     t_image_create_info,
+    const VmaAllocationCreateInfo& t_allocation_create_info
+) const -> Image
+{
+    vk::Image        image{};
+    VmaAllocation    allocation{};
+    const vk::Result result{ vmaCreateImage(
+        m_allocator.get(),
+        reinterpret_cast<const VkImageCreateInfo*>(&t_image_create_info),
+        &t_allocation_create_info,
+        reinterpret_cast<VkImage*>(&image),
+        &allocation,
+        nullptr
+    ) };
+    vk::resultCheck(result, "vmaCreateImage failed");
+
+    return renderer::Image(image, allocation, m_allocator.get());
+}
+
 }   // namespace core::renderer

@@ -26,7 +26,7 @@ auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept ->
                     t_demo.depth_image.reset();
                     t_demo.depth_image = init::create_depth_image(
                         t_demo.device.physical_device(),
-                        *t_demo.allocator,
+                        t_demo.allocator,
                         t_swapchain.extent()
                     );
                 }

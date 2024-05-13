@@ -1,11 +1,10 @@
 #pragma once
 
+#include <optional>
 #include <span>
 #include <string>
 
 #include <gsl/pointers>
-
-#include <optional>
 
 #include <vulkan/vulkan.hpp>
 
@@ -14,6 +13,7 @@
 #include <VkBootstrap.h>
 
 #include "core/renderer/memory/Buffer.hpp"
+#include "core/renderer/memory/Image.hpp"
 #include "core/renderer/memory/MappedBuffer.hpp"
 #include "core/renderer/wrappers/vma/Allocator.hpp"
 
@@ -56,10 +56,10 @@ public:
     [[nodiscard]]
     auto create_buffer_with_alignment(
          const vk::BufferCreateInfo&    t_buffer_create_info,
-         vk::DeviceSize                     t_min_alignment,
+         vk::DeviceSize                 t_min_alignment,
          const VmaAllocationCreateInfo& t_allocation_create_info = {
             .usage = VMA_MEMORY_USAGE_AUTO,
-        }
+         }
     ) const -> Buffer;
 
     [[nodiscard]]
@@ -84,6 +84,12 @@ public:
         vk::DeviceSize              t_min_alignment,
         gsl::not_null<const void*>  t_data
     ) const -> MappedBuffer;
+
+    [[nodiscard]]
+    auto create_image(
+        const vk::ImageCreateInfo&     t_image_create_info,
+        const VmaAllocationCreateInfo& t_allocation_create_info
+    ) const -> Image;
 
 private:
     ///*************///

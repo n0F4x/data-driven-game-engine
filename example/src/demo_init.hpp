@@ -1,8 +1,7 @@
 #pragma once
 
-#include <vector>
-
 #include <optional>
+#include <vector>
 
 #include <vulkan/vulkan.hpp>
 
@@ -21,9 +20,9 @@ auto create_render_pass(
 
 [[nodiscard]]
 auto create_depth_image(
-    vk::PhysicalDevice t_physical_device,
-    VmaAllocator       t_allocator,
-    vk::Extent2D       t_swapchain_extent
+    vk::PhysicalDevice               physical_device,
+    const core::renderer::Allocator& allocator,
+    vk::Extent2D                     swapchain_extent
 ) noexcept -> core::renderer::Image;
 
 [[nodiscard]]

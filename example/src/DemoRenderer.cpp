@@ -109,7 +109,7 @@ auto DemoRenderer::create(Store& t_store, const std::string& t_model_filepath)
     }
 
     auto depth_image{ init::create_depth_image(
-        device.physical_device(), allocator.get(), raw_swapchain.extent()
+        device.physical_device(), allocator, raw_swapchain.extent()
     ) };
     if (!depth_image.get()) {
         return std::nullopt;

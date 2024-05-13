@@ -34,7 +34,7 @@ auto find_supported_format(
 }
 
 [[nodiscard]]
-auto find_depth_format(const vk::PhysicalDevice t_physical_device) noexcept -> vk::Format
+auto find_depth_format(const vk::PhysicalDevice t_physical_device) -> vk::Format
 {
     using enum vk::Format;
     return find_supported_format(
@@ -61,7 +61,7 @@ auto create_render_pass(
         .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
         .finalLayout    = vk::ImageLayout::ePresentSrcKHR,
     };
-    vk::AttachmentReference color_attachment_reference{
+    const vk::AttachmentReference color_attachment_reference{
         .attachment = 0,
         .layout     = vk::ImageLayout::eColorAttachmentOptimal,
     };
@@ -76,7 +76,7 @@ auto create_render_pass(
         .initialLayout  = vk::ImageLayout::eUndefined,
         .finalLayout    = vk::ImageLayout::eDepthStencilAttachmentOptimal,
     };
-    vk::AttachmentReference depth_attachment_reference{
+    const vk::AttachmentReference depth_attachment_reference{
         .attachment = 1,
         .layout     = vk::ImageLayout::eDepthStencilAttachmentOptimal,
     };
@@ -84,14 +84,14 @@ auto create_render_pass(
     std::array attachment_descriptions{ color_attachment_description,
                                         depth_attachment_description };
 
-    vk::SubpassDescription subpass_description{
+    const vk::SubpassDescription subpass_description{
         .pipelineBindPoint       = vk::PipelineBindPoint::eGraphics,
         .colorAttachmentCount    = 1,
         .pColorAttachments       = &color_attachment_reference,
         .pDepthStencilAttachment = &depth_attachment_reference,
     };
 
-    vk::SubpassDependency subpass_dependency{
+    const vk::SubpassDependency subpass_dependency{
         .srcSubpass   = VK_SUBPASS_EXTERNAL,
         .dstSubpass   = 0,
         .srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput
@@ -116,9 +116,9 @@ auto create_render_pass(
 }
 
 auto create_depth_image(
-    const vk::PhysicalDevice t_physical_device,
-    VmaAllocator             t_allocator,
-    const vk::Extent2D       t_swapchain_extent
+    const vk::PhysicalDevice   t_physical_device,
+    const renderer::Allocator& t_allocator,
+    const vk::Extent2D         t_swapchain_extent
 ) noexcept -> renderer::Image
 {
     const vk::ImageCreateInfo image_create_info = {
@@ -139,17 +139,7 @@ auto create_depth_image(
         .priority = 1.f,
     };
 
-    vk::Image     image{};
-    VmaAllocation allocation;
-    vmaCreateImage(
-        t_allocator,
-        reinterpret_cast<const VkImageCreateInfo*>(&image_create_info),
-        &allocation_create_info,
-        reinterpret_cast<VkImage*>(&image),
-        &allocation,
-        nullptr
-    );
-    return renderer::Image(image, allocation, t_allocator);
+    return t_allocator.create_image(image_create_info, allocation_create_info);
 }
 
 auto create_depth_image_view(
@@ -186,7 +176,7 @@ auto create_framebuffers(
     for (const auto& swapchain_image_view : t_swapchain_image_views) {
         std::array attachments{ *swapchain_image_view, t_depth_image_view };
 
-        vk::FramebufferCreateInfo framebuffer_create_info{
+        const vk::FramebufferCreateInfo framebuffer_create_info{
             .renderPass      = t_render_pass,
             .attachmentCount = static_cast<uint32_t>(attachments.size()),
             .pAttachments    = attachments.data(),
@@ -231,12 +221,12 @@ auto create_command_buffers(
 auto create_semaphores(const vk::Device t_device, const uint32_t t_count)
     -> std::vector<vk::UniqueSemaphore>
 {
-    constexpr vk::SemaphoreCreateInfo createInfo{};
+    constexpr vk::SemaphoreCreateInfo create_info{};
     std::vector<vk::UniqueSemaphore>  semaphores;
     semaphores.reserve(t_count);
 
     for (uint32_t i = 0; i < t_count; i++) {
-        semaphores.emplace_back(t_device.createSemaphoreUnique(createInfo));
+        semaphores.emplace_back(t_device.createSemaphoreUnique(create_info));
     }
 
     return semaphores;
