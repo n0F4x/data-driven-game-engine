@@ -552,16 +552,27 @@ auto RenderModel::descriptor_set_count() noexcept -> uint32_t
 auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_info
 ) -> std::vector<vk::DescriptorPoolSize>
 {
-    return std::vector<vk::DescriptorPoolSize>{
+    std::vector<vk::DescriptorPoolSize> pool_sizes{
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
-                               .descriptorCount = 1u                      },
+                               .descriptorCount = 1u },
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
-                               .descriptorCount = 1u                      },
-        vk::DescriptorPoolSize{  .type            = vk::DescriptorType::eSampledImage,
-                               .descriptorCount = t_info.max_image_count  },
-        vk::DescriptorPoolSize{       .type            = vk::DescriptorType::eSampler,
-                               .descriptorCount = t_info.max_sampler_count },
+                               .descriptorCount = 1u },
     };
+
+    if (t_info.max_image_count > 0) {
+        pool_sizes.push_back(vk::DescriptorPoolSize{
+            .type            = vk::DescriptorType::eSampledImage,
+            .descriptorCount = t_info.max_image_count,
+        });
+    }
+    if (t_info.max_sampler_count > 0) {
+        pool_sizes.push_back(vk::DescriptorPoolSize{
+            .type            = vk::DescriptorType::eSampler,
+            .descriptorCount = t_info.max_sampler_count,
+        });
+    }
+
+    return pool_sizes;
 }
 
 auto RenderModel::create_loader(
