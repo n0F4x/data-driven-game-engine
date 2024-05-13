@@ -395,6 +395,62 @@ static auto create_sampler(
 }
 
 [[nodiscard]]
+static auto create_sampler_descriptor_set(
+    const vk::Device                      t_device,
+    const vk::DescriptorSetLayout         t_descriptor_set_layout,
+    const vk::DescriptorPool              t_descriptor_pool,
+    const std::vector<vk::UniqueSampler>& t_samplers
+) -> vk::UniqueDescriptorSet
+{
+    const uint32_t descriptor_count{ static_cast<uint32_t>(t_samplers.size()) };
+    const vk::DescriptorSetVariableDescriptorCountAllocateInfo variable_info{
+        .descriptorSetCount = 1,
+        .pDescriptorCounts  = &descriptor_count,
+    };
+    const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
+        .pNext              = &variable_info,
+        .descriptorPool     = t_descriptor_pool,
+        .descriptorSetCount = 1,
+        .pSetLayouts        = &t_descriptor_set_layout,
+    };
+    auto descriptor_sets{
+        t_device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
+    };
+
+    const std::vector image_infos{
+        t_samplers | std::views::transform([](const vk::UniqueSampler& sampler) {
+            return vk::DescriptorImageInfo{
+                .sampler = sampler.get(),
+            };
+        })
+        | std::ranges::to<std::vector>()
+    };
+
+    std::vector write_descriptor_sets{ std::views::iota(0u, image_infos.size())
+                                       | std::views::transform([&](const uint32_t index) {
+                                             return vk::WriteDescriptorSet{
+                                                 .dstSet = descriptor_sets.front().get(),
+                                                 .dstBinding      = 0,
+                                                 .dstArrayElement = index,
+                                                 .descriptorCount = 1,
+                                                 .descriptorType =
+                                                     vk::DescriptorType::eSampler,
+                                                 .pImageInfo = &image_infos.at(index),
+                                             };
+                                         })
+                                       | std::ranges::to<std::vector>() };
+
+    t_device.updateDescriptorSets(
+        static_cast<uint32_t>(write_descriptor_sets.size()),
+        write_descriptor_sets.data(),
+        0,
+        nullptr
+    );
+
+    return std::move(descriptor_sets.front());
+}
+
+[[nodiscard]]
 static auto create_pipeline(
     const vk::Device                       t_device,
     const RenderModel::PipelineCreateInfo& t_create_info
@@ -497,16 +553,14 @@ auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_i
 ) -> std::vector<vk::DescriptorPoolSize>
 {
     return std::vector<vk::DescriptorPoolSize>{
-        vk::DescriptorPoolSize{
-                               .type            = vk::DescriptorType::eUniformBuffer,
-                               .descriptorCount = 1u,
-                               },
-        vk::DescriptorPoolSize{
-                               .type            = vk::DescriptorType::eUniformBuffer,
-                               .descriptorCount = 1u,
-                               },
-        vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eSampledImage,
-                               .descriptorCount = t_info.max_image_count },
+        vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
+                               .descriptorCount = 1u                      },
+        vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
+                               .descriptorCount = 1u                      },
+        vk::DescriptorPoolSize{  .type            = vk::DescriptorType::eSampledImage,
+                               .descriptorCount = t_info.max_image_count  },
+        vk::DescriptorPoolSize{       .type            = vk::DescriptorType::eSampler,
+                               .descriptorCount = t_info.max_sampler_count },
     };
 }
 
@@ -624,6 +678,9 @@ auto RenderModel::create_loader(
         | std::views::transform(std::bind_front(create_sampler, t_device))
         | std::ranges::to<std::vector>()
     };
+    vk::UniqueDescriptorSet sampler_descriptor_set{ create_sampler_descriptor_set(
+        t_device, t_descriptor_set_layouts[2], t_descriptor_pool, samplers
+    ) };
 
     vk::UniquePipeline pipeline{ create_pipeline(t_device, t_pipeline_create_info) };
 
@@ -645,6 +702,7 @@ auto RenderModel::create_loader(
          image_views              = auto{ std::move(image_views) },
          image_descriptor_set     = auto{ std::move(image_descriptor_set) },
          samplers                 = auto{ std::move(samplers) },
+         sampler_descriptor_set   = auto{ std::move(sampler_descriptor_set) },
          pipeline                 = auto{ std::move(pipeline) },
          model                    = auto{ std::move(t_model
          ) }](const vk::CommandBuffer t_transfer_command_buffer) mutable -> RenderModel {
@@ -705,7 +763,7 @@ auto RenderModel::create_loader(
                                 std::move(image_views),
                                 std::move(image_descriptor_set),
                                 std::move(samplers),
-                                {},
+                                std::move(sampler_descriptor_set),
                                 std::move(pipeline),
                                 std::move(model) };
         }
@@ -741,10 +799,9 @@ auto RenderModel::draw(
         vk::PipelineBindPoint::eGraphics,
         t_pipeline_layout,
         1,
-        std::array{
-            m_base_descriptor_set.get(),
-            m_image_descriptor_set.get(),
-        },
+        std::array{ m_base_descriptor_set.get(),
+                    m_image_descriptor_set.get(),
+                    m_sampler_descriptor_set.get() },
         nullptr
     );
 
