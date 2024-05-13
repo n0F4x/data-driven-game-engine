@@ -319,7 +319,7 @@ void copy_buffer_to_image(
     uint32_t          t_height
 )
 {
-    vk::BufferImageCopy region{
+    const vk::BufferImageCopy region{
         .imageSubresource =
             vk::ImageSubresourceLayers{ .aspectMask = vk::ImageAspectFlagBits::eColor,
                                        .layerCount = 1 },
@@ -329,6 +329,28 @@ void copy_buffer_to_image(
     t_command_buffer.copyBufferToImage(
         t_buffer, t_image, vk::ImageLayout::eTransferDstOptimal, 1, &region
     );
+}
+
+[[nodiscard]]
+static auto create_image_view(
+    const vk::Device t_device,
+    const vk::Image  t_image,
+    const vk::Format t_format
+) -> vk::UniqueImageView
+{
+    const vk::ImageViewCreateInfo view_create_info{
+        .image    = t_image,
+        .viewType = vk::ImageViewType::e2D,
+        .format   = t_format,
+        .subresourceRange =
+            vk::ImageSubresourceRange{ .aspectMask     = vk::ImageAspectFlagBits::eColor,
+                                      .baseMipLevel   = 0,
+                                      .levelCount     = 1,
+                                      .baseArrayLayer = 0,
+                                      .layerCount     = 1 },
+    };
+
+    return t_device.createImageViewUnique(view_create_info);
 }
 
 namespace core::renderer {
@@ -348,7 +370,7 @@ auto RenderModel::descriptor_pool_sizes() -> std::vector<vk::DescriptorPoolSize>
 }
 
 auto RenderModel::create_loader(
-    vk::Device                                        t_device,
+    const vk::Device                                  t_device,
     const Allocator&                                  t_allocator,
     const std::span<const vk::DescriptorSetLayout, 3> t_descriptor_set_layouts,
     const PipelineCreateInfo&                         t_pipeline_create_info,
@@ -439,6 +461,21 @@ auto RenderModel::create_loader(
           })
         | std::ranges::to<std::vector>()
     };
+    std::vector<vk::UniqueImageView> image_views{
+        std::views::zip(
+            images | std::views::transform(&Image::get),
+            t_model->images()
+                | std::views::transform([](const graphics::Model::Image& image) {
+                      return image->format();
+                  })
+        )
+        | std::views::transform([t_device](auto image_and_format) {
+              return std::apply(
+                  std::bind_front(create_image_view, t_device), image_and_format
+              );
+          })
+        | std::ranges::to<std::vector>()
+    };
 
     return std::packaged_task<RenderModel(vk::CommandBuffer)>{
         [device                = t_device,
@@ -456,6 +493,7 @@ auto RenderModel::create_loader(
          transform_buffer         = auto{ std::move(transform_buffer) },
          image_staging_buffers    = auto{ std::move(image_staging_buffers) },
          images                   = auto{ std::move(images) },
+         image_views              = auto{ std::move(image_views) },
          model                    = auto{ std::move(t_model
          ) }](const vk::CommandBuffer t_transfer_command_buffer) mutable -> RenderModel {
             vk::BufferCopy copy_region{
@@ -512,6 +550,7 @@ auto RenderModel::create_loader(
                                 std::move(index_buffer),
                                 std::move(transform_buffer),
                                 std::move(images),
+                                std::move(image_views),
                                 std::move(model) };
         }
     };
@@ -578,18 +617,19 @@ auto RenderModel::draw(
 }
 
 RenderModel::RenderModel(
-    const vk::Device                 t_device,
-    MappedBuffer&&                   t_vertex_uniform,
-    MappedBuffer&&                   t_transform_uniform,
-    vk::UniqueDescriptorSet&&        t_base_descriptor_set,
-    vk::UniqueDescriptorSet&&        t_image_descriptor_set,
-    vk::UniqueDescriptorSet&&        t_sampler_descriptor_set,
-    vk::UniquePipeline&&             t_pipeline,
-    Buffer&&                         t_vertex_buffer,
-    Buffer&&                         t_index_buffer,
-    Buffer&&                         t_transform_buffer,
-    std::vector<Image>&&             t_images,
-    cache::Handle<graphics::Model>&& t_model
+    const vk::Device                   t_device,
+    MappedBuffer&&                     t_vertex_uniform,
+    MappedBuffer&&                     t_transform_uniform,
+    vk::UniqueDescriptorSet&&          t_base_descriptor_set,
+    vk::UniqueDescriptorSet&&          t_image_descriptor_set,
+    vk::UniqueDescriptorSet&&          t_sampler_descriptor_set,
+    vk::UniquePipeline&&               t_pipeline,
+    Buffer&&                           t_vertex_buffer,
+    Buffer&&                           t_index_buffer,
+    Buffer&&                           t_transform_buffer,
+    std::vector<Image>&&               t_images,
+    std::vector<vk::UniqueImageView>&& t_image_views,
+    cache::Handle<graphics::Model>&&   t_model
 )
     : m_vertex_uniform{ std::move(t_vertex_uniform) },
       m_transform_uniform{ std::move(t_transform_uniform) },
@@ -601,6 +641,7 @@ RenderModel::RenderModel(
       m_index_buffer{ std::move(t_index_buffer) },
       m_transform_buffer{ std::move(t_transform_buffer) },
       m_images{ std::move(t_images) },
+      m_image_views{ std::move(t_image_views) },
       m_model{ std::move(t_model) }
 {
     vk::BufferDeviceAddressInfo buffer_device_address_info{

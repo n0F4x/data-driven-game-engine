@@ -66,23 +66,25 @@ private:
     Buffer            m_transform_buffer;
     vk::DeviceAddress m_transform_buffer_address{};
 
-    std::vector<Image> m_images;
+    std::vector<Image>               m_images;
+    std::vector<vk::UniqueImageView> m_image_views;
 
     cache::Handle<graphics::Model> m_model;
 
     explicit RenderModel(
-        vk::Device                       t_device,
-        MappedBuffer&&                   t_vertex_uniform,
-        MappedBuffer&&                   t_transform_uniform,
-        vk::UniqueDescriptorSet&&        t_base_descriptor_set,
-        vk::UniqueDescriptorSet&&        t_image_descriptor_set,
-        vk::UniqueDescriptorSet&&        t_sampler_descriptor_set,
-        vk::UniquePipeline&&             t_pipeline,
-        Buffer&&                         t_vertex_buffer,
-        Buffer&&                         t_index_buffer,
-        Buffer&&                         t_transform_buffer,
-        std::vector<Image>&&             t_images,
-        cache::Handle<graphics::Model>&& t_model
+        vk::Device                         t_device,
+        MappedBuffer&&                     t_vertex_uniform,
+        MappedBuffer&&                     t_transform_uniform,
+        vk::UniqueDescriptorSet&&          t_base_descriptor_set,
+        vk::UniqueDescriptorSet&&          t_image_descriptor_set,
+        vk::UniqueDescriptorSet&&          t_sampler_descriptor_set,
+        vk::UniquePipeline&&               t_pipeline,
+        Buffer&&                           t_vertex_buffer,
+        Buffer&&                           t_index_buffer,
+        Buffer&&                           t_transform_buffer,
+        std::vector<Image>&&               t_images,
+        std::vector<vk::UniqueImageView>&& t_image_views,
+        cache::Handle<graphics::Model>&&   t_model
     );
 };
 
