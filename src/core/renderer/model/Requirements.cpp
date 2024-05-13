@@ -2,6 +2,7 @@
 
 // Required extensions:
 //     - VK_KHR_buffer_device_address
+//     - VK_EXT_descriptor_indexing
 
 namespace core::renderer {
 
@@ -28,14 +29,29 @@ auto RenderModel::Requirements::require_device_settings(
     vkb::PhysicalDeviceSelector& t_physical_device_selector
 ) -> void
 {
+    // VK_KHR_buffer_device_address
     t_physical_device_selector.add_required_extension(VK_KHR_DEVICE_GROUP_EXTENSION_NAME);
     t_physical_device_selector.add_required_extension(
         VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
     );
     constexpr static vk::PhysicalDeviceBufferDeviceAddressFeatures
-        buffer_device_address_features{ .bufferDeviceAddress = vk::True };
+        buffer_device_address_features{
+            .bufferDeviceAddress = vk::True,
+        };
     t_physical_device_selector.add_required_extension_features(
         buffer_device_address_features
+    );
+
+    // VK_EXT_descriptor_indexing
+    t_physical_device_selector.add_required_extension(VK_KHR_MAINTENANCE3_EXTENSION_NAME);
+    t_physical_device_selector.add_required_extension(
+        VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
+    );
+    constexpr static vk::PhysicalDeviceDescriptorIndexingFeatures
+        descriptor_indexing_features{
+            .descriptorBindingVariableDescriptorCount = vk::True,
+        };
+    t_physical_device_selector.add_required_extension_features(descriptor_indexing_features
     );
 }
 

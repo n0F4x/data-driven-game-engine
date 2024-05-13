@@ -31,16 +31,16 @@ auto Scene::draw(
 }
 
 Scene::Scene(
-    vk::UniqueDescriptorSetLayout&& t_global_descriptor_set_layout,
-    vk::UniqueDescriptorSetLayout&& t_model_descriptor_set_layout,
-    vk::UniquePipelineLayout&&      t_pipeline_layout,
-    DescriptorPool&&                t_descriptor_pool,
-    MappedBuffer&&                  t_global_buffer,
-    vk::UniqueDescriptorSet&&       t_global_descriptor_set,
-    std::vector<RenderModel>&&     t_models
+    vk::UniqueDescriptorSetLayout&&                t_global_descriptor_set_layout,
+    std::array<vk::UniqueDescriptorSetLayout, 3>&& t_model_descriptor_set_layouts,
+    vk::UniquePipelineLayout&&                     t_pipeline_layout,
+    DescriptorPool&&                               t_descriptor_pool,
+    MappedBuffer&&                                 t_global_buffer,
+    vk::UniqueDescriptorSet&&                      t_global_descriptor_set,
+    std::vector<RenderModel>&&                     t_models
 ) noexcept
     : m_global_descriptor_set_layout(std::move(t_global_descriptor_set_layout)),
-      m_model_descriptor_set_layout(std::move(t_model_descriptor_set_layout)),
+      m_model_descriptor_set_layouts(std::move(t_model_descriptor_set_layouts)),
       m_pipeline_layout{ std::move(t_pipeline_layout) },
       m_descriptor_pool{ std::move(t_descriptor_pool) },
       m_global_buffer{ std::move(t_global_buffer) },

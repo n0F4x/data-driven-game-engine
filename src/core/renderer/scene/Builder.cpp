@@ -26,6 +26,36 @@ static auto create_global_descriptor_set_layout(const vk::Device t_device
     return t_device.createDescriptorSetLayoutUnique(create_info);
 }
 
+[[nodiscard]]
+static auto max_image_count(const std::vector<Scene::Builder::ModelInfo>& t_models
+) noexcept -> uint32_t
+{
+    return static_cast<uint32_t>(std::ranges::max_element(
+                                     t_models,
+                                     {},
+                                     [](const Scene::Builder::ModelInfo& model) {
+                                         return model.handle->images().size();
+                                     }
+    )
+                                     ->handle->images()
+                                     .size());
+}
+
+[[nodiscard]]
+static auto max_sampler_count(const std::vector<Scene::Builder::ModelInfo>& t_models
+) noexcept -> uint32_t
+{
+    return static_cast<uint32_t>(std::ranges::max_element(
+                                     t_models,
+                                     {},
+                                     [](const Scene::Builder::ModelInfo& model) {
+                                         return model.handle->samplers().size();
+                                     }
+    )
+                                     ->handle->samplers()
+                                     .size());
+}
+
 static auto request_descriptors(
     const graphics::Model&,
     DescriptorPool::Builder& t_descriptor_pool_builder
@@ -60,18 +90,15 @@ static auto create_descriptor_pool(
 
 [[nodiscard]]
 static auto create_pipeline_layout(
-    const vk::Device        t_device,
-    vk::DescriptorSetLayout t_global_descriptor_set_layout,
-    vk::DescriptorSetLayout t_model_descriptor_set_layout
+    const vk::Device                               t_device,
+    const std::span<const vk::DescriptorSetLayout> t_layouts
 ) -> vk::UniquePipelineLayout
 {
-    std::array descriptor_set_layouts{ t_global_descriptor_set_layout,
-                                       t_model_descriptor_set_layout };
     std::array push_constant_ranges{ RenderModel::push_constant_range() };
 
     const vk::PipelineLayoutCreateInfo pipeline_layout_create_info{
-        .setLayoutCount         = static_cast<uint32_t>(descriptor_set_layouts.size()),
-        .pSetLayouts            = descriptor_set_layouts.data(),
+        .setLayoutCount         = static_cast<uint32_t>(t_layouts.size()),
+        .pSetLayouts            = t_layouts.data(),
         .pushConstantRangeCount = static_cast<uint32_t>(push_constant_ranges.size()),
         .pPushConstantRanges    = push_constant_ranges.data(),
     };
@@ -158,12 +185,22 @@ auto Scene::Builder::build(
         create_global_descriptor_set_layout(t_device)
     };
 
-    vk::UniqueDescriptorSetLayout model_descriptor_set_layout{
-        RenderModel::create_descriptor_set_layout(t_device)
-    };
+    std::array model_descriptor_set_layouts{ RenderModel::create_descriptor_set_layouts(
+        t_device,
+        RenderModel::DescriptorSetLayoutCreateInfo{
+            .max_image_count   = max_image_count(m_models),
+            .max_sampler_count = max_sampler_count(m_models),
+        }
+    ) };
 
     vk::UniquePipelineLayout pipeline_layout{ create_pipeline_layout(
-        t_device, global_descriptor_set_layout.get(), model_descriptor_set_layout.get()
+        t_device,
+        std::array{
+            global_descriptor_set_layout.get(),
+            model_descriptor_set_layouts[0].get(),
+            model_descriptor_set_layouts[1].get(),
+            model_descriptor_set_layouts[2].get(),
+        }
     ) };
 
     DescriptorPool descriptor_pool{ create_descriptor_pool(t_device, m_models) };
@@ -186,10 +223,14 @@ auto Scene::Builder::build(
             return RenderModel::create_loader(
                 t_device,
                 t_allocator,
-                model_descriptor_set_layout.get(),
+                std::array{
+                    model_descriptor_set_layouts[0].get(),
+                    model_descriptor_set_layouts[1].get(),
+                    model_descriptor_set_layouts[2].get(),
+                },
                 RenderModel::PipelineCreateInfo{ .effect      = model_info.effect,
-                                                  .layout      = pipeline_layout.get(),
-                                                  .render_pass = t_render_pass },
+                                                 .layout      = pipeline_layout.get(),
+                                                 .render_pass = t_render_pass },
                 descriptor_pool.get(),
                 model_info.handle
             );
@@ -199,7 +240,7 @@ auto Scene::Builder::build(
 
     return std::packaged_task<Scene(vk::CommandBuffer)>{
         [global_descriptor_set_layout = auto{ std::move(global_descriptor_set_layout) },
-         model_descriptor_set_layout  = auto{ std::move(model_descriptor_set_layout) },
+         model_descriptor_set_layouts = auto{ std::move(model_descriptor_set_layouts) },
          pipeline_layout              = auto{ std::move(pipeline_layout) },
          descriptor_pool              = auto{ std::move(descriptor_pool) },
          global_buffer                = auto{ std::move(global_buffer) },
@@ -208,7 +249,7 @@ auto Scene::Builder::build(
          ) }](vk::CommandBuffer t_transfer_command_buffer) mutable -> Scene {
             return Scene(
                 std::move(global_descriptor_set_layout),
-                std::move(model_descriptor_set_layout),
+                std::move(model_descriptor_set_layouts),
                 std::move(pipeline_layout),
                 std::move(descriptor_pool),
                 std::move(global_buffer),

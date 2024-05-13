@@ -13,6 +13,11 @@ class RenderModel {
 public:
     class Requirements;
 
+    struct DescriptorSetLayoutCreateInfo {
+        uint32_t max_image_count;
+        uint32_t max_sampler_count;
+    };
+
     struct PipelineCreateInfo {
         Effect             effect;
         vk::PipelineLayout layout;
@@ -24,17 +29,19 @@ public:
 
     [[nodiscard]]
     static auto create_loader(
-        vk::Device                            t_device,
-        const Allocator&                      t_allocator,
-        vk::DescriptorSetLayout               t_descriptor_set_layout,
-        const PipelineCreateInfo&             t_pipeline_create_info,
-        vk::DescriptorPool                    t_descriptor_pool,
-        const cache::Handle<graphics::Model>& t_model
+        vk::Device                                  t_device,
+        const Allocator&                            t_allocator,
+        std::span<const vk::DescriptorSetLayout, 3> t_descriptor_set_layouts,
+        const PipelineCreateInfo&                   t_pipeline_create_info,
+        vk::DescriptorPool                          t_descriptor_pool,
+        const cache::Handle<graphics::Model>&       t_model
     ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>;
 
     [[nodiscard]]
-    static auto create_descriptor_set_layout(vk::Device t_device
-    ) -> vk::UniqueDescriptorSetLayout;
+    static auto create_descriptor_set_layouts(
+        vk::Device                           t_device,
+        const DescriptorSetLayoutCreateInfo& info
+    ) -> std::array<vk::UniqueDescriptorSetLayout, 3>;
     [[nodiscard]]
     static auto push_constant_range() noexcept -> vk::PushConstantRange;
 
@@ -46,7 +53,9 @@ public:
 private:
     MappedBuffer            m_vertex_uniform;
     MappedBuffer            m_transform_uniform;
-    vk::UniqueDescriptorSet m_descriptor_set;
+    vk::UniqueDescriptorSet m_base_descriptor_set;
+    vk::UniqueDescriptorSet m_image_descriptor_set;
+    vk::UniqueDescriptorSet m_sampler_descriptor_set;
     vk::UniquePipeline      m_pipeline;
 
     Buffer            m_vertex_buffer;
@@ -61,7 +70,9 @@ private:
         vk::Device                       t_device,
         MappedBuffer&&                   t_vertex_uniform,
         MappedBuffer&&                   t_transform_uniform,
-        vk::UniqueDescriptorSet&&        t_descriptor_set,
+        vk::UniqueDescriptorSet&&        t_base_descriptor_set,
+        vk::UniqueDescriptorSet&&        t_image_descriptor_set,
+        vk::UniqueDescriptorSet&&        t_sampler_descriptor_set,
         vk::UniquePipeline&&             t_pipeline,
         Buffer&&                         t_vertex_buffer,
         Buffer&&                         t_index_buffer,

@@ -5,18 +5,15 @@ namespace core::asset {
 auto StbImage::load_from_file(const std::filesystem::path& t_filepath
 ) -> std::optional<StbImage>
 {
-    int width{};
-    int height{};
-    int channels_in_file{};
-
-    if (stbi_info(t_filepath.generic_string().c_str(), &width, &height, &channels_in_file)
-        != 1)
-    {
+    if (stbi_info(t_filepath.generic_string().c_str(), nullptr, nullptr, nullptr) != 1) {
         return std::nullopt;
     }
 
-    stbi_uc* data{ stbi_load(
-        t_filepath.generic_string().c_str(), &width, &height, &channels_in_file, STBI_rgb_alpha
+    int       width{};
+    int       height{};
+    const int desired_channels_count{ STBI_rgb_alpha };
+    stbi_uc*  data{ stbi_load(
+        t_filepath.generic_string().c_str(), &width, &height, nullptr, desired_channels_count
     ) };
 
     if (data == nullptr) {
@@ -24,31 +21,30 @@ auto StbImage::load_from_file(const std::filesystem::path& t_filepath
         return std::nullopt;
     }
 
-    return StbImage{ data, width, height };
+    return StbImage{ data, width, height, desired_channels_count };
 }
 
 auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
 ) -> std::optional<StbImage>
 {
-    int width{};
-    int height{};
-    int channels_in_file{};
-
     if (stbi_info_from_memory(
-            t_data.data(), static_cast<int>(t_data.size()), &width, &height, &channels_in_file
+            t_data.data(), static_cast<int>(t_data.size()), nullptr, nullptr, nullptr
         )
         != 1)
     {
         return std::nullopt;
     }
 
-    stbi_uc* data{ stbi_load_from_memory(
+    int       width{};
+    int       height{};
+    const int desired_channels_count{ STBI_rgb_alpha };
+    stbi_uc*  data{ stbi_load_from_memory(
         t_data.data(),
         static_cast<int>(t_data.size()),
         &width,
         &height,
-        &channels_in_file,
-        STBI_rgb_alpha
+        nullptr,
+        desired_channels_count
     ) };
 
     if (data == nullptr) {
@@ -56,7 +52,7 @@ auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
         return std::nullopt;
     }
 
-    return StbImage{ data, width, height };
+    return StbImage{ data, width, height, desired_channels_count };
 }
 
 auto StbImage::data() const noexcept -> void*
@@ -66,7 +62,8 @@ auto StbImage::data() const noexcept -> void*
 
 auto StbImage::size() const noexcept -> size_t
 {
-    return static_cast<size_t>(m_width * m_height * 4);
+    return static_cast<size_t>(m_width) * static_cast<size_t>(m_height)
+         * static_cast<size_t>(m_channel_count);
 }
 
 auto StbImage::width() const noexcept -> uint32_t
@@ -91,13 +88,20 @@ auto StbImage::mip_levels() const noexcept -> uint32_t
 
 auto StbImage::format() const noexcept -> vk::Format
 {
-    return vk::Format::eR8G8B8A8Srgb;
+    switch (m_channel_count) {
+        case 1: return vk::Format::eR8Srgb;
+        case 2: return vk::Format::eR8G8Srgb;
+        case 3: return vk::Format::eR8G8B8Srgb;
+        case 4: return vk::Format::eR8G8B8A8Srgb;
+        default: std::unreachable();
+    };
 }
 
-StbImage::StbImage(stbi_uc* t_data, int t_width, int t_height) noexcept
+StbImage::StbImage(stbi_uc* t_data, int t_width, int t_height, int t_channel_count) noexcept
     : m_data{ t_data, stbi_image_free },
       m_width{ t_width },
-      m_height{ t_height }
+      m_height{ t_height },
+      m_channel_count{ t_channel_count }
 {}
 
 }   // namespace core::asset

@@ -29,10 +29,10 @@ private:
 
     friend Builder;
 
-    vk::UniqueDescriptorSetLayout m_global_descriptor_set_layout;
-    vk::UniqueDescriptorSetLayout m_model_descriptor_set_layout;
-    vk::UniquePipelineLayout      m_pipeline_layout;
-    DescriptorPool                m_descriptor_pool;
+    vk::UniqueDescriptorSetLayout                m_global_descriptor_set_layout;
+    std::array<vk::UniqueDescriptorSetLayout, 3> m_model_descriptor_set_layouts;
+    vk::UniquePipelineLayout                     m_pipeline_layout;
+    DescriptorPool                               m_descriptor_pool;
 
     MappedBuffer            m_global_buffer;
     vk::UniqueDescriptorSet m_global_descriptor_set;
@@ -40,13 +40,13 @@ private:
     std::vector<RenderModel> m_models;
 
     explicit Scene(
-        vk::UniqueDescriptorSetLayout&& t_global_descriptor_set_layout,
-        vk::UniqueDescriptorSetLayout&& t_model_descriptor_set_layout,
-        vk::UniquePipelineLayout&&      t_pipeline_layout,
-        DescriptorPool&&                t_descriptor_pool,
-        MappedBuffer&&                  t_global_buffer,
-        vk::UniqueDescriptorSet&&       t_global_descriptor_set,
-        std::vector<RenderModel>&&     t_models
+        vk::UniqueDescriptorSetLayout&&                t_global_descriptor_set_layout,
+        std::array<vk::UniqueDescriptorSetLayout, 3>&& t_model_descriptor_set_layouts,
+        vk::UniquePipelineLayout&&                     t_pipeline_layout,
+        DescriptorPool&&                               t_descriptor_pool,
+        MappedBuffer&&                                 t_global_buffer,
+        vk::UniqueDescriptorSet&&                      t_global_descriptor_set,
+        std::vector<RenderModel>&&                     t_models
     ) noexcept;
 };
 

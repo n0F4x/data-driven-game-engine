@@ -10,10 +10,12 @@ struct PushConstants {
 };
 
 [[nodiscard]]
-static auto create_descriptor_set_layout(const vk::Device t_device
-) -> vk::UniqueDescriptorSetLayout
+static auto create_descriptor_set_layouts(
+    const vk::Device                                                   t_device,
+    [[maybe_unused]] const RenderModel::DescriptorSetLayoutCreateInfo& t_info
+) -> std::array<vk::UniqueDescriptorSetLayout, 3>
 {
-    const std::array bindings{
+    const std::array bindings_0{
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
@@ -23,14 +25,59 @@ static auto create_descriptor_set_layout(const vk::Device t_device
                                        .binding         = 1,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
-                                       .stageFlags      = vk::ShaderStageFlagBits::eVertex },
+                                       .stageFlags      = vk::ShaderStageFlagBits::eVertex }
     };
-    const vk::DescriptorSetLayoutCreateInfo create_info{
-        .bindingCount = static_cast<uint32_t>(bindings.size()),
-        .pBindings    = bindings.data(),
+    const vk::DescriptorSetLayoutCreateInfo create_info_0{
+        .bindingCount = static_cast<uint32_t>(bindings_0.size()),
+        .pBindings    = bindings_0.data(),
     };
 
-    return t_device.createDescriptorSetLayoutUnique(create_info);
+    const std::array bindings_1{
+        vk::DescriptorSetLayoutBinding{
+                                       .binding         = 0,
+                                       .descriptorType  = vk::DescriptorType::eSampledImage,
+                                       .descriptorCount = 0,
+                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment },
+    };
+    const std::array flags_1{
+        vk::DescriptorBindingFlags{
+            vk::DescriptorBindingFlagBits::eVariableDescriptorCount },
+    };
+    vk::DescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_1{
+        .bindingCount  = static_cast<uint32_t>(flags_1.size()),
+        .pBindingFlags = flags_1.data(),
+    };
+    const vk::DescriptorSetLayoutCreateInfo create_info_1{
+        .pNext        = &binding_flags_1,
+        .bindingCount = static_cast<uint32_t>(bindings_1.size()),
+        .pBindings    = bindings_1.data(),
+    };
+
+    const std::array bindings_2{
+        vk::DescriptorSetLayoutBinding{ .binding         = 0,
+                                       .descriptorType  = vk::DescriptorType::eSampler,
+                                       .descriptorCount = 0,
+                                       .stageFlags = vk::ShaderStageFlagBits::eFragment },
+    };
+    const std::array flags_2{
+        vk::DescriptorBindingFlags{
+            vk::DescriptorBindingFlagBits::eVariableDescriptorCount },
+    };
+    vk::DescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags_2{
+        .bindingCount  = static_cast<uint32_t>(flags_2.size()),
+        .pBindingFlags = flags_2.data(),
+    };
+    const vk::DescriptorSetLayoutCreateInfo create_info_2{
+        .pNext        = &binding_flags_2,
+        .bindingCount = static_cast<uint32_t>(bindings_2.size()),
+        .pBindings    = bindings_2.data(),
+    };
+
+    return std::array{
+        t_device.createDescriptorSetLayoutUnique(create_info_0),
+        t_device.createDescriptorSetLayoutUnique(create_info_1),
+        t_device.createDescriptorSetLayoutUnique(create_info_2),
+    };
 }
 
 template <typename UniformBlock>
@@ -46,7 +93,7 @@ static auto create_buffer(const Allocator& t_allocator) -> MappedBuffer
 
 template <typename UniformBlock0, typename UniformBlock1>
 [[nodiscard]]
-static auto create_descriptor_set(
+static auto create_base_descriptor_set(
     const vk::Device              t_device,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool,
@@ -176,20 +223,20 @@ auto RenderModel::descriptor_pool_sizes() -> std::vector<vk::DescriptorPoolSize>
 }
 
 auto RenderModel::create_loader(
-    vk::Device                            t_device,
-    const Allocator&                      t_allocator,
-    const vk::DescriptorSetLayout         t_descriptor_set_layout,
-    const PipelineCreateInfo&             t_pipeline_create_info,
-    const vk::DescriptorPool              t_descriptor_pool,
-    const cache::Handle<graphics::Model>& t_model
+    vk::Device                                        t_device,
+    const Allocator&                                  t_allocator,
+    const std::span<const vk::DescriptorSetLayout, 3> t_descriptor_set_layouts,
+    const PipelineCreateInfo&                         t_pipeline_create_info,
+    const vk::DescriptorPool                          t_descriptor_pool,
+    const cache::Handle<graphics::Model>&             t_model
 ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>
 {
     MappedBuffer vertex_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
     MappedBuffer transform_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
-    vk::UniqueDescriptorSet descriptor_set{
-        create_descriptor_set<vk::DeviceAddress, vk::DeviceAddress>(
+    vk::UniqueDescriptorSet base_descriptor_set{
+        create_base_descriptor_set<vk::DeviceAddress, vk::DeviceAddress>(
             t_device,
-            t_descriptor_set_layout,
+            t_descriptor_set_layouts[0],
             t_descriptor_pool,
             vertex_uniform.get(),
             transform_uniform.get()
@@ -248,7 +295,7 @@ auto RenderModel::create_loader(
         [device                = t_device,
          vertex_uniform        = auto{ std::move(vertex_uniform) },
          transform_uniform     = auto{ std::move(transform_uniform) },
-         descriptor_set        = auto{ std::move(descriptor_set) },
+         base_descriptor_set   = auto{ std::move(base_descriptor_set) },
          pipeline              = auto{ std::move(pipeline) },
          vertex_staging_buffer = auto{ std::move(vertex_staging_buffer) },
          vertex_buffer         = auto{ std::move(vertex_buffer) },
@@ -282,7 +329,9 @@ auto RenderModel::create_loader(
             return RenderModel{ device,
                                 std::move(vertex_uniform),
                                 std::move(transform_uniform),
-                                std::move(descriptor_set),
+                                std::move(base_descriptor_set),
+                                {},
+                                {},
                                 std::move(pipeline),
                                 std::move(vertex_buffer),
                                 std::move(index_buffer),
@@ -292,10 +341,12 @@ auto RenderModel::create_loader(
     };
 }
 
-auto RenderModel::create_descriptor_set_layout(const vk::Device t_device
-) -> vk::UniqueDescriptorSetLayout
+auto RenderModel::create_descriptor_set_layouts(
+    const vk::Device                     t_device,
+    const DescriptorSetLayoutCreateInfo& t_info
+) -> std::array<vk::UniqueDescriptorSetLayout, 3>
 {
-    return ::create_descriptor_set_layout(t_device);
+    return ::create_descriptor_set_layouts(t_device, t_info);
 }
 
 auto RenderModel::push_constant_range() noexcept -> vk::PushConstantRange
@@ -319,7 +370,9 @@ auto RenderModel::draw(
         vk::PipelineBindPoint::eGraphics,
         t_pipeline_layout,
         1,
-        m_descriptor_set.get(),
+        std::array{
+            m_base_descriptor_set.get(),
+        },
         nullptr
     );
 
@@ -352,7 +405,9 @@ RenderModel::RenderModel(
     const vk::Device                 t_device,
     MappedBuffer&&                   t_vertex_uniform,
     MappedBuffer&&                   t_transform_uniform,
-    vk::UniqueDescriptorSet&&        t_descriptor_set,
+    vk::UniqueDescriptorSet&&        t_base_descriptor_set,
+    vk::UniqueDescriptorSet&&        t_image_descriptor_set,
+    vk::UniqueDescriptorSet&&        t_sampler_descriptor_set,
     vk::UniquePipeline&&             t_pipeline,
     Buffer&&                         t_vertex_buffer,
     Buffer&&                         t_index_buffer,
@@ -361,7 +416,9 @@ RenderModel::RenderModel(
 )
     : m_vertex_uniform{ std::move(t_vertex_uniform) },
       m_transform_uniform{ std::move(t_transform_uniform) },
-      m_descriptor_set(std::move(t_descriptor_set)),
+      m_base_descriptor_set(std::move(t_base_descriptor_set)),
+      m_image_descriptor_set(std::move(t_image_descriptor_set)),
+      m_sampler_descriptor_set(std::move(t_sampler_descriptor_set)),
       m_pipeline{ std::move(t_pipeline) },
       m_vertex_buffer(std::move(t_vertex_buffer)),
       m_index_buffer(std::move(t_index_buffer)),
