@@ -81,6 +81,66 @@ static auto create_descriptor_set_layouts(
     };
 }
 
+[[nodiscard]]
+static auto create_staging_buffer(
+    const Allocator&                          t_allocator,
+    const void*                               t_data,
+    const uint32_t                            t_size,
+    const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
+) -> MappedBuffer
+{
+    const uint32_t             size{ static_cast<uint32_t>(t_size) };
+    const vk::BufferCreateInfo staging_buffer_create_info = {
+        .size  = size,
+        .usage = vk::BufferUsageFlagBits::eTransferSrc,
+    };
+
+    return t_min_alignment
+        .transform([&](const vk::DeviceSize min_alignment) {
+            return t_allocator.create_mapped_buffer_with_alignment(
+                staging_buffer_create_info, min_alignment, t_data
+            );
+        })
+        .value_or(t_allocator.create_mapped_buffer(staging_buffer_create_info, t_data));
+}
+
+template <typename T>
+[[nodiscard]]
+static auto create_staging_buffer(
+    const Allocator&                          t_allocator,
+    const std::span<T>                        t_data,
+    const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
+) -> MappedBuffer
+{
+    return create_staging_buffer(
+        t_allocator,
+        t_data.data(),
+        static_cast<uint32_t>(t_data.size_bytes()),
+        t_min_alignment
+    );
+}
+
+[[nodiscard]]
+static auto create_gpu_only_buffer(
+    const Allocator&                          t_allocator,
+    const vk::BufferUsageFlags                t_usage_flags,
+    const uint32_t                            t_size,
+    const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
+) -> Buffer
+{
+    const vk::BufferCreateInfo buffer_create_info = {
+        .size = t_size, .usage = t_usage_flags | vk::BufferUsageFlagBits::eTransferDst
+    };
+
+    return t_min_alignment
+        .transform([&](const vk::DeviceSize min_alignment) {
+            return t_allocator.create_buffer_with_alignment(
+                buffer_create_info, min_alignment
+            );
+        })
+        .value_or(t_allocator.create_buffer(buffer_create_info));
+}
+
 template <typename UniformBlock>
 [[nodiscard]]
 static auto create_buffer(const Allocator& t_allocator) -> MappedBuffer
@@ -145,80 +205,6 @@ static auto create_base_descriptor_set(
     );
 
     return std::move(descriptor_sets.front());
-}
-
-[[nodiscard]]
-static auto create_pipeline(
-    const vk::Device                       t_device,
-    const RenderModel::PipelineCreateInfo& t_create_info
-) -> vk::UniquePipeline
-{
-    GraphicsPipelineBuilder builder{ t_create_info.effect };
-
-    builder.set_layout(t_create_info.layout);
-    builder.set_render_pass(t_create_info.render_pass);
-
-    return builder.build(t_device);
-}
-
-[[nodiscard]]
-static auto create_staging_buffer(
-    const Allocator&                          t_allocator,
-    const void*                               t_data,
-    const uint32_t                            t_size,
-    const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
-) -> MappedBuffer
-{
-    const uint32_t             size{ static_cast<uint32_t>(t_size) };
-    const vk::BufferCreateInfo staging_buffer_create_info = {
-        .size  = size,
-        .usage = vk::BufferUsageFlagBits::eTransferSrc,
-    };
-
-    return t_min_alignment
-        .transform([&](const vk::DeviceSize min_alignment) {
-            return t_allocator.create_mapped_buffer_with_alignment(
-                staging_buffer_create_info, min_alignment, t_data
-            );
-        })
-        .value_or(t_allocator.create_mapped_buffer(staging_buffer_create_info, t_data));
-}
-
-template <typename T>
-[[nodiscard]]
-static auto create_staging_buffer(
-    const Allocator&                          t_allocator,
-    const std::span<T>                        t_data,
-    const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
-) -> MappedBuffer
-{
-    return create_staging_buffer(
-        t_allocator,
-        t_data.data(),
-        static_cast<uint32_t>(t_data.size_bytes()),
-        t_min_alignment
-    );
-}
-
-[[nodiscard]]
-static auto create_gpu_only_buffer(
-    const Allocator&                          t_allocator,
-    const vk::BufferUsageFlags                t_usage_flags,
-    const uint32_t                            t_size,
-    const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
-) -> Buffer
-{
-    const vk::BufferCreateInfo buffer_create_info = {
-        .size = t_size, .usage = t_usage_flags | vk::BufferUsageFlagBits::eTransferDst
-    };
-
-    return t_min_alignment
-        .transform([&](const vk::DeviceSize min_alignment) {
-            return t_allocator.create_buffer_with_alignment(
-                buffer_create_info, min_alignment
-            );
-        })
-        .value_or(t_allocator.create_buffer(buffer_create_info));
 }
 
 [[nodiscard]]
@@ -350,6 +336,20 @@ static auto create_sampler(
     return t_device.createSamplerUnique(sampler_create_info);
 }
 
+[[nodiscard]]
+static auto create_pipeline(
+    const vk::Device                       t_device,
+    const RenderModel::PipelineCreateInfo& t_create_info
+) -> vk::UniquePipeline
+{
+    GraphicsPipelineBuilder builder{ t_create_info.effect };
+
+    builder.set_layout(t_create_info.layout);
+    builder.set_render_pass(t_create_info.render_pass);
+
+    return builder.build(t_device);
+}
+
 void transition_image_layout(
     vk::CommandBuffer t_command_buffer,
     vk::Image         t_image,
@@ -453,31 +453,6 @@ auto RenderModel::create_loader(
     cache::Handle<graphics::Model>                    t_model
 ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>
 {
-    MappedBuffer vertex_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
-    MappedBuffer transform_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
-    vk::UniqueDescriptorSet base_descriptor_set{
-        create_base_descriptor_set<vk::DeviceAddress, vk::DeviceAddress>(
-            t_device,
-            t_descriptor_set_layouts[0],
-            t_descriptor_pool,
-            vertex_uniform.get(),
-            transform_uniform.get()
-        )
-    };
-
-    vk::UniquePipeline pipeline{ create_pipeline(t_device, t_pipeline_create_info) };
-
-    MappedBuffer vertex_staging_buffer{
-        create_staging_buffer(t_allocator, std::span{ t_model->vertices() })
-    };
-    Buffer vertex_buffer{ create_gpu_only_buffer(
-        t_allocator,
-        vk::BufferUsageFlagBits::eStorageBuffer
-            | vk::BufferUsageFlagBits::eShaderDeviceAddress,
-        static_cast<uint32_t>(std::span{ t_model->vertices() }.size_bytes()),
-        16
-    ) };
-
     MappedBuffer index_staging_buffer{
         create_staging_buffer(t_allocator, std::span{ t_model->indices() })
     };
@@ -486,6 +461,18 @@ auto RenderModel::create_loader(
         vk::BufferUsageFlagBits::eIndexBuffer,
         static_cast<uint32_t>(std::span{ t_model->indices() }.size_bytes())
     ) };
+
+    MappedBuffer vertex_staging_buffer{
+        create_staging_buffer(t_allocator, std::span{ t_model->vertices() })
+    };
+    Buffer       vertex_buffer{ create_gpu_only_buffer(
+        t_allocator,
+        vk::BufferUsageFlagBits::eStorageBuffer
+            | vk::BufferUsageFlagBits::eShaderDeviceAddress,
+        static_cast<uint32_t>(std::span{ t_model->vertices() }.size_bytes()),
+        16
+    ) };
+    MappedBuffer vertex_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
     std::vector nodes_with_mesh{
         t_model->nodes() | std::views::filter([](const graphics::Model::Node& node) {
@@ -506,12 +493,23 @@ auto RenderModel::create_loader(
     MappedBuffer transform_staging_buffer{
         create_staging_buffer(t_allocator, std::span{ transforms })
     };
-    Buffer transform_buffer{ create_gpu_only_buffer(
+    Buffer       transform_buffer{ create_gpu_only_buffer(
         t_allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
         static_cast<uint32_t>(std::span{ transforms }.size_bytes())
     ) };
+    MappedBuffer transform_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
+
+    vk::UniqueDescriptorSet base_descriptor_set{
+        create_base_descriptor_set<vk::DeviceAddress, vk::DeviceAddress>(
+            t_device,
+            t_descriptor_set_layouts[0],
+            t_descriptor_pool,
+            vertex_uniform.get(),
+            transform_uniform.get()
+        )
+    };
 
     std::vector<MappedBuffer> image_staging_buffers{
         t_model->images()
@@ -558,43 +556,48 @@ auto RenderModel::create_loader(
         | std::ranges::to<std::vector>()
     };
 
+    vk::UniquePipeline pipeline{ create_pipeline(t_device, t_pipeline_create_info) };
+
     return std::packaged_task<RenderModel(vk::CommandBuffer)>{
         [device                = t_device,
-         vertex_uniform        = auto{ std::move(vertex_uniform) },
-         transform_uniform     = auto{ std::move(transform_uniform) },
-         base_descriptor_set   = auto{ std::move(base_descriptor_set) },
-         pipeline              = auto{ std::move(pipeline) },
-         vertex_staging_buffer = auto{ std::move(vertex_staging_buffer) },
-         vertex_buffer         = auto{ std::move(vertex_buffer) },
          index_staging_buffer  = auto{ std::move(index_staging_buffer) },
          index_buffer          = auto{ std::move(index_buffer) },
+         vertex_staging_buffer = auto{ std::move(vertex_staging_buffer) },
+         vertex_buffer         = auto{ std::move(vertex_buffer) },
+         vertex_uniform        = auto{ std::move(vertex_uniform) },
          transform_buffer_size =
              static_cast<uint32_t>(std::span{ transforms }.size_bytes()),
          transform_staging_buffer = auto{ std::move(transform_staging_buffer) },
          transform_buffer         = auto{ std::move(transform_buffer) },
+         transform_uniform        = auto{ std::move(transform_uniform) },
+         base_descriptor_set      = auto{ std::move(base_descriptor_set) },
          image_staging_buffers    = auto{ std::move(image_staging_buffers) },
          images                   = auto{ std::move(images) },
          image_views              = auto{ std::move(image_views) },
          samplers                 = auto{ std::move(samplers) },
+         pipeline                 = auto{ std::move(pipeline) },
          model                    = auto{ std::move(t_model
          ) }](const vk::CommandBuffer t_transfer_command_buffer) mutable -> RenderModel {
-            vk::BufferCopy copy_region{
-                .size = static_cast<uint32_t>(std::span{ model->vertices() }.size_bytes())
-            };
             t_transfer_command_buffer.copyBuffer(
-                vertex_staging_buffer.get(), vertex_buffer.get(), 1, &copy_region
+                index_staging_buffer.get(),
+                index_buffer.get(),
+                std::array{ vk::BufferCopy{ .size = static_cast<uint32_t>(
+                                                std::span{ model->indices() }.size_bytes()
+                                            ) } }
             );
 
-            copy_region = {
-                .size = static_cast<uint32_t>(std::span{ model->indices() }.size_bytes())
-            };
             t_transfer_command_buffer.copyBuffer(
-                index_staging_buffer.get(), index_buffer.get(), 1, &copy_region
+                vertex_staging_buffer.get(),
+                vertex_buffer.get(),
+                std::array{ vk::BufferCopy{ .size = static_cast<uint32_t>(
+                                                std::span{ model->vertices() }.size_bytes()
+                                            ) } }
             );
 
-            copy_region = { .size = transform_buffer_size };
             t_transfer_command_buffer.copyBuffer(
-                transform_staging_buffer.get(), transform_buffer.get(), 1, &copy_region
+                transform_staging_buffer.get(),
+                transform_buffer.get(),
+                std::array{ vk::BufferCopy{ .size = transform_buffer_size } }
             );
 
             for (auto&& [buffer, texture_image, image] :
@@ -622,18 +625,18 @@ auto RenderModel::create_loader(
             }
 
             return RenderModel{ device,
+                                std::move(index_buffer),
+                                std::move(vertex_buffer),
                                 std::move(vertex_uniform),
+                                std::move(transform_buffer),
                                 std::move(transform_uniform),
                                 std::move(base_descriptor_set),
-                                {},
-                                {},
-                                std::move(pipeline),
-                                std::move(vertex_buffer),
-                                std::move(index_buffer),
-                                std::move(transform_buffer),
                                 std::move(images),
                                 std::move(image_views),
+                                {},
                                 std::move(samplers),
+                                {},
+                                std::move(pipeline),
                                 std::move(model) };
         }
     };
@@ -700,33 +703,33 @@ auto RenderModel::draw(
 }
 
 RenderModel::RenderModel(
-    const vk::Device                   t_device,
+    vk::Device                         t_device,
+    Buffer&&                           t_index_buffer,
+    Buffer&&                           t_vertex_buffer,
     MappedBuffer&&                     t_vertex_uniform,
+    Buffer&&                           t_transform_buffer,
     MappedBuffer&&                     t_transform_uniform,
     vk::UniqueDescriptorSet&&          t_base_descriptor_set,
-    vk::UniqueDescriptorSet&&          t_image_descriptor_set,
-    vk::UniqueDescriptorSet&&          t_sampler_descriptor_set,
-    vk::UniquePipeline&&               t_pipeline,
-    Buffer&&                           t_vertex_buffer,
-    Buffer&&                           t_index_buffer,
-    Buffer&&                           t_transform_buffer,
     std::vector<Image>&&               t_images,
     std::vector<vk::UniqueImageView>&& t_image_views,
+    vk::UniqueDescriptorSet&&          t_image_descriptor_set,
     std::vector<vk::UniqueSampler>&&   t_samplers,
+    vk::UniqueDescriptorSet&&          t_sampler_descriptor_set,
+    vk::UniquePipeline&&               t_pipeline,
     cache::Handle<graphics::Model>&&   t_model
 )
-    : m_vertex_uniform{ std::move(t_vertex_uniform) },
+    : m_index_buffer{ std::move(t_index_buffer) },
+      m_vertex_buffer{ std::move(t_vertex_buffer) },
+      m_vertex_uniform{ std::move(t_vertex_uniform) },
+      m_transform_buffer{ std::move(t_transform_buffer) },
       m_transform_uniform{ std::move(t_transform_uniform) },
       m_base_descriptor_set{ std::move(t_base_descriptor_set) },
-      m_image_descriptor_set{ std::move(t_image_descriptor_set) },
-      m_sampler_descriptor_set{ std::move(t_sampler_descriptor_set) },
-      m_pipeline{ std::move(t_pipeline) },
-      m_vertex_buffer{ std::move(t_vertex_buffer) },
-      m_index_buffer{ std::move(t_index_buffer) },
-      m_transform_buffer{ std::move(t_transform_buffer) },
       m_images{ std::move(t_images) },
       m_image_views{ std::move(t_image_views) },
+      m_image_descriptor_set{ std::move(t_image_descriptor_set) },
       m_samplers{ std::move(t_samplers) },
+      m_sampler_descriptor_set{ std::move(t_sampler_descriptor_set) },
+      m_pipeline{ std::move(t_pipeline) },
       m_model{ std::move(t_model) }
 {
     vk::BufferDeviceAddressInfo buffer_device_address_info{

@@ -51,42 +51,48 @@ public:
     ) const noexcept -> void;
 
 private:
-    MappedBuffer            m_vertex_uniform;
-    MappedBuffer            m_transform_uniform;
-    vk::UniqueDescriptorSet m_base_descriptor_set;
-    vk::UniqueDescriptorSet m_image_descriptor_set;
-    vk::UniqueDescriptorSet m_sampler_descriptor_set;
-    vk::UniquePipeline      m_pipeline;
-
-    Buffer            m_vertex_buffer;
-    vk::DeviceAddress m_vertex_buffer_address;
-
     Buffer m_index_buffer;
 
-    Buffer            m_transform_buffer;
-    vk::DeviceAddress m_transform_buffer_address{};
+    // Base descriptor set
+    Buffer            m_vertex_buffer;
+    vk::DeviceAddress m_vertex_buffer_address;
+    MappedBuffer      m_vertex_uniform;
 
+    Buffer            m_transform_buffer;
+    vk::DeviceAddress m_transform_buffer_address;
+    MappedBuffer      m_transform_uniform;
+
+    vk::UniqueDescriptorSet m_base_descriptor_set;
+
+    // Image descriptor set
     std::vector<Image>               m_images;
     std::vector<vk::UniqueImageView> m_image_views;
+    vk::UniqueDescriptorSet          m_image_descriptor_set;
 
+    // Sampler descriptor set
     std::vector<vk::UniqueSampler> m_samplers;
+    vk::UniqueDescriptorSet        m_sampler_descriptor_set;
+
+    // Pipelines
+    vk::UniquePipeline m_pipeline;
 
     cache::Handle<graphics::Model> m_model;
 
+
     explicit RenderModel(
         vk::Device                         t_device,
+        Buffer&&                           t_index_buffer,
+        Buffer&&                           t_vertex_buffer,
         MappedBuffer&&                     t_vertex_uniform,
+        Buffer&&                           t_transform_buffer,
         MappedBuffer&&                     t_transform_uniform,
         vk::UniqueDescriptorSet&&          t_base_descriptor_set,
-        vk::UniqueDescriptorSet&&          t_image_descriptor_set,
-        vk::UniqueDescriptorSet&&          t_sampler_descriptor_set,
-        vk::UniquePipeline&&               t_pipeline,
-        Buffer&&                           t_vertex_buffer,
-        Buffer&&                           t_index_buffer,
-        Buffer&&                           t_transform_buffer,
         std::vector<Image>&&               t_images,
         std::vector<vk::UniqueImageView>&& t_image_views,
+        vk::UniqueDescriptorSet&&          t_image_descriptor_set,
         std::vector<vk::UniqueSampler>&&   t_samplers,
+        vk::UniqueDescriptorSet&&          t_sampler_descriptor_set,
+        vk::UniquePipeline&&               t_pipeline,
         cache::Handle<graphics::Model>&&   t_model
     );
 };
