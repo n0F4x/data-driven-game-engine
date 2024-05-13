@@ -6,6 +6,11 @@
 using namespace core;
 using namespace core::renderer;
 
+struct ShaderTexture {
+    uint32_t sampler_index;
+    uint32_t image_index;
+};
+
 struct PushConstants {
     uint32_t transform_index;
 };
@@ -21,12 +26,17 @@ static auto create_descriptor_set_layouts(
                                        .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
-                                       .stageFlags      = vk::ShaderStageFlagBits::eVertex },
+                                       .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 1,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
-                                       .stageFlags      = vk::ShaderStageFlagBits::eVertex }
+                                       .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
+        vk::DescriptorSetLayoutBinding{
+                                       .binding         = 2,
+                                       .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                                       .descriptorCount = 1,
+                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
     const vk::DescriptorSetLayoutCreateInfo create_info_0{
         .bindingCount = static_cast<uint32_t>(bindings_0.size()),
@@ -153,14 +163,15 @@ static auto create_buffer(const Allocator& t_allocator) -> MappedBuffer
     return t_allocator.create_mapped_buffer(buffer_create_info);
 }
 
-template <typename UniformBlock0, typename UniformBlock1>
+template <typename UniformBlock0, typename UniformBlock1, typename UniformBlock2>
 [[nodiscard]]
 static auto create_base_descriptor_set(
     const vk::Device              t_device,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool,
     const vk::Buffer              t_buffer_0,
-    const vk::Buffer              t_buffer_1
+    const vk::Buffer              t_buffer_1,
+    const vk::Buffer              t_buffer_2
 ) -> vk::UniqueDescriptorSet
 {
     const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
@@ -172,13 +183,17 @@ static auto create_base_descriptor_set(
         t_device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
     };
 
-    const vk::DescriptorBufferInfo buffer_info_1{
+    const vk::DescriptorBufferInfo buffer_info_0{
         .buffer = t_buffer_0,
         .range  = sizeof(UniformBlock0),
     };
-    const vk::DescriptorBufferInfo buffer_info_2{
+    const vk::DescriptorBufferInfo buffer_info_1{
         .buffer = t_buffer_1,
         .range  = sizeof(UniformBlock1),
+    };
+    const vk::DescriptorBufferInfo buffer_info_2{
+        .buffer = t_buffer_2,
+        .range  = sizeof(UniformBlock2),
     };
 
     std::array write_descriptor_sets{
@@ -187,15 +202,22 @@ static auto create_base_descriptor_set(
                                .dstBinding      = 0,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
-                               .pBufferInfo     = &buffer_info_1,
+                               .pBufferInfo     = &buffer_info_0,
                                },
         vk::WriteDescriptorSet{
                                .dstSet          = descriptor_sets.front().get(),
                                .dstBinding      = 1,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                               .pBufferInfo     = &buffer_info_1,
+                               },
+        vk::WriteDescriptorSet{
+                               .dstSet          = descriptor_sets.front().get(),
+                               .dstBinding      = 2,
+                               .descriptorCount = 1,
+                               .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                .pBufferInfo     = &buffer_info_2,
-                               }
+                               },
     };
 
     t_device.updateDescriptorSets(
@@ -557,6 +579,8 @@ auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_i
                                .descriptorCount = 1u },
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
+        vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
+                               .descriptorCount = 1u },
     };
 
     if (t_info.max_image_count > 0) {
@@ -632,13 +656,36 @@ auto RenderModel::create_loader(
     ) };
     MappedBuffer transform_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
+    std::vector<ShaderTexture> textures{
+        t_model->textures()
+        | std::views::transform([](const graphics::Model::Texture& texture) {
+              return ShaderTexture{
+                  .sampler_index =
+                      texture.sampler_index.value_or(std::numeric_limits<uint32_t>::max()),
+                  .image_index = texture.image_index,
+              };
+          })
+        | std::ranges::to<std::vector>()
+    };
+    MappedBuffer texture_staging_buffer{
+        create_staging_buffer(t_allocator, std::span{ textures })
+    };
+    Buffer       texture_buffer{ create_gpu_only_buffer(
+        t_allocator,
+        vk::BufferUsageFlagBits::eStorageBuffer
+            | vk::BufferUsageFlagBits::eShaderDeviceAddress,
+        static_cast<uint32_t>(std::span{ textures }.size_bytes())
+    ) };
+    MappedBuffer texture_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
+
     vk::UniqueDescriptorSet base_descriptor_set{
-        create_base_descriptor_set<vk::DeviceAddress, vk::DeviceAddress>(
+        create_base_descriptor_set<vk::DeviceAddress, vk::DeviceAddress, vk::DeviceAddress>(
             t_device,
             t_descriptor_set_layouts[0],
             t_descriptor_pool,
             vertex_uniform.get(),
-            transform_uniform.get()
+            transform_uniform.get(),
+            texture_uniform.get()
         )
     };
 
@@ -707,15 +754,19 @@ auto RenderModel::create_loader(
          transform_staging_buffer = auto{ std::move(transform_staging_buffer) },
          transform_buffer         = auto{ std::move(transform_buffer) },
          transform_uniform        = auto{ std::move(transform_uniform) },
-         base_descriptor_set      = auto{ std::move(base_descriptor_set) },
-         image_staging_buffers    = auto{ std::move(image_staging_buffers) },
-         images                   = auto{ std::move(images) },
-         image_views              = auto{ std::move(image_views) },
-         image_descriptor_set     = auto{ std::move(image_descriptor_set) },
-         samplers                 = auto{ std::move(samplers) },
-         sampler_descriptor_set   = auto{ std::move(sampler_descriptor_set) },
-         pipeline                 = auto{ std::move(pipeline) },
-         model                    = auto{ std::move(t_model
+         texture_buffer_size = static_cast<uint32_t>(std::span{ textures }.size_bytes()),
+         texture_staging_buffer = auto{ std::move(texture_staging_buffer) },
+         texture_buffer         = auto{ std::move(texture_buffer) },
+         texture_uniform        = auto{ std::move(texture_uniform) },
+         base_descriptor_set    = auto{ std::move(base_descriptor_set) },
+         image_staging_buffers  = auto{ std::move(image_staging_buffers) },
+         images                 = auto{ std::move(images) },
+         image_views            = auto{ std::move(image_views) },
+         image_descriptor_set   = auto{ std::move(image_descriptor_set) },
+         samplers               = auto{ std::move(samplers) },
+         sampler_descriptor_set = auto{ std::move(sampler_descriptor_set) },
+         pipeline               = auto{ std::move(pipeline) },
+         model                  = auto{ std::move(t_model
          ) }](const vk::CommandBuffer t_transfer_command_buffer) mutable -> RenderModel {
             t_transfer_command_buffer.copyBuffer(
                 index_staging_buffer.get(),
@@ -737,6 +788,12 @@ auto RenderModel::create_loader(
                 transform_staging_buffer.get(),
                 transform_buffer.get(),
                 std::array{ vk::BufferCopy{ .size = transform_buffer_size } }
+            );
+
+            t_transfer_command_buffer.copyBuffer(
+                texture_staging_buffer.get(),
+                texture_buffer.get(),
+                std::array{ vk::BufferCopy{ .size = texture_buffer_size } }
             );
 
             for (auto&& [buffer, texture_image, image] :
@@ -769,6 +826,8 @@ auto RenderModel::create_loader(
                                 std::move(vertex_uniform),
                                 std::move(transform_buffer),
                                 std::move(transform_uniform),
+                                std::move(texture_buffer),
+                                std::move(texture_uniform),
                                 std::move(base_descriptor_set),
                                 std::move(images),
                                 std::move(image_views),
@@ -848,6 +907,8 @@ RenderModel::RenderModel(
     MappedBuffer&&                     t_vertex_uniform,
     Buffer&&                           t_transform_buffer,
     MappedBuffer&&                     t_transform_uniform,
+    Buffer&&                           t_texture_buffer,
+    MappedBuffer&&                     t_texture_uniform,
     vk::UniqueDescriptorSet&&          t_base_descriptor_set,
     std::vector<Image>&&               t_images,
     std::vector<vk::UniqueImageView>&& t_image_views,
@@ -862,6 +923,8 @@ RenderModel::RenderModel(
       m_vertex_uniform{ std::move(t_vertex_uniform) },
       m_transform_buffer{ std::move(t_transform_buffer) },
       m_transform_uniform{ std::move(t_transform_uniform) },
+      m_texture_buffer{ std::move(t_texture_buffer) },
+      m_texture_uniform{ std::move(t_texture_uniform) },
       m_base_descriptor_set{ std::move(t_base_descriptor_set) },
       m_images{ std::move(t_images) },
       m_image_views{ std::move(t_image_views) },
@@ -871,16 +934,20 @@ RenderModel::RenderModel(
       m_pipeline{ std::move(t_pipeline) },
       m_model{ std::move(t_model) }
 {
-    vk::BufferDeviceAddressInfo buffer_device_address_info{
+    m_vertex_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
         .buffer = m_vertex_buffer.get(),
-    };
-    m_vertex_buffer_address = t_device.getBufferAddress(buffer_device_address_info);
-
-    buffer_device_address_info.buffer = m_transform_buffer.get();
-    m_transform_buffer_address = t_device.getBufferAddress(buffer_device_address_info);
-
+    });
     m_vertex_uniform.set(m_vertex_buffer_address);
+
+    m_transform_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
+        .buffer = m_transform_buffer.get(),
+    });
     m_transform_uniform.set(m_transform_buffer_address);
+
+    m_texture_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
+        .buffer = m_texture_buffer.get(),
+    });
+    m_texture_uniform.set(m_texture_buffer_address);
 }
 
 }   // namespace core::renderer

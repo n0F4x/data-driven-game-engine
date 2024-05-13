@@ -24,7 +24,8 @@ public:
         vk::RenderPass     render_pass;
     };
 
-    [[nodiscard]] static auto descriptor_set_count() noexcept -> uint32_t;
+    [[nodiscard]]
+    static auto descriptor_set_count() noexcept -> uint32_t;
     [[nodiscard]]
     static auto descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& info
     ) -> std::vector<vk::DescriptorPoolSize>;
@@ -64,6 +65,10 @@ private:
     vk::DeviceAddress m_transform_buffer_address;
     MappedBuffer      m_transform_uniform;
 
+    Buffer            m_texture_buffer;
+    vk::DeviceAddress m_texture_buffer_address;
+    MappedBuffer      m_texture_uniform;
+
     vk::UniqueDescriptorSet m_base_descriptor_set;
 
     // Image descriptor set
@@ -82,20 +87,22 @@ private:
 
 
     explicit RenderModel(
-        vk::Device                         t_device,
-        Buffer&&                           t_index_buffer,
-        Buffer&&                           t_vertex_buffer,
-        MappedBuffer&&                     t_vertex_uniform,
-        Buffer&&                           t_transform_buffer,
-        MappedBuffer&&                     t_transform_uniform,
-        vk::UniqueDescriptorSet&&          t_base_descriptor_set,
-        std::vector<Image>&&               t_images,
-        std::vector<vk::UniqueImageView>&& t_image_views,
-        vk::UniqueDescriptorSet&&          t_image_descriptor_set,
-        std::vector<vk::UniqueSampler>&&   t_samplers,
-        vk::UniqueDescriptorSet&&          t_sampler_descriptor_set,
-        vk::UniquePipeline&&               t_pipeline,
-        cache::Handle<graphics::Model>&&   t_model
+        vk::Device                         device,
+        Buffer&&                           index_buffer,
+        Buffer&&                           vertex_buffer,
+        MappedBuffer&&                     vertex_uniform,
+        Buffer&&                           transform_buffer,
+        MappedBuffer&&                     transform_uniform,
+        Buffer&&                           texture_buffer,
+        MappedBuffer&&                     texture_uniform,
+        vk::UniqueDescriptorSet&&          base_descriptor_set,
+        std::vector<Image>&&               images,
+        std::vector<vk::UniqueImageView>&& image_views,
+        vk::UniqueDescriptorSet&&          image_descriptor_set,
+        std::vector<vk::UniqueSampler>&&   samplers,
+        vk::UniqueDescriptorSet&&          sampler_descriptor_set,
+        vk::UniquePipeline&&               pipeline,
+        cache::Handle<graphics::Model>&&   model
     );
 };
 
