@@ -119,7 +119,7 @@ auto create_depth_image(
     const vk::PhysicalDevice   t_physical_device,
     const renderer::Allocator& t_allocator,
     const vk::Extent2D         t_swapchain_extent
-) noexcept -> renderer::Image
+) -> renderer::Image
 {
     const vk::ImageCreateInfo image_create_info = {
         .imageType = vk::ImageType::e2D,
@@ -133,7 +133,7 @@ auto create_depth_image(
         .initialLayout = vk::ImageLayout::eUndefined,
     };
 
-    constexpr VmaAllocationCreateInfo allocation_create_info = {
+    constexpr static VmaAllocationCreateInfo allocation_create_info = {
         .flags    = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
         .usage    = VMA_MEMORY_USAGE_AUTO,
         .priority = 1.f,

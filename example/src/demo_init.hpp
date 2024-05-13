@@ -23,7 +23,7 @@ auto create_depth_image(
     vk::PhysicalDevice               physical_device,
     const core::renderer::Allocator& allocator,
     vk::Extent2D                     swapchain_extent
-) noexcept -> core::renderer::Image;
+) -> core::renderer::Image;
 
 [[nodiscard]]
 auto create_depth_image_view(

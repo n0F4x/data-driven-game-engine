@@ -34,7 +34,7 @@ public:
         std::span<const vk::DescriptorSetLayout, 3> t_descriptor_set_layouts,
         const PipelineCreateInfo&                   t_pipeline_create_info,
         vk::DescriptorPool                          t_descriptor_pool,
-        const cache::Handle<graphics::Model>&       t_model
+        cache::Handle<graphics::Model>              t_model
     ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>;
 
     [[nodiscard]]
@@ -60,9 +60,13 @@ private:
 
     Buffer            m_vertex_buffer;
     vk::DeviceAddress m_vertex_buffer_address;
-    Buffer            m_index_buffer;
+
+    Buffer m_index_buffer;
+
     Buffer            m_transform_buffer;
     vk::DeviceAddress m_transform_buffer_address{};
+
+    std::vector<Image> m_images;
 
     cache::Handle<graphics::Model> m_model;
 
@@ -77,6 +81,7 @@ private:
         Buffer&&                         t_vertex_buffer,
         Buffer&&                         t_index_buffer,
         Buffer&&                         t_transform_buffer,
+        std::vector<Image>&&             t_images,
         cache::Handle<graphics::Model>&& t_model
     );
 };

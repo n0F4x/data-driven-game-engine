@@ -12,8 +12,8 @@ try {
         //    "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
         //    "models/Avocado/glTF-Binary/Avocado.glb"
         //    "models/DamagedHelmet.glb"
-        //    "models/Sponza/glTF/Sponza.gltf"
-        "models/armor/armor.gltf"
+        "models/Sponza/glTF/Sponza.gltf"
+        //        "models/armor/armor.gltf"
     };
 
     // for better debugging with Vulkan Configurator
