@@ -69,6 +69,8 @@ private:
     std::vector<Image>               m_images;
     std::vector<vk::UniqueImageView> m_image_views;
 
+    std::vector<vk::UniqueSampler> m_samplers;
+
     cache::Handle<graphics::Model> m_model;
 
     explicit RenderModel(
@@ -84,6 +86,7 @@ private:
         Buffer&&                           t_transform_buffer,
         std::vector<Image>&&               t_images,
         std::vector<vk::UniqueImageView>&& t_image_views,
+        std::vector<vk::UniqueSampler>&&   t_samplers,
         cache::Handle<graphics::Model>&&   t_model
     );
 };

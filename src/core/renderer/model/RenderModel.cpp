@@ -253,6 +253,103 @@ static auto create_image(
     return t_allocator.create_image(image_create_info, allocation_create_info);
 }
 
+[[nodiscard]]
+static auto create_image_view(
+    const vk::Device t_device,
+    const vk::Image  t_image,
+    const vk::Format t_format
+) -> vk::UniqueImageView
+{
+    const vk::ImageViewCreateInfo view_create_info{
+        .image    = t_image,
+        .viewType = vk::ImageViewType::e2D,
+        .format   = t_format,
+        .subresourceRange =
+            vk::ImageSubresourceRange{ .aspectMask     = vk::ImageAspectFlagBits::eColor,
+                                      .baseMipLevel   = 0,
+                                      .levelCount     = 1,
+                                      .baseArrayLayer = 0,
+                                      .layerCount     = 1 },
+    };
+
+    return t_device.createImageViewUnique(view_create_info);
+}
+
+[[nodiscard]]
+static auto to_mag_filter(graphics::Model::Sampler::MagFilter t_mag_filter
+) noexcept -> vk::Filter
+{
+    using enum graphics::Model::Sampler::MagFilter;
+    switch (t_mag_filter) {
+        case eNearest: return vk::Filter::eNearest;
+        case eLinear: return vk::Filter::eLinear;
+    }
+}
+
+[[nodiscard]]
+static auto to_min_filter(graphics::Model::Sampler::MinFilter t_min_filter
+) noexcept -> vk::Filter
+{
+    using enum graphics::Model::Sampler::MinFilter;
+    switch (t_min_filter) {
+        case eNearest: return vk::Filter::eNearest;
+        case eLinear: return vk::Filter::eLinear;
+        case eNearestMipmapNearest: return vk::Filter::eNearest;
+        case eLinearMipmapNearest: return vk::Filter::eLinear;
+        case eNearestMipmapLinear: return vk::Filter::eNearest;
+        case eLinearMipmapLinear: return vk::Filter::eLinear;
+    }
+}
+
+[[nodiscard]]
+static auto to_mipmap_mode(graphics::Model::Sampler::MinFilter t_min_filter
+) noexcept -> vk::SamplerMipmapMode
+{
+    using enum graphics::Model::Sampler::MinFilter;
+    switch (t_min_filter) {
+        case eNearest: [[fallthrough]];
+        case eLinear: return vk::SamplerMipmapMode::eLinear;
+        case eNearestMipmapNearest: [[fallthrough]];
+        case eLinearMipmapNearest: return vk::SamplerMipmapMode::eNearest;
+        case eNearestMipmapLinear: [[fallthrough]];
+        case eLinearMipmapLinear: return vk::SamplerMipmapMode::eLinear;
+    }
+}
+
+[[nodiscard]]
+static auto to_address_mode(graphics::Model::Sampler::WrapMode t_wrap_mode
+) noexcept -> vk::SamplerAddressMode
+{
+    using enum graphics::Model::Sampler::WrapMode;
+    switch (t_wrap_mode) {
+        case eClampToEdge: return vk::SamplerAddressMode::eClampToEdge;
+        case eMirroredRepeat: return vk::SamplerAddressMode::eMirroredRepeat;
+        case eRepeat: return vk::SamplerAddressMode::eRepeat;
+    }
+}
+
+[[nodiscard]]
+static auto create_sampler(
+    const vk::Device                t_device,
+    const graphics::Model::Sampler& t_sampler_info
+) -> vk::UniqueSampler
+{
+    const vk::SamplerCreateInfo sampler_create_info{
+        .magFilter = t_sampler_info.mag_filter.transform(to_mag_filter)
+                         .value_or(vk::Filter::eNearest),
+        .minFilter = t_sampler_info.min_filter.transform(to_min_filter)
+                         .value_or(vk::Filter::eNearest),
+        .mipmapMode = t_sampler_info.min_filter.transform(to_mipmap_mode)
+                          .value_or(vk::SamplerMipmapMode::eLinear),
+        .addressModeU = to_address_mode(t_sampler_info.wrap_s),
+        .addressModeV = to_address_mode(t_sampler_info.wrap_t),
+        .addressModeW = vk::SamplerAddressMode::eRepeat,
+        .maxLod       = vk::LodClampNone,
+    };
+
+    return t_device.createSamplerUnique(sampler_create_info);
+}
+
 void transition_image_layout(
     vk::CommandBuffer t_command_buffer,
     vk::Image         t_image,
@@ -329,28 +426,6 @@ void copy_buffer_to_image(
     t_command_buffer.copyBufferToImage(
         t_buffer, t_image, vk::ImageLayout::eTransferDstOptimal, 1, &region
     );
-}
-
-[[nodiscard]]
-static auto create_image_view(
-    const vk::Device t_device,
-    const vk::Image  t_image,
-    const vk::Format t_format
-) -> vk::UniqueImageView
-{
-    const vk::ImageViewCreateInfo view_create_info{
-        .image    = t_image,
-        .viewType = vk::ImageViewType::e2D,
-        .format   = t_format,
-        .subresourceRange =
-            vk::ImageSubresourceRange{ .aspectMask     = vk::ImageAspectFlagBits::eColor,
-                                      .baseMipLevel   = 0,
-                                      .levelCount     = 1,
-                                      .baseArrayLayer = 0,
-                                      .layerCount     = 1 },
-    };
-
-    return t_device.createImageViewUnique(view_create_info);
 }
 
 namespace core::renderer {
@@ -477,6 +552,12 @@ auto RenderModel::create_loader(
         | std::ranges::to<std::vector>()
     };
 
+    std::vector<vk::UniqueSampler> samplers{
+        t_model->samplers()
+        | std::views::transform(std::bind_front(create_sampler, t_device))
+        | std::ranges::to<std::vector>()
+    };
+
     return std::packaged_task<RenderModel(vk::CommandBuffer)>{
         [device                = t_device,
          vertex_uniform        = auto{ std::move(vertex_uniform) },
@@ -494,6 +575,7 @@ auto RenderModel::create_loader(
          image_staging_buffers    = auto{ std::move(image_staging_buffers) },
          images                   = auto{ std::move(images) },
          image_views              = auto{ std::move(image_views) },
+         samplers                 = auto{ std::move(samplers) },
          model                    = auto{ std::move(t_model
          ) }](const vk::CommandBuffer t_transfer_command_buffer) mutable -> RenderModel {
             vk::BufferCopy copy_region{
@@ -551,6 +633,7 @@ auto RenderModel::create_loader(
                                 std::move(transform_buffer),
                                 std::move(images),
                                 std::move(image_views),
+                                std::move(samplers),
                                 std::move(model) };
         }
     };
@@ -629,6 +712,7 @@ RenderModel::RenderModel(
     Buffer&&                           t_transform_buffer,
     std::vector<Image>&&               t_images,
     std::vector<vk::UniqueImageView>&& t_image_views,
+    std::vector<vk::UniqueSampler>&&   t_samplers,
     cache::Handle<graphics::Model>&&   t_model
 )
     : m_vertex_uniform{ std::move(t_vertex_uniform) },
@@ -642,6 +726,7 @@ RenderModel::RenderModel(
       m_transform_buffer{ std::move(t_transform_buffer) },
       m_images{ std::move(t_images) },
       m_image_views{ std::move(t_image_views) },
+      m_samplers{ std::move(t_samplers) },
       m_model{ std::move(t_model) }
 {
     vk::BufferDeviceAddressInfo buffer_device_address_info{
