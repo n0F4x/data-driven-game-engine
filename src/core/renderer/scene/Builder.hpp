@@ -17,20 +17,20 @@ public:
         Effect                         effect;
     };
 
-    auto add_model(const cache::Handle<graphics::Model>& t_model, const Effect& t_effect)
+    auto set_cache(cache::Cache& cache) noexcept -> Builder&;
+
+    auto add_model(const cache::Handle<graphics::Model>& model, const Effect& effect)
         -> Builder&;
-    auto add_model(cache::Handle<graphics::Model>&& t_model, const Effect& t_effect)
+    auto add_model(cache::Handle<graphics::Model>&& model, const Effect& effect)
         -> Builder&;
 
     [[nodiscard]]
-    auto build(
-        vk::Device        t_device,
-        const Allocator&  t_allocator,
-        vk::RenderPass    t_render_pass
-    ) const -> std::packaged_task<Scene(vk::CommandBuffer)>;
+    auto build(vk::Device device, const Allocator& allocator, vk::RenderPass render_pass)
+        const -> std::packaged_task<Scene(vk::CommandBuffer)>;
 
 private:
-    std::vector<ModelInfo> m_models;
+    std::optional<std::reference_wrapper<cache::Cache>> m_cache;
+    std::vector<ModelInfo>                              m_models;
 };
 
 }   // namespace core::renderer

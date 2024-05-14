@@ -102,25 +102,25 @@ public:
         bool                                double_sided{ false };
     };
 
-    struct Primitive {
-        enum class Topology {
-            ePoints,
-            eLineStrips,
-            eLineLoops,
-            eLines,
-            eTriangles,
-            eTriangleStrips,
-            eTriangleFans
+    struct Mesh {
+        struct Primitive {
+            enum class Topology {
+                ePoints,
+                eLineStrips,
+                eLineLoops,
+                eLines,
+                eTriangles,
+                eTriangleStrips,
+                eTriangleFans
+            };
+
+            Topology                mode;
+            std::optional<uint32_t> material_index;
+            uint32_t                first_index_index;
+            uint32_t                index_count;
+            uint32_t                vertex_count;
         };
 
-        Topology                mode;
-        std::optional<uint32_t> material_index;
-        uint32_t                first_index_index;
-        uint32_t                index_count;
-        uint32_t                vertex_count;
-    };
-
-    struct Mesh {
         std::vector<Primitive> primitives;
     };
 
@@ -143,6 +143,12 @@ public:
         const std::filesystem::path& t_filepath,
         std::optional<size_t>        t_scene_id
     ) noexcept -> size_t;
+
+    [[nodiscard]]
+    static auto default_sampler() -> const Sampler&;
+
+    [[nodiscard]]
+    static auto default_material() -> const Material&;
 
     [[nodiscard]]
     auto vertices() const noexcept -> const std::vector<Vertex>&;

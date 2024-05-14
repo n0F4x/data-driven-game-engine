@@ -8,7 +8,6 @@
 #include "core/cache/Handle.hpp"
 
 #include "Effect.hpp"
-#include "GraphicsPipeline.hpp"
 
 namespace core::renderer {
 

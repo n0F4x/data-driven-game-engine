@@ -9,9 +9,9 @@
 auto main() -> int
 try {
     const std::string model_file_path{
-        //    "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
-        //    "models/Avocado/glTF-Binary/Avocado.glb"
-        //    "models/DamagedHelmet.glb"
+        //        "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
+        //        "models/Avocado/glTF-Binary/Avocado.glb"
+        //        "models/DamagedHelmet.glb"
         "models/Sponza/glTF/Sponza.gltf"
         //        "models/armor/armor.gltf"
     };

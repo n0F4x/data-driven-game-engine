@@ -64,15 +64,6 @@ auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass t_render_pass
 
 auto GraphicsPipelineBuilder::build(const vk::Device t_device) const -> vk::UniquePipeline
 {
-    // TODO: move caching
-    //    if (const auto cached{ m_cache.and_then([&](const cache::Cache& cache) {
-    //            return cache.find<GraphicsPipeline>(GraphicsPipeline::hash(*this));
-    //        }) };
-    //        cached.has_value())
-    //    {
-    //        return cached.value();
-    //    }
-
     // TODO: allow vertex input states
     constexpr static vk::PipelineVertexInputStateCreateInfo
         vertex_input_state_create_info{};
@@ -145,21 +136,6 @@ auto GraphicsPipelineBuilder::build(const vk::Device t_device) const -> vk::Uniq
         .layout              = m_layout,
         .renderPass          = m_render_pass,
     };
-
-    // TODO: move caching
-    //    return m_cache
-    //        .transform([&](cache::Cache& cache) {
-    //            return cache.insert<vk::UniquePipeline>(
-    //                GraphicsPipeline::hash(*this),
-    //                cache::make_handle<vk::UniquePipeline>(
-    //                    t_device.createGraphicsPipelineUnique(nullptr,
-    //                    create_info).value
-    //                )
-    //            );
-    //        })
-    //        .value_or(cache::make_handle<vk::UniquePipeline>(
-    //            t_device.createGraphicsPipelineUnique(nullptr, create_info).value
-    //        ));
 
     return t_device.createGraphicsPipelineUnique(nullptr, create_info).value;
 }

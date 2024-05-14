@@ -1,6 +1,8 @@
+#define MAX_UINT_VALUE = 0xffffffff;
+
 struct TextureInfo {
-    int index;
-    int texCoord;
+    uint index;
+    uint texCoord;
 };
 
 struct MetallicRoughness {
@@ -11,14 +13,14 @@ struct MetallicRoughness {
 };
 
 struct NormalTextureInfo {
-    int index;
-    int texCoord;
+    uint index;
+    uint texCoord;
     float scale;
 };
 
 struct OcclusionTextureInfo {
-    int index;
-    int texCoord;
+    uint index;
+    uint texCoord;
     float strength;
 };
 

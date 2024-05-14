@@ -23,10 +23,22 @@ auto Model::Node::matrix() const -> glm::mat4
 
 auto Model::hash(
     const std::filesystem::path& t_filepath,
-    const std::optional<size_t>   t_scene_id
+    const std::optional<size_t>  t_scene_id
 ) noexcept -> size_t
 {
     return hash_combine(t_filepath, t_scene_id);
+}
+
+auto Model::default_sampler() -> const Sampler&
+{
+    static const Sampler s_default_sampler{};
+    return s_default_sampler;
+}
+
+auto Model::default_material() -> const Material&
+{
+    static const Material s_default_material{};
+    return s_default_material;
 }
 
 auto Model::vertices() const noexcept -> const std::vector<Vertex>&

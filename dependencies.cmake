@@ -1,4 +1,6 @@
+include(FetchContent)
 set(BUILD_SHARED_LIBS OFF)
+
 
 if (DEFINED CMAKE_TOOLCHAIN_FILE)
     message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")

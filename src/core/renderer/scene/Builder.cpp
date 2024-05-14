@@ -164,6 +164,12 @@ static auto create_global_descriptor_set(
 
 namespace core::renderer {
 
+auto Scene::Builder::set_cache(cache::Cache& t_cache) noexcept -> Scene::Builder&
+{
+    m_cache = t_cache;
+    return *this;
+}
+
 auto Scene::Builder::add_model(
     const cache::Handle<graphics::Model>& t_model,
     const Effect&                         t_effect
@@ -188,6 +194,8 @@ auto Scene::Builder::build(
     vk::RenderPass   t_render_pass
 ) const -> std::packaged_task<Scene(vk::CommandBuffer)>
 {
+    cache::Cache temp_cache{};
+
     vk::UniqueDescriptorSetLayout global_descriptor_set_layout{
         create_global_descriptor_set_layout(t_device)
     };
@@ -239,7 +247,8 @@ auto Scene::Builder::build(
                                                  .layout      = pipeline_layout.get(),
                                                  .render_pass = t_render_pass },
                 descriptor_pool.get(),
-                model_info.handle
+                model_info.handle,
+                m_cache.value_or(temp_cache)
             );
         })
         | std::ranges::to<std::vector>()

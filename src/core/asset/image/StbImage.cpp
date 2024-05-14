@@ -9,19 +9,19 @@ auto StbImage::load_from_file(const std::filesystem::path& t_filepath
         return std::nullopt;
     }
 
-    int       width{};
-    int       height{};
-    const int desired_channels_count{ STBI_rgb_alpha };
-    stbi_uc*  data{ stbi_load(
-        t_filepath.generic_string().c_str(), &width, &height, nullptr, desired_channels_count
-    ) };
+    int      width{};
+    int      height{};
+    int      channel_count{};
+    stbi_uc* data{
+        stbi_load(t_filepath.generic_string().c_str(), &width, &height, &channel_count, 0)
+    };
 
     if (data == nullptr) {
         SPDLOG_ERROR(stbi_failure_reason());
         return std::nullopt;
     }
 
-    return StbImage{ data, width, height, desired_channels_count };
+    return StbImage{ data, width, height, channel_count };
 }
 
 auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
@@ -35,16 +35,11 @@ auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
         return std::nullopt;
     }
 
-    int       width{};
-    int       height{};
-    const int desired_channels_count{ STBI_rgb_alpha };
-    stbi_uc*  data{ stbi_load_from_memory(
-        t_data.data(),
-        static_cast<int>(t_data.size()),
-        &width,
-        &height,
-        nullptr,
-        desired_channels_count
+    int      width{};
+    int      height{};
+    int      channel_count{};
+    stbi_uc* data{ stbi_load_from_memory(
+        t_data.data(), static_cast<int>(t_data.size()), &width, &height, &channel_count, 0
     ) };
 
     if (data == nullptr) {
@@ -52,7 +47,7 @@ auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
         return std::nullopt;
     }
 
-    return StbImage{ data, width, height, desired_channels_count };
+    return StbImage{ data, width, height, channel_count };
 }
 
 auto StbImage::data() const noexcept -> void*

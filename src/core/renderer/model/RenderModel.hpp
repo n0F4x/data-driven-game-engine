@@ -32,12 +32,13 @@ public:
 
     [[nodiscard]]
     static auto create_loader(
-        vk::Device                                  t_device,
-        const Allocator&                            t_allocator,
-        std::span<const vk::DescriptorSetLayout, 3> t_descriptor_set_layouts,
-        const PipelineCreateInfo&                   t_pipeline_create_info,
-        vk::DescriptorPool                          t_descriptor_pool,
-        cache::Handle<graphics::Model>              t_model
+        vk::Device                                  device,
+        const Allocator&                            allocator,
+        std::span<const vk::DescriptorSetLayout, 3> descriptor_set_layouts,
+        const PipelineCreateInfo&                   pipeline_create_info,
+        vk::DescriptorPool                          descriptor_pool,
+        cache::Handle<graphics::Model>              model,
+        cache::Cache&                               cache
     ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>;
 
     [[nodiscard]]
@@ -54,6 +55,17 @@ public:
     ) const noexcept -> void;
 
 private:
+    struct Mesh {
+        struct Primitive {
+            cache::Handle<vk::UniquePipeline> pipeline;
+            uint32_t                          first_index_index;
+            uint32_t                          index_count;
+            uint32_t                          vertex_count;
+        };
+
+        std::vector<Primitive> primitives;
+    };
+
     Buffer m_index_buffer;
 
     // Base descriptor set
@@ -81,9 +93,7 @@ private:
     vk::UniqueDescriptorSet        m_sampler_descriptor_set;
 
     // Pipelines
-    vk::UniquePipeline m_pipeline;
-
-    cache::Handle<graphics::Model> m_model;
+    std::vector<Mesh> m_meshes;
 
 
     explicit RenderModel(
@@ -101,8 +111,7 @@ private:
         vk::UniqueDescriptorSet&&          image_descriptor_set,
         std::vector<vk::UniqueSampler>&&   samplers,
         vk::UniqueDescriptorSet&&          sampler_descriptor_set,
-        vk::UniquePipeline&&               pipeline,
-        cache::Handle<graphics::Model>&&   model
+        std::vector<Mesh>&&                meshes
     );
 };
 

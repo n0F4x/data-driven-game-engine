@@ -15,7 +15,8 @@ static auto load_scene(
     const renderer::Device&    t_device,
     const renderer::Allocator& t_allocator,
     vk::RenderPass             t_render_pass,
-    graphics::Model&&          t_model
+    graphics::Model&&          t_model,
+    cache::Cache&              t_cache
 ) -> std::optional<renderer::Scene>
 {
     auto opt_vertex_shader_module{
@@ -58,6 +59,7 @@ static auto load_scene(
                                       ),
                                       "main" } }
             )
+            .set_cache(t_cache)
             .build(t_device.get(), t_allocator, t_render_pass)
     };
 
@@ -88,6 +90,7 @@ static auto load_scene(
 auto DemoRenderer::create(Store& t_store, const std::string& t_model_filepath)
     -> std::optional<DemoRenderer>
 {
+    auto&       cache{ t_store.at<cache::Cache>() };
     const auto& window{ t_store.at<window::Window>() };
     auto&       device{ t_store.at<renderer::Device>() };
     auto&       allocator{ t_store.at<renderer::Allocator>() };
@@ -167,9 +170,9 @@ auto DemoRenderer::create(Store& t_store, const std::string& t_model_filepath)
         return std::nullopt;
     }
 
-    auto opt_scene{
-        load_scene(device, allocator, render_pass.get(), std::move(opt_model.value()))
-    };
+    auto opt_scene{ load_scene(
+        device, allocator, render_pass.get(), std::move(opt_model.value()), cache
+    ) };
     if (!opt_scene.has_value()) {
         return std::nullopt;
     }

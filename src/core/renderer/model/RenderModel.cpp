@@ -473,17 +473,57 @@ static auto create_sampler_descriptor_set(
 }
 
 [[nodiscard]]
+static auto convert(graphics::Model::Mesh::Primitive::Topology t_topology
+) -> vk::PrimitiveTopology
+{
+    using enum graphics::Model::Mesh::Primitive::Topology;
+    switch (t_topology) {
+        case ePoints: return vk::PrimitiveTopology::ePointList;
+        case eLineStrips: return vk::PrimitiveTopology::eLineStrip;
+        case eLineLoops:
+            throw std::runtime_error{ std::format(
+                "Unsupported primitive topology: {}", std::to_underlying(eLineLoops)
+            ) };
+        case eLines: return vk::PrimitiveTopology::eLineList;
+        case eTriangles: return vk::PrimitiveTopology::eTriangleList;
+        case eTriangleStrips: return vk::PrimitiveTopology::eTriangleStrip;
+        case eTriangleFans: return vk::PrimitiveTopology::eTriangleFan;
+    }
+}
+
+size_t pipeline_builder_count{};
+size_t pipeline_count{};
+
+[[nodiscard]]
 static auto create_pipeline(
     const vk::Device                       t_device,
-    const RenderModel::PipelineCreateInfo& t_create_info
-) -> vk::UniquePipeline
+    const RenderModel::PipelineCreateInfo& t_create_info,
+    const graphics::Model::Mesh::Primitive t_primitive,
+    const graphics::Model::Material        t_material,
+    cache::Cache&                          t_cache
+) -> cache::Handle<vk::UniquePipeline>
 {
     GraphicsPipelineBuilder builder{ t_create_info.effect };
+    pipeline_builder_count++;
 
     builder.set_layout(t_create_info.layout);
     builder.set_render_pass(t_create_info.render_pass);
+    builder.set_primitive_topology(convert(t_primitive.mode));
+    builder.set_cull_mode(
+        t_material.double_sided ? vk::CullModeFlagBits::eNone : vk::CullModeFlagBits::eBack
+    );
+    if (t_material.alpha_mode == core::graphics::Model::Material::AlphaMode::eBlend) {
+        builder.enable_blending();
+    }
 
-    return builder.build(t_device);
+    auto hash{ hash_value(builder) };
+
+    return t_cache.find<vk::UniquePipeline>(hash)
+        .transform([](auto&& value) {
+            pipeline_count++;
+            return std::forward<decltype(value)>(value);
+        })
+        .value_or(t_cache.emplace<vk::UniquePipeline>(hash, builder.build(t_device)));
 }
 
 void transition_image_layout(
@@ -548,15 +588,14 @@ void copy_buffer_to_image(
     vk::CommandBuffer t_command_buffer,
     vk::Buffer        t_buffer,
     vk::Image         t_image,
-    uint32_t          t_width,
-    uint32_t          t_height
+    vk::Extent2D      t_extent
 )
 {
     const vk::BufferImageCopy region{
         .imageSubresource =
             vk::ImageSubresourceLayers{ .aspectMask = vk::ImageAspectFlagBits::eColor,
                                        .layerCount = 1 },
-        .imageExtent = vk::Extent3D{ t_width, t_height, 1 },
+        .imageExtent = vk::Extent3D{ t_extent.width, t_extent.height, 1 },
     };
 
     t_command_buffer.copyBufferToImage(
@@ -605,7 +644,8 @@ auto RenderModel::create_loader(
     const std::span<const vk::DescriptorSetLayout, 3> t_descriptor_set_layouts,
     const PipelineCreateInfo&                         t_pipeline_create_info,
     const vk::DescriptorPool                          t_descriptor_pool,
-    cache::Handle<graphics::Model>                    t_model
+    cache::Handle<graphics::Model>                    t_model,
+    cache::Cache&                                     t_cache
 ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>
 {
     MappedBuffer index_staging_buffer{
@@ -689,6 +729,13 @@ auto RenderModel::create_loader(
         )
     };
 
+    std::vector<vk::Extent2D> image_extents{
+        t_model->images()
+        | std::views::transform([&](const graphics::Model::Image& image) {
+              return vk::Extent2D{ image->width(), image->height() };
+          })
+        | std::ranges::to<std::vector>()
+    };
     std::vector<MappedBuffer> image_staging_buffers{
         t_model->images()
         | std::views::transform([&](const graphics::Model::Image& image) {
@@ -740,12 +787,47 @@ auto RenderModel::create_loader(
         t_device, t_descriptor_set_layouts[2], t_descriptor_pool, samplers
     ) };
 
-    vk::UniquePipeline pipeline{ create_pipeline(t_device, t_pipeline_create_info) };
+    std::vector<Mesh> meshes{
+        t_model->meshes() | std::views::transform([&](const graphics::Model::Mesh& mesh) {
+            return Mesh{
+                .primitives =
+                    mesh.primitives
+                    | std::views::transform([&](const graphics::Model::Mesh::Primitive&
+                                                    primitive) {
+                          return Mesh::Primitive{
+                              .pipeline = create_pipeline(
+                                  t_device,
+                                  t_pipeline_create_info,
+                                  primitive,
+                                  primitive.material_index
+                                      .transform([&t_model](const size_t material_index) {
+                                          return t_model->materials().at(material_index);
+                                      })
+                                      .value_or(graphics::Model::default_material()),
+                                  t_cache
+                              ),
+                              .first_index_index = primitive.first_index_index,
+                              .index_count       = primitive.index_count,
+                              .vertex_count      = primitive.vertex_count,
+                          };
+                      })
+                    | std::ranges::to<std::vector>()
+            };
+        })
+        | std::ranges::to<std::vector>()
+    };
+
+    std::println("Pipeline builder count: {}", pipeline_builder_count);
+    std::println("Pipeline count: {}", pipeline_count);
 
     return std::packaged_task<RenderModel(vk::CommandBuffer)>{
-        [device                = t_device,
-         index_staging_buffer  = auto{ std::move(index_staging_buffer) },
-         index_buffer          = auto{ std::move(index_buffer) },
+        [device = t_device,
+         index_buffer_size =
+             static_cast<uint32_t>(std::span{ t_model->indices() }.size_bytes()),
+         index_staging_buffer = auto{ std::move(index_staging_buffer) },
+         index_buffer         = auto{ std::move(index_buffer) },
+         vertex_buffer_size =
+             static_cast<uint32_t>(std::span{ t_model->vertices() }.size_bytes()),
          vertex_staging_buffer = auto{ std::move(vertex_staging_buffer) },
          vertex_buffer         = auto{ std::move(vertex_buffer) },
          vertex_uniform        = auto{ std::move(vertex_uniform) },
@@ -759,29 +841,25 @@ auto RenderModel::create_loader(
          texture_buffer         = auto{ std::move(texture_buffer) },
          texture_uniform        = auto{ std::move(texture_uniform) },
          base_descriptor_set    = auto{ std::move(base_descriptor_set) },
+         image_extents          = auto{ std::move(image_extents) },
          image_staging_buffers  = auto{ std::move(image_staging_buffers) },
          images                 = auto{ std::move(images) },
          image_views            = auto{ std::move(image_views) },
          image_descriptor_set   = auto{ std::move(image_descriptor_set) },
          samplers               = auto{ std::move(samplers) },
          sampler_descriptor_set = auto{ std::move(sampler_descriptor_set) },
-         pipeline               = auto{ std::move(pipeline) },
-         model                  = auto{ std::move(t_model
+         meshes                 = auto{ std::move(meshes
          ) }](const vk::CommandBuffer t_transfer_command_buffer) mutable -> RenderModel {
             t_transfer_command_buffer.copyBuffer(
                 index_staging_buffer.get(),
                 index_buffer.get(),
-                std::array{ vk::BufferCopy{ .size = static_cast<uint32_t>(
-                                                std::span{ model->indices() }.size_bytes()
-                                            ) } }
+                std::array{ vk::BufferCopy{ .size = index_buffer_size } }
             );
 
             t_transfer_command_buffer.copyBuffer(
                 vertex_staging_buffer.get(),
                 vertex_buffer.get(),
-                std::array{ vk::BufferCopy{ .size = static_cast<uint32_t>(
-                                                std::span{ model->vertices() }.size_bytes()
-                                            ) } }
+                std::array{ vk::BufferCopy{ .size = vertex_buffer_size } }
             );
 
             t_transfer_command_buffer.copyBuffer(
@@ -796,8 +874,8 @@ auto RenderModel::create_loader(
                 std::array{ vk::BufferCopy{ .size = texture_buffer_size } }
             );
 
-            for (auto&& [buffer, texture_image, image] :
-                 std::views::zip(image_staging_buffers, images, model->images()))
+            for (auto&& [buffer, texture_image, extent] :
+                 std::views::zip(image_staging_buffers, images, image_extents))
             {
                 transition_image_layout(
                     t_transfer_command_buffer,
@@ -806,11 +884,7 @@ auto RenderModel::create_loader(
                     vk::ImageLayout::eTransferDstOptimal
                 );
                 copy_buffer_to_image(
-                    t_transfer_command_buffer,
-                    buffer.get(),
-                    texture_image.get(),
-                    image->width(),
-                    image->height()
+                    t_transfer_command_buffer, buffer.get(), texture_image.get(), extent
                 );
                 transition_image_layout(
                     t_transfer_command_buffer,
@@ -834,8 +908,7 @@ auto RenderModel::create_loader(
                                 std::move(image_descriptor_set),
                                 std::move(samplers),
                                 std::move(sampler_descriptor_set),
-                                std::move(pipeline),
-                                std::move(model) };
+                                std::move(meshes) };
         }
     };
 }
@@ -875,13 +948,8 @@ auto RenderModel::draw(
         nullptr
     );
 
-    t_graphics_command_buffer.bindPipeline(
-        vk::PipelineBindPoint::eGraphics, m_pipeline.get()
-    );
-
-    for (const auto& [mesh, mesh_index] : std::views::zip(
-             m_model->meshes(), std::views::iota(0u, m_model->meshes().size())
-         ))
+    for (const auto& [mesh, mesh_index] :
+         std::views::zip(m_meshes, std::views::iota(0u, m_meshes.size())))
     {
         PushConstants push_constants{ .transform_index = mesh_index };
         t_graphics_command_buffer.pushConstants(
@@ -893,6 +961,10 @@ auto RenderModel::draw(
         );
 
         for (const auto& primitive : mesh.primitives) {
+            t_graphics_command_buffer.bindPipeline(
+                vk::PipelineBindPoint::eGraphics, primitive.pipeline.get()->get()
+            );
+
             t_graphics_command_buffer.drawIndexed(
                 primitive.index_count, 1, primitive.first_index_index, 0, 0
             );
@@ -915,8 +987,7 @@ RenderModel::RenderModel(
     vk::UniqueDescriptorSet&&          t_image_descriptor_set,
     std::vector<vk::UniqueSampler>&&   t_samplers,
     vk::UniqueDescriptorSet&&          t_sampler_descriptor_set,
-    vk::UniquePipeline&&               t_pipeline,
-    cache::Handle<graphics::Model>&&   t_model
+    std::vector<Mesh>&&                t_meshes
 )
     : m_index_buffer{ std::move(t_index_buffer) },
       m_vertex_buffer{ std::move(t_vertex_buffer) },
@@ -931,8 +1002,7 @@ RenderModel::RenderModel(
       m_image_descriptor_set{ std::move(t_image_descriptor_set) },
       m_samplers{ std::move(t_samplers) },
       m_sampler_descriptor_set{ std::move(t_sampler_descriptor_set) },
-      m_pipeline{ std::move(t_pipeline) },
-      m_model{ std::move(t_model) }
+      m_meshes{ std::move(t_meshes) }
 {
     m_vertex_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
         .buffer = m_vertex_buffer.get(),

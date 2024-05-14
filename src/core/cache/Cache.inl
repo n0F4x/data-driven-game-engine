@@ -48,8 +48,8 @@ auto BasicCache<IdType, ContainerTemplate>::find(ID t_id
             if (iter == t_container.cend()) {
                 return std::nullopt;
             }
-            const auto result{ iter->second.lock() };
-            return result ? result : std::nullopt;
+            auto result{ iter->second.lock() };
+            return result != nullptr ? std::optional{ std::move(result) } : std::nullopt;
         }
     );
 }

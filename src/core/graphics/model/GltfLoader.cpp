@@ -74,19 +74,19 @@ static auto load_primitive(
     internal::GltfModel&       t_loader,
     const fastgltf::Asset&     t_asset,
     const fastgltf::Primitive& t_source_primitive
-) -> std::optional<Model::Primitive>;
+) -> std::optional<Model::Mesh::Primitive>;
 
 [[nodiscard]]
 static auto load_vertices(
     internal::GltfModel&                                                      t_loader,
-    Model::Primitive&                                                         t_primitive,
+    Model::Mesh::Primitive&                                                   t_primitive,
     const fastgltf::Asset&                                                    t_asset,
     const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>& t_attributes
 ) -> bool;
 
 static auto load_indices(
     internal::GltfModel&      t_loader,
-    Model::Primitive&         t_primitive,
+    Model::Mesh::Primitive&   t_primitive,
     uint32_t                  t_first_vertex_index,
     const fastgltf::Asset&    t_asset,
     const fastgltf::Accessor& t_accessor
@@ -286,9 +286,9 @@ auto load_mesh(
 
 [[nodiscard]]
 static auto convert(fastgltf::PrimitiveType t_topology
-) noexcept -> Model::Primitive::Topology
+) noexcept -> Model::Mesh::Primitive::Topology
 {
-    using enum Model::Primitive::Topology;
+    using enum Model::Mesh::Primitive::Topology;
     switch (t_topology) {
         case fastgltf::PrimitiveType::Points: return ePoints;
         case fastgltf::PrimitiveType::Lines: return eLines;
@@ -314,9 +314,9 @@ auto load_primitive(
     internal::GltfModel&       t_loader,
     const fastgltf::Asset&     t_asset,
     const fastgltf::Primitive& t_source_primitive
-) -> std::optional<Model::Primitive>
+) -> std::optional<Model::Mesh::Primitive>
 {
-    Model::Primitive primitive{
+    Model::Mesh::Primitive primitive{
         .mode           = convert(t_source_primitive.type),
         .material_index = convert(t_source_primitive.materialIndex),
     };
@@ -393,7 +393,7 @@ static auto make_identity_accessor_loader(
 
 auto load_vertices(
     internal::GltfModel&                                                      t_loader,
-    Model::Primitive&                                                         t_primitive,
+    Model::Mesh::Primitive&                                                   t_primitive,
     const fastgltf::Asset&                                                    t_asset,
     const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>& t_attributes
 ) -> bool
@@ -461,7 +461,7 @@ auto load_vertices(
 
 auto load_indices(
     internal::GltfModel&      t_loader,
-    Model::Primitive&         t_primitive,
+    Model::Mesh::Primitive&         t_primitive,
     const uint32_t            t_first_vertex_index,
     const fastgltf::Asset&    t_asset,
     const fastgltf::Accessor& t_accessor
@@ -703,7 +703,7 @@ auto create_material(const fastgltf::Material& t_material) -> Model::Material
                                  .metallic_roughness_texture_info =
                     convert(t_material.pbrData.metallicRoughnessTexture),
                                  },
-        .normal_texture_info  = convert(t_material.normalTexture),
+        .normal_texture_info    = convert(t_material.normalTexture),
         .occlusion_texture_info = convert(t_material.occlusionTexture),
         .emissive_texture_info  = convert(t_material.emissiveTexture),
         .emissive_factor        = glm::make_vec3(t_material.emissiveFactor.data()),
