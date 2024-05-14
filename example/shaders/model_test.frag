@@ -4,7 +4,11 @@
 
 #include "material.glsl"
 
-layout(location = 0) in vec4 in_color;
+layout (location = 0) in vec3 in_worldPosition;
+layout (location = 1) in vec3 in_normal;
+layout (location = 2) in vec2 in_UV0;
+layout (location = 3) in vec2 in_UV1;
+layout (location = 4) in vec4 in_color;
 
 
 struct Camera {
@@ -46,5 +50,10 @@ layout(location = 0) out vec4 out_color;
 
 
 void main() {
-    out_color = in_color;
+    if (in_color != vec4(0, 0, 0, 0)) {
+        out_color = in_color;
+    } else {
+        //        out_color = vec4((in_normal + vec3(in_UV0, 0)) / 2.0, 1);
+        out_color = vec4(in_normal, 1);
+    }
 }

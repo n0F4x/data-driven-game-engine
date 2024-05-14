@@ -17,8 +17,8 @@ struct Vertex {
     vec4 position;
     vec4 normal;
     vec4 tangent;
-    vec2 uv0;
-    vec2 uv1;
+    vec2 UV0;
+    vec2 UV1;
     vec4 color;
 };
 
@@ -46,7 +46,11 @@ layout(push_constant) uniform Push
 };
 
 
-layout(location = 0) out vec4 out_color;
+layout (location = 0) out vec3 out_worldPosition;
+layout (location = 1) out vec3 out_normal;
+layout (location = 2) out vec2 out_UV0;
+layout (location = 3) out vec2 out_UV1;
+layout (location = 4) out vec4 out_color;
 
 
 void main() {
@@ -54,11 +58,13 @@ void main() {
     mat4 transform = transformBuffer.transforms[transformIndex];
 
     vec4 worldPosition = transform * vec4(vertex.position.xyz, 1.0);
-    gl_Position = camera.projection * camera.view * worldPosition;
+    out_worldPosition = worldPosition.xyz / worldPosition.w;
+    gl_Position = camera.projection * camera.view * vec4(out_worldPosition, 1);
 
-    if (vertex.color != vec4(0, 0, 0, 0)) {
-        out_color = vertex.color;
-    } else {
-        out_color = vec4((vertex.normal.xyz + vec3(vertex.uv0, 0)) / 2, 1);
-    }
+    out_normal = normalize(transpose(inverse(mat3(transform))) * vertex.normal.xyz);
+
+    out_UV0 = vertex.UV0;
+    out_UV1 = vertex.UV1;
+
+    out_color = vertex.color;
 }
