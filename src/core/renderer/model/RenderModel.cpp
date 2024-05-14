@@ -47,6 +47,7 @@ struct ShaderMaterial {
 
 struct PushConstants {
     uint32_t transform_index;
+    uint32_t material_index;
 };
 
 [[nodiscard]]
@@ -66,8 +67,17 @@ static auto create_descriptor_set_layouts(
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
+        vk::DescriptorSetLayoutBinding{ .binding         = 2,
+                                       .descriptorType  = vk::DescriptorType::eSampler,
+                                       .descriptorCount = 1,
+                                       .stageFlags = vk::ShaderStageFlagBits::eFragment     },
         vk::DescriptorSetLayoutBinding{
-                                       .binding         = 2,
+                                       .binding         = 3,
+                                       .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                                       .descriptorCount = 1,
+                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment },
+        vk::DescriptorSetLayoutBinding{
+                                       .binding         = 4,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
@@ -303,15 +313,16 @@ static auto convert_material(const graphics::Model::Material& t_material
     };
 }
 
-template <typename UniformBlock0, typename UniformBlock1, typename UniformBlock2>
 [[nodiscard]]
 static auto create_base_descriptor_set(
     const vk::Device              t_device,
     const vk::DescriptorSetLayout t_descriptor_set_layout,
     const vk::DescriptorPool      t_descriptor_pool,
-    const vk::Buffer              t_buffer_0,
-    const vk::Buffer              t_buffer_1,
-    const vk::Buffer              t_buffer_2
+    const vk::Buffer              t_vertex_uniform,
+    const vk::Buffer              t_transform_uniform,
+    const vk::Sampler             t_default_sampler,
+    const vk::Buffer              t_texture_uniform,
+    const vk::Buffer              t_material_uniform
 ) -> vk::UniqueDescriptorSet
 {
     const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
@@ -323,17 +334,24 @@ static auto create_base_descriptor_set(
         t_device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
     };
 
-    const vk::DescriptorBufferInfo buffer_info_0{
-        .buffer = t_buffer_0,
-        .range  = sizeof(UniformBlock0),
+    const vk::DescriptorBufferInfo vertex_buffer_info{
+        .buffer = t_vertex_uniform,
+        .range  = sizeof(vk::DeviceAddress),
     };
-    const vk::DescriptorBufferInfo buffer_info_1{
-        .buffer = t_buffer_1,
-        .range  = sizeof(UniformBlock1),
+    const vk::DescriptorBufferInfo transform_buffer_info{
+        .buffer = t_transform_uniform,
+        .range  = sizeof(vk::DeviceAddress),
     };
-    const vk::DescriptorBufferInfo buffer_info_2{
-        .buffer = t_buffer_2,
-        .range  = sizeof(UniformBlock2),
+    const vk::DescriptorImageInfo default_sampler_image_info{
+        .sampler = t_default_sampler,
+    };
+    const vk::DescriptorBufferInfo texture_buffer_info{
+        .buffer = t_texture_uniform,
+        .range  = sizeof(vk::DeviceAddress),
+    };
+    const vk::DescriptorBufferInfo material_buffer_info{
+        .buffer = t_material_uniform,
+        .range  = sizeof(vk::DeviceAddress),
     };
 
     std::array write_descriptor_sets{
@@ -342,21 +360,35 @@ static auto create_base_descriptor_set(
                                .dstBinding      = 0,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
-                               .pBufferInfo     = &buffer_info_0,
+                               .pBufferInfo     = &vertex_buffer_info,
                                },
         vk::WriteDescriptorSet{
                                .dstSet          = descriptor_sets.front().get(),
                                .dstBinding      = 1,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
-                               .pBufferInfo     = &buffer_info_1,
+                               .pBufferInfo     = &transform_buffer_info,
                                },
         vk::WriteDescriptorSet{
                                .dstSet          = descriptor_sets.front().get(),
                                .dstBinding      = 2,
                                .descriptorCount = 1,
+                               .descriptorType  = vk::DescriptorType::eSampler,
+                               .pImageInfo      = &default_sampler_image_info,
+                               },
+        vk::WriteDescriptorSet{
+                               .dstSet          = descriptor_sets.front().get(),
+                               .dstBinding      = 3,
+                               .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
-                               .pBufferInfo     = &buffer_info_2,
+                               .pBufferInfo     = &texture_buffer_info,
+                               },
+        vk::WriteDescriptorSet{
+                               .dstSet          = descriptor_sets.front().get(),
+                               .dstBinding      = 4,
+                               .descriptorCount = 1,
+                               .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                               .pBufferInfo     = &material_buffer_info,
                                },
     };
 
@@ -751,6 +783,8 @@ auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_i
                                .descriptorCount = 1u },
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
+        vk::DescriptorPoolSize{       .type            = vk::DescriptorType::eSampler,
+                               .descriptorCount = 1u },
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
@@ -833,6 +867,10 @@ auto RenderModel::create_loader(
     ) };
     MappedBuffer transform_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
+    vk::UniqueSampler default_sampler{
+        create_sampler(t_device, graphics::Model::default_sampler())
+    };
+
     std::vector<ShaderTexture> textures{
         t_model->textures()
         | std::views::transform([](const graphics::Model::Texture& texture) {
@@ -869,16 +907,16 @@ auto RenderModel::create_loader(
     ) };
     MappedBuffer material_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
-    vk::UniqueDescriptorSet base_descriptor_set{
-        create_base_descriptor_set<vk::DeviceAddress, vk::DeviceAddress, vk::DeviceAddress>(
-            t_device,
-            t_descriptor_set_layouts[0],
-            t_descriptor_pool,
-            vertex_uniform.get(),
-            transform_uniform.get(),
-            texture_uniform.get()
-        )
-    };
+    vk::UniqueDescriptorSet base_descriptor_set{ create_base_descriptor_set(
+        t_device,
+        t_descriptor_set_layouts[0],
+        t_descriptor_pool,
+        vertex_uniform.get(),
+        transform_uniform.get(),
+        default_sampler.get(),
+        texture_uniform.get(),
+        material_uniform.get()
+    ) };
 
     std::vector<vk::Extent2D> image_extents{
         t_model->images()
@@ -957,6 +995,7 @@ auto RenderModel::create_loader(
                                       .value_or(graphics::Model::default_material()),
                                   t_cache
                               ),
+                              .material_index    = primitive.material_index,
                               .first_index_index = primitive.first_index_index,
                               .index_count       = primitive.index_count,
                               .vertex_count      = primitive.vertex_count,
@@ -984,6 +1023,7 @@ auto RenderModel::create_loader(
          transform_staging_buffer = auto{ std::move(transform_staging_buffer) },
          transform_buffer         = auto{ std::move(transform_buffer) },
          transform_uniform        = auto{ std::move(transform_uniform) },
+         default_sampler          = auto{ std::move(default_sampler) },
          texture_buffer_size = static_cast<uint32_t>(std::span{ textures }.size_bytes()),
          texture_staging_buffer = auto{ std::move(texture_staging_buffer) },
          texture_buffer         = auto{ std::move(texture_buffer) },
@@ -1062,6 +1102,7 @@ auto RenderModel::create_loader(
                                 std::move(vertex_uniform),
                                 std::move(transform_buffer),
                                 std::move(transform_uniform),
+                                std::move(default_sampler),
                                 std::move(texture_buffer),
                                 std::move(texture_uniform),
                                 std::move(material_buffer),
@@ -1115,18 +1156,23 @@ auto RenderModel::draw(
     for (const auto& [mesh, mesh_index] :
          std::views::zip(m_meshes, std::views::iota(0u, m_meshes.size())))
     {
-        PushConstants push_constants{ .transform_index = mesh_index };
-        t_graphics_command_buffer.pushConstants(
-            t_pipeline_layout,
-            vk::ShaderStageFlagBits::eVertex,
-            0,
-            sizeof(PushConstants),
-            &push_constants
-        );
-
         for (const auto& primitive : mesh.primitives) {
             t_graphics_command_buffer.bindPipeline(
                 vk::PipelineBindPoint::eGraphics, primitive.pipeline.get()->get()
+            );
+
+            PushConstants push_constants{
+                .transform_index = mesh_index,
+                .material_index  = primitive.material_index.value_or(
+                    std::numeric_limits<uint32_t>::max()
+                ),
+            };
+            t_graphics_command_buffer.pushConstants(
+                t_pipeline_layout,
+                vk::ShaderStageFlagBits::eVertex,
+                0,
+                sizeof(PushConstants),
+                &push_constants
             );
 
             t_graphics_command_buffer.drawIndexed(
@@ -1143,6 +1189,7 @@ RenderModel::RenderModel(
     MappedBuffer&&                     t_vertex_uniform,
     Buffer&&                           t_transform_buffer,
     MappedBuffer&&                     t_transform_uniform,
+    vk::UniqueSampler&&                t_default_sampler,
     Buffer&&                           t_texture_buffer,
     MappedBuffer&&                     t_texture_uniform,
     Buffer&&                           t_material_buffer,
@@ -1160,6 +1207,7 @@ RenderModel::RenderModel(
       m_vertex_uniform{ std::move(t_vertex_uniform) },
       m_transform_buffer{ std::move(t_transform_buffer) },
       m_transform_uniform{ std::move(t_transform_uniform) },
+      m_default_sampler{ std::move(t_default_sampler) },
       m_texture_buffer{ std::move(t_texture_buffer) },
       m_texture_uniform{ std::move(t_texture_uniform) },
       m_material_buffer{ std::move(t_material_buffer) },

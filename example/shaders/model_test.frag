@@ -16,6 +16,8 @@ layout(set = 0, binding = 0) uniform Scene {
     Camera camera;
 };
 
+layout(set = 1, binding = 2) uniform sampler defaultSampler;
+
 struct Texture{
     uint samplerIndex;
     uint imageIndex;
@@ -24,7 +26,7 @@ layout(std430, buffer_reference, buffer_reference_align = 1) readonly buffer Tex
 {
     Texture textures[];
 };
-layout(set = 1, binding = 2) uniform Textures {
+layout(set = 1, binding = 3) uniform Textures {
     TextureBuffer textureBuffer_;
 };
 
@@ -32,7 +34,7 @@ layout(std430, buffer_reference, buffer_reference_align = 16) readonly buffer Ma
 {
     Material materials[];
 };
-layout(set = 1, binding = 3) uniform Materials {
+layout(set = 1, binding = 4) uniform Materials {
     MaterialBuffer materialBuffer;
 };
 

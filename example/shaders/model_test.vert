@@ -17,8 +17,8 @@ struct Vertex {
     vec4 position;
     vec4 normal;
     vec4 tangent;
-    vec2 uv_0;
-    vec2 uv_1;
+    vec2 uv0;
+    vec2 uv1;
     vec4 color;
 };
 
@@ -41,7 +41,8 @@ layout (set = 1, binding = 1) uniform Transforms {
 
 layout(push_constant) uniform Push
 {
-    uint transform_index;
+    uint transformIndex;
+    uint materialIndex;
 };
 
 
@@ -50,14 +51,14 @@ layout(location = 0) out vec4 out_color;
 
 void main() {
     Vertex vertex = vertexBuffer.vertices[gl_VertexIndex];
-    mat4 transform = transformBuffer.transforms[transform_index];
+    mat4 transform = transformBuffer.transforms[transformIndex];
 
-    vec4 world_position = transform * vec4(vertex.position.xyz, 1.0);
-    gl_Position = camera.projection * camera.view * world_position;
+    vec4 worldPosition = transform * vec4(vertex.position.xyz, 1.0);
+    gl_Position = camera.projection * camera.view * worldPosition;
 
     if (vertex.color != vec4(0, 0, 0, 0)) {
         out_color = vertex.color;
     } else {
-        out_color = vec4((vertex.normal.xyz + vec3(vertex.uv_0, 0)) / 2, 1);
+        out_color = vec4((vertex.normal.xyz + vec3(vertex.uv0, 0)) / 2, 1);
     }
 }

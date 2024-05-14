@@ -58,6 +58,7 @@ private:
     struct Mesh {
         struct Primitive {
             cache::Handle<vk::UniquePipeline> pipeline;
+            std::optional<uint32_t>           material_index;
             uint32_t                          first_index_index;
             uint32_t                          index_count;
             uint32_t                          vertex_count;
@@ -76,6 +77,8 @@ private:
     Buffer            m_transform_buffer;
     vk::DeviceAddress m_transform_buffer_address;
     MappedBuffer      m_transform_uniform;
+
+    vk::UniqueSampler m_default_sampler;
 
     Buffer            m_texture_buffer;
     vk::DeviceAddress m_texture_buffer_address;
@@ -107,6 +110,7 @@ private:
         MappedBuffer&&                     vertex_uniform,
         Buffer&&                           transform_buffer,
         MappedBuffer&&                     transform_uniform,
+        vk::UniqueSampler&&                default_sampler,
         Buffer&&                           texture_buffer,
         MappedBuffer&&                     texture_uniform,
         Buffer&&                           material_buffer,
