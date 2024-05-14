@@ -25,7 +25,7 @@ layout(std430, buffer_reference, buffer_reference_align = 1) readonly buffer Tex
     Texture textures[];
 };
 layout(set = 1, binding = 2) uniform Textures {
-    TextureBuffer textureBuffer;
+    TextureBuffer textureBuffer_;
 };
 
 layout(std430, buffer_reference, buffer_reference_align = 16) readonly buffer MaterialBuffer
@@ -41,6 +41,7 @@ layout(set = 3, binding = 0) uniform sampler samplers[];
 
 
 layout(location = 0) out vec4 out_color;
+
 
 void main() {
     out_color = in_color;
