@@ -18,7 +18,7 @@ target_link_libraries(test PRIVATE ${PROJECT_NAME})
 ## Build shaders ##
 ###################
 find_program(GLSLC glslc)
-if (${GLSLC})
+if (DEFINED GLSLC)
     set(SHADERS_IN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
     set(SHADERS_OUT_DIR ${SHADERS_IN_DIR})
 
