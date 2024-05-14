@@ -139,7 +139,7 @@ auto create_depth_image(
         .priority = 1.f,
     };
 
-    return t_allocator.create_image(image_create_info, allocation_create_info);
+    return t_allocator.allocate_image(image_create_info, allocation_create_info);
 }
 
 auto create_depth_image_view(

@@ -122,7 +122,7 @@ static auto create_global_buffer(const Allocator& t_allocator) -> MappedBuffer
         .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    return t_allocator.create_mapped_buffer(buffer_create_info);
+    return t_allocator.allocate_mapped_buffer(buffer_create_info);
 }
 
 template <typename GlobalUniformBlock>

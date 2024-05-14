@@ -46,7 +46,7 @@ public:
     auto get() const noexcept -> VmaAllocator;
 
     [[nodiscard]]
-    auto create_buffer(
+    auto allocate_buffer(
         const vk::BufferCreateInfo&    t_buffer_create_info,
         const VmaAllocationCreateInfo& t_allocation_create_info = {
             .usage = VMA_MEMORY_USAGE_AUTO,
@@ -54,7 +54,7 @@ public:
     ) const -> Buffer;
 
     [[nodiscard]]
-    auto create_buffer_with_alignment(
+    auto allocate_buffer_with_alignment(
          const vk::BufferCreateInfo&    t_buffer_create_info,
          vk::DeviceSize                 t_min_alignment,
          const VmaAllocationCreateInfo& t_allocation_create_info = {
@@ -63,30 +63,30 @@ public:
     ) const -> Buffer;
 
     [[nodiscard]]
-    auto create_mapped_buffer(const vk::BufferCreateInfo& t_buffer_create_info
+    auto allocate_mapped_buffer(const vk::BufferCreateInfo& t_buffer_create_info
     ) const -> MappedBuffer;
 
     [[nodiscard]]
-    auto create_mapped_buffer_with_alignment(
+    auto allocate_mapped_buffer_with_alignment(
         const vk::BufferCreateInfo& t_buffer_create_info,
         vk::DeviceSize              t_min_alignment
     ) const -> MappedBuffer;
 
     [[nodiscard]]
-    auto create_mapped_buffer(
+    auto allocate_mapped_buffer(
         const vk::BufferCreateInfo& t_buffer_create_info,
         gsl::not_null<const void*>  t_data
     ) const -> MappedBuffer;
 
     [[nodiscard]]
-    auto create_mapped_buffer_with_alignment(
+    auto allocate_mapped_buffer_with_alignment(
         const vk::BufferCreateInfo& t_buffer_create_info,
         vk::DeviceSize              t_min_alignment,
         gsl::not_null<const void*>  t_data
     ) const -> MappedBuffer;
 
     [[nodiscard]]
-    auto create_image(
+    auto allocate_image(
         const vk::ImageCreateInfo&     t_image_create_info,
         const VmaAllocationCreateInfo& t_allocation_create_info
     ) const -> Image;

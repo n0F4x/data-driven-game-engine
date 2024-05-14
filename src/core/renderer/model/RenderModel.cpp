@@ -100,6 +100,10 @@ static auto create_staging_buffer(
     const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
 ) -> MappedBuffer
 {
+    if (t_data == nullptr || t_size == 0) {
+        return MappedBuffer{};
+    }
+
     const uint32_t             size{ static_cast<uint32_t>(t_size) };
     const vk::BufferCreateInfo staging_buffer_create_info = {
         .size  = size,
@@ -108,11 +112,11 @@ static auto create_staging_buffer(
 
     return t_min_alignment
         .transform([&](const vk::DeviceSize min_alignment) {
-            return t_allocator.create_mapped_buffer_with_alignment(
+            return t_allocator.allocate_mapped_buffer_with_alignment(
                 staging_buffer_create_info, min_alignment, t_data
             );
         })
-        .value_or(t_allocator.create_mapped_buffer(staging_buffer_create_info, t_data));
+        .value_or(t_allocator.allocate_mapped_buffer(staging_buffer_create_info, t_data));
 }
 
 template <typename T>
@@ -139,17 +143,21 @@ static auto create_gpu_only_buffer(
     const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
 ) -> Buffer
 {
+    if (t_size == 0) {
+        return Buffer{};
+    }
+
     const vk::BufferCreateInfo buffer_create_info = {
         .size = t_size, .usage = t_usage_flags | vk::BufferUsageFlagBits::eTransferDst
     };
 
     return t_min_alignment
         .transform([&](const vk::DeviceSize min_alignment) {
-            return t_allocator.create_buffer_with_alignment(
+            return t_allocator.allocate_buffer_with_alignment(
                 buffer_create_info, min_alignment
             );
         })
-        .value_or(t_allocator.create_buffer(buffer_create_info));
+        .value_or(t_allocator.allocate_buffer(buffer_create_info));
 }
 
 template <typename UniformBlock>
@@ -160,7 +168,7 @@ static auto create_buffer(const Allocator& t_allocator) -> MappedBuffer
         .size = sizeof(UniformBlock), .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    return t_allocator.create_mapped_buffer(buffer_create_info);
+    return t_allocator.allocate_mapped_buffer(buffer_create_info);
 }
 
 template <typename UniformBlock0, typename UniformBlock1, typename UniformBlock2>
@@ -259,7 +267,7 @@ static auto create_image(
         .priority = 1.f,
     };
 
-    return t_allocator.create_image(image_create_info, allocation_create_info);
+    return t_allocator.allocate_image(image_create_info, allocation_create_info);
 }
 
 [[nodiscard]]
@@ -491,9 +499,6 @@ static auto convert(graphics::Model::Mesh::Primitive::Topology t_topology
     }
 }
 
-size_t pipeline_builder_count{};
-size_t pipeline_count{};
-
 [[nodiscard]]
 static auto create_pipeline(
     const vk::Device                       t_device,
@@ -504,7 +509,6 @@ static auto create_pipeline(
 ) -> cache::Handle<vk::UniquePipeline>
 {
     GraphicsPipelineBuilder builder{ t_create_info.effect };
-    pipeline_builder_count++;
 
     builder.set_layout(t_create_info.layout);
     builder.set_render_pass(t_create_info.render_pass);
@@ -518,12 +522,9 @@ static auto create_pipeline(
 
     auto hash{ hash_value(builder) };
 
-    return t_cache.find<vk::UniquePipeline>(hash)
-        .transform([](auto&& value) {
-            pipeline_count++;
-            return std::forward<decltype(value)>(value);
-        })
-        .value_or(t_cache.emplace<vk::UniquePipeline>(hash, builder.build(t_device)));
+    return t_cache.find<vk::UniquePipeline>(hash).value_or(
+        t_cache.emplace<vk::UniquePipeline>(hash, builder.build(t_device))
+    );
 }
 
 void transition_image_layout(
@@ -648,6 +649,8 @@ auto RenderModel::create_loader(
     cache::Cache&                                     t_cache
 ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>
 {
+    // TODO: handle model buffers with no elements
+
     MappedBuffer index_staging_buffer{
         create_staging_buffer(t_allocator, std::span{ t_model->indices() })
     };
@@ -817,9 +820,6 @@ auto RenderModel::create_loader(
         | std::ranges::to<std::vector>()
     };
 
-    std::println("Pipeline builder count: {}", pipeline_builder_count);
-    std::println("Pipeline count: {}", pipeline_count);
-
     return std::packaged_task<RenderModel(vk::CommandBuffer)>{
         [device = t_device,
          index_buffer_size =
@@ -868,11 +868,13 @@ auto RenderModel::create_loader(
                 std::array{ vk::BufferCopy{ .size = transform_buffer_size } }
             );
 
-            t_transfer_command_buffer.copyBuffer(
-                texture_staging_buffer.get(),
-                texture_buffer.get(),
-                std::array{ vk::BufferCopy{ .size = texture_buffer_size } }
-            );
+            if (texture_buffer_size > 0) {
+                t_transfer_command_buffer.copyBuffer(
+                    texture_staging_buffer.get(),
+                    texture_buffer.get(),
+                    std::array{ vk::BufferCopy{ .size = texture_buffer_size } }
+                );
+            }
 
             for (auto&& [buffer, texture_image, extent] :
                  std::views::zip(image_staging_buffers, images, image_extents))
@@ -1014,9 +1016,14 @@ RenderModel::RenderModel(
     });
     m_transform_uniform.set(m_transform_buffer_address);
 
-    m_texture_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
-        .buffer = m_texture_buffer.get(),
-    });
+    if (m_texture_buffer.get()) {
+        m_texture_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
+            .buffer = m_texture_buffer.get(),
+        });
+    }
+    else {
+        m_texture_buffer_address = vk::DeviceAddress{};
+    }
     m_texture_uniform.set(m_texture_buffer_address);
 }
 

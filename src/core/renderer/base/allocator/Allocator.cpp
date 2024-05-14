@@ -178,7 +178,7 @@ auto Allocator::get() const noexcept -> VmaAllocator
     return m_allocator.get();
 }
 
-auto Allocator::create_buffer(
+auto Allocator::allocate_buffer(
     const vk::BufferCreateInfo&    t_buffer_create_info,
     const VmaAllocationCreateInfo& t_allocation_create_info
 ) const -> Buffer
@@ -190,7 +190,7 @@ auto Allocator::create_buffer(
     return Buffer{ buffer, allocation, m_allocator.get() };
 }
 
-auto Allocator::create_buffer_with_alignment(
+auto Allocator::allocate_buffer_with_alignment(
     const vk::BufferCreateInfo&    t_buffer_create_info,
     const vk::DeviceSize           t_min_alignment,
     const VmaAllocationCreateInfo& t_allocation_create_info
@@ -203,7 +203,7 @@ auto Allocator::create_buffer_with_alignment(
     return Buffer{ buffer, allocation, m_allocator.get() };
 }
 
-auto Allocator::create_mapped_buffer(const vk::BufferCreateInfo& t_buffer_create_info
+auto Allocator::allocate_mapped_buffer(const vk::BufferCreateInfo& t_buffer_create_info
 ) const -> MappedBuffer
 {
     constexpr static VmaAllocationCreateInfo allocation_create_info = {
@@ -219,7 +219,7 @@ auto Allocator::create_mapped_buffer(const vk::BufferCreateInfo& t_buffer_create
     return MappedBuffer{ buffer, allocation, m_allocator.get() };
 }
 
-auto Allocator::create_mapped_buffer_with_alignment(
+auto Allocator::allocate_mapped_buffer_with_alignment(
     const vk::BufferCreateInfo& t_buffer_create_info,
     vk::DeviceSize              t_min_alignment
 ) const -> MappedBuffer
@@ -237,7 +237,7 @@ auto Allocator::create_mapped_buffer_with_alignment(
     return MappedBuffer{ buffer, allocation, m_allocator.get() };
 }
 
-auto Allocator::create_mapped_buffer(
+auto Allocator::allocate_mapped_buffer(
     const vk::BufferCreateInfo& t_buffer_create_info,
     gsl::not_null<const void*>  t_data
 ) const -> MappedBuffer
@@ -270,7 +270,7 @@ auto Allocator::create_mapped_buffer(
     return MappedBuffer{ buffer, allocation, m_allocator.get() };
 }
 
-auto Allocator::create_mapped_buffer_with_alignment(
+auto Allocator::allocate_mapped_buffer_with_alignment(
     const vk::BufferCreateInfo& t_buffer_create_info,
     vk::DeviceSize              t_min_alignment,
     gsl::not_null<const void*>  t_data
@@ -304,7 +304,7 @@ auto Allocator::create_mapped_buffer_with_alignment(
     return MappedBuffer{ buffer, allocation, m_allocator.get() };
 }
 
-auto Allocator::create_image(
+auto Allocator::allocate_image(
     const vk::ImageCreateInfo&     t_image_create_info,
     const VmaAllocationCreateInfo& t_allocation_create_info
 ) const -> Image
