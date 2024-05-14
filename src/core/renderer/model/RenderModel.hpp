@@ -81,6 +81,10 @@ private:
     vk::DeviceAddress m_texture_buffer_address;
     MappedBuffer      m_texture_uniform;
 
+    Buffer            m_material_buffer;
+    vk::DeviceAddress m_material_buffer_address;
+    MappedBuffer      m_material_uniform;
+
     vk::UniqueDescriptorSet m_base_descriptor_set;
 
     // Image descriptor set
@@ -105,6 +109,8 @@ private:
         MappedBuffer&&                     transform_uniform,
         Buffer&&                           texture_buffer,
         MappedBuffer&&                     texture_uniform,
+        Buffer&&                           material_buffer,
+        MappedBuffer&&                     material_uniform,
         vk::UniqueDescriptorSet&&          base_descriptor_set,
         std::vector<Image>&&               images,
         std::vector<vk::UniqueImageView>&& image_views,

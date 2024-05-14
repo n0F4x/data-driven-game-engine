@@ -5,11 +5,12 @@ struct TextureInfo {
     uint texCoord;
 };
 
-struct MetallicRoughness {
+struct PbrMetallicRoughness {
     vec4 baseColorFactor;
     TextureInfo baseColorTexture;
     float metallicFactor;
     float roughnessFactor;
+    TextureInfo metallicRoughnessTexture;
 };
 
 struct NormalTextureInfo {
@@ -25,7 +26,7 @@ struct OcclusionTextureInfo {
 };
 
 struct Material {
-    MetallicRoughness metallicRoughness;
+    PbrMetallicRoughness pbrMetallicRoughness;
     NormalTextureInfo normalTexture;
     OcclusionTextureInfo occlusionTexture;
     TextureInfo emissiveTexture;

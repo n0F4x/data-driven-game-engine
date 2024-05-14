@@ -11,6 +11,40 @@ struct ShaderTexture {
     uint32_t image_index;
 };
 
+struct ShaderTextureInfo {
+    uint32_t index;
+    uint32_t texCoord;
+};
+
+struct ShaderPbrMetallicRoughness {
+    glm::vec4         baseColorFactor;
+    ShaderTextureInfo baseColorTexture;
+    float             metallicFactor;
+    float             roughnessFactor;
+    ShaderTextureInfo metallicRoughnessTexture;
+};
+
+struct ShaderNormalTextureInfo {
+    uint32_t index;
+    uint32_t texCoord;
+    float    scale;
+};
+
+struct ShaderOcclusionTextureInfo {
+    uint32_t index;
+    uint32_t texCoord;
+    float    strength;
+};
+
+struct ShaderMaterial {
+    ShaderPbrMetallicRoughness pbrMetallicRoughness;
+    ShaderNormalTextureInfo    normalTexture;
+    ShaderOcclusionTextureInfo occlusionTexture;
+    ShaderTextureInfo          emissiveTexture;
+    glm::vec3                  emissiveFactor;
+    float                      alphaCutoff;
+};
+
 struct PushConstants {
     uint32_t transform_index;
 };
@@ -169,6 +203,104 @@ static auto create_buffer(const Allocator& t_allocator) -> MappedBuffer
     };
 
     return t_allocator.allocate_mapped_buffer(buffer_create_info);
+}
+
+[[nodiscard]]
+static auto convert_material(const graphics::Model::Material& t_material
+) noexcept -> ShaderMaterial
+{
+    return ShaderMaterial{
+        .pbrMetallicRoughness =
+            ShaderPbrMetallicRoughness{
+                                       .baseColorFactor = t_material.pbr_metallic_roughness.base_color_factor,
+                                       .baseColorTexture =
+                    ShaderTextureInfo{
+                        .index = t_material.pbr_metallic_roughness.base_color_texture_info
+                                     .transform([](const graphics::Model::TextureInfo&
+                                                       texture_info
+                                                ) { return texture_info.texture_index; })
+                                     .value_or(std::numeric_limits<uint32_t>::max()),
+                        .texCoord =
+                            t_material.pbr_metallic_roughness.base_color_texture_info
+                                .transform([](const graphics::Model::TextureInfo& texture_info
+                                           ) { return texture_info.tex_coord_index; })
+                                .value_or(std::numeric_limits<uint32_t>::max()),
+                    }, .metallicFactor  = t_material.pbr_metallic_roughness.metallic_factor,
+                                       .roughnessFactor = t_material.pbr_metallic_roughness.roughness_factor,
+                                       .metallicRoughnessTexture =
+                    ShaderTextureInfo{
+                        .index = t_material.pbr_metallic_roughness
+                                     .metallic_roughness_texture_info
+                                     .transform([](const graphics::Model::TextureInfo&
+                                                       texture_info
+                                                ) { return texture_info.texture_index; })
+                                     .value_or(std::numeric_limits<uint32_t>::max()),
+                        .texCoord = t_material.pbr_metallic_roughness
+                                        .metallic_roughness_texture_info
+                                        .transform([](const graphics::Model::TextureInfo&
+                                                          texture_info) {
+                                            return texture_info.tex_coord_index;
+                                        })
+                                        .value_or(std::numeric_limits<uint32_t>::max()),
+                    }, },
+        .normalTexture =
+            ShaderNormalTextureInfo{
+                                       .index =
+                    t_material.normal_texture_info
+                        .transform([](const graphics::Model::Material::NormalTextureInfo&
+                                          texture_info
+                                   ) { return texture_info.texture_index; })
+                        .value_or(std::numeric_limits<uint32_t>::max()),
+                                       .texCoord =
+                    t_material.normal_texture_info
+                        .transform([](const graphics::Model::Material::NormalTextureInfo&
+                                          texture_info
+                                   ) { return texture_info.tex_coord_index; })
+                        .value_or(std::numeric_limits<uint32_t>::max()),
+                                       .scale =
+                    t_material.normal_texture_info
+                        .transform([](const graphics::Model::Material::NormalTextureInfo&
+                                          texture_info) { return texture_info.scale; })
+                        .value_or(1.f),
+                                       },
+        .occlusionTexture =
+            ShaderOcclusionTextureInfo{
+                                       .index = t_material.occlusion_texture_info
+                             .transform(
+                                 [](const graphics::Model::Material::OcclusionTextureInfo&
+                                        texture_info
+                                 ) { return texture_info.texture_index; }
+                             )
+                             .value_or(std::numeric_limits<uint32_t>::max()),
+                                       .texCoord =
+                    t_material.occlusion_texture_info
+                        .transform(
+                            [](const graphics::Model::Material::OcclusionTextureInfo&
+                                   texture_info) { return texture_info.tex_coord_index; }
+                        )
+                        .value_or(std::numeric_limits<uint32_t>::max()),
+                                       .strength =
+                    t_material.occlusion_texture_info
+                        .transform([](const graphics::Model::Material::OcclusionTextureInfo&
+                                          texture_info) { return texture_info.strength; })
+                        .value_or(1.f),
+                                       },
+        .emissiveTexture =
+            ShaderTextureInfo{
+                                       .index = t_material.emissive_texture_info
+                             .transform([](const graphics::Model::TextureInfo& texture_info
+                                        ) { return texture_info.texture_index; })
+                             .value_or(std::numeric_limits<uint32_t>::max()),
+                                       .texCoord =
+                    t_material.emissive_texture_info
+                        .transform([](const graphics::Model::TextureInfo& texture_info) {
+                            return texture_info.tex_coord_index;
+                        })
+                        .value_or(std::numeric_limits<uint32_t>::max()),
+                                       },
+        .emissiveFactor = t_material.emissive_factor,
+        .alphaCutoff    = t_material.alpha_cutoff,
+    };
 }
 
 template <typename UniformBlock0, typename UniformBlock1, typename UniformBlock2>
@@ -621,6 +753,8 @@ auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_i
                                .descriptorCount = 1u },
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
+        vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
+                               .descriptorCount = 1u },
     };
 
     if (t_info.max_image_count > 0) {
@@ -720,6 +854,20 @@ auto RenderModel::create_loader(
         static_cast<uint32_t>(std::span{ textures }.size_bytes())
     ) };
     MappedBuffer texture_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
+
+    std::vector<ShaderMaterial> materials{ t_model->materials()
+                                           | std::views::transform(convert_material)
+                                           | std::ranges::to<std::vector>() };
+    MappedBuffer                material_staging_buffer{
+        create_staging_buffer(t_allocator, std::span{ materials })
+    };
+    Buffer       material_buffer{ create_gpu_only_buffer(
+        t_allocator,
+        vk::BufferUsageFlagBits::eStorageBuffer
+            | vk::BufferUsageFlagBits::eShaderDeviceAddress,
+        static_cast<uint32_t>(std::span{ materials }.size_bytes())
+    ) };
+    MappedBuffer material_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
     vk::UniqueDescriptorSet base_descriptor_set{
         create_base_descriptor_set<vk::DeviceAddress, vk::DeviceAddress, vk::DeviceAddress>(
@@ -840,15 +988,19 @@ auto RenderModel::create_loader(
          texture_staging_buffer = auto{ std::move(texture_staging_buffer) },
          texture_buffer         = auto{ std::move(texture_buffer) },
          texture_uniform        = auto{ std::move(texture_uniform) },
-         base_descriptor_set    = auto{ std::move(base_descriptor_set) },
-         image_extents          = auto{ std::move(image_extents) },
-         image_staging_buffers  = auto{ std::move(image_staging_buffers) },
-         images                 = auto{ std::move(images) },
-         image_views            = auto{ std::move(image_views) },
-         image_descriptor_set   = auto{ std::move(image_descriptor_set) },
-         samplers               = auto{ std::move(samplers) },
-         sampler_descriptor_set = auto{ std::move(sampler_descriptor_set) },
-         meshes                 = auto{ std::move(meshes
+         material_buffer_size = static_cast<uint32_t>(std::span{ materials }.size_bytes()),
+         material_staging_buffer = auto{ std::move(material_staging_buffer) },
+         material_buffer         = auto{ std::move(material_buffer) },
+         material_uniform        = auto{ std::move(material_uniform) },
+         base_descriptor_set     = auto{ std::move(base_descriptor_set) },
+         image_extents           = auto{ std::move(image_extents) },
+         image_staging_buffers   = auto{ std::move(image_staging_buffers) },
+         images                  = auto{ std::move(images) },
+         image_views             = auto{ std::move(image_views) },
+         image_descriptor_set    = auto{ std::move(image_descriptor_set) },
+         samplers                = auto{ std::move(samplers) },
+         sampler_descriptor_set  = auto{ std::move(sampler_descriptor_set) },
+         meshes                  = auto{ std::move(meshes
          ) }](const vk::CommandBuffer t_transfer_command_buffer) mutable -> RenderModel {
             t_transfer_command_buffer.copyBuffer(
                 index_staging_buffer.get(),
@@ -873,6 +1025,14 @@ auto RenderModel::create_loader(
                     texture_staging_buffer.get(),
                     texture_buffer.get(),
                     std::array{ vk::BufferCopy{ .size = texture_buffer_size } }
+                );
+            }
+
+            if (material_buffer_size > 0) {
+                t_transfer_command_buffer.copyBuffer(
+                    material_staging_buffer.get(),
+                    material_buffer.get(),
+                    std::array{ vk::BufferCopy{ .size = material_buffer_size } }
                 );
             }
 
@@ -904,6 +1064,8 @@ auto RenderModel::create_loader(
                                 std::move(transform_uniform),
                                 std::move(texture_buffer),
                                 std::move(texture_uniform),
+                                std::move(material_buffer),
+                                std::move(material_uniform),
                                 std::move(base_descriptor_set),
                                 std::move(images),
                                 std::move(image_views),
@@ -983,6 +1145,8 @@ RenderModel::RenderModel(
     MappedBuffer&&                     t_transform_uniform,
     Buffer&&                           t_texture_buffer,
     MappedBuffer&&                     t_texture_uniform,
+    Buffer&&                           t_material_buffer,
+    MappedBuffer&&                     t_material_uniform,
     vk::UniqueDescriptorSet&&          t_base_descriptor_set,
     std::vector<Image>&&               t_images,
     std::vector<vk::UniqueImageView>&& t_image_views,
@@ -998,6 +1162,8 @@ RenderModel::RenderModel(
       m_transform_uniform{ std::move(t_transform_uniform) },
       m_texture_buffer{ std::move(t_texture_buffer) },
       m_texture_uniform{ std::move(t_texture_uniform) },
+      m_material_buffer{ std::move(t_material_buffer) },
+      m_material_uniform{ std::move(t_material_uniform) },
       m_base_descriptor_set{ std::move(t_base_descriptor_set) },
       m_images{ std::move(t_images) },
       m_image_views{ std::move(t_image_views) },
@@ -1025,6 +1191,16 @@ RenderModel::RenderModel(
         m_texture_buffer_address = vk::DeviceAddress{};
     }
     m_texture_uniform.set(m_texture_buffer_address);
+
+    if (m_material_buffer.get()) {
+        m_material_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
+            .buffer = m_material_buffer.get(),
+        });
+    }
+    else {
+        m_material_buffer_address = vk::DeviceAddress{};
+    }
+    m_material_uniform.set(m_material_buffer_address);
 }
 
 }   // namespace core::renderer

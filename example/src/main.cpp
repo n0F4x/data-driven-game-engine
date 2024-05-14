@@ -18,7 +18,7 @@ try {
 
     // for better debugging with Vulkan Configurator
     const auto renderer_options{
-        plugins::Renderer::Options{}.require_vulkan_version(1, 0)
+        plugins::Renderer::Options{}.require_vulkan_version(1, 1)
     };
 
     return app::App::create()
