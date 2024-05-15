@@ -23,8 +23,14 @@ public:
     ) const -> void;
 
 private:
-    struct GlobalUniformBlock {
-        graphics::Camera camera;
+    struct ShaderScene {
+        struct Camera {
+            glm::vec4 position;
+            glm::mat4 view;
+            glm::mat4 projection;
+        };
+
+        Camera camera;
     };
 
     friend Builder;

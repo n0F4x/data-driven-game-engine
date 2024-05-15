@@ -221,11 +221,11 @@ auto Scene::Builder::build(
     DescriptorPool descriptor_pool{ create_descriptor_pool(t_device, m_models) };
 
     MappedBuffer global_buffer{
-        create_global_buffer<Scene::GlobalUniformBlock>(t_allocator)
+        create_global_buffer<Scene::ShaderScene>(t_allocator)
     };
 
     vk::UniqueDescriptorSet global_descriptor_set{
-        create_global_descriptor_set<Scene::GlobalUniformBlock>(
+        create_global_descriptor_set<Scene::ShaderScene>(
             t_device,
             global_descriptor_set_layout.get(),
             descriptor_pool.get(),

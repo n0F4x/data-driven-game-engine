@@ -20,6 +20,8 @@ auto Camera::set_perspective_projection(
 auto Camera::set_view_yxz(const glm::vec3& t_position, const glm::vec3& t_rotation) noexcept
     -> void
 {
+    m_position = t_position;
+
     const float     c3{ glm::cos(t_rotation.z) };
     const float     s3{ glm::sin(t_rotation.z) };
     const float     c2{ glm::cos(t_rotation.x) };
@@ -43,6 +45,11 @@ auto Camera::set_view_yxz(const glm::vec3& t_position, const glm::vec3& t_rotati
     m_view[3][0] = -glm::dot(u, t_position);
     m_view[3][1] = -glm::dot(v, t_position);
     m_view[3][2] = -glm::dot(w, t_position);
+}
+
+auto Camera::position() const noexcept -> const glm::vec3&
+{
+    return m_position;
 }
 
 auto Camera::view() const noexcept -> const glm::mat4&

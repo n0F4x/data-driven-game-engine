@@ -33,9 +33,9 @@ struct Material {
     float occlusionTextureScale;
 
     // size: 4
-    uint emmissiveTextureIndex;
+    uint emissiveTextureIndex;
     // size: 4
-    uint emmissiveTextureTexCoord;
+    uint emissiveTextureTexCoord;
     // size: 8
     vec2 _padding0;
 

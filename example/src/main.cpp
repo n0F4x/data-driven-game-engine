@@ -8,12 +8,14 @@
 
 auto main() -> int
 try {
-    const std::string model_file_path{
-        //        "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
-        //        "models/Avocado/glTF-Binary/Avocado.glb"
-        "models/DamagedHelmet.glb"
-        //        "models/armor/armor.gltf"
-        //        "models/Sponza/glTF/Sponza.gltf"
+    const demo::ModelInfo model_info{
+        //        "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
+        "models/Avocado/glTF-Binary/Avocado.glb",
+        //        "models/DamagedHelmet.glb",
+        //        "models/Sponza/glTF/Sponza.gltf",
+        //        "models/SponzaKTX/Sponza01.gltf",
+        //        "models/SponzaKTX/Sponza02.gltf",
+        3
     };
 
     // for better debugging with Vulkan Configurator
@@ -28,7 +30,7 @@ try {
             1'280, 720, "My window", plugins::Window::default_configure
         )
         .add_plugin<plugins::Renderer>(renderer_options)
-        .build_and_run(demo::run, model_file_path);
+        .build_and_run(demo::run, model_info);
 } catch (std::exception& error) {
     try {
         std::println("{}", error.what());

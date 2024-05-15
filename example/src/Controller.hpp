@@ -7,6 +7,8 @@
 
 class Controller {
 public:
+    explicit Controller(float movement_speed) noexcept;
+
     auto update(const core::window::Window& t_window, float t_delta_time) noexcept -> void;
     [[nodiscard]]
     auto update_camera(core::graphics::Camera t_camera

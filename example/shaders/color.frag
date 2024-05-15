@@ -14,6 +14,7 @@ layout (location = 4) in vec4 in_color;
 
 
 struct Camera {
+    vec4 position;
     mat4 view;
     mat4 projection;
 };

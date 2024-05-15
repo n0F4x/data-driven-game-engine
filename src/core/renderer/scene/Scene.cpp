@@ -16,7 +16,11 @@ auto Scene::draw(
     const graphics::Camera& t_camera
 ) const -> void
 {
-    m_global_buffer.set(GlobalUniformBlock{ .camera = t_camera });
+    m_global_buffer.set(ShaderScene{
+        .camera = ShaderScene::Camera{ .position   = glm::vec4{ t_camera.position(), 1 },
+                                      .view       = t_camera.view(),
+                                      .projection = t_camera.projection() },
+    });
     t_graphics_command_buffer.bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics,
         m_pipeline_layout.get(),

@@ -4,6 +4,9 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+Controller::Controller(float movement_speed) noexcept : m_movement_speed{ movement_speed }
+{}
+
 auto Controller::update(const core::window::Window& t_window, float t_delta_time) noexcept
     -> void
 {

@@ -20,13 +20,13 @@ static auto load_scene(
 ) -> std::optional<renderer::Scene>
 {
     auto opt_vertex_shader_module{
-        renderer::ShaderModule::create(t_device.get(), "shaders/model_test.vert.spv")
+        renderer::ShaderModule::create(t_device.get(), "shaders/model.vert.spv")
     };
     if (!opt_vertex_shader_module.has_value()) {
         return std::nullopt;
     }
     auto opt_fragment_shader_module{
-        renderer::ShaderModule::create(t_device.get(), "shaders/color.frag.spv")
+        renderer::ShaderModule::create(t_device.get(), "shaders/pbr.frag.spv")
     };
     if (!opt_fragment_shader_module.has_value()) {
         return std::nullopt;
@@ -87,7 +87,7 @@ static auto load_scene(
     return packaged_scene.get_future().get();
 }
 
-auto DemoRenderer::create(Store& t_store, const std::string& t_model_filepath)
+auto DemoRenderer::create(Store& t_store, const std::filesystem::path& t_model_filepath)
     -> std::optional<DemoRenderer>
 {
     auto&       cache{ t_store.at<cache::Cache>() };

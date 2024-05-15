@@ -2,6 +2,23 @@
 
 #include <spdlog/spdlog.h>
 
+static auto transcode(ktxTexture2* t_texture) -> void
+{
+    if (ktxTexture2_NeedsTranscoding(t_texture)) {
+        const ktx_transcode_fmt_e target_format = KTX_TTF_RGBA32;
+
+        const auto error{
+            ktxTexture2_TranscodeBasis(t_texture, target_format, KTX_TF_HIGH_QUALITY)
+        };
+        if (error != KTX_SUCCESS) {
+            throw std::runtime_error(fmt::format(
+                "Failed to transcode basisu from KTX2 texture: {}",
+                std::to_underlying(error)
+            ));
+        }
+    }
+}
+
 namespace core::asset {
 
 auto KtxImage::load_from_file(const std::filesystem::path& t_filepath
@@ -25,6 +42,8 @@ auto KtxImage::load_from_file(const std::filesystem::path& t_filepath
         return std::nullopt;
     }
 
+    transcode(texture);
+
     return KtxImage{ texture };
 }
 
@@ -33,10 +52,18 @@ auto KtxImage::load_from_memory(const std::span<const std::uint8_t> t_data
 {
     ktxTexture2* texture{};
 
+    if (ktxTexture2_CreateFromMemory(
+            t_data.data(), t_data.size(), KTX_TEXTURE_CREATE_NO_FLAGS, nullptr
+        )
+        != KTX_SUCCESS)
+    {
+        return std::nullopt;
+    }
+
     if (const ktxResult result{ ktxTexture2_CreateFromMemory(
             t_data.data(), t_data.size(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &texture
         ) };
-        result != KTX_SUCCESS && result != KTX_UNKNOWN_FILE_FORMAT)
+        result != KTX_SUCCESS)
     {
         SPDLOG_ERROR(
             "ktxTexture2_CreateFromMemory failed with '{}'", ktxErrorString(result)
@@ -44,6 +71,8 @@ auto KtxImage::load_from_memory(const std::span<const std::uint8_t> t_data
 
         return std::nullopt;
     }
+
+    transcode(texture);
 
     return KtxImage{ texture };
 }

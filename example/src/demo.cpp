@@ -17,9 +17,9 @@
 using namespace entt::literals;
 using namespace core;
 
-auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept -> int
+auto demo::run(app::App& t_app, const ModelInfo& t_model_info) noexcept -> int
 {
-    return DemoRenderer::create(t_app.store(), t_model_filepath)
+    return DemoRenderer::create(t_app.store(), t_model_info.filepath)
         .transform([&](DemoRenderer t_demo) {
             t_demo.swapchain.on_swapchain_recreated(
                 [&t_demo](const renderer::vulkan::Swapchain& t_swapchain) {
@@ -56,14 +56,15 @@ auto demo::run(app::App& t_app, const std::string& t_model_filepath) noexcept ->
 
             glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             glfwSetInputMode(window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-            int window_width, window_height;
+            int window_width{};
+            int window_height{};
             glfwGetWindowSize(window.get(), &window_width, &window_height);
             glfwSetCursorPos(
                 window.get(),
                 static_cast<double>(window_width) / 2.0,
                 static_cast<double>(window_height) / 2.0
             );
-            Controller controller;
+            Controller controller{ t_model_info.movement_speed };
             bool       reset_mouse{};
 
             std::atomic<vk::Extent2D> framebuffer_size{};

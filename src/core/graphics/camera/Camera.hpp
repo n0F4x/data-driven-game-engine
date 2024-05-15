@@ -18,11 +18,14 @@ public:
 
 
     [[nodiscard]]
+    auto position() const noexcept -> const glm::vec3&;
+    [[nodiscard]]
     auto view() const noexcept -> const glm::mat4&;
     [[nodiscard]]
     auto projection() const noexcept -> const glm::mat4&;
 
 private:
+    glm::vec3 m_position{};
     glm::mat4 m_view{ 1.f };
     glm::mat4 m_projection{ 1.f };
 };
