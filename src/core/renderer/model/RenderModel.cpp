@@ -610,9 +610,9 @@ static auto create_sampler(
 {
     const vk::SamplerCreateInfo sampler_create_info{
         .magFilter = t_sampler_info.mag_filter.transform(to_mag_filter)
-                         .value_or(vk::Filter::eNearest),
+                         .value_or(vk::Filter::eLinear),
         .minFilter = t_sampler_info.min_filter.transform(to_min_filter)
-                         .value_or(vk::Filter::eNearest),
+                         .value_or(vk::Filter::eLinear),
         .mipmapMode = t_sampler_info.min_filter.transform(to_mipmap_mode)
                           .value_or(vk::SamplerMipmapMode::eLinear),
         .addressModeU = to_address_mode(t_sampler_info.wrap_s),

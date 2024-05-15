@@ -26,7 +26,7 @@ static auto load_scene(
         return std::nullopt;
     }
     auto opt_fragment_shader_module{
-        renderer::ShaderModule::create(t_device.get(), "shaders/model_test.frag.spv")
+        renderer::ShaderModule::create(t_device.get(), "shaders/color.frag.spv")
     };
     if (!opt_fragment_shader_module.has_value()) {
         return std::nullopt;
