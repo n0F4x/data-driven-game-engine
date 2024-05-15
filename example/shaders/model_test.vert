@@ -13,10 +13,10 @@ layout(set = 0, binding = 0) uniform Scene {
 };
 
 
+// size: 64
 struct Vertex {
     vec4 position;
     vec4 normal;
-    vec4 tangent;
     vec2 UV0;
     vec2 UV1;
     vec4 color;

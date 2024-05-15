@@ -11,9 +11,9 @@ try {
     const std::string model_file_path{
         //        "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb"
         //        "models/Avocado/glTF-Binary/Avocado.glb"
-        //        "models/DamagedHelmet.glb"
-        "models/Sponza/glTF/Sponza.gltf"
+        "models/DamagedHelmet.glb"
         //        "models/armor/armor.gltf"
+        //        "models/Sponza/glTF/Sponza.gltf"
     };
 
     // for better debugging with Vulkan Configurator

@@ -6,9 +6,17 @@
 using namespace core;
 using namespace core::renderer;
 
+struct ShaderVertex {
+    glm::vec4 position;
+    glm::vec4 normal;
+    glm::vec2 UV0;
+    glm::vec2 UV1;
+    glm::vec4 color;
+};
+
 struct ShaderTexture {
-    uint32_t sampler_index;
     uint32_t image_index;
+    uint32_t sampler_index;
 };
 
 struct ShaderTextureInfo {
@@ -41,8 +49,11 @@ struct ShaderMaterial {
     ShaderNormalTextureInfo    normalTexture;
     ShaderOcclusionTextureInfo occlusionTexture;
     ShaderTextureInfo          emissiveTexture;
+    glm::vec2                  _padding0;
     glm::vec3                  emissiveFactor;
     float                      alphaCutoff;
+    glm::vec4                  _padding1;
+    glm::vec4                  _padding2;
 };
 
 struct PushConstants {
@@ -57,27 +68,38 @@ static auto create_descriptor_set_layouts(
 ) -> std::array<vk::UniqueDescriptorSetLayout, 3>
 {
     const std::array bindings_0{
+        // vertices
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
+        // transforms
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 1,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
+        // defaultSampler
         vk::DescriptorSetLayoutBinding{ .binding         = 2,
                                        .descriptorType  = vk::DescriptorType::eSampler,
                                        .descriptorCount = 1,
                                        .stageFlags = vk::ShaderStageFlagBits::eFragment     },
+        // textures
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 3,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
+        // defaultMaterial
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 4,
+                                       .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                                       .descriptorCount = 1,
+                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment },
+        // materials
+        vk::DescriptorSetLayoutBinding{
+                                       .binding         = 5,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
@@ -148,9 +170,8 @@ static auto create_staging_buffer(
         return MappedBuffer{};
     }
 
-    const uint32_t             size{ static_cast<uint32_t>(t_size) };
-    const vk::BufferCreateInfo staging_buffer_create_info = {
-        .size  = size,
+    const vk::BufferCreateInfo staging_buffer_create_info{
+        .size  = t_size,
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
 
@@ -309,7 +330,10 @@ static auto convert_material(const graphics::Model::Material& t_material
                         .value_or(std::numeric_limits<uint32_t>::max()),
                                        },
         .emissiveFactor = t_material.emissive_factor,
-        .alphaCutoff    = t_material.alpha_cutoff,
+        .alphaCutoff    = t_material.alpha_mode
+                            == core::graphics::Model::Material::AlphaMode::eMask
+                            ? t_material.alpha_cutoff
+                            : -1.f,
     };
 }
 
@@ -322,6 +346,7 @@ static auto create_base_descriptor_set(
     const vk::Buffer              t_transform_uniform,
     const vk::Sampler             t_default_sampler,
     const vk::Buffer              t_texture_uniform,
+    const vk::Buffer              t_default_material_uniform,
     const vk::Buffer              t_material_uniform
 ) -> vk::UniqueDescriptorSet
 {
@@ -348,6 +373,10 @@ static auto create_base_descriptor_set(
     const vk::DescriptorBufferInfo texture_buffer_info{
         .buffer = t_texture_uniform,
         .range  = sizeof(vk::DeviceAddress),
+    };
+    const vk::DescriptorBufferInfo default_material_buffer_info{
+        .buffer = t_default_material_uniform,
+        .range  = sizeof(ShaderMaterial),
     };
     const vk::DescriptorBufferInfo material_buffer_info{
         .buffer = t_material_uniform,
@@ -386,6 +415,13 @@ static auto create_base_descriptor_set(
         vk::WriteDescriptorSet{
                                .dstSet          = descriptor_sets.front().get(),
                                .dstBinding      = 4,
+                               .descriptorCount = 1,
+                               .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                               .pBufferInfo     = &default_material_buffer_info,
+                               },
+        vk::WriteDescriptorSet{
+                               .dstSet          = descriptor_sets.front().get(),
+                               .dstBinding      = 5,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                .pBufferInfo     = &material_buffer_info,
@@ -779,14 +815,22 @@ auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_i
 ) -> std::vector<vk::DescriptorPoolSize>
 {
     std::vector<vk::DescriptorPoolSize> pool_sizes{
+        // vertices
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
+        // transforms
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
+        // defaultSampler
         vk::DescriptorPoolSize{       .type            = vk::DescriptorType::eSampler,
                                .descriptorCount = 1u },
+        // textures
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
+        // defaultMaterial
+        vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
+                               .descriptorCount = 1u },
+        // materials
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
     };
@@ -828,15 +872,28 @@ auto RenderModel::create_loader(
         static_cast<uint32_t>(std::span{ t_model->indices() }.size_bytes())
     ) };
 
+    std::vector<ShaderVertex> vertices{
+        t_model->vertices()
+        | std::views::transform([](const graphics::Model::Vertex& vertex) {
+              return ShaderVertex{
+                  .position = vertex.position,
+                  .normal   = vertex.normal,
+                  .UV0      = vertex.uv_0,
+                  .UV1      = vertex.uv_1,
+                  .color    = vertex.color,
+              };
+          })
+        | std::ranges::to<std::vector>()
+    };
     MappedBuffer vertex_staging_buffer{
-        create_staging_buffer(t_allocator, std::span{ t_model->vertices() })
+        create_staging_buffer(t_allocator, std::span{ vertices }, sizeof(ShaderVertex))
     };
     Buffer       vertex_buffer{ create_gpu_only_buffer(
         t_allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
-        static_cast<uint32_t>(std::span{ t_model->vertices() }.size_bytes()),
-        16
+        static_cast<uint32_t>(std::span{ vertices }.size_bytes()),
+        sizeof(ShaderVertex)
     ) };
     MappedBuffer vertex_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
@@ -875,9 +932,9 @@ auto RenderModel::create_loader(
         t_model->textures()
         | std::views::transform([](const graphics::Model::Texture& texture) {
               return ShaderTexture{
+                  .image_index = texture.image_index,
                   .sampler_index =
                       texture.sampler_index.value_or(std::numeric_limits<uint32_t>::max()),
-                  .image_index = texture.image_index,
               };
           })
         | std::ranges::to<std::vector>()
@@ -893,17 +950,29 @@ auto RenderModel::create_loader(
     ) };
     MappedBuffer texture_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
+    const ShaderMaterial default_material{
+        convert_material(graphics::Model::default_material())
+    };
+    MappedBuffer default_material_uniform{ t_allocator.allocate_mapped_buffer(
+        vk::BufferCreateInfo{
+            .size  = static_cast<uint32_t>(sizeof(ShaderMaterial)),
+            .usage = vk::BufferUsageFlagBits::eUniformBuffer,
+        },
+        &default_material
+    ) };
+
     std::vector<ShaderMaterial> materials{ t_model->materials()
                                            | std::views::transform(convert_material)
                                            | std::ranges::to<std::vector>() };
     MappedBuffer                material_staging_buffer{
-        create_staging_buffer(t_allocator, std::span{ materials })
+        create_staging_buffer(t_allocator, std::span{ materials }, sizeof(ShaderMaterial))
     };
     Buffer       material_buffer{ create_gpu_only_buffer(
         t_allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
-        static_cast<uint32_t>(std::span{ materials }.size_bytes())
+        static_cast<uint32_t>(std::span{ materials }.size_bytes()),
+        sizeof(ShaderMaterial)
     ) };
     MappedBuffer material_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
@@ -915,6 +984,7 @@ auto RenderModel::create_loader(
         transform_uniform.get(),
         default_sampler.get(),
         texture_uniform.get(),
+        default_material_uniform.get(),
         material_uniform.get()
     ) };
 
@@ -1013,8 +1083,7 @@ auto RenderModel::create_loader(
              static_cast<uint32_t>(std::span{ t_model->indices() }.size_bytes()),
          index_staging_buffer = auto{ std::move(index_staging_buffer) },
          index_buffer         = auto{ std::move(index_buffer) },
-         vertex_buffer_size =
-             static_cast<uint32_t>(std::span{ t_model->vertices() }.size_bytes()),
+         vertex_buffer_size   = static_cast<uint32_t>(std::span{ vertices }.size_bytes()),
          vertex_staging_buffer = auto{ std::move(vertex_staging_buffer) },
          vertex_buffer         = auto{ std::move(vertex_buffer) },
          vertex_uniform        = auto{ std::move(vertex_uniform) },
@@ -1025,9 +1094,10 @@ auto RenderModel::create_loader(
          transform_uniform        = auto{ std::move(transform_uniform) },
          default_sampler          = auto{ std::move(default_sampler) },
          texture_buffer_size = static_cast<uint32_t>(std::span{ textures }.size_bytes()),
-         texture_staging_buffer = auto{ std::move(texture_staging_buffer) },
-         texture_buffer         = auto{ std::move(texture_buffer) },
-         texture_uniform        = auto{ std::move(texture_uniform) },
+         texture_staging_buffer   = auto{ std::move(texture_staging_buffer) },
+         texture_buffer           = auto{ std::move(texture_buffer) },
+         texture_uniform          = auto{ std::move(texture_uniform) },
+         default_material_uniform = auto{ std::move(default_material_uniform) },
          material_buffer_size = static_cast<uint32_t>(std::span{ materials }.size_bytes()),
          material_staging_buffer = auto{ std::move(material_staging_buffer) },
          material_buffer         = auto{ std::move(material_buffer) },
@@ -1105,6 +1175,7 @@ auto RenderModel::create_loader(
                                 std::move(default_sampler),
                                 std::move(texture_buffer),
                                 std::move(texture_uniform),
+                                std::move(default_material_uniform),
                                 std::move(material_buffer),
                                 std::move(material_uniform),
                                 std::move(base_descriptor_set),
@@ -1129,8 +1200,9 @@ auto RenderModel::create_descriptor_set_layouts(
 auto RenderModel::push_constant_range() noexcept -> vk::PushConstantRange
 {
     return vk::PushConstantRange{
-        .stageFlags = vk::ShaderStageFlagBits::eVertex,
-        .size       = sizeof(PushConstants),
+        .stageFlags = vk::ShaderStageFlagBits::eVertex
+                    | vk::ShaderStageFlagBits::eFragment,
+        .size = sizeof(PushConstants),
     };
 }
 
@@ -1169,7 +1241,7 @@ auto RenderModel::draw(
             };
             t_graphics_command_buffer.pushConstants(
                 t_pipeline_layout,
-                vk::ShaderStageFlagBits::eVertex,
+                vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
                 0,
                 sizeof(PushConstants),
                 &push_constants
@@ -1192,6 +1264,7 @@ RenderModel::RenderModel(
     vk::UniqueSampler&&                t_default_sampler,
     Buffer&&                           t_texture_buffer,
     MappedBuffer&&                     t_texture_uniform,
+    MappedBuffer&&                     t_default_material_uniform,
     Buffer&&                           t_material_buffer,
     MappedBuffer&&                     t_material_uniform,
     vk::UniqueDescriptorSet&&          t_base_descriptor_set,
@@ -1210,6 +1283,7 @@ RenderModel::RenderModel(
       m_default_sampler{ std::move(t_default_sampler) },
       m_texture_buffer{ std::move(t_texture_buffer) },
       m_texture_uniform{ std::move(t_texture_uniform) },
+      m_default_material_uniform{ std::move(t_default_material_uniform) },
       m_material_buffer{ std::move(t_material_buffer) },
       m_material_uniform{ std::move(t_material_uniform) },
       m_base_descriptor_set{ std::move(t_base_descriptor_set) },

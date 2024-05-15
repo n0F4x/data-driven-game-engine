@@ -49,7 +49,9 @@ auto RenderModel::Requirements::require_device_settings(
     );
     constexpr static vk::PhysicalDeviceDescriptorIndexingFeatures
         descriptor_indexing_features{
-            .descriptorBindingVariableDescriptorCount = vk::True,
+            .shaderSampledImageArrayNonUniformIndexing = vk::True,
+            .descriptorBindingVariableDescriptorCount  = vk::True,
+            .runtimeDescriptorArray                    = vk::True,
         };
     t_physical_device_selector.add_required_extension_features(descriptor_indexing_features
     );

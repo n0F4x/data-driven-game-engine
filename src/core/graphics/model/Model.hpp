@@ -24,7 +24,7 @@ public:
         glm::vec4 tangent{};
         glm::vec2 uv_0{};
         glm::vec2 uv_1{};
-        glm::vec4 color{};
+        glm::vec4 color{ 1 };
     };
 
     using Image = std::unique_ptr<asset::Image>;

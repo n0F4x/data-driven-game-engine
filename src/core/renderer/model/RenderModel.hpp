@@ -84,6 +84,8 @@ private:
     vk::DeviceAddress m_texture_buffer_address;
     MappedBuffer      m_texture_uniform;
 
+    MappedBuffer m_default_material_uniform;
+
     Buffer            m_material_buffer;
     vk::DeviceAddress m_material_buffer_address;
     MappedBuffer      m_material_uniform;
@@ -113,6 +115,7 @@ private:
         vk::UniqueSampler&&                default_sampler,
         Buffer&&                           texture_buffer,
         MappedBuffer&&                     texture_uniform,
+        MappedBuffer&&                     default_material_uniform,
         Buffer&&                           material_buffer,
         MappedBuffer&&                     material_uniform,
         vk::UniqueDescriptorSet&&          base_descriptor_set,

@@ -461,7 +461,7 @@ auto load_vertices(
 
 auto load_indices(
     internal::GltfModel&      t_loader,
-    Model::Mesh::Primitive&         t_primitive,
+    Model::Mesh::Primitive&   t_primitive,
     const uint32_t            t_first_vertex_index,
     const fastgltf::Asset&    t_asset,
     const fastgltf::Accessor& t_accessor
