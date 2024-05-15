@@ -1,5 +1,7 @@
 #include "DemoRenderer.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <core/graphics/model/GltfLoader.hpp>
 #include <core/renderer/scene/Builder.hpp>
 #include <core/window/Window.hpp>
@@ -12,23 +14,26 @@ constexpr static uint32_t g_frame_count{ 1 };
 
 [[nodiscard]]
 static auto load_scene(
-    const renderer::Device&    t_device,
-    const renderer::Allocator& t_allocator,
-    vk::RenderPass             t_render_pass,
-    graphics::Model&&          t_model,
-    cache::Cache&              t_cache
+    const renderer::Device&      t_device,
+    const renderer::Allocator&   t_allocator,
+    vk::RenderPass               t_render_pass,
+    graphics::Model&&            t_model,
+    const std::filesystem::path& t_fragment_shader_filepath,
+    cache::Cache&                t_cache
 ) -> std::optional<renderer::Scene>
 {
     auto opt_vertex_shader_module{
         renderer::ShaderModule::create(t_device.get(), "shaders/model.vert.spv")
     };
     if (!opt_vertex_shader_module.has_value()) {
+        SPDLOG_ERROR("Vertex shader could not be created");
         return std::nullopt;
     }
     auto opt_fragment_shader_module{
-        renderer::ShaderModule::create(t_device.get(), "shaders/pbr.frag.spv")
+        renderer::ShaderModule::create(t_device.get(), t_fragment_shader_filepath)
     };
     if (!opt_fragment_shader_module.has_value()) {
+        SPDLOG_ERROR("Fragment shader could not be created");
         return std::nullopt;
     }
 
@@ -87,8 +92,11 @@ static auto load_scene(
     return packaged_scene.get_future().get();
 }
 
-auto DemoRenderer::create(Store& t_store, const std::filesystem::path& t_model_filepath)
-    -> std::optional<DemoRenderer>
+auto DemoRenderer::create(
+    Store&                       t_store,
+    const std::filesystem::path& t_model_filepath,
+    const std::filesystem::path& t_fragment_shader_filepath
+) -> std::optional<DemoRenderer>
 {
     auto&       cache{ t_store.at<cache::Cache>() };
     const auto& window{ t_store.at<window::Window>() };
@@ -171,7 +179,12 @@ auto DemoRenderer::create(Store& t_store, const std::filesystem::path& t_model_f
     }
 
     auto opt_scene{ load_scene(
-        device, allocator, render_pass.get(), std::move(opt_model.value()), cache
+        device,
+        allocator,
+        render_pass.get(),
+        std::move(opt_model.value()),
+        t_fragment_shader_filepath,
+        cache
     ) };
     if (!opt_scene.has_value()) {
         return std::nullopt;

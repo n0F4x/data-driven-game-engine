@@ -10,12 +10,13 @@ auto main() -> int
 try {
     const demo::ModelInfo model_info{
         //        "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
-        "models/Avocado/glTF-Binary/Avocado.glb",
-        //        "models/DamagedHelmet.glb",
+        //        "models/Avocado/glTF-Binary/Avocado.glb",
+        "models/DamagedHelmet.glb",
         //        "models/Sponza/glTF/Sponza.gltf",
         //        "models/SponzaKTX/Sponza01.gltf",
         //        "models/SponzaKTX/Sponza02.gltf",
-        3
+        5,
+        "shaders/pbr.frag.spv"
     };
 
     // for better debugging with Vulkan Configurator

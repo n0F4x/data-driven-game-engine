@@ -19,7 +19,9 @@ using namespace core;
 
 auto demo::run(app::App& t_app, const ModelInfo& t_model_info) noexcept -> int
 {
-    return DemoRenderer::create(t_app.store(), t_model_info.filepath)
+    return DemoRenderer::create(
+               t_app.store(), t_model_info.filepath, t_model_info.fragment_shader
+    )
         .transform([&](DemoRenderer t_demo) {
             t_demo.swapchain.on_swapchain_recreated(
                 [&t_demo](const renderer::vulkan::Swapchain& t_swapchain) {
