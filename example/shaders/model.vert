@@ -23,7 +23,7 @@ struct Vertex {
     vec4 color;
 };
 
-layout(std430, buffer_reference, buffer_reference_align = 16) readonly buffer VertexBuffer
+layout(std430, buffer_reference, buffer_reference_align = 64) readonly buffer VertexBuffer
 {
     Vertex vertices[];
 };

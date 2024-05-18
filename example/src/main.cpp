@@ -11,6 +11,7 @@ try {
     const demo::ModelInfo model_info{
         //        "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
         //        "models/Avocado/glTF-Binary/Avocado.glb",
+        //        "models/armor/armor.gltf",s
         "models/DamagedHelmet.glb",
         //        "models/Sponza/glTF/Sponza.gltf",
         //        "models/SponzaKTX/Sponza01.gltf",

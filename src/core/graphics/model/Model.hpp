@@ -96,7 +96,7 @@ public:
         std::optional<NormalTextureInfo>    normal_texture_info;
         std::optional<OcclusionTextureInfo> occlusion_texture_info;
         std::optional<TextureInfo>          emissive_texture_info;
-        glm::vec3                           emissive_factor{};
+        glm::vec3                           emissive_factor{ 0.f };
         AlphaMode                           alpha_mode{ AlphaMode::eOpaque };
         float                               alpha_cutoff{ 0.5f };
         bool                                double_sided{ false };

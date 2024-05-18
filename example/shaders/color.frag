@@ -41,7 +41,7 @@ layout (set = 1, binding = 4) uniform DefaultMaterial {
     Material defaultMaterial;
 };
 
-layout (std430, buffer_reference, buffer_reference_align = 64) readonly buffer MaterialBuffer
+layout (std430, buffer_reference, buffer_reference_align = 128) readonly buffer MaterialBuffer
 {
     Material materials[];
 };
