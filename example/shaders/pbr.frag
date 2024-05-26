@@ -86,8 +86,8 @@ struct PBRInfo
 #define MIN_ROUGHNESS 0.04
 #define PI 3.141592653589793
 const vec3 F0 = vec3(0.04);
-const vec3 LIGHT_DIR = vec3(1, 1, 1);
-const vec3 LIGHT_COLOR = vec3(1, 1, 1) * 5.0;
+const vec3 LIGHT_DIR = normalize(vec3(1, -1, 1));
+const vec3 LIGHT_COLOR = vec3(1, 1, 1) * 5;
 
 
 vec4 sample_texture(Texture texture_, vec2 UV) {
@@ -222,11 +222,11 @@ void main() {
     vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
 
     vec3 n = getNormal(material);
+    n.y *= -1.0f;
     vec3 v = normalize(camera.position.xyz - in_worldPosition); // Vector from surface point to camera
     vec3 l = normalize(LIGHT_DIR); // Vector from surface point to light
     vec3 h = normalize(l + v); // Half vector between both l and v
-    vec3 reflection = -normalize(reflect(v, n));
-    reflection.y *= -1.0f;
+    vec3 reflection = normalize(reflect(-v, n));
 
     float NdotL = clamp(dot(n, l), 0.001, 1.0);
     float NdotV = clamp(abs(dot(n, v)), 0.001, 1.0);
