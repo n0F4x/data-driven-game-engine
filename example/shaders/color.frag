@@ -29,8 +29,7 @@ struct Texture {
     uint imageIndex;
     uint samplerIndex;
 };
-layout (std430, buffer_reference, buffer_reference_align = 8) readonly buffer TextureBuffer
-{
+layout (std430, buffer_reference, buffer_reference_align = 8) readonly buffer TextureBuffer {
     Texture textures[];
 };
 layout (set = 1, binding = 3) uniform Textures {
@@ -41,8 +40,7 @@ layout (set = 1, binding = 4) uniform DefaultMaterial {
     Material defaultMaterial;
 };
 
-layout (std430, buffer_reference, buffer_reference_align = 128) readonly buffer MaterialBuffer
-{
+layout (std430, buffer_reference, buffer_reference_align = 128) readonly buffer MaterialBuffer {
     Material materials[];
 };
 layout (set = 1, binding = 5) uniform Materials {
@@ -53,8 +51,7 @@ layout (set = 2, binding = 0) uniform texture2D images[];
 layout (set = 3, binding = 0) uniform sampler samplers[];
 
 
-layout (push_constant) uniform Push
-{
+layout (push_constant) uniform Push {
     uint transformIndex;
     uint materialIndex;
 };

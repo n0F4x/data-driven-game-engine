@@ -30,8 +30,7 @@ struct Texture {
     uint imageIndex;
     uint samplerIndex;
 };
-layout (std430, buffer_reference, buffer_reference_align = 8) readonly buffer TextureBuffer
-{
+layout (std430, buffer_reference, buffer_reference_align = 8) readonly buffer TextureBuffer {
     Texture textures[];
 };
 layout (set = 1, binding = 3) uniform Textures {
@@ -42,8 +41,7 @@ layout (set = 1, binding = 4) uniform DefaultMaterial {
     Material defaultMaterial;
 };
 
-layout (std430, buffer_reference, buffer_reference_align = 128) readonly buffer MaterialBuffer
-{
+layout (std430, buffer_reference, buffer_reference_align = 128) readonly buffer MaterialBuffer {
     Material materials[];
 };
 layout (set = 1, binding = 5) uniform Materials {
@@ -54,8 +52,7 @@ layout (set = 2, binding = 0) uniform texture2D images[];
 layout (set = 3, binding = 0) uniform sampler samplers[];
 
 
-layout (push_constant) uniform Push
-{
+layout (push_constant) uniform Push {
     uint transformIndex;
     uint materialIndex;
 };
@@ -100,8 +97,7 @@ vec4 sample_texture(Texture texture_, vec2 UV) {
 
 // Find the normal for this fragment, pulling either from a predefined normal map
 // or from the interpolated mesh normal and tangent attributes.
-vec3 getNormal(Material material)
-{
+vec3 getNormal(Material material) {
     if (material.normalTextureIndex == MAX_UINT_VALUE) {
         return normalize(in_normal);
     }
@@ -128,15 +124,13 @@ vec3 getNormal(Material material)
 // Basic Lambertian diffuse
 // Implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog
 // See also [1], Equation 1
-vec3 diffuse(PBRInfo pbrInputs)
-{
+vec3 diffuse(PBRInfo pbrInputs) {
     return pbrInputs.diffuseColor / PI;
 }
 
 // The following equation models the Fresnel reflectance term of the spec equation (aka F())
 // Implementation of fresnel from [4], Equation 15
-vec3 specularReflection(PBRInfo pbrInputs)
-{
+vec3 specularReflection(PBRInfo pbrInputs) {
     return pbrInputs.reflectance0 + (pbrInputs.reflectance90 - pbrInputs.reflectance0) * pow(clamp(1.0 - pbrInputs.VdotH, 0.0, 1.0), 5.0);
 }
 
@@ -144,8 +138,7 @@ vec3 specularReflection(PBRInfo pbrInputs)
 // where rougher material will reflect less light back to the viewer.
 // This implementation is based on [1] Equation 4, and we adopt their modifications to
 // alphaRoughness as input as originally proposed in [2].
-float geometricOcclusion(PBRInfo pbrInputs)
-{
+float geometricOcclusion(PBRInfo pbrInputs) {
     float NdotL = pbrInputs.NdotL;
     float NdotV = pbrInputs.NdotV;
     float r = pbrInputs.alphaRoughness;
@@ -158,8 +151,7 @@ float geometricOcclusion(PBRInfo pbrInputs)
 // The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
 // Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
 // Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
-float microfacetDistribution(PBRInfo pbrInputs)
-{
+float microfacetDistribution(PBRInfo pbrInputs) {
     float roughnessSq = pbrInputs.alphaRoughness * pbrInputs.alphaRoughness;
     float f = (pbrInputs.NdotH * roughnessSq - pbrInputs.NdotH) * pbrInputs.NdotH + 1.0;
     return roughnessSq / (PI * f * f);

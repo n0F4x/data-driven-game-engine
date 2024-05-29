@@ -23,16 +23,14 @@ struct Vertex {
     vec4 color;
 };
 
-layout(std430, buffer_reference, buffer_reference_align = 64) readonly buffer VertexBuffer
-{
+layout(std430, buffer_reference, buffer_reference_align = 64) readonly buffer VertexBuffer {
     Vertex vertices[];
 };
 layout (set = 1, binding = 0) uniform Vertices {
     VertexBuffer vertexBuffer;
 };
 
-layout(std430, buffer_reference, buffer_reference_align = 4) readonly buffer TransformBuffer
-{
+layout(std430, buffer_reference, buffer_reference_align = 4) readonly buffer TransformBuffer {
     mat4 transforms[];
 };
 layout (set = 1, binding = 1) uniform Transforms {
@@ -40,8 +38,7 @@ layout (set = 1, binding = 1) uniform Transforms {
 };
 
 
-layout(push_constant) uniform Push
-{
+layout(push_constant) uniform Push {
     uint transformIndex;
     uint materialIndex;
 };
