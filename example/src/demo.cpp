@@ -87,7 +87,7 @@ auto demo::run(app::App& t_app, const ModelInfo& t_model_info) noexcept -> int
             auto rendering = std::async(std::launch::async, [&] {
                 while (running) {
                     camera_mutex.lock();
-                    graphics::Camera render_camera{ camera };
+                    const graphics::Camera render_camera{ camera };
                     camera_mutex.unlock();
                     t_demo.render(framebuffer_size, render_camera);
                 }
@@ -96,13 +96,13 @@ auto demo::run(app::App& t_app, const ModelInfo& t_model_info) noexcept -> int
             auto last_time = std::chrono::high_resolution_clock::now();
             while (running) {
                 std::this_thread::sleep_for(std::chrono::duration<float>{ 1.f / 60.f });
-                auto now = std::chrono::high_resolution_clock::now();
-                std::chrono::duration<float> delta_time{ now - last_time };
+                const auto now = std::chrono::high_resolution_clock::now();
+                const std::chrono::duration<float> delta_time{ now - last_time };
                 last_time = now;
 
                 glfwPollEvents();
 
-                if (glfwWindowShouldClose(window.get())) {
+                if (glfwWindowShouldClose(window.get()) == GLFW_TRUE) {
                     running = false;
                 }
 
