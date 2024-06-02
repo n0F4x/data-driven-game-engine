@@ -62,15 +62,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
 )
 
 # VulkanMemoryAllocator
-# vcpkg port(3.0.1#4) is deprecated and doesn't compile
-message(NOTICE "Configuring VulkanMemoryAllocator")
-FetchContent_Declare(VulkanMemoryAllocator
-        GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        GIT_TAG 19b940e864bd3a5afb3c79e3c6788869d01a19eb
-        GIT_PROGRESS TRUE
-        SYSTEM
-)
-FetchContent_MakeAvailable(VulkanMemoryAllocator)
+find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         VMA_STATIC_VULKAN_FUNCTIONS=$<NOT:${VULKAN_DYNAMIC_FUNCTIONS}>
         VMA_DYNAMIC_VULKAN_FUNCTIONS=${VULKAN_DYNAMIC_FUNCTIONS}

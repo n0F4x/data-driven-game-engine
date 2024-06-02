@@ -1,7 +1,7 @@
 {
   "name" : "engine",
   "version-string" : "1.0.0",
-  "builtin-baseline" : "ce1916404fc6f2b645f419a6d47b7ebafe686582",
+  "builtin-baseline" : "47364fbc300756f64f7876b549d9422d5f3ec0d3",
   "dependencies" : [ {
     "name" : "ktx",
     "version>=" : "4.3.1#1"
@@ -44,5 +44,8 @@
   }, {
     "name" : "vulkan-headers",
     "version>=" : "1.3.280.0"
+  }, {
+    "name" : "vulkan-memory-allocator",
+    "version>=" : "3.1.0"
   } ]
 }
