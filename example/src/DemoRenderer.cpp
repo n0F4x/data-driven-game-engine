@@ -100,8 +100,8 @@ auto DemoRenderer::create(
 {
     auto&       cache{ t_store.at<cache::Cache>() };
     const auto& window{ t_store.at<window::Window>() };
-    auto&       device{ t_store.at<renderer::Device>() };
-    auto&       allocator{ t_store.at<renderer::Allocator>() };
+    const auto& device{ t_store.at<renderer::Device>() };
+    const auto& allocator{ t_store.at<renderer::Allocator>() };
 
     auto& swapchain{ t_store.at<renderer::SwapchainHolder>() };
     int   width{};
@@ -109,7 +109,7 @@ auto DemoRenderer::create(
     glfwGetFramebufferSize(window.get(), &width, &height);
     swapchain.set_framebuffer_size(vk::Extent2D{ static_cast<uint32_t>(width),
                                                  static_cast<uint32_t>(height) });
-    if (!swapchain.get()) {
+    if (!swapchain.get().has_value()) {
         return std::nullopt;
     }
     const auto& raw_swapchain{ swapchain.get().value() };
@@ -212,24 +212,26 @@ auto DemoRenderer::render(
     const core::graphics::Camera& t_camera
 ) -> void
 {
-    swapchain.set_framebuffer_size(t_framebuffer_size);
+    swapchain.get().set_framebuffer_size(t_framebuffer_size);
 
-    while (device->waitForFences(
+    while (device.get()->waitForFences(
                { in_flight_fences[frame_index].get() }, vk::True, UINT64_MAX
            )
            == vk::Result::eTimeout)
     {}
 
     if (auto&& [image_index, raw_swapchain]{ std::make_tuple(
-            swapchain.acquire_next_image(image_acquired_semaphores[frame_index].get(), {}),
+            swapchain.get().acquire_next_image(
+                image_acquired_semaphores[frame_index].get(), {}
+            ),
             std::cref(swapchain.get())
         ) };
-        image_index.has_value() && raw_swapchain.has_value())
+        image_index.has_value() && raw_swapchain.get().has_value())
     {
-        device->resetFences({ in_flight_fences[frame_index].get() });
+        device.get()->resetFences({ in_flight_fences[frame_index].get() });
         command_buffers[frame_index].reset();
 
-        record_command_buffer(raw_swapchain.value(), image_index.value(), t_camera);
+        record_command_buffer(raw_swapchain.get().value(), image_index.value(), t_camera);
 
         std::array wait_semaphores{ image_acquired_semaphores[frame_index].get() };
         std::array<vk::PipelineStageFlags, wait_semaphores.size()> wait_stages{
@@ -245,10 +247,10 @@ auto DemoRenderer::render(
             .signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size()),
             .pSignalSemaphores    = signal_semaphores.data()
         };
-        vk::Queue(device.info().get_queue(vkb::QueueType::graphics).value())
+        vk::Queue(device.get().info().get_queue(vkb::QueueType::graphics).value())
             .submit(submit_info, in_flight_fences[frame_index].get());
 
-        swapchain.present(signal_semaphores);
+        swapchain.get().present(signal_semaphores);
     }
 
     frame_index = (frame_index + 1) % g_frame_count;

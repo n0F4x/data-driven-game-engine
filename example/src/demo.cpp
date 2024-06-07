@@ -23,28 +23,28 @@ auto demo::run(app::App& t_app, const ModelInfo& t_model_info) noexcept -> int
                t_app.store(), t_model_info.filepath, t_model_info.fragment_shader
     )
         .transform([&](DemoRenderer t_demo) {
-            t_demo.swapchain.on_swapchain_recreated(
+            t_demo.swapchain.get().on_swapchain_recreated(
                 [&t_demo](const renderer::Swapchain& t_swapchain) {
                     t_demo.depth_image.reset();
                     t_demo.depth_image = init::create_depth_image(
-                        t_demo.device.physical_device(),
+                        t_demo.device.get().physical_device(),
                         t_demo.allocator,
                         t_swapchain.extent()
                     );
                 }
             );
-            t_demo.swapchain.on_swapchain_recreated(
+            t_demo.swapchain.get().on_swapchain_recreated(
                 [&t_demo](const renderer::Swapchain&) {
                     t_demo.depth_image_view.reset();
                     t_demo.depth_image_view =
                         init::create_depth_image_view(t_demo.device, *t_demo.depth_image);
                 }
             );
-            t_demo.swapchain.on_swapchain_recreated(
+            t_demo.swapchain.get().on_swapchain_recreated(
                 [&t_demo](const renderer::Swapchain& t_swapchain) {
                     t_demo.framebuffers.clear();
                     t_demo.framebuffers = init::create_framebuffers(
-                        *t_demo.device,
+                        t_demo.device.get().get(),
                         t_swapchain.extent(),
                         t_swapchain.image_views(),
                         *t_demo.render_pass,
@@ -138,7 +138,7 @@ auto demo::run(app::App& t_app, const ModelInfo& t_model_info) noexcept -> int
             }
 
             rendering.get();
-            t_demo.device->waitIdle();
+            t_demo.device.get()->waitIdle();
 
             return 0;
         })
