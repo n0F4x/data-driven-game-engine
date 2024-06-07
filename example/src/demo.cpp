@@ -8,7 +8,7 @@
 #include <core/window/Window.hpp>
 
 #include "core/renderer/base/device/Device.hpp"
-#include "core/renderer/base/swapchain/Swapchain.hpp"
+#include "core/renderer/base/swapchain/SwapchainHolder.hpp"
 
 #include "Controller.hpp"
 #include "demo_init.hpp"
@@ -24,7 +24,7 @@ auto demo::run(app::App& t_app, const ModelInfo& t_model_info) noexcept -> int
     )
         .transform([&](DemoRenderer t_demo) {
             t_demo.swapchain.on_swapchain_recreated(
-                [&t_demo](const renderer::vulkan::Swapchain& t_swapchain) {
+                [&t_demo](const renderer::Swapchain& t_swapchain) {
                     t_demo.depth_image.reset();
                     t_demo.depth_image = init::create_depth_image(
                         t_demo.device.physical_device(),
@@ -34,14 +34,14 @@ auto demo::run(app::App& t_app, const ModelInfo& t_model_info) noexcept -> int
                 }
             );
             t_demo.swapchain.on_swapchain_recreated(
-                [&t_demo](const renderer::vulkan::Swapchain&) {
+                [&t_demo](const renderer::Swapchain&) {
                     t_demo.depth_image_view.reset();
                     t_demo.depth_image_view =
                         init::create_depth_image_view(t_demo.device, *t_demo.depth_image);
                 }
             );
             t_demo.swapchain.on_swapchain_recreated(
-                [&t_demo](const renderer::vulkan::Swapchain& t_swapchain) {
+                [&t_demo](const renderer::Swapchain& t_swapchain) {
                     t_demo.framebuffers.clear();
                     t_demo.framebuffers = init::create_framebuffers(
                         *t_demo.device,

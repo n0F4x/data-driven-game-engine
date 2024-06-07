@@ -1,77 +1,71 @@
 #pragma once
 
-#include <functional>
 #include <optional>
-#include <span>
-#include <string>
-#include <vector>
 
 #include <vulkan/vulkan.hpp>
-
-#include "core/renderer/base/device/Device.hpp"
-#include "core/renderer/wrappers/vulkan/Swapchain.hpp"
 
 namespace core::renderer {
 
 class Swapchain {
 public:
-    ///----------------///
-    ///  Type aliases  ///
-    ///----------------///
-    using FramebufferSizeGetter   = std::function<vk::Extent2D()>;
-    using SwapchainRecreatedEvent = std::function<void(const vulkan::Swapchain&)>;
-
     class Requirements;
 
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
-    explicit Swapchain(
-        vk::UniqueSurfaceKHR&&  t_surface,
-        Device&                 t_device,
-        FramebufferSizeGetter&& t_get_framebuffer_size = {}
-    ) noexcept;
+    ///----------------///
+    /// Static methods ///
+    ///----------------///
+    [[nodiscard]]
+    static auto choose_extent(
+        const vk::Extent2D&               t_framebuffer_size,
+        const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
+    ) noexcept -> vk::Extent2D;
+
+    [[nodiscard]]
+    static auto create(
+        vk::SurfaceKHR     t_surface,
+        vk::PhysicalDevice t_physical_device,
+        uint32_t           t_graphics_queue_family,
+        uint32_t           t_present_queue_family,
+        vk::Device         t_device,
+        vk::Extent2D       t_frame_buffer_size,
+        vk::SwapchainKHR   t_old_swapchain = nullptr
+    ) -> std::optional<Swapchain>;
+
+    ///-------------///
+    ///  Operators  ///
+    ///-------------///
+    [[nodiscard]]
+    auto operator*() const noexcept -> vk::SwapchainKHR;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
     [[nodiscard]]
-    auto surface() const noexcept -> vk::SurfaceKHR;
+    auto extent() const noexcept -> vk::Extent2D;
     [[nodiscard]]
-    auto get() const noexcept -> const std::optional<vulkan::Swapchain>&;
-
-    auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void;
-
+    auto surface_format() const noexcept -> vk::SurfaceFormatKHR;
     [[nodiscard]]
-    auto acquire_next_image(
-        vk::Semaphore t_semaphore = nullptr,
-        vk::Fence     t_fence     = nullptr
-    ) -> std::optional<uint32_t>;
-
-    auto present(std::span<vk::Semaphore> t_wait_semaphores = {}) -> void;
-
-    auto on_swapchain_recreated(SwapchainRecreatedEvent&& t_swapchain_recreated_event
-    ) -> uint32_t;
-
-    auto remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void;
+    auto image_views() const noexcept -> const std::vector<vk::UniqueImageView>&;
 
 private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::UniqueSurfaceKHR             m_surface;
-    std::reference_wrapper<Device>   m_device;
-    FramebufferSizeGetter            m_get_framebuffer_size;
-    std::optional<vulkan::Swapchain> m_swapchain;
-    uint32_t                         m_image_index{};
-    std::vector<std::pair<uint32_t, SwapchainRecreatedEvent>> m_swapchain_recreated_events;
-    uint32_t m_swapchain_recreated_events_counter{};
+    vk::Device                       m_device;
+    vk::Extent2D                     m_extent;
+    vk::SurfaceFormatKHR             m_surface_format;
+    vk::UniqueSwapchainKHR           m_swapchain;
+    std::vector<vk::UniqueImageView> m_image_views;
 
-    ///***********///
-    ///  Methods  ///
-    ///***********///
-    auto recreate_swapchain(vk::Extent2D t_framebuffer_size) -> void;
-    auto recreate_swapchain() noexcept -> void;
+    ///******************************///
+    ///  Constructors / Destructors  ///
+    ///******************************///
+    explicit Swapchain(
+        vk::Device                         t_device,
+        vk::Extent2D                       t_extent,
+        vk::SurfaceFormatKHR               t_surface_format,
+        vk::UniqueSwapchainKHR&&           t_swapchain,
+        std::vector<vk::UniqueImageView>&& t_image_views
+    ) noexcept;
 };
 
-}   // namespace core::renderer
+}   // namespace core::renderer::vulkan

@@ -2,14 +2,15 @@
 
 #include <core/renderer/base/allocator/Allocator.hpp>
 #include <core/renderer/base/device/Device.hpp>
-#include <core/renderer/base/swapchain/Swapchain.hpp>
 #include <core/renderer/memory/Image.hpp>
 #include <core/renderer/scene/Scene.hpp>
+
+#include "core/renderer/base/swapchain/SwapchainHolder.hpp"
 
 struct DemoRenderer {
     core::renderer::Device&            device;
     core::renderer::Allocator&         allocator;
-    core::renderer::Swapchain&         swapchain;
+    core::renderer::SwapchainHolder&         swapchain;
     vk::UniqueRenderPass               render_pass;
     core::renderer::Image              depth_image;
     vk::UniqueImageView                depth_image_view;
@@ -34,7 +35,7 @@ struct DemoRenderer {
 
 private:
     auto record_command_buffer(
-        const core::renderer::vulkan::Swapchain& t_swapchain,
+        const core::renderer::Swapchain& t_swapchain,
         uint32_t                                 t_image_index,
         core::graphics::Camera                   t_camera
     ) -> void;

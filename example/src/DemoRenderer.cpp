@@ -103,7 +103,7 @@ auto DemoRenderer::create(
     auto&       device{ t_store.at<renderer::Device>() };
     auto&       allocator{ t_store.at<renderer::Allocator>() };
 
-    auto& swapchain{ t_store.at<renderer::Swapchain>() };
+    auto& swapchain{ t_store.at<renderer::SwapchainHolder>() };
     int   width{};
     int   height{};
     glfwGetFramebufferSize(window.get(), &width, &height);
@@ -255,9 +255,9 @@ auto DemoRenderer::render(
 }
 
 auto DemoRenderer::record_command_buffer(
-    const renderer::vulkan::Swapchain& t_swapchain,
-    const uint32_t                     t_image_index,
-    core::graphics::Camera             t_camera
+    const renderer::Swapchain& t_swapchain,
+    const uint32_t             t_image_index,
+    core::graphics::Camera     t_camera
 ) -> void
 {
     const auto                           command_buffer = command_buffers[frame_index];

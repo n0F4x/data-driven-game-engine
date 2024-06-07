@@ -15,7 +15,6 @@
 #include "core/renderer/memory/Buffer.hpp"
 #include "core/renderer/memory/Image.hpp"
 #include "core/renderer/memory/MappedBuffer.hpp"
-#include "core/renderer/wrappers/vma/Allocator.hpp"
 
 namespace core::renderer {
 
@@ -35,9 +34,11 @@ public:
     ///  Operators  ///
     ///-------------///
     [[nodiscard]]
-    auto operator*() const noexcept -> VmaAllocator;
+    auto operator*() const noexcept -> const VmaAllocator_T&;
     [[nodiscard]]
-    auto operator->() const noexcept -> const VmaAllocator*;
+    auto operator*() noexcept -> VmaAllocator_T&;
+    [[nodiscard]]
+    auto operator->() const noexcept -> VmaAllocator;
 
     ///-----------///
     ///  Methods  ///
@@ -95,7 +96,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vma::Allocator m_allocator;
+    std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)> m_allocator;
 };
 
 }   // namespace core::renderer

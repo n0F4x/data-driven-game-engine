@@ -10,7 +10,7 @@
 
 namespace core::image {
 
-class KtxImage final : public Image {
+class KtxImage : public Image {
 public:
     [[nodiscard]]
     static auto load_from_file(const std::filesystem::path& t_filepath
@@ -31,22 +31,22 @@ public:
     auto get() const noexcept -> ktxTexture2*;
 
     [[nodiscard]]
-    auto data() const noexcept -> void* override;
+    auto data() const noexcept -> void* final;
     [[nodiscard]]
-    auto size() const noexcept -> size_t override;
+    auto size() const noexcept -> size_t final;
 
     [[nodiscard]]
-    auto width() const noexcept -> uint32_t override;
+    auto width() const noexcept -> uint32_t final;
     [[nodiscard]]
-    auto height() const noexcept -> uint32_t override;
+    auto height() const noexcept -> uint32_t final;
     [[nodiscard]]
-    auto depth() const noexcept -> uint32_t override;
+    auto depth() const noexcept -> uint32_t final;
 
     [[nodiscard]]
-    auto mip_levels() const noexcept -> uint32_t override;
+    auto mip_levels() const noexcept -> uint32_t final;
 
     [[nodiscard]]
-    auto format() const noexcept -> vk::Format override;
+    auto format() const noexcept -> vk::Format final;
 
 private:
     struct Deleter {

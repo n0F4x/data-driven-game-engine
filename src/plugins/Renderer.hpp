@@ -5,7 +5,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "app/Plugin.hpp"
-#include "core/renderer/base/swapchain/Swapchain.hpp"
+#include "core/renderer/base/swapchain/SwapchainHolder.hpp"
 
 namespace plugins {
 
@@ -15,7 +15,7 @@ public:
         std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>;
 
     using FramebufferSizeGetterCreator =
-        std::function<core::renderer::Swapchain::FramebufferSizeGetter(Store&)>;
+        std::function<core::renderer::SwapchainHolder::FramebufferSizeGetter(Store&)>;
 
     class Options;
 

@@ -85,8 +85,8 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_dev
 }
 
 [[nodiscard]]
-static auto
-    create_allocator(const Instance& t_instance, const Device& t_device) -> VmaAllocator
+static auto create_allocator(const Instance& t_instance, const Device& t_device)
+    -> std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)>
 {
     static const VmaVulkanFunctions s_vulkan_functions{
         .vkGetInstanceProcAddr = core::config::vulkan::instance_proc_address(),
@@ -104,7 +104,9 @@ static auto
     VmaAllocator     allocator{};
     const vk::Result result{ vmaCreateAllocator(&create_info, &allocator) };
     vk::resultCheck(result, "vmaCreateAllocator");
-    return allocator;
+    return std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)>{
+        allocator, vmaDestroyAllocator
+    };
 }
 
 [[nodiscard]]
@@ -163,12 +165,17 @@ Allocator::Allocator(const Instance& t_instance, const Device& t_device)
     : m_allocator{ create_allocator(t_instance, t_device) }
 {}
 
-auto Allocator::operator*() const noexcept -> VmaAllocator
+auto Allocator::operator*() const noexcept -> const VmaAllocator_T&
 {
     return *m_allocator;
 }
 
-auto Allocator::operator->() const noexcept -> const VmaAllocator*
+auto Allocator::operator*() noexcept -> VmaAllocator_T&
+{
+    return *m_allocator;
+}
+
+auto Allocator::operator->() const noexcept -> VmaAllocator
 {
     return m_allocator.operator->();
 }
@@ -256,13 +263,13 @@ auto Allocator::allocate_mapped_buffer(
 
     vk::MemoryPropertyFlags memory_property_flags;
     vmaGetAllocationMemoryProperties(
-        *m_allocator,
+        m_allocator.get(),
         allocation,
         reinterpret_cast<VkMemoryPropertyFlags*>(&memory_property_flags)
     );
     if (!(memory_property_flags & vk::MemoryPropertyFlagBits::eHostCoherent)) {
         const vk::Result result{
-            vmaFlushAllocation(*m_allocator, allocation, 0, VK_WHOLE_SIZE)
+            vmaFlushAllocation(m_allocator.get(), allocation, 0, VK_WHOLE_SIZE)
         };
         vk::resultCheck(result, "vmaFlushAllocation failed");
     }
@@ -290,13 +297,13 @@ auto Allocator::allocate_mapped_buffer_with_alignment(
 
     vk::MemoryPropertyFlags memory_property_flags;
     vmaGetAllocationMemoryProperties(
-        *m_allocator,
+        m_allocator.get(),
         allocation,
         reinterpret_cast<VkMemoryPropertyFlags*>(&memory_property_flags)
     );
     if (!(memory_property_flags & vk::MemoryPropertyFlagBits::eHostCoherent)) {
         const vk::Result result{
-            vmaFlushAllocation(*m_allocator, allocation, 0, VK_WHOLE_SIZE)
+            vmaFlushAllocation(m_allocator.get(), allocation, 0, VK_WHOLE_SIZE)
         };
         vk::resultCheck(result, "vmaFlushAllocation failed");
     }

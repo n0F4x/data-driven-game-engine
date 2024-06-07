@@ -181,7 +181,7 @@ auto Renderer::operator()(app::App::Builder& t_builder, const Options& t_options
     config::vulkan::init(device.get());
 
 
-    t_builder.store().emplace<Swapchain>(
+    t_builder.store().emplace<SwapchainHolder>(
         std::move(surface),
         device,
         t_options.framebuffer_size_getter()

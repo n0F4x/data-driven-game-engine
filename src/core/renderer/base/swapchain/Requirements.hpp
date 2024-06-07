@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Swapchain.hpp"
+#include "SwapchainHolder.hpp"
 
 namespace core::renderer {
 

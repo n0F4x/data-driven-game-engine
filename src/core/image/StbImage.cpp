@@ -79,12 +79,12 @@ auto StbImage::height() const noexcept -> uint32_t
 
 auto StbImage::depth() const noexcept -> uint32_t
 {
-    return 1u;
+    return 1;
 }
 
 auto StbImage::mip_levels() const noexcept -> uint32_t
 {
-    return 1u;
+    return 1;
 }
 
 auto StbImage::format() const noexcept -> vk::Format
