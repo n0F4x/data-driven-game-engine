@@ -2,10 +2,10 @@
 
 #include <memory>
 
-#include "core/asset/image/Image.hpp"
+#include "core/image/Image.hpp"
 
 namespace core::gltf {
 
-using Image = std::unique_ptr<asset::Image>;
+using Image = std::unique_ptr<image::Image>;
 
 }   // namespace core::gltf

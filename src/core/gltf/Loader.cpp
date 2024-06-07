@@ -332,7 +332,7 @@ auto Loader::load_model(
         }
         else {
             throw std::runtime_error{ std::format(
-                "Failed to load image {} from gltf asset {}",
+                "Failed to load image {} from gltf image {}",
                 image.name,
                 t_filepath.generic_string()
             ) };

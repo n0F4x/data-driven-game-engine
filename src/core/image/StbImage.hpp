@@ -8,7 +8,7 @@
 
 #include "Image.hpp"
 
-namespace core::asset {
+namespace core::image {
 
 class StbImage final : public Image {
 public:
@@ -47,4 +47,4 @@ private:
     explicit StbImage(stbi_uc* data, int width, int height, int channel_count) noexcept;
 };
 
-}   // namespace core::asset
+}   // namespace core::image

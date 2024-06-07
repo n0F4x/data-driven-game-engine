@@ -8,7 +8,7 @@
 
 #include "Image.hpp"
 
-namespace core::asset {
+namespace core::image {
 
 class KtxImage final : public Image {
 public:
@@ -58,4 +58,4 @@ private:
     explicit KtxImage(ktxTexture2* t_ktxTexture) noexcept;
 };
 
-}   // namespace core::asset
+}   // namespace core::image

@@ -19,7 +19,7 @@ static auto transcode(ktxTexture2* t_texture) -> void
     }
 }
 
-namespace core::asset {
+namespace core::image {
 
 auto KtxImage::load_from_file(const std::filesystem::path& t_filepath
 ) -> std::optional<KtxImage>
@@ -139,4 +139,4 @@ auto KtxImage::Deleter::operator()(ktxTexture2* t_ktxTexture) const noexcept -> 
 
 KtxImage::KtxImage(ktxTexture2* t_ktxTexture) noexcept : m_ktxTexture{ t_ktxTexture } {}
 
-}   // namespace core::asset
+}   // namespace core::image

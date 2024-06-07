@@ -8,7 +8,6 @@ endif ()
 
 # Microsoft GSL
 find_package(Microsoft.GSL CONFIG REQUIRED)
-target_precompile_headers(${PROJECT_NAME} PRIVATE <gsl/gsl>)
 target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft.GSL::GSL)
 
 # ordered_map
@@ -23,7 +22,6 @@ if (engine_debug)
             SPDLOG_ACTIVE_LEVEL=${spdlog_level}
     )
 endif ()
-target_precompile_headers(${PROJECT_NAME} PRIVATE <spdlog/spdlog.h>)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # GLFW
@@ -57,9 +55,6 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
 endif ()
-target_precompile_headers(${PROJECT_NAME} PRIVATE
-        <vulkan/vulkan.hpp>
-)
 
 # VulkanMemoryAllocator
 find_package(VulkanMemoryAllocator CONFIG REQUIRED)
@@ -78,7 +73,6 @@ find_package(glm CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         GLM_FORCE_DEPTH_ZERO_TO_ONE
 )
-target_precompile_headers(${PROJECT_NAME} PRIVATE <glm/glm.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 
 # KTX
@@ -97,5 +91,4 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)
 
 # EnTT
 find_package(EnTT CONFIG REQUIRED)
-target_precompile_headers(${PROJECT_NAME} PRIVATE <entt/entt.hpp>)
 target_link_libraries(${PROJECT_NAME} PUBLIC EnTT::EnTT)

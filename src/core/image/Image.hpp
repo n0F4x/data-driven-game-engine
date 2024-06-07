@@ -6,7 +6,7 @@ enum class Format;
 
 }   // namespace vk
 
-namespace core::asset {
+namespace core::image {
 
 class Image {
 public:
@@ -31,4 +31,4 @@ public:
     virtual auto format() const noexcept -> vk::Format = 0;
 };
 
-}   // namespace core::asset
+}   // namespace core::image

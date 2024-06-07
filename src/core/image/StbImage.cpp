@@ -1,6 +1,10 @@
 #include "StbImage.hpp"
 
-namespace core::asset {
+#include <spdlog/spdlog.h>
+
+#include <vulkan/vulkan.hpp>
+
+namespace core::image {
 
 auto StbImage::load_from_file(const std::filesystem::path& t_filepath
 ) -> std::optional<StbImage>
@@ -101,4 +105,4 @@ StbImage::StbImage(stbi_uc* t_data, int t_width, int t_height, int t_channel_cou
       m_channel_count{ t_channel_count }
 {}
 
-}   // namespace core::asset
+}   // namespace core::image

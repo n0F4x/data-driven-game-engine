@@ -30,27 +30,26 @@ endif ()
 
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE
-        <algorithm>
-        <concepts>
-        <expected>
-        <fstream>
-        <functional>
-        <limits>
-        <memory>
-        <print>
-        <ranges>
-        <set>
-        <span>
-        <sstream>
-        <stdexcept>
-        <string>
-        <string_view>
-        <thread>
-        <type_traits>
-        <unordered_map>
-        <utility>
-        <vector>
-        <variant>
+        "$<$<COMPILE_LANGUAGE:CXX>:algorithm>"
+        "$<$<COMPILE_LANGUAGE:CXX>:concepts>"
+        "$<$<COMPILE_LANGUAGE:CXX>:expected>"
+        "$<$<COMPILE_LANGUAGE:CXX>:fstream>"
+        "$<$<COMPILE_LANGUAGE:CXX>:functional>"
+        "$<$<COMPILE_LANGUAGE:CXX>:limits>"
+        "$<$<COMPILE_LANGUAGE:CXX>:memory>"
+        "$<$<COMPILE_LANGUAGE:CXX>:print>"
+        "$<$<COMPILE_LANGUAGE:CXX>:ranges>"
+        "$<$<COMPILE_LANGUAGE:CXX>:set>"
+        "$<$<COMPILE_LANGUAGE:CXX>:span>"
+        "$<$<COMPILE_LANGUAGE:CXX>:stdexcept>"
+        "$<$<COMPILE_LANGUAGE:CXX>:string>"
+        "$<$<COMPILE_LANGUAGE:CXX>:string_view>"
+        "$<$<COMPILE_LANGUAGE:CXX>:thread>"
+        "$<$<COMPILE_LANGUAGE:CXX>:type_traits>"
+        "$<$<COMPILE_LANGUAGE:CXX>:unordered_map>"
+        "$<$<COMPILE_LANGUAGE:CXX>:utility>"
+        "$<$<COMPILE_LANGUAGE:CXX>:vector>"
+        "$<$<COMPILE_LANGUAGE:CXX>:variant>"
 )
 
 include(dependencies.cmake)
