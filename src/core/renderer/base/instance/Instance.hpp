@@ -12,14 +12,14 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit Instance(const vkb::Instance& t_instance) noexcept;
-    Instance(const Instance&) = delete;
+    Instance(const Instance&)     = delete;
     Instance(Instance&&) noexcept = default;
     ~Instance();
 
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator=(const Instance&) -> Instance& = delete;
+    auto operator=(const Instance&) -> Instance&     = delete;
     auto operator=(Instance&&) noexcept -> Instance& = default;
     [[nodiscard]]
     auto operator*() const noexcept -> vk::Instance;

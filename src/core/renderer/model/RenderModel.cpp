@@ -237,8 +237,7 @@ static auto create_buffer(const Allocator& t_allocator) -> MappedBuffer
 }
 
 [[nodiscard]]
-static auto convert_material(const graphics::Model::Material& t_material
-) noexcept -> ShaderMaterial
+static auto convert_material(const gltf::Material& t_material) noexcept -> ShaderMaterial
 {
     return ShaderMaterial{
         .pbrMetallicRoughness =
@@ -247,14 +246,14 @@ static auto convert_material(const graphics::Model::Material& t_material
                                        .baseColorTexture =
                     ShaderTextureInfo{
                         .index = t_material.pbr_metallic_roughness.base_color_texture_info
-                                     .transform([](const graphics::Model::TextureInfo&
-                                                       texture_info
+                                     .transform([](const gltf::TextureInfo& texture_info
                                                 ) { return texture_info.texture_index; })
                                      .value_or(std::numeric_limits<uint32_t>::max()),
                         .texCoord =
                             t_material.pbr_metallic_roughness.base_color_texture_info
-                                .transform([](const graphics::Model::TextureInfo& texture_info
-                                           ) { return texture_info.tex_coord_index; })
+                                .transform([](const gltf::TextureInfo& texture_info) {
+                                    return texture_info.tex_coord_index;
+                                })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                     }, .metallicFactor  = t_material.pbr_metallic_roughness.metallic_factor,
                                        .roughnessFactor = t_material.pbr_metallic_roughness.roughness_factor,
@@ -262,76 +261,69 @@ static auto convert_material(const graphics::Model::Material& t_material
                     ShaderTextureInfo{
                         .index = t_material.pbr_metallic_roughness
                                      .metallic_roughness_texture_info
-                                     .transform([](const graphics::Model::TextureInfo&
-                                                       texture_info
+                                     .transform([](const gltf::TextureInfo& texture_info
                                                 ) { return texture_info.texture_index; })
                                      .value_or(std::numeric_limits<uint32_t>::max()),
-                        .texCoord = t_material.pbr_metallic_roughness
-                                        .metallic_roughness_texture_info
-                                        .transform([](const graphics::Model::TextureInfo&
-                                                          texture_info) {
-                                            return texture_info.tex_coord_index;
-                                        })
-                                        .value_or(std::numeric_limits<uint32_t>::max()),
+                        .texCoord =
+                            t_material.pbr_metallic_roughness
+                                .metallic_roughness_texture_info
+                                .transform([](const gltf::TextureInfo& texture_info) {
+                                    return texture_info.tex_coord_index;
+                                })
+                                .value_or(std::numeric_limits<uint32_t>::max()),
                     }, },
         .normalTexture =
             ShaderNormalTextureInfo{
                                        .index =
                     t_material.normal_texture_info
-                        .transform([](const graphics::Model::Material::NormalTextureInfo&
-                                          texture_info
+                        .transform([](const gltf::Material::NormalTextureInfo& texture_info
                                    ) { return texture_info.texture_index; })
                         .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord =
                     t_material.normal_texture_info
-                        .transform([](const graphics::Model::Material::NormalTextureInfo&
-                                          texture_info
+                        .transform([](const gltf::Material::NormalTextureInfo& texture_info
                                    ) { return texture_info.tex_coord_index; })
                         .value_or(std::numeric_limits<uint32_t>::max()),
                                        .scale =
                     t_material.normal_texture_info
-                        .transform([](const graphics::Model::Material::NormalTextureInfo&
-                                          texture_info) { return texture_info.scale; })
+                        .transform([](const gltf::Material::NormalTextureInfo& texture_info
+                                   ) { return texture_info.scale; })
                         .value_or(1.f),
                                        },
         .occlusionTexture =
             ShaderOcclusionTextureInfo{
                                        .index = t_material.occlusion_texture_info
                              .transform(
-                                 [](const graphics::Model::Material::OcclusionTextureInfo&
-                                        texture_info
+                                 [](const gltf::Material::OcclusionTextureInfo& texture_info
                                  ) { return texture_info.texture_index; }
                              )
                              .value_or(std::numeric_limits<uint32_t>::max()),
-                                       .texCoord =
-                    t_material.occlusion_texture_info
-                        .transform(
-                            [](const graphics::Model::Material::OcclusionTextureInfo&
-                                   texture_info) { return texture_info.tex_coord_index; }
-                        )
-                        .value_or(std::numeric_limits<uint32_t>::max()),
-                                       .strength =
-                    t_material.occlusion_texture_info
-                        .transform([](const graphics::Model::Material::OcclusionTextureInfo&
-                                          texture_info) { return texture_info.strength; })
-                        .value_or(1.f),
+                                       .texCoord = t_material.occlusion_texture_info
+                                .transform([](const gltf::Material::OcclusionTextureInfo&
+                                                  texture_info
+                                           ) { return texture_info.tex_coord_index; })
+                                .value_or(std::numeric_limits<uint32_t>::max()),
+                                       .strength = t_material.occlusion_texture_info
+                                .transform([](const gltf::Material::OcclusionTextureInfo&
+                                                  texture_info
+                                           ) { return texture_info.strength; })
+                                .value_or(1.f),
                                        },
         .emissiveTexture =
             ShaderTextureInfo{
                                        .index = t_material.emissive_texture_info
-                             .transform([](const graphics::Model::TextureInfo& texture_info
-                                        ) { return texture_info.texture_index; })
+                             .transform([](const gltf::TextureInfo& texture_info) {
+                                 return texture_info.texture_index;
+                             })
                              .value_or(std::numeric_limits<uint32_t>::max()),
-                                       .texCoord =
-                    t_material.emissive_texture_info
-                        .transform([](const graphics::Model::TextureInfo& texture_info) {
-                            return texture_info.tex_coord_index;
-                        })
-                        .value_or(std::numeric_limits<uint32_t>::max()),
+                                       .texCoord = t_material.emissive_texture_info
+                                .transform([](const gltf::TextureInfo& texture_info) {
+                                    return texture_info.tex_coord_index;
+                                })
+                                .value_or(std::numeric_limits<uint32_t>::max()),
                                        },
         .emissiveFactor = t_material.emissive_factor,
-        .alphaCutoff    = t_material.alpha_mode
-                            == core::graphics::Model::Material::AlphaMode::eMask
+        .alphaCutoff    = t_material.alpha_mode == core::gltf::Material::AlphaMode::eMask
                             ? t_material.alpha_cutoff
                             : -1.f,
     };
@@ -550,10 +542,9 @@ static auto create_image_descriptor_set(
 }
 
 [[nodiscard]]
-static auto to_mag_filter(graphics::Model::Sampler::MagFilter t_mag_filter
-) noexcept -> vk::Filter
+static auto to_mag_filter(gltf::Sampler::MagFilter t_mag_filter) noexcept -> vk::Filter
 {
-    using enum graphics::Model::Sampler::MagFilter;
+    using enum gltf::Sampler::MagFilter;
     switch (t_mag_filter) {
         case eNearest: return vk::Filter::eNearest;
         case eLinear: return vk::Filter::eLinear;
@@ -561,10 +552,9 @@ static auto to_mag_filter(graphics::Model::Sampler::MagFilter t_mag_filter
 }
 
 [[nodiscard]]
-static auto to_min_filter(graphics::Model::Sampler::MinFilter t_min_filter
-) noexcept -> vk::Filter
+static auto to_min_filter(gltf::Sampler::MinFilter t_min_filter) noexcept -> vk::Filter
 {
-    using enum graphics::Model::Sampler::MinFilter;
+    using enum gltf::Sampler::MinFilter;
     switch (t_min_filter) {
         case eNearest: return vk::Filter::eNearest;
         case eLinear: return vk::Filter::eLinear;
@@ -576,10 +566,10 @@ static auto to_min_filter(graphics::Model::Sampler::MinFilter t_min_filter
 }
 
 [[nodiscard]]
-static auto to_mipmap_mode(graphics::Model::Sampler::MinFilter t_min_filter
+static auto to_mipmap_mode(gltf::Sampler::MinFilter t_min_filter
 ) noexcept -> vk::SamplerMipmapMode
 {
-    using enum graphics::Model::Sampler::MinFilter;
+    using enum gltf::Sampler::MinFilter;
     switch (t_min_filter) {
         case eNearest: [[fallthrough]];
         case eLinear: return vk::SamplerMipmapMode::eLinear;
@@ -591,10 +581,10 @@ static auto to_mipmap_mode(graphics::Model::Sampler::MinFilter t_min_filter
 }
 
 [[nodiscard]]
-static auto to_address_mode(graphics::Model::Sampler::WrapMode t_wrap_mode
+static auto to_address_mode(gltf::Sampler::WrapMode t_wrap_mode
 ) noexcept -> vk::SamplerAddressMode
 {
-    using enum graphics::Model::Sampler::WrapMode;
+    using enum gltf::Sampler::WrapMode;
     switch (t_wrap_mode) {
         case eClampToEdge: return vk::SamplerAddressMode::eClampToEdge;
         case eMirroredRepeat: return vk::SamplerAddressMode::eMirroredRepeat;
@@ -603,10 +593,8 @@ static auto to_address_mode(graphics::Model::Sampler::WrapMode t_wrap_mode
 }
 
 [[nodiscard]]
-static auto create_sampler(
-    const vk::Device                t_device,
-    const graphics::Model::Sampler& t_sampler_info
-) -> vk::UniqueSampler
+static auto create_sampler(const vk::Device t_device, const gltf::Sampler& t_sampler_info)
+    -> vk::UniqueSampler
 {
     const vk::SamplerCreateInfo sampler_create_info{
         .magFilter = t_sampler_info.mag_filter.transform(to_mag_filter)
@@ -681,10 +669,9 @@ static auto create_sampler_descriptor_set(
 }
 
 [[nodiscard]]
-static auto convert(graphics::Model::Mesh::Primitive::Topology t_topology
-) -> vk::PrimitiveTopology
+static auto convert(gltf::Mesh::Primitive::Topology t_topology) -> vk::PrimitiveTopology
 {
-    using enum graphics::Model::Mesh::Primitive::Topology;
+    using enum gltf::Mesh::Primitive::Topology;
     switch (t_topology) {
         case ePoints: return vk::PrimitiveTopology::ePointList;
         case eLineStrips: return vk::PrimitiveTopology::eLineStrip;
@@ -703,8 +690,8 @@ static auto convert(graphics::Model::Mesh::Primitive::Topology t_topology
 static auto create_pipeline(
     const vk::Device                       t_device,
     const RenderModel::PipelineCreateInfo& t_create_info,
-    const graphics::Model::Mesh::Primitive t_primitive,
-    const graphics::Model::Material        t_material,
+    const gltf::Mesh::Primitive            t_primitive,
+    const gltf::Material                   t_material,
     cache::Cache&                          t_cache
 ) -> cache::Handle<vk::UniquePipeline>
 {
@@ -716,7 +703,7 @@ static auto create_pipeline(
     builder.set_cull_mode(
         t_material.double_sided ? vk::CullModeFlagBits::eNone : vk::CullModeFlagBits::eBack
     );
-    if (t_material.alpha_mode == core::graphics::Model::Material::AlphaMode::eBlend) {
+    if (t_material.alpha_mode == core::gltf::Material::AlphaMode::eBlend) {
         builder.enable_blending();
     }
 
@@ -857,7 +844,7 @@ auto RenderModel::create_loader(
     const std::span<const vk::DescriptorSetLayout, 3> t_descriptor_set_layouts,
     const PipelineCreateInfo&                         t_pipeline_create_info,
     const vk::DescriptorPool                          t_descriptor_pool,
-    cache::Handle<graphics::Model>                    t_model,
+    cache::Handle<gltf::Model>                        t_model,
     cache::Cache&                                     t_cache
 ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>
 {
@@ -874,7 +861,7 @@ auto RenderModel::create_loader(
 
     std::vector<ShaderVertex> vertices{
         t_model->vertices()
-        | std::views::transform([](const graphics::Model::Vertex& vertex) {
+        | std::views::transform([](const gltf::Model::Vertex& vertex) {
               return ShaderVertex{
                   .position = vertex.position,
                   .normal   = vertex.normal,
@@ -898,21 +885,16 @@ auto RenderModel::create_loader(
     MappedBuffer vertex_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
     std::vector nodes_with_mesh{
-        t_model->nodes() | std::views::filter([](const graphics::Model::Node& node) {
+        t_model->nodes() | std::views::filter([](const gltf::Node& node) {
             return node.mesh_index.has_value();
         })
-        | std::views::transform([](const graphics::Model::Node& node) {
-              return std::cref(node);
-          })
+        | std::views::transform([](const gltf::Node& node) { return std::cref(node); })
         | std::ranges::to<std::vector>()
     };
     std::vector<glm::mat4> transforms(nodes_with_mesh.size());
-    std::ranges::for_each(
-        nodes_with_mesh,
-        [&transforms](const graphics::Model::Node& node) {
-            transforms.at(node.mesh_index.value()) = node.matrix();
-        }
-    );
+    std::ranges::for_each(nodes_with_mesh, [&transforms](const gltf::Node& node) {
+        transforms.at(node.mesh_index.value()) = node.matrix();
+    });
     MappedBuffer transform_staging_buffer{
         create_staging_buffer(t_allocator, std::span{ transforms })
     };
@@ -925,18 +907,17 @@ auto RenderModel::create_loader(
     MappedBuffer transform_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
     vk::UniqueSampler default_sampler{
-        create_sampler(t_device, graphics::Model::default_sampler())
+        create_sampler(t_device, gltf::Model::default_sampler())
     };
 
     std::vector<ShaderTexture> textures{
-        t_model->textures()
-        | std::views::transform([](const graphics::Model::Texture& texture) {
-              return ShaderTexture{
-                  .image_index = texture.image_index,
-                  .sampler_index =
-                      texture.sampler_index.value_or(std::numeric_limits<uint32_t>::max()),
-              };
-          })
+        t_model->textures() | std::views::transform([](const gltf::Texture& texture) {
+            return ShaderTexture{
+                .image_index = texture.image_index,
+                .sampler_index =
+                    texture.sampler_index.value_or(std::numeric_limits<uint32_t>::max()),
+            };
+        })
         | std::ranges::to<std::vector>()
     };
     MappedBuffer texture_staging_buffer{
@@ -950,13 +931,12 @@ auto RenderModel::create_loader(
     ) };
     MappedBuffer texture_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
 
-    const ShaderMaterial default_material{
-        convert_material(graphics::Model::default_material())
-    };
-    MappedBuffer default_material_uniform{ t_allocator.allocate_mapped_buffer(
+    const ShaderMaterial default_material{ convert_material(gltf::Model::default_material(
+    )) };
+    MappedBuffer         default_material_uniform{ t_allocator.allocate_mapped_buffer(
         vk::BufferCreateInfo{
-            .size  = static_cast<uint32_t>(sizeof(ShaderMaterial)),
-            .usage = vk::BufferUsageFlagBits::eUniformBuffer,
+                    .size  = static_cast<uint32_t>(sizeof(ShaderMaterial)),
+                    .usage = vk::BufferUsageFlagBits::eUniformBuffer,
         },
         &default_material
     ) };
@@ -989,42 +969,38 @@ auto RenderModel::create_loader(
     ) };
 
     std::vector<vk::Extent2D> image_extents{
-        t_model->images()
-        | std::views::transform([&](const graphics::Model::Image& image) {
-              return vk::Extent2D{ image->width(), image->height() };
-          })
+        t_model->images() | std::views::transform([&](const gltf::Image& image) {
+            return vk::Extent2D{ image->width(), image->height() };
+        })
         | std::ranges::to<std::vector>()
     };
     std::vector<MappedBuffer> image_staging_buffers{
-        t_model->images()
-        | std::views::transform([&](const graphics::Model::Image& image) {
-              return create_staging_buffer(
-                  t_allocator, image->data(), static_cast<uint32_t>(image->size())
-              );
-          })
+        t_model->images() | std::views::transform([&](const gltf::Image& image) {
+            return create_staging_buffer(
+                t_allocator, image->data(), static_cast<uint32_t>(image->size())
+            );
+        })
         | std::ranges::to<std::vector>()
     };
-    std::vector<Image> images{
-        t_model->images()
-        | std::views::transform([&](const graphics::Model::Image& image) {
-              return create_image(
-                  t_allocator,
-                  image->width(),
-                  image->height(),
-                  image->format(),
-                  vk::ImageTiling::eOptimal,
-                  vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled
-              );
-          })
-        | std::ranges::to<std::vector>()
-    };
+    std::vector<Image> images{ t_model->images()
+                               | std::views::transform([&](const gltf::Image& image) {
+                                     return create_image(
+                                         t_allocator,
+                                         image->width(),
+                                         image->height(),
+                                         image->format(),
+                                         vk::ImageTiling::eOptimal,
+                                         vk::ImageUsageFlagBits::eTransferDst
+                                             | vk::ImageUsageFlagBits::eSampled
+                                     );
+                                 })
+                               | std::ranges::to<std::vector>() };
     std::vector<vk::UniqueImageView> image_views{
         std::views::zip(
             images | std::views::transform(&Image::get),
-            t_model->images()
-                | std::views::transform([](const graphics::Model::Image& image) {
-                      return image->format();
-                  })
+            t_model->images() | std::views::transform([](const gltf::Image& image) {
+                return image->format();
+            })
         )
         | std::views::transform([t_device](auto image_and_format) {
               return std::apply(
@@ -1047,12 +1023,11 @@ auto RenderModel::create_loader(
     ) };
 
     std::vector<Mesh> meshes{
-        t_model->meshes() | std::views::transform([&](const graphics::Model::Mesh& mesh) {
+        t_model->meshes() | std::views::transform([&](const gltf::Mesh& mesh) {
             return Mesh{
                 .primitives =
                     mesh.primitives
-                    | std::views::transform([&](const graphics::Model::Mesh::Primitive&
-                                                    primitive) {
+                    | std::views::transform([&](const gltf::Mesh::Primitive& primitive) {
                           return Mesh::Primitive{
                               .pipeline = create_pipeline(
                                   t_device,
@@ -1062,7 +1037,7 @@ auto RenderModel::create_loader(
                                       .transform([&t_model](const size_t material_index) {
                                           return t_model->materials().at(material_index);
                                       })
-                                      .value_or(graphics::Model::default_material()),
+                                      .value_or(gltf::Model::default_material()),
                                   t_cache
                               ),
                               .material_index    = primitive.material_index,

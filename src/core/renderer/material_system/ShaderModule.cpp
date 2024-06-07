@@ -1,8 +1,7 @@
 #include "ShaderModule.hpp"
 
-#include <vector>
-
 #include <optional>
+#include <vector>
 
 [[nodiscard]]
 auto load_shader(vk::Device t_device, const std::filesystem::path& t_filepath)
@@ -36,8 +35,10 @@ auto ShaderModule::hash(const std::filesystem::path& t_filepath) noexcept -> siz
     return std::filesystem::hash_value(t_filepath);
 }
 
-auto ShaderModule::create(const vk::Device t_device, const std::filesystem::path& t_filepath)
-    -> std::optional<ShaderModule>
+auto ShaderModule::create(
+    const vk::Device             t_device,
+    const std::filesystem::path& t_filepath
+) -> std::optional<ShaderModule>
 {
     vk::UniqueShaderModule module{ load_shader(t_device, t_filepath) };
 

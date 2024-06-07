@@ -2,7 +2,7 @@
 
 #include <future>
 
-#include "core/graphics/model/Model.hpp"
+#include "core/gltf/Model.hpp"
 #include "core/renderer/base/allocator/Allocator.hpp"
 #include "core/renderer/base/descriptor_pool/DescriptorPool.hpp"
 #include "core/renderer/material_system/Effect.hpp"
@@ -37,7 +37,7 @@ public:
         std::span<const vk::DescriptorSetLayout, 3> descriptor_set_layouts,
         const PipelineCreateInfo&                   pipeline_create_info,
         vk::DescriptorPool                          descriptor_pool,
-        cache::Handle<graphics::Model>              model,
+        cache::Handle<gltf::Model>                  model,
         cache::Cache&                               cache
     ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>;
 

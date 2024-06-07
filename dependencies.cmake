@@ -91,6 +91,7 @@ find_package(Stb REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Stb_INCLUDE_DIR})
 
 # fastgltf
+set(FASTGLTF_COMPILE_AS_CPP20 ON)
 find_package(fastgltf CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)
 

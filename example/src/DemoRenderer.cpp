@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <core/graphics/model/GltfLoader.hpp>
+#include <core/gltf/Loader.hpp>
 #include <core/renderer/scene/Builder.hpp>
 #include <core/window/Window.hpp>
 
@@ -17,7 +17,7 @@ static auto load_scene(
     const renderer::Device&      t_device,
     const renderer::Allocator&   t_allocator,
     vk::RenderPass               t_render_pass,
-    graphics::Model&&            t_model,
+    gltf::Model&&                t_model,
     const std::filesystem::path& t_fragment_shader_filepath,
     cache::Cache&                t_cache
 ) -> std::optional<renderer::Scene>
@@ -53,7 +53,7 @@ static auto load_scene(
     auto packaged_scene{
         renderer::Scene::create()
             .add_model(
-                cache::make_handle<graphics::Model>(std::move(t_model)),
+                cache::make_handle<gltf::Model>(std::move(t_model)),
                 renderer::Effect{
                                  renderer::Shader{ cache::make_handle<renderer::ShaderModule>(
                                           std::move(opt_vertex_shader_module.value())
@@ -173,7 +173,7 @@ auto DemoRenderer::create(
         return std::nullopt;
     }
 
-    auto opt_model{ core::graphics::GltfLoader::load_from_file(t_model_filepath) };
+    auto opt_model{ core::gltf::Loader::load_from_file(t_model_filepath) };
     if (!opt_model.has_value()) {
         return std::nullopt;
     }

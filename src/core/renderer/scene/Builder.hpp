@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "core/cache/Handle.hpp"
-#include "core/graphics/model/Model.hpp"
+#include "core/gltf/Model.hpp"
 
 #include "Scene.hpp"
 
@@ -13,16 +13,15 @@ namespace core::renderer {
 class Scene::Builder {
 public:
     struct ModelInfo {
-        cache::Handle<graphics::Model> handle;
-        Effect                         effect;
+        cache::Handle<gltf::Model> handle;
+        Effect                     effect;
     };
 
     auto set_cache(cache::Cache& cache) noexcept -> Builder&;
 
-    auto add_model(const cache::Handle<graphics::Model>& model, const Effect& effect)
+    auto add_model(const cache::Handle<gltf::Model>& model, const Effect& effect)
         -> Builder&;
-    auto add_model(cache::Handle<graphics::Model>&& model, const Effect& effect)
-        -> Builder&;
+    auto add_model(cache::Handle<gltf::Model>&& model, const Effect& effect) -> Builder&;
 
     [[nodiscard]]
     auto build(vk::Device device, const Allocator& allocator, vk::RenderPass render_pass)

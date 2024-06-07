@@ -2,8 +2,9 @@
 
 #include <glm/glm.hpp>
 
-#include <core/graphics/camera/Camera.hpp>
 #include <core/window/Window.hpp>
+
+#include "core/graphics/Camera.hpp"
 
 class Controller {
 public:

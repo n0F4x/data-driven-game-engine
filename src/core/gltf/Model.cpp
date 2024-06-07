@@ -4,15 +4,15 @@
 
 #include "core/utility/hashing.hpp"
 
-namespace core::graphics {
+namespace core::gltf {
 
-auto Model::Node::local_matrix() const -> glm::mat4
+auto Node::local_matrix() const -> glm::mat4
 {
     return glm::translate(glm::mat4(1.f), translation) * glm::mat4_cast(rotation)
          * glm::scale(glm::mat4(1.f), scale);
 }
 
-auto Model::Node::matrix() const -> glm::mat4
+auto Node::matrix() const -> glm::mat4
 {
     glm::mat4 result{ local_matrix() };
     for (const Node* p{ parent }; p != nullptr; p = p->parent) {
@@ -86,4 +86,9 @@ auto Model::root_node_indices() const noexcept -> const std::vector<size_t>&
     return m_root_node_indices;
 }
 
-}   // namespace core::graphics
+auto Model::extensions() const noexcept -> const Extensions&
+{
+    return m_extensions;
+}
+
+}   // namespace core::gltf

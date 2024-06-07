@@ -6,19 +6,24 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 namespace core::config::vulkan {
 
-auto init() VULKAN_HPP_NOEXCEPT -> void {
+auto init() VULKAN_HPP_NOEXCEPT -> void
+{
 #if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
     VULKAN_HPP_DEFAULT_DISPATCHER.init();
 #endif
 }
 
-auto init([[maybe_unused]] VULKAN_HPP_NAMESPACE::Instance t_instance) VULKAN_HPP_NOEXCEPT -> void {
+auto init([[maybe_unused]] VULKAN_HPP_NAMESPACE::Instance t_instance
+) VULKAN_HPP_NOEXCEPT -> void
+{
 #if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
     VULKAN_HPP_DEFAULT_DISPATCHER.init(t_instance);
 #endif
 }
 
-auto init([[maybe_unused]] VULKAN_HPP_NAMESPACE::Device t_device) VULKAN_HPP_NOEXCEPT -> void {
+auto init([[maybe_unused]] VULKAN_HPP_NAMESPACE::Device t_device
+) VULKAN_HPP_NOEXCEPT -> void
+{
 #if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
     VULKAN_HPP_DEFAULT_DISPATCHER.init(t_device);
 #endif

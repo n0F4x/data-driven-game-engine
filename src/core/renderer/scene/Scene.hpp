@@ -3,8 +3,8 @@
 #include <vulkan/vulkan.hpp>
 
 #include "core/cache/Handle.hpp"
-#include "core/graphics/camera/Camera.hpp"
-#include "core/graphics/model/Model.hpp"
+#include "core/gltf/Model.hpp"
+#include "core/graphics/Camera.hpp"
 #include "core/renderer/base/descriptor_pool/DescriptorPool.hpp"
 #include "core/renderer/model/RenderModel.hpp"
 

@@ -57,7 +57,7 @@ static auto max_sampler_count(const std::vector<Scene::Builder::ModelInfo>& t_mo
 }
 
 static auto request_descriptors(
-    const graphics::Model&   t_model,
+    const gltf::Model&       t_model,
     DescriptorPool::Builder& t_descriptor_pool_builder
 ) -> void
 {
@@ -86,8 +86,8 @@ static auto create_descriptor_pool(
 
     std::ranges::for_each(
         t_models,
-        [&](const graphics::Model& model) { request_descriptors(model, builder); },
-        [](const Scene::Builder::ModelInfo& model_info) -> const graphics::Model& {
+        [&](const gltf::Model& model) { request_descriptors(model, builder); },
+        [](const Scene::Builder::ModelInfo& model_info) -> const gltf::Model& {
             return *model_info.handle;
         }
     );
@@ -171,8 +171,8 @@ auto Scene::Builder::set_cache(cache::Cache& t_cache) noexcept -> Scene::Builder
 }
 
 auto Scene::Builder::add_model(
-    const cache::Handle<graphics::Model>& t_model,
-    const Effect&                         t_effect
+    const cache::Handle<gltf::Model>& t_model,
+    const Effect&                     t_effect
 ) -> Builder&
 {
     m_models.emplace_back(t_model, t_effect);
@@ -180,8 +180,8 @@ auto Scene::Builder::add_model(
 }
 
 auto Scene::Builder::add_model(
-    cache::Handle<graphics::Model>&& t_model,
-    const Effect&                    t_effect
+    cache::Handle<gltf::Model>&& t_model,
+    const Effect&                t_effect
 ) -> Builder&
 {
     m_models.emplace_back(std::move(t_model), t_effect);
@@ -220,9 +220,7 @@ auto Scene::Builder::build(
 
     DescriptorPool descriptor_pool{ create_descriptor_pool(t_device, m_models) };
 
-    MappedBuffer global_buffer{
-        create_global_buffer<Scene::ShaderScene>(t_allocator)
-    };
+    MappedBuffer global_buffer{ create_global_buffer<Scene::ShaderScene>(t_allocator) };
 
     vk::UniqueDescriptorSet global_descriptor_set{
         create_global_descriptor_set<Scene::ShaderScene>(

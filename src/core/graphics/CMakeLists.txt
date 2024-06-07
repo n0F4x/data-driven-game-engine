@@ -1,2 +1,3 @@
-add_subdirectory(camera)
-add_subdirectory(model)
+target_sources(${PROJECT_NAME} PRIVATE
+        Camera.cpp
+)

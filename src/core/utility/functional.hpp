@@ -50,4 +50,4 @@ auto arguments(T&& t) -> signature<std::decay_t<T>>::type;
 template <is_mem_fun T>
 auto arguments(const T& t) -> signature<std::decay_t<T>>::type;
 
-}
+}   // namespace core::utils

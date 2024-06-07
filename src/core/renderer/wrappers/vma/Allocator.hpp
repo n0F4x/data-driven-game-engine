@@ -17,7 +17,7 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator=(const Allocator&) -> Allocator& = delete;
+    auto operator=(const Allocator&) -> Allocator&     = delete;
     auto operator=(Allocator&&) noexcept -> Allocator& = default;
     [[nodiscard]]
     auto operator*() const noexcept -> VmaAllocator;

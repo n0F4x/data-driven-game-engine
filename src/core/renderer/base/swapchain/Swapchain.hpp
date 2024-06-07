@@ -1,11 +1,10 @@
 #pragma once
 
 #include <functional>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
-
-#include <optional>
 
 #include <vulkan/vulkan.hpp>
 
@@ -60,11 +59,11 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::UniqueSurfaceKHR            m_surface;
-    std::reference_wrapper<Device>  m_device;
-    FramebufferSizeGetter           m_get_framebuffer_size;
+    vk::UniqueSurfaceKHR             m_surface;
+    std::reference_wrapper<Device>   m_device;
+    FramebufferSizeGetter            m_get_framebuffer_size;
     std::optional<vulkan::Swapchain> m_swapchain;
-    uint32_t                        m_image_index{};
+    uint32_t                         m_image_index{};
     std::vector<std::pair<uint32_t, SwapchainRecreatedEvent>> m_swapchain_recreated_events;
     uint32_t m_swapchain_recreated_events_counter{};
 

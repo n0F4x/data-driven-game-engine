@@ -3,18 +3,18 @@
 #include "core/asset/image/KtxImage.hpp"
 #include "core/asset/image/StbImage.hpp"
 
-namespace core::graphics {
+namespace core::gltf {
 
 auto ImageLoader::load_from_file(const std::filesystem::path& t_filepath
-) -> std::optional<Model::Image>
+) -> std::optional<Image>
 {
     return asset::StbImage::load_from_file(t_filepath)
-        .transform([](asset::StbImage image) -> Model::Image {
+        .transform([](asset::StbImage image) -> Image {
             return std::make_unique<asset::StbImage>(std::move(image));
         })
         .or_else([&t_filepath] {
             return asset::KtxImage::load_from_file(t_filepath)
-                .transform([](asset::KtxImage image) -> Model::Image {
+                .transform([](asset::KtxImage image) -> Image {
                     return std::make_unique<asset::KtxImage>(std::move(image));
                 });
         });
@@ -23,7 +23,7 @@ auto ImageLoader::load_from_file(const std::filesystem::path& t_filepath
 auto ImageLoader::load_from_memory(
     const std::span<const std::uint8_t> t_data,
     fastgltf::MimeType                  t_mime_type
-) -> std::optional<Model::Image>
+) -> std::optional<Image>
 {
     switch (t_mime_type) {
         case fastgltf::MimeType::PNG: [[fallthrough]];
@@ -50,4 +50,4 @@ auto ImageLoader::load_from_memory(
     }
 }
 
-}   // namespace core::graphics
+}   // namespace core::gltf

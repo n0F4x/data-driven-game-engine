@@ -8,7 +8,7 @@ class MappedBuffer : public Buffer {
 public:
     using Buffer::Buffer;
 
-    template<typename T>
+    template <typename T>
     auto set(const T& t_data) const -> void;
 };
 

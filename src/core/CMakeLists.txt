@@ -1,6 +1,7 @@
 add_subdirectory(asset)
 add_subdirectory(cache)
 add_subdirectory(config)
+add_subdirectory(gltf)
 add_subdirectory(graphics)
 add_subdirectory(renderer)
 add_subdirectory(utility)
