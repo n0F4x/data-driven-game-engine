@@ -87,30 +87,32 @@ IncludeCategories:
     Priority: 2
   - Regex: '^<gsl/'
     Priority: 3
-  - Regex: '^<tl/'
+  - Regex: '^<boost/'
     Priority: 4
-  - Regex: '^<tsl/'
+  - Regex: '^<tl/'
     Priority: 5
-  - Regex: '^<spdlog/'
+  - Regex: '^<tsl/'
     Priority: 6
-  - Regex: '^<vulkan/'
+  - Regex: '^<spdlog/'
     Priority: 7
-  - Regex: '<vk_mem_alloc.h>'
+  - Regex: '^<vulkan/'
     Priority: 8
-  - Regex: '<VkBootstrap.*.h>'
+  - Regex: '<vk_mem_alloc.h>'
     Priority: 9
-  - Regex: '^<glm/'
+  - Regex: '<VkBootstrap.*.h>'
     Priority: 10
-  - Regex: '^<glfw/'
+  - Regex: '^<glm/'
     Priority: 11
-  - Regex: '^<SFML/'
+  - Regex: '^<glfw/'
     Priority: 12
-  - Regex: '^<stb_.*.h>'
+  - Regex: '^<SFML/'
     Priority: 13
-  - Regex: '^<ktx.*.h>'
+  - Regex: '^<stb_.*.h>'
     Priority: 14
-  - Regex: '^<entt/'
+  - Regex: '^<ktx.*.h>'
     Priority: 15
+  - Regex: '^<entt/'
+    Priority: 16
   - Regex: '^<.*\..*'
     Priority: 998
   - Regex: '^<.*'

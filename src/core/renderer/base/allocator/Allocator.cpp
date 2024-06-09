@@ -85,19 +85,62 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_dev
 }
 
 [[nodiscard]]
+static auto vulkan_functions() -> const VmaVulkanFunctions&
+{
+    // TODO: use reflection
+    static const VmaVulkanFunctions s_vulkan_functions{
+        .vkGetInstanceProcAddr = core::config::vulkan::dispatcher().vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr   = core::config::vulkan::dispatcher().vkGetDeviceProcAddr,
+        .vkGetPhysicalDeviceProperties =
+            core::config::vulkan::dispatcher().vkGetPhysicalDeviceProperties,
+        .vkGetPhysicalDeviceMemoryProperties =
+            core::config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties,
+        .vkAllocateMemory = core::config::vulkan::dispatcher().vkAllocateMemory,
+        .vkFreeMemory     = core::config::vulkan::dispatcher().vkFreeMemory,
+        .vkMapMemory      = core::config::vulkan::dispatcher().vkMapMemory,
+        .vkUnmapMemory    = core::config::vulkan::dispatcher().vkUnmapMemory,
+        .vkFlushMappedMemoryRanges =
+            core::config::vulkan::dispatcher().vkFlushMappedMemoryRanges,
+        .vkInvalidateMappedMemoryRanges =
+            core::config::vulkan::dispatcher().vkInvalidateMappedMemoryRanges,
+        .vkBindBufferMemory = core::config::vulkan::dispatcher().vkBindBufferMemory,
+        .vkBindImageMemory  = core::config::vulkan::dispatcher().vkBindImageMemory,
+        .vkGetBufferMemoryRequirements =
+            core::config::vulkan::dispatcher().vkGetBufferMemoryRequirements,
+        .vkGetImageMemoryRequirements =
+            core::config::vulkan::dispatcher().vkGetImageMemoryRequirements,
+        .vkCreateBuffer  = core::config::vulkan::dispatcher().vkCreateBuffer,
+        .vkDestroyBuffer = core::config::vulkan::dispatcher().vkDestroyBuffer,
+        .vkCreateImage   = core::config::vulkan::dispatcher().vkCreateImage,
+        .vkDestroyImage  = core::config::vulkan::dispatcher().vkDestroyImage,
+        .vkCmdCopyBuffer = core::config::vulkan::dispatcher().vkCmdCopyBuffer,
+        .vkGetBufferMemoryRequirements2KHR =
+            core::config::vulkan::dispatcher().vkGetBufferMemoryRequirements2KHR,
+        .vkGetImageMemoryRequirements2KHR =
+            core::config::vulkan::dispatcher().vkGetImageMemoryRequirements2KHR,
+        .vkBindBufferMemory2KHR =
+            core::config::vulkan::dispatcher().vkBindBufferMemory2KHR,
+        .vkBindImageMemory2KHR = core::config::vulkan::dispatcher().vkBindImageMemory2KHR,
+        .vkGetPhysicalDeviceMemoryProperties2KHR =
+            core::config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties2KHR,
+        .vkGetDeviceBufferMemoryRequirements =
+            core::config::vulkan::dispatcher().vkGetDeviceBufferMemoryRequirements,
+        .vkGetDeviceImageMemoryRequirements =
+            core::config::vulkan::dispatcher().vkGetDeviceImageMemoryRequirements,
+    };
+
+    return s_vulkan_functions;
+}
+
+[[nodiscard]]
 static auto create_allocator(const Instance& t_instance, const Device& t_device)
     -> std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)>
 {
-    static const VmaVulkanFunctions s_vulkan_functions{
-        .vkGetInstanceProcAddr = core::config::vulkan::instance_proc_address(),
-        .vkGetDeviceProcAddr   = core::config::vulkan::device_proc_address()
-    };
-
     const VmaAllocatorCreateInfo create_info{
         .flags            = vma_allocator_create_flags(t_device.info().physical_device),
         .physicalDevice   = t_device.physical_device(),
         .device           = t_device.get(),
-        .pVulkanFunctions = &s_vulkan_functions,
+        .pVulkanFunctions = &vulkan_functions(),
         .instance         = t_instance.get(),
     };
 

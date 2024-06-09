@@ -35,14 +35,8 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 
 # Vulkan
-set(VULKAN_DYNAMIC_FUNCTIONS 1)
-if (${VULKAN_DYNAMIC_FUNCTIONS})
-    find_package(VulkanHeaders CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
-else ()
-    find_package(Vulkan REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
-endif ()
+find_package(VulkanHeaders CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         VULKAN_HPP_NO_TO_STRING
         VULKAN_HPP_NO_CONSTRUCTORS
@@ -50,7 +44,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
 )
 target_compile_definitions(${PROJECT_NAME} PUBLIC
-        VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=${VULKAN_DYNAMIC_FUNCTIONS}
+        VK_NO_PROTOTYPES
 )
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
@@ -58,9 +52,11 @@ endif ()
 
 # VulkanMemoryAllocator
 find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+set(VMA_STATIC_FUNCTIONS 0)
+set(VMA_DYNAMIC_FUNCTIONS 0)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-        VMA_STATIC_VULKAN_FUNCTIONS=$<NOT:${VULKAN_DYNAMIC_FUNCTIONS}>
-        VMA_DYNAMIC_VULKAN_FUNCTIONS=${VULKAN_DYNAMIC_FUNCTIONS}
+        VMA_STATIC_VULKAN_FUNCTIONS=${VMA_STATIC_FUNCTIONS}
+        VMA_DYNAMIC_VULKAN_FUNCTIONS=${VMA_STATIC_FUNCTIONS}
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC GPUOpen::VulkanMemoryAllocator)
 

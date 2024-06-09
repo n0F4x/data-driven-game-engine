@@ -13,4 +13,7 @@ auto instance_proc_address() noexcept -> PFN_vkGetInstanceProcAddr;
 [[nodiscard]]
 auto device_proc_address() noexcept -> PFN_vkGetDeviceProcAddr;
 
+[[nodiscard]]
+auto dispatcher() -> const vk::DispatchLoaderDynamic&;
+
 }   // namespace core::config::vulkan
