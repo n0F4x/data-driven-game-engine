@@ -115,11 +115,39 @@
             ]
         }
     ],
+    "images" : [
+        {
+            "uri": "colormap_rgba.ktx"
+        },
+        {
+            "uri": "normalmap_rgba.ktx"
+        }
+    ],
+    "samplers" : [
+        {}
+    ],
+    "textures": [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        }
+    ],
     "materials" : [
         {
             "doubleSided" : true,
             "name" : "Material.001",
-            "pbrMetallicRoughness" : {}
+            "pbrMetallicRoughness" : {
+                "baseColorTexture": {
+                    "index" : 0
+                },
+                "normalTexture" : {
+                    "index" : 1
+                }
+            }
         }
     ],
     "meshes" : [
