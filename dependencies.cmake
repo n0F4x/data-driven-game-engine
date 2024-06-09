@@ -76,7 +76,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 
 # KTX
-set(KTX_FEATURE_STATIC_LIBRARY ON)
 find_package(Ktx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC KTX::ktx)
 
@@ -85,7 +84,6 @@ find_package(Stb REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Stb_INCLUDE_DIR})
 
 # fastgltf
-set(FASTGLTF_COMPILE_AS_CPP20 ON)
 find_package(fastgltf CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)
 
