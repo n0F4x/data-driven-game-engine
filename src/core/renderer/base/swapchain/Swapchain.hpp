@@ -68,4 +68,4 @@ private:
     ) noexcept;
 };
 
-}   // namespace core::renderer::vulkan
+}   // namespace core::renderer

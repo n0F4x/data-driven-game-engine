@@ -24,6 +24,20 @@ private:
         size_t                       t_scene_id
     ) -> Model;
 
+    static auto load_nodes(
+        Model&                                              t_model,
+        const fastgltf::Asset&                              t_asset,
+        const fastgltf::pmr::MaybeSmallVector<std::size_t>& t_node_indices
+    ) -> void;
+
+    static auto load_images(
+        Model&                       t_model,
+        const fastgltf::Asset&       t_asset,
+        const std::filesystem::path& t_filepath
+    ) -> void;
+
+    static auto load_materials(Model& t_model, const fastgltf::Asset& t_asset) -> void;
+
     static auto load_node(
         Model&                              t_model,
         Node&                               t_node,

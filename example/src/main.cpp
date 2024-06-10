@@ -11,12 +11,12 @@ try {
     const demo::ModelInfo model_info{
         //        "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
         //        "models/Avocado/glTF-Binary/Avocado.glb",
-        //        "models/armor/armor.gltf",s
+        //        "models/armor/armor.gltf",
         //        "models/DamagedHelmet.glb",
-        "models/Sponza/glTF/Sponza.gltf",
+        //        "models/Sponza/glTF/Sponza.gltf",
         //        "models/SponzaKTX/Sponza01.gltf",
-        //        "models/SponzaKTX/Sponza02.gltf",
-        5,
+        "models/SponzaKTX/Sponza02.gltf",
+        500,
         "shaders/pbr.frag.spv"
     };
 

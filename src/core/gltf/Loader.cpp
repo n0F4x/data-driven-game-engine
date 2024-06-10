@@ -32,7 +32,8 @@ static auto load_asset(const std::filesystem::path& t_filepath
     );
 }
 
-auto load_image(
+[[nodiscard]]
+static auto load_image(
     const std::filesystem::path& t_filepath,
     const fastgltf::Asset&       t_asset,
     const fastgltf::Image&       t_image
@@ -108,7 +109,7 @@ auto load_image(
 }
 
 [[nodiscard]]
-auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> t_filter
+static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> t_filter
 ) -> std::optional<core::gltf::Sampler::MagFilter>
 {
     if (!t_filter.has_value()) {
@@ -125,7 +126,7 @@ auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> t_filter
 }
 
 [[nodiscard]]
-auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> t_filter
+static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> t_filter
 ) -> std::optional<core::gltf::Sampler::MinFilter>
 {
     if (!t_filter.has_value()) {
@@ -145,7 +146,7 @@ auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> t_filter
 }
 
 [[nodiscard]]
-auto convert(fastgltf::Wrap t_wrap) noexcept -> core::gltf::Sampler::WrapMode
+static auto convert(fastgltf::Wrap t_wrap) noexcept -> core::gltf::Sampler::WrapMode
 {
     using enum fastgltf::Wrap;
     using enum core::gltf::Sampler::WrapMode;
@@ -157,7 +158,7 @@ auto convert(fastgltf::Wrap t_wrap) noexcept -> core::gltf::Sampler::WrapMode
 }
 
 [[nodiscard]]
-auto create_sampler(const fastgltf::Sampler& t_sampler) -> core::gltf::Sampler
+static auto create_sampler(const fastgltf::Sampler& t_sampler) -> core::gltf::Sampler
 {
     return core::gltf::Sampler{
         .mag_filter = convert_to_mag_filter(t_sampler.magFilter),
@@ -169,7 +170,7 @@ auto create_sampler(const fastgltf::Sampler& t_sampler) -> core::gltf::Sampler
 
 template <typename T>
 [[nodiscard]]
-auto convert(const fastgltf::Optional<T>& t_optional) noexcept -> std::optional<T>
+static auto convert(const fastgltf::Optional<T>& t_optional) noexcept -> std::optional<T>
 {
     if (!t_optional.has_value()) {
         return std::nullopt;
@@ -177,89 +178,12 @@ auto convert(const fastgltf::Optional<T>& t_optional) noexcept -> std::optional<
     return t_optional.value();
 }
 
-auto create_texture(const fastgltf::Texture& t_texture) -> core::gltf::Texture
+static auto create_texture(const fastgltf::Texture& t_texture) -> core::gltf::Texture
 {
     assert(t_texture.imageIndex.has_value() && "glTF Image extensions are not handled");
     return core::gltf::Texture{
         .sampler_index = convert<size_t>(t_texture.samplerIndex),
         .image_index   = static_cast<uint32_t>(t_texture.imageIndex.value()),
-    };
-}
-
-[[nodiscard]]
-static auto convert(const fastgltf::Optional<fastgltf::TextureInfo>& t_optional
-) -> std::optional<core::gltf::TextureInfo>
-{
-    if (!t_optional.has_value()) {
-        return std::nullopt;
-    }
-    return core::gltf::TextureInfo{
-        .texture_index   = static_cast<uint32_t>(t_optional->textureIndex),
-        .tex_coord_index = static_cast<uint32_t>(t_optional->texCoordIndex),
-    };
-}
-
-[[nodiscard]]
-static auto convert(const fastgltf::Optional<fastgltf::NormalTextureInfo>& t_optional
-) -> std::optional<core::gltf::Material::NormalTextureInfo>
-{
-    if (!t_optional.has_value()) {
-        return std::nullopt;
-    }
-    return core::gltf::Material::NormalTextureInfo{
-        .texture_index   = static_cast<uint32_t>(t_optional->textureIndex),
-        .tex_coord_index = static_cast<uint32_t>(t_optional->texCoordIndex),
-        .scale           = t_optional->scale,
-    };
-}
-
-[[nodiscard]]
-static auto convert(const fastgltf::Optional<fastgltf::OcclusionTextureInfo>& t_optional
-) -> std::optional<core::gltf::Material::OcclusionTextureInfo>
-{
-    if (!t_optional.has_value()) {
-        return std::nullopt;
-    }
-    return core::gltf::Material::OcclusionTextureInfo{
-        .texture_index   = static_cast<uint32_t>(t_optional->textureIndex),
-        .tex_coord_index = static_cast<uint32_t>(t_optional->texCoordIndex),
-        .strength        = t_optional->strength,
-    };
-}
-
-[[nodiscard]]
-static auto convert(fastgltf::AlphaMode t_alpha_mode
-) noexcept -> core::gltf::Material::AlphaMode
-{
-    using enum core::gltf::Material::AlphaMode;
-    switch (t_alpha_mode) {
-        case fastgltf::AlphaMode::Opaque: return eOpaque;
-        case fastgltf::AlphaMode::Mask: return eMask;
-        case fastgltf::AlphaMode::Blend: return eBlend;
-    }
-}
-
-auto create_material(const fastgltf::Material& t_material) -> core::gltf::Material
-{
-    using PbrMetallicRoughness = core::gltf::Material::PbrMetallicRoughness;
-    return core::gltf::Material{
-        .pbr_metallic_roughness =
-            PbrMetallicRoughness{
-                                 .base_color_factor =
-                    glm::make_vec4(t_material.pbrData.baseColorFactor.data()),
-                                 .base_color_texture_info = convert(t_material.pbrData.baseColorTexture),
-                                 .metallic_factor         = t_material.pbrData.metallicFactor,
-                                 .roughness_factor        = t_material.pbrData.roughnessFactor,
-                                 .metallic_roughness_texture_info =
-                    convert(t_material.pbrData.metallicRoughnessTexture),
-                                 },
-        .normal_texture_info    = convert(t_material.normalTexture),
-        .occlusion_texture_info = convert(t_material.occlusionTexture),
-        .emissive_texture_info  = convert(t_material.emissiveTexture),
-        .emissive_factor        = glm::make_vec3(t_material.emissiveFactor.data()),
-        .alpha_mode             = convert(t_material.alphaMode),
-        .alpha_cutoff           = t_material.alphaCutoff,
-        .double_sided           = t_material.doubleSided
     };
 }
 
@@ -304,31 +228,49 @@ auto Loader::load_model(
         );
     }
 
-    const auto& scene{ t_asset.scenes[t_scene_id] };
-    Model       model;
+    Model model;
 
-    const auto [node_indices, _]{ scene };
-    model.m_root_node_indices.reserve(node_indices.size());
+    load_nodes(model, t_asset, t_asset.scenes[t_scene_id].nodeIndices);
+    load_images(model, t_asset, t_filepath);
+    load_materials(model, t_asset);
+
+    return model;
+}
+
+auto Loader::load_nodes(
+    Model&                                              t_model,
+    const fastgltf::Asset&                              t_asset,
+    const fastgltf::pmr::MaybeSmallVector<std::size_t>& t_node_indices
+) -> void
+{
+    t_model.m_root_node_indices.reserve(t_node_indices.size());
     std::unordered_map<size_t, size_t> node_index_map;
-    for (const auto node_index : node_indices) {
-        model.m_root_node_indices.push_back(node_index);
-        node_index_map.try_emplace(node_index, model.m_nodes.size());
+    for (const auto node_index : t_node_indices) {
+        t_model.m_root_node_indices.push_back(node_index);
+        node_index_map.try_emplace(node_index, t_model.m_nodes.size());
         load_node(
-            model,
-            model.m_nodes.emplace_back(),
+            t_model,
+            t_model.m_nodes.emplace_back(),
             t_asset,
             t_asset.nodes[node_index],
             nullptr,
             node_index_map
         );
     }
-    adjust_node_indices(model, node_index_map);
+    adjust_node_indices(t_model, node_index_map);
+}
 
-    model.m_images.reserve(t_asset.images.size());
+auto Loader::load_images(
+    Model&                       t_model,
+    const fastgltf::Asset&       t_asset,
+    const std::filesystem::path& t_filepath
+) -> void
+{
+    t_model.m_images.reserve(t_asset.images.size());
     for (const fastgltf::Image& image : t_asset.images) {
         std::optional<Image> loaded_image = load_image(t_filepath, t_asset, image);
         if (loaded_image.has_value()) {
-            model.m_images.push_back(std::move(loaded_image.value()));
+            t_model.m_images.push_back(std::move(loaded_image.value()));
         }
         else {
             throw std::runtime_error{ std::format(
@@ -339,22 +281,32 @@ auto Loader::load_model(
         }
     }
 
-    model.m_samplers.reserve(t_asset.samplers.size());
+    t_model.m_samplers.reserve(t_asset.samplers.size());
     for (const fastgltf::Sampler& sampler : t_asset.samplers) {
-        model.m_samplers.push_back(create_sampler(sampler));
+        t_model.m_samplers.push_back(create_sampler(sampler));
     }
 
-    model.m_textures.reserve(t_asset.textures.size());
+    t_model.m_textures.reserve(t_asset.textures.size());
     for (const fastgltf::Texture& texture : t_asset.textures) {
-        model.m_textures.push_back(create_texture(texture));
+        t_model.m_textures.push_back(create_texture(texture));
     }
+}
 
-    model.m_materials.reserve(t_asset.materials.size());
+auto Loader::load_materials(Model& t_model, const fastgltf::Asset& t_asset) -> void
+{
+    t_model.m_materials.reserve(t_asset.materials.size());
     for (const fastgltf::Material& material : t_asset.materials) {
-        model.m_materials.push_back(create_material(material));
-    }
+        t_model.m_materials.push_back(Material::create(material));
 
-    return model;
+        if (auto specular_glossiness_material{ SpecularGlossiness::create_material(
+                material, t_model.m_materials.size()
+            ) })
+        {
+            t_model.m_extensions.specular_glossiness.materials.push_back(
+                specular_glossiness_material.value()
+            );
+        }
+    }
 }
 
 auto Loader::load_node(

@@ -2,6 +2,8 @@
 
 #include <optional>
 
+#include <fastgltf/types.hpp>
+
 namespace core::gltf {
 
 struct Sampler {
@@ -38,6 +40,10 @@ struct Texture {
 struct TextureInfo {
     uint32_t texture_index;
     uint32_t tex_coord_index{};
+
+    [[nodiscard]]
+    static auto create(const fastgltf::Optional<fastgltf::TextureInfo>& t_optional
+    ) -> std::optional<TextureInfo>;
 };
 
 }   // namespace core::gltf

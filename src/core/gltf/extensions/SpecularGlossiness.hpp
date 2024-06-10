@@ -2,6 +2,11 @@
 
 #include <vector>
 
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+
+#include <fastgltf/types.hpp>
+
 #include "core/gltf/Texture.hpp"
 
 namespace core::gltf {
@@ -15,6 +20,11 @@ struct SpecularGlossiness {
         float                      glossiness_factor{ 1.f };
         std::optional<TextureInfo> specular_glossiness_texture;
     };
+
+    [[nodiscard]]
+    static auto
+        create_material(const fastgltf::Material& material, size_t base_material_index)
+            -> std::optional<Material>;
 
     std::vector<Material> materials;
 };

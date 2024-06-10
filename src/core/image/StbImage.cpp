@@ -98,7 +98,20 @@ auto StbImage::format() const noexcept -> vk::Format
     };
 }
 
-StbImage::StbImage(stbi_uc* t_data, int t_width, int t_height, int t_channel_count) noexcept
+auto StbImage::offset(const uint32_t t_mip_level, const uint32_t, const uint32_t)
+    const noexcept -> uint64_t
+{
+    // TODO more assertions
+    assert(t_mip_level < mip_levels());
+    return 0;
+}
+
+StbImage::StbImage(
+    stbi_uc* const t_data,
+    const int      t_width,
+    const int      t_height,
+    const int      t_channel_count
+) noexcept
     : m_data{ t_data, stbi_image_free },
       m_width{ t_width },
       m_height{ t_height },

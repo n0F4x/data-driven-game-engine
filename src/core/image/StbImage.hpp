@@ -38,6 +38,10 @@ public:
     [[nodiscard]]
     auto format() const noexcept -> vk::Format final;
 
+    [[nodiscard]]
+    auto offset(uint32_t mip_level, uint32_t layer, uint32_t face_slice) const noexcept
+        -> uint64_t final;
+
 private:
     std::unique_ptr<stbi_uc, decltype(&stbi_image_free)> m_data;
     int                                                  m_width;

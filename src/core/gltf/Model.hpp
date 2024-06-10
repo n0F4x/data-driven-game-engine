@@ -34,7 +34,7 @@ public:
     };
 
     struct Extensions {
-        std::optional<SpecularGlossiness> specular_glossiness;
+        SpecularGlossiness specular_glossiness;
     };
 
     [[nodiscard]]

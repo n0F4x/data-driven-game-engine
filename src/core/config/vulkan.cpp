@@ -47,8 +47,8 @@ auto device_proc_address() noexcept -> PFN_vkGetDeviceProcAddr
 #endif
 }
 
-[[nodiscard]]
-auto dispatcher() -> const vk::DispatchLoaderDynamic& {
+auto dispatcher() -> const vk::DispatchLoaderDynamic&
+{
     return VULKAN_HPP_DEFAULT_DISPATCHER;
 }
 

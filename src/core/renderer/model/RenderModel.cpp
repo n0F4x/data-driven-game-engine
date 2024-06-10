@@ -103,6 +103,12 @@ static auto create_descriptor_set_layouts(
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
+        // specular-glossiness materials
+        vk::DescriptorSetLayoutBinding{
+                                       .binding         = 6,
+                                       .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                                       .descriptorCount = 1,
+                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
     const vk::DescriptorSetLayoutCreateInfo create_info_0{
         .bindingCount = static_cast<uint32_t>(bindings_0.size()),
@@ -433,18 +439,18 @@ static auto create_base_descriptor_set(
 [[nodiscard]]
 static auto create_image(
     const Allocator&    t_allocator,
-    uint32_t            t_width,
-    uint32_t            t_height,
-    vk::Format          t_format,
+    const gltf::Image&  t_image,
     vk::ImageTiling     t_tiling,
     vk::ImageUsageFlags t_usage
 ) -> Image
 {
     const vk::ImageCreateInfo image_create_info{
         .imageType     = vk::ImageType::e2D,
-        .format        = t_format,
-        .extent        = vk::Extent3D{ .width = t_width, .height = t_height, .depth = 1 },
-        .mipLevels     = 1,
+        .format        = t_image->format(),
+        .extent        = vk::Extent3D{ .width  = t_image->width(),
+                                      .height = t_image->height(),
+                                      .depth  = t_image->depth() },
+        .mipLevels     = t_image->mip_levels(),
         .arrayLayers   = 1,
         .samples       = vk::SampleCountFlagBits::e1,
         .tiling        = t_tiling,
@@ -475,9 +481,7 @@ static auto create_image_view(
         .format   = t_format,
         .subresourceRange =
             vk::ImageSubresourceRange{ .aspectMask     = vk::ImageAspectFlagBits::eColor,
-                                      .baseMipLevel   = 0,
                                       .levelCount     = 1,
-                                      .baseArrayLayer = 0,
                                       .layerCount     = 1 },
     };
 
@@ -714,12 +718,12 @@ static auto create_pipeline(
     );
 }
 
-void transition_image_layout(
+static auto transition_image_layout(
     vk::CommandBuffer t_command_buffer,
     vk::Image         t_image,
     vk::ImageLayout   t_old_layout,
     vk::ImageLayout   t_new_layout
-)
+) -> void
 {
     vk::ImageMemoryBarrier barrier{
         .oldLayout           = t_old_layout,
@@ -772,14 +776,18 @@ void transition_image_layout(
     );
 }
 
-void copy_buffer_to_image(
-    vk::CommandBuffer t_command_buffer,
-    vk::Buffer        t_buffer,
-    vk::Image         t_image,
-    vk::Extent2D      t_extent
-)
+static auto copy_buffer_to_image(
+    const vk::CommandBuffer t_command_buffer,
+    const vk::Buffer        t_buffer,
+    const vk::Image         t_image,
+    const vk::DeviceSize    t_buffer_offset,
+    const vk::Extent2D      t_extent
+) -> void
 {
+    // TODO account for mip-maps
+    // TODO account for image offset
     const vk::BufferImageCopy region{
+        .bufferOffset = t_buffer_offset,
         .imageSubresource =
             vk::ImageSubresourceLayers{ .aspectMask = vk::ImageAspectFlagBits::eColor,
                                        .layerCount = 1 },
@@ -974,6 +982,13 @@ auto RenderModel::create_loader(
         })
         | std::ranges::to<std::vector>()
     };
+    // TODO: account for mipmaps
+    std::vector<uint64_t> image_offsets{
+        t_model->images() | std::views::transform([&](const gltf::Image& image) {
+            return image->offset(0, 0, 0);
+        })
+        | std::ranges::to<std::vector>()
+    };
     std::vector<MappedBuffer> image_staging_buffers{
         t_model->images() | std::views::transform([&](const gltf::Image& image) {
             return create_staging_buffer(
@@ -986,9 +1001,7 @@ auto RenderModel::create_loader(
                                | std::views::transform([&](const gltf::Image& image) {
                                      return create_image(
                                          t_allocator,
-                                         image->width(),
-                                         image->height(),
-                                         image->format(),
+                                         image,
                                          vk::ImageTiling::eOptimal,
                                          vk::ImageUsageFlagBits::eTransferDst
                                              | vk::ImageUsageFlagBits::eSampled
@@ -1078,6 +1091,7 @@ auto RenderModel::create_loader(
          material_buffer         = auto{ std::move(material_buffer) },
          material_uniform        = auto{ std::move(material_uniform) },
          base_descriptor_set     = auto{ std::move(base_descriptor_set) },
+         image_offsets           = auto{ std::move(image_offsets) },
          image_extents           = auto{ std::move(image_extents) },
          image_staging_buffers   = auto{ std::move(image_staging_buffers) },
          images                  = auto{ std::move(images) },
@@ -1121,8 +1135,9 @@ auto RenderModel::create_loader(
                 );
             }
 
-            for (auto&& [buffer, texture_image, extent] :
-                 std::views::zip(image_staging_buffers, images, image_extents))
+            for (auto&& [buffer, texture_image, offset, extent] : std::views::zip(
+                     image_staging_buffers, images, image_offsets, image_extents
+                 ))
             {
                 transition_image_layout(
                     t_transfer_command_buffer,
@@ -1131,7 +1146,11 @@ auto RenderModel::create_loader(
                     vk::ImageLayout::eTransferDstOptimal
                 );
                 copy_buffer_to_image(
-                    t_transfer_command_buffer, buffer.get(), texture_image.get(), extent
+                    t_transfer_command_buffer,
+                    buffer.get(),
+                    texture_image.get(),
+                    offset,
+                    extent
                 );
                 transition_image_layout(
                     t_transfer_command_buffer,

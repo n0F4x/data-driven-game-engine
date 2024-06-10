@@ -25,9 +25,6 @@ endif ()
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # GLFW
-set(GLFW_BUILD_EXAMPLES OFF)
-set(GLFW_BUILD_TESTS OFF)
-set(GLFW_BUILD_DOCS OFF)
 find_package(glfw3 CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
         GLFW_INCLUDE_VULKAN

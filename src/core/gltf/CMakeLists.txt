@@ -5,4 +5,6 @@ target_sources(${PROJECT_NAME} PRIVATE
         ImageLoader.cpp
         Model.cpp
         Loader.cpp
+        Material.cpp
+        Texture.cpp
 )

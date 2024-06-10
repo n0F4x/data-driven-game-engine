@@ -27,9 +27,7 @@ auto KtxImage::load_from_file(const std::filesystem::path& t_filepath
     ktxTexture2* texture{};
 
     if (const ktxResult result{ ktxTexture2_CreateFromNamedFile(
-            t_filepath.generic_string().c_str(),
-            KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
-            &texture
+            t_filepath.generic_string().c_str(), KTX_TEXTURE_CREATE_NO_FLAGS, &texture
         ) };
         result != KTX_SUCCESS && result != KTX_UNKNOWN_FILE_FORMAT)
     {
@@ -130,6 +128,20 @@ auto KtxImage::mip_levels() const noexcept -> uint32_t
 auto KtxImage::format() const noexcept -> vk::Format
 {
     return static_cast<vk::Format>(m_ktxTexture->vkFormat);
+}
+
+auto KtxImage::offset(uint32_t t_mip_level, uint32_t t_layer, uint32_t t_face_slice)
+    const noexcept -> uint64_t
+{
+    assert(t_mip_level < mip_levels());
+    assert(t_layer < m_ktxTexture->numLayers);
+    assert(t_face_slice < m_ktxTexture->numFaces);
+
+    uint64_t offset{};
+    ktxTexture_GetImageOffset(
+        ktxTexture(m_ktxTexture.get()), t_mip_level, t_layer, t_face_slice, &offset
+    );
+    return offset;
 }
 
 auto KtxImage::Deleter::operator()(ktxTexture2* t_ktxTexture) const noexcept -> void

@@ -44,6 +44,9 @@ struct Material {
     AlphaMode                           alpha_mode{ AlphaMode::eOpaque };
     float                               alpha_cutoff{ 0.5f };
     bool                                double_sided{ false };
+
+    [[nodiscard]]
+    static auto create(const fastgltf::Material& material) -> Material;
 };
 
 }   // namespace core::gltf

@@ -83,7 +83,7 @@ ForEachMacros: [ 'RANGES_FOR', 'FOREACH' ]
 IfMacros: [ 'IF' ]
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^<windows.h>'
+  - Regex: '^<windows\.h>'
     Priority: 2
   - Regex: '^<gsl/'
     Priority: 3
@@ -97,9 +97,9 @@ IncludeCategories:
     Priority: 7
   - Regex: '^<vulkan/'
     Priority: 8
-  - Regex: '<vk_mem_alloc.h>'
+  - Regex: '<vk_mem_alloc\.h>'
     Priority: 9
-  - Regex: '<VkBootstrap.*.h>'
+  - Regex: '<VkBootstrap\.h>'
     Priority: 10
   - Regex: '^<glm/'
     Priority: 11
@@ -107,9 +107,9 @@ IncludeCategories:
     Priority: 12
   - Regex: '^<SFML/'
     Priority: 13
-  - Regex: '^<stb_.*.h>'
+  - Regex: '^<stb_*\.h>'
     Priority: 14
-  - Regex: '^<ktx.*.h>'
+  - Regex: '^<ktx*\.h>'
     Priority: 15
   - Regex: '^<entt/'
     Priority: 16
