@@ -51,7 +51,7 @@
       }
     },
     {
-      "name": "Clang-debug",
+      "name": "Clang-MinGW-debug",
       "inherits": [
         "debug",
         "vcpkg-MinGW",
@@ -59,7 +59,7 @@
       ]
     },
     {
-      "name": "Clang-release",
+      "name": "Clang-MinGW-release",
       "inherits": [
         "release",
         "vcpkg-MinGW",
