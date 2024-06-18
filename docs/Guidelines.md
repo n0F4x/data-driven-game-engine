@@ -45,6 +45,10 @@ Please use the following Hungarian notations:
 Make your code self-documenting!  
 Mark each section as seen in the rest of the files.
 
+### Functions
+
+Use trailing return type.
+
 ### Class Scope Ordering
 
 Declare everything that is public first!  
