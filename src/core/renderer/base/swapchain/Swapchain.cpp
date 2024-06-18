@@ -26,11 +26,10 @@ vk::SurfaceFormatKHR choose_swapchain_surface_format(
     const vk::PhysicalDevice t_physical_device
 )
 {
-    const auto t_available_surface_formats{
-        t_physical_device.getSurfaceFormatsKHR(t_surface)
-    };
+    const auto available_surface_formats{ t_physical_device.getSurfaceFormatsKHR(t_surface
+    ) };
 
-    for (const auto& surface_format : t_physical_device.getSurfaceFormatsKHR(t_surface)) {
+    for (const auto& surface_format : available_surface_formats) {
         if (surface_format.format == vk::Format::eB8G8R8A8Srgb
             && surface_format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
         {
@@ -38,7 +37,7 @@ vk::SurfaceFormatKHR choose_swapchain_surface_format(
         }
     }
 
-    return t_available_surface_formats.front();
+    return available_surface_formats.front();
 }
 
 auto choose_swapchain_present_mode(
@@ -191,8 +190,7 @@ try {
         t_old_swapchain
     ) };
 
-    return Swapchain{ t_device,
-                      extent,
+    return Swapchain{ extent,
                       surface_format,
                       std::move(swapchain),
                       create_image_views(t_device, swapchain.get(), surface_format) };
@@ -222,14 +220,12 @@ auto Swapchain::image_views() const noexcept -> const std::vector<vk::UniqueImag
 }
 
 Swapchain::Swapchain(
-    const vk::Device                   t_device,
     const vk::Extent2D                 t_extent,
     const vk::SurfaceFormatKHR         t_surface_format,
     vk::UniqueSwapchainKHR&&           t_swapchain,
     std::vector<vk::UniqueImageView>&& t_image_views
 ) noexcept
-    : m_device{ t_device },
-      m_extent{ t_extent },
+    : m_extent{ t_extent },
       m_surface_format{ t_surface_format },
       m_swapchain{ std::move(t_swapchain) },
       m_image_views{ std::move(t_image_views) }

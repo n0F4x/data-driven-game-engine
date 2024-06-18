@@ -260,7 +260,7 @@ auto Scene::Builder::build(
          global_buffer                = auto{ std::move(global_buffer) },
          global_descriptor_set        = auto{ std::move(global_descriptor_set) },
          model_loaders                = auto{ std::move(model_loaders
-         ) }](vk::CommandBuffer t_transfer_command_buffer) mutable -> Scene {
+         ) }](vk::CommandBuffer transfer_command_buffer) mutable -> Scene {
             return Scene(
                 std::move(global_descriptor_set_layout),
                 std::move(model_descriptor_set_layouts),
@@ -270,10 +270,10 @@ auto Scene::Builder::build(
                 std::move(global_descriptor_set),
                 model_loaders
                     | std::views::transform(
-                        [t_transfer_command_buffer](
+                        [transfer_command_buffer](
                             std::packaged_task<RenderModel(vk::CommandBuffer)>& model_task
                         ) {
-                            std::invoke(model_task, t_transfer_command_buffer);
+                            std::invoke(model_task, transfer_command_buffer);
                             return model_task.get_future().get();
                         }
                     )

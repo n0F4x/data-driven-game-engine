@@ -24,7 +24,7 @@ public:
     auto add_model(cache::Handle<gltf::Model>&& model, const Effect& effect) -> Builder&;
 
     [[nodiscard]]
-    auto build(vk::Device device, const Allocator& allocator, vk::RenderPass render_pass)
+    auto build(vk::Device       transfer_command_buffer, const Allocator& allocator, vk::RenderPass render_pass)
         const -> std::packaged_task<Scene(vk::CommandBuffer)>;
 
 private:

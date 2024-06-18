@@ -143,6 +143,7 @@ static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> t_filter
         case NearestMipMapLinear: return eNearestMipmapLinear;
         case LinearMipMapLinear: return eLinearMipmapLinear;
     }
+    std::unreachable();
 }
 
 [[nodiscard]]
@@ -155,6 +156,7 @@ static auto convert(fastgltf::Wrap t_wrap) noexcept -> core::gltf::Sampler::Wrap
         case MirroredRepeat: return eMirroredRepeat;
         case Repeat: return eRepeat;
     }
+    std::unreachable();
 }
 
 [[nodiscard]]
@@ -168,21 +170,22 @@ static auto create_sampler(const fastgltf::Sampler& t_sampler) -> core::gltf::Sa
     };
 }
 
-template <typename T>
+template <typename T, typename ReturnType>
 [[nodiscard]]
-static auto convert(const fastgltf::Optional<T>& t_optional) noexcept -> std::optional<T>
+static auto convert(const fastgltf::Optional<T>& t_optional
+) noexcept -> std::optional<ReturnType>
 {
     if (!t_optional.has_value()) {
         return std::nullopt;
     }
-    return t_optional.value();
+    return static_cast<ReturnType>(t_optional.value());
 }
 
 static auto create_texture(const fastgltf::Texture& t_texture) -> core::gltf::Texture
 {
     assert(t_texture.imageIndex.has_value() && "glTF Image extensions are not handled");
     return core::gltf::Texture{
-        .sampler_index = convert<size_t>(t_texture.samplerIndex),
+        .sampler_index = convert<size_t, uint32_t>(t_texture.samplerIndex),
         .image_index   = static_cast<uint32_t>(t_texture.imageIndex.value()),
     };
 }
@@ -396,6 +399,7 @@ static auto convert(fastgltf::PrimitiveType t_topology
         case fastgltf::PrimitiveType::TriangleStrip: return eTriangleStrips;
         case fastgltf::PrimitiveType::TriangleFan: return eTriangleFans;
     }
+    std::unreachable();
 }
 
 [[nodiscard]]
@@ -405,7 +409,7 @@ static auto convert(fastgltf::Optional<std::size_t> optional
     if (!optional.has_value()) {
         return std::nullopt;
     }
-    return optional.value();
+    return static_cast<uint32_t>(optional.value());
 }
 
 auto Loader::load_primitive(

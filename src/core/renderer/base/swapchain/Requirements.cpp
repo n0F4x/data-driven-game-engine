@@ -21,7 +21,7 @@ static auto required_instance_extension_names() -> std::span<const std::string>
         std::vector<std::string> result{};
         result.reserve(count);
 
-        for (auto glfw_extension_name : std::span{ glfw_extension_names, count }) {
+        for (const auto *const glfw_extension_name : std::span{ glfw_extension_names, count }) {
             result.emplace_back(glfw_extension_name);
         }
 

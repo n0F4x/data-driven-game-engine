@@ -21,6 +21,7 @@ namespace plugins {
 
 using namespace renderer;
 
+[[nodiscard]]
 static auto create_vulkan_surface(
     GLFWwindow*                  t_window,
     vk::Instance                 t_instance,
@@ -150,7 +151,6 @@ auto Renderer::operator()(app::App::Builder& t_builder, const Options& t_options
     if (!surface) {
         return;
     }
-
 
     vkb::PhysicalDeviceSelector physical_device_selector(
         static_cast<const vkb::Instance>(instance), surface.get()

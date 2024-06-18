@@ -40,6 +40,7 @@ static auto convert(fastgltf::AlphaMode t_alpha_mode
         case fastgltf::AlphaMode::Mask: return eMask;
         case fastgltf::AlphaMode::Blend: return eBlend;
     }
+    std::unreachable();
 }
 
 namespace core::gltf {

@@ -26,7 +26,7 @@ public:
         uint32_t           t_graphics_queue_family,
         uint32_t           t_present_queue_family,
         vk::Device         t_device,
-        vk::Extent2D       t_frame_buffer_size,
+        vk::Extent2D       t_framebuffer_size,
         vk::SwapchainKHR   t_old_swapchain = nullptr
     ) -> std::optional<Swapchain>;
 
@@ -50,7 +50,6 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::Device                       m_device;
     vk::Extent2D                     m_extent;
     vk::SurfaceFormatKHR             m_surface_format;
     vk::UniqueSwapchainKHR           m_swapchain;
@@ -60,7 +59,6 @@ private:
     ///  Constructors / Destructors  ///
     ///******************************///
     explicit Swapchain(
-        vk::Device                         t_device,
         vk::Extent2D                       t_extent,
         vk::SurfaceFormatKHR               t_surface_format,
         vk::UniqueSwapchainKHR&&           t_swapchain,
