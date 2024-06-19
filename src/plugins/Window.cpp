@@ -3,6 +3,7 @@
 #include <spdlog/spdlog.h>
 
 #include "app/Builder.hpp"
+#include "core/config/vulkan.hpp"
 
 #include "Window.hpp"
 
@@ -13,6 +14,8 @@ namespace plugins {
 auto Window::default_configure() -> void
 {
     glfwSetErrorCallback([](int, const char* description) { SPDLOG_ERROR(description); });
+
+    glfwInitVulkanLoader(core::config::vulkan::instance_proc_address());
 
     if (const auto error_code{ glfwInit() }; error_code != GLFW_TRUE) {
         throw std::runtime_error{

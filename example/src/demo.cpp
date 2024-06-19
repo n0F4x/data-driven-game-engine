@@ -37,7 +37,7 @@ auto demo::run(app::App& t_app, const ModelInfo& t_model_info) noexcept -> int
                 [&t_demo](const renderer::Swapchain&) {
                     t_demo.depth_image_view.reset();
                     t_demo.depth_image_view =
-                        init::create_depth_image_view(t_demo.device, *t_demo.depth_image);
+                        init::create_depth_image_view(t_demo.device, t_demo.depth_image.get());
                 }
             );
             t_demo.swapchain.get().on_swapchain_recreated(
@@ -47,8 +47,8 @@ auto demo::run(app::App& t_app, const ModelInfo& t_model_info) noexcept -> int
                         t_demo.device.get().get(),
                         t_swapchain.extent(),
                         t_swapchain.image_views(),
-                        *t_demo.render_pass,
-                        *t_demo.depth_image_view
+                        t_demo.render_pass.get(),
+                        t_demo.depth_image_view.get()
                     );
                 }
             );

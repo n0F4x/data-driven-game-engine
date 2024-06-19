@@ -6,10 +6,8 @@
 
 #include <spdlog/spdlog.h>
 
-namespace {
-
 [[nodiscard]]
-auto get_min_image_count(const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
+static auto get_min_image_count(const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
 ) noexcept -> uint32_t
 {
     uint32_t image_count = t_surface_capabilities.minImageCount + 1;
@@ -21,10 +19,11 @@ auto get_min_image_count(const vk::SurfaceCapabilitiesKHR& t_surface_capabilitie
     return image_count;
 }
 
-vk::SurfaceFormatKHR choose_swapchain_surface_format(
+[[nodiscard]]
+static auto choose_swapchain_surface_format(
     const vk::SurfaceKHR     t_surface,
     const vk::PhysicalDevice t_physical_device
-)
+) -> vk::SurfaceFormatKHR
 {
     const auto available_surface_formats{ t_physical_device.getSurfaceFormatsKHR(t_surface
     ) };
@@ -40,7 +39,8 @@ vk::SurfaceFormatKHR choose_swapchain_surface_format(
     return available_surface_formats.front();
 }
 
-auto choose_swapchain_present_mode(
+[[nodiscard]]
+static auto choose_swapchain_present_mode(
     const vk::SurfaceKHR     t_surface,
     const vk::PhysicalDevice t_physical_device
 ) -> vk::PresentModeKHR
@@ -52,7 +52,8 @@ auto choose_swapchain_present_mode(
              : vk::PresentModeKHR::eFifo;
 }
 
-auto create_swapchain(
+[[nodiscard]]
+static auto create_swapchain(
     const vk::SurfaceKHR              t_surface,
     const vk::PhysicalDevice          t_physical_device,
     const uint32_t                    t_graphics_queue_family,
@@ -91,7 +92,8 @@ auto create_swapchain(
     return t_device.createSwapchainKHRUnique(create_info);
 }
 
-auto create_image_views(
+[[nodiscard]]
+static auto create_image_views(
     const vk::Device           t_device,
     const vk::SwapchainKHR     t_swapchain,
     const vk::SurfaceFormatKHR t_surface_format
@@ -117,8 +119,6 @@ auto create_image_views(
 
     return image_views;
 }
-
-}   // namespace
 
 namespace core::renderer {
 
