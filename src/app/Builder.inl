@@ -1,5 +1,3 @@
-namespace app {
-
 template <typename... Args>
 auto App::Builder::build_and_run(
     RunnerConcept<Args...> auto&& t_runner,
@@ -37,5 +35,3 @@ auto App::Builder::add_plugin(
     );
     return std::move(*this);
 }
-
-}   // namespace app

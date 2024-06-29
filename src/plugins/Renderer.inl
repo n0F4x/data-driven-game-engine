@@ -19,7 +19,7 @@ namespace plugins {
 
 template <renderer::SurfaceProviderConcept SurfaceProvider>
 auto Renderer::operator()(
-    app::App::Builder&                        t_builder,
+    App::Builder&                             t_builder,
     const renderer::Options<SurfaceProvider>& t_options
 ) const -> void
 {

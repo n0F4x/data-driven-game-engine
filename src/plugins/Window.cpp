@@ -29,7 +29,7 @@ static auto default_configure() -> void
 }
 
 auto Window::operator()(
-    app::App::Builder& t_builder,
+    App::Builder&      t_builder,
     uint16_t           t_width,
     uint16_t           t_height,
     const std::string& t_title

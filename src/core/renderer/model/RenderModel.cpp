@@ -71,42 +71,42 @@ static auto create_descriptor_set_layouts(
 ) -> std::array<vk::UniqueDescriptorSetLayout, 3>
 {
     const std::array bindings_0{
-  // vertices
+        // vertices
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
- // transforms
+        // transforms
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 1,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
- // defaultSampler
+        // defaultSampler
         vk::DescriptorSetLayoutBinding{ .binding         = 2,
                                        .descriptorType  = vk::DescriptorType::eSampler,
                                        .descriptorCount = 1,
                                        .stageFlags = vk::ShaderStageFlagBits::eFragment     },
- // textures
+        // textures
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 3,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
- // defaultMaterial
+        // defaultMaterial
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 4,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
- // materials
+        // materials
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 5,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
- // specular-glossiness materials
+        // specular-glossiness materials
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 6,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
@@ -573,8 +573,8 @@ static auto to_min_filter(gltf::Sampler::MinFilter t_min_filter) noexcept -> vk:
 }
 
 [[nodiscard]]
-static auto to_mipmap_mode(gltf::Sampler::MinFilter t_min_filter) noexcept
-    -> vk::SamplerMipmapMode
+static auto to_mipmap_mode(gltf::Sampler::MinFilter t_min_filter
+) noexcept -> vk::SamplerMipmapMode
 {
     using enum gltf::Sampler::MinFilter;
     switch (t_min_filter) {
@@ -588,8 +588,8 @@ static auto to_mipmap_mode(gltf::Sampler::MinFilter t_min_filter) noexcept
 }
 
 [[nodiscard]]
-static auto to_address_mode(gltf::Sampler::WrapMode t_wrap_mode) noexcept
-    -> vk::SamplerAddressMode
+static auto to_address_mode(gltf::Sampler::WrapMode t_wrap_mode
+) noexcept -> vk::SamplerAddressMode
 {
     using enum gltf::Sampler::WrapMode;
     switch (t_wrap_mode) {
@@ -753,7 +753,8 @@ static auto transition_image_layout(
         source_stage      = vk::PipelineStageFlagBits::eTopOfPipe;
         destination_stage = vk::PipelineStageFlagBits::eTransfer;
     }
-    else if (t_old_layout == vk::ImageLayout::eTransferDstOptimal && t_new_layout == vk::ImageLayout::eShaderReadOnlyOptimal)
+    else if (t_old_layout == vk::ImageLayout::eTransferDstOptimal
+             && t_new_layout == vk::ImageLayout::eShaderReadOnlyOptimal)
     {
         barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
@@ -808,26 +809,26 @@ auto RenderModel::descriptor_set_count() noexcept -> uint32_t
     return 3;
 }
 
-auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_info)
-    -> std::vector<vk::DescriptorPoolSize>
+auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_info
+) -> std::vector<vk::DescriptorPoolSize>
 {
     std::vector<vk::DescriptorPoolSize> pool_sizes{
-  // vertices
+        // vertices
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
- // transforms
+        // transforms
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
- // defaultSampler
+        // defaultSampler
         vk::DescriptorPoolSize{       .type            = vk::DescriptorType::eSampler,
                                .descriptorCount = 1u },
- // textures
+        // textures
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
- // defaultMaterial
+        // defaultMaterial
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
- // materials
+        // materials
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
     };

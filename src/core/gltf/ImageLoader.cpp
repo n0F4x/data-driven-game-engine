@@ -7,8 +7,8 @@
 
 namespace core::gltf {
 
-auto ImageLoader::load_from_file(const std::filesystem::path& t_filepath)
-    -> std::optional<Image>
+auto ImageLoader::load_from_file(const std::filesystem::path& t_filepath
+) -> std::optional<Image>
 {
     return image::StbImage::load_from_file(t_filepath)
         .transform([](image::StbImage image) -> Image {

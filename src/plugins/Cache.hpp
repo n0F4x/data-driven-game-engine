@@ -9,9 +9,9 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(app::App::Builder& t_builder) const noexcept -> void;
+    auto operator()(App::Builder& t_builder) const noexcept -> void;
 };
 
-static_assert(app::PluginConcept<Cache>);
+static_assert(PluginConcept<Cache>);
 
 }   // namespace plugins

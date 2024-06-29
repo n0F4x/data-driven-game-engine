@@ -16,16 +16,16 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(app::App::Builder& builder) const -> void;
+    auto operator()(App::Builder& builder) const -> void;
 
     template <renderer::SurfaceProviderConcept SurfaceProvider>
     auto operator()(
-        app::App::Builder&                        builder,
+        App::Builder&                             builder,
         const renderer::Options<SurfaceProvider>& options
     ) const -> void;
 };
 
-static_assert(app::PluginConcept<Renderer>);
+static_assert(PluginConcept<Renderer>);
 
 }   // namespace plugins
 

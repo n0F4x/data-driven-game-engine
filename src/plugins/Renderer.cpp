@@ -6,7 +6,7 @@ using namespace renderer;
 
 namespace plugins {
 
-auto Renderer::operator()(app::App::Builder& t_builder) const -> void
+auto Renderer::operator()(App::Builder& t_builder) const -> void
 {
     const auto window{ t_builder.store().find<core::window::Window>() };
     if (!window.has_value()) {

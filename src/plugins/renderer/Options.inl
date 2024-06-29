@@ -2,8 +2,8 @@ namespace plugins::renderer {
 
 template <SurfaceProviderConcept SurfaceProvider>
 Options<SurfaceProvider>::Options(
-    uint32_t                                 required_vulkan_version,
-    SurfaceProvider&&                        surface_provider,
+    uint32_t                       required_vulkan_version,
+    SurfaceProvider&&              surface_provider,
     FramebufferSizeGetterCreator&& create_framebuffer_size_getter
 ) noexcept
     : m_required_vulkan_version{ required_vulkan_version },

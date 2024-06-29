@@ -60,8 +60,9 @@ auto Window::create_vulkan_surface(
 {
     VkSurfaceKHR surface{};
 
-    if (const VkResult error_code{
-            glfwCreateWindowSurface(t_instance, m_impl.get(), t_allocation_callbacks, &surface) };
+    if (const VkResult error_code{ glfwCreateWindowSurface(
+            t_instance, m_impl.get(), t_allocation_callbacks, &surface
+        ) };
         error_code != VK_SUCCESS)
     {
         return std::unexpected{ error_code };

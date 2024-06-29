@@ -21,10 +21,10 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(app::App::Builder& t_builder, Level t_log_level = Level::eDebug)
+    auto operator()(App::Builder& t_builder, Level t_log_level = Level::eDebug)
         const noexcept -> void;
 };
 
-static_assert(app::PluginConcept<Logger, Logger::Level>);
+static_assert(PluginConcept<Logger, Logger::Level>);
 
 }   // namespace plugins

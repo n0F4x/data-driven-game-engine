@@ -3,8 +3,6 @@
 #include "App.hpp"
 #include "Plugin.hpp"
 
-namespace app {
-
 class App::Builder {
 public:
     ///-----------///
@@ -41,7 +39,5 @@ private:
     ///*************///
     Store m_store;
 };
-
-}   // namespace app
 
 #include "Builder.inl"

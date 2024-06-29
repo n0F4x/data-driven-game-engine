@@ -12,14 +12,14 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(
-        app::App::Builder& t_builder,
+        App::Builder&      t_builder,
         uint16_t           t_width,
         uint16_t           t_height,
         const std::string& t_title
     ) const -> void;
 
     auto operator()(
-        app::App::Builder&  t_builder,
+        App::Builder&       t_builder,
         uint16_t            t_width,
         uint16_t            t_height,
         const std::string&  t_title,
@@ -27,7 +27,7 @@ public:
     ) const -> void;
 };
 
-static_assert(app::PluginConcept<Window, uint16_t, uint16_t, const std::string&>);
+static_assert(PluginConcept<Window, uint16_t, uint16_t, const std::string&>);
 
 }   // namespace plugins
 

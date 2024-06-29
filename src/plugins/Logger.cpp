@@ -4,7 +4,7 @@
 
 namespace plugins {
 
-auto Logger::operator()(app::App::Builder&, Level t_log_level) const noexcept -> void
+auto Logger::operator()(App::Builder&, Level t_log_level) const noexcept -> void
 {
     spdlog::set_level(static_cast<spdlog::level::level_enum>(t_log_level));
 

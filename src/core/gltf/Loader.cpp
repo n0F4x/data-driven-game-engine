@@ -16,8 +16,8 @@
 #include "Model.hpp"
 
 [[nodiscard]]
-static auto load_asset(const std::filesystem::path& t_filepath)
-    -> fastgltf::Expected<fastgltf::Asset>
+static auto load_asset(const std::filesystem::path& t_filepath
+) -> fastgltf::Expected<fastgltf::Asset>
 {
     fastgltf::Parser parser;
 
@@ -109,8 +109,8 @@ static auto load_image(
 }
 
 [[nodiscard]]
-static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> t_filter)
-    -> std::optional<core::gltf::Sampler::MagFilter>
+static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> t_filter
+) -> std::optional<core::gltf::Sampler::MagFilter>
 {
     if (!t_filter.has_value()) {
         return std::nullopt;
@@ -126,8 +126,8 @@ static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> t_filter)
 }
 
 [[nodiscard]]
-static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> t_filter)
-    -> std::optional<core::gltf::Sampler::MinFilter>
+static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> t_filter
+) -> std::optional<core::gltf::Sampler::MinFilter>
 {
     if (!t_filter.has_value()) {
         return std::nullopt;
@@ -172,8 +172,8 @@ static auto create_sampler(const fastgltf::Sampler& t_sampler) -> core::gltf::Sa
 
 template <typename T, typename ReturnType>
 [[nodiscard]]
-static auto convert(const fastgltf::Optional<T>& t_optional) noexcept
-    -> std::optional<ReturnType>
+static auto convert(const fastgltf::Optional<T>& t_optional
+) noexcept -> std::optional<ReturnType>
 {
     if (!t_optional.has_value()) {
         return std::nullopt;
@@ -192,8 +192,8 @@ static auto create_texture(const fastgltf::Texture& t_texture) -> core::gltf::Te
 
 namespace core::gltf {
 
-auto Loader::load_from_file(const std::filesystem::path& t_filepath)
-    -> std::optional<Model>
+auto Loader::load_from_file(const std::filesystem::path& t_filepath
+) -> std::optional<Model>
 {
     auto asset{ load_asset(t_filepath) };
     if (asset.error() != fastgltf::Error::None) {
@@ -388,8 +388,8 @@ auto Loader::load_mesh(
 }
 
 [[nodiscard]]
-static auto convert(const fastgltf::PrimitiveType t_topology) noexcept
-    -> Mesh::Primitive::Topology
+static auto convert(const fastgltf::PrimitiveType t_topology
+) noexcept -> Mesh::Primitive::Topology
 {
     using enum Mesh::Primitive::Topology;
     switch (t_topology) {
@@ -405,8 +405,8 @@ static auto convert(const fastgltf::PrimitiveType t_topology) noexcept
 }
 
 [[nodiscard]]
-static auto convert(fastgltf::Optional<std::size_t> optional) noexcept
-    -> std::optional<uint32_t>
+static auto convert(fastgltf::Optional<std::size_t> optional
+) noexcept -> std::optional<uint32_t>
 {
     if (!optional.has_value()) {
         return std::nullopt;

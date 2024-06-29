@@ -4,8 +4,6 @@
 
 #include "store/Store.hpp"
 
-namespace app {
-
 class App;
 
 template <typename Runner, typename... Args>
@@ -44,7 +42,5 @@ private:
     ///*************///
     Store m_store;
 };
-
-}   // namespace app
 
 #include "App.inl"

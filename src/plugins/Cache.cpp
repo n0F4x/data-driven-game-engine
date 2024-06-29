@@ -7,7 +7,7 @@
 
 namespace plugins {
 
-auto Cache::operator()(app::App::Builder& t_builder) const noexcept -> void
+auto Cache::operator()(App::Builder& t_builder) const noexcept -> void
 {
     t_builder.store().emplace<core::cache::Cache>();
 
