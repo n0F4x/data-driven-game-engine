@@ -2,6 +2,7 @@
 
 #include <array>
 #include <limits>
+#include <ranges>
 
 #include <spdlog/spdlog.h>
 
@@ -29,8 +30,8 @@ auto SwapchainHolder::get() const noexcept -> const std::optional<Swapchain>&
     return m_swapchain;
 }
 
-auto SwapchainHolder::set_framebuffer_size(const vk::Extent2D t_framebuffer_size
-) noexcept -> void
+auto SwapchainHolder::set_framebuffer_size(const vk::Extent2D t_framebuffer_size) noexcept
+    -> void
 try {
     if (!m_swapchain.has_value()) {
         recreate_swapchain(t_framebuffer_size);

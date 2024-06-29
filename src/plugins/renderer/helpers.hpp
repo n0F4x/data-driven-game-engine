@@ -18,4 +18,6 @@ auto enable_default_instance_settings(
     vkb::InstanceBuilder&  t_builder
 ) -> void;
 
+auto log_renderer_setup(const vkb::Device& t_device) -> void;
+
 }   // namespace plugins::renderer

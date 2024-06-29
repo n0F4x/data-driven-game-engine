@@ -34,14 +34,14 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 # Vulkan
 find_package(VulkanHeaders CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+        VK_NO_PROTOTYPES
+)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         VULKAN_HPP_NO_TO_STRING
         VULKAN_HPP_NO_CONSTRUCTORS
         VULKAN_HPP_NO_SETTERS
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
-)
-target_compile_definitions(${PROJECT_NAME} PUBLIC
-        VK_NO_PROTOTYPES
 )
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)

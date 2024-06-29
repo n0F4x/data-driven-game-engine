@@ -125,4 +125,39 @@ auto enable_default_instance_settings(
 #endif
 }
 
+auto log_renderer_setup(const vkb::Device& t_device) -> void
+{
+    try {
+        const auto instance_version{ t_device.instance_version };
+
+        SPDLOG_INFO(
+            "Created Vulkan Instance with version: {}.{}.{}",
+            VK_VERSION_MAJOR(instance_version),
+            VK_VERSION_MINOR(instance_version),
+            VK_VERSION_PATCH(instance_version)
+        );
+
+        const auto properties{
+            vk::PhysicalDevice(t_device.physical_device.physical_device).getProperties()
+        };
+
+        SPDLOG_INFO(
+            "Chose GPU({}) with Vulkan version: {}.{}.{}",
+            t_device.physical_device.name,
+            VK_VERSION_MAJOR(properties.apiVersion),
+            VK_VERSION_MINOR(properties.apiVersion),
+            VK_VERSION_PATCH(properties.apiVersion)
+        );
+
+        std::string enabled_extensions{ "\nEnabled device extensions:" };
+        for (const auto& extension : t_device.physical_device.get_extensions()) {
+            enabled_extensions += '\n';
+            enabled_extensions += '\t';
+            enabled_extensions += extension;
+        }
+        SPDLOG_DEBUG(enabled_extensions);
+    } catch (const vk::Error& t_error) {
+        SPDLOG_ERROR(t_error.what());
+    }
+}
 }   // namespace plugins::renderer

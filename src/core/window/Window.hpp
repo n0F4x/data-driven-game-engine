@@ -1,6 +1,8 @@
 #pragma once
 
+#include <expected>
 #include <memory>
+#include <span>
 #include <string>
 
 #include <GLFW/glfw3.h>
@@ -9,21 +11,21 @@ namespace core::window {
 
 class Window {
 public:
-    ///------------------------------///
-    ///  Constructors / Destructors  ///
-    ///------------------------------///
+    [[nodiscard]]
+    static auto vulkan_instance_extensions() -> std::span<const char* const>;
+
     explicit Window(uint16_t t_width, uint16_t t_height, const std::string& t_title);
 
-    ///-----------///
-    ///  Methods  ///
-    ///-----------///
     [[nodiscard]]
     auto get() const noexcept -> GLFWwindow*;
 
+    [[nodiscard]]
+    auto create_vulkan_surface(
+        VkInstance                   instance,
+        const VkAllocationCallbacks* allocation_callbacks
+    ) const -> std::expected<VkSurfaceKHR, VkResult>;
+
 private:
-    ///*************///
-    ///  Variables  ///
-    ///*************///
     std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> m_impl;
 };
 

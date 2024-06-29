@@ -20,18 +20,11 @@ try {
         "shaders/pbr.frag.spv"
     };
 
-    // for better debugging with Vulkan Configurator
-    const auto renderer_options{
-        plugins::Renderer::Options{}.require_vulkan_version(1, 1)
-    };
-
     return app::App::create()
         .add_plugin<plugins::Logger>(plugins::Logger::Level::eTrace)
         .add_plugin<plugins::Cache>()
-        .add_plugin<plugins::Window>(
-            1'280, 720, "My window", plugins::Window::default_configure
-        )
-        .add_plugin<plugins::Renderer>(renderer_options)
+        .add_plugin<plugins::Window>(1'280, 720, "My window")
+        .add_plugin<plugins::Renderer>()
         .build_and_run(demo::run, model_info);
 } catch (std::exception& error) {
     try {

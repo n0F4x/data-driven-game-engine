@@ -3,7 +3,6 @@
 #include <functional>
 #include <optional>
 #include <typeindex>
-#include <vector>
 
 #include <tsl/ordered_map.h>
 
@@ -47,21 +46,10 @@ public:
     auto contains() const noexcept -> bool;
 
 private:
-    using Key       = std::type_index;
-    using Value     = entt::any;
-    using Allocator = std::allocator<std::pair<Key, Value>>;
-
     ///*************///
     ///  Variables  ///
     ///*************///
-    tsl::ordered_map<
-        Key,
-        Value,
-        std::hash<Key>,
-        std::equal_to<>,
-        Allocator,
-        std::vector<std::pair<Key, Value>, Allocator>>
-        m_map;
+    tsl::ordered_map<std::type_index, entt::any> m_map;
 };
 
 #include "Store.inl"

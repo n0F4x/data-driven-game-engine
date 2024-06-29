@@ -8,11 +8,6 @@ namespace plugins {
 
 class Window {
 public:
-    ///------------------///
-    ///  Static methods  ///
-    ///------------------///
-    static auto default_configure() -> void;
-
     ///-------------///
     ///  Operators  ///
     ///-------------///

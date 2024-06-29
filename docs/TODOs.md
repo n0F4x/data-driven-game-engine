@@ -1,5 +1,7 @@
+- change image formats before upload 
+- support ktx1
 - build the vulkan validation layers
-- use proper assertions 
+- use proper assertions
 - separate logger for debug and actual use
 - let compute queue present according to https://gpuopen.com/learn/rdna-performance-guide/#presenting
 - separate project to multiple libs

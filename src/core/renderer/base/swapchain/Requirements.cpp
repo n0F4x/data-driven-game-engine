@@ -1,57 +1,16 @@
 #include "Requirements.hpp"
 
-#include <GLFW/glfw3.h>
-
 namespace core::renderer {
 
-[[nodiscard]]
-static auto required_instance_extension_names() -> std::span<const std::string>
+auto Swapchain::Requirements::
+    required_instance_settings_are_available(const vkb::SystemInfo&) -> bool
 {
-    static const std::vector s_extensions_names{ []() -> std::vector<std::string> {
-        if (glfwInit() != GLFW_TRUE) {
-            return {};
-        }
-
-        uint32_t             count{};
-        const char**         glfw_extension_names{ glfwGetRequiredInstanceExtensions(&count) };
-        if (glfw_extension_names == nullptr) {
-            return {};
-        }
-
-        std::vector<std::string> result{};
-        result.reserve(count);
-
-        for (const auto *const glfw_extension_name : std::span{ glfw_extension_names, count }) {
-            result.emplace_back(glfw_extension_name);
-        }
-
-        return result;
-    }() };
-
-    return s_extensions_names;
+    return true;
 }
 
-auto Swapchain::Requirements::required_instance_settings_are_available(
-    const vkb::SystemInfo& t_system_info
-) -> bool
-{
-    return std::ranges::all_of(
-        required_instance_extension_names(),
-        [&t_system_info](const auto& extension_name) {
-            return t_system_info.is_extension_available(extension_name.c_str());
-        }
-    );
-}
-
-auto Swapchain::Requirements::enable_instance_settings(
-    const vkb::SystemInfo&,
-    vkb::InstanceBuilder& t_builder
-) -> void
-{
-    for (const auto& extension_name : required_instance_extension_names()) {
-        t_builder.enable_extension(extension_name.c_str());
-    }
-}
+auto Swapchain::Requirements::
+    enable_instance_settings(const vkb::SystemInfo&, vkb::InstanceBuilder&) -> void
+{}
 
 auto Swapchain::Requirements::require_device_settings(
     vkb::PhysicalDeviceSelector& t_physical_device_selector

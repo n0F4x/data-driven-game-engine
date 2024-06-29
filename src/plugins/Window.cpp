@@ -1,28 +1,24 @@
-#include "core/window/Window.hpp"
+#include "Window.hpp"
 
 #include <spdlog/spdlog.h>
 
 #include "app/Builder.hpp"
 #include "core/config/vulkan.hpp"
 
-#include "Window.hpp"
-
-using namespace core::window;
-
 namespace plugins {
 
-auto Window::default_configure() -> void
+static auto default_configure() -> void
 {
     glfwSetErrorCallback([](int, const char* description) { SPDLOG_ERROR(description); });
 
-    glfwInitVulkanLoader(core::config::vulkan::instance_proc_address());
+    glfwInitVulkanLoader(core::config::vulkan::dispatcher().vkGetInstanceProcAddr);
 
     if (const auto error_code{ glfwInit() }; error_code != GLFW_TRUE) {
         throw std::runtime_error{
             std::format("glfwInit failed with error code {}", error_code)
         };
     }
-    if (auto result{ std::atexit(glfwTerminate) }; result != 0) {
+    if (const auto result{ std::atexit(glfwTerminate) }; result != 0) {
         throw std::runtime_error{
             std::format("std::atexit(glfwTerminate) failed with error code {}", result)
         };
@@ -39,8 +35,7 @@ auto Window::operator()(
     const std::string& t_title
 ) const -> void
 {
-    t_builder.store().emplace<core::window::Window>(t_width, t_height, t_title);
-    SPDLOG_TRACE("Added Window plugin");
+    operator()(t_builder, t_width, t_height, t_title, default_configure);
 }
 
 }   // namespace plugins

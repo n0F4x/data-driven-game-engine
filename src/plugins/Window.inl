@@ -1,3 +1,8 @@
+#include <spdlog/spdlog.h>
+
+#include "app/Builder.hpp"
+#include "core/window/Window.hpp"
+
 namespace plugins {
 
 auto Window::operator()(
@@ -9,7 +14,8 @@ auto Window::operator()(
 ) const -> void
 {
     std::invoke(t_configure);
-    operator()(t_builder, t_width, t_height, t_title);
+    t_builder.store().emplace<core::window::Window>(t_width, t_height, t_title);
+    SPDLOG_TRACE("Added Window plugin");
 }
 
 }   // namespace plugins

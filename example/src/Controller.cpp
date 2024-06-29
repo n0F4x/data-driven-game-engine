@@ -4,17 +4,18 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Controller::Controller(float movement_speed) noexcept : m_movement_speed{ movement_speed }
+Controller::Controller(const float movement_speed) noexcept : m_movement_speed{ movement_speed }
 {}
 
 auto Controller::update(const core::window::Window& t_window, float t_delta_time) noexcept
     -> void
 {
-    double cursor_x;
-    double cursor_y;
+    double cursor_x{};
+    double cursor_y{};
     glfwGetCursorPos(t_window.get(), &cursor_x, &cursor_y);
 
-    int width, height;
+    int width{};
+    int height{};
     glfwGetWindowSize(t_window.get(), &width, &height);
 
     m_vertical_angle = glm::mod(
@@ -30,9 +31,11 @@ auto Controller::update(const core::window::Window& t_window, float t_delta_time
         glm::two_pi<float>()
     );
 
-    glm::vec3 forward{ -glm::sin(m_horizontal_angle), 0.f, -glm::cos(m_horizontal_angle) };
-    glm::vec3 right{ -forward.z, 0.f, forward.x };
-    glm::vec3 up{ 0.f, 1.f, 0.f };
+    const glm::vec3 forward{ -glm::sin(m_horizontal_angle),
+                             0.f,
+                             -glm::cos(m_horizontal_angle) };
+    const glm::vec3 right{ -forward.z, 0.f, forward.x };
+    constexpr glm::vec3 up{ 0.f, 1.f, 0.f };
 
     glm::vec3 move_dir{};
     if (glfwGetKey(t_window.get(), m_movement_key_map.forward) == GLFW_PRESS) {

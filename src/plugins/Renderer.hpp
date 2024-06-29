@@ -6,35 +6,27 @@
 
 #include "app/Plugin.hpp"
 #include "core/renderer/base/swapchain/SwapchainHolder.hpp"
+#include "plugins/renderer/Options.hpp"
+#include "plugins/renderer/SurfaceProvider.hpp"
 
 namespace plugins {
 
 class Renderer {
 public:
-    using SurfaceCreator =
-        std::function<VkSurfaceKHR(Store&, VkInstance, const VkAllocationCallbacks*)>;
-
-    using FramebufferSizeGetterCreator =
-        std::function<core::renderer::SwapchainHolder::FramebufferSizeGetter(Store&)>;
-
-    class Options;
-
-    ///--------------------///
-    ///  Static variables  ///
-    ///--------------------///
-    [[nodiscard]]
-    static auto create_default_surface(Store&, vk::Instance, const VkAllocationCallbacks*)
-        -> vk::SurfaceKHR;
-
     ///-------------///
     ///  Operators  ///
     ///-------------///
     auto operator()(app::App::Builder& builder) const -> void;
-    auto operator()(app::App::Builder& builder, const Options& options) const -> void;
+
+    template <renderer::SurfaceProviderConcept SurfaceProvider>
+    auto operator()(
+        app::App::Builder&                        builder,
+        const renderer::Options<SurfaceProvider>& options
+    ) const -> void;
 };
 
 static_assert(app::PluginConcept<Renderer>);
 
 }   // namespace plugins
 
-#include "plugins/renderer/Options.hpp"
+#include "Renderer.inl"
