@@ -2,8 +2,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "Builder.hpp"
-
 App::App(Builder&& t_builder) : m_store{ std::move(t_builder.store()) } {}
 
 auto App::create() -> Builder

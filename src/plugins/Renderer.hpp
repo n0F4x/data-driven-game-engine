@@ -4,7 +4,7 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include "app/Plugin.hpp"
+#include "app.hpp"
 #include "core/renderer/base/swapchain/SwapchainHolder.hpp"
 #include "plugins/renderer/Options.hpp"
 #include "plugins/renderer/SurfaceProvider.hpp"

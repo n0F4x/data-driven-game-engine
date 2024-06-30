@@ -79,14 +79,11 @@ static auto load_scene(
     };
     vk::UniqueFence fence{ t_device->createFenceUnique({}) };
 
-    static_cast<void>(static_cast<vk::Queue>(
-                          t_device.info().get_queue(vkb::QueueType::graphics).value()
-    )
-                          .submit(1, &submit_info, fence.get()));
+    static_cast<vk::Queue>(t_device.info().get_queue(vkb::QueueType::graphics).value())
+        .submit(submit_info, fence.get());
 
-    static_cast<void>(
-        t_device->waitForFences(std::array{ fence.get() }, vk::True, 100'000'000'000)
-    );
+    std::ignore =
+        t_device->waitForFences(std::array{ fence.get() }, vk::True, 100'000'000'000);
     t_device->resetCommandPool(transfer_command_pool.get());
 
     return packaged_scene.get_future().get();
@@ -247,7 +244,9 @@ auto DemoRenderer::render(
             .signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size()),
             .pSignalSemaphores    = signal_semaphores.data()
         };
-        vk::Queue(device.get().info().get_queue(vkb::QueueType::graphics).value())
+        static_cast<vk::Queue>(
+            device.get().info().get_queue(vkb::QueueType::graphics).value()
+        )
             .submit(submit_info, in_flight_fences[frame_index].get());
 
         swapchain.get().present(signal_semaphores);
@@ -265,7 +264,7 @@ auto DemoRenderer::record_command_buffer(
     const auto                           command_buffer = command_buffers[frame_index];
     constexpr vk::CommandBufferBeginInfo command_buffer_begin_info{};
 
-    static_cast<void>(command_buffer.begin(command_buffer_begin_info));
+    command_buffer.begin(command_buffer_begin_info);
 
 
     const std::array clear_values{

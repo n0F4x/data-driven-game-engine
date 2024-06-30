@@ -4,11 +4,6 @@
 
 #include "store/Store.hpp"
 
-class App;
-
-template <typename Runner, typename... Args>
-concept RunnerConcept = std::invocable<Runner, App&, Args...>;
-
 class App {
 public:
     ///------------------///
@@ -27,10 +22,6 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    template <typename... Args>
-    auto run(RunnerConcept<Args...> auto&& t_runner, Args&&... t_args)
-        -> std::invoke_result_t<decltype(t_runner), App&, Args...>;
-
     [[nodiscard]]
     auto store() noexcept -> Store&;
     [[nodiscard]]
@@ -43,4 +34,4 @@ private:
     Store m_store;
 };
 
-#include "App.inl"
+#include "Builder.hpp"

@@ -1,16 +1,16 @@
+#include <spdlog/spdlog.h>
+
 template <typename... Args>
-auto App::Builder::build_and_run(
+auto App::Builder::run(
     RunnerConcept<Args...> auto&& t_runner,
     Args&&... t_args
-) && -> decltype(std::declval<App>()
-                     .run(
-                         std::forward<decltype(t_runner)>(t_runner),
-                         std::forward<decltype(t_args)>(t_args)...
-                     ))
+) && -> std::invoke_result_t<decltype(t_runner), App, Args...>
 {
-    return std::move(*this).build().run(
+    SPDLOG_INFO("App is running");
+    return std::invoke(
         std::forward<decltype(t_runner)>(t_runner),
-        std::forward<decltype(t_args)>(t_args)...
+        std::move(*this).build(),
+        std::forward<Args>(t_args)...
     );
 }
 

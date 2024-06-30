@@ -1,6 +1,5 @@
 #include <spdlog/spdlog.h>
 
-#include "app/Builder.hpp"
 #include "core/window/Window.hpp"
 
 namespace plugins {

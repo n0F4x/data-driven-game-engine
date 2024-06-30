@@ -2,7 +2,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "app/Builder.hpp"
 #include "core/config/vulkan.hpp"
 
 namespace plugins {

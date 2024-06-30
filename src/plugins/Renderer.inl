@@ -2,7 +2,6 @@
 
 #include <VkBootstrap.h>
 
-#include "app/Builder.hpp"
 #include "core/config/vulkan.hpp"
 #include "core/renderer/base/allocator/Requirements.hpp"
 #include "core/renderer/base/device/Device.hpp"

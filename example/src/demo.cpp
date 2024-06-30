@@ -17,7 +17,7 @@
 using namespace entt::literals;
 using namespace core;
 
-auto demo::run(App& t_app, const ModelInfo& t_model_info) -> int
+auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
 {
     return DemoRenderer::create(
                t_app.store(), t_model_info.filepath, t_model_info.fragment_shader

@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "app/Plugin.hpp"
+#include "app.hpp"
 
 namespace plugins {
 

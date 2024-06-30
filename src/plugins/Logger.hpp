@@ -2,7 +2,7 @@
 
 #include <spdlog/common.h>
 
-#include "app/Plugin.hpp"
+#include "app.hpp"
 
 namespace plugins {
 

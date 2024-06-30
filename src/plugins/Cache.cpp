@@ -2,7 +2,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "app/Builder.hpp"
 #include "core/cache/Cache.hpp"
 
 namespace plugins {

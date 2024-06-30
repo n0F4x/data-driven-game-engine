@@ -1,27 +1,14 @@
-#pragma once
+template <typename Plugin, typename... Args>
+concept PluginConcept = std::invocable<Plugin, App::Builder&, Args...>;
 
-#include "App.hpp"
-#include "Plugin.hpp"
+template <typename Runner, typename... Args>
+concept RunnerConcept = std::invocable<Runner, App, Args...>;
 
 class App::Builder {
 public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    [[nodiscard]]
-    auto build() && noexcept -> App;
-
-    template <typename... Args>
-    auto build_and_run(
-        RunnerConcept<Args...> auto&& t_runner,
-        Args&&... t_args
-    ) && -> decltype(std::declval<App>()
-                         .run(
-                             std::forward<decltype(t_runner)>(t_runner),
-                             std::forward<decltype(t_args)>(t_args)...
-                         ));
-
-
     template <typename Plugin>
     auto add_plugin(auto&&... t_args) && -> Builder;
 
@@ -32,6 +19,14 @@ public:
     auto store() noexcept -> Store&;
     [[nodiscard]]
     auto store() const noexcept -> const Store&;
+
+    [[nodiscard]]
+    auto build() && noexcept -> App;
+
+    template <typename... Args>
+    auto
+        run(RunnerConcept<Args...> auto&& t_runner, Args&&... t_args
+        ) && -> std::invoke_result_t<decltype(t_runner), App, Args...>;
 
 private:
     ///*************///

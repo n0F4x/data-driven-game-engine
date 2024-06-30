@@ -25,8 +25,8 @@ try {
         .add_plugin<plugins::Cache>()
         .add_plugin<plugins::Window>(1'280, 720, "My window")
         .add_plugin<plugins::Renderer>()
-        .build_and_run(demo::run, model_info);
-} catch (std::exception& error) {
+        .run(demo::run, model_info);
+} catch (const std::exception& error) {
     try {
         std::println("{}", error.what());
     } catch (...) {
