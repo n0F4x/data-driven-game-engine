@@ -61,6 +61,12 @@ layout (push_constant) uniform Push {
 layout (location = 0) out vec4 out_color;
 
 
+#define MIN_ROUGHNESS 0.04
+#define PI 3.141592653589793
+const vec3 F0 = vec3(0.04);
+const vec3 LIGHT_DIR = normalize(vec3(1, -1, 1));
+const vec3 LIGHT_COLOR = vec3(1, 1, 1) * 10;
+
 // Encapsulate the various inputs used by the various functions in the shading equation
 // We store values in this struct to simplify the integration of alternative implementations
 // of the shading terms, outlined in the Readme.MD Appendix.
@@ -79,12 +85,6 @@ struct PBRInfo
     vec3 diffuseColor;            // color contribution from diffuse lighting
     vec3 specularColor;           // color contribution from specular lighting
 };
-
-#define MIN_ROUGHNESS 0.04
-#define PI 3.141592653589793
-const vec3 F0 = vec3(0.04);
-const vec3 LIGHT_DIR = normalize(vec3(1, -1, 1));
-const vec3 LIGHT_COLOR = vec3(1, 1, 1) * 5;
 
 
 vec4 sample_texture(Texture texture_, vec2 UV) {

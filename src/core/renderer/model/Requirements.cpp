@@ -34,12 +34,8 @@ auto RenderModel::Requirements::require_device_settings(
     t_physical_device_selector.add_required_extension(
         VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
     );
-    constexpr static vk::PhysicalDeviceBufferDeviceAddressFeatures
-        buffer_device_address_features{
-            .bufferDeviceAddress = vk::True,
-        };
     t_physical_device_selector.add_required_extension_features(
-        buffer_device_address_features
+        vk::PhysicalDeviceBufferDeviceAddressFeatures{ .bufferDeviceAddress = vk::True }
     );
 
     // VK_EXT_descriptor_indexing
@@ -47,13 +43,12 @@ auto RenderModel::Requirements::require_device_settings(
     t_physical_device_selector.add_required_extension(
         VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
     );
-    constexpr static vk::PhysicalDeviceDescriptorIndexingFeatures
-        descriptor_indexing_features{
+    t_physical_device_selector.add_required_extension_features(
+        vk::PhysicalDeviceDescriptorIndexingFeatures{
             .shaderSampledImageArrayNonUniformIndexing = vk::True,
             .descriptorBindingVariableDescriptorCount  = vk::True,
             .runtimeDescriptorArray                    = vk::True,
-        };
-    t_physical_device_selector.add_required_extension_features(descriptor_indexing_features
+        }
     );
 }
 

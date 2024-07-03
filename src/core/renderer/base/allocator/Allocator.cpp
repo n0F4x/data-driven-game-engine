@@ -17,9 +17,6 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_dev
     VmaAllocatorCreateFlags flags{};
 
     if (t_physical_device_info.is_extension_present(
-            VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
-        )
-        && t_physical_device_info.is_extension_present(
             VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
         ))
     {
@@ -36,50 +33,49 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_dev
         flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
     }
 
-    //    TODO: enable enabled device features as well
-    flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
-    //    auto features{ vk::PhysicalDevice{ t_physical_device_info.physical_device }
-    //                       .getFeatures2<
-    //                           vk::PhysicalDeviceFeatures2,
-    //                           vk::PhysicalDeviceCoherentMemoryFeaturesAMD,
-    //                           vk::PhysicalDeviceBufferDeviceAddressFeatures,
-    //                           vk::PhysicalDeviceMemoryPriorityFeaturesEXT,
-    //                           vk::PhysicalDeviceMaintenance4Features>() };
-    //
-    //    if (t_physical_device_info.is_extension_present(
-    //            VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME
-    //        )
-    //        &&
-    //        features.get<vk::PhysicalDeviceCoherentMemoryFeaturesAMD>().deviceCoherentMemory)
-    //    {
-    //        flags |= VMA_ALLOCATOR_CREATE_AMD_DEVICE_COHERENT_MEMORY_BIT;
-    //    }
-    //
-    //    if (t_physical_device_info.is_extension_present(
-    //            VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
-    //        )
-    //        && features.get<vk::PhysicalDeviceBufferDeviceAddressFeatures>()
-    //               .bufferDeviceAddress)
-    //    {
-    //        flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
-    //    }
-    //
-    //    if
-    //    (t_physical_device_info.is_extension_present(VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME)
-    //        &&
-    //        features.get<vk::PhysicalDeviceMemoryPriorityFeaturesEXT>().memoryPriority)
-    //    {
-    //        flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_PRIORITY_BIT;
-    //    }
-    //
-    //    if
-    //    (t_physical_device_info.is_extension_present(VK_KHR_MAINTENANCE_4_EXTENSION_NAME)
-    //        && features.get<vk::PhysicalDeviceMaintenance4Features>().maintenance4)
-    //    {
-    //        flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT;
-    //    }
-    //
-    //    // TODO: VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT
+    if (t_physical_device_info.is_extension_present(
+            VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME
+        )
+        && t_physical_device_info.are_extension_features_present(
+            vk::PhysicalDeviceCoherentMemoryFeaturesAMD{ .deviceCoherentMemory = vk::True }
+        ))
+    {
+        flags |= VMA_ALLOCATOR_CREATE_AMD_DEVICE_COHERENT_MEMORY_BIT;
+    }
+
+    if (t_physical_device_info.is_extension_present(
+            VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
+        )
+        && t_physical_device_info.are_extension_features_present(
+            vk::PhysicalDeviceBufferDeviceAddressFeatures{ .bufferDeviceAddress = vk::True }
+        ))
+    {
+        flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+    }
+
+    if (t_physical_device_info.is_extension_present(VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME)
+        && t_physical_device_info.are_extension_features_present(
+            vk::PhysicalDeviceMemoryPriorityFeaturesEXT{ .memoryPriority = vk::True }
+        ))
+    {
+        flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_PRIORITY_BIT;
+    }
+
+    if (t_physical_device_info.is_extension_present(VK_KHR_MAINTENANCE_4_EXTENSION_NAME)
+        && t_physical_device_info.are_extension_features_present(
+            vk::PhysicalDeviceMaintenance4Features{ .maintenance4 = vk::True }
+        ))
+    {
+        flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT;
+    }
+
+    if (t_physical_device_info.is_extension_present(VK_KHR_MAINTENANCE_5_EXTENSION_NAME)
+        && t_physical_device_info.are_extension_features_present(
+            vk::PhysicalDeviceMaintenance5FeaturesKHR{ .maintenance5 = vk::True }
+        ))
+    {
+        flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT;
+    }
 
     return flags;
 }

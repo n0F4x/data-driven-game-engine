@@ -62,8 +62,13 @@ auto Allocator::Requirements::enable_optional_device_settings(
     // VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT
     t_physical_device.enable_extension_if_present(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
 
-    // TODO: Enable optional features and their extensions as well
-    //       See https://github.com/charles-lunarg/vk-bootstrap/issues/269
+    // VMA_ALLOCATOR_CREATE_AMD_DEVICE_COHERENT_MEMORY_BIT
+    t_physical_device.enable_extension_if_present(
+        VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME
+    );
+    t_physical_device.enable_extension_features_if_present(
+        vk::PhysicalDeviceCoherentMemoryFeaturesAMD{ .deviceCoherentMemory = vk::True }
+    );
 }
 
 }   // namespace core::renderer
