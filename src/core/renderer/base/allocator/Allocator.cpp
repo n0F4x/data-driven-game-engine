@@ -292,8 +292,8 @@ auto Allocator::allocate_mapped_buffer_with_alignment(
 }
 
 auto Allocator::allocate_mapped_buffer(
-    const vk::BufferCreateInfo& t_buffer_create_info,
-    gsl::not_null<const void*>  t_data
+    const vk::BufferCreateInfo&     t_buffer_create_info,
+    gsl_lite::not_null_ic<const void*> t_data
 ) const -> MappedBuffer
 {
     constexpr static VmaAllocationCreateInfo allocation_create_info = {
@@ -325,9 +325,9 @@ auto Allocator::allocate_mapped_buffer(
 }
 
 auto Allocator::allocate_mapped_buffer_with_alignment(
-    const vk::BufferCreateInfo& t_buffer_create_info,
-    vk::DeviceSize              t_min_alignment,
-    gsl::not_null<const void*>  t_data
+    const vk::BufferCreateInfo&     t_buffer_create_info,
+    vk::DeviceSize                  t_min_alignment,
+    gsl_lite::not_null_ic<const void*> t_data
 ) const -> MappedBuffer
 {
     constexpr static VmaAllocationCreateInfo allocation_create_info = {

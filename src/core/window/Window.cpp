@@ -24,10 +24,10 @@ static auto init_glfw() -> void
 namespace core::window {
 
 auto Window::vulkan_instance_extensions()
-    -> const std::vector<gsl::not_null<gsl::czstring>>&
+    -> const std::vector<gsl_lite::not_null<gsl_lite::czstring>>&
 {
     static const std::vector s_extension_names{
-        [] -> std::vector<gsl::not_null<gsl::czstring>> {
+        [] -> std::vector<gsl_lite::not_null<gsl_lite::czstring>> {
             init_glfw();
 
             if (glfwVulkanSupported() != GLFW_TRUE) {
@@ -40,7 +40,7 @@ auto Window::vulkan_instance_extensions()
                 return {};
             }
 
-            return std::vector<gsl::not_null<gsl::czstring>>{
+            return std::vector<gsl_lite::not_null<gsl_lite::czstring>>{
                 glfw_extension_names, std::next(glfw_extension_names, count)
             };
         }()

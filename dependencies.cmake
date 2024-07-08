@@ -6,14 +6,14 @@ if (DEFINED CMAKE_TOOLCHAIN_FILE)
     message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
 endif ()
 
-# Microsoft GSL
-FetchContent_Declare(Microsoft.GSL
-        GIT_REPOSITORY https://github.com/microsoft/GSL.git
-        GIT_TAG b39e7e4b0987859f5b19ff7686b149c916588658
+# gsl-lite
+fetchcontent_declare(gsl-lite
+        GIT_REPOSITORY https://github.com/gsl-lite/gsl-lite.git
+        GIT_TAG a8c7e5bbbd08841836f9b92d72747fb8769dbec4
         SYSTEM
 )
-FetchContent_MakeAvailable(Microsoft.GSL)
-target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft.GSL::GSL)
+fetchcontent_makeavailable(gsl-lite)
+target_link_libraries(${PROJECT_NAME} PUBLIC gsl::gsl-lite-v1)
 
 # ordered_map
 find_package(tsl-ordered-map CONFIG REQUIRED)

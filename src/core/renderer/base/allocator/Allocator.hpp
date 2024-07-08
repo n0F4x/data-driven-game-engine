@@ -4,13 +4,13 @@
 #include <span>
 #include <string>
 
-#include <gsl/pointers>
-
 #include <vulkan/vulkan.hpp>
 
 #include <vk_mem_alloc.h>
 
 #include <VkBootstrap.h>
+
+#include <gsl-lite/gsl-lite.hpp>
 
 #include "core/renderer/memory/Buffer.hpp"
 #include "core/renderer/memory/Image.hpp"
@@ -75,15 +75,15 @@ public:
 
     [[nodiscard]]
     auto allocate_mapped_buffer(
-        const vk::BufferCreateInfo& t_buffer_create_info,
-        gsl::not_null<const void*>  t_data
+        const vk::BufferCreateInfo&        t_buffer_create_info,
+        gsl_lite::not_null_ic<const void*> t_data
     ) const -> MappedBuffer;
 
     [[nodiscard]]
     auto allocate_mapped_buffer_with_alignment(
-        const vk::BufferCreateInfo& t_buffer_create_info,
-        vk::DeviceSize              t_min_alignment,
-        gsl::not_null<const void*>  t_data
+        const vk::BufferCreateInfo&        t_buffer_create_info,
+        vk::DeviceSize                     t_min_alignment,
+        gsl_lite::not_null_ic<const void*> t_data
     ) const -> MappedBuffer;
 
     [[nodiscard]]

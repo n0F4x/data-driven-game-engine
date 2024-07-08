@@ -1,28 +1,27 @@
 #include "Requirements.hpp"
 
-#include <gsl/pointers>
-#include <gsl/zstring>
+#include <gsl-lite/gsl-lite.hpp>
 
 namespace core::renderer {
 
 [[nodiscard]]
 constexpr static auto optional_instance_extension_names()
-    -> const std::array<gsl::not_null<gsl::czstring>, 5>&
+    -> const std::array<gsl_lite::not_null_ic<gsl_lite::czstring>, 5>&
 {
-    constexpr static std::array<gsl::not_null<gsl::czstring>, 5> s_extension_names{
-        // VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT
-        VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+    constexpr static std::array<gsl_lite::not_null_ic<gsl_lite::czstring>, 5>
+        s_extension_names{ // VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT
+                           VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 
-        // VMA_ALLOCATOR_CREATE_AMD_DEVICE_COHERENT_MEMORY_BIT
-        VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+                           // VMA_ALLOCATOR_CREATE_AMD_DEVICE_COHERENT_MEMORY_BIT
+                           VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 
-        // VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT
-        VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-        VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME,
+                           // VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT
+                           VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+                           VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME,
 
-        // VMA_ALLOCATOR_CREATE_EXT_MEMORY_PRIORITY_BIT
-        VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
-    };
+                           // VMA_ALLOCATOR_CREATE_EXT_MEMORY_PRIORITY_BIT
+                           VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
+        };
 
     return s_extension_names;
 }
