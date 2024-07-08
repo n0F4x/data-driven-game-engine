@@ -4,6 +4,8 @@
 #include <optional>
 #include <span>
 
+#include <gsl-lite/gsl-lite.hpp>
+
 #include <stb_image.h>
 
 #include "Image.hpp"
@@ -43,10 +45,10 @@ public:
         -> uint64_t final;
 
 private:
-    std::unique_ptr<stbi_uc, decltype(&stbi_image_free)> m_data;
-    int                                                  m_width;
-    int                                                  m_height;
-    int                                                  m_channel_count;
+    gsl_lite::not_null<std::unique_ptr<stbi_uc, decltype(&stbi_image_free)>> m_data;
+    int                                                                      m_width;
+    int                                                                      m_height;
+    int m_channel_count;
 
     explicit StbImage(stbi_uc* data, int width, int height, int channel_count) noexcept;
 };

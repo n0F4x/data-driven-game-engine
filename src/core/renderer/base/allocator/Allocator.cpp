@@ -137,8 +137,10 @@ static auto vulkan_functions() -> const VmaVulkanFunctions&
 }
 
 [[nodiscard]]
-static auto create_allocator(const Instance& t_instance, const Device& t_device)
-    -> std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)>
+static auto create_allocator(
+    const Instance& t_instance,
+    const Device&   t_device
+) -> gsl_lite::not_null_ic<std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)>>
 {
     const VmaAllocatorCreateInfo create_info{
         .flags            = vma_allocator_create_flags(t_device.info().physical_device),
@@ -224,7 +226,7 @@ auto Allocator::operator*() noexcept -> VmaAllocator_T&
 
 auto Allocator::operator->() const noexcept -> VmaAllocator
 {
-    return m_allocator.operator->();
+    return m_allocator.operator->().operator->();
 }
 
 auto Allocator::get() const noexcept -> VmaAllocator
@@ -292,7 +294,7 @@ auto Allocator::allocate_mapped_buffer_with_alignment(
 }
 
 auto Allocator::allocate_mapped_buffer(
-    const vk::BufferCreateInfo&     t_buffer_create_info,
+    const vk::BufferCreateInfo&        t_buffer_create_info,
     gsl_lite::not_null_ic<const void*> t_data
 ) const -> MappedBuffer
 {
@@ -325,8 +327,8 @@ auto Allocator::allocate_mapped_buffer(
 }
 
 auto Allocator::allocate_mapped_buffer_with_alignment(
-    const vk::BufferCreateInfo&     t_buffer_create_info,
-    vk::DeviceSize                  t_min_alignment,
+    const vk::BufferCreateInfo&        t_buffer_create_info,
+    vk::DeviceSize                     t_min_alignment,
     gsl_lite::not_null_ic<const void*> t_data
 ) const -> MappedBuffer
 {

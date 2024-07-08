@@ -4,6 +4,8 @@
 #include <optional>
 #include <span>
 
+#include <gsl-lite/gsl-lite.hpp>
+
 #include <ktx.h>
 
 #include "Image.hpp"
@@ -57,7 +59,7 @@ private:
         auto operator()(ktxTexture2* t_ktxTexture) const noexcept -> void;
     };
 
-    std::unique_ptr<ktxTexture2, Deleter> m_ktxTexture;
+    gsl_lite::not_null<std::unique_ptr<ktxTexture2, Deleter>> m_ktxTexture;
 
     explicit KtxImage(ktxTexture2* t_ktxTexture) noexcept;
 };

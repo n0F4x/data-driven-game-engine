@@ -4,13 +4,13 @@
 #include <span>
 #include <string>
 
+#include <gsl-lite/gsl-lite.hpp>
+
 #include <vulkan/vulkan.hpp>
 
 #include <vk_mem_alloc.h>
 
 #include <VkBootstrap.h>
-
-#include <gsl-lite/gsl-lite.hpp>
 
 #include "core/renderer/memory/Buffer.hpp"
 #include "core/renderer/memory/Image.hpp"
@@ -96,7 +96,8 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)> m_allocator;
+    gsl_lite::not_null<std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)>>
+        m_allocator;
 };
 
 }   // namespace core::renderer

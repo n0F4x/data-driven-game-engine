@@ -112,7 +112,7 @@ StbImage::StbImage(
     const int      t_height,
     const int      t_channel_count
 ) noexcept
-    : m_data{ t_data, stbi_image_free },
+    : m_data{ std::unique_ptr<stbi_uc, decltype(&stbi_image_free)>{ t_data, stbi_image_free } },
       m_width{ t_width },
       m_height{ t_height },
       m_channel_count{ t_channel_count }

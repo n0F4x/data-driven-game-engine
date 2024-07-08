@@ -71,7 +71,11 @@ static auto create_window(
 }
 
 Window::Window(const uint16_t t_width, const uint16_t t_height, const std::string& t_title)
-    : m_impl{ create_window(t_width, t_height, t_title), glfwDestroyWindow }
+    : m_impl{
+          std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)>{
+                                                                    create_window(t_width, t_height, t_title),
+                                                                    glfwDestroyWindow }
+}
 {}
 
 auto Window::get() const noexcept -> GLFWwindow*

@@ -77,7 +77,7 @@ auto KtxImage::load_from_memory(const std::span<const std::uint8_t> t_data
 
 auto KtxImage::operator->() const noexcept -> ktxTexture2*
 {
-    return m_ktxTexture.operator->();
+    return m_ktxTexture.operator->().operator->();
 }
 
 auto KtxImage::operator*() noexcept -> ktxTexture2&
