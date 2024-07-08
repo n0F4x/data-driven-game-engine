@@ -29,7 +29,8 @@ auto Effect::fragment_shader() const noexcept -> const Shader&
     return m_fragment_shader;
 }
 
-auto Effect::pipeline_stages() const -> std::span<const vk::PipelineShaderStageCreateInfo>
+auto Effect::pipeline_stages() const
+    -> const std::array<vk::PipelineShaderStageCreateInfo, 2>&
 {
     return m_stages;
 }

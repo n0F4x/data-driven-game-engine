@@ -111,7 +111,7 @@ auto DemoRenderer::create(
     }
     const auto& raw_swapchain{ swapchain.get().value() };
 
-    auto render_pass{ init::create_render_pass(raw_swapchain.surface_format(), device) };
+    auto render_pass{ init::create_render_pass(raw_swapchain.format(), device) };
     if (!render_pass) {
         return std::nullopt;
     }
@@ -199,9 +199,36 @@ auto DemoRenderer::create(
         .command_buffers            = std::move(command_buffers),
         .image_acquired_semaphores  = std::move(image_acquired_semaphores),
         .render_finished_semaphores = std::move(render_finished_semaphores),
-        .in_flight_fences           = std::move(in_flight_fences),
+        .render_finished_fences     = std::move(in_flight_fences),
         .scene                      = std::move(opt_scene.value()),
     };
+}
+
+static auto submit_render(
+    const vk::Device        device,
+    const vk::Queue         queue,
+    const vk::Semaphore     wait_semaphore,
+    const vk::CommandBuffer command_buffer,
+    const vk::Semaphore     signal_semaphore,
+    const vk::Fence         signal_fence
+) -> void
+{
+    const vk::PipelineStageFlags wait_pipeline_stage{
+        vk::PipelineStageFlagBits::eColorAttachmentOutput
+    };
+
+    const vk::SubmitInfo submit_info{
+        .waitSemaphoreCount   = 1,
+        .pWaitSemaphores      = &wait_semaphore,
+        .pWaitDstStageMask    = &wait_pipeline_stage,
+        .commandBufferCount   = 1,
+        .pCommandBuffers      = &command_buffer,
+        .signalSemaphoreCount = 1,
+        .pSignalSemaphores    = &signal_semaphore,
+    };
+
+    device.resetFences(signal_fence);
+    queue.submit(submit_info, signal_fence);
 }
 
 auto DemoRenderer::render(
@@ -210,46 +237,36 @@ auto DemoRenderer::render(
 ) -> void
 {
     swapchain.get().set_framebuffer_size(t_framebuffer_size);
+    if (!swapchain.get().get().has_value()) {
+        return;
+    }
 
-    while (device.get()->waitForFences(
-               { in_flight_fences[frame_index].get() }, vk::True, UINT64_MAX
-           )
-           == vk::Result::eTimeout)
-    {}
+    std::ignore = device.get()->waitForFences(
+        render_finished_fences[frame_index].get(),
+        vk::True,
+        std::numeric_limits<uint64_t>::max()
+    );
 
-    if (auto&& [image_index, raw_swapchain]{ std::make_tuple(
-            swapchain.get().acquire_next_image(
-                image_acquired_semaphores[frame_index].get(), {}
-            ),
-            std::cref(swapchain.get())
+    if (const std::optional<uint32_t> image_index{ swapchain.get().acquire_next_image(
+            image_acquired_semaphores[frame_index].get()
         ) };
-        image_index.has_value() && raw_swapchain.get().has_value())
+        image_index.has_value())
     {
-        device.get()->resetFences({ in_flight_fences[frame_index].get() });
         command_buffers[frame_index].reset();
+        record_command_buffer(
+            swapchain.get().get().value(), image_index.value(), t_camera
+        );
 
-        record_command_buffer(raw_swapchain.get().value(), image_index.value(), t_camera);
+        submit_render(
+            device.get().get(),
+            device.get().info().get_queue(vkb::QueueType::graphics).value(),
+            image_acquired_semaphores[frame_index].get(),
+            command_buffers[frame_index],
+            render_finished_semaphores[frame_index].get(),
+            render_finished_fences[frame_index].get()
+        );
 
-        std::array wait_semaphores{ image_acquired_semaphores[frame_index].get() };
-        std::array<vk::PipelineStageFlags, wait_semaphores.size()> wait_stages{
-            vk::PipelineStageFlagBits::eColorAttachmentOutput
-        };
-        std::array signal_semaphores{ render_finished_semaphores[frame_index].get() };
-        const vk::SubmitInfo submit_info{
-            .waitSemaphoreCount   = static_cast<uint32_t>(wait_semaphores.size()),
-            .pWaitSemaphores      = wait_semaphores.data(),
-            .pWaitDstStageMask    = wait_stages.data(),
-            .commandBufferCount   = 1,
-            .pCommandBuffers      = &command_buffers[frame_index],
-            .signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size()),
-            .pSignalSemaphores    = signal_semaphores.data()
-        };
-        static_cast<vk::Queue>(
-            device.get().info().get_queue(vkb::QueueType::graphics).value()
-        )
-            .submit(submit_info, in_flight_fences[frame_index].get());
-
-        swapchain.get().present(signal_semaphores);
+        swapchain.get().present(render_finished_semaphores[frame_index].get());
     }
 
     frame_index = (frame_index + 1) % g_frame_count;
@@ -261,34 +278,31 @@ auto DemoRenderer::record_command_buffer(
     core::graphics::Camera     t_camera
 ) -> void
 {
-    const auto                           command_buffer = command_buffers[frame_index];
-    constexpr vk::CommandBufferBeginInfo command_buffer_begin_info{};
+    const vk::CommandBuffer command_buffer{ command_buffers[frame_index] };
+    constexpr static vk::CommandBufferBeginInfo command_buffer_begin_info{};
 
     command_buffer.begin(command_buffer_begin_info);
 
 
     const std::array clear_values{
         vk::ClearValue{
-                       .color = { std::array{ 0.01f, 0.01f, 0.01f, 0.01f } },
-                       },
-        vk::ClearValue{
-                       .depthStencil = { 1.f, 0 },
-                       }
+            .color = vk::ClearColorValue{ std::array{ 0.01f, 0.01f, 0.01f, 0.01f } } },
+        vk::ClearValue{ .depthStencil = vk::ClearDepthStencilValue{ .depth = 1.f } }
     };
 
-    const auto extent{ t_swapchain.extent() };
+    const vk::Extent2D extent{ t_swapchain.extent() };
     command_buffer.setViewport(
         0,
         vk::Viewport{ .width    = static_cast<float>(extent.width),
                       .height   = static_cast<float>(extent.height),
                       .maxDepth = 1.f }
     );
-    command_buffer.setScissor(0, vk::Rect2D{ {}, extent });
+    command_buffer.setScissor(0, vk::Rect2D{ .extent = extent });
 
     const vk::RenderPassBeginInfo render_pass_begin_info{
         .renderPass      = render_pass.get(),
         .framebuffer     = framebuffers[t_image_index].get(),
-        .renderArea      = { .extent = t_swapchain.extent() },
+        .renderArea      = vk::Rect2D{ .extent = t_swapchain.extent() },
         .clearValueCount = static_cast<uint32_t>(clear_values.size()),
         .pClearValues    = clear_values.data()
     };

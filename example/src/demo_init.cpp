@@ -49,19 +49,19 @@ auto find_depth_format(const vk::PhysicalDevice t_physical_device) -> vk::Format
 
 namespace init {
 
-auto create_render_pass(
-    const vk::SurfaceFormatKHR& t_surface_format,
-    const renderer::Device&     t_device
-) -> vk::UniqueRenderPass
+auto create_render_pass(const vk::Format t_color_format, const renderer::Device& t_device)
+    -> vk::UniqueRenderPass
 {
     const vk::AttachmentDescription color_attachment_description{
-        .format         = t_surface_format.format,
+        .format         = t_color_format,
+        .samples        = vk::SampleCountFlagBits::e1,
         .loadOp         = vk::AttachmentLoadOp::eClear,
         .stencilLoadOp  = vk::AttachmentLoadOp::eDontCare,
         .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
+        .initialLayout  = vk::ImageLayout::eUndefined,
         .finalLayout    = vk::ImageLayout::ePresentSrcKHR,
     };
-    const vk::AttachmentReference color_attachment_reference{
+    constexpr static vk::AttachmentReference color_attachment_reference{
         .attachment = 0,
         .layout     = vk::ImageLayout::eColorAttachmentOptimal,
     };
@@ -76,13 +76,15 @@ auto create_render_pass(
         .initialLayout  = vk::ImageLayout::eUndefined,
         .finalLayout    = vk::ImageLayout::eDepthStencilAttachmentOptimal,
     };
-    const vk::AttachmentReference depth_attachment_reference{
+    constexpr static vk::AttachmentReference depth_attachment_reference{
         .attachment = 1,
         .layout     = vk::ImageLayout::eDepthStencilAttachmentOptimal,
     };
 
-    std::array attachment_descriptions{ color_attachment_description,
-                                        depth_attachment_description };
+    const std::array attachment_descriptions{
+        color_attachment_description,
+        depth_attachment_description,
+    };
 
     const vk::SubpassDescription subpass_description{
         .pipelineBindPoint       = vk::PipelineBindPoint::eGraphics,

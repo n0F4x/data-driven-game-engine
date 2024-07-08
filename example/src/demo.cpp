@@ -94,10 +94,12 @@ auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
                 }
             });
 
-            auto last_time = std::chrono::high_resolution_clock::now();
+            std::chrono::time_point last_time{ std::chrono::high_resolution_clock::now() };
             while (running) {
                 std::this_thread::sleep_for(std::chrono::duration<float>{ 1.f / 60.f });
-                const auto now = std::chrono::high_resolution_clock::now();
+                const std::chrono::time_point now{
+                    std::chrono::high_resolution_clock::now()
+                };
                 const std::chrono::duration<float> delta_time{ now - last_time };
                 last_time = now;
 

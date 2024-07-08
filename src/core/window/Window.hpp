@@ -12,7 +12,7 @@ namespace core::window {
 class Window {
 public:
     [[nodiscard]]
-    static auto vulkan_instance_extensions() -> std::span<const char* const>;
+    static auto vulkan_instance_extensions() -> const std::vector<const char*>&;
 
     explicit Window(uint16_t t_width, uint16_t t_height, const std::string& t_title);
 

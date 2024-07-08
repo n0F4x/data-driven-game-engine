@@ -18,7 +18,7 @@ public:
     auto fragment_shader() const noexcept -> const Shader&;
 
     [[nodiscard]]
-    auto pipeline_stages() const -> std::span<const vk::PipelineShaderStageCreateInfo>;
+    auto pipeline_stages() const -> const std::array<vk::PipelineShaderStageCreateInfo, 2>&;
 
 private:
     Shader                                           m_vertex_shader;

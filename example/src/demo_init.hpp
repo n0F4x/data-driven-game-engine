@@ -13,10 +13,8 @@
 namespace init {
 
 [[nodiscard]]
-auto create_render_pass(
-    const vk::SurfaceFormatKHR&   t_surface_format,
-    const core::renderer::Device& t_device
-) -> vk::UniqueRenderPass;
+auto create_render_pass(vk::Format t_color_format, const core::renderer::Device& t_device)
+    -> vk::UniqueRenderPass;
 
 [[nodiscard]]
 auto create_depth_image(

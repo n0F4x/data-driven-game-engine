@@ -29,7 +29,7 @@ public:
         vk::UniqueSurfaceKHR&&  t_surface,
         Device&                 t_device,
         FramebufferSizeGetter&& t_get_framebuffer_size = {}
-    ) noexcept;
+    );
 
     ///-----------///
     ///  Methods  ///
@@ -39,7 +39,7 @@ public:
     [[nodiscard]]
     auto get() const noexcept -> const std::optional<Swapchain>&;
 
-    auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) noexcept -> void;
+    auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) -> void;
 
     [[nodiscard]]
     auto acquire_next_image(
@@ -47,7 +47,8 @@ public:
         vk::Fence     t_fence     = nullptr
     ) -> std::optional<uint32_t>;
 
-    auto present(std::span<vk::Semaphore> t_wait_semaphores = {}) -> void;
+    auto present(std::span<const vk::Semaphore> t_wait_semaphores = {}) -> void;
+    auto present(vk::Semaphore wait_semaphore) -> void;
 
     auto on_swapchain_recreated(SwapchainRecreatedEvent&& t_swapchain_recreated_event
     ) -> uint32_t;
@@ -70,7 +71,7 @@ private:
     ///  Methods  ///
     ///***********///
     auto recreate_swapchain(vk::Extent2D t_framebuffer_size) -> void;
-    auto recreate_swapchain() noexcept -> void;
+    auto recreate_swapchain() -> void;
 };
 
 }   // namespace core::renderer

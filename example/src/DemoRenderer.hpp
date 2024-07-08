@@ -19,7 +19,7 @@ struct DemoRenderer {
     std::vector<vk::CommandBuffer>                          command_buffers;
     std::vector<vk::UniqueSemaphore>                        image_acquired_semaphores;
     std::vector<vk::UniqueSemaphore>                        render_finished_semaphores;
-    std::vector<vk::UniqueFence>                            in_flight_fences;
+    std::vector<vk::UniqueFence>                            render_finished_fences;
     uint32_t                                                frame_index{};
     core::renderer::Scene                                   scene;
 

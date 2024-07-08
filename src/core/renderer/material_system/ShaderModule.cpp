@@ -5,7 +5,7 @@
 #include <vector>
 
 [[nodiscard]]
-auto load_shader(const vk::Device t_device, const std::filesystem::path& t_filepath)
+static auto load_shader(const vk::Device t_device, const std::filesystem::path& t_filepath)
     -> vk::UniqueShaderModule
 {
     std::ifstream file{ t_filepath, std::ios::binary | std::ios::in | std::ios::ate };

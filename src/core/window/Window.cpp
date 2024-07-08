@@ -3,13 +3,33 @@
 #include <format>
 #include <stdexcept>
 
+#include <spdlog/spdlog.h>
+
+static auto init_glfw() -> void
+{
+    if (const int success{ glfwInit() }; success != GLFW_TRUE) {
+        const char* description{};
+        const int   error_code{ glfwGetError(&description) };
+        // TODO: [[assume(description != null)]]
+        throw std::runtime_error{ std::format(
+            "glfwInit failed with error code {} - '{}'", error_code, description
+        ) };
+    }
+
+    if (const int result{ std::atexit(glfwTerminate) }; result != 0) {
+        SPDLOG_ERROR("std::atexit failed with error code {}", result);
+    }
+}
+
 namespace core::window {
 
-auto Window::vulkan_instance_extensions() -> std::span<const char* const>
+auto Window::vulkan_instance_extensions() -> const std::vector<const char*>&
 {
-    static const std::vector s_extension_names{ []() -> std::vector<const char*> {
-        if (glfwInit() != GLFW_TRUE) {
-            return {};
+    static const std::vector s_extension_names{ [] -> std::vector<const char*> {
+        init_glfw();
+
+        if (glfwVulkanSupported() != GLFW_TRUE) {
+            throw std::runtime_error{ "glfwVulkanSupported returned false" };
         }
 
         uint32_t             count{};
@@ -32,6 +52,8 @@ static auto create_window(
     const std::string& t_title
 ) -> GLFWwindow*
 {
+    init_glfw();
+
     auto* const window{
         glfwCreateWindow(t_width, t_height, t_title.c_str(), nullptr, nullptr)
     };

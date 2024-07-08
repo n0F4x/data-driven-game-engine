@@ -39,7 +39,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         VULKAN_HPP_NO_TO_STRING
-        VULKAN_HPP_NO_CONSTRUCTORS
+        VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
         VULKAN_HPP_NO_SETTERS
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
 )
@@ -58,6 +58,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PUBLIC GPUOpen::VulkanMemoryAllocator)
 
 # vk-bootstrap
+# TODO: use vcpkg when this version is supported
 FetchContent_Declare(vk-bootstrap
         GIT_REPOSITORY https://github.com/charles-lunarg/vk-bootstrap.git
         GIT_TAG v1.3.289

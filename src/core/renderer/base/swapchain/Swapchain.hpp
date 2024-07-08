@@ -23,26 +23,22 @@ public:
     static auto create(
         vk::SurfaceKHR     t_surface,
         vk::PhysicalDevice t_physical_device,
-        uint32_t           t_graphics_queue_family,
-        uint32_t           t_present_queue_family,
+        uint32_t           t_graphics_queue_family_index,
+        uint32_t           t_present_queue_family_index,
         vk::Device         t_device,
         vk::Extent2D       t_framebuffer_size,
         vk::SwapchainKHR   t_old_swapchain = nullptr
     ) -> std::optional<Swapchain>;
 
-    ///-------------///
-    ///  Operators  ///
-    ///-------------///
-    [[nodiscard]]
-    auto operator*() const noexcept -> vk::SwapchainKHR;
-
     ///-----------///
     ///  Methods  ///
     ///-----------///
     [[nodiscard]]
+    auto get() const noexcept -> vk::SwapchainKHR;
+    [[nodiscard]]
     auto extent() const noexcept -> vk::Extent2D;
     [[nodiscard]]
-    auto surface_format() const noexcept -> vk::SurfaceFormatKHR;
+    auto format() const noexcept -> vk::Format;
     [[nodiscard]]
     auto image_views() const noexcept -> const std::vector<vk::UniqueImageView>&;
 
@@ -50,8 +46,10 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
+    vk::Device m_device;
+
     vk::Extent2D                     m_extent;
-    vk::SurfaceFormatKHR             m_surface_format;
+    vk::Format                       m_format;
     vk::UniqueSwapchainKHR           m_swapchain;
     std::vector<vk::UniqueImageView> m_image_views;
 
@@ -59,10 +57,11 @@ private:
     ///  Constructors / Destructors  ///
     ///******************************///
     explicit Swapchain(
-        vk::Extent2D                       t_extent,
-        vk::SurfaceFormatKHR               t_surface_format,
-        vk::UniqueSwapchainKHR&&           t_swapchain,
-        std::vector<vk::UniqueImageView>&& t_image_views
+        vk::Device                         device,
+        vk::Extent2D                       extent,
+        vk::Format                         format,
+        vk::UniqueSwapchainKHR&&           swapchain,
+        std::vector<vk::UniqueImageView>&& image_views
     ) noexcept;
 };
 
