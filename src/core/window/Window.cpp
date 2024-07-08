@@ -23,24 +23,28 @@ static auto init_glfw() -> void
 
 namespace core::window {
 
-auto Window::vulkan_instance_extensions() -> const std::vector<const char*>&
+auto Window::vulkan_instance_extensions()
+    -> const std::vector<gsl::not_null<gsl::czstring>>&
 {
-    static const std::vector s_extension_names{ [] -> std::vector<const char*> {
-        init_glfw();
+    static const std::vector s_extension_names{
+        [] -> std::vector<gsl::not_null<gsl::czstring>> {
+            init_glfw();
 
-        if (glfwVulkanSupported() != GLFW_TRUE) {
-            throw std::runtime_error{ "glfwVulkanSupported returned false" };
-        }
+            if (glfwVulkanSupported() != GLFW_TRUE) {
+                throw std::runtime_error{ "glfwVulkanSupported returned false" };
+            }
 
-        uint32_t             count{};
-        const char**         glfw_extension_names{ glfwGetRequiredInstanceExtensions(&count) };
-        if (glfw_extension_names == nullptr) {
-            return {};
-        }
+            uint32_t count{};
+            const char** glfw_extension_names{ glfwGetRequiredInstanceExtensions(&count) };
+            if (glfw_extension_names == nullptr) {
+                return {};
+            }
 
-        return std::vector<const char*>{ glfw_extension_names,
-                                         std::next(glfw_extension_names, count) };
-    }() };
+            return std::vector<gsl::not_null<gsl::czstring>>{
+                glfw_extension_names, std::next(glfw_extension_names, count)
+            };
+        }()
+    };
 
     return s_extension_names;
 }

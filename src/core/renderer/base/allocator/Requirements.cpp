@@ -1,11 +1,15 @@
 #include "Requirements.hpp"
 
+#include <gsl/pointers>
+#include <gsl/zstring>
+
 namespace core::renderer {
 
 [[nodiscard]]
-static auto optional_instance_extension_names() -> const std::array<std::string, 5>&
+constexpr static auto optional_instance_extension_names()
+    -> const std::array<gsl::not_null<gsl::czstring>, 5>&
 {
-    static const std::array<std::string, 5> s_extension_names{
+    constexpr static std::array<gsl::not_null<gsl::czstring>, 5> s_extension_names{
         // VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT
         VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 
@@ -34,9 +38,9 @@ auto Allocator::Requirements::enable_instance_settings(
     vkb::InstanceBuilder&  t_builder
 ) -> void
 {
-    for (const auto& extension_name : optional_instance_extension_names()) {
-        if (t_system_info.is_extension_available(extension_name.c_str())) {
-            t_builder.enable_extension(extension_name.c_str());
+    for (const auto extension_name : optional_instance_extension_names()) {
+        if (t_system_info.is_extension_available(extension_name)) {
+            t_builder.enable_extension(extension_name);
         }
     }
 }
@@ -66,9 +70,9 @@ auto Allocator::Requirements::enable_optional_device_settings(
     t_physical_device.enable_extension_if_present(
         VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME
     );
-    t_physical_device.enable_extension_features_if_present(
-        vk::PhysicalDeviceCoherentMemoryFeaturesAMD{ .deviceCoherentMemory = vk::True }
-    );
+    constexpr static vk::PhysicalDeviceCoherentMemoryFeaturesAMD
+        coherent_memory_features_AMD{ .deviceCoherentMemory = vk::True };
+    t_physical_device.enable_extension_features_if_present(coherent_memory_features_AMD);
 }
 
 }   // namespace core::renderer

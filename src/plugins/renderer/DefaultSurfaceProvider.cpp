@@ -23,9 +23,7 @@ auto DefaultSurfaceProvider::required_instance_settings_are_available(
 {
     return std::ranges::all_of(
         core::window::Window::vulkan_instance_extensions(),
-        [&t_system_info](const auto* const extension_name) {
-            return t_system_info.is_extension_available(extension_name);
-        }
+        std::bind_front(&vkb::SystemInfo::is_extension_available, t_system_info)
     );
 }
 
@@ -34,11 +32,10 @@ auto DefaultSurfaceProvider::enable_instance_settings(
     vkb::InstanceBuilder& t_builder
 ) -> void
 {
-    for (const auto* const extension_name :
-         core::window::Window::vulkan_instance_extensions())
-    {
-        t_builder.enable_extension(extension_name);
-    }
+    std::ranges::for_each(
+        core::window::Window::vulkan_instance_extensions(),
+        std::bind_front(&vkb::InstanceBuilder::enable_extension, t_builder)
+    );
 }
 
 auto DefaultSurfaceProvider::require_device_settings(vkb::PhysicalDeviceSelector&) -> void

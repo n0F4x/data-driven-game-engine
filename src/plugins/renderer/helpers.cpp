@@ -160,4 +160,5 @@ auto log_renderer_setup(const vkb::Device& t_device) -> void
         SPDLOG_ERROR(t_error.what());
     }
 }
+
 }   // namespace plugins::renderer

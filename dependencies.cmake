@@ -7,7 +7,12 @@ if (DEFINED CMAKE_TOOLCHAIN_FILE)
 endif ()
 
 # Microsoft GSL
-find_package(Microsoft.GSL CONFIG REQUIRED)
+FetchContent_Declare(Microsoft.GSL
+        GIT_REPOSITORY https://github.com/microsoft/GSL.git
+        GIT_TAG b39e7e4b0987859f5b19ff7686b149c916588658
+        SYSTEM
+)
+FetchContent_MakeAvailable(Microsoft.GSL)
 target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft.GSL::GSL)
 
 # ordered_map

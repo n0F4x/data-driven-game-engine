@@ -18,9 +18,6 @@
     "name" : "glm",
     "version>=" : "1.0.1#2"
   }, {
-    "name" : "ms-gsl",
-    "version>=" : "4.0.0#1"
-  }, {
     "name" : "spdlog",
     "version>=" : "1.13.0"
   }, {
