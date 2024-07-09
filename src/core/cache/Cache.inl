@@ -5,13 +5,23 @@ template <typename Resource, typename... Args>
 auto BasicCache<IdType, ContainerTemplate>::emplace(ID t_id, Args&&... t_args)
     -> Handle<Resource>
 {
+    return lazy_emplace<Resource>(t_id, [&] {
+        return std::forward_as_tuple(std::forward<Args>(t_args)...);
+    });
+}
+
+template <typename IdType, template <typename...> typename ContainerTemplate>
+template <typename Resource, std::invocable Creator>
+auto BasicCache<IdType, ContainerTemplate>::lazy_emplace(ID t_id, Creator&& create)
+    -> Handle<Resource>
+{
     auto& container{ m_store.emplace<ContainerType<Resource>>() };
 
     if (const auto iter{ container.find(t_id) }; iter != container.end()) {
         WeakHandle<Resource>& weak_handle{ iter->second };
         auto                  found_handle{ weak_handle.lock() };
         if (found_handle == nullptr) {
-            const auto result{ make_handle<Resource>(std::forward<Args>(t_args)...) };
+            const auto result{ make_handle<Resource>(std::invoke(create)) };
             weak_handle = result;
             return result;
         }
@@ -19,7 +29,7 @@ auto BasicCache<IdType, ContainerTemplate>::emplace(ID t_id, Args&&... t_args)
         return found_handle;
     }
 
-    const auto result{ make_handle<Resource>(std::forward<Args>(t_args)...) };
+    const auto result{ make_handle<Resource>(std::invoke(create)) };
     container.try_emplace(t_id, result);
     return result;
 }

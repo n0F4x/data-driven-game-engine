@@ -37,10 +37,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC src)
 add_subdirectory(src)
 
 
-unset(engine_debug CACHE)
-
-
 ###########
 ## TESTS ##
 ###########
 add_subdirectory(example)
+
+
+unset(engine_debug CACHE)

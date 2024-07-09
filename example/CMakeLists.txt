@@ -12,6 +12,11 @@ target_compile_definitions(test PRIVATE
         VULKAN_HPP_NO_SETTERS
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
 )
+if (engine_debug)
+    target_compile_definitions(test PRIVATE
+            SPDLOG_ACTIVE_LEVEL=${spdlog_level}
+    )
+endif ()
 target_link_libraries(test PRIVATE ${PROJECT_NAME})
 
 add_subdirectory(shaders)

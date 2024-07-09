@@ -716,8 +716,8 @@ static auto create_pipeline(
 
     auto hash{ hash_value(builder) };
 
-    return t_cache.find<vk::UniquePipeline>(hash).value_or(
-        t_cache.emplace<vk::UniquePipeline>(hash, builder.build(t_device))
+    return t_cache.lazy_emplace<vk::UniquePipeline>(
+        hash, std::bind_front(&GraphicsPipelineBuilder::build, builder, t_device)
     );
 }
 
