@@ -17,10 +17,8 @@ using namespace core::renderer;
 namespace plugins {
 
 template <renderer::SurfaceProviderConcept SurfaceProvider>
-auto Renderer::operator()(
-    App::Builder&                             t_builder,
-    const renderer::Options<SurfaceProvider>& t_options
-) const -> void
+auto Renderer::operator()(Store& store, const renderer::Options<SurfaceProvider>& options)
+    const -> void
 {
     config::vulkan::init();
 
@@ -38,25 +36,25 @@ auto Renderer::operator()(
         return;
     }
 
-    vkb::InstanceBuilder builder;
-    builder.require_api_version(t_options.required_vulkan_version());
-    renderer::enable_default_instance_settings(system_info, builder);
-    Allocator::Requirements::enable_instance_settings(system_info, builder);
-    Swapchain::Requirements::enable_instance_settings(system_info, builder);
+    vkb::InstanceBuilder instance_builder;
+    instance_builder.require_api_version(options.required_vulkan_version());
+    renderer::enable_default_instance_settings(system_info, instance_builder);
+    Allocator::Requirements::enable_instance_settings(system_info, instance_builder);
+    Swapchain::Requirements::enable_instance_settings(system_info, instance_builder);
 
-    const auto instance_result{ builder.build() };
+    const auto instance_result{ instance_builder.build() };
     if (!instance_result.has_value()) {
         SPDLOG_ERROR(instance_result.error().message());
         return;
     }
 
-    auto& instance{ t_builder.store().emplace<Instance>(instance_result.value()) };
+    auto& instance{ store.emplace<Instance>(instance_result.value()) };
     config::vulkan::init(instance.get());
 
 
-    const std::optional<VkSurfaceKHR> surface_result{ std::invoke(
-        t_options.surface_provider(), t_builder.store(), instance.get(), nullptr
-    ) };
+    const std::optional<VkSurfaceKHR> surface_result{
+        std::invoke(options.surface_provider(), store, instance.get(), nullptr)
+    };
     if (!surface_result.has_value()) {
         SPDLOG_ERROR("Vulkan surface creation failed");
         return;
@@ -89,19 +87,19 @@ auto Renderer::operator()(
         return;
     }
 
-    auto& device{ t_builder.store().emplace<Device>(device_result.value()) };
+    auto& device{ store.emplace<Device>(device_result.value()) };
     config::vulkan::init(device.get());
 
 
-    t_builder.store().emplace<SwapchainHolder>(
+    store.emplace<SwapchainHolder>(
         std::move(surface),
         device,
-        t_options.framebuffer_size_getter()
-            ? std::invoke(t_options.framebuffer_size_getter(), t_builder.store())
+        options.framebuffer_size_getter()
+            ? std::invoke(options.framebuffer_size_getter(), store)
             : nullptr
     );
 
-    t_builder.store().emplace<Allocator>(instance, device);
+    store.emplace<Allocator>(instance, device);
 
 
     renderer::log_renderer_setup(static_cast<const vkb::Device>(device));

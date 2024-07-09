@@ -6,9 +6,9 @@ using namespace renderer;
 
 namespace plugins {
 
-auto Renderer::operator()(App::Builder& t_builder) const -> void
+auto Renderer::operator()(Store& store) const -> void
 {
-    const auto window{ t_builder.store().find<core::window::Window>() };
+    const auto window{ store.find<core::window::Window>() };
     if (!window.has_value()) {
         SPDLOG_WARN(
             "Default window could not be found in store. "
@@ -18,7 +18,7 @@ auto Renderer::operator()(App::Builder& t_builder) const -> void
     }
 
     operator()(
-        t_builder,
+        store,
         renderer::Options{
             VK_API_VERSION_1_0, renderer::DefaultSurfaceProvider{ window.value() }, {} }
     );

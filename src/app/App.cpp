@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-App::App(Builder&& t_builder) : m_store{ std::move(t_builder.store()) } {}
+App::App(Store&& store) : m_store{ std::move(store) } {}
 
 auto App::create() -> Builder
 {

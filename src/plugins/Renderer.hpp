@@ -4,10 +4,11 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include "app.hpp"
 #include "core/renderer/base/swapchain/SwapchainHolder.hpp"
 #include "plugins/renderer/Options.hpp"
 #include "plugins/renderer/SurfaceProvider.hpp"
+
+#include "app.hpp"
 
 namespace plugins {
 
@@ -16,16 +17,12 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(App::Builder& builder) const -> void;
+    auto operator()(Store& store) const -> void;
 
     template <renderer::SurfaceProviderConcept SurfaceProvider>
-    auto operator()(
-        App::Builder&                             builder,
-        const renderer::Options<SurfaceProvider>& options
-    ) const -> void;
+    auto operator()(Store& store, const renderer::Options<SurfaceProvider>& options) const
+        -> void;
 };
-
-static_assert(PluginConcept<Renderer>);
 
 }   // namespace plugins
 

@@ -17,7 +17,7 @@ public:
     [[nodiscard]]
     static auto create() -> Builder;
 
-    explicit App(Builder&& t_builder);
+    explicit App(Store&& store);
 
     ///-----------///
     ///  Methods  ///

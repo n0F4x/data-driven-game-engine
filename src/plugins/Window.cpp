@@ -28,13 +28,13 @@ static auto default_configure() -> void
 }
 
 auto Window::operator()(
-    App::Builder&      t_builder,
-    uint16_t           t_width,
-    uint16_t           t_height,
-    const std::string& t_title
+    Store&             store,
+    uint16_t           width,
+    uint16_t           height,
+    const std::string& title
 ) const -> void
 {
-    operator()(t_builder, t_width, t_height, t_title, default_configure);
+    operator()(store, width, height, title, default_configure);
 }
 
 }   // namespace plugins

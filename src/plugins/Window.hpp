@@ -11,23 +11,17 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(
-        App::Builder&      t_builder,
-        uint16_t           t_width,
-        uint16_t           t_height,
-        const std::string& t_title
-    ) const -> void;
+    auto operator()(Store& store, uint16_t width, uint16_t height, const std::string& title)
+        const -> void;
 
     auto operator()(
-        App::Builder&       t_builder,
-        uint16_t            t_width,
-        uint16_t            t_height,
-        const std::string&  t_title,
-        std::invocable auto t_configure
+        Store&              store,
+        uint16_t            width,
+        uint16_t            height,
+        const std::string&  title,
+        std::invocable auto configure
     ) const -> void;
 };
-
-static_assert(PluginConcept<Window, uint16_t, uint16_t, const std::string&>);
 
 }   // namespace plugins
 

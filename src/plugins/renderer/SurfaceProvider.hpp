@@ -5,6 +5,8 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include "store/Store.hpp"
+
 #include "DependencyProvider.hpp"
 
 namespace plugins::renderer {
