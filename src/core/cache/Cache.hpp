@@ -16,13 +16,8 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    template <typename Resource>
-    auto insert(ID t_id, const Handle<Resource>& t_handle) -> Handle<Resource>;
-    template <typename Resource>
-    auto insert(ID t_id, Handle<Resource>&& t_handle) -> Handle<Resource>;
-
-    template <typename Resource>
-    auto emplace(ID t_id, auto&&... t_args) -> Handle<Resource>;
+    template <typename Resource, typename... Args>
+    auto emplace(ID t_id, Args&&... t_args) -> Handle<Resource>;
 
     template <typename Resource>
     [[nodiscard]]
@@ -31,9 +26,6 @@ public:
     template <typename Resource>
     [[nodiscard]]
     auto at(ID t_id) const -> Handle<Resource>;
-
-    template <typename Resource>
-    auto remove(ID t_id) noexcept -> std::optional<Handle<Resource>>;
 
 private:
     ///****************///

@@ -1,38 +1,26 @@
 namespace core::cache {
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
-template <typename Resource>
-auto BasicCache<IdType, ContainerTemplate>::insert(
-    ID                      t_id,
-    const Handle<Resource>& t_handle
-) -> Handle<Resource>
-{
-    m_store.emplace<ContainerType<Resource>>().try_emplace(
-        t_id, static_cast<std::shared_ptr<Resource>>(t_handle)
-    );
-    return t_handle;
-}
-
-template <typename IdType, template <typename...> typename ContainerTemplate>
-template <typename Resource>
-auto BasicCache<IdType, ContainerTemplate>::insert(ID t_id, Handle<Resource>&& t_handle)
+template <typename Resource, typename... Args>
+auto BasicCache<IdType, ContainerTemplate>::emplace(ID t_id, Args&&... t_args)
     -> Handle<Resource>
 {
-    m_store.emplace<ContainerType<Resource>>().try_emplace(
-        t_id, static_cast<std::shared_ptr<Resource>>(t_handle)
-    );
-    return t_handle;
-}
+    auto& container{ m_store.emplace<ContainerType<Resource>>() };
 
-template <typename IdType, template <typename...> typename ContainerTemplate>
-template <typename Resource>
-auto BasicCache<IdType, ContainerTemplate>::emplace(ID t_id, auto&&... t_args)
-    -> Handle<Resource>
-{
-    auto result{ make_handle<Resource>(std::forward<decltype(t_args)>(t_args)...) };
-    m_store.emplace<ContainerType<Resource>>().try_emplace(
-        t_id, static_cast<std::shared_ptr<Resource>>(result)
-    );
+    if (const auto iter{ container.find(t_id) }; iter != container.end()) {
+        WeakHandle<Resource>& weak_handle{ iter->second };
+        auto                  found_handle{ weak_handle.lock() };
+        if (found_handle == nullptr) {
+            const auto result{ make_handle<Resource>(std::forward<Args>(t_args)...) };
+            weak_handle = result;
+            return result;
+        }
+
+        return found_handle;
+    }
+
+    const auto result{ make_handle<Resource>(std::forward<Args>(t_args)...) };
+    container.try_emplace(t_id, result);
     return result;
 }
 
@@ -59,25 +47,6 @@ template <typename Resource>
 auto BasicCache<IdType, ContainerTemplate>::at(ID t_id) const -> Handle<Resource>
 {
     return m_store.at<ContainerType<Resource>>().at(t_id).lock();
-}
-
-template <typename IdType, template <typename...> typename ContainerTemplate>
-template <typename Resource>
-auto BasicCache<IdType, ContainerTemplate>::remove(ID t_id
-) noexcept -> std::optional<Handle<Resource>>
-{
-    return m_store.find<ContainerType<Resource>>().and_then(
-        [t_id](ContainerType<Resource>& t_container) -> std::optional<Handle<Resource>> {
-            const auto iter{ t_container.find(t_id) };
-            if (iter == t_container.cend()) {
-                return std::nullopt;
-            }
-
-            t_container.erase(iter);
-
-            return iter->second;
-        }
-    );
 }
 
 }   // namespace core::cache
