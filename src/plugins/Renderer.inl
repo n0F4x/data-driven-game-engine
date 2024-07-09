@@ -54,14 +54,11 @@ auto Renderer::operator()(
     config::vulkan::init(instance.get());
 
 
-    const std::expected<VkSurfaceKHR, VkResult> surface_result{
-        std::invoke(t_options.surface_provider(), instance.get(), nullptr)
-    };
+    const std::optional<VkSurfaceKHR> surface_result{ std::invoke(
+        t_options.surface_provider(), t_builder.store(), instance.get(), nullptr
+    ) };
     if (!surface_result.has_value()) {
-        SPDLOG_ERROR(
-            "Vulkan surface creation failed with error code {}",
-            std::to_underlying(surface_result.error())
-        );
+        SPDLOG_ERROR("Vulkan surface creation failed");
         return;
     }
     vk::UniqueSurfaceKHR surface{ surface_result.value(), instance.get() };

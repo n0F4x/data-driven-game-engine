@@ -13,9 +13,10 @@ public:
 
     [[nodiscard]]
     auto operator()(
-        VkInstance                   t_instance,
-        const VkAllocationCallbacks* t_allocation_callbacks
-    ) const -> std::expected<VkSurfaceKHR, VkResult>;
+        const Store&                 store,
+        VkInstance                   instance,
+        const VkAllocationCallbacks* allocation_callbacks
+    ) const -> std::optional<VkSurfaceKHR>;
 
     [[nodiscard]]
     auto required_instance_settings_are_available(const vkb::SystemInfo& t_system_info

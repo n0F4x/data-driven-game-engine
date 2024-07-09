@@ -10,11 +10,20 @@ DefaultSurfaceProvider::DefaultSurfaceProvider(const window::Window& window) noe
 
 [[nodiscard]]
 auto DefaultSurfaceProvider::operator()(
-    const VkInstance             t_instance,
-    const VkAllocationCallbacks* t_allocation_callbacks
-) const -> std::expected<VkSurfaceKHR, VkResult>
+    const Store&                 store,
+    const VkInstance             instance,
+    const VkAllocationCallbacks* allocation_callbacks
+) const -> std::optional<VkSurfaceKHR>
 {
-    return m_window.get().create_vulkan_surface(t_instance, t_allocation_callbacks);
+    return store.find<core::window::Window>().and_then(
+        [instance, allocation_callbacks](const core::window::Window& window) {
+            return window.create_vulkan_surface(instance, allocation_callbacks)
+                .transform([](const VkSurfaceKHR surface) {
+                    return std::make_optional(surface);
+                })
+                .value_or(std::nullopt);
+        }
+    );
 }
 
 auto DefaultSurfaceProvider::required_instance_settings_are_available(
