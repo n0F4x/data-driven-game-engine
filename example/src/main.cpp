@@ -8,6 +8,8 @@
 
 auto main() -> int
 try {
+    spdlog::set_level(spdlog::level::trace);
+
     const demo::ModelInfo model_info{
         //        "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
         //        "models/Avocado/glTF-Binary/Avocado.glb",
@@ -21,7 +23,6 @@ try {
     };
 
     return App::create()
-        .add_plugin<plugins::Logger>(plugins::Logger::Level::eTrace)
         .add_plugin<plugins::Cache>()
         .add_plugin<plugins::Window>(1'280, 720, "My window")
         .add_plugin<plugins::Renderer>()
