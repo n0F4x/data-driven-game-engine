@@ -5,6 +5,7 @@
 #include <mutex>
 #include <thread>
 
+#include <core/window/events.hpp>
 #include <core/window/Window.hpp>
 
 #include "core/renderer/base/device/Device.hpp"
@@ -54,34 +55,20 @@ auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
                 }
             );
 
-            bool        running{ true };
-            const auto& window{ t_app.store().at<window::Window>() };
+            bool  running{ true };
+            auto& window{ t_app.store().at<window::Window>() };
 
-            glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            glfwSetInputMode(window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-            int window_width{};
-            int window_height{};
-            glfwGetWindowSize(window.get(), &window_width, &window_height);
-            glfwSetCursorPos(
-                window.get(),
-                static_cast<double>(window_width) / 2.0,
-                static_cast<double>(window_height) / 2.0
-            );
+            window.set_cursor_mode(core::window::CursorMode::eDisabled);
+            window.set_cursor_position(glm::dvec2{ window.size() } / 2.0);
+
             Controller controller{ t_model_info.movement_speed };
             bool       reset_mouse{};
 
             std::atomic<vk::Extent2D> framebuffer_size{};
-            glfwSetWindowUserPointer(window.get(), &framebuffer_size);
-            glfwSetFramebufferSizeCallback(
-                window.get(),
-                [](GLFWwindow* raw_window, const int width, const int height) {
-                    static_cast<std::atomic<vk::Extent2D>*>(
-                        glfwGetWindowUserPointer(raw_window)
-                    )
-                        ->store(vk::Extent2D{ static_cast<uint32_t>(width),
-                                              static_cast<uint32_t>(height) });
-                }
-            );
+            window.set_framebuffer_size_callback([&framebuffer_size](Size2i size) {
+                framebuffer_size.store(static_cast<vk::Extent2D>(size));
+            });
+
             graphics::Camera camera;
             std::mutex       camera_mutex{};
 
@@ -96,47 +83,40 @@ auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
 
             std::chrono::time_point last_time{ std::chrono::high_resolution_clock::now() };
             while (running) {
-                std::this_thread::sleep_for(std::chrono::duration<float>{ 1.f / 60.f });
+                std::this_thread::sleep_for(std::chrono::duration<double>{ 1.0 / 60.0 });
                 const std::chrono::time_point now{
                     std::chrono::high_resolution_clock::now()
                 };
-                const std::chrono::duration<float> delta_time{ now - last_time };
+                const std::chrono::duration<double> delta_time{ now - last_time };
                 last_time = now;
 
-                glfwPollEvents();
+                core::window::poll_events();
 
-                if (glfwWindowShouldClose(window.get()) == GLFW_TRUE) {
+                if (window.should_close()) {
                     running = false;
                 }
 
-                if (glfwGetKey(window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+                if (window.key_pressed(core::window::eEscape)) {
                     running = false;
                 }
 
-                if (glfwGetKey(window.get(), GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
-                    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                    glfwSetInputMode(window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+                if (window.key_pressed(core::window::eLeftControl)) {
+                    window.set_cursor_mode(core::window::CursorMode::eNormal);
+                    reset_mouse = true;
+                }
+                else {
+                    window.set_cursor_mode(core::window::CursorMode::eDisabled);
 
                     if (!reset_mouse) {
-                        controller.update(window, delta_time.count());
+                        controller.update(window, delta_time);
                         camera_mutex.lock();
                         camera = controller.update_camera(camera);
                         camera_mutex.unlock();
                     }
 
-                    glfwGetWindowSize(window.get(), &window_width, &window_height);
-                    glfwSetCursorPos(
-                        window.get(),
-                        static_cast<double>(window_width) / 2.0,
-                        static_cast<double>(window_height) / 2.0
-                    );
+                    window.set_cursor_position(glm::dvec2{ window.size() } / 2.0);
 
                     reset_mouse = false;
-                }
-                if (glfwGetKey(window.get(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-                    glfwSetInputMode(window.get(), GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
-                    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                    reset_mouse = true;
                 }
             }
 

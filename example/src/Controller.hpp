@@ -1,34 +1,39 @@
 #pragma once
 
+#include <chrono>
+
 #include <glm/glm.hpp>
 
+#include <core/graphics/Camera.hpp>
 #include <core/window/Window.hpp>
-
-#include "core/graphics/Camera.hpp"
 
 class Controller {
 public:
     explicit Controller(float movement_speed) noexcept;
 
-    auto update(const core::window::Window& t_window, float t_delta_time) noexcept -> void;
+    auto update(
+        const core::window::Window&   window,
+        std::chrono::duration<double> delta_time
+    ) -> void;
+
     [[nodiscard]]
-    auto update_camera(core::graphics::Camera t_camera
+    auto update_camera(core::graphics::Camera camera
     ) const noexcept -> core::graphics::Camera;
 
 private:
     struct MovementKeyMap {
-        int left     = GLFW_KEY_A;
-        int right    = GLFW_KEY_D;
-        int forward  = GLFW_KEY_W;
-        int backward = GLFW_KEY_S;
-        int up       = GLFW_KEY_SPACE;
-        int down     = GLFW_KEY_LEFT_SHIFT;
+        core::window::Key left     = core::window::eA;
+        core::window::Key right    = core::window::eD;
+        core::window::Key forward  = core::window::eW;
+        core::window::Key backward = core::window::eS;
+        core::window::Key up       = core::window::eSpace;
+        core::window::Key down     = core::window::eLeftShift;
     } m_movement_key_map;
 
-    float m_movement_speed{ 5.f };
-    float m_mouse_speed{ 0.002f };
+    double m_movement_speed{ 5.f };
+    double m_mouse_speed{ 0.002f };
 
-    glm::vec3 m_position{};
-    float     m_horizontal_angle{};
-    float     m_vertical_angle{};
+    glm::dvec3 m_position{};
+    double     m_horizontal_angle{};
+    double     m_vertical_angle{};
 };

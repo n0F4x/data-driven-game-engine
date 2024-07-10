@@ -24,7 +24,7 @@ try {
 
     return App::create()
         .store<core::cache::Cache>()
-        .add_plugin<plugins::Window>(1'280, 720, "My window")
+        .add_plugin<plugins::Window>(core::Size2i{ 1'280, 720 }, "My window")
         .add_plugin<plugins::Renderer>()
         .run(demo::run, model_info);
 } catch (const std::exception& error) {

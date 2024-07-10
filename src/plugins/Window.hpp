@@ -1,6 +1,8 @@
 #pragma once
 
-#include <string>
+#include <gsl/gsl-lite.hpp>
+
+#include "core/utility/Size.hpp"
 
 #include "app.hpp"
 
@@ -11,18 +13,8 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(Store& store, uint16_t width, uint16_t height, const std::string& title)
+    auto operator()(Store& store, const core::Size2i& size, gsl_lite::czstring title)
         const -> void;
-
-    auto operator()(
-        Store&              store,
-        uint16_t            width,
-        uint16_t            height,
-        const std::string&  title,
-        std::invocable auto configure
-    ) const -> void;
 };
 
 }   // namespace plugins
-
-#include "Window.inl"

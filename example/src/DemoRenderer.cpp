@@ -101,11 +101,7 @@ auto DemoRenderer::create(
     const auto& allocator{ t_store.at<renderer::Allocator>() };
 
     auto& swapchain{ t_store.at<renderer::SwapchainHolder>() };
-    int   width{};
-    int   height{};
-    glfwGetFramebufferSize(window.get(), &width, &height);
-    swapchain.set_framebuffer_size(vk::Extent2D{ static_cast<uint32_t>(width),
-                                                 static_cast<uint32_t>(height) });
+    swapchain.set_framebuffer_size(static_cast<vk::Extent2D>(window.framebuffer_size()));
     if (!swapchain.get().has_value()) {
         return std::nullopt;
     }

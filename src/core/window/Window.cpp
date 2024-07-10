@@ -5,8 +5,14 @@
 
 #include <spdlog/spdlog.h>
 
+#include "core/config/vulkan.hpp"
+
 static auto init_glfw() -> void
 {
+    glfwSetErrorCallback([](int, const char* description) { SPDLOG_ERROR(description); });
+
+    glfwInitVulkanLoader(core::config::vulkan::dispatcher().vkGetInstanceProcAddr);
+
     if (const int success{ glfwInit() }; success != GLFW_TRUE) {
         const char* description{};
         const int   error_code{ glfwGetError(&description) };
@@ -50,16 +56,16 @@ auto Window::vulkan_instance_extensions()
 }
 
 [[nodiscard]]
-static auto create_window(
-    const uint16_t     t_width,
-    const uint16_t     t_height,
-    const std::string& t_title
-) -> GLFWwindow*
+static auto
+    create_window(const Size2i& size, const gsl_lite::czstring title) -> GLFWwindow*
 {
     init_glfw();
 
-    auto* const window{
-        glfwCreateWindow(t_width, t_height, t_title.c_str(), nullptr, nullptr)
+    glfwDefaultWindowHints();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+    GLFWwindow* const window{
+        glfwCreateWindow(size.width, size.height, title, nullptr, nullptr)
     };
     if (window == nullptr) {
         throw std::runtime_error{ std::format(
@@ -70,13 +76,34 @@ static auto create_window(
     return window;
 }
 
-Window::Window(const uint16_t t_width, const uint16_t t_height, const std::string& t_title)
+Window::Window(const Size2i& size, const gsl_lite::czstring title)
     : m_impl{
           std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)>{
-                                                                    create_window(t_width, t_height, t_title),
+                                                                    create_window(size, title),
                                                                     glfwDestroyWindow }
 }
-{}
+{
+    glfwSetWindowUserPointer(m_impl.get(), this);
+}
+
+Window::Window(Window&& other) noexcept
+    : m_impl(std::move(other.m_impl)),
+      m_framebuffer_resized{ std::move(other.m_framebuffer_resized) }
+{
+    glfwSetWindowUserPointer(m_impl.get(), this);
+}
+
+auto Window::operator=(Window&& other) noexcept -> Window&
+{
+    if (this != &other) {
+        m_impl                = std::move(other.m_impl);
+        m_framebuffer_resized = std::move(other.m_framebuffer_resized);
+
+        glfwSetWindowUserPointer(m_impl.get(), this);
+    }
+
+    return *this;
+}
 
 auto Window::get() const noexcept -> GLFWwindow*
 {
@@ -99,6 +126,55 @@ auto Window::create_vulkan_surface(
     }
 
     return surface;
+}
+
+auto Window::size() const -> Size2i
+{
+    Size2i result{};
+    glfwGetWindowSize(m_impl.get(), &result.width, &result.height);
+    return result;
+}
+
+auto Window::framebuffer_size() const -> Size2i
+{
+    Size2i result{};
+    glfwGetFramebufferSize(m_impl.get(), &result.width, &result.height);
+    return result;
+}
+
+auto Window::set_cursor_position(const glm::dvec2& position) const -> void
+{
+    glfwSetCursorPos(m_impl.get(), position.x, position.y);
+}
+
+auto Window::set_cursor_mode(CursorMode cursor_mode) const -> void
+{
+    switch (cursor_mode) {
+        case CursorMode::eNormal:
+            glfwSetInputMode(m_impl.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            break;
+        case CursorMode::eDisabled:
+            glfwSetInputMode(m_impl.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glfwSetInputMode(m_impl.get(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+            break;
+    }
+}
+
+auto Window::should_close() const -> bool
+{
+    return glfwWindowShouldClose(m_impl.get()) == GLFW_TRUE;
+}
+
+auto Window::key_pressed(Key key) const -> bool
+{
+    return glfwGetKey(m_impl.get(), static_cast<int>(key)) == GLFW_TRUE;
+}
+
+auto Window::cursor_position() const -> glm::dvec2
+{
+    glm::dvec2 result{};
+    glfwGetCursorPos(m_impl.get(), &result.x, &result.y);
+    return result;
 }
 
 }   // namespace core::window
