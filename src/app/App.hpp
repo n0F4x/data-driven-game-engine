@@ -17,21 +17,19 @@ public:
     [[nodiscard]]
     static auto create() -> Builder;
 
-    explicit App(Store&& store);
-
     ///-----------///
     ///  Methods  ///
     ///-----------///
     [[nodiscard]]
-    auto store() noexcept -> Store&;
+    auto plugins() noexcept -> Store&;
     [[nodiscard]]
-    auto store() const noexcept -> const Store&;
+    auto plugins() const noexcept -> const Store&;
 
 private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    Store m_store;
+    Store m_plugins;
 };
 
 #include "Builder.hpp"

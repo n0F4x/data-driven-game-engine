@@ -6,10 +6,9 @@
 
 namespace plugins {
 
-auto Window::operator()(Store& store, const core::Size2i& size, gsl_lite::czstring title)
-    const -> void
+auto Window::operator()(App& app) const -> void
 {
-    store.emplace<core::window::Window>(size, title);
+    app.plugins().emplace<core::window::Window>(size, title);
     SPDLOG_TRACE("Added Window plugin");
 }
 

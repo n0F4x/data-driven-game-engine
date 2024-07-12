@@ -4,18 +4,14 @@
 
 namespace plugins::renderer {
 
-DefaultSurfaceProvider::DefaultSurfaceProvider(const window::Window& window) noexcept
-    : m_window(window)
-{}
-
 [[nodiscard]]
 auto DefaultSurfaceProvider::operator()(
-    const Store&                 store,
+    const App&                   app,
     const VkInstance             instance,
     const VkAllocationCallbacks* allocation_callbacks
 ) const -> std::optional<VkSurfaceKHR>
 {
-    return store.find<core::window::Window>().and_then(
+    return app.plugins().find<core::window::Window>().and_then(
         [instance, allocation_callbacks](const core::window::Window& window) {
             return window.create_vulkan_surface(instance, allocation_callbacks)
                 .transform([](const VkSurfaceKHR surface) {

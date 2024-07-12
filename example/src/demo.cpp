@@ -21,7 +21,7 @@ using namespace core;
 auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
 {
     return DemoRenderer::create(
-               t_app.store(), t_model_info.filepath, t_model_info.fragment_shader
+               t_app.plugins(), t_model_info.filepath, t_model_info.fragment_shader
     )
         .transform([&](DemoRenderer t_demo) {
             t_demo.swapchain.get().on_swapchain_recreated(
@@ -56,9 +56,9 @@ auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
             );
 
             bool  running{ true };
-            auto& window{ t_app.store().at<window::Window>() };
+            auto& window{ t_app.plugins().at<window::Window>() };
 
-            window.set_cursor_mode(core::window::CursorMode::eDisabled);
+            window.set_cursor_mode(window::CursorMode::eDisabled);
             window.set_cursor_position(glm::dvec2{ window.size() } / 2.0);
 
             Controller controller{ t_model_info.movement_speed };
@@ -83,29 +83,28 @@ auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
 
             std::chrono::time_point last_time{ std::chrono::high_resolution_clock::now() };
             while (running) {
-                std::this_thread::sleep_for(std::chrono::duration<double>{ 1.0 / 60.0 });
+                window::poll_events();
+
                 const std::chrono::time_point now{
                     std::chrono::high_resolution_clock::now()
                 };
                 const std::chrono::duration<double> delta_time{ now - last_time };
                 last_time = now;
 
-                core::window::poll_events();
-
                 if (window.should_close()) {
                     running = false;
                 }
 
-                if (window.key_pressed(core::window::eEscape)) {
+                if (window.key_pressed(window::eEscape)) {
                     running = false;
                 }
 
-                if (window.key_pressed(core::window::eLeftControl)) {
-                    window.set_cursor_mode(core::window::CursorMode::eNormal);
+                if (window.key_pressed(window::eLeftControl)) {
+                    window.set_cursor_mode(window::CursorMode::eNormal);
                     reset_mouse = true;
                 }
                 else {
-                    window.set_cursor_mode(core::window::CursorMode::eDisabled);
+                    window.set_cursor_mode(window::CursorMode::eDisabled);
 
                     if (!reset_mouse) {
                         controller.update(window, delta_time);
@@ -118,6 +117,8 @@ auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
 
                     reset_mouse = false;
                 }
+
+                std::this_thread::sleep_for(std::chrono::duration<double>{ 1.0 / 60.0 });
             }
 
             rendering.get();

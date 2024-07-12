@@ -2,20 +2,18 @@
 
 #include <spdlog/spdlog.h>
 
-App::App(Store&& store) : m_store{ std::move(store) } {}
-
 auto App::create() -> Builder
 {
     SPDLOG_TRACE("Creating App...");
     return Builder{};
 }
 
-auto App::store() noexcept -> Store&
+auto App::plugins() noexcept -> Store&
 {
-    return m_store;
+    return m_plugins;
 }
 
-auto App::store() const noexcept -> const Store&
+auto App::plugins() const noexcept -> const Store&
 {
-    return m_store;
+    return m_plugins;
 }

@@ -1,46 +1,46 @@
 #include <spdlog/spdlog.h>
 
-template <typename Context, typename Self, typename... Args>
-auto App::Builder::store(this Self&& self, Args&&... args) -> Self
-{
-    std::forward<Self>(self).m_store.template emplace<Context>(std::forward<Args>(args)...
-    );
-    return std::forward<Self>(self);
-}
-
-template <typename Plugin, typename Self>
-auto App::Builder::add_plugin(this Self&& self, auto&&... args) -> Self
-{
-    return std::forward<Self>(self).add_plugin(
-        Plugin{}, std::forward<decltype(args)>(args)...
-    );
-}
-
-template <typename Self, typename... Args>
-auto App::Builder::add_plugin(
-    this Self&&                   self,
-    PluginConcept<Args...> auto&& plugin,
-    Args&&... args
-) -> Self
-{
-    std::invoke(
-        std::forward<decltype(plugin)>(plugin),
-        self.m_store,
-        std::forward<decltype(args)>(args)...
-    );
-    return std::forward<Self>(self);
-}
-
 template <typename... Args>
-auto App::Builder::run(
-    RunnerConcept<Args...> auto&& runner,
-    Args&&... args
-) && -> std::invoke_result_t<decltype(runner), App, Args...>
+auto App::Builder::run(RunnerConcept<Args...> auto&& runner, Args&&... args)
+    -> std::invoke_result_t<decltype(runner), App, Args...>
 {
     SPDLOG_INFO("App is running");
     return std::invoke(
-        std::forward<decltype(runner)>(runner),
-        std::move(*this).build(),
-        std::forward<Args>(args)...
+        std::forward<decltype(runner)>(runner), build(), std::forward<Args>(args)...
     );
+}
+
+template <PluginConcept Plugin>
+auto App::Builder::add_plugin() -> Builder&
+{
+    return add_plugin(Plugin{});
+}
+
+template <PluginConcept Plugin>
+auto App::Builder::add_plugin(Plugin&& plugin) -> Builder&
+{
+    if constexpr (requires(Plugin t) {
+                      {
+                          t.dependencies()
+                      } -> std::ranges::range;
+                  })
+    {
+        for (auto&& dependency : plugin.dependencies()) {
+            if (std::ranges::none_of(m_plugin_ids, [&](std::type_index existing_plugin_id) {
+                    return dependency == existing_plugin_id;
+                }))
+            {
+                throw std::runtime_error{ std::format(
+                    "{} depends on not (yet) added plugin \"{}\"",
+                    typeid(plugin).name(),
+                    dependency.name()
+                ) };
+            }
+        }
+    }
+
+    m_plugins.emplace_back(std::forward<Plugin>(plugin));
+    m_plugin_ids.push_back(typeid(plugin));
+
+    return *this;
 }

@@ -23,8 +23,10 @@ try {
     };
 
     return App::create()
-        .store<core::cache::Cache>()
-        .add_plugin<plugins::Window>(core::Size2i{ 1'280, 720 }, "My window")
+        .add_plugin([](App& app) {
+            app.plugins().emplace<core::cache::Cache>();
+    })
+        .add_plugin(plugins::Window{ .size = { 1'280, 720 }, .title = "My window" })
         .add_plugin<plugins::Renderer>()
         .run(demo::run, model_info);
 } catch (const std::exception& error) {

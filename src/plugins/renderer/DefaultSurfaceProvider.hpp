@@ -1,5 +1,6 @@
 #pragma once
 
+#include "app/App.hpp"
 #include "core/window/Window.hpp"
 #include "store/Store.hpp"
 
@@ -9,11 +10,9 @@ namespace plugins::renderer {
 
 class DefaultSurfaceProvider : public renderer::DependencyProvider {
 public:
-    explicit DefaultSurfaceProvider(const core::window::Window& window) noexcept;
-
     [[nodiscard]]
     auto operator()(
-        const Store&                 store,
+        const App&                   app,
         VkInstance                   instance,
         const VkAllocationCallbacks* allocation_callbacks
     ) const -> std::optional<VkSurfaceKHR>;
@@ -32,9 +31,6 @@ public:
 
     auto enable_optional_device_settings(vkb::PhysicalDevice& t_physical_device
     ) -> void override;
-
-private:
-    std::reference_wrapper<const core::window::Window> m_window;
 };
 
 }   // namespace plugins::renderer

@@ -1,6 +1,12 @@
 #include "App.hpp"
 
-auto App::Builder::build() && noexcept -> App
+auto App::Builder::build() -> App
 {
-    return App{ std::move(*this).m_store };
+    App app;
+
+    for (const auto& plugin : m_plugins) {
+        std::invoke(plugin, app);
+    }
+
+    return app;
 }

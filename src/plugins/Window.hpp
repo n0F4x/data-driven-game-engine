@@ -10,11 +10,14 @@ namespace plugins {
 
 class Window {
 public:
+    core::Size2i       size;
+    gsl_lite::czstring title;
+
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(Store& store, const core::Size2i& size, gsl_lite::czstring title)
-        const -> void;
+    auto operator()(App& app) const -> void;
+
 };
 
 }   // namespace plugins
