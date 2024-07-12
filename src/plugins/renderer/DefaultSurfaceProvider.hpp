@@ -31,6 +31,9 @@ public:
 
     auto enable_optional_device_settings(vkb::PhysicalDevice& t_physical_device
     ) -> void override;
+
+    [[nodiscard]]
+    auto dependencies() const -> std::span<const std::type_index>;
 };
 
 }   // namespace plugins::renderer

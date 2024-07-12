@@ -69,6 +69,13 @@ auto BasicRenderer<SurfaceProvider>::framebuffer_size_getter() const noexcept
 }
 
 template <SurfaceProviderConcept SurfaceProvider>
+auto BasicRenderer<SurfaceProvider>::dependencies() const
+    -> std::invoke_result_t<decltype(&SurfaceProvider::dependencies), SurfaceProvider>
+{
+    return m_surface_provider.dependencies();
+}
+
+template <SurfaceProviderConcept SurfaceProvider>
 auto BasicRenderer<SurfaceProvider>::operator()(App& app) const -> void
 {
     config::vulkan::init();

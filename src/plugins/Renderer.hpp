@@ -20,6 +20,14 @@ using FramebufferSizeGetterCreator =
 template <SurfaceProviderConcept SurfaceProvider = DefaultSurfaceProvider>
 class BasicRenderer {
 public:
+    ///-------------///
+    ///  Operators  ///
+    ///-------------///
+    auto operator()(App&) const -> void;
+
+    ///-----------///
+    ///  Methods  ///
+    ///-----------///
     auto require_vulkan_version(uint32_t major, uint32_t minor, uint32_t patch = 0) noexcept
         -> BasicRenderer&;
 
@@ -37,10 +45,9 @@ public:
     [[nodiscard]]
     auto framebuffer_size_getter() const noexcept -> const FramebufferSizeGetterCreator&;
 
-    ///-------------///
-    ///  Operators  ///
-    ///-------------///
-    auto operator()(App&) const -> void;
+    [[nodiscard]]
+    auto dependencies() const
+        -> std::invoke_result_t<decltype(&SurfaceProvider::dependencies), SurfaceProvider>;
 
 private:
     uint32_t                     m_required_vulkan_version{ VK_API_VERSION_1_0 };
