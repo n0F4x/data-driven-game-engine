@@ -33,7 +33,7 @@ public:
     ) -> void override;
 
     [[nodiscard]]
-    auto dependencies() const -> std::span<const std::type_index>;
+    static auto dependencies() -> std::span<const std::type_index>;
 };
 
 }   // namespace plugins::renderer

@@ -70,7 +70,7 @@ auto BasicRenderer<SurfaceProvider>::framebuffer_size_getter() const noexcept
 
 template <SurfaceProviderConcept SurfaceProvider>
 auto BasicRenderer<SurfaceProvider>::dependencies() const
-    -> std::invoke_result_t<decltype(&SurfaceProvider::dependencies), SurfaceProvider>
+    -> std::invoke_result_t<decltype(&SurfaceProvider::dependencies)>
 {
     return m_surface_provider.dependencies();
 }

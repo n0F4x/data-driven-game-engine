@@ -50,7 +50,7 @@ auto DefaultSurfaceProvider::require_device_settings(vkb::PhysicalDeviceSelector
 auto DefaultSurfaceProvider::enable_optional_device_settings(vkb::PhysicalDevice&) -> void
 {}
 
-auto DefaultSurfaceProvider::dependencies() const -> std::span<const std::type_index>
+auto DefaultSurfaceProvider::dependencies() -> std::span<const std::type_index>
 {
     static const std::array deps{ std::type_index{ typeid(Window) } };
     return deps;
