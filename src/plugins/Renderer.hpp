@@ -46,8 +46,7 @@ public:
     auto framebuffer_size_getter() const noexcept -> const FramebufferSizeGetterCreator&;
 
     [[nodiscard]]
-    auto dependencies() const
-        -> std::invoke_result_t<decltype(&SurfaceProvider::dependencies)>;
+    auto dependencies() const -> decltype(std::declval<SurfaceProvider>().dependencies());
 
 private:
     uint32_t                     m_required_vulkan_version{ VK_API_VERSION_1_0 };
