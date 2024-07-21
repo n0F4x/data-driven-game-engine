@@ -26,9 +26,9 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit SwapchainHolder(
-        vk::UniqueSurfaceKHR&&  t_surface,
-        Device&                 t_device,
-        FramebufferSizeGetter&& t_get_framebuffer_size = {}
+        vk::SurfaceKHR          surface,
+        const Device&           device,
+        FramebufferSizeGetter&& get_framebuffer_size = {}
     );
 
     ///-----------///
@@ -59,11 +59,11 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::UniqueSurfaceKHR           m_surface;
-    std::reference_wrapper<Device> m_device;
-    FramebufferSizeGetter          m_get_framebuffer_size;
-    std::optional<Swapchain>       m_swapchain;
-    uint32_t                       m_image_index{};
+    vk::SurfaceKHR                       m_surface;
+    std::reference_wrapper<const Device> m_device;
+    FramebufferSizeGetter                m_get_framebuffer_size;
+    std::optional<Swapchain>             m_swapchain;
+    uint32_t                             m_image_index{};
     std::vector<std::pair<uint32_t, SwapchainRecreatedEvent>> m_swapchain_recreated_events;
     uint32_t m_swapchain_recreated_events_counter{};
 

@@ -11,20 +11,20 @@
 namespace core::renderer {
 
 SwapchainHolder::SwapchainHolder(
-    vk::UniqueSurfaceKHR&&  t_surface,
-    Device&                 t_device,
-    FramebufferSizeGetter&& t_get_framebuffer_size
+    vk::SurfaceKHR          surface,
+    const Device&           device,
+    FramebufferSizeGetter&& get_framebuffer_size
 )
-    : m_surface{ std::move(t_surface) },
-      m_device{ t_device },
-      m_get_framebuffer_size{ std::move(t_get_framebuffer_size) }
+    : m_surface{ surface },
+      m_device{ device },
+      m_get_framebuffer_size{ std::move(get_framebuffer_size) }
 {
     recreate_swapchain();
 }
 
 auto SwapchainHolder::surface() const noexcept -> vk::SurfaceKHR
 {
-    return *m_surface;
+    return m_surface;
 }
 
 auto SwapchainHolder::get() const noexcept -> const std::optional<Swapchain>&
@@ -41,7 +41,7 @@ auto SwapchainHolder::set_framebuffer_size(const vk::Extent2D t_framebuffer_size
 
     if (const vk::Extent2D extent = Swapchain::choose_extent(
             t_framebuffer_size,
-            m_device.get().physical_device().getSurfaceCapabilitiesKHR(m_surface.get())
+            m_device.get().physical_device().getSurfaceCapabilitiesKHR(m_surface)
         );
         m_swapchain->extent() != extent)
     {
@@ -146,11 +146,11 @@ auto SwapchainHolder::recreate_swapchain(const vk::Extent2D t_framebuffer_size) 
     m_device.get()->waitIdle();
 
     auto new_swapchain{ Swapchain::create(
-        *m_surface,
+        m_surface,
         m_device.get().physical_device(),
         m_device.get().info().get_queue_index(vkb::QueueType::graphics).value(),
         m_device.get().info().get_queue_index(vkb::QueueType::present).value(),
-        *m_device.get(),
+        m_device.get().get(),
         t_framebuffer_size,
         m_swapchain.transform(&Swapchain::get).value_or(nullptr)
     ) };

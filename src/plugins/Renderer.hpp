@@ -2,11 +2,8 @@
 
 #include <functional>
 
-#include <vulkan/vulkan_core.h>
-
 #include "core/renderer/base/swapchain/SwapchainHolder.hpp"
-#include "plugins/renderer/DefaultSurfaceProvider.hpp"
-#include "plugins/renderer/SurfaceProvider.hpp"
+#include "plugins/renderer/SurfacePlugin.hpp"
 
 #include "app.hpp"
 
@@ -17,46 +14,52 @@ namespace renderer {
 using FramebufferSizeGetterCreator =
     std::function<core::renderer::SwapchainHolder::FramebufferSizeGetter(App&)>;
 
-template <SurfaceProviderConcept SurfaceProvider = DefaultSurfaceProvider>
-class BasicRenderer {
+class RendererPlugin {
 public:
+    RendererPlugin();
+
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(App&) const -> void;
+    auto operator()(App::Builder& app_builder) const -> void;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    auto require_vulkan_version(uint32_t major, uint32_t minor, uint32_t patch = 0) noexcept
-        -> BasicRenderer&;
+    template <typename Self, typename... Args>
+    auto require_vulkan_version(
+        this Self&&,
+        uint32_t major,
+        uint32_t minor,
+        uint32_t patch = 0
+    ) noexcept -> Self;
 
-    template <SurfaceProviderConcept NewSurfaceProvider>
-    auto set_surface_provider(NewSurfaceProvider&& surface_provider
-    ) -> BasicRenderer<NewSurfaceProvider>;
+    template <typename Self, typename... Args>
+    auto set_surface_plugin(this Self&&, Args&&... args) -> Self;
 
-    auto set_framebuffer_size_getter(FramebufferSizeGetterCreator framebuffer_size_callback
-    ) -> BasicRenderer&;
+    template <typename Self, typename... Args>
+    auto set_framebuffer_size_getter(this Self&&, Args&&... args) -> Self;
 
     [[nodiscard]]
     auto required_vulkan_version() const noexcept -> uint32_t;
+
     [[nodiscard]]
-    auto surface_provider() const noexcept -> const SurfaceProvider&;
+    auto surface_plugin() const noexcept -> const SurfacePlugin&;
+    [[nodiscard]]
+    auto surface_plugin() noexcept -> SurfacePlugin&;
+
     [[nodiscard]]
     auto framebuffer_size_getter() const noexcept -> const FramebufferSizeGetterCreator&;
 
-    [[nodiscard]]
-    auto dependencies() const -> decltype(std::declval<SurfaceProvider>().dependencies());
-
 private:
     uint32_t                     m_required_vulkan_version{ VK_API_VERSION_1_0 };
-    SurfaceProvider              m_surface_provider;
+    SurfacePlugin                m_surface_plugin;
     FramebufferSizeGetterCreator m_create_framebuffer_size_getter;
 };
 
 }   // namespace renderer
 
-using Renderer = renderer::BasicRenderer<>;
+using Renderer = renderer::RendererPlugin;
 
 }   // namespace plugins
 

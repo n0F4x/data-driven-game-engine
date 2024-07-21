@@ -4,6 +4,11 @@
 
 namespace core {
 
+/////////////////////////////////////////////////////
+// Tuple-like concept                              //
+// Reference: https://stackoverflow.com/a/78465321 //
+/////////////////////////////////////////////////////
+
 template <class T>
 constexpr inline bool is_tuple_like_v = false;
 

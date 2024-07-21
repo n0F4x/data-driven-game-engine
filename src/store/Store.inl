@@ -1,10 +1,3 @@
-Store::~Store() noexcept
-{
-    while (!m_map.empty()) {
-        m_map.pop_back();
-    }
-}
-
 template <typename T>
 auto Store::emplace(auto&&... t_args) -> T&
 {

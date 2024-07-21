@@ -4,11 +4,13 @@
 
 #include "core/utility/Size.hpp"
 
-#include "app.hpp"
+class App;
 
 namespace plugins {
 
-class Window {
+namespace window {
+
+struct Window {
 public:
     core::Size2i       size;
     gsl_lite::czstring title;
@@ -17,7 +19,10 @@ public:
     ///  Operators  ///
     ///-------------///
     auto operator()(App& app) const -> void;
-
 };
+
+}   // namespace window
+
+using Window = window::Window;
 
 }   // namespace plugins

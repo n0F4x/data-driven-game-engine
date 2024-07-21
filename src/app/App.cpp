@@ -5,15 +5,23 @@
 auto App::create() -> Builder
 {
     SPDLOG_TRACE("Creating App...");
+
     return Builder{};
 }
 
-auto App::plugins() noexcept -> Store&
+auto App::Builder::build() -> App
 {
-    return m_plugins;
+    App app;
+
+    // TODO: use std::bind_back
+    for (PluginInvocation& invocation : m_invocations) {
+        invocation(app);
+    }
+
+    return app;
 }
 
-auto App::plugins() const noexcept -> const Store&
+auto App::Builder::PluginInvocation::operator()(App& app) -> void
 {
-    return m_plugins;
+    m_invocation(m_plugin_ref, app);
 }

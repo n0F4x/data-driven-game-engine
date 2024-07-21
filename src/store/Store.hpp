@@ -16,7 +16,7 @@ public:
     Store()                 = default;
     Store(const Store&)     = delete;
     Store(Store&&) noexcept = default;
-    inline ~Store() noexcept;
+    ~Store() noexcept;
 
     auto operator=(const Store&) -> Store&     = delete;
     auto operator=(Store&&) noexcept -> Store& = default;

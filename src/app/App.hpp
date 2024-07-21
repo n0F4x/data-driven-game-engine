@@ -1,8 +1,12 @@
 #pragma once
 
-#include <type_traits>
+#include <any>
+#include <tuple>
+
+#include <entt/entity/registry.hpp>
 
 #include "store/Store.hpp"
+#include "store/StoreView.hpp"
 
 class App {
 public:
@@ -11,25 +15,69 @@ public:
     ///------------------///
     class Builder;
 
+    ///-------------///
+    ///  Variables  ///
+    ///-------------///
+    Store          resources;
+    entt::registry registry;
+
     ///----------------///
     /// Static methods ///
     ///----------------///
     [[nodiscard]]
     static auto create() -> Builder;
-
-    ///-----------///
-    ///  Methods  ///
-    ///-----------///
-    [[nodiscard]]
-    auto plugins() noexcept -> Store&;
-    [[nodiscard]]
-    auto plugins() const noexcept -> const Store&;
-
-private:
-    ///*************///
-    ///  Variables  ///
-    ///*************///
-    Store m_plugins;
 };
 
-#include "Builder.hpp"
+template <typename Plugin>
+concept PluginConcept = std::invocable<Plugin, App&>;
+
+template <typename PluginGroup>
+concept PluginGroupConcept = requires(PluginGroup plugin_group, App::Builder& builder) {
+    {
+        std::invoke(plugin_group, builder)
+    };
+};
+
+template <typename Runner, typename... Args>
+concept RunnerConcept = std::invocable<Runner&&, App&&, Args&&...>;
+
+class App::Builder {
+public:
+    template <PluginConcept Plugin, typename Self, typename... Args>
+    auto append(this Self&&, Args&&... args) -> Self;
+    template <PluginConcept Plugin, typename Self>
+    auto append(this Self&&, Plugin&& plugin) -> Self;
+
+    template <PluginGroupConcept PluginGroup, typename Self, typename... Args>
+    auto append_group(this Self&&, Args&&... args) -> Self;
+    template <PluginGroupConcept PluginGroup, typename Self>
+    auto append_group(this Self&&, PluginGroup&& plugin_group) -> Self;
+
+    [[nodiscard]]
+    auto build() -> App;
+
+    template <typename Runner, typename... Args>
+        requires(RunnerConcept<Runner, Args...>)
+    auto run(Runner&& runner, Args&&... args)
+        -> std::invoke_result_t<Runner&&, App&&, Args&&...>;
+
+private:
+    class PluginInvocation;
+
+    Store                         m_plugins;
+    std::vector<PluginInvocation> m_invocations;
+};
+
+class App::Builder::PluginInvocation {
+public:
+    template <PluginConcept Plugin>
+    explicit PluginInvocation(Plugin& plugin_ref);
+
+    auto operator()(App& app) -> void;
+
+private:
+    std::any                             m_plugin_ref;
+    std::function<void(std::any&, App&)> m_invocation;
+};
+
+#include "App.inl"

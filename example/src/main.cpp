@@ -1,8 +1,9 @@
 #include <print>
 
 #include <app.hpp>
-#include <core/window/Window.hpp>
 #include <plugins.hpp>
+
+#include "core/cache/Cache.hpp"
 
 #include "demo.hpp"
 
@@ -23,11 +24,11 @@ try {
     };
 
     return App::create()
-        .add_plugin([](App& app) {
-            app.plugins().emplace<core::cache::Cache>();
+        .append([](App& app) {
+            app.resources.emplace<core::cache::Cache>();
     })
-        .add_plugin(plugins::Window{ .size = { 1'280, 720 }, .title = "My window" })
-        .add_plugin<plugins::Renderer>()
+        .append(plugins::Window{ .size = { 1'280, 720 }, .title = "My window" })
+        .append_group(plugins::Renderer{}.require_vulkan_version(1, 1))
         .run(demo::run, model_info);
 } catch (const std::exception& error) {
     try {

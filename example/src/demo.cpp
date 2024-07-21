@@ -18,50 +18,50 @@
 using namespace entt::literals;
 using namespace core;
 
-auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
+auto demo::run(App app, const ModelInfo& model_info) -> int
 {
     return DemoRenderer::create(
-               t_app.plugins(), t_model_info.filepath, t_model_info.fragment_shader
+               app.resources, model_info.filepath, model_info.fragment_shader
     )
-        .transform([&](DemoRenderer t_demo) {
-            t_demo.swapchain.get().on_swapchain_recreated(
-                [&t_demo](const renderer::Swapchain& t_swapchain) {
-                    t_demo.depth_image.reset();
-                    t_demo.depth_image = init::create_depth_image(
-                        t_demo.device.get().physical_device(),
-                        t_demo.allocator,
-                        t_swapchain.extent()
+        .transform([&](DemoRenderer demo) {
+            demo.swapchain.get().on_swapchain_recreated(
+                [&demo](const renderer::Swapchain& swapchain) {
+                    demo.depth_image.reset();
+                    demo.depth_image = init::create_depth_image(
+                        demo.device.get().physical_device(),
+                        demo.allocator,
+                        swapchain.extent()
                     );
                 }
             );
-            t_demo.swapchain.get().on_swapchain_recreated(
-                [&t_demo](const renderer::Swapchain&) {
-                    t_demo.depth_image_view.reset();
-                    t_demo.depth_image_view = init::create_depth_image_view(
-                        t_demo.device, t_demo.depth_image.get()
+            demo.swapchain.get().on_swapchain_recreated(
+                [&demo](const renderer::Swapchain&) {
+                    demo.depth_image_view.reset();
+                    demo.depth_image_view = init::create_depth_image_view(
+                        demo.device, demo.depth_image.get()
                     );
                 }
             );
-            t_demo.swapchain.get().on_swapchain_recreated(
-                [&t_demo](const renderer::Swapchain& t_swapchain) {
-                    t_demo.framebuffers.clear();
-                    t_demo.framebuffers = init::create_framebuffers(
-                        t_demo.device.get().get(),
-                        t_swapchain.extent(),
-                        t_swapchain.image_views(),
-                        t_demo.render_pass.get(),
-                        t_demo.depth_image_view.get()
+            demo.swapchain.get().on_swapchain_recreated(
+                [&demo](const renderer::Swapchain& swapchain) {
+                    demo.framebuffers.clear();
+                    demo.framebuffers = init::create_framebuffers(
+                        demo.device.get().get(),
+                        swapchain.extent(),
+                        swapchain.image_views(),
+                        demo.render_pass.get(),
+                        demo.depth_image_view.get()
                     );
                 }
             );
 
             bool  running{ true };
-            auto& window{ t_app.plugins().at<window::Window>() };
+            auto& window{ app.resources.at<window::Window>() };
 
             window.set_cursor_mode(window::CursorMode::eDisabled);
             window.set_cursor_position(glm::dvec2{ window.size() } / 2.0);
 
-            Controller controller{ t_model_info.movement_speed };
+            Controller controller{ model_info.movement_speed };
             bool       reset_mouse{};
 
             std::atomic<vk::Extent2D> framebuffer_size{};
@@ -77,7 +77,7 @@ auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
                     camera_mutex.lock();
                     const graphics::Camera render_camera{ camera };
                     camera_mutex.unlock();
-                    t_demo.render(framebuffer_size, render_camera);
+                    demo.render(framebuffer_size, render_camera);
                 }
             });
 
@@ -122,7 +122,7 @@ auto demo::run(App t_app, const ModelInfo& t_model_info) -> int
             }
 
             rendering.get();
-            t_demo.device.get()->waitIdle();
+            demo.device.get()->waitIdle();
 
             return 0;
         })
