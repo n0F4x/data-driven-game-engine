@@ -29,13 +29,17 @@ public:
 };
 
 template <typename Plugin>
-concept PluginConcept = std::invocable<Plugin, App&>;
+concept PluginConcept = requires(Plugin&& plugin, App& app) {
+    std::bind_front(
+        &std::remove_cvref_t<Plugin>::operator(),
+        std::forward<Plugin>(plugin),
+        std::ref(app)
+    );
+};
 
 template <typename PluginGroup>
-concept PluginGroupConcept = requires(PluginGroup plugin_group, App::Builder& builder) {
-    {
-        std::invoke(plugin_group, builder)
-    };
+concept PluginGroupConcept = requires(PluginGroup&& plugin_group, App::Builder& builder) {
+    std::invoke(std::forward<PluginGroup>(plugin_group), builder);
 };
 
 template <typename Runner, typename... Args>
@@ -70,7 +74,7 @@ private:
 
 class App::Builder::PluginInvocation {
 public:
-    template <PluginConcept Plugin>
+    template <typename Plugin>
     explicit PluginInvocation(Plugin& plugin_ref);
 
     auto operator()(App& app) -> void;

@@ -3,9 +3,17 @@
 #include <functional>
 #include <vector>
 
+#include <vulkan/vulkan.hpp>
+
 #include <VkBootstrap.h>
 
 class App;
+
+namespace core::renderer {
+
+class Instance;
+
+}   // namespace core::renderer
 
 namespace plugins::renderer {
 
@@ -16,7 +24,11 @@ public:
         std::function<void(vkb::PhysicalDevice&)>         enable_optional_device_settings;
     };
 
-    auto operator()(App& app) const -> void;
+    auto operator()(
+        App&                            app,
+        const core::renderer::Instance& instance,
+        const vk::UniqueSurfaceKHR&     surface
+    ) const -> void;
 
     template <typename... Args>
     auto emplace_dependency(Args&&... args) -> DevicePlugin&;

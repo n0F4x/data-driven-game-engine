@@ -21,7 +21,9 @@ auto BasicCache<IdType, ContainerTemplate>::lazy_emplace(ID t_id, Creator&& crea
         WeakHandle<Resource>& weak_handle{ iter->second };
         auto                  found_handle{ weak_handle.lock() };
         if (found_handle == nullptr) {
-            const auto result{ make_handle<Resource>(std::invoke(create)) };
+            const auto result{
+                make_handle<Resource>(std::invoke(std::forward<Creator>(create)))
+            };
             weak_handle = result;
             return result;
         }
@@ -29,7 +31,7 @@ auto BasicCache<IdType, ContainerTemplate>::lazy_emplace(ID t_id, Creator&& crea
         return found_handle;
     }
 
-    const auto result{ make_handle<Resource>(std::invoke(create)) };
+    const auto result{ make_handle<Resource>(std::invoke(std::forward<Creator>(create))) };
     container.try_emplace(t_id, result);
     return result;
 }

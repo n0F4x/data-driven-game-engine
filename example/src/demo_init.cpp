@@ -94,7 +94,7 @@ auto create_render_pass(const vk::Format t_color_format, const renderer::Device&
     };
 
     const vk::SubpassDependency subpass_dependency{
-        .srcSubpass   = VK_SUBPASS_EXTERNAL,
+        .srcSubpass   = vk::SubpassExternal,
         .dstSubpass   = 0,
         .srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput
                       | vk::PipelineStageFlagBits::eEarlyFragmentTests,

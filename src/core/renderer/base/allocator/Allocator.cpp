@@ -318,7 +318,7 @@ auto Allocator::allocate_mapped_buffer(
     );
     if (!(memory_property_flags & vk::MemoryPropertyFlagBits::eHostCoherent)) {
         const vk::Result result{
-            vmaFlushAllocation(m_allocator.get(), allocation, 0, VK_WHOLE_SIZE)
+            vmaFlushAllocation(m_allocator.get(), allocation, 0, vk::WholeSize)
         };
         vk::resultCheck(result, "vmaFlushAllocation failed");
     }
@@ -352,7 +352,7 @@ auto Allocator::allocate_mapped_buffer_with_alignment(
     );
     if (!(memory_property_flags & vk::MemoryPropertyFlagBits::eHostCoherent)) {
         const vk::Result result{
-            vmaFlushAllocation(m_allocator.get(), allocation, 0, VK_WHOLE_SIZE)
+            vmaFlushAllocation(m_allocator.get(), allocation, 0, vk::WholeSize)
         };
         vk::resultCheck(result, "vmaFlushAllocation failed");
     }

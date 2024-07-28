@@ -108,7 +108,8 @@ static auto set_debug_messenger(vkb::InstanceBuilder& builder) -> void
     );
 }
 
-static auto required_instance_settings_are_available(const vkb::SystemInfo& system_info
+static auto required_instance_settings_are_available(
+    [[maybe_unused]] const vkb::SystemInfo& system_info
 ) -> bool
 {
 #ifdef ENGINE_VULKAN_DEBUG
@@ -120,7 +121,7 @@ static auto required_instance_settings_are_available(const vkb::SystemInfo& syst
 
 static auto enable_instance_settings(
     const vkb::SystemInfo&,
-    vkb::InstanceBuilder& instance_builder
+    [[maybe_unused]] vkb::InstanceBuilder& instance_builder
 ) -> void
 {
 #ifdef ENGINE_VULKAN_DEBUG

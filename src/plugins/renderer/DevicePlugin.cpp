@@ -1,31 +1,52 @@
 #include "DevicePlugin.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include "app/App.hpp"
 #include "core/config/vulkan.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
 
+static auto log_setup(const vkb::Device& t_device) -> void
+{
+    const uint32_t instance_version{ t_device.instance_version };
+
+    SPDLOG_INFO(
+        "Created Vulkan Instance with version: {}.{}.{}",
+        VK_VERSION_MAJOR(instance_version),
+        VK_VERSION_MINOR(instance_version),
+        VK_VERSION_PATCH(instance_version)
+    );
+
+    const vk::PhysicalDeviceProperties properties{
+        vk::PhysicalDevice(t_device.physical_device.physical_device).getProperties()
+    };
+
+    SPDLOG_INFO(
+        "Chose GPU({}) with Vulkan version: {}.{}.{}",
+        t_device.physical_device.name,
+        VK_VERSION_MAJOR(properties.apiVersion),
+        VK_VERSION_MINOR(properties.apiVersion),
+        VK_VERSION_PATCH(properties.apiVersion)
+    );
+
+    std::string enabled_extensions{ "Enabled device extensions:" };
+    for (const auto& extension : t_device.physical_device.get_extensions()) {
+        enabled_extensions += '\n';
+        enabled_extensions += '\t';
+        enabled_extensions += extension;
+    }
+    SPDLOG_DEBUG(enabled_extensions);
+}
+
 namespace plugins::renderer {
 
-auto DevicePlugin::operator()(App& app) const -> void
+auto DevicePlugin::operator()(
+    App&                            app,
+    const core::renderer::Instance& instance,
+    const vk::UniqueSurfaceKHR&     surface
+) const -> void
 {
-    const std::optional instance_result{ app.resources.find<core::renderer::Instance>() };
-    if (!instance_result.has_value()) {
-        throw std::runtime_error{
-            "core::renderer::Instance required but not found in 'app.resources'"
-        };
-    }
-    const core::renderer::Instance& instance{ instance_result.value().get() };
-
-    const std::optional surface_result{ app.resources.find<vk::UniqueSurfaceKHR>() };
-    if (!surface_result.has_value()) {
-        throw std::runtime_error{
-            "vk::UniqueSurfaceKHR required but not found in 'app.resources'"
-        };
-    }
-    const vk::UniqueSurfaceKHR& surface{ surface_result.value().get() };
-
-
     vkb::PhysicalDeviceSelector physical_device_selector(
         static_cast<const vkb::Instance>(instance), surface.get()
     );
@@ -62,6 +83,8 @@ auto DevicePlugin::operator()(App& app) const -> void
     )) };
 
     core::config::vulkan::init(device.get());
+
+    log_setup(static_cast<const vkb::Device>(device));
 }
 
 }   // namespace plugins::renderer

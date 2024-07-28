@@ -2,12 +2,13 @@
 
 #include <tuple>
 
-namespace core {
-
 /////////////////////////////////////////////////////
 // Tuple-like concept                              //
 // Reference: https://stackoverflow.com/a/78465321 //
 /////////////////////////////////////////////////////
+
+namespace core::meta {
+// NOLINTBEGIN(readability-identifier-naming)
 
 template <class T>
 constexpr inline bool is_tuple_like_v = false;
@@ -30,4 +31,5 @@ concept tuple_like = is_tuple_like_v<std::remove_cvref_t<T>>;
 template <typename T>
 concept pair_like = tuple_like<T> && std::tuple_size_v<std::remove_cvref_t<T>> == 2;
 
+// NOLINTEND(readability-identifier-naming)
 }   // namespace core

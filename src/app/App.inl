@@ -1,20 +1,21 @@
 #include <spdlog/spdlog.h>
 
+#include <core/meta/functional.hpp>
+#include <core/meta/tuple-like.hpp>
+#include <core/utility/tuple.hpp>
+
 template <PluginConcept Plugin, typename Self, typename... Args>
 auto App::Builder::append(this Self&& self, Args&&... args) -> Self
 {
-    return std::forward<Self>(self).append(Plugin{ std::forward<Args>(args)... });
+    return std::forward<Self>(self).append(
+        std::remove_cvref_t<Plugin>(std::forward<Args>(args)...)
+    );
 }
 
 template <PluginConcept Plugin, typename Self>
 auto App::Builder::append(this Self&& self, Plugin&& plugin) -> Self
 {
-    if constexpr (requires(Plugin t, StoreView plugins) {
-                      {
-                          t.setup(plugins)
-                      };
-                  })
-    {
+    if constexpr (requires(Plugin t, StoreView plugins) { t.setup(plugins); }) {
         plugin.setup(StoreView{ self.m_plugins });
     }
 
@@ -50,10 +51,30 @@ auto App::Builder::run(Runner&& runner, Args&&... args)
     return std::invoke(std::forward<Runner>(runner), build(), std::forward<Args>(args)...);
 }
 
-template <PluginConcept Plugin>
+namespace details {
+
+template <typename Plugin>
+auto gather_resources(App& app)
+{
+    using RequiredResourcesTuple = decltype(core::utils::remove_first(
+        std::declval<typename core::meta::arguments_t<Plugin>>()
+    ));
+    return core::utils::generate_tuple<RequiredResourcesTuple>(
+        [&app]<typename Resource>() -> Resource {
+            return app.resources.at<std::remove_cvref_t<Resource>>();
+        }
+    );
+}
+
+}   // namespace details
+
+template <typename Plugin>
 App::Builder::PluginInvocation::PluginInvocation(Plugin& plugin_ref)
     : m_plugin_ref{ plugin_ref },
       m_invocation{ [](std::any& erased_plugin_ref, App& app) {
-          std::invoke(std::any_cast<Plugin&>(erased_plugin_ref), app);
+          std::apply(
+              std::any_cast<Plugin&>(erased_plugin_ref),
+              std::tuple_cat(std::tuple<App&>(app), details::gather_resources<Plugin>(app))
+          );
       } }
 {}

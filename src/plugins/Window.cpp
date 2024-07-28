@@ -10,8 +10,6 @@ namespace plugins::window {
 auto Window::operator()(App& app) const -> void
 {
     app.resources.emplace<core::window::Window>(size, title);
-
-    SPDLOG_TRACE("Added Window plugin");
 }
 
 }   // namespace plugins::window
