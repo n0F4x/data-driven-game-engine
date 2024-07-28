@@ -1,6 +1,6 @@
 namespace plugins::renderer {
 
-template <typename Self, typename... Args>
+template <typename Self>
 auto RendererPlugin::require_vulkan_version(
     this Self&&    self,
     const uint32_t t_major,
@@ -8,7 +8,7 @@ auto RendererPlugin::require_vulkan_version(
     const uint32_t t_patch
 ) noexcept -> Self
 {
-    self.m_required_vulkan_version = VK_MAKE_API_VERSION(0, t_major, t_minor, t_patch);
+    self.m_required_vulkan_version = vk::makeApiVersion(0u, t_major, t_minor, t_patch);
     return std::forward<Self>(self);
 }
 

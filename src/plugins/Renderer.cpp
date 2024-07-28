@@ -1,10 +1,7 @@
 #include "Renderer.hpp"
 
-#include <spdlog/spdlog.h>
-
 #include <VkBootstrap.h>
 
-#include "core/config/vulkan.hpp"
 #include "core/renderer/base/allocator/Requirements.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
@@ -51,42 +48,6 @@ static auto enable_instance_settings(
         core::window::Window::vulkan_instance_extensions(),
         std::bind_front(&vkb::InstanceBuilder::enable_extension, t_builder)
     );
-}
-
-static auto log_renderer_setup(const vkb::Device& t_device) -> void
-{
-    try {
-        const auto instance_version{ t_device.instance_version };
-
-        SPDLOG_INFO(
-            "Created Vulkan Instance with version: {}.{}.{}",
-            VK_VERSION_MAJOR(instance_version),
-            VK_VERSION_MINOR(instance_version),
-            VK_VERSION_PATCH(instance_version)
-        );
-
-        const auto properties{
-            vk::PhysicalDevice(t_device.physical_device.physical_device).getProperties()
-        };
-
-        SPDLOG_INFO(
-            "Chose GPU({}) with Vulkan version: {}.{}.{}",
-            t_device.physical_device.name,
-            VK_VERSION_MAJOR(properties.apiVersion),
-            VK_VERSION_MINOR(properties.apiVersion),
-            VK_VERSION_PATCH(properties.apiVersion)
-        );
-
-        std::string enabled_extensions{ "Enabled device extensions:" };
-        for (const auto& extension : t_device.physical_device.get_extensions()) {
-            enabled_extensions += '\n';
-            enabled_extensions += '\t';
-            enabled_extensions += extension;
-        }
-        SPDLOG_DEBUG(enabled_extensions);
-    } catch (const vk::Error& t_error) {
-        SPDLOG_ERROR(t_error.what());
-    }
 }
 
 namespace plugins::renderer {
@@ -160,65 +121,27 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
             )
     );
 
-    app_builder.append(
-        [create_framebuffer_size_getter = m_create_framebuffer_size_getter](App& app) {
-            const std::optional surface{ app.resources.find<vk::UniqueSurfaceKHR>() };
-            if (!surface.has_value()) {
-                throw std::runtime_error{
-                    "vk::UniqueSurfaceKHR required but not found in 'app.resources'"
-                };
-            }
-
-            const std::optional device{ app.resources.find<core::renderer::Device>() };
-            if (!device.has_value()) {
-                throw std::runtime_error{
-                    "Device required but not found in "
-                    "'app.resources'"
-                };
-            }
-
-            app.resources.emplace<core::renderer::SwapchainHolder>(
-                surface.value().get().get(),
-                device.value().get(),
-                create_framebuffer_size_getter
-                    ? std::invoke(create_framebuffer_size_getter, app)
-                    : nullptr
-            );
-        }
-    );
-
-    app_builder.append([](App& app) {
-        const std::optional instance{ app.resources.find<core::renderer::Instance>() };
-        if (!instance.has_value()) {
-            throw std::runtime_error{
-                "core::renderer::Instance required but not found in 'app.resources'"
-            };
-        }
-
-        const std::optional device{ app.resources.find<core::renderer::Device>() };
-        if (!device.has_value()) {
-            throw std::runtime_error{
-                "core::renderer::Device required but not found in "
-                "'app.resources'"
-            };
-        }
-
-        app.resources.emplace<core::renderer::Allocator>(instance.value(), device.value());
+    app_builder.append([create_framebuffer_size_getter = m_create_framebuffer_size_getter](
+                           App&                          app,
+                           const vk::UniqueSurfaceKHR&   surface,
+                           const core::renderer::Device& device
+                       ) {
+        app.resources.emplace<core::renderer::SwapchainHolder>(
+            surface.get(),
+            device,
+            create_framebuffer_size_getter
+                ? std::invoke(create_framebuffer_size_getter, app)
+                : nullptr
+        );
     });
 
-    app_builder.append([](App& app) {
-        const std::optional device{ app.resources.find<core::renderer::Device>() };
-        if (!device.has_value()) {
-            throw std::runtime_error{
-                "core::renderer::Device required but not found in "
-                "'app.resources'"
-            };
-        }
-
-        log_renderer_setup(static_cast<const vkb::Device>(device.value().get()));
+    app_builder.append([](App&                            app,
+                          const core::renderer::Instance& instance,
+                          const core::renderer::Device&   device) {
+        app.resources.emplace<core::renderer::Allocator>(instance, device);
     });
 
-    SPDLOG_TRACE("Added Renderer plugin");
+    SPDLOG_TRACE("Added Renderer plugin group");
 }
 
 }   // namespace plugins::renderer

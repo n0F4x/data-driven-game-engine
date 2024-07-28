@@ -11,7 +11,7 @@ Support for other setups are not a priority until a planned release.
 External libraries used to be fetched through CMake's `FetchContent`.
 This got too slow as the project grew, hence the move to vcpkg.
 
-`FetchContent` is only used library versions that are not available via vcpkg.
+`FetchContent` is only used for library versions that are not available via vcpkg.
 
 ## vcpkg
 

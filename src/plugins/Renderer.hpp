@@ -26,7 +26,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    template <typename Self, typename... Args>
+    template <typename Self>
     auto require_vulkan_version(
         this Self&&,
         uint32_t major,
@@ -52,7 +52,7 @@ public:
     auto framebuffer_size_getter() const noexcept -> const FramebufferSizeGetterCreator&;
 
 private:
-    uint32_t                     m_required_vulkan_version{ VK_API_VERSION_1_0 };
+    uint32_t                     m_required_vulkan_version{ vk::ApiVersion10 };
     SurfacePlugin                m_surface_plugin;
     FramebufferSizeGetterCreator m_create_framebuffer_size_getter;
 };

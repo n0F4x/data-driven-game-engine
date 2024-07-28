@@ -10,7 +10,7 @@
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
 
-#include "core/utility/functional.hpp"
+#include "core/meta/functional.hpp"
 
 #include "ImageLoader.hpp"
 #include "Model.hpp"
@@ -457,7 +457,7 @@ static auto make_accessor_loader(
                Transformation            transform
            ) -> void {
         using ElementType = std::remove_cvref_t<
-            std::tuple_element_t<0, decltype(core::utils::arguments(transform))>>;
+            std::tuple_element_t<0, core::meta::arguments_t<Transformation>>>;
         using AttributeType =
             std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
 
