@@ -1,4 +1,4 @@
-#include <print>
+#include <iostream>
 
 #include <app.hpp>
 #include <plugins.hpp>
@@ -32,7 +32,8 @@ try {
         .run(demo::run, model_info);
 } catch (const std::exception& error) {
     try {
-        std::println("{}", error.what());
+        // TODO: use std::println
+        std::cout << error.what();
     } catch (...) {
         return -1;
     }

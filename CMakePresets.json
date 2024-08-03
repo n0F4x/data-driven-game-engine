@@ -51,6 +51,15 @@
       }
     },
     {
+      "name": "CLion-GCC",
+      "hidden": true,
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "GCC"
+        }
+      }
+    },
+    {
       "name": "Clang-MinGW-debug",
       "inherits": [
         "debug",
@@ -64,6 +73,22 @@
         "release",
         "vcpkg-MinGW",
         "CLion-Clang"
+      ]
+    },
+    {
+      "name": "GCC-MinGW-debug",
+      "inherits": [
+        "debug",
+        "vcpkg-MinGW",
+        "CLion-GCC"
+      ]
+    },
+    {
+      "name": "GCC-MinGW-release",
+      "inherits": [
+        "release",
+        "vcpkg-MinGW",
+        "CLion-GCC"
       ]
     }
   ]

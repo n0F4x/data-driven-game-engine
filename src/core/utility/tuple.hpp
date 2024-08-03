@@ -43,7 +43,7 @@ auto remove_nth(Tuple&& tuple)
 namespace details {
 
 template <typename Tuple, typename Generator, size_t... Ints>
-auto generate_tuple(Generator generator, std::index_sequence<Ints...>) -> Tuple
+auto generate_tuple(Generator&& generator, std::index_sequence<Ints...>) -> Tuple
 {
     return Tuple {
         generator.template operator()<std::tuple_element_t<Ints, Tuple>>()...
@@ -53,7 +53,7 @@ auto generate_tuple(Generator generator, std::index_sequence<Ints...>) -> Tuple
 }   // namespace details
 
 template <meta::tuple_like Tuple, typename Generator>
-auto generate_tuple(Generator generator) -> Tuple
+auto generate_tuple(Generator&& generator) -> Tuple
 {
     constexpr static size_t size{ std::tuple_size_v<Tuple> };
 
@@ -62,7 +62,7 @@ auto generate_tuple(Generator generator) -> Tuple
     }
 
     using Indices = std::make_index_sequence<size>;
-    return details::generate_tuple<Tuple>(generator, Indices{});
+    return details::generate_tuple<Tuple>(std::forward<Generator>(generator), Indices{});
 }
 
 }   // namespace core::utils

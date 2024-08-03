@@ -37,7 +37,7 @@ auto Allocator::Requirements::enable_instance_settings(
     vkb::InstanceBuilder&  t_builder
 ) -> void
 {
-    for (const auto extension_name : optional_instance_extension_names()) {
+    for (const auto& extension_name : optional_instance_extension_names()) {
         if (t_system_info.is_extension_available(extension_name)) {
             t_builder.enable_extension(extension_name);
         }

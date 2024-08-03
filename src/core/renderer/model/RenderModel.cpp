@@ -556,6 +556,7 @@ static auto to_mag_filter(gltf::Sampler::MagFilter t_mag_filter) noexcept -> vk:
         case eNearest: return vk::Filter::eNearest;
         case eLinear: return vk::Filter::eLinear;
     }
+    std::unreachable();
 }
 
 [[nodiscard]]
@@ -570,6 +571,7 @@ static auto to_min_filter(gltf::Sampler::MinFilter t_min_filter) noexcept -> vk:
         case eNearestMipmapLinear: return vk::Filter::eNearest;
         case eLinearMipmapLinear: return vk::Filter::eLinear;
     }
+    std::unreachable();
 }
 
 [[nodiscard]]
@@ -585,6 +587,7 @@ static auto to_mipmap_mode(gltf::Sampler::MinFilter t_min_filter
         case eNearestMipmapLinear: [[fallthrough]];
         case eLinearMipmapLinear: return vk::SamplerMipmapMode::eLinear;
     }
+    std::unreachable();
 }
 
 [[nodiscard]]
@@ -597,6 +600,7 @@ static auto to_address_mode(gltf::Sampler::WrapMode t_wrap_mode
         case eMirroredRepeat: return vk::SamplerAddressMode::eMirroredRepeat;
         case eRepeat: return vk::SamplerAddressMode::eRepeat;
     }
+    std::unreachable();
 }
 
 [[nodiscard]]
@@ -691,6 +695,7 @@ static auto convert(gltf::Mesh::Primitive::Topology t_topology) -> vk::Primitive
         case eTriangleStrips: return vk::PrimitiveTopology::eTriangleStrip;
         case eTriangleFans: return vk::PrimitiveTopology::eTriangleFan;
     }
+    std::unreachable();
 }
 
 [[nodiscard]]

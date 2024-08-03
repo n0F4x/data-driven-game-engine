@@ -1,5 +1,7 @@
 #include "Image.hpp"
 
+#include <utility>
+
 namespace core::renderer {
 
 Image::Image(
