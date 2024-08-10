@@ -1,6 +1,7 @@
 #include "Loader.hpp"
 
 #include <array>
+#include <iostream>
 #include <ranges>
 
 #include <spdlog/spdlog.h>
@@ -257,6 +258,7 @@ auto Loader::load_nodes(
 ) -> void
 {
     t_model.m_root_node_indices.reserve(t_node_indices.size());
+    t_model.m_nodes.reserve(t_asset.nodes.size());
     std::unordered_map<size_t, size_t> node_index_map;
     for (const auto node_index : t_node_indices) {
         t_model.m_root_node_indices.push_back(node_index);
@@ -324,6 +326,7 @@ auto Loader::load_materials(Model& t_model, const fastgltf::Asset& t_asset) -> v
     }
 }
 
+// TODO: refactor to note take a non-const reference to Node
 auto Loader::load_node(
     Model&                              t_model,
     Node&                               t_node,

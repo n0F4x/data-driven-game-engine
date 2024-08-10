@@ -22,6 +22,7 @@ hicpp-*,
 misc-*,
 -misc-include-cleaner,
 -misc-misplaced-const,
+-misc-no-recursion,
 -misc-non-private-member-variables-in-classes,
 -misc-use-anonymous-namespace,
 modernize-*

@@ -8,10 +8,10 @@
 namespace core::gltf {
 
 struct Node {
-    Node*                 parent;
-    glm::vec3             translation;
-    glm::quat             rotation;
-    glm::vec3             scale;
+    Node*                 parent{};
+    glm::vec3             translation{};
+    glm::quat             rotation{};
+    glm::vec3             scale{};
     std::optional<size_t> mesh_index;
     std::vector<size_t>   child_indices;
 
