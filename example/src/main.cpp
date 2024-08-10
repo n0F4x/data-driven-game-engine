@@ -17,9 +17,9 @@ try {
         //        "models/armor/armor.gltf",
         //        "models/DamagedHelmet.glb",
         //        "models/Sponza/glTF/Sponza.gltf",
-        //        "models/SponzaKTX/Sponza01.gltf",
-        "models/SponzaKTX/Sponza02.gltf",
-        500,
+        //        "models/SponzaKTX/Sponza.gltf", // not (yet) supported
+        "models/SponzaKTX2/SponzaUastc.gltf",
+        5,
         "shaders/pbr.frag.spv"
     };
 

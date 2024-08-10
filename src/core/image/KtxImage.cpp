@@ -2,6 +2,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <vulkan/vulkan.hpp>
+
 static auto transcode(ktxTexture2* t_texture) -> void
 {
     if (ktxTexture2_NeedsTranscoding(t_texture)) {

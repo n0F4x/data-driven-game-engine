@@ -19,7 +19,7 @@
 static auto load_asset(const std::filesystem::path& t_filepath
 ) -> fastgltf::Expected<fastgltf::Asset>
 {
-    fastgltf::Parser parser;
+    fastgltf::Parser parser{ fastgltf::Extensions::KHR_texture_basisu };
 
     fastgltf::GltfDataBuffer data;
     data.loadFromFile(t_filepath);
@@ -42,16 +42,14 @@ static auto load_image(
     return std::visit(
         fastgltf::visitor{
             [](std::monostate) -> std::optional<core::gltf::Image> {
-                constexpr static std::string_view error_message{
+                assert(false &&
                     "Got `std::monostate` while visiting fastgltf::DataSource, which is "
                     "an error in fastgltf."
-                };
-                SPDLOG_ERROR(error_message);
-                throw std::runtime_error{ error_message.data() };
+                );
             },
             [](const auto&) -> std::optional<core::gltf::Image> {
-                throw std::runtime_error(
-                    "Got an unexpected glTF image data source. Can't load image."
+                assert(
+                    false && "Got an unexpected glTF image data source. Can't load image."
                 );
             },
             [&](const fastgltf::sources::BufferView& buffer_view) {
@@ -183,10 +181,22 @@ static auto convert(const fastgltf::Optional<T>& t_optional
 
 static auto create_texture(const fastgltf::Texture& t_texture) -> core::gltf::Texture
 {
-    assert(t_texture.imageIndex.has_value() && "glTF Image extensions are not handled");
-    return core::gltf::Texture{
-        .sampler_index = convert<size_t, uint32_t>(t_texture.samplerIndex),
-        .image_index   = static_cast<uint32_t>(t_texture.imageIndex.value()),
+    if (t_texture.basisuImageIndex.has_value()) {
+        return core::gltf::Texture{
+            .sampler_index = convert<size_t, uint32_t>(t_texture.samplerIndex),
+            .image_index   = static_cast<uint32_t>(t_texture.basisuImageIndex.value()),
+        };
+    }
+
+    if (t_texture.imageIndex.has_value()) {
+        return core::gltf::Texture{
+            .sampler_index = convert<size_t, uint32_t>(t_texture.samplerIndex),
+            .image_index   = static_cast<uint32_t>(t_texture.imageIndex.value()),
+        };
+    }
+
+    throw std::runtime_error{
+        "glTF texture's `source` is not provided or an image extension is not supported."
     };
 }
 
@@ -277,7 +287,8 @@ auto Loader::load_images(
             t_model.m_images.push_back(std::move(loaded_image.value()));
         }
         else {
-            throw std::runtime_error{ std::format(
+            // TODO: use std::format
+            throw std::runtime_error{ fmt::format(
                 "Failed to load image {} from gltf image {}",
                 image.name,
                 t_filepath.generic_string()

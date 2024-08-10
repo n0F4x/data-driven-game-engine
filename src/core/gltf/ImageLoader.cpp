@@ -1,6 +1,6 @@
 #include "ImageLoader.hpp"
 
-#include <format>
+#include <fmt/format.h>
 
 #include "core/image/KtxImage.hpp"
 #include "core/image/StbImage.hpp"
@@ -44,7 +44,8 @@ auto ImageLoader::load_from_memory(
             );
         }
         default: {
-            throw std::runtime_error(std::format(
+            // TODO: use std::format
+            throw std::runtime_error(fmt::format(
                 "Unsupported mime type for loading images: {}",
                 std::to_underlying(t_mime_type)
             ));
