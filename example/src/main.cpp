@@ -14,11 +14,10 @@ try {
     const demo::ModelInfo model_info{
         //        "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
         //        "models/Avocado/glTF-Binary/Avocado.glb",
-        //        "models/armor/armor.gltf",
+        "models/FlightHelmet/FlightHelmetUastc.gltf",
         //        "models/DamagedHelmet.glb",
         //        "models/Sponza/glTF/Sponza.gltf",
-        //        "models/SponzaKTX/Sponza.gltf", // not (yet) supported
-        "models/SponzaKTX2/SponzaUastc.gltf",
+        //        "models/SponzaKTX2/SponzaUastc.gltf",
         5,
         "shaders/pbr.frag.spv"
     };

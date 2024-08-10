@@ -10710,9 +10710,6 @@
       ]
     }
   ],
-  "extensionsRequired": [
-    "KHR_texture_basisu"
-  ],
   "extensionsUsed": [
     "KHR_texture_basisu"
   ]

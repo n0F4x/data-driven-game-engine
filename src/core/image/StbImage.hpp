@@ -50,7 +50,12 @@ private:
     int                                                                      m_height;
     int m_channel_count;
 
-    explicit StbImage(stbi_uc* data, int width, int height, int channel_count) noexcept;
+    explicit StbImage(
+        gsl_lite::not_null<stbi_uc*> data,
+        int                          width,
+        int                          height,
+        int                          channel_count
+    ) noexcept;
 };
 
 }   // namespace core::image

@@ -27,7 +27,7 @@ auto StbImage::load_from_file(const std::filesystem::path& t_filepath
         return std::nullopt;
     }
 
-    return StbImage{ data, width, height, STBI_rgb_alpha };
+    return StbImage{ gsl::make_not_null(data), width, height, STBI_rgb_alpha };
 }
 
 auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
@@ -53,7 +53,7 @@ auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
         return std::nullopt;
     }
 
-    return StbImage{ data, width, height, STBI_rgb_alpha };
+    return StbImage{ gsl::make_not_null(data), width, height, STBI_rgb_alpha };
 }
 
 auto StbImage::data() const noexcept -> void*
@@ -107,7 +107,7 @@ auto StbImage::offset(const uint32_t t_mip_level, const uint32_t, const uint32_t
 }
 
 StbImage::StbImage(
-    stbi_uc* const t_data,
+    const gsl_lite::not_null<stbi_uc*>  t_data,
     const int      t_width,
     const int      t_height,
     const int      t_channel_count
