@@ -14,7 +14,6 @@
 #include "core/meta/functional.hpp"
 
 #include "ImageLoader.hpp"
-#include "Model.hpp"
 
 [[nodiscard]]
 static auto load_asset(const std::filesystem::path& t_filepath
@@ -252,27 +251,27 @@ auto Loader::load_model(
 }
 
 auto Loader::load_nodes(
-    Model&                                              t_model,
-    const fastgltf::Asset&                              t_asset,
-    const fastgltf::pmr::MaybeSmallVector<std::size_t>& t_node_indices
+    Model&                                              model,
+    const fastgltf::Asset&                              asset,
+    const fastgltf::pmr::MaybeSmallVector<std::size_t>& node_indices
 ) -> void
 {
-    t_model.m_root_node_indices.reserve(t_node_indices.size());
-    t_model.m_nodes.reserve(t_asset.nodes.size());
+    model.m_root_node_indices.reserve(node_indices.size());
+    model.m_nodes.reserve(asset.nodes.size());
     std::unordered_map<size_t, size_t> node_index_map;
-    for (const auto node_index : t_node_indices) {
-        t_model.m_root_node_indices.push_back(node_index);
-        node_index_map.try_emplace(node_index, t_model.m_nodes.size());
-        load_node(
-            t_model,
-            t_model.m_nodes.emplace_back(),
-            t_asset,
-            t_asset.nodes[node_index],
-            nullptr,
+    for (const auto node_index : node_indices) {
+        model.m_root_node_indices.push_back(node_index);
+        node_index_map.try_emplace(node_index, model.m_nodes.size());
+        model.m_nodes = load_node(
+            model,
+            std::move(model.m_nodes),
+            asset,
+            asset.nodes[node_index],
+            std::nullopt,
             node_index_map
         );
     }
-    adjust_node_indices(t_model, node_index_map);
+    adjust_node_indices(model, node_index_map);
 }
 
 auto Loader::load_images(
@@ -326,19 +325,25 @@ auto Loader::load_materials(Model& t_model, const fastgltf::Asset& t_asset) -> v
     }
 }
 
-// TODO: refactor to note take a non-const reference to Node
 auto Loader::load_node(
-    Model&                              t_model,
-    Node&                               t_node,
-    const fastgltf::Asset&              t_asset,
-    const fastgltf::Node&               t_source_node,
-    Node*                               t_parent,
-    std::unordered_map<size_t, size_t>& t_node_index_map
-) -> void
+    Model&                              model,
+    std::vector<Node>&&                 nodes,
+    const fastgltf::Asset&              asset,
+    const fastgltf::Node&               source_node,
+    std::optional<size_t>               parent_index,
+    std::unordered_map<size_t, size_t>& node_index_map
+) -> std::vector<Node>
 {
-    if (t_parent != nullptr) {
-        t_node.parent = t_parent;
-    }
+    size_t node_index{ nodes.size() };
+    Node&  node{ nodes.emplace_back(
+        parent_index,
+        source_node.children,
+        source_node.meshIndex.has_value()
+             ? std::optional{ load_mesh(
+                  model, asset, asset.meshes[*source_node.meshIndex]
+              ) }
+             : std::nullopt
+    ) };
 
     std::array<float, 3> scale{ 1.f, 1.f, 1.f };
     std::array<float, 4> rotation{ 0.f, 0.f, 0.f, 1.f };
@@ -353,31 +358,26 @@ auto Loader::load_node(
             [&](const fastgltf::Node::TransformMatrix& matrix) {
                 fastgltf::decomposeTransformMatrix(matrix, scale, rotation, translation);
             } },
-        t_source_node.transform
+        source_node.transform
     );
-    t_node.scale       = glm::make_vec3(scale.data());
-    t_node.rotation    = glm::make_quat(rotation.data());
-    t_node.translation = glm::make_vec3(translation.data());
+    node.scale()       = glm::make_vec3(scale.data());
+    node.rotation()    = glm::make_quat(rotation.data());
+    node.translation() = glm::make_vec3(translation.data());
 
-    if (t_source_node.meshIndex) {
-        t_node.mesh_index =
-            load_mesh(t_model, t_asset, t_asset.meshes[*t_source_node.meshIndex]);
-    }
-
-    t_node.child_indices.reserve(t_source_node.children.size());
-    for (const auto child_index : t_source_node.children) {
-        t_node.child_indices.push_back(child_index);
-        if (t_node_index_map.try_emplace(child_index, t_model.m_nodes.size()).second) {
-            load_node(
-                t_model,
-                t_model.m_nodes.emplace_back(),
-                t_asset,
-                t_asset.nodes[child_index],
-                &t_node,
-                t_node_index_map
+    for (const size_t child_index : source_node.children) {
+        if (node_index_map.try_emplace(child_index, model.m_nodes.size()).second) {
+            nodes = load_node(
+                model,
+                std::move(nodes),
+                asset,
+                asset.nodes[child_index],
+                node_index,
+                node_index_map
             );
         }
     }
+
+    return nodes;
 }
 
 auto Loader::load_mesh(
@@ -390,8 +390,9 @@ auto Loader::load_mesh(
     auto& [primitives]{ t_model.m_meshes.emplace_back() };
 
     primitives.reserve(t_source_mesh.primitives.size());
-    for (const auto& source_primitive : t_source_mesh.primitives) {
-        if (auto primitive{ load_primitive(t_model, t_asset, source_primitive) };
+    for (const fastgltf::Primitive& source_primitive : t_source_mesh.primitives) {
+        if (const std::optional<Mesh::Primitive> primitive{
+                load_primitive(t_model, t_asset, source_primitive) };
             primitive.has_value())
         {
             primitives.push_back(primitive.value());
@@ -596,17 +597,17 @@ auto Loader::load_indices(
 }
 
 auto Loader::adjust_node_indices(
-    Model&                                    t_model,
-    const std::unordered_map<size_t, size_t>& t_node_index_map
+    Model&                                    model,
+    const std::unordered_map<size_t, size_t>& node_index_map
 ) -> void
 {
-    for (size_t& root_node_index : t_model.m_root_node_indices) {
-        root_node_index = t_node_index_map.at(root_node_index);
+    for (size_t& root_node_index : model.m_root_node_indices) {
+        root_node_index = node_index_map.at(root_node_index);
     }
 
-    for (Node& node : t_model.m_nodes) {
-        for (size_t& child_index : node.child_indices) {
-            child_index = t_node_index_map.at(child_index);
+    for (Node& node : model.m_nodes) {
+        for (size_t& child_index : node.m_child_indices) {
+            child_index = node_index_map.at(child_index);
         }
     }
 }

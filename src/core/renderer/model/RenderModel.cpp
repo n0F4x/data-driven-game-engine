@@ -902,15 +902,18 @@ auto RenderModel::create_loader(
 
     std::vector nodes_with_mesh{
         t_model->nodes() | std::views::filter([](const gltf::Node& node) {
-            return node.mesh_index.has_value();
+            return node.mesh_index().has_value();
         })
         | std::views::transform([](const gltf::Node& node) { return std::cref(node); })
         | std::ranges::to<std::vector>()
     };
     std::vector<glm::mat4> transforms(nodes_with_mesh.size());
-    std::ranges::for_each(nodes_with_mesh, [&transforms](const gltf::Node& node) {
-        transforms.at(node.mesh_index.value()) = node.matrix();
-    });
+    std::ranges::for_each(
+        nodes_with_mesh,
+        [&transforms, model = std::cref(*t_model)](const gltf::Node& node) {
+            transforms.at(node.mesh_index().value()) = node.matrix(model);
+        }
+    );
     MappedBuffer transform_staging_buffer{
         create_staging_buffer(t_allocator, std::span{ transforms })
     };
