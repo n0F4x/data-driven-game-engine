@@ -1,5 +1,5 @@
 // Credit: https://github.com/SaschaWillems/Vulkan-glTF-PBR
-vec4 SRGBtoLINEAR(vec4 srgbIn) {
+vec4 sRGBtoLinear(vec4 srgbIn) {
     #define MANUAL_SRGB 1
     #ifdef MANUAL_SRGB
     #ifdef SRGB_FAST_APPROXIMATION

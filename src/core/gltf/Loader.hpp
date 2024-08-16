@@ -64,16 +64,16 @@ private:
 
     [[nodiscard]]
     static auto load_vertices(
-        Model&                 model,
-        Mesh::Primitive&       primitive,
-        const fastgltf::Asset& asset,
-        const fastgltf::pmr::SmallVector<fastgltf::Primitive::attribute_type, 4>& attributes
+        Model&                                                    model,
+        Mesh::Primitive&                                          primitive,
+        const fastgltf::Asset&                                    asset,
+        const fastgltf::pmr::SmallVector<fastgltf::Attribute, 4>& attributes
     ) -> bool;
 
     static auto load_indices(
         Model&                    model,
         Mesh::Primitive&          primitive,
-        const uint32_t            first_vertex_index,
+        uint32_t                  first_vertex_index,
         const fastgltf::Asset&    asset,
         const fastgltf::Accessor& accessor
     ) -> void;

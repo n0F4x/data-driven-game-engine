@@ -15,11 +15,11 @@ namespace core::image {
 class KTX2Image : public Image {
 public:
     [[nodiscard]]
-    static auto load_from_file(const std::filesystem::path& t_filepath
+    static auto load_from_file(const std::filesystem::path& filepath
     ) -> std::optional<KTX2Image>;
 
     [[nodiscard]]
-    static auto load_from_memory(std::span<const std::uint8_t> t_data
+    static auto load_from_memory(std::span<const std::byte> data
     ) -> std::optional<KTX2Image>;
 
     [[nodiscard]]
@@ -56,12 +56,12 @@ public:
 
 private:
     struct Deleter {
-        auto operator()(ktxTexture2* t_ktxTexture) const noexcept -> void;
+        auto operator()(ktxTexture2* texture) const noexcept -> void;
     };
 
     gsl_lite::not_null<std::unique_ptr<ktxTexture2, Deleter>> m_impl;
 
-    explicit KTX2Image(gsl_lite::not_null<ktxTexture2*> t_ktxTexture) noexcept;
+    explicit KTX2Image(gsl_lite::not_null<ktxTexture2*> texture) noexcept;
 };
 
 }   // namespace core::image

@@ -1,6 +1,5 @@
 - provide a default texture source
 - change image formats before upload 
-- support ktx1
 - build the vulkan validation layers
 - use proper assertions
 - separate logger for debug and actual use

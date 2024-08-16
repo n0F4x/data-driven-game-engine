@@ -60,37 +60,34 @@ layout (push_constant) uniform Push {
 layout (location = 0) out vec4 out_color;
 
 
-#define MIN_ROUGHNESS 0.04
+vec4 sampleTexture(uint textureIndex, uint UVIndex) {
+    Texture texture_ = textureBuffer_.textures[textureIndex];
+    vec2 UV = UVIndex == 0 ? in_UV0 : in_UV1;
 
-
-vec4 sample_texture(Texture texture_, vec2 UV) {
-    if (texture_.samplerIndex == MAX_UINT_VALUE) {
-        return texture(sampler2D(images[texture_.imageIndex], defaultSampler), UV);
-    }
-    return texture(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV);
+    return texture_.samplerIndex == MAX_UINT_VALUE ?
+    texture(sampler2D(images[texture_.imageIndex], defaultSampler), UV) :
+    texture(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV);
 }
 
+vec4 getBaseColor(Material material) {
+    vec4 baseColor = material.pbrMetallicRoughnessBaseColorFactor;
+    if (material.pbrMetallicRoughnessBaseColorTextureIndex != MAX_UINT_VALUE) {
+        vec4 colorSample = sampleTexture(material.pbrMetallicRoughnessBaseColorTextureIndex, material.pbrMetallicRoughnessBaseColorTextureTexCoord);
+        baseColor *= sRGBtoLinear(colorSample);
+    }
 
-// Based on: https://github.com/SaschaWillems/Vulkan-glTF-PBR
+    return baseColor;
+}
+
 void main() {
     Material material = materialIndex == MAX_UINT_VALUE ? defaultMaterial : materialBuffer.materials[materialIndex];
 
-    vec4 baseColor;
-    if (material.pbrMetallicRoughnessBaseColorTextureIndex != MAX_UINT_VALUE) {
-        Texture colorTexture = textureBuffer_.textures[material.pbrMetallicRoughnessBaseColorTextureIndex];
-        vec2 colorUV = material.pbrMetallicRoughnessBaseColorTextureTexCoord == 0 ? in_UV0 : in_UV1;
-        vec4 colorSample = sample_texture(colorTexture, colorUV);
-        baseColor = SRGBtoLINEAR(colorSample) * material.pbrMetallicRoughnessBaseColorFactor;
-    } else {
-        baseColor = material.pbrMetallicRoughnessBaseColorFactor;
-    }
-
+    vec4 baseColor = getBaseColor(material);
     if (material.alphaCutoff >= 0.0) {
         if (baseColor.a < material.alphaCutoff) {
             discard;
         }
     }
-
     baseColor *= in_color;
 
     out_color = baseColor;

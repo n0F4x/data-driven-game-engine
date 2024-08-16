@@ -15,11 +15,11 @@ namespace core::image {
 class StbImage : public Image {
 public:
     [[nodiscard]]
-    static auto load_from_file(const std::filesystem::path& t_filepath
+    static auto load_from_file(const std::filesystem::path& filepath
     ) -> std::optional<StbImage>;
 
     [[nodiscard]]
-    static auto load_from_memory(std::span<const std::uint8_t> t_data
+    static auto load_from_memory(std::span<const std::byte> data
     ) -> std::optional<StbImage>;
 
     [[nodiscard]]

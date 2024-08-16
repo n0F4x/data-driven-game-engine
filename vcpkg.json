@@ -30,9 +30,6 @@
     "name" : "glfw3",
     "version>=" : "3.4"
   }, {
-    "name" : "fastgltf",
-    "version>=" : "0.7.1"
-  }, {
     "name" : "tsl-ordered-map",
     "version>=" : "1.0.0#3"
   }, {

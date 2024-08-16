@@ -6,10 +6,10 @@
 
 namespace core::image {
 
-auto StbImage::load_from_file(const std::filesystem::path& t_filepath
+auto StbImage::load_from_file(const std::filesystem::path& filepath
 ) -> std::optional<StbImage>
 {
-    if (stbi_info(t_filepath.generic_string().c_str(), nullptr, nullptr, nullptr) != 1) {
+    if (stbi_info(filepath.generic_string().c_str(), nullptr, nullptr, nullptr) != 1) {
         return std::nullopt;
     }
 
@@ -18,7 +18,7 @@ auto StbImage::load_from_file(const std::filesystem::path& t_filepath
     stbi_uc* data{
         // TODO: request format
         stbi_load(
-            t_filepath.generic_string().c_str(), &width, &height, nullptr, STBI_rgb_alpha
+            filepath.generic_string().c_str(), &width, &height, nullptr, STBI_rgb_alpha
         )
     };
 
@@ -30,11 +30,14 @@ auto StbImage::load_from_file(const std::filesystem::path& t_filepath
     return StbImage{ gsl::make_not_null(data), width, height, STBI_rgb_alpha };
 }
 
-auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
-) -> std::optional<StbImage>
+auto StbImage::load_from_memory(std::span<const std::byte> data) -> std::optional<StbImage>
 {
     if (stbi_info_from_memory(
-            t_data.data(), static_cast<int>(t_data.size()), nullptr, nullptr, nullptr
+            reinterpret_cast<const stbi_uc*>(data.data()),
+            static_cast<int>(data.size()),
+            nullptr,
+            nullptr,
+            nullptr
         )
         != 1)
     {
@@ -44,16 +47,21 @@ auto StbImage::load_from_memory(std::span<const std::uint8_t> t_data
     int      width{};
     int      height{};
     // TODO: request format
-    stbi_uc* data{ stbi_load_from_memory(
-        t_data.data(), static_cast<int>(t_data.size()), &width, &height, nullptr, STBI_rgb_alpha
+    stbi_uc* image_data{ stbi_load_from_memory(
+        reinterpret_cast<const stbi_uc*>(data.data()),
+        static_cast<int>(data.size()),
+        &width,
+        &height,
+        nullptr,
+        STBI_rgb_alpha
     ) };
 
-    if (data == nullptr) {
+    if (image_data == nullptr) {
         SPDLOG_ERROR(stbi_failure_reason());
         return std::nullopt;
     }
 
-    return StbImage{ gsl::make_not_null(data), width, height, STBI_rgb_alpha };
+    return StbImage{ gsl::make_not_null(image_data), width, height, STBI_rgb_alpha };
 }
 
 auto StbImage::data() const noexcept -> void*
@@ -98,24 +106,24 @@ auto StbImage::format() const noexcept -> vk::Format
     };
 }
 
-auto StbImage::offset(const uint32_t t_mip_level, const uint32_t, const uint32_t)
+auto StbImage::offset(const uint32_t mip_level, const uint32_t, const uint32_t)
     const noexcept -> uint64_t
 {
     // TODO more assertions
-    assert(t_mip_level < mip_levels());
+    assert(mip_level < mip_levels());
     return 0;
 }
 
 StbImage::StbImage(
-    const gsl_lite::not_null<stbi_uc*>  t_data,
-    const int      t_width,
-    const int      t_height,
-    const int      t_channel_count
+    const gsl_lite::not_null<stbi_uc*>  data,
+    const int      width,
+    const int      height,
+    const int      channel_count
 ) noexcept
-    : m_data{ std::unique_ptr<stbi_uc, decltype(&stbi_image_free)>{ t_data, stbi_image_free } },
-      m_width{ t_width },
-      m_height{ t_height },
-      m_channel_count{ t_channel_count }
+    : m_data{ std::unique_ptr<stbi_uc, decltype(&stbi_image_free)>{ data, stbi_image_free } },
+      m_width{ width },
+      m_height{ height },
+      m_channel_count{ channel_count }
 {}
 
 }   // namespace core::image

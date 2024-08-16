@@ -88,7 +88,14 @@ find_package(Stb REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Stb_INCLUDE_DIR})
 
 # fastgltf
-find_package(fastgltf CONFIG REQUIRED)
+set(FASTGLTF_ENABLE_DEPRECATED_EXT ON)
+set(FASTGLTF_COMPILE_AS_CPP20 ON)
+FetchContent_Declare(fastgltf
+        GIT_REPOSITORY https://github.com/spnda/fastgltf.git
+        GIT_TAG v0.8.0
+        SYSTEM
+)
+FetchContent_MakeAvailable(fastgltf)
 target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)
 
 # EnTT

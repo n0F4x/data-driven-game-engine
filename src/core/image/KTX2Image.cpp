@@ -4,13 +4,13 @@
 
 #include <vulkan/vulkan.hpp>
 
-static auto transcode(ktxTexture2* t_texture) -> void
+static auto transcode(ktxTexture2* texture) -> void
 {
-    if (ktxTexture2_NeedsTranscoding(t_texture)) {
+    if (ktxTexture2_NeedsTranscoding(texture)) {
         const ktx_transcode_fmt_e target_format = KTX_TTF_RGBA32;
 
         const auto error{
-            ktxTexture2_TranscodeBasis(t_texture, target_format, KTX_TF_HIGH_QUALITY)
+            ktxTexture2_TranscodeBasis(texture, target_format, KTX_TF_HIGH_QUALITY)
         };
         if (error != KTX_SUCCESS) {
             throw std::runtime_error(fmt::format(
@@ -23,19 +23,19 @@ static auto transcode(ktxTexture2* t_texture) -> void
 
 namespace core::image {
 
-auto KTX2Image::load_from_file(const std::filesystem::path& t_filepath
+auto KTX2Image::load_from_file(const std::filesystem::path& filepath
 ) -> std::optional<KTX2Image>
 {
     ktxTexture2* texture{};
 
     if (const ktxResult result{ ktxTexture2_CreateFromNamedFile(
-            t_filepath.generic_string().c_str(), KTX_TEXTURE_CREATE_NO_FLAGS, &texture
+            filepath.generic_string().c_str(), KTX_TEXTURE_CREATE_NO_FLAGS, &texture
         ) };
         result != KTX_SUCCESS && result != KTX_UNKNOWN_FILE_FORMAT)
     {
         SPDLOG_ERROR(
             "ktxTexture2_CreateFromNamedFile failed loading file {} with '{}'",
-            t_filepath.generic_string(),
+            filepath.generic_string(),
             ktxErrorString(result)
         );
 
@@ -47,13 +47,16 @@ auto KTX2Image::load_from_file(const std::filesystem::path& t_filepath
     return KTX2Image{ gsl::make_not_null(texture) };
 }
 
-auto KTX2Image::load_from_memory(const std::span<const std::uint8_t> t_data
+auto KTX2Image::load_from_memory(const std::span<const std::byte> data
 ) -> std::optional<KTX2Image>
 {
     ktxTexture2* texture{};
 
     if (ktxTexture2_CreateFromMemory(
-            t_data.data(), t_data.size(), KTX_TEXTURE_CREATE_NO_FLAGS, nullptr
+            reinterpret_cast<const ktx_uint8_t*>(data.data()),
+            data.size(),
+            KTX_TEXTURE_CREATE_NO_FLAGS,
+            nullptr
         )
         != KTX_SUCCESS)
     {
@@ -61,7 +64,10 @@ auto KTX2Image::load_from_memory(const std::span<const std::uint8_t> t_data
     }
 
     if (const ktxResult result{ ktxTexture2_CreateFromMemory(
-            t_data.data(), t_data.size(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &texture
+            reinterpret_cast<const ktx_uint8_t*>(data.data()),
+            data.size(),
+            KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
+            &texture
         ) };
         result != KTX_SUCCESS)
     {
@@ -132,27 +138,27 @@ auto KTX2Image::format() const noexcept -> vk::Format
     return static_cast<vk::Format>(m_impl->vkFormat);
 }
 
-auto KTX2Image::offset(uint32_t t_mip_level, uint32_t t_layer, uint32_t t_face_slice)
+auto KTX2Image::offset(uint32_t mip_level, uint32_t layer, uint32_t face_slice)
     const noexcept -> uint64_t
 {
-    assert(t_mip_level < mip_levels());
-    assert(t_layer < m_impl->numLayers);
-    assert(t_face_slice < m_impl->numFaces);
+    assert(mip_level < mip_levels());
+    assert(layer < m_impl->numLayers);
+    assert(face_slice < m_impl->numFaces);
 
     uint64_t offset{};
     ktxTexture_GetImageOffset(
-        ktxTexture(m_impl.get()), t_mip_level, t_layer, t_face_slice, &offset
+        ktxTexture(m_impl.get()), mip_level, layer, face_slice, &offset
     );
     return offset;
 }
 
-auto KTX2Image::Deleter::operator()(ktxTexture2* t_ktxTexture) const noexcept -> void
+auto KTX2Image::Deleter::operator()(ktxTexture2* texture) const noexcept -> void
 {
-    ktxTexture_Destroy(ktxTexture(t_ktxTexture));
+    ktxTexture_Destroy(ktxTexture(texture));
 }
 
-KTX2Image::KTX2Image(gsl_lite::not_null<ktxTexture2*> t_ktxTexture) noexcept
-    : m_impl{ t_ktxTexture }
+KTX2Image::KTX2Image(gsl_lite::not_null<ktxTexture2*> texture) noexcept
+    : m_impl{ texture }
 {}
 
 }   // namespace core::image

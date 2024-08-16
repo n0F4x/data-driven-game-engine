@@ -87,11 +87,23 @@ struct PBRInfo
 };
 
 
-vec4 sample_texture(Texture texture_, vec2 UV) {
-    if (texture_.samplerIndex == MAX_UINT_VALUE) {
-        return texture(sampler2D(images[texture_.imageIndex], defaultSampler), UV);
+vec4 sampleTexture(uint textureIndex, uint UVIndex) {
+    Texture texture_ = textureBuffer_.textures[textureIndex];
+    vec2 UV = UVIndex == 0 ? in_UV0 : in_UV1;
+
+    return texture_.samplerIndex == MAX_UINT_VALUE ?
+    texture(sampler2D(images[texture_.imageIndex], defaultSampler), UV) :
+    texture(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV);
+}
+
+vec4 getBaseColor(Material material) {
+    vec4 baseColor = material.pbrMetallicRoughnessBaseColorFactor;
+    if (material.pbrMetallicRoughnessBaseColorTextureIndex != MAX_UINT_VALUE) {
+        vec4 colorSample = sampleTexture(material.pbrMetallicRoughnessBaseColorTextureIndex, material.pbrMetallicRoughnessBaseColorTextureTexCoord);
+        baseColor *= sRGBtoLinear(colorSample);
     }
-    return texture(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV);
+
+    return baseColor;
 }
 
 
@@ -103,10 +115,7 @@ vec3 getNormal(Material material) {
     }
 
     // Perturb normal, see http://www.thetenthplanet.de/archives/1180
-    Texture normalTexture = textureBuffer_.textures[material.normalTextureIndex];
     vec2 normalUV = material.normalTextureTexCoord == 0 ? in_UV0 : in_UV1;
-    vec4 normalSample = sample_texture(normalTexture, normalUV);
-    vec3 tangentNormal = normalSample.xyz * 2.0 - 1.0;
 
     vec3 q1 = dFdx(in_worldPosition);
     vec3 q2 = dFdy(in_worldPosition);
@@ -117,6 +126,9 @@ vec3 getNormal(Material material) {
     vec3 T = normalize(q1 * st2.t - q2 * st1.t);
     vec3 B = -normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
+
+    vec4 normalSample = sampleTexture(material.normalTextureIndex, material.normalTextureTexCoord);
+    vec3 tangentNormal = normalSample.xyz * 2.0 - 1.0;
 
     return normalize(TBN * tangentNormal);
 }
@@ -161,47 +173,26 @@ float microfacetDistribution(PBRInfo pbrInputs) {
 void main() {
     Material material = materialIndex == MAX_UINT_VALUE ? defaultMaterial : materialBuffer.materials[materialIndex];
 
-    // The albedo may be defined from a base texture or a flat color
-    vec4 baseColor;
-    if (material.pbrMetallicRoughnessBaseColorTextureIndex != MAX_UINT_VALUE) {
-        Texture colorTexture = textureBuffer_.textures[material.pbrMetallicRoughnessBaseColorTextureIndex];
-        vec2 colorUV = material.pbrMetallicRoughnessBaseColorTextureTexCoord == 0 ? in_UV0 : in_UV1;
-        vec4 colorSample = sample_texture(colorTexture, colorUV);
-        baseColor = SRGBtoLINEAR(colorSample) * material.pbrMetallicRoughnessBaseColorFactor;
-    } else {
-        baseColor = material.pbrMetallicRoughnessBaseColorFactor;
-    }
-    baseColor *= in_color;
-
+    vec4 baseColor = getBaseColor(material);
     if (material.alphaCutoff >= 0.0) {
         if (baseColor.a < material.alphaCutoff) {
             discard;
         }
     }
+    baseColor *= in_color;
 
-    // Metallic and Roughness material properties are packed together
-    // In glTF, these factors can be specified by fixed scalar values
-    // or from a metallic-roughness map
-    float perceptualRoughness = material.pbrMetallicRoughnessRoughnessFactor;
+    float roughness = material.pbrMetallicRoughnessRoughnessFactor;
     float metallic = material.pbrMetallicRoughnessMetallicFactor;
     if (material.pbrMetallicRoughnessMetallicRoughnessTextureIndex != MAX_UINT_VALUE) {
-        // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
-        // This layout intentionally reserves the 'r' channel for (optional) occlusion map data
-        Texture metallicRoughnessTexture = textureBuffer_.textures[material.pbrMetallicRoughnessMetallicRoughnessTextureIndex];
-        vec2 metallicRoughnessUV = material.pbrMetallicRoughnessMetallicRoughnessTextureTexCoord == 0 ? in_UV0 : in_UV1;
-        vec4 metallicRoughnessSample = sample_texture(metallicRoughnessTexture, metallicRoughnessUV);
-        perceptualRoughness = metallicRoughnessSample.g * perceptualRoughness;
-        metallic = metallicRoughnessSample.b * metallic;
-    } else {
-        perceptualRoughness = clamp(perceptualRoughness, MIN_ROUGHNESS, 1.0);
-        metallic = clamp(metallic, 0.0, 1.0);
+        vec4 metallicRoughnessSample = sampleTexture(material.pbrMetallicRoughnessMetallicRoughnessTextureIndex, material.pbrMetallicRoughnessMetallicRoughnessTextureTexCoord);
+        roughness *= metallicRoughnessSample.g;
+        metallic *= metallicRoughnessSample.b;
     }
-    // Roughness is authored as perceptual roughness; as is convention,
-    // convert to material roughness by squaring the perceptual roughness [2].
+
 
 
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - F0) * (1.0 - metallic);
-    float alphaRoughness = perceptualRoughness * perceptualRoughness;
+    float alphaRoughness = roughness * roughness;
     vec3 specularColor = mix(F0, baseColor.rgb, metallic);
 
     // Compute reflectance.
@@ -232,7 +223,7 @@ void main() {
         NdotH,
         LdotH,
         VdotH,
-        perceptualRoughness,
+        roughness,
         metallic,
         specularEnvironmentR0,
         specularEnvironmentR90,
@@ -255,18 +246,14 @@ void main() {
     // Apply optional PBR terms for additional (optional) shading
     if (material.occlusionTextureIndex != MAX_UINT_VALUE) {
         float occlusionStrength = material.occlusionTextureScale;
-        Texture occlusionTexture = textureBuffer_.textures[material.occlusionTextureIndex];
-        vec2 occlusionUV = material.occlusionTextureTexCoord == 0 ? in_UV0 : in_UV1;
-        vec4 occlusionSample = sample_texture(occlusionTexture, occlusionUV);
+        vec4 occlusionSample = sampleTexture(material.occlusionTextureIndex, material.occlusionTextureTexCoord);
         color = mix(color, color * occlusionSample.r, occlusionStrength);
     }
 
     vec3 emissive = material.emissiveFactor;
     if (material.emissiveTextureIndex != MAX_UINT_VALUE) {
-        Texture emissiveTexture = textureBuffer_.textures[material.emissiveTextureIndex];
-        vec2 emissiveUV = material.emissiveTextureTexCoord == 0 ? in_UV0 : in_UV1;
-        vec4 emissiveSample = sample_texture(emissiveTexture, emissiveUV);
-        emissive *= SRGBtoLINEAR(emissiveSample).rgb;
+        vec4 emissiveSample = sampleTexture(material.emissiveTextureIndex, material.emissiveTextureTexCoord);
+        emissive *= sRGBtoLinear(emissiveSample).rgb;
     };
     color += emissive;
 
