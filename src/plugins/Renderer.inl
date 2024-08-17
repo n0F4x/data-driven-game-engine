@@ -3,12 +3,12 @@ namespace plugins::renderer {
 template <typename Self>
 auto RendererPlugin::require_vulkan_version(
     this Self&&    self,
-    const uint32_t t_major,
-    const uint32_t t_minor,
-    const uint32_t t_patch
+    const uint32_t major,
+    const uint32_t minor,
+    const uint32_t patch
 ) noexcept -> Self
 {
-    self.m_required_vulkan_version = vk::makeApiVersion(0u, t_major, t_minor, t_patch);
+    self.m_required_vulkan_version = vk::makeApiVersion(0u, major, minor, patch);
     return std::forward<Self>(self);
 }
 

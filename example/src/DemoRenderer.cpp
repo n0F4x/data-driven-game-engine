@@ -14,23 +14,23 @@ constexpr static uint32_t g_frame_count{ 1 };
 
 [[nodiscard]]
 static auto load_scene(
-    const renderer::Device&      t_device,
-    const renderer::Allocator&   t_allocator,
-    vk::RenderPass               t_render_pass,
-    gltf::Model&&                t_model,
-    const std::filesystem::path& t_fragment_shader_filepath,
-    cache::Cache&                t_cache
+    const renderer::Device&      device,
+    const renderer::Allocator&   allocator,
+    vk::RenderPass               render_pass,
+    gltf::Model&&                model,
+    const std::filesystem::path& fragment_shader_filepath,
+    cache::Cache&                cache
 ) -> std::optional<renderer::Scene>
 {
     auto opt_vertex_shader_module{
-        renderer::ShaderModule::create(t_device.get(), "shaders/model.vert.spv")
+        renderer::ShaderModule::create(device.get(), "shaders/model.vert.spv")
     };
     if (!opt_vertex_shader_module.has_value()) {
         SPDLOG_ERROR("Vertex shader could not be created");
         return std::nullopt;
     }
     auto opt_fragment_shader_module{
-        renderer::ShaderModule::create(t_device.get(), t_fragment_shader_filepath)
+        renderer::ShaderModule::create(device.get(), fragment_shader_filepath)
     };
     if (!opt_fragment_shader_module.has_value()) {
         SPDLOG_ERROR("Fragment shader could not be created");
@@ -39,7 +39,7 @@ static auto load_scene(
 
 
     auto                                transfer_command_pool{ init::create_command_pool(
-        t_device.get(), t_device.info().get_queue_index(vkb::QueueType::graphics).value()
+        device.get(), device.info().get_queue_index(vkb::QueueType::graphics).value()
     ) };
     const vk::CommandBufferAllocateInfo command_buffer_allocate_info{
         .commandPool        = transfer_command_pool.get(),
@@ -47,13 +47,13 @@ static auto load_scene(
         .commandBufferCount = 1
     };
     auto command_buffer{
-        t_device->allocateCommandBuffers(command_buffer_allocate_info).front()
+        device->allocateCommandBuffers(command_buffer_allocate_info).front()
     };
 
     auto packaged_scene{
         renderer::Scene::create()
             .add_model(
-                cache::make_handle<gltf::Model>(std::move(t_model)),
+                cache::make_handle<gltf::Model>(std::move(model)),
                 renderer::Effect{
                                  renderer::Shader{ cache::make_handle<renderer::ShaderModule>(
                                           std::move(opt_vertex_shader_module.value())
@@ -64,8 +64,8 @@ static auto load_scene(
                                       ),
                                       "main" } }
             )
-            .set_cache(t_cache)
-            .build(t_device.get(), t_allocator, t_render_pass)
+            .set_cache(cache)
+            .build(device.get(), allocator, render_pass)
     };
 
     constexpr vk::CommandBufferBeginInfo begin_info{};
@@ -77,30 +77,30 @@ static auto load_scene(
         .commandBufferCount = 1,
         .pCommandBuffers    = &command_buffer,
     };
-    vk::UniqueFence fence{ t_device->createFenceUnique({}) };
+    vk::UniqueFence fence{ device->createFenceUnique({}) };
 
-    static_cast<vk::Queue>(t_device.info().get_queue(vkb::QueueType::graphics).value())
+    static_cast<vk::Queue>(device.info().get_queue(vkb::QueueType::graphics).value())
         .submit(submit_info, fence.get());
 
     std::ignore =
-        t_device->waitForFences(std::array{ fence.get() }, vk::True, 100'000'000'000);
-    t_device->resetCommandPool(transfer_command_pool.get());
+        device->waitForFences(std::array{ fence.get() }, vk::True, 100'000'000'000);
+    device->resetCommandPool(transfer_command_pool.get());
 
     return packaged_scene.get_future().get();
 }
 
 auto DemoRenderer::create(
-    Store&                       t_store,
-    const std::filesystem::path& t_model_filepath,
-    const std::filesystem::path& t_fragment_shader_filepath
+    Store&                       store,
+    const std::filesystem::path& model_filepath,
+    const std::filesystem::path& fragment_shader_filepath
 ) -> std::optional<DemoRenderer>
 {
-    auto&       cache{ t_store.at<cache::Cache>() };
-    const auto& window{ t_store.at<window::Window>() };
-    const auto& device{ t_store.at<renderer::Device>() };
-    const auto& allocator{ t_store.at<renderer::Allocator>() };
+    auto&       cache{ store.at<cache::Cache>() };
+    const auto& window{ store.at<window::Window>() };
+    const auto& device{ store.at<renderer::Device>() };
+    const auto& allocator{ store.at<renderer::Allocator>() };
 
-    auto& swapchain{ t_store.at<renderer::SwapchainHolder>() };
+    auto& swapchain{ store.at<renderer::SwapchainHolder>() };
     swapchain.set_framebuffer_size(static_cast<vk::Extent2D>(window.framebuffer_size()));
     if (!swapchain.get().has_value()) {
         return std::nullopt;
@@ -166,7 +166,7 @@ auto DemoRenderer::create(
         return std::nullopt;
     }
 
-    auto opt_model{ core::gltf::Loader::load_from_file(t_model_filepath) };
+    auto opt_model{ core::gltf::Loader::load_from_file(model_filepath) };
     if (!opt_model.has_value()) {
         return std::nullopt;
     }
@@ -176,7 +176,7 @@ auto DemoRenderer::create(
         allocator,
         render_pass.get(),
         std::move(opt_model.value()),
-        t_fragment_shader_filepath,
+        fragment_shader_filepath,
         cache
     ) };
     if (!opt_scene.has_value()) {
@@ -228,11 +228,11 @@ static auto submit_render(
 }
 
 auto DemoRenderer::render(
-    const vk::Extent2D            t_framebuffer_size,
-    const core::graphics::Camera& t_camera
+    const vk::Extent2D            framebuffer_size,
+    const core::graphics::Camera& camera
 ) -> void
 {
-    swapchain.get().set_framebuffer_size(t_framebuffer_size);
+    swapchain.get().set_framebuffer_size(framebuffer_size);
     if (!swapchain.get().get().has_value()) {
         return;
     }
@@ -250,7 +250,7 @@ auto DemoRenderer::render(
     {
         command_buffers[frame_index].reset();
         record_command_buffer(
-            swapchain.get().get().value(), image_index.value(), t_camera
+            swapchain.get().get().value().extent(), image_index.value(), camera
         );
 
         submit_render(
@@ -269,9 +269,9 @@ auto DemoRenderer::render(
 }
 
 auto DemoRenderer::record_command_buffer(
-    const renderer::Swapchain& t_swapchain,
-    const uint32_t             t_image_index,
-    core::graphics::Camera     t_camera
+    const vk::Extent2D     swapchain_extent,
+    const uint32_t         image_index,
+    core::graphics::Camera camera
 ) -> void
 {
     const vk::CommandBuffer command_buffer{ command_buffers[frame_index] };
@@ -286,32 +286,32 @@ auto DemoRenderer::record_command_buffer(
         vk::ClearValue{ .depthStencil = vk::ClearDepthStencilValue{ .depth = 1.f } }
     };
 
-    const vk::Extent2D extent{ t_swapchain.extent() };
     command_buffer.setViewport(
         0,
-        vk::Viewport{ .width    = static_cast<float>(extent.width),
-                      .height   = static_cast<float>(extent.height),
+        vk::Viewport{ .width    = static_cast<float>(swapchain_extent.width),
+                      .height   = static_cast<float>(swapchain_extent.height),
                       .maxDepth = 1.f }
     );
-    command_buffer.setScissor(0, vk::Rect2D{ .extent = extent });
+    command_buffer.setScissor(0, vk::Rect2D{ .extent = swapchain_extent });
 
     const vk::RenderPassBeginInfo render_pass_begin_info{
         .renderPass      = render_pass.get(),
-        .framebuffer     = framebuffers[t_image_index].get(),
-        .renderArea      = vk::Rect2D{ .extent = t_swapchain.extent() },
+        .framebuffer     = framebuffers[image_index].get(),
+        .renderArea      = vk::Rect2D{ .extent = swapchain_extent },
         .clearValueCount = static_cast<uint32_t>(clear_values.size()),
         .pClearValues    = clear_values.data()
     };
     command_buffer.beginRenderPass(render_pass_begin_info, vk::SubpassContents::eInline);
 
-    t_camera.set_perspective_projection(
+    camera.set_perspective_projection(
         50.f,
-        static_cast<float>(extent.width) / static_cast<float>(extent.height),
+        static_cast<float>(swapchain_extent.width)
+            / static_cast<float>(swapchain_extent.height),
         0.1f,
         10000.f
     );
 
-    scene.draw(command_buffer, t_camera);
+    scene.draw(command_buffer, camera);
 
 
     command_buffer.endRenderPass();

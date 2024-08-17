@@ -11,25 +11,23 @@
 using namespace core::renderer;
 
 [[nodiscard]]
-static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_device_info
+static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_device_info
 ) noexcept -> VmaAllocatorCreateFlags
 {
     VmaAllocatorCreateFlags flags{};
 
-    if (t_physical_device_info.is_extension_present(
+    if (physical_device_info.is_extension_present(
             VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
         ))
     {
         flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
     }
 
-    if (t_physical_device_info.is_extension_present(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME))
-    {
+    if (physical_device_info.is_extension_present(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME)) {
         flags |= VMA_ALLOCATOR_CREATE_KHR_BIND_MEMORY2_BIT;
     }
 
-    if (t_physical_device_info.is_extension_present(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME))
-    {
+    if (physical_device_info.is_extension_present(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME)) {
         flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
     }
 
@@ -37,11 +35,10 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_dev
         coherent_memory_features_amd{
             .deviceCoherentMemory = vk::True,
         };
-    if (t_physical_device_info.is_extension_present(
+    if (physical_device_info.is_extension_present(
             VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME
         )
-        && t_physical_device_info.are_extension_features_present(
-            coherent_memory_features_amd
+        && physical_device_info.are_extension_features_present(coherent_memory_features_amd
         ))
     {
         flags |= VMA_ALLOCATOR_CREATE_AMD_DEVICE_COHERENT_MEMORY_BIT;
@@ -51,8 +48,7 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_dev
         buffer_device_address_features{
             .bufferDeviceAddress = vk::True,
         };
-    if (t_physical_device_info.are_extension_features_present(
-            buffer_device_address_features
+    if (physical_device_info.are_extension_features_present(buffer_device_address_features
         ))
     {
         flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
@@ -61,8 +57,8 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_dev
     constexpr static vk::PhysicalDeviceMemoryPriorityFeaturesEXT memory_priority_features{
         .memoryPriority = vk::True,
     };
-    if (t_physical_device_info.is_extension_present(VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME)
-        && t_physical_device_info.are_extension_features_present(memory_priority_features))
+    if (physical_device_info.is_extension_present(VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME)
+        && physical_device_info.are_extension_features_present(memory_priority_features))
     {
         flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_PRIORITY_BIT;
     }
@@ -70,8 +66,8 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_dev
     constexpr static vk::PhysicalDeviceMaintenance4Features maintenance4_features{
         .maintenance4 = vk::True,
     };
-    if (t_physical_device_info.is_extension_present(VK_KHR_MAINTENANCE_4_EXTENSION_NAME)
-        && t_physical_device_info.are_extension_features_present(maintenance4_features))
+    if (physical_device_info.is_extension_present(VK_KHR_MAINTENANCE_4_EXTENSION_NAME)
+        && physical_device_info.are_extension_features_present(maintenance4_features))
     {
         flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT;
     }
@@ -79,8 +75,8 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& t_physical_dev
     constexpr static vk::PhysicalDeviceMaintenance5FeaturesKHR maintenance5_features{
         .maintenance5 = vk::True,
     };
-    if (t_physical_device_info.is_extension_present(VK_KHR_MAINTENANCE_5_EXTENSION_NAME)
-        && t_physical_device_info.are_extension_features_present(maintenance5_features))
+    if (physical_device_info.is_extension_present(VK_KHR_MAINTENANCE_5_EXTENSION_NAME)
+        && physical_device_info.are_extension_features_present(maintenance5_features))
     {
         flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT;
     }
@@ -138,16 +134,16 @@ static auto vulkan_functions() -> const VmaVulkanFunctions&
 
 [[nodiscard]]
 static auto create_allocator(
-    const Instance& t_instance,
-    const Device&   t_device
+    const Instance& instance,
+    const Device&   device
 ) -> gsl_lite::not_null_ic<std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)>>
 {
     const VmaAllocatorCreateInfo create_info{
-        .flags            = vma_allocator_create_flags(t_device.info().physical_device),
-        .physicalDevice   = t_device.physical_device(),
-        .device           = t_device.get(),
+        .flags            = vma_allocator_create_flags(device.info().physical_device),
+        .physicalDevice   = device.physical_device(),
+        .device           = device.get(),
         .pVulkanFunctions = &vulkan_functions(),
-        .instance         = t_instance.get(),
+        .instance         = instance.get(),
     };
 
     VmaAllocator     allocator{};
@@ -160,9 +156,9 @@ static auto create_allocator(
 
 [[nodiscard]]
 static auto create_buffer(
-    const VmaAllocator             t_allocator,
-    const vk::BufferCreateInfo&    t_buffer_create_info,
-    const VmaAllocationCreateInfo& t_allocation_create_info
+    const VmaAllocator             allocator,
+    const vk::BufferCreateInfo&    buffer_create_info,
+    const VmaAllocationCreateInfo& allocation_create_info
 ) -> std::tuple<vk::Buffer, VmaAllocation, VmaAllocationInfo>
 {
     vk::Buffer        buffer;
@@ -170,9 +166,9 @@ static auto create_buffer(
     VmaAllocationInfo allocation_info;
 
     const vk::Result result{ vmaCreateBuffer(
-        t_allocator,
-        reinterpret_cast<const VkBufferCreateInfo*>(&t_buffer_create_info),
-        &t_allocation_create_info,
+        allocator,
+        reinterpret_cast<const VkBufferCreateInfo*>(&buffer_create_info),
+        &allocation_create_info,
         reinterpret_cast<VkBuffer*>(&buffer),
         &allocation,
         &allocation_info
@@ -184,10 +180,10 @@ static auto create_buffer(
 
 [[nodiscard]]
 static auto create_buffer_with_alignment(
-    const VmaAllocator             t_allocator,
-    const vk::BufferCreateInfo&    t_buffer_create_info,
-    const vk::DeviceSize           t_min_alignment,
-    const VmaAllocationCreateInfo& t_allocation_create_info
+    const VmaAllocator             allocator,
+    const vk::BufferCreateInfo&    buffer_create_info,
+    const vk::DeviceSize           min_alignment,
+    const VmaAllocationCreateInfo& allocation_create_info
 ) -> std::tuple<vk::Buffer, VmaAllocation, VmaAllocationInfo>
 {
     vk::Buffer        buffer;
@@ -195,10 +191,10 @@ static auto create_buffer_with_alignment(
     VmaAllocationInfo allocation_info;
 
     const vk::Result result{ vmaCreateBufferWithAlignment(
-        t_allocator,
-        reinterpret_cast<const VkBufferCreateInfo*>(&t_buffer_create_info),
-        &t_allocation_create_info,
-        t_min_alignment,
+        allocator,
+        reinterpret_cast<const VkBufferCreateInfo*>(&buffer_create_info),
+        &allocation_create_info,
+        min_alignment,
         reinterpret_cast<VkBuffer*>(&buffer),
         &allocation,
         &allocation_info
@@ -210,8 +206,8 @@ static auto create_buffer_with_alignment(
 
 namespace core::renderer {
 
-Allocator::Allocator(const Instance& t_instance, const Device& t_device)
-    : m_allocator{ create_allocator(t_instance, t_device) }
+Allocator::Allocator(const Instance& instance, const Device& device)
+    : m_allocator{ create_allocator(instance, device) }
 {}
 
 auto Allocator::operator*() const noexcept -> const VmaAllocator_T&
@@ -235,31 +231,31 @@ auto Allocator::get() const noexcept -> VmaAllocator
 }
 
 auto Allocator::allocate_buffer(
-    const vk::BufferCreateInfo&    t_buffer_create_info,
-    const VmaAllocationCreateInfo& t_allocation_create_info
+    const vk::BufferCreateInfo&    buffer_create_info,
+    const VmaAllocationCreateInfo& allocation_create_info
 ) const -> Buffer
 {
     auto [buffer, allocation, _]{
-        ::create_buffer(m_allocator.get(), t_buffer_create_info, t_allocation_create_info)
+        ::create_buffer(m_allocator.get(), buffer_create_info, allocation_create_info)
     };
 
     return Buffer{ buffer, allocation, m_allocator.get() };
 }
 
 auto Allocator::allocate_buffer_with_alignment(
-    const vk::BufferCreateInfo&    t_buffer_create_info,
-    const vk::DeviceSize           t_min_alignment,
-    const VmaAllocationCreateInfo& t_allocation_create_info
+    const vk::BufferCreateInfo&    buffer_create_info,
+    const vk::DeviceSize           min_alignment,
+    const VmaAllocationCreateInfo& allocation_create_info
 ) const -> Buffer
 {
     auto [buffer, allocation, _]{ ::create_buffer_with_alignment(
-        m_allocator.get(), t_buffer_create_info, t_min_alignment, t_allocation_create_info
+        m_allocator.get(), buffer_create_info, min_alignment, allocation_create_info
     ) };
 
     return Buffer{ buffer, allocation, m_allocator.get() };
 }
 
-auto Allocator::allocate_mapped_buffer(const vk::BufferCreateInfo& t_buffer_create_info
+auto Allocator::allocate_mapped_buffer(const vk::BufferCreateInfo& buffer_create_info
 ) const -> MappedBuffer
 {
     constexpr static VmaAllocationCreateInfo allocation_create_info = {
@@ -269,15 +265,15 @@ auto Allocator::allocate_mapped_buffer(const vk::BufferCreateInfo& t_buffer_crea
     };
 
     auto [buffer, allocation, _]{
-        ::create_buffer(m_allocator.get(), t_buffer_create_info, allocation_create_info)
+        ::create_buffer(m_allocator.get(), buffer_create_info, allocation_create_info)
     };
 
     return MappedBuffer{ buffer, allocation, m_allocator.get() };
 }
 
 auto Allocator::allocate_mapped_buffer_with_alignment(
-    const vk::BufferCreateInfo& t_buffer_create_info,
-    vk::DeviceSize              t_min_alignment
+    const vk::BufferCreateInfo& buffer_create_info,
+    vk::DeviceSize              min_alignment
 ) const -> MappedBuffer
 {
     constexpr static VmaAllocationCreateInfo allocation_create_info = {
@@ -287,15 +283,15 @@ auto Allocator::allocate_mapped_buffer_with_alignment(
     };
 
     auto [buffer, allocation, _]{ ::create_buffer_with_alignment(
-        m_allocator.get(), t_buffer_create_info, t_min_alignment, allocation_create_info
+        m_allocator.get(), buffer_create_info, min_alignment, allocation_create_info
     ) };
 
     return MappedBuffer{ buffer, allocation, m_allocator.get() };
 }
 
 auto Allocator::allocate_mapped_buffer(
-    const vk::BufferCreateInfo&        t_buffer_create_info,
-    gsl_lite::not_null_ic<const void*> t_data
+    const vk::BufferCreateInfo&        buffer_create_info,
+    gsl_lite::not_null_ic<const void*> data
 ) const -> MappedBuffer
 {
     constexpr static VmaAllocationCreateInfo allocation_create_info = {
@@ -305,10 +301,10 @@ auto Allocator::allocate_mapped_buffer(
     };
 
     auto [buffer, allocation, allocation_info]{
-        ::create_buffer(m_allocator.get(), t_buffer_create_info, allocation_create_info)
+        ::create_buffer(m_allocator.get(), buffer_create_info, allocation_create_info)
     };
 
-    std::memcpy(allocation_info.pMappedData, t_data, t_buffer_create_info.size);
+    std::memcpy(allocation_info.pMappedData, data, buffer_create_info.size);
 
     vk::MemoryPropertyFlags memory_property_flags;
     vmaGetAllocationMemoryProperties(
@@ -327,9 +323,9 @@ auto Allocator::allocate_mapped_buffer(
 }
 
 auto Allocator::allocate_mapped_buffer_with_alignment(
-    const vk::BufferCreateInfo&        t_buffer_create_info,
-    vk::DeviceSize                     t_min_alignment,
-    gsl_lite::not_null_ic<const void*> t_data
+    const vk::BufferCreateInfo&        buffer_create_info,
+    vk::DeviceSize                     min_alignment,
+    gsl_lite::not_null_ic<const void*> data
 ) const -> MappedBuffer
 {
     constexpr static VmaAllocationCreateInfo allocation_create_info = {
@@ -339,10 +335,10 @@ auto Allocator::allocate_mapped_buffer_with_alignment(
     };
 
     auto [buffer, allocation, allocation_info]{ ::create_buffer_with_alignment(
-        m_allocator.get(), t_buffer_create_info, t_min_alignment, allocation_create_info
+        m_allocator.get(), buffer_create_info, min_alignment, allocation_create_info
     ) };
 
-    std::memcpy(allocation_info.pMappedData, t_data, t_buffer_create_info.size);
+    std::memcpy(allocation_info.pMappedData, data, buffer_create_info.size);
 
     vk::MemoryPropertyFlags memory_property_flags;
     vmaGetAllocationMemoryProperties(
@@ -361,16 +357,16 @@ auto Allocator::allocate_mapped_buffer_with_alignment(
 }
 
 auto Allocator::allocate_image(
-    const vk::ImageCreateInfo&     t_image_create_info,
-    const VmaAllocationCreateInfo& t_allocation_create_info
+    const vk::ImageCreateInfo&     image_create_info,
+    const VmaAllocationCreateInfo& allocation_create_info
 ) const -> Image
 {
     vk::Image        image{};
     VmaAllocation    allocation{};
     const vk::Result result{ vmaCreateImage(
         m_allocator.get(),
-        reinterpret_cast<const VkImageCreateInfo*>(&t_image_create_info),
-        &t_allocation_create_info,
+        reinterpret_cast<const VkImageCreateInfo*>(&image_create_info),
+        &allocation_create_info,
         reinterpret_cast<VkImage*>(&image),
         &allocation,
         nullptr

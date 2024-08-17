@@ -9,20 +9,19 @@ namespace core::renderer {
 class RenderModel::Requirements {
 public:
     [[nodiscard]]
-    static auto
-        required_instance_settings_are_available(const vkb::SystemInfo& t_system_info
-        ) -> bool;
+    static auto required_instance_settings_are_available(const vkb::SystemInfo& system_info
+    ) -> bool;
 
     static auto enable_instance_settings(
-        const vkb::SystemInfo& t_system_info,
-        vkb::InstanceBuilder&  t_builder
+        const vkb::SystemInfo& system_info,
+        vkb::InstanceBuilder&  builder
     ) -> void;
 
     static auto
-        require_device_settings(vkb::PhysicalDeviceSelector& t_physical_device_selector
+        require_device_settings(vkb::PhysicalDeviceSelector& physical_device_selector
         ) -> void;
 
-    static auto enable_optional_device_settings(vkb::PhysicalDevice& t_physical_device
+    static auto enable_optional_device_settings(vkb::PhysicalDevice& physical_device
     ) -> void;
 };
 

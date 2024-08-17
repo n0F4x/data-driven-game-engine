@@ -11,8 +11,8 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Device(const vkb::Device& t_device);
-    explicit Device(vkb::Device&& t_device) noexcept;
+    explicit Device(const vkb::Device& device);
+    explicit Device(vkb::Device&& device) noexcept;
     Device(const Device&)     = delete;
     Device(Device&&) noexcept = default;
     ~Device();

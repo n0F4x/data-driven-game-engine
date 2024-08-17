@@ -5,10 +5,10 @@
 #include <vector>
 
 [[nodiscard]]
-static auto load_shader(const vk::Device t_device, const std::filesystem::path& t_filepath)
+static auto load_shader(const vk::Device device, const std::filesystem::path& filepath)
     -> vk::UniqueShaderModule
 {
-    std::ifstream file{ t_filepath, std::ios::binary | std::ios::in | std::ios::ate };
+    std::ifstream file{ filepath, std::ios::binary | std::ios::in | std::ios::ate };
 
     const std::streamsize file_size = file.tellg();
     if (file_size == -1) {
@@ -26,36 +26,34 @@ static auto load_shader(const vk::Device t_device, const std::filesystem::path& 
         .pCode    = reinterpret_cast<uint32_t*>(buffer.data())
     };
 
-    return t_device.createShaderModuleUnique(create_info);
+    return device.createShaderModuleUnique(create_info);
 }
 
 namespace core::renderer {
 
-auto ShaderModule::hash(const std::filesystem::path& t_filepath) noexcept -> size_t
+auto ShaderModule::hash(const std::filesystem::path& filepath) noexcept -> size_t
 {
-    return std::filesystem::hash_value(t_filepath);
+    return std::filesystem::hash_value(filepath);
 }
 
-auto ShaderModule::create(
-    const vk::Device             t_device,
-    const std::filesystem::path& t_filepath
-) -> std::optional<ShaderModule>
+auto ShaderModule::create(const vk::Device device, const std::filesystem::path& filepath)
+    -> std::optional<ShaderModule>
 {
-    vk::UniqueShaderModule module{ load_shader(t_device, t_filepath) };
+    vk::UniqueShaderModule module{ load_shader(device, filepath) };
 
     if (!module) {
         return std::nullopt;
     }
 
-    return ShaderModule{ t_filepath, std::move(module) };
+    return ShaderModule{ filepath, std::move(module) };
 }
 
 ShaderModule::ShaderModule(
-    std::filesystem::path    t_filepath,
-    vk::UniqueShaderModule&& t_module
+    std::filesystem::path    filepath,
+    vk::UniqueShaderModule&& module
 ) noexcept
-    : m_filepath{ std::move(t_filepath) },
-      m_module{ std::move(t_module) }
+    : m_filepath{ std::move(filepath) },
+      m_module{ std::move(module) }
 {}
 
 auto ShaderModule::filepath() const noexcept -> const std::filesystem::path&
@@ -69,16 +67,16 @@ auto ShaderModule::module() const noexcept -> vk::ShaderModule
 }
 
 [[nodiscard]]
-auto hash_value(const ShaderModule& t_shader_module) noexcept -> size_t
+auto hash_value(const ShaderModule& shader_module) noexcept -> size_t
 {
-    return std::filesystem::hash_value(t_shader_module.m_filepath);
+    return std::filesystem::hash_value(shader_module.m_filepath);
 }
 
 }   // namespace core::renderer
 
 auto std::hash<core::renderer::ShaderModule>::operator()(
-    const core::renderer::ShaderModule& t_shader_module
+    const core::renderer::ShaderModule& shader_module
 ) const noexcept -> size_t
 {
-    return core::renderer::hash_value(t_shader_module);
+    return core::renderer::hash_value(shader_module);
 }

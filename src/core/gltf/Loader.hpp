@@ -14,7 +14,7 @@ public:
     ) -> std::optional<Model>;
 
     [[nodiscard]]
-    static auto load_from_file(const std::filesystem::path& filepath, size_t scene_id)
+    static auto load_from_file(const std::filesystem::path& filepath, size_t scene_index)
         -> std::optional<Model>;
 
 private:
@@ -22,7 +22,7 @@ private:
     static auto load_model(
         const std::filesystem::path& filepath,
         const fastgltf::Asset&       asset,
-        size_t                       scene_id
+        size_t                       scene_index
     ) -> Model;
 
     static auto load_nodes(

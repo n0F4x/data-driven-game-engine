@@ -210,8 +210,10 @@ auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optio
     return load_model(filepath, asset.get(), asset->defaultScene.value_or(0));
 }
 
-auto Loader::load_from_file(const std::filesystem::path& filepath, const size_t t_scene_id)
-    -> std::optional<Model>
+auto Loader::load_from_file(
+    const std::filesystem::path& filepath,
+    const size_t                 scene_index
+) -> std::optional<Model>
 {
     auto asset{ load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
@@ -219,25 +221,25 @@ auto Loader::load_from_file(const std::filesystem::path& filepath, const size_t 
         return std::nullopt;
     }
 
-    return load_model(filepath, asset.get(), t_scene_id);
+    return load_model(filepath, asset.get(), scene_index);
 }
 
 auto Loader::load_model(
     const std::filesystem::path& filepath,
     const fastgltf::Asset&       asset,
-    size_t                       t_scene_id
+    size_t                       scene_index
 ) -> Model
 {
     // TODO: make this an assertion
-    if (asset.scenes.size() <= t_scene_id) {
+    if (asset.scenes.size() <= scene_index) {
         SPDLOG_ERROR(
-            "The provided glTF model does not contain the requested scene: {}", t_scene_id
+            "The provided glTF model does not contain the requested scene: {}", scene_index
         );
     }
 
     Model model;
 
-    load_nodes(model, asset, asset.scenes[t_scene_id].nodeIndices);
+    load_nodes(model, asset, asset.scenes[scene_index].nodeIndices);
     load_images(model, asset, filepath);
     load_materials(model, asset);
 

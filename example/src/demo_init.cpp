@@ -12,20 +12,20 @@ namespace {
 
 [[nodiscard]]
 auto find_supported_format(
-    const vk::PhysicalDevice       t_physical_device,
-    const std::vector<vk::Format>& t_candidates,
-    const vk::ImageTiling          t_tiling,
-    const vk::FormatFeatureFlags   t_features
+    const vk::PhysicalDevice          physical_device,
+    const std::span<const vk::Format> candidates,
+    const vk::ImageTiling             tiling,
+    const vk::FormatFeatureFlags      features
 ) -> vk::Format
 {
-    for (const auto format : t_candidates) {
+    for (const auto format : candidates) {
         vk::FormatProperties format_properties;
-        t_physical_device.getFormatProperties(format, &format_properties);
+        physical_device.getFormatProperties(format, &format_properties);
 
-        if ((t_tiling == vk::ImageTiling::eLinear
-             && (format_properties.linearTilingFeatures & t_features) == t_features)
-            || (t_tiling == vk::ImageTiling::eOptimal
-                && (format_properties.optimalTilingFeatures & t_features) == t_features))
+        if ((tiling == vk::ImageTiling::eLinear
+             && (format_properties.linearTilingFeatures & features) == features)
+            || (tiling == vk::ImageTiling::eOptimal
+                && (format_properties.optimalTilingFeatures & features) == features))
         {
             return format;
         }
@@ -34,12 +34,12 @@ auto find_supported_format(
 }
 
 [[nodiscard]]
-auto find_depth_format(const vk::PhysicalDevice t_physical_device) -> vk::Format
+auto find_depth_format(const vk::PhysicalDevice physical_device) -> vk::Format
 {
     using enum vk::Format;
     return find_supported_format(
-        t_physical_device,
-        { eD32Sfloat, eD32SfloatS8Uint, eD24UnormS8Uint },
+        physical_device,
+        std::array{ eD32Sfloat, eD32SfloatS8Uint, eD24UnormS8Uint },
         vk::ImageTiling::eOptimal,
         vk::FormatFeatureFlagBits::eDepthStencilAttachment
     );
@@ -49,11 +49,11 @@ auto find_depth_format(const vk::PhysicalDevice t_physical_device) -> vk::Format
 
 namespace init {
 
-auto create_render_pass(const vk::Format t_color_format, const renderer::Device& t_device)
+auto create_render_pass(const vk::Format color_format, const renderer::Device& device)
     -> vk::UniqueRenderPass
 {
     const vk::AttachmentDescription color_attachment_description{
-        .format         = t_color_format,
+        .format         = color_format,
         .samples        = vk::SampleCountFlagBits::e1,
         .loadOp         = vk::AttachmentLoadOp::eClear,
         .stencilLoadOp  = vk::AttachmentLoadOp::eDontCare,
@@ -67,7 +67,7 @@ auto create_render_pass(const vk::Format t_color_format, const renderer::Device&
     };
 
     const vk::AttachmentDescription depth_attachment_description{
-        .format         = find_depth_format(t_device.physical_device()),
+        .format         = find_depth_format(device.physical_device()),
         .samples        = vk::SampleCountFlagBits::e1,
         .loadOp         = vk::AttachmentLoadOp::eClear,
         .storeOp        = vk::AttachmentStoreOp::eDontCare,
@@ -114,24 +114,24 @@ auto create_render_pass(const vk::Format t_color_format, const renderer::Device&
         .pDependencies   = &subpass_dependency,
     };
 
-    return t_device->createRenderPassUnique(render_pass_create_info);
+    return device->createRenderPassUnique(render_pass_create_info);
 }
 
 auto create_depth_image(
-    const vk::PhysicalDevice   t_physical_device,
-    const renderer::Allocator& t_allocator,
-    const vk::Extent2D         t_swapchain_extent
+    const vk::PhysicalDevice   physical_device,
+    const renderer::Allocator& allocator,
+    const vk::Extent2D         swapchain_extent
 ) -> renderer::Image
 {
     const vk::ImageCreateInfo image_create_info = {
-        .imageType = vk::ImageType::e2D,
-        .format    = find_depth_format(t_physical_device),
-        .extent = vk::Extent3D{ t_swapchain_extent.width, t_swapchain_extent.height, 1 },
-        .mipLevels     = 1,
-        .arrayLayers   = 1,
-        .samples       = vk::SampleCountFlagBits::e1,
-        .tiling        = vk::ImageTiling::eOptimal,
-        .usage         = vk::ImageUsageFlagBits::eDepthStencilAttachment,
+        .imageType   = vk::ImageType::e2D,
+        .format      = find_depth_format(physical_device),
+        .extent      = vk::Extent3D{ swapchain_extent.width, swapchain_extent.height, 1 },
+        .mipLevels   = 1,
+        .arrayLayers = 1,
+        .samples     = vk::SampleCountFlagBits::e1,
+        .tiling      = vk::ImageTiling::eOptimal,
+        .usage       = vk::ImageUsageFlagBits::eDepthStencilAttachment,
         .initialLayout = vk::ImageLayout::eUndefined,
     };
 
@@ -141,18 +141,16 @@ auto create_depth_image(
         .priority = 1.f,
     };
 
-    return t_allocator.allocate_image(image_create_info, allocation_create_info);
+    return allocator.allocate_image(image_create_info, allocation_create_info);
 }
 
-auto create_depth_image_view(
-    const renderer::Device& t_device,
-    const vk::Image         t_depth_image
-) -> vk::UniqueImageView
+auto create_depth_image_view(const renderer::Device& device, const vk::Image depth_image)
+    -> vk::UniqueImageView
 {
     const vk::ImageViewCreateInfo image_view_create_info{
-        .image    = t_depth_image,
+        .image    = depth_image,
         .viewType = vk::ImageViewType::e2D,
-        .format   = find_depth_format(t_device.physical_device()),
+        .format   = find_depth_format(device.physical_device()),
         .subresourceRange =
             vk::ImageSubresourceRange{ .aspectMask     = vk::ImageAspectFlagBits::eDepth,
                                       .baseMipLevel   = 0,
@@ -161,90 +159,89 @@ auto create_depth_image_view(
                                       .layerCount     = 1 },
     };
 
-    return t_device->createImageViewUnique(image_view_create_info);
+    return device->createImageViewUnique(image_view_create_info);
 }
 
 auto create_framebuffers(
-    const vk::Device                        t_device,
-    const vk::Extent2D                      t_swapchain_extent,
-    const std::vector<vk::UniqueImageView>& t_swapchain_image_views,
-    const vk::RenderPass                    t_render_pass,
-    const vk::ImageView                     t_depth_image_view
+    const vk::Device                           device,
+    const vk::Extent2D                         swapchain_extent,
+    const std::span<const vk::UniqueImageView> swapchain_image_views,
+    const vk::RenderPass                       render_pass,
+    const vk::ImageView                        depth_image_view
 ) -> std::vector<vk::UniqueFramebuffer>
 {
     std::vector<vk::UniqueFramebuffer> framebuffers;
-    framebuffers.reserve(t_swapchain_image_views.size());
+    framebuffers.reserve(swapchain_image_views.size());
 
-    for (const auto& swapchain_image_view : t_swapchain_image_views) {
-        std::array attachments{ *swapchain_image_view, t_depth_image_view };
+    for (const vk::UniqueImageView& swapchain_image_view : swapchain_image_views) {
+        std::array attachments{ swapchain_image_view.get(), depth_image_view };
 
         const vk::FramebufferCreateInfo framebuffer_create_info{
-            .renderPass      = t_render_pass,
+            .renderPass      = render_pass,
             .attachmentCount = static_cast<uint32_t>(attachments.size()),
             .pAttachments    = attachments.data(),
-            .width           = t_swapchain_extent.width,
-            .height          = t_swapchain_extent.height,
+            .width           = swapchain_extent.width,
+            .height          = swapchain_extent.height,
             .layers          = 1
         };
 
-        framebuffers.emplace_back(t_device.createFramebufferUnique(framebuffer_create_info
-        ));
+        framebuffers.emplace_back(device.createFramebufferUnique(framebuffer_create_info));
     }
 
     return framebuffers;
 }
 
-auto create_command_pool(const vk::Device t_device, const uint32_t t_queue_family_index)
+auto create_command_pool(const vk::Device device, const uint32_t queue_family_index)
     -> vk::UniqueCommandPool
 {
     const vk::CommandPoolCreateInfo command_pool_create_info{
         .flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-        .queueFamilyIndex = t_queue_family_index
+        .queueFamilyIndex = queue_family_index
     };
 
-    return t_device.createCommandPoolUnique(command_pool_create_info);
+    return device.createCommandPoolUnique(command_pool_create_info);
 }
 
 auto create_command_buffers(
-    const vk::Device      t_device,
-    const vk::CommandPool t_command_pool,
-    const uint32_t        t_count
+    const vk::Device      device,
+    const vk::CommandPool command_pool,
+    const uint32_t        count
 ) -> std::vector<vk::CommandBuffer>
 {
     const vk::CommandBufferAllocateInfo command_buffer_allocate_info{
-        .commandPool        = t_command_pool,
+        .commandPool        = command_pool,
         .level              = vk::CommandBufferLevel::ePrimary,
-        .commandBufferCount = t_count
+        .commandBufferCount = count
     };
 
-    return t_device.allocateCommandBuffers(command_buffer_allocate_info);
+    return device.allocateCommandBuffers(command_buffer_allocate_info);
 }
 
-auto create_semaphores(const vk::Device t_device, const uint32_t t_count)
+auto create_semaphores(const vk::Device device, const uint32_t count)
     -> std::vector<vk::UniqueSemaphore>
 {
     constexpr vk::SemaphoreCreateInfo create_info{};
     std::vector<vk::UniqueSemaphore>  semaphores;
-    semaphores.reserve(t_count);
+    semaphores.reserve(count);
 
-    for (uint32_t i = 0; i < t_count; i++) {
-        semaphores.emplace_back(t_device.createSemaphoreUnique(create_info));
+    for (uint32_t i{}; i < count; i++) {
+        semaphores.emplace_back(device.createSemaphoreUnique(create_info));
     }
 
     return semaphores;
 }
 
-auto create_fences(const vk::Device t_device, const uint32_t t_count)
+auto create_fences(const vk::Device device, const uint32_t count)
     -> std::vector<vk::UniqueFence>
 {
     constexpr vk::FenceCreateInfo fence_create_info{
         .flags = vk::FenceCreateFlagBits::eSignaled
     };
     std::vector<vk::UniqueFence> fences;
-    fences.reserve(t_count);
+    fences.reserve(count);
 
-    for (uint32_t i = 0; i < t_count; i++) {
-        fences.emplace_back(t_device.createFenceUnique(fence_create_info));
+    for (uint32_t i{}; i < count; i++) {
+        fences.emplace_back(device.createFenceUnique(fence_create_info));
     }
 
     return fences;

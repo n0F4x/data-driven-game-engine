@@ -12,6 +12,6 @@ struct ModelInfo {
     std::filesystem::path fragment_shader{ "shaders/pbr.frag.spv" };
 };
 
-auto run(App t_app, const ModelInfo& t_model_info) -> int;
+auto run(App app, const ModelInfo& model_info) -> int;
 
 }   // namespace demo

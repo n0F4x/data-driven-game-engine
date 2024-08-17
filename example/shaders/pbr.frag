@@ -64,7 +64,7 @@ layout (location = 0) out vec4 out_color;
 #define MIN_ROUGHNESS 0.04
 #define PI 3.141592653589793
 const vec3 F0 = vec3(0.04);
-const vec3 LIGHT_DIR = normalize(vec3(1, -1, 1));
+const vec3 LIGHT_DIR = normalize(vec3(-1, 1, -1));
 const vec3 LIGHT_COLOR = vec3(1, 1, 1) * 10;
 
 // Encapsulate the various inputs used by the various functions in the shading equation
@@ -106,9 +106,6 @@ vec4 getBaseColor(Material material) {
     return baseColor;
 }
 
-
-// Find the normal for this fragment, pulling either from a predefined normal map
-// or from the interpolated mesh normal and tangent attributes.
 vec3 getNormal(Material material) {
     if (material.normalTextureIndex == MAX_UINT_VALUE) {
         return normalize(in_normal);
@@ -146,6 +143,16 @@ vec3 specularReflection(PBRInfo pbrInputs) {
     return pbrInputs.reflectance0 + (pbrInputs.reflectance90 - pbrInputs.reflectance0) * pow(clamp(1.0 - pbrInputs.VdotH, 0.0, 1.0), 5.0);
 }
 
+// The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
+// Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
+// Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
+float microfacetDistribution(PBRInfo pbrInputs) {
+    float roughnessSquared = pbrInputs.alphaRoughness * pbrInputs.alphaRoughness;
+    float NdotHSquared = pbrInputs.NdotH * pbrInputs.NdotH;
+    float f = (roughnessSquared - 1.0) * NdotHSquared + 1.0;
+    return roughnessSquared / (PI * f * f);
+}
+
 // This calculates the specular geometric attenuation (aka G()),
 // where rougher material will reflect less light back to the viewer.
 // This implementation is based on [1] Equation 4, and we adopt their modifications to
@@ -158,15 +165,6 @@ float geometricOcclusion(PBRInfo pbrInputs) {
     float attenuationL = 2.0 * NdotL / (NdotL + sqrt(r * r + (1.0 - r * r) * (NdotL * NdotL)));
     float attenuationV = 2.0 * NdotV / (NdotV + sqrt(r * r + (1.0 - r * r) * (NdotV * NdotV)));
     return attenuationL * attenuationV;
-}
-
-// The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
-// Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
-// Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
-float microfacetDistribution(PBRInfo pbrInputs) {
-    float roughnessSq = pbrInputs.alphaRoughness * pbrInputs.alphaRoughness;
-    float f = (pbrInputs.NdotH * roughnessSq - pbrInputs.NdotH) * pbrInputs.NdotH + 1.0;
-    return roughnessSq / (PI * f * f);
 }
 
 
@@ -207,7 +205,7 @@ void main() {
     vec3 n = getNormal(material);
     n.y *= -1.0f;
     vec3 v = normalize(camera.position.xyz - in_worldPosition); // Vector from surface point to camera
-    vec3 l = normalize(LIGHT_DIR); // Vector from surface point to light
+    vec3 l = -normalize(LIGHT_DIR); // Vector from surface point to light
     vec3 h = normalize(l + v); // Half vector between both l and v
     vec3 reflection = normalize(reflect(-v, n));
 
@@ -218,28 +216,28 @@ void main() {
     float VdotH = clamp(dot(v, h), 0.0, 1.0);
 
     PBRInfo pbrInputs = PBRInfo(
-        NdotL,
-        NdotV,
-        NdotH,
-        LdotH,
-        VdotH,
-        roughness,
-        metallic,
-        specularEnvironmentR0,
-        specularEnvironmentR90,
-        alphaRoughness,
-        diffuseColor,
-        specularColor
+    NdotL,
+    NdotV,
+    NdotH,
+    LdotH,
+    VdotH,
+    roughness,
+    metallic,
+    specularEnvironmentR0,
+    specularEnvironmentR90,
+    alphaRoughness,
+    diffuseColor,
+    specularColor
     );
 
     // Calculate the shading terms for the microfacet specular shading model
     vec3 F = specularReflection(pbrInputs);
-    float G = geometricOcclusion(pbrInputs);
     float D = microfacetDistribution(pbrInputs);
+    float G = geometricOcclusion(pbrInputs);
 
     // Calculation of analytical lighting contribution
     vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
-    vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
+    vec3 specContrib = F * D * G / (4.0 * NdotL * NdotV);
     // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
     vec3 color = NdotL * LIGHT_COLOR * (diffuseContrib + specContrib);
 

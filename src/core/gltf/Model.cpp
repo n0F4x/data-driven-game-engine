@@ -5,11 +5,11 @@
 namespace core::gltf {
 
 auto Model::hash(
-    const std::filesystem::path& t_filepath,
-    const std::optional<size_t>  t_scene_id
+    const std::filesystem::path& filepath,
+    const std::optional<size_t>  scene_index
 ) noexcept -> size_t
 {
-    return hash_combine(t_filepath, t_scene_id);
+    return hash_combine(filepath, scene_index);
 }
 
 auto Model::default_sampler() -> const Sampler&

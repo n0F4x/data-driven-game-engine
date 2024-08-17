@@ -9,8 +9,8 @@ auto DescriptorPool::create() noexcept -> Builder
     return Builder{};
 }
 
-DescriptorPool::DescriptorPool(vk::UniqueDescriptorPool&& t_descriptor_pool) noexcept
-    : m_descriptor_pool{ std::move(t_descriptor_pool) }
+DescriptorPool::DescriptorPool(vk::UniqueDescriptorPool&& descriptor_pool) noexcept
+    : m_descriptor_pool{ std::move(descriptor_pool) }
 {}
 
 auto DescriptorPool::get() const noexcept -> vk::DescriptorPool

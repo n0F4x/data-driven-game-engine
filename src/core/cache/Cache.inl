@@ -2,22 +2,22 @@ namespace core::cache {
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource, typename... Args>
-auto BasicCache<IdType, ContainerTemplate>::emplace(ID t_id, Args&&... t_args)
+auto BasicCache<IdType, ContainerTemplate>::emplace(ID id, Args&&... args)
     -> Handle<Resource>
 {
-    return lazy_emplace<Resource>(t_id, [&] {
-        return std::forward_as_tuple(std::forward<Args>(t_args)...);
+    return lazy_emplace<Resource>(id, [&] {
+        return std::forward_as_tuple(std::forward<Args>(args)...);
     });
 }
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource, std::invocable Creator>
-auto BasicCache<IdType, ContainerTemplate>::lazy_emplace(ID t_id, Creator&& create)
+auto BasicCache<IdType, ContainerTemplate>::lazy_emplace(ID id, Creator&& create)
     -> Handle<Resource>
 {
     auto& container{ m_store.emplace<ContainerType<Resource>>() };
 
-    if (const auto iter{ container.find(t_id) }; iter != container.end()) {
+    if (const auto iter{ container.find(id) }; iter != container.end()) {
         WeakHandle<Resource>& weak_handle{ iter->second };
         auto                  found_handle{ weak_handle.lock() };
         if (found_handle == nullptr) {
@@ -32,20 +32,19 @@ auto BasicCache<IdType, ContainerTemplate>::lazy_emplace(ID t_id, Creator&& crea
     }
 
     const auto result{ make_handle<Resource>(std::invoke(std::forward<Creator>(create))) };
-    container.try_emplace(t_id, result);
+    container.try_emplace(id, result);
     return result;
 }
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
-auto BasicCache<IdType, ContainerTemplate>::find(ID t_id
+auto BasicCache<IdType, ContainerTemplate>::find(ID id
 ) const noexcept -> std::optional<Handle<Resource>>
 {
     return m_store.find<ContainerType<Resource>>().and_then(
-        [t_id](const ContainerType<Resource>& t_container
-        ) -> std::optional<Handle<Resource>> {
-            const auto iter{ t_container.find(t_id) };
-            if (iter == t_container.cend()) {
+        [id](const ContainerType<Resource>& container) -> std::optional<Handle<Resource>> {
+            const auto iter{ container.find(id) };
+            if (iter == container.cend()) {
                 return std::nullopt;
             }
             auto result{ iter->second.lock() };
@@ -56,9 +55,9 @@ auto BasicCache<IdType, ContainerTemplate>::find(ID t_id
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
-auto BasicCache<IdType, ContainerTemplate>::at(ID t_id) const -> Handle<Resource>
+auto BasicCache<IdType, ContainerTemplate>::at(ID id) const -> Handle<Resource>
 {
-    return m_store.at<ContainerType<Resource>>().at(t_id).lock();
+    return m_store.at<ContainerType<Resource>>().at(id).lock();
 }
 
 }   // namespace core::cache

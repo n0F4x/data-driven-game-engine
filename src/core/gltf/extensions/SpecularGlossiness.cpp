@@ -5,24 +5,24 @@
 namespace core::gltf {
 
 auto SpecularGlossiness::create_material(
-    const fastgltf::Material& t_material,
-    size_t                    t_base_material_index
+    const fastgltf::Material& material,
+    size_t                    base_material_index
 ) -> std::optional<Material>
 {
-    if (t_material.specularGlossiness == nullptr) {
+    if (material.specularGlossiness == nullptr) {
         return std::nullopt;
     }
 
-    const auto& source{ *t_material.specularGlossiness };
+    const fastgltf::MaterialSpecularGlossiness& source{ *material.specularGlossiness };
 
     return Material{
-        .material_index    = t_base_material_index,
+        .material_index    = base_material_index,
         .diffuse_factor    = glm::make_vec4(source.diffuseFactor.data()),
-        .diffuse_texture   = TextureInfo::create(source.diffuseTexture),
+        .diffuse_texture   = source.diffuseTexture.transform(TextureInfo::create),
         .specular_factor   = glm::make_vec3(source.specularFactor.data()),
         .glossiness_factor = source.glossinessFactor,
         .specular_glossiness_texture =
-            TextureInfo::create(source.specularGlossinessTexture),
+            source.specularGlossinessTexture.transform(TextureInfo::create),
     };
 }
 

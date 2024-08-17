@@ -43,15 +43,15 @@ public:
 
     [[nodiscard]]
     static auto create_descriptor_set_layouts(
-        vk::Device                           t_device,
+        vk::Device                           device,
         const DescriptorSetLayoutCreateInfo& info
     ) -> std::array<vk::UniqueDescriptorSetLayout, 3>;
     [[nodiscard]]
     static auto push_constant_range() noexcept -> vk::PushConstantRange;
 
     auto draw(
-        vk::CommandBuffer  t_graphics_command_buffer,
-        vk::PipelineLayout t_pipeline_layout
+        vk::CommandBuffer  graphics_command_buffer,
+        vk::PipelineLayout pipeline_layout
     ) const noexcept -> void;
 
 private:

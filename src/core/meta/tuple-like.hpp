@@ -32,4 +32,4 @@ template <typename T>
 concept pair_like = tuple_like<T> && std::tuple_size_v<std::remove_cvref_t<T>> == 2;
 
 // NOLINTEND(readability-identifier-naming)
-}   // namespace core
+}   // namespace core::meta

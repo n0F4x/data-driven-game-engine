@@ -7,10 +7,10 @@
 namespace core::renderer {
 
 Effect::Effect(
-    Shader t_vertex_shader,
-    Shader t_fragment_shader) noexcept
-    : m_vertex_shader{ std::move(t_vertex_shader) },
-      m_fragment_shader{ std::move(t_fragment_shader) },
+    Shader vertex_shader,
+    Shader fragment_shader) noexcept
+    : m_vertex_shader{ std::move(vertex_shader) },
+      m_fragment_shader{ std::move(fragment_shader) },
       m_stages{ vk::PipelineShaderStageCreateInfo{   .stage  = vk::ShaderStageFlagBits::eVertex,
                                                    .module = m_vertex_shader.module(),
                                                    .pName  = m_vertex_shader.entry_point().c_str() },
@@ -36,15 +36,15 @@ auto Effect::pipeline_stages() const
 }
 
 [[nodiscard]]
-auto hash_value(const Effect& t_effect) noexcept -> size_t
+auto hash_value(const Effect& effect) noexcept -> size_t
 {
-    return hash_combine(t_effect.m_vertex_shader, t_effect.m_fragment_shader);
+    return hash_combine(effect.m_vertex_shader, effect.m_fragment_shader);
 }
 
 }   // namespace core::renderer
 
-auto std::hash<core::renderer::Effect>::operator()(const core::renderer::Effect& t_effect
+auto std::hash<core::renderer::Effect>::operator()(const core::renderer::Effect& effect
 ) const noexcept -> size_t
 {
-    return core::renderer::hash_value(t_effect);
+    return core::renderer::hash_value(effect);
 }

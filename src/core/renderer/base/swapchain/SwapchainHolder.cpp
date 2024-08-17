@@ -32,39 +32,36 @@ auto SwapchainHolder::get() const noexcept -> const std::optional<Swapchain>&
     return m_swapchain;
 }
 
-auto SwapchainHolder::set_framebuffer_size(const vk::Extent2D t_framebuffer_size) -> void
+auto SwapchainHolder::set_framebuffer_size(const vk::Extent2D framebuffer_size) -> void
 {
     if (!m_swapchain.has_value()) {
-        recreate_swapchain(t_framebuffer_size);
+        recreate_swapchain(framebuffer_size);
         return;
     }
 
     if (const vk::Extent2D extent = Swapchain::choose_extent(
-            t_framebuffer_size,
+            framebuffer_size,
             m_device.get().physical_device().getSurfaceCapabilitiesKHR(m_surface)
         );
         m_swapchain->extent() != extent)
     {
-        recreate_swapchain(t_framebuffer_size);
+        recreate_swapchain(framebuffer_size);
     }
 }
 
 auto SwapchainHolder::acquire_next_image(
-    const vk::Semaphore t_semaphore,
-    const vk::Fence     t_fence
+    const vk::Semaphore semaphore,
+    const vk::Fence     fence
 ) -> std::optional<uint32_t>
 {
     return m_swapchain.transform(&Swapchain::get)
         .and_then(
-            [this, t_semaphore, t_fence](const vk::SwapchainKHR swapchain
+            [this, semaphore, fence](const vk::SwapchainKHR swapchain
             ) -> std::optional<uint32_t> {
                 try {
                     switch (const auto [result, image_index]{
                         m_device.get()->acquireNextImageKHR(
-                            swapchain,
-                            std::numeric_limits<uint64_t>::max(),
-                            t_semaphore,
-                            t_fence
+                            swapchain, std::numeric_limits<uint64_t>::max(), semaphore, fence
                         ) };
                             result)
                     {
@@ -90,15 +87,14 @@ auto SwapchainHolder::acquire_next_image(
         );
 }
 
-auto SwapchainHolder::present(const std::span<const vk::Semaphore> t_wait_semaphores
-) -> void
+auto SwapchainHolder::present(const std::span<const vk::Semaphore> wait_semaphores) -> void
 {
     assert(m_swapchain.has_value() && "SwapchainHolder::present - swapchain has no value");
 
     const std::array         swapchains{ m_swapchain.value().get() };
     const vk::PresentInfoKHR info{
-        .waitSemaphoreCount = static_cast<uint32_t>(t_wait_semaphores.size()),
-        .pWaitSemaphores    = t_wait_semaphores.data(),
+        .waitSemaphoreCount = static_cast<uint32_t>(wait_semaphores.size()),
+        .pWaitSemaphores    = wait_semaphores.data(),
         .swapchainCount     = static_cast<uint32_t>(swapchains.size()),
         .pSwapchains        = swapchains.data(),
         .pImageIndices      = &m_image_index
@@ -119,29 +115,29 @@ auto SwapchainHolder::present(const std::span<const vk::Semaphore> t_wait_semaph
     }
 }
 
-auto SwapchainHolder::present(const vk::Semaphore wait_semaphore) -> void
+auto SwapchainHolder::present(const vk::Semaphore waisemaphore) -> void
 {
-    present(std::array{ wait_semaphore });
+    present(std::array{ waisemaphore });
 }
 
 auto SwapchainHolder::on_swapchain_recreated(
-    SwapchainHolder::SwapchainRecreatedEvent&& t_swapchain_recreated_event
+    SwapchainHolder::SwapchainRecreatedEvent&& swapchain_recreated_event
 ) -> uint32_t
 {
     m_swapchain_recreated_events.emplace_back(
-        m_swapchain_recreated_events_counter, std::move(t_swapchain_recreated_event)
+        m_swapchain_recreated_events_counter, std::move(swapchain_recreated_event)
     );
     return m_swapchain_recreated_events_counter++;
 }
 
-auto SwapchainHolder::remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void
+auto SwapchainHolder::remove_swapchain_recreated_event(uint32_t id) noexcept -> void
 {
-    std::erase_if(m_swapchain_recreated_events, [t_id](const auto& t_pair) {
-        return t_pair.first == t_id;
+    std::erase_if(m_swapchain_recreated_events, [id](const auto& pair) {
+        return pair.first == id;
     });
 }
 
-auto SwapchainHolder::recreate_swapchain(const vk::Extent2D t_framebuffer_size) -> void
+auto SwapchainHolder::recreate_swapchain(const vk::Extent2D framebuffer_size) -> void
 {
     m_device.get()->waitIdle();
 
@@ -151,7 +147,7 @@ auto SwapchainHolder::recreate_swapchain(const vk::Extent2D t_framebuffer_size) 
         m_device.get().info().get_queue_index(vkb::QueueType::graphics).value(),
         m_device.get().info().get_queue_index(vkb::QueueType::present).value(),
         m_device.get().get(),
-        t_framebuffer_size,
+        framebuffer_size,
         m_swapchain.transform(&Swapchain::get).value_or(nullptr)
     ) };
     m_swapchain.reset();

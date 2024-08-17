@@ -13,7 +13,7 @@
 namespace init {
 
 [[nodiscard]]
-auto create_render_pass(vk::Format t_color_format, const core::renderer::Device& t_device)
+auto create_render_pass(vk::Format color_format, const core::renderer::Device& device)
     -> vk::UniqueRenderPass;
 
 [[nodiscard]]
@@ -24,36 +24,31 @@ auto create_depth_image(
 ) -> core::renderer::Image;
 
 [[nodiscard]]
-auto create_depth_image_view(
-    const core::renderer::Device& t_device,
-    vk::Image                     t_depth_image
-) -> vk::UniqueImageView;
+auto create_depth_image_view(const core::renderer::Device& device, vk::Image depth_image)
+    -> vk::UniqueImageView;
 
 [[nodiscard]]
 auto create_framebuffers(
-    vk::Device                              t_device,
-    vk::Extent2D                            t_swapchain_extent,
-    const std::vector<vk::UniqueImageView>& t_swapchain_image_views,
-    vk::RenderPass                          t_render_pass,
-    vk::ImageView                           t_depth_image_view
+    vk::Device                           device,
+    vk::Extent2D                         swapchain_extent,
+    std::span<const vk::UniqueImageView> swapchain_image_views,
+    vk::RenderPass                       render_pass,
+    vk::ImageView                        depth_image_view
 ) -> std::vector<vk::UniqueFramebuffer>;
 
 [[nodiscard]]
-auto create_command_pool(vk::Device t_device, uint32_t t_queue_family_index)
+auto create_command_pool(vk::Device device, uint32_t queue_family_index)
     -> vk::UniqueCommandPool;
 
 [[nodiscard]]
-auto create_command_buffers(
-    vk::Device      t_device,
-    vk::CommandPool t_command_pool,
-    uint32_t        t_count
-) -> std::vector<vk::CommandBuffer>;
+auto create_command_buffers(vk::Device device, vk::CommandPool command_pool, uint32_t count)
+    -> std::vector<vk::CommandBuffer>;
 
 [[nodiscard]]
-auto create_semaphores(vk::Device t_device, uint32_t t_count)
+auto create_semaphores(vk::Device device, uint32_t count)
     -> std::vector<vk::UniqueSemaphore>;
 
 [[nodiscard]]
-auto create_fences(vk::Device t_device, uint32_t t_count) -> std::vector<vk::UniqueFence>;
+auto create_fences(vk::Device device, uint32_t count) -> std::vector<vk::UniqueFence>;
 
 }   // namespace init

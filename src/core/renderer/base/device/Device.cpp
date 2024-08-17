@@ -2,9 +2,9 @@
 
 namespace core::renderer {
 
-Device::Device(const vkb::Device& t_device) : m_device{ t_device } {}
+Device::Device(const vkb::Device& device) : m_device{ device } {}
 
-Device::Device(vkb::Device&& t_device) noexcept : m_device{ std::move(t_device) } {}
+Device::Device(vkb::Device&& device) noexcept : m_device{ std::move(device) } {}
 
 Device::~Device()
 {

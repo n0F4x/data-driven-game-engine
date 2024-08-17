@@ -11,14 +11,14 @@ auto init() -> void
     VULKAN_HPP_DEFAULT_DISPATCHER.init();
 }
 
-auto init(vk::Instance t_instance) noexcept -> void
+auto init(vk::Instance instance) noexcept -> void
 {
-    VULKAN_HPP_DEFAULT_DISPATCHER.init(t_instance);
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
 }
 
-auto init(vk::Device t_device) noexcept -> void
+auto init(vk::Device device) noexcept -> void
 {
-    VULKAN_HPP_DEFAULT_DISPATCHER.init(t_device);
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(device);
 }
 
 auto dispatcher() -> const vk::DispatchLoaderDynamic&

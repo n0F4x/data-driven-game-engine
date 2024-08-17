@@ -5,19 +5,19 @@
 namespace core::renderer {
 
 Image::Image(
-    const vk::Image     t_image,
-    const VmaAllocation t_allocation,
-    const VmaAllocator  t_allocator
+    const vk::Image     image,
+    const VmaAllocation allocation,
+    const VmaAllocator  allocator
 ) noexcept
-    : m_image{ t_image },
-      m_allocation{ t_allocation },
-      m_allocator{ t_allocator }
+    : m_image{ image },
+      m_allocation{ allocation },
+      m_allocator{ allocator }
 {}
 
-Image::Image(Image&& t_other) noexcept
-    : Image{ std::exchange(t_other.m_image, nullptr),
-             std::exchange(t_other.m_allocation, nullptr),
-             std::exchange(t_other.m_allocator, nullptr) }
+Image::Image(Image&& other) noexcept
+    : Image{ std::exchange(other.m_image, nullptr),
+             std::exchange(other.m_allocation, nullptr),
+             std::exchange(other.m_allocator, nullptr) }
 {}
 
 Image::~Image() noexcept
@@ -25,14 +25,14 @@ Image::~Image() noexcept
     reset();
 }
 
-auto Image::operator=(Image&& t_other) noexcept -> Image&
+auto Image::operator=(Image&& other) noexcept -> Image&
 {
-    if (this != &t_other) {
+    if (this != &other) {
         reset();
 
-        m_allocator  = std::exchange(t_other.m_allocator, nullptr);
-        m_image      = std::exchange(t_other.m_image, nullptr);
-        m_allocation = std::exchange(t_other.m_allocation, nullptr);
+        m_allocator  = std::exchange(other.m_allocator, nullptr);
+        m_image      = std::exchange(other.m_image, nullptr);
+        m_allocation = std::exchange(other.m_allocation, nullptr);
     }
     return *this;
 }

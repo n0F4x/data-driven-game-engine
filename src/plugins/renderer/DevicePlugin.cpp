@@ -7,9 +7,9 @@
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
 
-static auto log_setup(const vkb::Device& t_device) -> void
+static auto log_setup(const vkb::Device& device) -> void
 {
-    const uint32_t instance_version{ t_device.instance_version };
+    const uint32_t instance_version{ device.instance_version };
 
     SPDLOG_INFO(
         "Created Vulkan Instance with version: {}.{}.{}",
@@ -19,19 +19,19 @@ static auto log_setup(const vkb::Device& t_device) -> void
     );
 
     const vk::PhysicalDeviceProperties properties{
-        vk::PhysicalDevice(t_device.physical_device.physical_device).getProperties()
+        vk::PhysicalDevice(device.physical_device.physical_device).getProperties()
     };
 
     SPDLOG_INFO(
         "Chose GPU({}) with Vulkan version: {}.{}.{}",
-        t_device.physical_device.name,
+        device.physical_device.name,
         VK_VERSION_MAJOR(properties.apiVersion),
         VK_VERSION_MINOR(properties.apiVersion),
         VK_VERSION_PATCH(properties.apiVersion)
     );
 
     std::string enabled_extensions{ "Enabled device extensions:" };
-    for (const auto& extension : t_device.physical_device.get_extensions()) {
+    for (const auto& extension : device.physical_device.get_extensions()) {
         enabled_extensions += '\n';
         enabled_extensions += '\t';
         enabled_extensions += extension;

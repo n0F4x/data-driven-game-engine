@@ -42,11 +42,11 @@ auto hash_combine(const Types&... args) -> size_t
 
 template <template <typename> typename Hasher>
 [[nodiscard]]
-auto hash_range(std::ranges::sized_range auto&& t_range) -> size_t
+auto hash_range(std::ranges::sized_range auto&& range) -> size_t
 {
-    Hasher<std::ranges::range_value_t<decltype(t_range)>> hasher;
-    std::size_t seed = std::ranges::size(t_range);
-    for (auto x : t_range) {
+    Hasher<std::ranges::range_value_t<decltype(range)>> hasher;
+    std::size_t                                         seed = std::ranges::size(range);
+    for (auto x : range) {
         auto hash{ hasher(x) };
         hash = (hash >> 16 ^ hash) * 0x4'5d'9f'3b;
         hash = (hash >> 16 ^ hash) * 0x4'5d'9f'3b;
@@ -57,9 +57,9 @@ auto hash_range(std::ranges::sized_range auto&& t_range) -> size_t
 }
 
 [[nodiscard]]
-auto hash_range(std::ranges::sized_range auto&& t_range) -> size_t
+auto hash_range(std::ranges::sized_range auto&& range) -> size_t
 {
-    return hash_range<std::hash>(std::forward<decltype(t_range)>(t_range));
+    return hash_range<std::hash>(std::forward<decltype(range)>(range));
 }
 
 }   // namespace core

@@ -66,8 +66,8 @@ struct PushConstants {
 
 [[nodiscard]]
 static auto create_descriptor_set_layouts(
-    const vk::Device                                  t_device,
-    const RenderModel::DescriptorSetLayoutCreateInfo& t_info
+    const vk::Device                                  device,
+    const RenderModel::DescriptorSetLayoutCreateInfo& info
 ) -> std::array<vk::UniqueDescriptorSetLayout, 3>
 {
     const std::array bindings_0{
@@ -122,7 +122,7 @@ static auto create_descriptor_set_layouts(
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eSampledImage,
-                                       .descriptorCount = static_cast<uint32_t>(t_info.max_image_count),
+                                       .descriptorCount = static_cast<uint32_t>(info.max_image_count),
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
     const std::array flags_1{
@@ -143,7 +143,7 @@ static auto create_descriptor_set_layouts(
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eSampler,
-                                       .descriptorCount = static_cast<uint32_t>(t_info.max_sampler_count),
+                                       .descriptorCount = static_cast<uint32_t>(info.max_sampler_count),
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
     const std::array flags_2{
@@ -161,120 +161,117 @@ static auto create_descriptor_set_layouts(
     };
 
     return std::array{
-        t_device.createDescriptorSetLayoutUnique(create_info_0),
-        t_device.createDescriptorSetLayoutUnique(create_info_1),
-        t_device.createDescriptorSetLayoutUnique(create_info_2),
+        device.createDescriptorSetLayoutUnique(create_info_0),
+        device.createDescriptorSetLayoutUnique(create_info_1),
+        device.createDescriptorSetLayoutUnique(create_info_2),
     };
 }
 
 [[nodiscard]]
 static auto create_staging_buffer(
-    const Allocator&                          t_allocator,
-    const void*                               t_data,
-    const uint32_t                            t_size,
-    const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
+    const Allocator&                          allocator,
+    const void*                               data,
+    const uint32_t                            size,
+    const std::optional<const vk::DeviceSize> min_alignment = std::nullopt
 ) -> MappedBuffer
 {
-    if (t_data == nullptr || t_size == 0) {
+    if (data == nullptr || size == 0) {
         return MappedBuffer{};
     }
 
     const vk::BufferCreateInfo staging_buffer_create_info{
-        .size  = t_size,
+        .size  = size,
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
 
-    return t_min_alignment
+    return min_alignment
         .transform([&](const vk::DeviceSize min_alignment) {
-            return t_allocator.allocate_mapped_buffer_with_alignment(
-                staging_buffer_create_info, min_alignment, t_data
+            return allocator.allocate_mapped_buffer_with_alignment(
+                staging_buffer_create_info, min_alignment, data
             );
         })
-        .value_or(t_allocator.allocate_mapped_buffer(staging_buffer_create_info, t_data));
+        .value_or(allocator.allocate_mapped_buffer(staging_buffer_create_info, data));
 }
 
 template <typename T>
 [[nodiscard]]
 static auto create_staging_buffer(
-    const Allocator&                          t_allocator,
-    const std::span<T>                        t_data,
-    const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
+    const Allocator&                          allocator,
+    const std::span<T>                        data,
+    const std::optional<const vk::DeviceSize> min_alignment = std::nullopt
 ) -> MappedBuffer
 {
     return create_staging_buffer(
-        t_allocator,
-        t_data.data(),
-        static_cast<uint32_t>(t_data.size_bytes()),
-        t_min_alignment
+        allocator, data.data(), static_cast<uint32_t>(data.size_bytes()), min_alignment
     );
 }
 
 [[nodiscard]]
 static auto create_gpu_only_buffer(
-    const Allocator&                          t_allocator,
-    const vk::BufferUsageFlags                t_usage_flags,
-    const uint32_t                            t_size,
-    const std::optional<const vk::DeviceSize> t_min_alignment = std::nullopt
+    const Allocator&                          allocator,
+    const vk::BufferUsageFlags                usage_flags,
+    const uint32_t                            size,
+    const std::optional<const vk::DeviceSize> min_alignment = std::nullopt
 ) -> Buffer
 {
-    if (t_size == 0) {
+    if (size == 0) {
         return Buffer{};
     }
 
     const vk::BufferCreateInfo buffer_create_info = {
-        .size = t_size, .usage = t_usage_flags | vk::BufferUsageFlagBits::eTransferDst
+        .size = size, .usage = usage_flags | vk::BufferUsageFlagBits::eTransferDst
     };
 
-    return t_min_alignment
+    return min_alignment
         .transform([&](const vk::DeviceSize min_alignment) {
-            return t_allocator.allocate_buffer_with_alignment(
+            return allocator.allocate_buffer_with_alignment(
                 buffer_create_info, min_alignment
             );
         })
-        .value_or(t_allocator.allocate_buffer(buffer_create_info));
+        .value_or(allocator.allocate_buffer(buffer_create_info));
 }
 
 template <typename UniformBlock>
 [[nodiscard]]
-static auto create_buffer(const Allocator& t_allocator) -> MappedBuffer
+static auto create_buffer(const Allocator& allocator) -> MappedBuffer
 {
     constexpr vk::BufferCreateInfo buffer_create_info = {
         .size = sizeof(UniformBlock), .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    return t_allocator.allocate_mapped_buffer(buffer_create_info);
+    return allocator.allocate_mapped_buffer(buffer_create_info);
 }
 
 [[nodiscard]]
-static auto convert_material(const gltf::Material& t_material) noexcept -> ShaderMaterial
+static auto convert_material(const gltf::Material& material) noexcept -> ShaderMaterial
 {
     return ShaderMaterial{
         .pbrMetallicRoughness =
             ShaderPbrMetallicRoughness{
-                                       .baseColorFactor = t_material.pbr_metallic_roughness.base_color_factor,
+                                       .baseColorFactor = material.pbr_metallic_roughness.base_color_factor,
                                        .baseColorTexture =
                     ShaderTextureInfo{
-                        .index = t_material.pbr_metallic_roughness.base_color_texture_info
+                        .index = material.pbr_metallic_roughness.base_color_texture_info
                                      .transform([](const gltf::TextureInfo& texture_info
                                                 ) { return texture_info.texture_index; })
                                      .value_or(std::numeric_limits<uint32_t>::max()),
                         .texCoord =
-                            t_material.pbr_metallic_roughness.base_color_texture_info
+                            material.pbr_metallic_roughness.base_color_texture_info
                                 .transform([](const gltf::TextureInfo& texture_info) {
                                     return texture_info.tex_coord_index;
                                 })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
-                    }, .metallicFactor  = t_material.pbr_metallic_roughness.metallic_factor,
-                                       .roughnessFactor = t_material.pbr_metallic_roughness.roughness_factor,
+                    }, .metallicFactor  = material.pbr_metallic_roughness.metallic_factor,
+                                       .roughnessFactor = material.pbr_metallic_roughness.roughness_factor,
                                        .metallicRoughnessTexture =
                     ShaderTextureInfo{
-                        .index = t_material.pbr_metallic_roughness
+                        .index = material.pbr_metallic_roughness
                                      .metallic_roughness_texture_info
                                      .transform([](const gltf::TextureInfo& texture_info
                                                 ) { return texture_info.texture_index; })
                                      .value_or(std::numeric_limits<uint32_t>::max()),
                         .texCoord =
-                            t_material.pbr_metallic_roughness
+                            material.pbr_metallic_roughness
                                 .metallic_roughness_texture_info
                                 .transform([](const gltf::TextureInfo& texture_info) {
                                     return texture_info.tex_coord_index;
@@ -284,35 +281,35 @@ static auto convert_material(const gltf::Material& t_material) noexcept -> Shade
         .normalTexture =
             ShaderNormalTextureInfo{
                                        .index =
-                    t_material.normal_texture_info
+                    material.normal_texture_info
                         .transform([](const gltf::Material::NormalTextureInfo& texture_info
                                    ) { return texture_info.texture_index; })
                         .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord =
-                    t_material.normal_texture_info
+                    material.normal_texture_info
                         .transform([](const gltf::Material::NormalTextureInfo& texture_info
                                    ) { return texture_info.tex_coord_index; })
                         .value_or(std::numeric_limits<uint32_t>::max()),
                                        .scale =
-                    t_material.normal_texture_info
+                    material.normal_texture_info
                         .transform([](const gltf::Material::NormalTextureInfo& texture_info
                                    ) { return texture_info.scale; })
                         .value_or(1.f),
                                        },
         .occlusionTexture =
             ShaderOcclusionTextureInfo{
-                                       .index = t_material.occlusion_texture_info
+                                       .index = material.occlusion_texture_info
                              .transform(
                                  [](const gltf::Material::OcclusionTextureInfo& texture_info
                                  ) { return texture_info.texture_index; }
                              )
                              .value_or(std::numeric_limits<uint32_t>::max()),
-                                       .texCoord = t_material.occlusion_texture_info
+                                       .texCoord = material.occlusion_texture_info
                                 .transform([](const gltf::Material::OcclusionTextureInfo&
                                                   texture_info
                                            ) { return texture_info.tex_coord_index; })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
-                                       .strength = t_material.occlusion_texture_info
+                                       .strength = material.occlusion_texture_info
                                 .transform([](const gltf::Material::OcclusionTextureInfo&
                                                   texture_info
                                            ) { return texture_info.strength; })
@@ -320,67 +317,66 @@ static auto convert_material(const gltf::Material& t_material) noexcept -> Shade
                                        },
         .emissiveTexture =
             ShaderTextureInfo{
-                                       .index = t_material.emissive_texture_info
+                                       .index = material.emissive_texture_info
                              .transform([](const gltf::TextureInfo& texture_info) {
                                  return texture_info.texture_index;
                              })
                              .value_or(std::numeric_limits<uint32_t>::max()),
-                                       .texCoord = t_material.emissive_texture_info
+                                       .texCoord = material.emissive_texture_info
                                 .transform([](const gltf::TextureInfo& texture_info) {
                                     return texture_info.tex_coord_index;
                                 })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                                        },
-        .emissiveFactor = t_material.emissive_factor,
-        .alphaCutoff    = t_material.alpha_mode == core::gltf::Material::AlphaMode::eMask
-                            ? t_material.alpha_cutoff
+        .emissiveFactor = material.emissive_factor,
+        .alphaCutoff    = material.alpha_mode == core::gltf::Material::AlphaMode::eMask
+                            ? material.alpha_cutoff
                             : -1.f,
     };
 }
 
 [[nodiscard]]
 static auto create_base_descriptor_set(
-    const vk::Device              t_device,
-    const vk::DescriptorSetLayout t_descriptor_set_layout,
-    const vk::DescriptorPool      t_descriptor_pool,
-    const vk::Buffer              t_vertex_uniform,
-    const vk::Buffer              t_transform_uniform,
-    const vk::Sampler             t_default_sampler,
-    const vk::Buffer              t_texture_uniform,
-    const vk::Buffer              t_default_material_uniform,
-    const vk::Buffer              t_material_uniform
+    const vk::Device              device,
+    const vk::DescriptorSetLayout descriptor_set_layout,
+    const vk::DescriptorPool      descriptor_pool,
+    const vk::Buffer              vertex_uniform,
+    const vk::Buffer              transform_uniform,
+    const vk::Sampler             default_sampler,
+    const vk::Buffer              texture_uniform,
+    const vk::Buffer              default_material_uniform,
+    const vk::Buffer              material_uniform
 ) -> vk::UniqueDescriptorSet
 {
     const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
-        .descriptorPool     = t_descriptor_pool,
+        .descriptorPool     = descriptor_pool,
         .descriptorSetCount = 1,
-        .pSetLayouts        = &t_descriptor_set_layout,
+        .pSetLayouts        = &descriptor_set_layout,
     };
-    auto descriptor_sets{
-        t_device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
-    };
+    auto descriptor_sets{ device.allocateDescriptorSetsUnique(descriptor_set_allocate_info
+    ) };
 
     const vk::DescriptorBufferInfo vertex_buffer_info{
-        .buffer = t_vertex_uniform,
+        .buffer = vertex_uniform,
         .range  = sizeof(vk::DeviceAddress),
     };
     const vk::DescriptorBufferInfo transform_buffer_info{
-        .buffer = t_transform_uniform,
+        .buffer = transform_uniform,
         .range  = sizeof(vk::DeviceAddress),
     };
     const vk::DescriptorImageInfo default_sampler_image_info{
-        .sampler = t_default_sampler,
+        .sampler = default_sampler,
     };
     const vk::DescriptorBufferInfo texture_buffer_info{
-        .buffer = t_texture_uniform,
+        .buffer = texture_uniform,
         .range  = sizeof(vk::DeviceAddress),
     };
     const vk::DescriptorBufferInfo default_material_buffer_info{
-        .buffer = t_default_material_uniform,
+        .buffer = default_material_uniform,
         .range  = sizeof(ShaderMaterial),
     };
     const vk::DescriptorBufferInfo material_buffer_info{
-        .buffer = t_material_uniform,
+        .buffer = material_uniform,
         .range  = sizeof(vk::DeviceAddress),
     };
 
@@ -429,7 +425,7 @@ static auto create_base_descriptor_set(
                                },
     };
 
-    t_device.updateDescriptorSets(
+    device.updateDescriptorSets(
         static_cast<uint32_t>(write_descriptor_sets.size()),
         write_descriptor_sets.data(),
         0,
@@ -441,23 +437,23 @@ static auto create_base_descriptor_set(
 
 [[nodiscard]]
 static auto create_image(
-    const Allocator&    t_allocator,
-    const gltf::Image&  t_image,
-    vk::ImageTiling     t_tiling,
-    vk::ImageUsageFlags t_usage
+    const Allocator&    allocator,
+    const gltf::Image&  image,
+    vk::ImageTiling     tiling,
+    vk::ImageUsageFlags usage
 ) -> Image
 {
     const vk::ImageCreateInfo image_create_info{
         .imageType     = vk::ImageType::e2D,
-        .format        = t_image->format(),
-        .extent        = vk::Extent3D{ .width  = t_image->width(),
-                                      .height = t_image->height(),
-                                      .depth  = t_image->depth() },
-        .mipLevels     = t_image->mip_levels(),
+        .format        = image->format(),
+        .extent        = vk::Extent3D{ .width  = image->width(),
+                                      .height = image->height(),
+                                      .depth  = image->depth() },
+        .mipLevels     = image->mip_levels(),
         .arrayLayers   = 1,
         .samples       = vk::SampleCountFlagBits::e1,
-        .tiling        = t_tiling,
-        .usage         = t_usage,
+        .tiling        = tiling,
+        .usage         = usage,
         .sharingMode   = vk::SharingMode::eExclusive,
         .initialLayout = vk::ImageLayout::eUndefined,
     };
@@ -468,54 +464,53 @@ static auto create_image(
         .priority = 1.f,
     };
 
-    return t_allocator.allocate_image(image_create_info, allocation_create_info);
+    return allocator.allocate_image(image_create_info, allocation_create_info);
 }
 
 [[nodiscard]]
 static auto create_image_view(
-    const vk::Device t_device,
-    const vk::Image  t_image,
-    const vk::Format t_format
+    const vk::Device device,
+    const vk::Image  image,
+    const vk::Format format
 ) -> vk::UniqueImageView
 {
     const vk::ImageViewCreateInfo view_create_info{
-        .image    = t_image,
+        .image    = image,
         .viewType = vk::ImageViewType::e2D,
-        .format   = t_format,
+        .format   = format,
         .subresourceRange =
             vk::ImageSubresourceRange{ .aspectMask = vk::ImageAspectFlagBits::eColor,
                                       .levelCount = 1,
                                       .layerCount = 1 },
     };
 
-    return t_device.createImageViewUnique(view_create_info);
+    return device.createImageViewUnique(view_create_info);
 }
 
 [[nodiscard]]
 static auto create_image_descriptor_set(
-    const vk::Device                        t_device,
-    const vk::DescriptorSetLayout           t_descriptor_set_layout,
-    const vk::DescriptorPool                t_descriptor_pool,
-    const std::vector<vk::UniqueImageView>& t_image_views
+    const vk::Device                        device,
+    const vk::DescriptorSetLayout           descriptor_set_layout,
+    const vk::DescriptorPool                descriptor_pool,
+    const std::vector<vk::UniqueImageView>& image_views
 ) -> vk::UniqueDescriptorSet
 {
-    const uint32_t descriptor_count{ static_cast<uint32_t>(t_image_views.size()) };
+    const uint32_t descriptor_count{ static_cast<uint32_t>(image_views.size()) };
     const vk::DescriptorSetVariableDescriptorCountAllocateInfo variable_info{
         .descriptorSetCount = 1,
         .pDescriptorCounts  = &descriptor_count,
     };
     const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
         .pNext              = &variable_info,
-        .descriptorPool     = t_descriptor_pool,
+        .descriptorPool     = descriptor_pool,
         .descriptorSetCount = 1,
-        .pSetLayouts        = &t_descriptor_set_layout,
+        .pSetLayouts        = &descriptor_set_layout,
     };
-    auto descriptor_sets{
-        t_device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
-    };
+    auto descriptor_sets{ device.allocateDescriptorSetsUnique(descriptor_set_allocate_info
+    ) };
 
     const std::vector image_infos{
-        t_image_views | std::views::transform([](const vk::UniqueImageView& image_view) {
+        image_views | std::views::transform([](const vk::UniqueImageView& image_view) {
             return vk::DescriptorImageInfo{
                 .imageView   = image_view.get(),
                 .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
@@ -538,7 +533,7 @@ static auto create_image_descriptor_set(
                                          })
                                        | std::ranges::to<std::vector>() };
 
-    t_device.updateDescriptorSets(
+    device.updateDescriptorSets(
         static_cast<uint32_t>(write_descriptor_sets.size()),
         write_descriptor_sets.data(),
         0,
@@ -549,10 +544,10 @@ static auto create_image_descriptor_set(
 }
 
 [[nodiscard]]
-static auto to_mag_filter(gltf::Sampler::MagFilter t_mag_filter) noexcept -> vk::Filter
+static auto to_mag_filter(gltf::Sampler::MagFilter mag_filter) noexcept -> vk::Filter
 {
     using enum gltf::Sampler::MagFilter;
-    switch (t_mag_filter) {
+    switch (mag_filter) {
         case eNearest: return vk::Filter::eNearest;
         case eLinear: return vk::Filter::eLinear;
     }
@@ -560,10 +555,10 @@ static auto to_mag_filter(gltf::Sampler::MagFilter t_mag_filter) noexcept -> vk:
 }
 
 [[nodiscard]]
-static auto to_min_filter(gltf::Sampler::MinFilter t_min_filter) noexcept -> vk::Filter
+static auto to_min_filter(gltf::Sampler::MinFilter min_filter) noexcept -> vk::Filter
 {
     using enum gltf::Sampler::MinFilter;
-    switch (t_min_filter) {
+    switch (min_filter) {
         case eNearest: return vk::Filter::eNearest;
         case eLinear: return vk::Filter::eLinear;
         case eNearestMipmapNearest: return vk::Filter::eNearest;
@@ -575,11 +570,11 @@ static auto to_min_filter(gltf::Sampler::MinFilter t_min_filter) noexcept -> vk:
 }
 
 [[nodiscard]]
-static auto to_mipmap_mode(gltf::Sampler::MinFilter t_min_filter
+static auto to_mipmap_mode(gltf::Sampler::MinFilter min_filter
 ) noexcept -> vk::SamplerMipmapMode
 {
     using enum gltf::Sampler::MinFilter;
-    switch (t_min_filter) {
+    switch (min_filter) {
         case eNearest: [[fallthrough]];
         case eLinear: return vk::SamplerMipmapMode::eLinear;
         case eNearestMipmapNearest: [[fallthrough]];
@@ -591,11 +586,11 @@ static auto to_mipmap_mode(gltf::Sampler::MinFilter t_min_filter
 }
 
 [[nodiscard]]
-static auto to_address_mode(gltf::Sampler::WrapMode t_wrap_mode
+static auto to_address_mode(gltf::Sampler::WrapMode wrap_mode
 ) noexcept -> vk::SamplerAddressMode
 {
     using enum gltf::Sampler::WrapMode;
-    switch (t_wrap_mode) {
+    switch (wrap_mode) {
         case eClampToEdge: return vk::SamplerAddressMode::eClampToEdge;
         case eMirroredRepeat: return vk::SamplerAddressMode::eMirroredRepeat;
         case eRepeat: return vk::SamplerAddressMode::eRepeat;
@@ -604,50 +599,49 @@ static auto to_address_mode(gltf::Sampler::WrapMode t_wrap_mode
 }
 
 [[nodiscard]]
-static auto create_sampler(const vk::Device t_device, const gltf::Sampler& t_sampler_info)
+static auto create_sampler(const vk::Device device, const gltf::Sampler& sampler_info)
     -> vk::UniqueSampler
 {
     const vk::SamplerCreateInfo sampler_create_info{
-        .magFilter = t_sampler_info.mag_filter.transform(to_mag_filter)
-                         .value_or(vk::Filter::eLinear),
-        .minFilter = t_sampler_info.min_filter.transform(to_min_filter)
-                         .value_or(vk::Filter::eLinear),
-        .mipmapMode = t_sampler_info.min_filter.transform(to_mipmap_mode)
+        .magFilter =
+            sampler_info.mag_filter.transform(to_mag_filter).value_or(vk::Filter::eLinear),
+        .minFilter =
+            sampler_info.min_filter.transform(to_min_filter).value_or(vk::Filter::eLinear),
+        .mipmapMode = sampler_info.min_filter.transform(to_mipmap_mode)
                           .value_or(vk::SamplerMipmapMode::eLinear),
-        .addressModeU = to_address_mode(t_sampler_info.wrap_s),
-        .addressModeV = to_address_mode(t_sampler_info.wrap_t),
+        .addressModeU = to_address_mode(sampler_info.wrap_s),
+        .addressModeV = to_address_mode(sampler_info.wrap_t),
         .addressModeW = vk::SamplerAddressMode::eRepeat,
         .maxLod       = vk::LodClampNone,
     };
 
-    return t_device.createSamplerUnique(sampler_create_info);
+    return device.createSamplerUnique(sampler_create_info);
 }
 
 [[nodiscard]]
 static auto create_sampler_descriptor_set(
-    const vk::Device                      t_device,
-    const vk::DescriptorSetLayout         t_descriptor_set_layout,
-    const vk::DescriptorPool              t_descriptor_pool,
-    const std::vector<vk::UniqueSampler>& t_samplers
+    const vk::Device                      device,
+    const vk::DescriptorSetLayout         descriptor_set_layout,
+    const vk::DescriptorPool              descriptor_pool,
+    const std::vector<vk::UniqueSampler>& samplers
 ) -> vk::UniqueDescriptorSet
 {
-    const uint32_t descriptor_count{ static_cast<uint32_t>(t_samplers.size()) };
+    const uint32_t descriptor_count{ static_cast<uint32_t>(samplers.size()) };
     const vk::DescriptorSetVariableDescriptorCountAllocateInfo variable_info{
         .descriptorSetCount = 1,
         .pDescriptorCounts  = &descriptor_count,
     };
     const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
         .pNext              = &variable_info,
-        .descriptorPool     = t_descriptor_pool,
+        .descriptorPool     = descriptor_pool,
         .descriptorSetCount = 1,
-        .pSetLayouts        = &t_descriptor_set_layout,
+        .pSetLayouts        = &descriptor_set_layout,
     };
-    auto descriptor_sets{
-        t_device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
-    };
+    auto descriptor_sets{ device.allocateDescriptorSetsUnique(descriptor_set_allocate_info
+    ) };
 
     const std::vector image_infos{
-        t_samplers | std::views::transform([](const vk::UniqueSampler& sampler) {
+        samplers | std::views::transform([](const vk::UniqueSampler& sampler) {
             return vk::DescriptorImageInfo{
                 .sampler = sampler.get(),
             };
@@ -669,7 +663,7 @@ static auto create_sampler_descriptor_set(
                                          })
                                        | std::ranges::to<std::vector>() };
 
-    t_device.updateDescriptorSets(
+    device.updateDescriptorSets(
         static_cast<uint32_t>(write_descriptor_sets.size()),
         write_descriptor_sets.data(),
         0,
@@ -680,10 +674,10 @@ static auto create_sampler_descriptor_set(
 }
 
 [[nodiscard]]
-static auto convert(gltf::Mesh::Primitive::Topology t_topology) -> vk::PrimitiveTopology
+static auto convert(gltf::Mesh::Primitive::Topology topology) -> vk::PrimitiveTopology
 {
     using enum gltf::Mesh::Primitive::Topology;
-    switch (t_topology) {
+    switch (topology) {
         case ePoints: return vk::PrimitiveTopology::ePointList;
         case eLineStrips: return vk::PrimitiveTopology::eLineStrip;
         case eLineLoops:
@@ -700,45 +694,45 @@ static auto convert(gltf::Mesh::Primitive::Topology t_topology) -> vk::Primitive
 
 [[nodiscard]]
 static auto create_pipeline(
-    const vk::Device                       t_device,
-    const RenderModel::PipelineCreateInfo& t_create_info,
-    const gltf::Mesh::Primitive            t_primitive,
-    const gltf::Material                   t_material,
-    cache::Cache&                          t_cache
+    const vk::Device                       device,
+    const RenderModel::PipelineCreateInfo& create_info,
+    const gltf::Mesh::Primitive            primitive,
+    const gltf::Material                   material,
+    cache::Cache&                          cache
 ) -> cache::Handle<vk::UniquePipeline>
 {
-    GraphicsPipelineBuilder builder{ t_create_info.effect };
+    GraphicsPipelineBuilder builder{ create_info.effect };
 
-    builder.set_layout(t_create_info.layout);
-    builder.set_render_pass(t_create_info.render_pass);
-    builder.set_primitive_topology(convert(t_primitive.mode));
+    builder.set_layout(create_info.layout);
+    builder.set_render_pass(create_info.render_pass);
+    builder.set_primitive_topology(convert(primitive.mode));
     builder.set_cull_mode(
-        t_material.double_sided ? vk::CullModeFlagBits::eNone : vk::CullModeFlagBits::eBack
+        material.double_sided ? vk::CullModeFlagBits::eNone : vk::CullModeFlagBits::eBack
     );
-    if (t_material.alpha_mode == core::gltf::Material::AlphaMode::eBlend) {
+    if (material.alpha_mode == core::gltf::Material::AlphaMode::eBlend) {
         builder.enable_blending();
     }
 
     auto hash{ hash_value(builder) };
 
-    return t_cache.lazy_emplace<vk::UniquePipeline>(
-        hash, std::bind_front(&GraphicsPipelineBuilder::build, builder, t_device)
+    return cache.lazy_emplace<vk::UniquePipeline>(
+        hash, std::bind_front(&GraphicsPipelineBuilder::build, builder, device)
     );
 }
 
 static auto transition_image_layout(
-    vk::CommandBuffer t_command_buffer,
-    vk::Image         t_image,
-    vk::ImageLayout   t_old_layout,
-    vk::ImageLayout   t_new_layout
+    vk::CommandBuffer command_buffer,
+    vk::Image         image,
+    vk::ImageLayout   old_layout,
+    vk::ImageLayout   new_layout
 ) -> void
 {
     vk::ImageMemoryBarrier barrier{
-        .oldLayout           = t_old_layout,
-        .newLayout           = t_new_layout,
+        .oldLayout           = old_layout,
+        .newLayout           = new_layout,
         .srcQueueFamilyIndex = vk::QueueFamilyIgnored,
         .dstQueueFamilyIndex = vk::QueueFamilyIgnored,
-        .image               = t_image,
+        .image               = image,
         .subresourceRange =
             vk::ImageSubresourceRange{ .aspectMask     = vk::ImageAspectFlagBits::eColor,
                                       .baseMipLevel   = 0,
@@ -749,8 +743,8 @@ static auto transition_image_layout(
     vk::PipelineStageFlags source_stage;
     vk::PipelineStageFlags destination_stage;
 
-    if (t_old_layout == vk::ImageLayout::eUndefined
-        && t_new_layout == vk::ImageLayout::eTransferDstOptimal)
+    if (old_layout == vk::ImageLayout::eUndefined
+        && new_layout == vk::ImageLayout::eTransferDstOptimal)
     {
         barrier.srcAccessMask = vk::AccessFlagBits::eNone;
         barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
@@ -758,8 +752,8 @@ static auto transition_image_layout(
         source_stage      = vk::PipelineStageFlagBits::eTopOfPipe;
         destination_stage = vk::PipelineStageFlagBits::eTransfer;
     }
-    else if (t_old_layout == vk::ImageLayout::eTransferDstOptimal
-             && t_new_layout == vk::ImageLayout::eShaderReadOnlyOptimal)
+    else if (old_layout == vk::ImageLayout::eTransferDstOptimal
+             && new_layout == vk::ImageLayout::eShaderReadOnlyOptimal)
     {
         barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
@@ -771,7 +765,7 @@ static auto transition_image_layout(
         throw std::invalid_argument("unsupported layout transition!");
     }
 
-    t_command_buffer.pipelineBarrier(
+    command_buffer.pipelineBarrier(
         source_stage,
         destination_stage,
         vk::DependencyFlags{},
@@ -785,25 +779,25 @@ static auto transition_image_layout(
 }
 
 static auto copy_buffer_to_image(
-    const vk::CommandBuffer t_command_buffer,
-    const vk::Buffer        t_buffer,
-    const vk::Image         t_image,
-    const vk::DeviceSize    t_buffer_offset,
-    const vk::Extent2D      t_extent
+    const vk::CommandBuffer command_buffer,
+    const vk::Buffer        buffer,
+    const vk::Image         image,
+    const vk::DeviceSize    buffer_offset,
+    const vk::Extent2D      extent
 ) -> void
 {
     // TODO account for mip-maps
     // TODO account for image offset
     const vk::BufferImageCopy region{
-        .bufferOffset = t_buffer_offset,
+        .bufferOffset = buffer_offset,
         .imageSubresource =
             vk::ImageSubresourceLayers{ .aspectMask = vk::ImageAspectFlagBits::eColor,
                                        .layerCount = 1 },
-        .imageExtent = vk::Extent3D{ t_extent.width, t_extent.height, 1 },
+        .imageExtent = vk::Extent3D{ extent.width, extent.height, 1 },
     };
 
-    t_command_buffer.copyBufferToImage(
-        t_buffer, t_image, vk::ImageLayout::eTransferDstOptimal, 1, &region
+    command_buffer.copyBufferToImage(
+        buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region
     );
 }
 
@@ -814,7 +808,7 @@ auto RenderModel::descriptor_set_count() noexcept -> uint32_t
     return 3;
 }
 
-auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_info
+auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& info
 ) -> std::vector<vk::DescriptorPoolSize>
 {
     std::vector<vk::DescriptorPoolSize> pool_sizes{
@@ -838,16 +832,16 @@ auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_i
                                .descriptorCount = 1u },
     };
 
-    if (t_info.max_image_count > 0) {
+    if (info.max_image_count > 0) {
         pool_sizes.push_back(vk::DescriptorPoolSize{
             .type            = vk::DescriptorType::eSampledImage,
-            .descriptorCount = t_info.max_image_count,
+            .descriptorCount = info.max_image_count,
         });
     }
-    if (t_info.max_sampler_count > 0) {
+    if (info.max_sampler_count > 0) {
         pool_sizes.push_back(vk::DescriptorPoolSize{
             .type            = vk::DescriptorType::eSampler,
-            .descriptorCount = t_info.max_sampler_count,
+            .descriptorCount = info.max_sampler_count,
         });
     }
 
@@ -855,53 +849,52 @@ auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& t_i
 }
 
 auto RenderModel::create_loader(
-    const vk::Device                                  t_device,
-    const Allocator&                                  t_allocator,
-    const std::span<const vk::DescriptorSetLayout, 3> t_descriptor_set_layouts,
-    const PipelineCreateInfo&                         t_pipeline_create_info,
-    const vk::DescriptorPool                          t_descriptor_pool,
-    cache::Handle<gltf::Model>                        t_model,
-    cache::Cache&                                     t_cache
+    const vk::Device                                  device,
+    const Allocator&                                  allocator,
+    const std::span<const vk::DescriptorSetLayout, 3> descriptor_set_layouts,
+    const PipelineCreateInfo&                         pipeline_create_info,
+    const vk::DescriptorPool                          descriptor_pool,
+    cache::Handle<gltf::Model>                        model,
+    cache::Cache&                                     cache
 ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>
 {
     // TODO: handle model buffers with no elements
 
     MappedBuffer index_staging_buffer{
-        create_staging_buffer(t_allocator, std::span{ t_model->indices() })
+        create_staging_buffer(allocator, std::span{ model->indices() })
     };
     Buffer index_buffer{ create_gpu_only_buffer(
-        t_allocator,
+        allocator,
         vk::BufferUsageFlagBits::eIndexBuffer,
-        static_cast<uint32_t>(std::span{ t_model->indices() }.size_bytes())
+        static_cast<uint32_t>(std::span{ model->indices() }.size_bytes())
     ) };
 
     std::vector<ShaderVertex> vertices{
-        t_model->vertices()
-        | std::views::transform([](const gltf::Model::Vertex& vertex) {
-              return ShaderVertex{
-                  .position = vertex.position,
-                  .normal   = vertex.normal,
-                  .UV0      = vertex.uv_0,
-                  .UV1      = vertex.uv_1,
-                  .color    = vertex.color,
-              };
-          })
+        model->vertices() | std::views::transform([](const gltf::Model::Vertex& vertex) {
+            return ShaderVertex{
+                .position = vertex.position,
+                .normal   = vertex.normal,
+                .UV0      = vertex.uv_0,
+                .UV1      = vertex.uv_1,
+                .color    = vertex.color,
+            };
+        })
         | std::ranges::to<std::vector>()
     };
     MappedBuffer vertex_staging_buffer{
-        create_staging_buffer(t_allocator, std::span{ vertices }, sizeof(ShaderVertex))
+        create_staging_buffer(allocator, std::span{ vertices }, sizeof(ShaderVertex))
     };
     Buffer       vertex_buffer{ create_gpu_only_buffer(
-        t_allocator,
+        allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
         static_cast<uint32_t>(std::span{ vertices }.size_bytes()),
         sizeof(ShaderVertex)
     ) };
-    MappedBuffer vertex_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
+    MappedBuffer vertex_uniform{ create_buffer<vk::DeviceAddress>(allocator) };
 
     std::vector nodes_with_mesh{
-        t_model->nodes() | std::views::filter([](const gltf::Node& node) {
+        model->nodes() | std::views::filter([](const gltf::Node& node) {
             return node.mesh_index().has_value();
         })
         | std::views::transform([](const gltf::Node& node) { return std::cref(node); })
@@ -910,27 +903,27 @@ auto RenderModel::create_loader(
     std::vector<glm::mat4> transforms(nodes_with_mesh.size());
     std::ranges::for_each(
         nodes_with_mesh,
-        [&transforms, model = std::cref(*t_model)](const gltf::Node& node) {
+        [&transforms, model = std::cref(*model)](const gltf::Node& node) {
             transforms.at(node.mesh_index().value()) = node.matrix(model);
         }
     );
     MappedBuffer transform_staging_buffer{
-        create_staging_buffer(t_allocator, std::span{ transforms })
+        create_staging_buffer(allocator, std::span{ transforms })
     };
     Buffer       transform_buffer{ create_gpu_only_buffer(
-        t_allocator,
+        allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
         static_cast<uint32_t>(std::span{ transforms }.size_bytes())
     ) };
-    MappedBuffer transform_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
+    MappedBuffer transform_uniform{ create_buffer<vk::DeviceAddress>(allocator) };
 
     vk::UniqueSampler default_sampler{
-        create_sampler(t_device, gltf::Model::default_sampler())
+        create_sampler(device, gltf::Model::default_sampler())
     };
 
     std::vector<ShaderTexture> textures{
-        t_model->textures() | std::views::transform([](const gltf::Texture& texture) {
+        model->textures() | std::views::transform([](const gltf::Texture& texture) {
             return ShaderTexture{
                 .image_index = texture.image_index,
                 .sampler_index =
@@ -940,19 +933,19 @@ auto RenderModel::create_loader(
         | std::ranges::to<std::vector>()
     };
     MappedBuffer texture_staging_buffer{
-        create_staging_buffer(t_allocator, std::span{ textures })
+        create_staging_buffer(allocator, std::span{ textures })
     };
     Buffer       texture_buffer{ create_gpu_only_buffer(
-        t_allocator,
+        allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
         static_cast<uint32_t>(std::span{ textures }.size_bytes())
     ) };
-    MappedBuffer texture_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
+    MappedBuffer texture_uniform{ create_buffer<vk::DeviceAddress>(allocator) };
 
     const ShaderMaterial default_material{ convert_material(gltf::Model::default_material(
     )) };
-    MappedBuffer         default_material_uniform{ t_allocator.allocate_mapped_buffer(
+    MappedBuffer         default_material_uniform{ allocator.allocate_mapped_buffer(
         vk::BufferCreateInfo{
                     .size  = static_cast<uint32_t>(sizeof(ShaderMaterial)),
                     .usage = vk::BufferUsageFlagBits::eUniformBuffer,
@@ -960,25 +953,25 @@ auto RenderModel::create_loader(
         &default_material
     ) };
 
-    std::vector<ShaderMaterial> materials{ t_model->materials()
+    std::vector<ShaderMaterial> materials{ model->materials()
                                            | std::views::transform(convert_material)
                                            | std::ranges::to<std::vector>() };
     MappedBuffer                material_staging_buffer{
-        create_staging_buffer(t_allocator, std::span{ materials }, sizeof(ShaderMaterial))
+        create_staging_buffer(allocator, std::span{ materials }, sizeof(ShaderMaterial))
     };
     Buffer       material_buffer{ create_gpu_only_buffer(
-        t_allocator,
+        allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
         static_cast<uint32_t>(std::span{ materials }.size_bytes()),
         sizeof(ShaderMaterial)
     ) };
-    MappedBuffer material_uniform{ create_buffer<vk::DeviceAddress>(t_allocator) };
+    MappedBuffer material_uniform{ create_buffer<vk::DeviceAddress>(allocator) };
 
     vk::UniqueDescriptorSet base_descriptor_set{ create_base_descriptor_set(
-        t_device,
-        t_descriptor_set_layouts[0],
-        t_descriptor_pool,
+        device,
+        descriptor_set_layouts[0],
+        descriptor_pool,
         vertex_uniform.get(),
         transform_uniform.get(),
         default_sampler.get(),
@@ -988,30 +981,30 @@ auto RenderModel::create_loader(
     ) };
 
     std::vector<vk::Extent2D> image_extents{
-        t_model->images() | std::views::transform([&](const gltf::Image& image) {
+        model->images() | std::views::transform([&](const gltf::Image& image) {
             return vk::Extent2D{ image->width(), image->height() };
         })
         | std::ranges::to<std::vector>()
     };
     // TODO: account for mipmaps
     std::vector<uint64_t> image_offsets{
-        t_model->images() | std::views::transform([&](const gltf::Image& image) {
+        model->images() | std::views::transform([&](const gltf::Image& image) {
             return image->offset(0, 0, 0);
         })
         | std::ranges::to<std::vector>()
     };
     std::vector<MappedBuffer> image_staging_buffers{
-        t_model->images() | std::views::transform([&](const gltf::Image& image) {
+        model->images() | std::views::transform([&](const gltf::Image& image) {
             return create_staging_buffer(
-                t_allocator, image->data(), static_cast<uint32_t>(image->size())
+                allocator, image->data(), static_cast<uint32_t>(image->size())
             );
         })
         | std::ranges::to<std::vector>()
     };
-    std::vector<Image> images{ t_model->images()
+    std::vector<Image> images{ model->images()
                                | std::views::transform([&](const gltf::Image& image) {
                                      return create_image(
-                                         t_allocator,
+                                         allocator,
                                          image,
                                          vk::ImageTiling::eOptimal,
                                          vk::ImageUsageFlagBits::eTransferDst
@@ -1022,47 +1015,46 @@ auto RenderModel::create_loader(
     std::vector<vk::UniqueImageView> image_views{
         std::views::zip(
             images | std::views::transform(&Image::get),
-            t_model->images() | std::views::transform([](const gltf::Image& image) {
+            model->images() | std::views::transform([](const gltf::Image& image) {
                 return image->format();
             })
         )
-        | std::views::transform([t_device](auto image_and_format) {
+        | std::views::transform([device](auto image_and_format) {
               return std::apply(
-                  std::bind_front(create_image_view, t_device), image_and_format
+                  std::bind_front(create_image_view, device), image_and_format
               );
           })
         | std::ranges::to<std::vector>()
     };
     vk::UniqueDescriptorSet image_descriptor_set{ create_image_descriptor_set(
-        t_device, t_descriptor_set_layouts[1], t_descriptor_pool, image_views
+        device, descriptor_set_layouts[1], descriptor_pool, image_views
     ) };
 
     std::vector<vk::UniqueSampler> samplers{
-        t_model->samplers()
-        | std::views::transform(std::bind_front(create_sampler, t_device))
+        model->samplers() | std::views::transform(std::bind_front(create_sampler, device))
         | std::ranges::to<std::vector>()
     };
     vk::UniqueDescriptorSet sampler_descriptor_set{ create_sampler_descriptor_set(
-        t_device, t_descriptor_set_layouts[2], t_descriptor_pool, samplers
+        device, descriptor_set_layouts[2], descriptor_pool, samplers
     ) };
 
     std::vector<Mesh> meshes{
-        t_model->meshes() | std::views::transform([&](const gltf::Mesh& mesh) {
+        model->meshes() | std::views::transform([&](const gltf::Mesh& mesh) {
             return Mesh{
                 .primitives =
                     mesh.primitives
                     | std::views::transform([&](const gltf::Mesh::Primitive& primitive) {
                           return Mesh::Primitive{
                               .pipeline = create_pipeline(
-                                  t_device,
-                                  t_pipeline_create_info,
+                                  device,
+                                  pipeline_create_info,
                                   primitive,
                                   primitive.material_index
-                                      .transform([&t_model](const size_t material_index) {
-                                          return t_model->materials().at(material_index);
+                                      .transform([&model](const size_t material_index) {
+                                          return model->materials().at(material_index);
                                       })
                                       .value_or(gltf::Model::default_material()),
-                                  t_cache
+                                  cache
                               ),
                               .material_index    = primitive.material_index,
                               .first_index_index = primitive.first_index_index,
@@ -1077,9 +1069,9 @@ auto RenderModel::create_loader(
     };
 
     return std::packaged_task<RenderModel(vk::CommandBuffer)>{
-        [device = t_device,
+        [device = device,
          index_buffer_size =
-             static_cast<uint32_t>(std::span{ t_model->indices() }.size_bytes()),
+             static_cast<uint32_t>(std::span{ model->indices() }.size_bytes()),
          index_staging_buffer = auto{ std::move(index_staging_buffer) },
          index_buffer         = auto{ std::move(index_buffer) },
          vertex_buffer_size   = static_cast<uint32_t>(std::span{ vertices }.size_bytes()),
@@ -1195,11 +1187,11 @@ auto RenderModel::create_loader(
 }
 
 auto RenderModel::create_descriptor_set_layouts(
-    const vk::Device                     t_device,
-    const DescriptorSetLayoutCreateInfo& t_info
+    const vk::Device                     device,
+    const DescriptorSetLayoutCreateInfo& info
 ) -> std::array<vk::UniqueDescriptorSetLayout, 3>
 {
-    return ::create_descriptor_set_layouts(t_device, t_info);
+    return ::create_descriptor_set_layouts(device, info);
 }
 
 auto RenderModel::push_constant_range() noexcept -> vk::PushConstantRange
@@ -1212,17 +1204,17 @@ auto RenderModel::push_constant_range() noexcept -> vk::PushConstantRange
 }
 
 auto RenderModel::draw(
-    vk::CommandBuffer  t_graphics_command_buffer,
-    vk::PipelineLayout t_pipeline_layout
+    vk::CommandBuffer  graphics_command_buffer,
+    vk::PipelineLayout pipeline_layout
 ) const noexcept -> void
 {
-    t_graphics_command_buffer.bindIndexBuffer(
+    graphics_command_buffer.bindIndexBuffer(
         m_index_buffer.get(), 0, vk::IndexType::eUint32
     );
 
-    t_graphics_command_buffer.bindDescriptorSets(
+    graphics_command_buffer.bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics,
-        t_pipeline_layout,
+        pipeline_layout,
         1,
         std::array{ m_base_descriptor_set.get(),
                     m_image_descriptor_set.get(),
@@ -1234,7 +1226,7 @@ auto RenderModel::draw(
          std::views::zip(m_meshes, std::views::iota(0u, m_meshes.size())))
     {
         for (const auto& primitive : mesh.primitives) {
-            t_graphics_command_buffer.bindPipeline(
+            graphics_command_buffer.bindPipeline(
                 vk::PipelineBindPoint::eGraphics, primitive.pipeline.get()->get()
             );
 
@@ -1244,15 +1236,15 @@ auto RenderModel::draw(
                     std::numeric_limits<uint32_t>::max()
                 ),
             };
-            t_graphics_command_buffer.pushConstants(
-                t_pipeline_layout,
+            graphics_command_buffer.pushConstants(
+                pipeline_layout,
                 vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
                 0,
                 sizeof(PushConstants),
                 &push_constants
             );
 
-            t_graphics_command_buffer.drawIndexed(
+            graphics_command_buffer.drawIndexed(
                 primitive.index_count, 1, primitive.first_index_index, 0, 0
             );
         }
@@ -1260,57 +1252,57 @@ auto RenderModel::draw(
 }
 
 RenderModel::RenderModel(
-    vk::Device                         t_device,
-    Buffer&&                           t_index_buffer,
-    Buffer&&                           t_vertex_buffer,
-    MappedBuffer&&                     t_vertex_uniform,
-    Buffer&&                           t_transform_buffer,
-    MappedBuffer&&                     t_transform_uniform,
-    vk::UniqueSampler&&                t_default_sampler,
-    Buffer&&                           t_texture_buffer,
-    MappedBuffer&&                     t_texture_uniform,
-    MappedBuffer&&                     t_default_material_uniform,
-    Buffer&&                           t_material_buffer,
-    MappedBuffer&&                     t_material_uniform,
-    vk::UniqueDescriptorSet&&          t_base_descriptor_set,
-    std::vector<Image>&&               t_images,
-    std::vector<vk::UniqueImageView>&& t_image_views,
-    vk::UniqueDescriptorSet&&          t_image_descriptor_set,
-    std::vector<vk::UniqueSampler>&&   t_samplers,
-    vk::UniqueDescriptorSet&&          t_sampler_descriptor_set,
-    std::vector<Mesh>&&                t_meshes
+    vk::Device                         device,
+    Buffer&&                           index_buffer,
+    Buffer&&                           vertex_buffer,
+    MappedBuffer&&                     vertex_uniform,
+    Buffer&&                           transform_buffer,
+    MappedBuffer&&                     transform_uniform,
+    vk::UniqueSampler&&                default_sampler,
+    Buffer&&                           texture_buffer,
+    MappedBuffer&&                     texture_uniform,
+    MappedBuffer&&                     default_material_uniform,
+    Buffer&&                           material_buffer,
+    MappedBuffer&&                     material_uniform,
+    vk::UniqueDescriptorSet&&          base_descriptor_set,
+    std::vector<Image>&&               images,
+    std::vector<vk::UniqueImageView>&& image_views,
+    vk::UniqueDescriptorSet&&          image_descriptor_set,
+    std::vector<vk::UniqueSampler>&&   samplers,
+    vk::UniqueDescriptorSet&&          sampler_descriptor_set,
+    std::vector<Mesh>&&                meshes
 )
-    : m_index_buffer{ std::move(t_index_buffer) },
-      m_vertex_buffer{ std::move(t_vertex_buffer) },
-      m_vertex_uniform{ std::move(t_vertex_uniform) },
-      m_transform_buffer{ std::move(t_transform_buffer) },
-      m_transform_uniform{ std::move(t_transform_uniform) },
-      m_default_sampler{ std::move(t_default_sampler) },
-      m_texture_buffer{ std::move(t_texture_buffer) },
-      m_texture_uniform{ std::move(t_texture_uniform) },
-      m_default_material_uniform{ std::move(t_default_material_uniform) },
-      m_material_buffer{ std::move(t_material_buffer) },
-      m_material_uniform{ std::move(t_material_uniform) },
-      m_base_descriptor_set{ std::move(t_base_descriptor_set) },
-      m_images{ std::move(t_images) },
-      m_image_views{ std::move(t_image_views) },
-      m_image_descriptor_set{ std::move(t_image_descriptor_set) },
-      m_samplers{ std::move(t_samplers) },
-      m_sampler_descriptor_set{ std::move(t_sampler_descriptor_set) },
-      m_meshes{ std::move(t_meshes) }
+    : m_index_buffer{ std::move(index_buffer) },
+      m_vertex_buffer{ std::move(vertex_buffer) },
+      m_vertex_uniform{ std::move(vertex_uniform) },
+      m_transform_buffer{ std::move(transform_buffer) },
+      m_transform_uniform{ std::move(transform_uniform) },
+      m_default_sampler{ std::move(default_sampler) },
+      m_texture_buffer{ std::move(texture_buffer) },
+      m_texture_uniform{ std::move(texture_uniform) },
+      m_default_material_uniform{ std::move(default_material_uniform) },
+      m_material_buffer{ std::move(material_buffer) },
+      m_material_uniform{ std::move(material_uniform) },
+      m_base_descriptor_set{ std::move(base_descriptor_set) },
+      m_images{ std::move(images) },
+      m_image_views{ std::move(image_views) },
+      m_image_descriptor_set{ std::move(image_descriptor_set) },
+      m_samplers{ std::move(samplers) },
+      m_sampler_descriptor_set{ std::move(sampler_descriptor_set) },
+      m_meshes{ std::move(meshes) }
 {
-    m_vertex_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
+    m_vertex_buffer_address = device.getBufferAddress(vk::BufferDeviceAddressInfo{
         .buffer = m_vertex_buffer.get(),
     });
     m_vertex_uniform.set(m_vertex_buffer_address);
 
-    m_transform_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
+    m_transform_buffer_address = device.getBufferAddress(vk::BufferDeviceAddressInfo{
         .buffer = m_transform_buffer.get(),
     });
     m_transform_uniform.set(m_transform_buffer_address);
 
     if (m_texture_buffer.get()) {
-        m_texture_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
+        m_texture_buffer_address = device.getBufferAddress(vk::BufferDeviceAddressInfo{
             .buffer = m_texture_buffer.get(),
         });
     }
@@ -1320,7 +1312,7 @@ RenderModel::RenderModel(
     m_texture_uniform.set(m_texture_buffer_address);
 
     if (m_material_buffer.get()) {
-        m_material_buffer_address = t_device.getBufferAddress(vk::BufferDeviceAddressInfo{
+        m_material_buffer_address = device.getBufferAddress(vk::BufferDeviceAddressInfo{
             .buffer = m_material_buffer.get(),
         });
     }

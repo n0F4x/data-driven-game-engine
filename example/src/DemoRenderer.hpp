@@ -25,18 +25,18 @@ struct DemoRenderer {
 
     [[nodiscard]]
     static auto create(
-        Store&                       t_store,
-        const std::filesystem::path& t_model_filepath,
-        const std::filesystem::path& t_fragment_shader_filepath
+        Store&                       store,
+        const std::filesystem::path& model_filepath,
+        const std::filesystem::path& fragment_shader_filepath
     ) -> std::optional<DemoRenderer>;
 
-    auto render(vk::Extent2D t_framebuffer_size, const core::graphics::Camera& t_camera)
+    auto render(vk::Extent2D framebuffer_size, const core::graphics::Camera& camera)
         -> void;
 
 private:
     auto record_command_buffer(
-        const core::renderer::Swapchain& t_swapchain,
-        uint32_t                         t_image_index,
-        core::graphics::Camera           t_camera
+        vk::Extent2D           swapchain_extent,
+        uint32_t               image_index,
+        core::graphics::Camera camera
     ) -> void;
 };

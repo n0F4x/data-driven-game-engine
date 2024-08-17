@@ -11,7 +11,7 @@ public:
     [[nodiscard]]
     static auto create() noexcept -> Builder;
 
-    explicit DescriptorPool(vk::UniqueDescriptorPool&& t_descriptor_pool) noexcept;
+    explicit DescriptorPool(vk::UniqueDescriptorPool&& descriptor_pool) noexcept;
 
     [[nodiscard]]
     auto get() const noexcept -> vk::DescriptorPool;

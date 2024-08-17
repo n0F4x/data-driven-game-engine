@@ -17,10 +17,9 @@ public:
     ) -> std::optional<Image>;
 
     [[nodiscard]]
-    static auto load_from_memory(
-        std::span<const std::byte> data,
-        fastgltf::MimeType         mime_type
-    ) -> std::optional<Image>;
+    static auto
+        load_from_memory(std::span<const std::byte> data, fastgltf::MimeType mime_type)
+            -> std::optional<Image>;
 };
 
 }   // namespace core::gltf

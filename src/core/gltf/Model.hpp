@@ -39,8 +39,8 @@ public:
 
     [[nodiscard]]
     static auto hash(
-        const std::filesystem::path& t_filepath,
-        std::optional<size_t>        t_scene_id
+        const std::filesystem::path& filepath,
+        std::optional<size_t>        scene_index
     ) noexcept -> size_t;
 
     [[nodiscard]]

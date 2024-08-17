@@ -28,7 +28,7 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Allocator(const Instance& t_instance, const Device& t_device);
+    explicit Allocator(const Instance& instance, const Device& device);
 
     ///-------------///
     ///  Operators  ///
@@ -48,48 +48,48 @@ public:
 
     [[nodiscard]]
     auto allocate_buffer(
-        const vk::BufferCreateInfo&    t_buffer_create_info,
-        const VmaAllocationCreateInfo& t_allocation_create_info = {
+        const vk::BufferCreateInfo&    buffer_create_info,
+        const VmaAllocationCreateInfo& allocation_create_info = {
             .usage = VMA_MEMORY_USAGE_AUTO,
         }
     ) const -> Buffer;
 
     [[nodiscard]]
     auto allocate_buffer_with_alignment(
-         const vk::BufferCreateInfo&    t_buffer_create_info,
-         vk::DeviceSize                 t_min_alignment,
-         const VmaAllocationCreateInfo& t_allocation_create_info = {
+         const vk::BufferCreateInfo&    buffer_create_info,
+         vk::DeviceSize                 min_alignment,
+         const VmaAllocationCreateInfo& allocation_create_info = {
             .usage = VMA_MEMORY_USAGE_AUTO,
          }
     ) const -> Buffer;
 
     [[nodiscard]]
-    auto allocate_mapped_buffer(const vk::BufferCreateInfo& t_buffer_create_info
+    auto allocate_mapped_buffer(const vk::BufferCreateInfo& buffer_create_info
     ) const -> MappedBuffer;
 
     [[nodiscard]]
     auto allocate_mapped_buffer_with_alignment(
-        const vk::BufferCreateInfo& t_buffer_create_info,
-        vk::DeviceSize              t_min_alignment
+        const vk::BufferCreateInfo& buffer_create_info,
+        vk::DeviceSize              min_alignment
     ) const -> MappedBuffer;
 
     [[nodiscard]]
     auto allocate_mapped_buffer(
-        const vk::BufferCreateInfo&        t_buffer_create_info,
-        gsl_lite::not_null_ic<const void*> t_data
+        const vk::BufferCreateInfo&        buffer_create_info,
+        gsl_lite::not_null_ic<const void*> data
     ) const -> MappedBuffer;
 
     [[nodiscard]]
     auto allocate_mapped_buffer_with_alignment(
-        const vk::BufferCreateInfo&        t_buffer_create_info,
-        vk::DeviceSize                     t_min_alignment,
-        gsl_lite::not_null_ic<const void*> t_data
+        const vk::BufferCreateInfo&        buffer_create_info,
+        vk::DeviceSize                     min_alignment,
+        gsl_lite::not_null_ic<const void*> data
     ) const -> MappedBuffer;
 
     [[nodiscard]]
     auto allocate_image(
-        const vk::ImageCreateInfo&     t_image_create_info,
-        const VmaAllocationCreateInfo& t_allocation_create_info
+        const vk::ImageCreateInfo&     image_create_info,
+        const VmaAllocationCreateInfo& allocation_create_info
     ) const -> Image;
 
 private:

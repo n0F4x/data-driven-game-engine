@@ -9,7 +9,7 @@ public:
     using Buffer::Buffer;
 
     template <typename T>
-    auto set(const T& t_data) const -> void;
+    auto set(const T& data) const -> void;
 };
 
 }   // namespace core::renderer

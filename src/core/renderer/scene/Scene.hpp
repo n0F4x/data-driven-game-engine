@@ -17,10 +17,8 @@ public:
     [[nodiscard]]
     static auto create() noexcept -> Builder;
 
-    auto draw(
-        vk::CommandBuffer       t_graphics_command_buffer,
-        const graphics::Camera& t_camera
-    ) const -> void;
+    auto draw(vk::CommandBuffer graphics_command_buffer, const graphics::Camera& camera)
+        const -> void;
 
 private:
     struct ShaderScene {
@@ -46,13 +44,13 @@ private:
     std::vector<RenderModel> m_models;
 
     explicit Scene(
-        vk::UniqueDescriptorSetLayout&&                t_global_descriptor_set_layout,
-        std::array<vk::UniqueDescriptorSetLayout, 3>&& t_model_descriptor_set_layouts,
-        vk::UniquePipelineLayout&&                     t_pipeline_layout,
-        DescriptorPool&&                               t_descriptor_pool,
-        MappedBuffer&&                                 t_global_buffer,
-        vk::UniqueDescriptorSet&&                      t_global_descriptor_set,
-        std::vector<RenderModel>&&                     t_models
+        vk::UniqueDescriptorSetLayout&&                global_descriptor_set_layout,
+        std::array<vk::UniqueDescriptorSetLayout, 3>&& model_descriptor_set_layouts,
+        vk::UniquePipelineLayout&&                     pipeline_layout,
+        DescriptorPool&&                               descriptor_pool,
+        MappedBuffer&&                                 global_buffer,
+        vk::UniqueDescriptorSet&&                      global_descriptor_set,
+        std::vector<RenderModel>&&                     models
     ) noexcept;
 };
 

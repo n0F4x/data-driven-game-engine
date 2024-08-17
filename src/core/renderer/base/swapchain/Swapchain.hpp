@@ -15,19 +15,19 @@ public:
     ///----------------///
     [[nodiscard]]
     static auto choose_extent(
-        const vk::Extent2D&               t_framebuffer_size,
-        const vk::SurfaceCapabilitiesKHR& t_surface_capabilities
+        const vk::Extent2D&               framebuffer_size,
+        const vk::SurfaceCapabilitiesKHR& surface_capabilities
     ) noexcept -> vk::Extent2D;
 
     [[nodiscard]]
     static auto create(
-        vk::SurfaceKHR     t_surface,
-        vk::PhysicalDevice t_physical_device,
-        uint32_t           t_graphics_queue_family_index,
-        uint32_t           t_present_queue_family_index,
-        vk::Device         t_device,
-        vk::Extent2D       t_framebuffer_size,
-        vk::SwapchainKHR   t_old_swapchain = nullptr
+        vk::SurfaceKHR     surface,
+        vk::PhysicalDevice physical_device,
+        uint32_t           graphics_queue_family_index,
+        uint32_t           present_queue_family_index,
+        vk::Device         device,
+        vk::Extent2D       framebuffer_size,
+        vk::SwapchainKHR   old_swapchain = {}
     ) -> std::optional<Swapchain>;
 
     ///-----------///

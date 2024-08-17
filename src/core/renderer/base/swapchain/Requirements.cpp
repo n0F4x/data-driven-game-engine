@@ -13,10 +13,10 @@ auto Swapchain::Requirements::
 {}
 
 auto Swapchain::Requirements::require_device_settings(
-    vkb::PhysicalDeviceSelector& t_physical_device_selector
+    vkb::PhysicalDeviceSelector& physical_device_selector
 ) -> void
 {
-    t_physical_device_selector.add_required_extension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    physical_device_selector.add_required_extension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 }
 
 auto Swapchain::Requirements::enable_optional_device_settings(vkb::PhysicalDevice&) -> void

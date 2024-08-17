@@ -13,9 +13,9 @@ public:
     ///------------------------------///
     Buffer() = default;
     explicit Buffer(
-        vk::Buffer    t_buffer,
-        VmaAllocation t_allocation,
-        VmaAllocator  t_allocator
+        vk::Buffer    buffer,
+        VmaAllocation allocation,
+        VmaAllocator  allocator
     ) noexcept;
     Buffer(const Buffer&) = delete;
     Buffer(Buffer&&) noexcept;

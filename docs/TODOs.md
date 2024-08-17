@@ -1,5 +1,6 @@
+- use `fastgltf::Asset` instead of `gltf::Model` 
 - provide a default texture source
-- change image formats before upload 
+- change image formats before upload
 - build the vulkan validation layers
 - use proper assertions
 - separate logger for debug and actual use

@@ -33,13 +33,13 @@ auto Allocator::Requirements::
 }
 
 auto Allocator::Requirements::enable_instance_settings(
-    const vkb::SystemInfo& t_system_info,
-    vkb::InstanceBuilder&  t_builder
+    const vkb::SystemInfo& system_info,
+    vkb::InstanceBuilder&  builder
 ) -> void
 {
     for (const auto& extension_name : optional_instance_extension_names()) {
-        if (t_system_info.is_extension_available(extension_name)) {
-            t_builder.enable_extension(extension_name);
+        if (system_info.is_extension_available(extension_name)) {
+            builder.enable_extension(extension_name);
         }
     }
 }
@@ -48,30 +48,29 @@ auto Allocator::Requirements::require_device_settings(vkb::PhysicalDeviceSelecto
 {}
 
 auto Allocator::Requirements::enable_optional_device_settings(
-    vkb::PhysicalDevice& t_physical_device
+    vkb::PhysicalDevice& physical_device
 ) -> void
 {
     // VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT
-    t_physical_device.enable_extension_if_present(
+    physical_device.enable_extension_if_present(
         VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
     );
-    t_physical_device.enable_extension_if_present(
-        VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
+    physical_device.enable_extension_if_present(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
     );
 
     // VMA_ALLOCATOR_CREATE_KHR_BIND_MEMORY2_BIT
-    t_physical_device.enable_extension_if_present(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME);
+    physical_device.enable_extension_if_present(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME);
 
     // VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT
-    t_physical_device.enable_extension_if_present(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
+    physical_device.enable_extension_if_present(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
 
     // VMA_ALLOCATOR_CREATE_AMD_DEVICE_COHERENT_MEMORY_BIT
-    t_physical_device.enable_extension_if_present(
+    physical_device.enable_extension_if_present(
         VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME
     );
     constexpr static vk::PhysicalDeviceCoherentMemoryFeaturesAMD
         coherent_memory_features_AMD{ .deviceCoherentMemory = vk::True };
-    t_physical_device.enable_extension_features_if_present(coherent_memory_features_AMD);
+    physical_device.enable_extension_features_if_present(coherent_memory_features_AMD);
 }
 
 }   // namespace core::renderer

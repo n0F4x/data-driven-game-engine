@@ -5,11 +5,11 @@
 namespace core::renderer {
 
 Shader::Shader(
-    const cache::Handle<ShaderModule>& t_shader_module,
-    std::string                        t_entry_point
+    const cache::Handle<ShaderModule>& shader_module,
+    std::string                        entry_point
 ) noexcept
-    : m_module{ t_shader_module },
-      m_entry_point{ std::move(t_entry_point) }
+    : m_module{ shader_module },
+      m_entry_point{ std::move(entry_point) }
 {}
 
 auto Shader::filepath() const noexcept -> const std::filesystem::path&
@@ -28,15 +28,15 @@ auto Shader::entry_point() const noexcept -> const std::string&
 }
 
 [[nodiscard]]
-auto hash_value(const Shader& t_shader) noexcept -> size_t
+auto hash_value(const Shader& shader) noexcept -> size_t
 {
-    return hash_combine(*t_shader.m_module, t_shader.m_entry_point);
+    return hash_combine(*shader.m_module, shader.m_entry_point);
 }
 
 }   // namespace core::renderer
 
-auto std::hash<core::renderer::Shader>::operator()(const core::renderer::Shader& t_shader
+auto std::hash<core::renderer::Shader>::operator()(const core::renderer::Shader& shader
 ) const noexcept -> size_t
 {
-    return core::renderer::hash_value(t_shader);
+    return core::renderer::hash_value(shader);
 }

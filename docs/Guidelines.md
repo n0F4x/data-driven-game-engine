@@ -38,7 +38,6 @@ Please use the following Hungarian notations:
 - Class/Struct Private Member Field: m_field
 - Class/Struct Static Variable: s_variable
 - Global Variable: g_variable
-- Parameter: t_parameter
 
 ### Comments
 

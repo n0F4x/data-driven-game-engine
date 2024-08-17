@@ -11,8 +11,8 @@ struct Size;
 
 template <typename T>
 struct Size<2, T> {
-    T width;
-    T height;
+    T width{};
+    T height{};
 
     template <typename T2, glm::qualifier Q>
     explicit operator glm::vec<2, T2, Q>() const
@@ -28,9 +28,9 @@ struct Size<2, T> {
 
 template <typename T>
 struct Size<3, T> {
-    T width;
-    T height;
-    T depth;
+    T width{};
+    T height{};
+    T depth{};
 
     template <typename T2, glm::qualifier Q>
     explicit operator glm::vec<3, T2, Q>() const

@@ -13,15 +13,15 @@ namespace core::renderer {
 class ShaderModule {
 public:
     [[nodiscard]]
-    static auto hash(const std::filesystem::path& t_filepath) noexcept -> size_t;
+    static auto hash(const std::filesystem::path& filepath) noexcept -> size_t;
 
     [[nodiscard]]
-    static auto create(vk::Device t_device, const std::filesystem::path& t_filepath)
+    static auto create(vk::Device device, const std::filesystem::path& filepath)
         -> std::optional<ShaderModule>;
 
     explicit ShaderModule(
-        std::filesystem::path    t_filepath,
-        vk::UniqueShaderModule&& t_module
+        std::filesystem::path    filepath,
+        vk::UniqueShaderModule&& module
     ) noexcept;
 
     [[nodiscard]]
@@ -33,7 +33,7 @@ private:
     std::filesystem::path  m_filepath;
     vk::UniqueShaderModule m_module;
 
-    friend auto hash_value(const ShaderModule& t_shader_module) noexcept -> size_t;
+    friend auto hash_value(const ShaderModule& shader_module) noexcept -> size_t;
 };
 
 }   // namespace core::renderer
@@ -41,6 +41,6 @@ private:
 template <>
 struct std::hash<core::renderer::ShaderModule> {
     [[nodiscard]]
-    auto operator()(const core::renderer::ShaderModule& t_shader_module
+    auto operator()(const core::renderer::ShaderModule& shader_module
     ) const noexcept -> size_t;
 };   // namespace std

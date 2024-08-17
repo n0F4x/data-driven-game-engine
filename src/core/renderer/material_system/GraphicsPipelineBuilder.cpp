@@ -7,32 +7,32 @@
 namespace core::renderer {
 
 GraphicsPipelineBuilder::GraphicsPipelineBuilder(
-    Effect                                              t_effect,
-    std::optional<std::reference_wrapper<cache::Cache>> t_cache
+    Effect                                              effect,
+    std::optional<std::reference_wrapper<cache::Cache>> cache
 ) noexcept
-    : m_cache{ t_cache },
-      m_effect{ std::move(t_effect) }
+    : m_cache{ cache },
+      m_effect{ std::move(effect) }
 {}
 
-auto GraphicsPipelineBuilder::set_effect(Effect t_effect
+auto GraphicsPipelineBuilder::set_effect(Effect effect
 ) noexcept -> GraphicsPipelineBuilder&
 {
-    m_effect = std::move(t_effect);
+    m_effect = std::move(effect);
     return *this;
 }
 
 auto GraphicsPipelineBuilder::set_primitive_topology(
-    const vk::PrimitiveTopology t_primitive_topology
+    const vk::PrimitiveTopology primitive_topology
 ) noexcept -> GraphicsPipelineBuilder&
 {
-    m_primitive_topology = t_primitive_topology;
+    m_primitive_topology = primitive_topology;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_cull_mode(const vk::CullModeFlags t_cull_mode
+auto GraphicsPipelineBuilder::set_cull_mode(const vk::CullModeFlags cull_mode
 ) noexcept -> GraphicsPipelineBuilder&
 {
-    m_cull_mode = t_cull_mode;
+    m_cull_mode = cull_mode;
     return *this;
 }
 
@@ -48,21 +48,21 @@ auto GraphicsPipelineBuilder::disable_blending() noexcept -> GraphicsPipelineBui
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_layout(const vk::PipelineLayout t_layout
+auto GraphicsPipelineBuilder::set_layout(const vk::PipelineLayout layout
 ) noexcept -> GraphicsPipelineBuilder&
 {
-    m_layout = t_layout;
+    m_layout = layout;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass t_render_pass
+auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass render_pass
 ) noexcept -> GraphicsPipelineBuilder&
 {
-    m_render_pass = t_render_pass;
+    m_render_pass = render_pass;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::build(const vk::Device t_device) const -> vk::UniquePipeline
+auto GraphicsPipelineBuilder::build(const vk::Device device) const -> vk::UniquePipeline
 {
     // TODO: allow vertex input states
     constexpr static vk::PipelineVertexInputStateCreateInfo
@@ -137,28 +137,28 @@ auto GraphicsPipelineBuilder::build(const vk::Device t_device) const -> vk::Uniq
         .renderPass          = m_render_pass,
     };
 
-    return t_device.createGraphicsPipelineUnique(nullptr, create_info).value;
+    return device.createGraphicsPipelineUnique(nullptr, create_info).value;
 }
 
 [[nodiscard]]
-auto hash_value(const GraphicsPipelineBuilder& t_graphics_pipeline_builder
+auto hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder
 ) noexcept -> size_t
 {
     return hash_combine(
-        t_graphics_pipeline_builder.m_effect,
-        t_graphics_pipeline_builder.m_primitive_topology,
-        t_graphics_pipeline_builder.m_cull_mode,
-        t_graphics_pipeline_builder.m_enable_blending,
-        t_graphics_pipeline_builder.m_layout,
-        t_graphics_pipeline_builder.m_render_pass
+        graphics_pipeline_builder.m_effect,
+        graphics_pipeline_builder.m_primitive_topology,
+        graphics_pipeline_builder.m_cull_mode,
+        graphics_pipeline_builder.m_enable_blending,
+        graphics_pipeline_builder.m_layout,
+        graphics_pipeline_builder.m_render_pass
     );
 }
 
 }   // namespace core::renderer
 
 auto std::hash<core::renderer::GraphicsPipelineBuilder>::operator()(
-    const core::renderer::GraphicsPipelineBuilder& t_graphics_pipeline_builder
+    const core::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
 ) const noexcept -> size_t
 {
-    return core::renderer::hash_value(t_graphics_pipeline_builder);
+    return core::renderer::hash_value(graphics_pipeline_builder);
 }

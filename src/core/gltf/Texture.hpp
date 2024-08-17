@@ -42,8 +42,7 @@ struct TextureInfo {
     uint32_t tex_coord_index{};
 
     [[nodiscard]]
-    static auto create(const fastgltf::Optional<fastgltf::TextureInfo>& t_optional
-    ) -> std::optional<TextureInfo>;
+    static auto create(const fastgltf::TextureInfo& source) -> TextureInfo;
 };
 
 }   // namespace core::gltf

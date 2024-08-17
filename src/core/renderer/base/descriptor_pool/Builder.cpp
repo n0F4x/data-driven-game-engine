@@ -2,27 +2,27 @@
 
 namespace core::renderer {
 
-auto DescriptorPool::Builder::set_flags(vk::DescriptorPoolCreateFlags t_flags
+auto DescriptorPool::Builder::set_flags(vk::DescriptorPoolCreateFlags flags
 ) noexcept -> Builder&
 {
-    m_flags |= t_flags;
+    m_flags |= flags;
     return *this;
 }
 
-auto DescriptorPool::Builder::request_descriptor_sets(uint32_t t_count) -> Builder&
+auto DescriptorPool::Builder::request_descriptor_sets(uint32_t count) -> Builder&
 {
-    m_set_count += t_count;
+    m_set_count += count;
     return *this;
 }
 
-auto DescriptorPool::Builder::request_descriptors(const vk::DescriptorPoolSize& t_pool_size
+auto DescriptorPool::Builder::request_descriptors(const vk::DescriptorPoolSize& pool_size
 ) -> Builder&
 {
-    m_pool_sizes.push_back(t_pool_size);
+    m_pool_sizes.push_back(pool_size);
     return *this;
 }
 
-auto DescriptorPool::Builder::build(const vk::Device t_device) noexcept -> DescriptorPool
+auto DescriptorPool::Builder::build(const vk::Device device) noexcept -> DescriptorPool
 {
     const vk::DescriptorPoolCreateInfo descriptor_pool_create_info{
         .flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
@@ -31,7 +31,7 @@ auto DescriptorPool::Builder::build(const vk::Device t_device) noexcept -> Descr
         .pPoolSizes    = m_pool_sizes.data()
     };
 
-    return DescriptorPool{ t_device.createDescriptorPoolUnique(descriptor_pool_create_info
+    return DescriptorPool{ device.createDescriptorPoolUnique(descriptor_pool_create_info
     ) };
 }
 

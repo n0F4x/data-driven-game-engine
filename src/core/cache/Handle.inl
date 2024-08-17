@@ -1,9 +1,9 @@
 namespace core::cache {
 
 template <typename Resource>
-auto make_handle(auto&&... t_args) -> cache::Handle<Resource>
+auto make_handle(auto&&... args) -> cache::Handle<Resource>
 {
-    return std::make_shared<Resource>(std::forward<decltype(t_args)>(t_args)...);
+    return std::make_shared<Resource>(std::forward<decltype(args)>(args)...);
 }
 
 }   // namespace core::cache

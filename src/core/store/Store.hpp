@@ -25,7 +25,7 @@ public:
     ///  Methods  ///
     ///-----------///
     template <typename T>
-    auto emplace(auto&&... t_args) -> T&;
+    auto emplace(auto&&... args) -> T&;
 
     template <typename T>
     [[nodiscard]]

@@ -12,9 +12,9 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit Image(
-        vk::Image     t_image,
-        VmaAllocation t_allocation,
-        VmaAllocator  t_allocator
+        vk::Image     image,
+        VmaAllocation allocation,
+        VmaAllocator  allocator
     ) noexcept;
     Image(const Image&) = delete;
     Image(Image&&) noexcept;

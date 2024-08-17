@@ -111,14 +111,14 @@ auto Window::get() const noexcept -> GLFWwindow*
 }
 
 auto Window::create_vulkan_surface(
-    VkInstance                   t_instance,
-    const VkAllocationCallbacks* t_allocation_callbacks
+    VkInstance                   instance,
+    const VkAllocationCallbacks* allocation_callbacks
 ) const -> std::expected<VkSurfaceKHR, VkResult>
 {
     VkSurfaceKHR surface{};
 
     if (const VkResult error_code{ glfwCreateWindowSurface(
-            t_instance, m_impl.get(), t_allocation_callbacks, &surface
+            instance, m_impl.get(), allocation_callbacks, &surface
         ) };
         error_code != VK_SUCCESS)
     {

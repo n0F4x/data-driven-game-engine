@@ -30,23 +30,21 @@ static auto create_surface(
     );
 }
 
-static auto required_instance_settings_are_available(const vkb::SystemInfo& t_system_info
+static auto required_instance_settings_are_available(const vkb::SystemInfo& system_info
 ) -> bool
 {
     return std::ranges::all_of(
         core::window::Window::vulkan_instance_extensions(),
-        std::bind_front(&vkb::SystemInfo::is_extension_available, t_system_info)
+        std::bind_front(&vkb::SystemInfo::is_extension_available, system_info)
     );
 }
 
-static auto enable_instance_settings(
-    const vkb::SystemInfo&,
-    vkb::InstanceBuilder& t_builder
-) -> void
+static auto
+    enable_instance_settings(const vkb::SystemInfo&, vkb::InstanceBuilder& builder) -> void
 {
     std::ranges::for_each(
         core::window::Window::vulkan_instance_extensions(),
-        std::bind_front(&vkb::InstanceBuilder::enable_extension, t_builder)
+        std::bind_front(&vkb::InstanceBuilder::enable_extension, builder)
     );
 }
 

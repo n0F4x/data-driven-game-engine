@@ -7,13 +7,13 @@ static auto convert(const fastgltf::PBRData& source
 ) -> core::gltf::Material::PbrMetallicRoughness
 {
     return core::gltf::Material::PbrMetallicRoughness{
-        .base_color_factor       = glm::make_vec4(source.baseColorFactor.data()),
-        .base_color_texture_info = core::gltf::TextureInfo::create(source.baseColorTexture
-        ),
-        .metallic_factor         = source.metallicFactor,
-        .roughness_factor        = source.roughnessFactor,
+        .base_color_factor = glm::make_vec4(source.baseColorFactor.data()),
+        .base_color_texture_info =
+            source.baseColorTexture.transform(core::gltf::TextureInfo::create),
+        .metallic_factor  = source.metallicFactor,
+        .roughness_factor = source.roughnessFactor,
         .metallic_roughness_texture_info =
-            core::gltf::TextureInfo::create(source.metallicRoughnessTexture),
+            source.metallicRoughnessTexture.transform(core::gltf::TextureInfo::create),
     };
 }
 
@@ -66,7 +66,7 @@ auto Material::create(const fastgltf::Material& material) -> Material
         .pbr_metallic_roughness = convert(material.pbrData),
         .normal_texture_info    = convert(material.normalTexture),
         .occlusion_texture_info = convert(material.occlusionTexture),
-        .emissive_texture_info  = TextureInfo::create(material.emissiveTexture),
+        .emissive_texture_info  = material.emissiveTexture.transform(TextureInfo::create),
         .emissive_factor        = glm::make_vec3(material.emissiveFactor.data()),
         .alpha_mode             = convert(material.alphaMode),
         .alpha_cutoff           = material.alphaCutoff,

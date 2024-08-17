@@ -5,19 +5,19 @@
 namespace core::renderer {
 
 Buffer::Buffer(
-    const vk::Buffer    t_buffer,
-    const VmaAllocation t_allocation,
-    const VmaAllocator  t_allocator
+    const vk::Buffer    buffer,
+    const VmaAllocation allocation,
+    const VmaAllocator  allocator
 ) noexcept
-    : m_buffer{ t_buffer },
-      m_allocation{ t_allocation },
-      m_allocator{ t_allocator }
+    : m_buffer{ buffer },
+      m_allocation{ allocation },
+      m_allocator{ allocator }
 {}
 
-Buffer::Buffer(Buffer&& t_other) noexcept
-    : Buffer{ std::exchange(t_other.m_buffer, nullptr),
-              std::exchange(t_other.m_allocation, nullptr),
-              std::exchange(t_other.m_allocator, nullptr) }
+Buffer::Buffer(Buffer&& other) noexcept
+    : Buffer{ std::exchange(other.m_buffer, nullptr),
+              std::exchange(other.m_allocation, nullptr),
+              std::exchange(other.m_allocator, nullptr) }
 {}
 
 Buffer::~Buffer() noexcept
@@ -25,14 +25,14 @@ Buffer::~Buffer() noexcept
     reset();
 }
 
-auto Buffer::operator=(Buffer&& t_other) noexcept -> Buffer&
+auto Buffer::operator=(Buffer&& other) noexcept -> Buffer&
 {
-    if (this != &t_other) {
+    if (this != &other) {
         reset();
 
-        m_allocator  = std::exchange(t_other.m_allocator, nullptr);
-        m_buffer     = std::exchange(t_other.m_buffer, nullptr);
-        m_allocation = std::exchange(t_other.m_allocation, nullptr);
+        m_allocator  = std::exchange(other.m_allocator, nullptr);
+        m_buffer     = std::exchange(other.m_buffer, nullptr);
+        m_allocation = std::exchange(other.m_allocation, nullptr);
     }
     return *this;
 }

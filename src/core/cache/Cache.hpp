@@ -17,18 +17,18 @@ public:
     ///  Methods  ///
     ///-----------///
     template <typename Resource, typename... Args>
-    auto emplace(ID t_id, Args&&... t_args) -> Handle<Resource>;
+    auto emplace(ID id, Args&&... args) -> Handle<Resource>;
 
     template <typename Resource, std::invocable Creator>
-    auto lazy_emplace(ID t_id, Creator&& create) -> Handle<Resource>;
+    auto lazy_emplace(ID id, Creator&& create) -> Handle<Resource>;
 
     template <typename Resource>
     [[nodiscard]]
-    auto find(ID t_id) const noexcept -> std::optional<Handle<Resource>>;
+    auto find(ID id) const noexcept -> std::optional<Handle<Resource>>;
 
     template <typename Resource>
     [[nodiscard]]
-    auto at(ID t_id) const -> Handle<Resource>;
+    auto at(ID id) const -> Handle<Resource>;
 
 private:
     ///****************///

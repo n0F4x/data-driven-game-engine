@@ -39,21 +39,19 @@ public:
     [[nodiscard]]
     auto get() const noexcept -> const std::optional<Swapchain>&;
 
-    auto set_framebuffer_size(vk::Extent2D t_framebuffer_size) -> void;
+    auto set_framebuffer_size(vk::Extent2D framebuffer_size) -> void;
 
     [[nodiscard]]
-    auto acquire_next_image(
-        vk::Semaphore t_semaphore = nullptr,
-        vk::Fence     t_fence     = nullptr
-    ) -> std::optional<uint32_t>;
+    auto acquire_next_image(vk::Semaphore semaphore = {}, vk::Fence fence = {})
+        -> std::optional<uint32_t>;
 
-    auto present(std::span<const vk::Semaphore> t_wait_semaphores = {}) -> void;
+    auto present(std::span<const vk::Semaphore> wait_semaphores = {}) -> void;
     auto present(vk::Semaphore wait_semaphore) -> void;
 
-    auto on_swapchain_recreated(SwapchainRecreatedEvent&& t_swapchain_recreated_event
+    auto on_swapchain_recreated(SwapchainRecreatedEvent&& swapchain_recreated_event
     ) -> uint32_t;
 
-    auto remove_swapchain_recreated_event(uint32_t t_id) noexcept -> void;
+    auto remove_swapchain_recreated_event(uint32_t id) noexcept -> void;
 
 private:
     ///*************///
@@ -70,7 +68,7 @@ private:
     ///***********///
     ///  Methods  ///
     ///***********///
-    auto recreate_swapchain(vk::Extent2D t_framebuffer_size) -> void;
+    auto recreate_swapchain(vk::Extent2D framebuffer_size) -> void;
     auto recreate_swapchain() -> void;
 };
 

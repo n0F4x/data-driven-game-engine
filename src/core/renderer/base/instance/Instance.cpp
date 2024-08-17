@@ -2,7 +2,7 @@
 
 namespace core::renderer {
 
-Instance::Instance(const vkb::Instance& t_instance) noexcept : m_instance{ t_instance } {}
+Instance::Instance(const vkb::Instance& instance) noexcept : m_instance{ instance } {}
 
 Instance::~Instance()
 {

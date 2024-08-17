@@ -1,13 +1,13 @@
 template <typename T>
-auto Store::emplace(auto&&... t_args) -> T&
+auto Store::emplace(auto&&... args) -> T&
 {
-    return entt::any_cast<T&>(m_map
-                                  .try_emplace(
-                                      typeid(T),
-                                      std::in_place_type<T>,
-                                      std::forward<decltype(t_args)>(t_args)...
-                                  )
-                                  .first.value());
+    return entt::any_cast<T&>(
+        m_map
+            .try_emplace(
+                typeid(T), std::in_place_type<T>, std::forward<decltype(args)>(args)...
+            )
+            .first.value()
+    );
 }
 
 template <typename T>
