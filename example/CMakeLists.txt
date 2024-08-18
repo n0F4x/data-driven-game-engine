@@ -5,7 +5,17 @@ add_executable(test
         src/DemoRenderer.cpp
         src/demo_init.cpp
 )
+# TODO: use cxx_std_26
 target_compile_features(test PRIVATE cxx_std_23)
+target_compile_options(${PROJECT_NAME} PRIVATE
+        -Wall
+        -Wextra
+        -pedantic-errors
+        -Wconversion
+        -Werror
+        -Wno-missing-field-initializers
+        $<$<COMPILE_LANGUAGE:CXX>:-std=c++2c>
+)
 target_compile_definitions(test PRIVATE
         VULKAN_HPP_NO_TO_STRING
         VULKAN_HPP_NO_CONSTRUCTORS

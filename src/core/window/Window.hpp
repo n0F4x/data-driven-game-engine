@@ -3,8 +3,6 @@
 #include <expected>
 #include <functional>
 #include <memory>
-#include <span>
-#include <string>
 
 #include <gsl-lite/gsl-lite.hpp>
 

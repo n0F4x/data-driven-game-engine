@@ -4,6 +4,8 @@
 #include <core/meta/tuple-like.hpp>
 #include <core/utility/tuple.hpp>
 
+#include <core/store/StoreView.hpp>
+
 template <PluginConcept Plugin, typename Self, typename... Args>
 auto App::Builder::append(this Self&& self, Args&&... args) -> Self
 {

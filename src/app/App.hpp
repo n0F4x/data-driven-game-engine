@@ -6,7 +6,6 @@
 #include <entt/entity/registry.hpp>
 
 #include "core/store/Store.hpp"
-#include "core/store/StoreView.hpp"
 
 class App {
 public:

@@ -1,6 +1,5 @@
 #include "Loader.hpp"
 
-#include <array>
 #include <iostream>
 #include <ranges>
 
@@ -16,8 +15,8 @@
 #include "ImageLoader.hpp"
 
 [[nodiscard]]
-static auto load_asset(const std::filesystem::path& filepath
-) -> fastgltf::Expected<fastgltf::Asset>
+static auto load_asset(const std::filesystem::path& filepath)
+    -> fastgltf::Expected<fastgltf::Asset>
 {
     auto data{ fastgltf::GltfDataBuffer::FromPath(filepath) };
     if (data.error() != fastgltf::Error::None) {
@@ -38,74 +37,67 @@ static auto load_image(
     const fastgltf::Image&       image
 ) -> std::optional<core::gltf::Image>
 {
-    return std::visit(
-        fastgltf::visitor{
-            [](std::monostate) -> std::optional<core::gltf::Image> {
-                assert(false &&
+    return image.data.visit(fastgltf::visitor{
+        [](std::monostate) -> std::optional<core::gltf::Image> {
+            assert(false &&
                     "Got `std::monostate` while visiting fastgltf::DataSource, which is "
                     "an error in fastgltf."
                 );
-            },
-            [](const auto&) -> std::optional<core::gltf::Image> {
-                assert(
-                    false && "Got an unexpected glTF image data source. Can't load image."
-                );
-            },
-            [&](const fastgltf::sources::BufferView& buffer_view) {
-                const auto& view   = asset.bufferViews[buffer_view.bufferViewIndex];
-                const auto& buffer = asset.buffers[view.bufferIndex];
-
-                return std::visit(
-                    fastgltf::visitor{
-                        [](const auto&) -> std::optional<core::gltf::Image> {
-                            throw std::runtime_error(
-                                "Got an unexpected glTF image data source. "
-                                "Can't load image from buffer view."
-                            );
-                        },
-                        [&](const fastgltf::sources::Array& array) {
-                            return core::gltf::ImageLoader::load_from_memory(
-                                std::span{ array.bytes }.subspan(view.byteOffset),
-                                buffer_view.mimeType
-                            );
-                        },
-                        [&](const fastgltf::sources::Vector& vector) {
-                            return core::gltf::ImageLoader::load_from_memory(
-                                std::span{ vector.bytes }.subspan(view.byteOffset),
-                                buffer_view.mimeType
-                            );
-                        } },
-                    buffer.data
-                );
-            },
-            [&](const fastgltf::sources::URI& uri) {
-                assert(
-                    uri.fileByteOffset == 0 && "We don't support offsets with stbi"
-                );   // TODO: Support offsets?
-                assert(uri.uri.isLocalPath());
-
-                return core::gltf::ImageLoader::load_from_file(
-                    std::filesystem::absolute(filepath.parent_path() / uri.uri.fspath())
-                );
-            },
-            [&](const fastgltf::sources::Array& array) {
-                return core::gltf::ImageLoader::load_from_memory(
-                    std::span{ array.bytes }, array.mimeType
-                );
-            },
-            [&](const fastgltf::sources::Vector& vector) {
-                return core::gltf::ImageLoader::load_from_memory(
-                    std::span{ vector.bytes }, vector.mimeType
-                );
-            },
         },
-        image.data
-    );
+        [](const auto&) -> std::optional<core::gltf::Image> {
+            assert(false && "Got an unexpected glTF image data source. Can't load image.");
+        },
+        [&](const fastgltf::sources::BufferView& buffer_view) {
+            const auto& [buffer_index, byte_offset, _, _, _, _, _]{
+                asset.bufferViews[buffer_view.bufferViewIndex]
+            };
+            const auto& [_, data, _]{ asset.buffers[buffer_index] };
+
+            return data.visit(fastgltf::visitor{
+                [](const auto&) -> std::optional<core::gltf::Image> {
+                    throw std::runtime_error(
+                        "Got an unexpected glTF image data source. "
+                        "Can't load image from buffer view."
+                    );
+                },
+                [&](const fastgltf::sources::Array& array) {
+                    return core::gltf::ImageLoader::load_from_memory(
+                        std::span{ array.bytes }.subspan(byte_offset), buffer_view.mimeType
+                    );
+                },
+                [&](const fastgltf::sources::Vector& vector) {
+                    return core::gltf::ImageLoader::load_from_memory(
+                        std::span{ vector.bytes }.subspan(byte_offset),
+                        buffer_view.mimeType
+                    );
+                } });
+        },
+        [&](const fastgltf::sources::URI& uri) {
+            assert(
+                uri.fileByteOffset == 0 && "We don't support offsets with stbi"
+            );   // TODO: Support offsets?
+            assert(uri.uri.isLocalPath());
+
+            return core::gltf::ImageLoader::load_from_file(
+                std::filesystem::absolute(filepath.parent_path() / uri.uri.fspath())
+            );
+        },
+        [&](const fastgltf::sources::Array& array) {
+            return core::gltf::ImageLoader::load_from_memory(
+                std::span{ array.bytes }, array.mimeType
+            );
+        },
+        [&](const fastgltf::sources::Vector& vector) {
+            return core::gltf::ImageLoader::load_from_memory(
+                std::span{ vector.bytes }, vector.mimeType
+            );
+        },
+    });
 }
 
 [[nodiscard]]
-static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> filter
-) -> std::optional<core::gltf::Sampler::MagFilter>
+static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> filter)
+    -> std::optional<core::gltf::Sampler::MagFilter>
 {
     if (!filter.has_value()) {
         return std::nullopt;
@@ -121,8 +113,8 @@ static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> filter
 }
 
 [[nodiscard]]
-static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> filter
-) -> std::optional<core::gltf::Sampler::MinFilter>
+static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> filter)
+    -> std::optional<core::gltf::Sampler::MinFilter>
 {
     if (!filter.has_value()) {
         return std::nullopt;
@@ -167,8 +159,8 @@ static auto create_sampler(const fastgltf::Sampler& sampler) -> core::gltf::Samp
 
 template <typename T, typename ReturnType>
 [[nodiscard]]
-static auto convert(const fastgltf::Optional<T>& optional
-) noexcept -> std::optional<ReturnType>
+static auto convert(const fastgltf::Optional<T>& optional) noexcept
+    -> std::optional<ReturnType>
 {
     if (!optional.has_value()) {
         return std::nullopt;
@@ -210,10 +202,8 @@ auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optio
     return load_model(filepath, asset.get(), asset->defaultScene.value_or(0));
 }
 
-auto Loader::load_from_file(
-    const std::filesystem::path& filepath,
-    const size_t                 scene_index
-) -> std::optional<Model>
+auto Loader::load_from_file(const std::filesystem::path& filepath, const size_t scene_index)
+    -> std::optional<Model>
 {
     auto asset{ load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
@@ -341,19 +331,15 @@ auto Loader::load_node(
     fastgltf::math::fvec3 scale{ 1.f, 1.f, 1.f };
     fastgltf::math::fquat rotation{ 0.f, 0.f, 0.f, 1.f };
     fastgltf::math::fvec3 translation{};
-    std::visit(
-        fastgltf::visitor{ [&](const fastgltf::TRS& transform) {
-                              scale       = transform.scale;
-                              rotation    = transform.rotation;
-                              translation = transform.translation;
-                          },
-                           [&](const fastgltf::math::fmat4x4& matrix) {
-                               fastgltf::math::decomposeTransformMatrix(
-                                   matrix, scale, rotation, translation
-                               );
-                           } },
-        source_node.transform
-    );
+    source_node.transform.visit(fastgltf::visitor{
+        [&](const fastgltf::TRS& transform) {
+            scale       = transform.scale;
+            rotation    = transform.rotation;
+            translation = transform.translation;
+        },
+        [&](const fastgltf::math::fmat4x4& matrix) {
+            fastgltf::math::decomposeTransformMatrix(matrix, scale, rotation, translation);
+        } });
     node.scale()       = glm::make_vec3(scale.data());
     node.rotation()    = glm::make_quat(rotation.value_ptr());
     node.translation() = glm::make_vec3(translation.data());
@@ -397,8 +383,8 @@ auto Loader::load_mesh(
 }
 
 [[nodiscard]]
-static auto convert(const fastgltf::PrimitiveType topology
-) noexcept -> Mesh::Primitive::Topology
+static auto convert(const fastgltf::PrimitiveType topology) noexcept
+    -> Mesh::Primitive::Topology
 {
     using enum Mesh::Primitive::Topology;
     switch (topology) {
@@ -414,8 +400,8 @@ static auto convert(const fastgltf::PrimitiveType topology
 }
 
 [[nodiscard]]
-static auto convert(fastgltf::Optional<std::size_t> optional
-) noexcept -> std::optional<uint32_t>
+static auto convert(fastgltf::Optional<std::size_t> optional) noexcept
+    -> std::optional<uint32_t>
 {
     if (!optional.has_value()) {
         return std::nullopt;
