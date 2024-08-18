@@ -86,7 +86,7 @@ auto create_render_pass(const vk::Format color_format, const renderer::Device& d
         depth_attachment_description,
     };
 
-    const vk::SubpassDescription subpass_description{
+    constexpr vk::SubpassDescription subpass_description{
         .pipelineBindPoint       = vk::PipelineBindPoint::eGraphics,
         .colorAttachmentCount    = 1,
         .pColorAttachments       = &color_attachment_reference,

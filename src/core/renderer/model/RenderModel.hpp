@@ -27,8 +27,8 @@ public:
     [[nodiscard]]
     static auto descriptor_set_count() noexcept -> uint32_t;
     [[nodiscard]]
-    static auto descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& info
-    ) -> std::vector<vk::DescriptorPoolSize>;
+    static auto descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& info)
+        -> std::vector<vk::DescriptorPoolSize>;
 
     [[nodiscard]]
     static auto create_loader(

@@ -13,19 +13,19 @@ auto Controller::update(
     std::chrono::duration<double> delta_time
 ) -> void
 {
-    const glm::dvec2   cursor_position{ window.cursor_position() };
-    const core::Size2i window_size{ window.size() };
+    const glm::dvec2 cursor_position{ window.cursor_position() };
+    const auto [window_width, window_height]{ window.size() };
 
     m_vertical_angle = glm::mod(
         m_vertical_angle
             + m_mouse_speed
-                  * (static_cast<double>(window_size.height) / 2.0 - cursor_position.y),
+                  * (static_cast<double>(window_height) / 2.0 - cursor_position.y),
         glm::two_pi<double>()
     );
     m_horizontal_angle = glm::mod(
         m_horizontal_angle
             + m_mouse_speed
-                  * (static_cast<double>(window_size.width) / 2.0 - cursor_position.x),
+                  * (static_cast<double>(window_width) / 2.0 - cursor_position.x),
         glm::two_pi<double>()
     );
 
@@ -61,8 +61,8 @@ auto Controller::update(
     }
 }
 
-auto Controller::update_camera(core::graphics::Camera camera
-) const noexcept -> core::graphics::Camera
+auto Controller::update_camera(core::graphics::Camera camera) const noexcept
+    -> core::graphics::Camera
 {
     camera.set_view_yxz(m_position, glm::vec3{ m_vertical_angle, m_horizontal_angle, 0 });
     return camera;

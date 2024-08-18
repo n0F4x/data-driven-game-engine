@@ -6,8 +6,8 @@
 
 namespace core::image {
 
-auto StbImage::load_from_file(const std::filesystem::path& filepath
-) -> std::optional<StbImage>
+auto StbImage::load_from_file(const std::filesystem::path& filepath)
+    -> std::optional<StbImage>
 {
     if (stbi_info(filepath.generic_string().c_str(), nullptr, nullptr, nullptr) != 1) {
         return std::nullopt;
@@ -30,7 +30,8 @@ auto StbImage::load_from_file(const std::filesystem::path& filepath
     return StbImage{ gsl::make_not_null(data), width, height, STBI_rgb_alpha };
 }
 
-auto StbImage::load_from_memory(std::span<const std::byte> data) -> std::optional<StbImage>
+auto StbImage::load_from_memory(const std::span<const std::byte> data)
+    -> std::optional<StbImage>
 {
     if (stbi_info_from_memory(
             reinterpret_cast<const stbi_uc*>(data.data()),
@@ -64,15 +65,12 @@ auto StbImage::load_from_memory(std::span<const std::byte> data) -> std::optiona
     return StbImage{ gsl::make_not_null(image_data), width, height, STBI_rgb_alpha };
 }
 
-auto StbImage::data() const noexcept -> void*
+auto StbImage::data() const noexcept -> std::span<const std::byte>
 {
-    return m_data.get();
-}
+    const size_t size{ static_cast<size_t>(m_width) * static_cast<size_t>(m_height)
+                       * static_cast<size_t>(m_channel_count) };
 
-auto StbImage::size() const noexcept -> size_t
-{
-    return static_cast<size_t>(m_width) * static_cast<size_t>(m_height)
-         * static_cast<size_t>(m_channel_count);
+    return std::as_bytes(std::span{ m_data.get(), size });
 }
 
 auto StbImage::width() const noexcept -> uint32_t

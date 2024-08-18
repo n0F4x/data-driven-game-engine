@@ -7,7 +7,7 @@
 static auto transcode(ktxTexture2* texture) -> void
 {
     if (ktxTexture2_NeedsTranscoding(texture)) {
-        const ktx_transcode_fmt_e target_format = KTX_TTF_RGBA32;
+        constexpr ktx_transcode_fmt_e target_format{ KTX_TTF_RGBA32 };
 
         const auto error{
             ktxTexture2_TranscodeBasis(texture, target_format, KTX_TF_HIGH_QUALITY)
@@ -23,8 +23,8 @@ static auto transcode(ktxTexture2* texture) -> void
 
 namespace core::image {
 
-auto KTX2Image::load_from_file(const std::filesystem::path& filepath
-) -> std::optional<KTX2Image>
+auto KTX2Image::load_from_file(const std::filesystem::path& filepath)
+    -> std::optional<KTX2Image>
 {
     ktxTexture2* texture{};
 
@@ -47,8 +47,8 @@ auto KTX2Image::load_from_file(const std::filesystem::path& filepath
     return KTX2Image{ gsl::make_not_null(texture) };
 }
 
-auto KTX2Image::load_from_memory(const std::span<const std::byte> data
-) -> std::optional<KTX2Image>
+auto KTX2Image::load_from_memory(const std::span<const std::byte> data)
+    -> std::optional<KTX2Image>
 {
     ktxTexture2* texture{};
 
@@ -103,14 +103,9 @@ auto KTX2Image::get() const noexcept -> gsl_lite::not_null<ktxTexture2*>
     return gsl::make_not_null(m_impl.get());
 }
 
-auto KTX2Image::data() const noexcept -> void*
+auto KTX2Image::data() const noexcept -> std::span<const std::byte>
 {
-    return m_impl->pData;
-}
-
-auto KTX2Image::size() const noexcept -> size_t
-{
-    return m_impl->dataSize;
+    return std::as_bytes(std::span{ m_impl->pData, m_impl->dataSize });
 }
 
 auto KTX2Image::width() const noexcept -> uint32_t
@@ -138,8 +133,11 @@ auto KTX2Image::format() const noexcept -> vk::Format
     return static_cast<vk::Format>(m_impl->vkFormat);
 }
 
-auto KTX2Image::offset(uint32_t mip_level, uint32_t layer, uint32_t face_slice)
-    const noexcept -> uint64_t
+auto KTX2Image::offset(
+    const uint32_t mip_level,
+    const uint32_t layer,
+    const uint32_t face_slice
+) const noexcept -> uint64_t
 {
     assert(mip_level < mip_levels());
     assert(layer < m_impl->numLayers);

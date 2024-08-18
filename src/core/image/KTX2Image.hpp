@@ -15,12 +15,12 @@ namespace core::image {
 class KTX2Image : public Image {
 public:
     [[nodiscard]]
-    static auto load_from_file(const std::filesystem::path& filepath
-    ) -> std::optional<KTX2Image>;
+    static auto load_from_file(const std::filesystem::path& filepath)
+        -> std::optional<KTX2Image>;
 
     [[nodiscard]]
-    static auto load_from_memory(std::span<const std::byte> data
-    ) -> std::optional<KTX2Image>;
+    static auto load_from_memory(std::span<const std::byte> data)
+        -> std::optional<KTX2Image>;
 
     [[nodiscard]]
     auto operator->() const noexcept -> gsl_lite::not_null<ktxTexture2*>;
@@ -33,9 +33,7 @@ public:
     auto get() const noexcept -> gsl_lite::not_null<ktxTexture2*>;
 
     [[nodiscard]]
-    auto data() const noexcept -> void* final;
-    [[nodiscard]]
-    auto size() const noexcept -> size_t final;
+    auto data() const noexcept -> std::span<const std::byte> final;
 
     [[nodiscard]]
     auto width() const noexcept -> uint32_t final;

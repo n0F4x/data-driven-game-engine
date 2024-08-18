@@ -13,9 +13,7 @@ public:
     virtual ~Image() = default;
 
     [[nodiscard]]
-    virtual auto data() const noexcept -> void* = 0;
-    [[nodiscard]]
-    virtual auto size() const noexcept -> size_t = 0;
+    virtual auto data() const noexcept -> std::span<const std::byte> = 0;
 
     [[nodiscard]]
     virtual auto width() const noexcept -> uint32_t = 0;
@@ -31,8 +29,9 @@ public:
     virtual auto format() const noexcept -> vk::Format = 0;
 
     [[nodiscard]]
-    virtual auto offset(uint32_t mip_level, uint32_t layer, uint32_t face_slice)
-        const noexcept -> uint64_t = 0;
+    virtual auto
+        offset(uint32_t mip_level, uint32_t layer, uint32_t face_slice) const noexcept
+        -> uint64_t = 0;
 };
 
 }   // namespace core::image

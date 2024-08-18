@@ -23,9 +23,7 @@ public:
     ) -> std::optional<StbImage>;
 
     [[nodiscard]]
-    auto data() const noexcept -> void* final;
-    [[nodiscard]]
-    auto size() const noexcept -> size_t final;
+    auto data() const noexcept -> std::span<const std::byte> final;
 
     [[nodiscard]]
     auto width() const noexcept -> uint32_t final;

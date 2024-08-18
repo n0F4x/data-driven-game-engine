@@ -1,7 +1,5 @@
 #include "Allocator.hpp"
 
-#include <array>
-
 #include <spdlog/spdlog.h>
 
 #include "core/config/vulkan.hpp"
@@ -273,7 +271,7 @@ auto Allocator::allocate_mapped_buffer(const vk::BufferCreateInfo& buffer_create
 
 auto Allocator::allocate_mapped_buffer_with_alignment(
     const vk::BufferCreateInfo& buffer_create_info,
-    vk::DeviceSize              min_alignment
+    const vk::DeviceSize        min_alignment
 ) const -> MappedBuffer
 {
     constexpr static VmaAllocationCreateInfo allocation_create_info = {
@@ -324,7 +322,7 @@ auto Allocator::allocate_mapped_buffer(
 
 auto Allocator::allocate_mapped_buffer_with_alignment(
     const vk::BufferCreateInfo&        buffer_create_info,
-    vk::DeviceSize                     min_alignment,
+    const vk::DeviceSize               min_alignment,
     gsl_lite::not_null_ic<const void*> data
 ) const -> MappedBuffer
 {

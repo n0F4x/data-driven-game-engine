@@ -56,13 +56,13 @@ static auto load_scene(
                 cache::make_handle<gltf::Model>(std::move(model)),
                 renderer::Effect{
                                  renderer::Shader{ cache::make_handle<renderer::ShaderModule>(
-                                          std::move(opt_vertex_shader_module.value())
-                                      ),
-                                      "main" },
+                                 std::move(opt_vertex_shader_module.value())
+                                 ),
+                                 "main" },
                                  renderer::Shader{ cache::make_handle<renderer::ShaderModule>(
-                                          std::move(opt_fragment_shader_module.value())
-                                      ),
-                                      "main" } }
+                                 std::move(opt_fragment_shader_module.value())
+                                 ),
+                                 "main" } }
             )
             .set_cache(cache)
             .build(device.get(), allocator, render_pass)
@@ -209,7 +209,7 @@ static auto submit_render(
     const vk::Fence         signal_fence
 ) -> void
 {
-    const vk::PipelineStageFlags wait_pipeline_stage{
+    constexpr vk::PipelineStageFlags wait_pipeline_stage{
         vk::PipelineStageFlagBits::eColorAttachmentOutput
     };
 
@@ -280,7 +280,7 @@ auto DemoRenderer::record_command_buffer(
     command_buffer.begin(command_buffer_begin_info);
 
 
-    const std::array clear_values{
+    constexpr std::array clear_values{
         vk::ClearValue{
             .color = vk::ClearColorValue{ std::array{ 0.01f, 0.01f, 0.01f, 0.01f } } },
         vk::ClearValue{ .depthStencil = vk::ClearDepthStencilValue{ .depth = 1.f } }

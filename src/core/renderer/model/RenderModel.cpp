@@ -70,50 +70,50 @@ static auto create_descriptor_set_layouts(
     const RenderModel::DescriptorSetLayoutCreateInfo& info
 ) -> std::array<vk::UniqueDescriptorSetLayout, 3>
 {
-    const std::array bindings_0{
-        // vertices
+    constexpr static std::array bindings_0{
+  // vertices
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
-        // transforms
+ // transforms
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 1,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
-        // defaultSampler
+ // defaultSampler
         vk::DescriptorSetLayoutBinding{ .binding         = 2,
                                        .descriptorType  = vk::DescriptorType::eSampler,
                                        .descriptorCount = 1,
                                        .stageFlags = vk::ShaderStageFlagBits::eFragment     },
-        // textures
+ // textures
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 3,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
-        // defaultMaterial
+ // defaultMaterial
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 4,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
-        // materials
+ // materials
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 5,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
-        // specular-glossiness materials
+ // specular-glossiness materials
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 6,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
-    const vk::DescriptorSetLayoutCreateInfo create_info_0{
+    constexpr static vk::DescriptorSetLayoutCreateInfo create_info_0{
         .bindingCount = static_cast<uint32_t>(bindings_0.size()),
         .pBindings    = bindings_0.data(),
     };
@@ -125,7 +125,7 @@ static auto create_descriptor_set_layouts(
                                        .descriptorCount = static_cast<uint32_t>(info.max_image_count),
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
-    const std::array flags_1{
+    constexpr static std::array flags_1{
         vk::DescriptorBindingFlags{
             vk::DescriptorBindingFlagBits::eVariableDescriptorCount },
     };
@@ -146,7 +146,7 @@ static auto create_descriptor_set_layouts(
                                        .descriptorCount = static_cast<uint32_t>(info.max_sampler_count),
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
-    const std::array flags_2{
+    constexpr static std::array flags_2{
         vk::DescriptorBindingFlags{
             vk::DescriptorBindingFlagBits::eVariableDescriptorCount },
     };
@@ -167,32 +167,6 @@ static auto create_descriptor_set_layouts(
     };
 }
 
-[[nodiscard]]
-static auto create_staging_buffer(
-    const Allocator&                          allocator,
-    const void*                               data,
-    const uint32_t                            size,
-    const std::optional<const vk::DeviceSize> min_alignment = std::nullopt
-) -> MappedBuffer
-{
-    if (data == nullptr || size == 0) {
-        return MappedBuffer{};
-    }
-
-    const vk::BufferCreateInfo staging_buffer_create_info{
-        .size  = size,
-        .usage = vk::BufferUsageFlagBits::eTransferSrc,
-    };
-
-    return min_alignment
-        .transform([&](const vk::DeviceSize min_alignment) {
-            return allocator.allocate_mapped_buffer_with_alignment(
-                staging_buffer_create_info, min_alignment, data
-            );
-        })
-        .value_or(allocator.allocate_mapped_buffer(staging_buffer_create_info, data));
-}
-
 template <typename T>
 [[nodiscard]]
 static auto create_staging_buffer(
@@ -201,9 +175,23 @@ static auto create_staging_buffer(
     const std::optional<const vk::DeviceSize> min_alignment = std::nullopt
 ) -> MappedBuffer
 {
-    return create_staging_buffer(
-        allocator, data.data(), static_cast<uint32_t>(data.size_bytes()), min_alignment
-    );
+    if (data.empty()) {
+        return MappedBuffer{};
+    }
+
+    const vk::BufferCreateInfo staging_buffer_create_info{
+        .size  = data.size_bytes(),
+        .usage = vk::BufferUsageFlagBits::eTransferSrc,
+    };
+
+    return min_alignment
+        .transform([&](const vk::DeviceSize alignment) {
+            return allocator.allocate_mapped_buffer_with_alignment(
+                staging_buffer_create_info, alignment, data.data()
+            );
+        })
+        .value_or(allocator.allocate_mapped_buffer(staging_buffer_create_info, data.data())
+        );
 }
 
 [[nodiscard]]
@@ -223,10 +211,8 @@ static auto create_gpu_only_buffer(
     };
 
     return min_alignment
-        .transform([&](const vk::DeviceSize min_alignment) {
-            return allocator.allocate_buffer_with_alignment(
-                buffer_create_info, min_alignment
-            );
+        .transform([&](const vk::DeviceSize alignment) {
+            return allocator.allocate_buffer_with_alignment(buffer_create_info, alignment);
         })
         .value_or(allocator.allocate_buffer(buffer_create_info));
 }
@@ -235,7 +221,7 @@ template <typename UniformBlock>
 [[nodiscard]]
 static auto create_buffer(const Allocator& allocator) -> MappedBuffer
 {
-    constexpr vk::BufferCreateInfo buffer_create_info = {
+    constexpr static vk::BufferCreateInfo buffer_create_info = {
         .size = sizeof(UniformBlock), .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
@@ -329,7 +315,7 @@ static auto convert_material(const gltf::Material& material) noexcept -> ShaderM
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                                        },
         .emissiveFactor = material.emissive_factor,
-        .alphaCutoff    = material.alpha_mode == core::gltf::Material::AlphaMode::eMask
+        .alphaCutoff    = material.alpha_mode == gltf::Material::AlphaMode::eMask
                             ? material.alpha_cutoff
                             : -1.f,
     };
@@ -380,7 +366,7 @@ static auto create_base_descriptor_set(
         .range  = sizeof(vk::DeviceAddress),
     };
 
-    std::array write_descriptor_sets{
+    const std::array write_descriptor_sets{
         vk::WriteDescriptorSet{
                                .dstSet          = descriptor_sets.front().get(),
                                .dstBinding      = 0,
@@ -437,10 +423,10 @@ static auto create_base_descriptor_set(
 
 [[nodiscard]]
 static auto create_image(
-    const Allocator&    allocator,
-    const gltf::Image&  image,
-    vk::ImageTiling     tiling,
-    vk::ImageUsageFlags usage
+    const Allocator&          allocator,
+    const gltf::Image&        image,
+    const vk::ImageTiling     tiling,
+    const vk::ImageUsageFlags usage
 ) -> Image
 {
     const vk::ImageCreateInfo image_create_info{
@@ -544,7 +530,8 @@ static auto create_image_descriptor_set(
 }
 
 [[nodiscard]]
-static auto to_mag_filter(gltf::Sampler::MagFilter mag_filter) noexcept -> vk::Filter
+static auto to_mag_filter(const gltf::Sampler::MagFilter mag_filter) noexcept
+    -> vk::Filter
 {
     using enum gltf::Sampler::MagFilter;
     switch (mag_filter) {
@@ -555,7 +542,8 @@ static auto to_mag_filter(gltf::Sampler::MagFilter mag_filter) noexcept -> vk::F
 }
 
 [[nodiscard]]
-static auto to_min_filter(gltf::Sampler::MinFilter min_filter) noexcept -> vk::Filter
+static auto to_min_filter(const gltf::Sampler::MinFilter min_filter) noexcept
+    -> vk::Filter
 {
     using enum gltf::Sampler::MinFilter;
     switch (min_filter) {
@@ -570,8 +558,8 @@ static auto to_min_filter(gltf::Sampler::MinFilter min_filter) noexcept -> vk::F
 }
 
 [[nodiscard]]
-static auto to_mipmap_mode(gltf::Sampler::MinFilter min_filter
-) noexcept -> vk::SamplerMipmapMode
+static auto to_mipmap_mode(const gltf::Sampler::MinFilter min_filter) noexcept
+    -> vk::SamplerMipmapMode
 {
     using enum gltf::Sampler::MinFilter;
     switch (min_filter) {
@@ -586,8 +574,8 @@ static auto to_mipmap_mode(gltf::Sampler::MinFilter min_filter
 }
 
 [[nodiscard]]
-static auto to_address_mode(gltf::Sampler::WrapMode wrap_mode
-) noexcept -> vk::SamplerAddressMode
+static auto to_address_mode(const gltf::Sampler::WrapMode wrap_mode) noexcept
+    -> vk::SamplerAddressMode
 {
     using enum gltf::Sampler::WrapMode;
     switch (wrap_mode) {
@@ -674,7 +662,8 @@ static auto create_sampler_descriptor_set(
 }
 
 [[nodiscard]]
-static auto convert(gltf::Mesh::Primitive::Topology topology) -> vk::PrimitiveTopology
+static auto convert(const gltf::Mesh::Primitive::Topology topology)
+    -> vk::PrimitiveTopology
 {
     using enum gltf::Mesh::Primitive::Topology;
     switch (topology) {
@@ -709,11 +698,11 @@ static auto create_pipeline(
     builder.set_cull_mode(
         material.double_sided ? vk::CullModeFlagBits::eNone : vk::CullModeFlagBits::eBack
     );
-    if (material.alpha_mode == core::gltf::Material::AlphaMode::eBlend) {
+    if (material.alpha_mode == gltf::Material::AlphaMode::eBlend) {
         builder.enable_blending();
     }
 
-    auto hash{ hash_value(builder) };
+    const size_t hash{ hash_value(builder) };
 
     return cache.lazy_emplace<vk::UniquePipeline>(
         hash, std::bind_front(&GraphicsPipelineBuilder::build, builder, device)
@@ -721,10 +710,10 @@ static auto create_pipeline(
 }
 
 static auto transition_image_layout(
-    vk::CommandBuffer command_buffer,
-    vk::Image         image,
-    vk::ImageLayout   old_layout,
-    vk::ImageLayout   new_layout
+    const vk::CommandBuffer command_buffer,
+    const vk::Image         image,
+    const vk::ImageLayout   old_layout,
+    const vk::ImageLayout   new_layout
 ) -> void
 {
     vk::ImageMemoryBarrier barrier{
@@ -752,8 +741,7 @@ static auto transition_image_layout(
         source_stage      = vk::PipelineStageFlagBits::eTopOfPipe;
         destination_stage = vk::PipelineStageFlagBits::eTransfer;
     }
-    else if (old_layout == vk::ImageLayout::eTransferDstOptimal
-             && new_layout == vk::ImageLayout::eShaderReadOnlyOptimal)
+    else if (old_layout == vk::ImageLayout::eTransferDstOptimal && new_layout == vk::ImageLayout::eShaderReadOnlyOptimal)
     {
         barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
@@ -808,26 +796,26 @@ auto RenderModel::descriptor_set_count() noexcept -> uint32_t
     return 3;
 }
 
-auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& info
-) -> std::vector<vk::DescriptorPoolSize>
+auto RenderModel::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& info)
+    -> std::vector<vk::DescriptorPoolSize>
 {
     std::vector<vk::DescriptorPoolSize> pool_sizes{
-        // vertices
+  // vertices
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
-        // transforms
+ // transforms
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
-        // defaultSampler
+ // defaultSampler
         vk::DescriptorPoolSize{       .type            = vk::DescriptorType::eSampler,
                                .descriptorCount = 1u },
-        // textures
+ // textures
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
-        // defaultMaterial
+ // defaultMaterial
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
-        // materials
+ // materials
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
     };
@@ -995,9 +983,7 @@ auto RenderModel::create_loader(
     };
     std::vector<MappedBuffer> image_staging_buffers{
         model->images() | std::views::transform([&](const gltf::Image& image) {
-            return create_staging_buffer(
-                allocator, image->data(), static_cast<uint32_t>(image->size())
-            );
+            return create_staging_buffer(allocator, image->data());
         })
         | std::ranges::to<std::vector>()
     };
@@ -1204,8 +1190,8 @@ auto RenderModel::push_constant_range() noexcept -> vk::PushConstantRange
 }
 
 auto RenderModel::draw(
-    vk::CommandBuffer  graphics_command_buffer,
-    vk::PipelineLayout pipeline_layout
+    const vk::CommandBuffer  graphics_command_buffer,
+    const vk::PipelineLayout pipeline_layout
 ) const noexcept -> void
 {
     graphics_command_buffer.bindIndexBuffer(
@@ -1225,7 +1211,7 @@ auto RenderModel::draw(
     for (const auto& [mesh, mesh_index] :
          std::views::zip(m_meshes, std::views::iota(0u, m_meshes.size())))
     {
-        for (const auto& primitive : mesh.primitives) {
+        for (const Mesh::Primitive& primitive : mesh.primitives) {
             graphics_command_buffer.bindPipeline(
                 vk::PipelineBindPoint::eGraphics, primitive.pipeline.get()->get()
             );
@@ -1252,7 +1238,7 @@ auto RenderModel::draw(
 }
 
 RenderModel::RenderModel(
-    vk::Device                         device,
+    const vk::Device                   device,
     Buffer&&                           index_buffer,
     Buffer&&                           vertex_buffer,
     MappedBuffer&&                     vertex_uniform,
