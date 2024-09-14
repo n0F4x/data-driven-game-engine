@@ -11,8 +11,10 @@ auto Scene::create() noexcept -> Builder
     return Builder{};
 }
 
-auto Scene::draw(vk::CommandBuffer graphics_command_buffer, const graphics::Camera& camera)
-    const -> void
+auto Scene::draw(
+    const vk::CommandBuffer graphics_command_buffer,
+    const graphics::Camera& camera
+) const -> void
 {
     m_global_buffer.set(ShaderScene{
         .camera = ShaderScene::Camera{ .position   = glm::vec4{ camera.position(), 1 },
@@ -37,9 +39,9 @@ Scene::Scene(
     std::array<vk::UniqueDescriptorSetLayout, 3>&& model_descriptor_set_layouts,
     vk::UniquePipelineLayout&&                     pipeline_layout,
     DescriptorPool&&                               descriptor_pool,
-    MappedBuffer&&                                 global_buffer,
+    RandomAccessBuffer<ShaderScene>&&                    global_buffer,
     vk::UniqueDescriptorSet&&                      global_descriptor_set,
-    std::vector<RenderModel>&&                     models
+    std::vector<gltf::RenderModel>&&               models
 ) noexcept
     : m_global_descriptor_set_layout(std::move(global_descriptor_set_layout)),
       m_model_descriptor_set_layouts(std::move(model_descriptor_set_layouts)),

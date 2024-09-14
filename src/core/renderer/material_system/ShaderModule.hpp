@@ -16,8 +16,8 @@ public:
     static auto hash(const std::filesystem::path& filepath) noexcept -> size_t;
 
     [[nodiscard]]
-    static auto create(vk::Device device, const std::filesystem::path& filepath)
-        -> std::optional<ShaderModule>;
+    static auto load(vk::Device device, const std::filesystem::path& filepath)
+        -> ShaderModule;
 
     explicit ShaderModule(
         std::filesystem::path    filepath,
@@ -41,6 +41,6 @@ private:
 template <>
 struct std::hash<core::renderer::ShaderModule> {
     [[nodiscard]]
-    auto operator()(const core::renderer::ShaderModule& shader_module
-    ) const noexcept -> size_t;
+    auto operator()(const core::renderer::ShaderModule& shader_module) const noexcept
+        -> size_t;
 };   // namespace std

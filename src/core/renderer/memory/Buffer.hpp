@@ -6,19 +6,16 @@
 
 namespace core::renderer {
 
+class Allocator;
+
 class Buffer {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    Buffer() = default;
-    explicit Buffer(
-        vk::Buffer    buffer,
-        VmaAllocation allocation,
-        VmaAllocator  allocator
-    ) noexcept;
-    Buffer(const Buffer&) = delete;
-    Buffer(Buffer&&) noexcept;
+     Buffer()              = default;
+     Buffer(const Buffer&) = delete;
+     Buffer(Buffer&&) noexcept;
     ~Buffer() noexcept;
 
     ///-------------///
@@ -26,28 +23,41 @@ public:
     ///-------------///
     auto operator=(const Buffer&) -> Buffer& = delete;
     auto operator=(Buffer&&) noexcept -> Buffer&;
-    [[nodiscard]]
-    auto operator*() const noexcept -> vk::Buffer;
 
     ///-----------///
     ///  Methods  ///
     ///-----------///
     [[nodiscard]]
     auto get() const noexcept -> vk::Buffer;
+
+    [[nodiscard]]
+    auto size_bytes() const noexcept -> vk::DeviceSize;
+
+    auto reset() noexcept -> void;
+
+protected:
     [[nodiscard]]
     auto allocation() const noexcept -> VmaAllocation;
     [[nodiscard]]
     auto allocator() const noexcept -> VmaAllocator;
 
-    auto reset() noexcept -> void;
-
 private:
+    friend Allocator;
+
     ///*************///
     ///  Variables  ///
     ///*************///
-    vk::Buffer    m_buffer;
-    VmaAllocation m_allocation{};
-    VmaAllocator  m_allocator{};
+    VmaAllocator   m_allocator{};
+    VmaAllocation  m_allocation{};
+    vk::Buffer     m_buffer;
+    vk::DeviceSize m_buffer_size{};
+
+    explicit Buffer(
+        VmaAllocator   allocator,
+        VmaAllocation  allocation,
+        vk::Buffer     buffer,
+        vk::DeviceSize buffer_size
+    ) noexcept;
 };
 
 }   // namespace core::renderer

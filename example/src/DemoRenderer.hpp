@@ -24,11 +24,8 @@ struct DemoRenderer {
     core::renderer::Scene                                   scene;
 
     [[nodiscard]]
-    static auto create(
-        Store&                       store,
-        const std::filesystem::path& model_filepath,
-        const std::filesystem::path& fragment_shader_filepath
-    ) -> std::optional<DemoRenderer>;
+    static auto create(Store& store, const std::filesystem::path& model_filepath)
+        -> std::optional<DemoRenderer>;
 
     auto render(vk::Extent2D framebuffer_size, const core::graphics::Camera& camera)
         -> void;

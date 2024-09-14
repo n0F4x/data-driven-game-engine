@@ -4,23 +4,19 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/cache/Cache.hpp"
-#include "core/cache/Handle.hpp"
-
-#include "Effect.hpp"
+#include "Program.hpp"
+#include "VertexLayout.hpp"
 
 namespace core::renderer {
 
 class GraphicsPipelineBuilder {
 public:
-    explicit GraphicsPipelineBuilder(
-        Effect                                              effect,
-        std::optional<std::reference_wrapper<cache::Cache>> cache = {}
-    ) noexcept;
+    explicit GraphicsPipelineBuilder(Program program) noexcept;
 
-    auto set_effect(Effect effect) noexcept -> GraphicsPipelineBuilder&;
-    auto set_primitive_topology(vk::PrimitiveTopology primitive_topology
-    ) noexcept -> GraphicsPipelineBuilder&;
+    auto set_program(Program program) noexcept -> GraphicsPipelineBuilder&;
+    auto add_vertex_layout(VertexLayout vertex_layout) -> GraphicsPipelineBuilder&;
+    auto set_primitive_topology(vk::PrimitiveTopology primitive_topology) noexcept
+        -> GraphicsPipelineBuilder&;
     auto set_cull_mode(vk::CullModeFlags cull_mode) noexcept -> GraphicsPipelineBuilder&;
     auto enable_blending() noexcept -> GraphicsPipelineBuilder&;
     auto disable_blending() noexcept -> GraphicsPipelineBuilder&;
@@ -31,10 +27,10 @@ public:
     auto build(vk::Device device) const -> vk::UniquePipeline;
 
 private:
-    std::optional<std::reference_wrapper<cache::Cache>> m_cache;
-    Effect                                              m_effect;
+    Program                   m_program;
+    std::vector<VertexLayout> m_vertex_layouts;
     vk::PrimitiveTopology m_primitive_topology{ vk::PrimitiveTopology::eTriangleList };
-    vk::CullModeFlags     m_cull_mode{};
+    vk::CullModeFlags     m_cull_mode;
     bool                  m_enable_blending{};
     vk::PipelineLayout    m_layout;
     vk::RenderPass        m_render_pass;

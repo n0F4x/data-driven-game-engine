@@ -4,18 +4,21 @@
 #include <optional>
 #include <vector>
 
+using namespace core::renderer;
+
 [[nodiscard]]
 static auto load_shader(const vk::Device device, const std::filesystem::path& filepath)
     -> vk::UniqueShaderModule
 {
     std::ifstream file{ filepath, std::ios::binary | std::ios::in | std::ios::ate };
 
-    const std::streamsize file_size = file.tellg();
+    const std::streamsize file_size{ file.tellg() };
     if (file_size == -1) {
-        return {};
+        throw std::runtime_error{ std::format(
+            "An error occured while reading file '{}'", filepath.generic_string()
+        ) };
     }
-
-    std::vector<char> buffer(static_cast<size_t>(file_size));
+    std::vector<std::ifstream::char_type> buffer(static_cast<size_t>(file_size));
 
     file.seekg(0, std::ios::beg);
     file.read(buffer.data(), file_size);
@@ -36,22 +39,14 @@ auto ShaderModule::hash(const std::filesystem::path& filepath) noexcept -> size_
     return std::filesystem::hash_value(filepath);
 }
 
-auto ShaderModule::create(const vk::Device device, const std::filesystem::path& filepath)
-    -> std::optional<ShaderModule>
+auto ShaderModule::load(const vk::Device device, const std::filesystem::path& filepath)
+    -> ShaderModule
 {
-    vk::UniqueShaderModule module{ load_shader(device, filepath) };
-
-    if (!module) {
-        return std::nullopt;
-    }
-
-    return ShaderModule{ filepath, std::move(module) };
+    return ShaderModule{ filepath, ::load_shader(device, filepath) };
 }
 
-ShaderModule::ShaderModule(
-    std::filesystem::path    filepath,
-    vk::UniqueShaderModule&& module
-) noexcept
+ShaderModule::ShaderModule(std::filesystem::path filepath, vk::UniqueShaderModule&& module)
+    noexcept
     : m_filepath{ std::move(filepath) },
       m_module{ std::move(module) }
 {}
@@ -74,9 +69,8 @@ auto hash_value(const ShaderModule& shader_module) noexcept -> size_t
 
 }   // namespace core::renderer
 
-auto std::hash<core::renderer::ShaderModule>::operator()(
-    const core::renderer::ShaderModule& shader_module
-) const noexcept -> size_t
+auto std::hash<ShaderModule>::operator()(const ShaderModule& shader_module) const noexcept
+    -> size_t
 {
-    return core::renderer::hash_value(shader_module);
+    return hash_value(shader_module);
 }

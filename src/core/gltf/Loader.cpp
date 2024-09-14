@@ -14,6 +14,9 @@
 
 #include "ImageLoader.hpp"
 
+using namespace core;
+using namespace core::gltf;
+
 [[nodiscard]]
 static auto load_asset(const std::filesystem::path& filepath)
     -> fastgltf::Expected<fastgltf::Asset>
@@ -35,76 +38,86 @@ static auto load_image(
     const std::filesystem::path& filepath,
     const fastgltf::Asset&       asset,
     const fastgltf::Image&       image
-) -> std::optional<core::gltf::Image>
+) -> std::optional<Image>
 {
-    return image.data.visit(fastgltf::visitor{
-        [](std::monostate) -> std::optional<core::gltf::Image> {
-            assert(false &&
+    return std::visit(
+        fastgltf::visitor{
+            [](std::monostate) -> std::optional<gltf::Image> {
+                assert(false &&
                     "Got `std::monostate` while visiting fastgltf::DataSource, which is "
                     "an error in fastgltf."
                 );
-        },
-        [](const auto&) -> std::optional<core::gltf::Image> {
-            assert(false && "Got an unexpected glTF image data source. Can't load image.");
-        },
-        [&](const fastgltf::sources::BufferView& buffer_view) {
-            const auto& [buffer_index, byte_offset, _, _, _, _, _]{
-                asset.bufferViews[buffer_view.bufferViewIndex]
-            };
-            const auto& [_, data, _]{ asset.buffers[buffer_index] };
+            },
+            [](const auto&) -> std::optional<Image> {
+                assert(
+                    false && "Got an unexpected glTF image data source. Can't load image."
+                );
+            },
+            [&](const fastgltf::sources::BufferView& buffer_view) {
+                const auto& [buffer_index, byte_offset, _, _, _, _, _]{
+                    asset.bufferViews[buffer_view.bufferViewIndex]
+                };
+                const auto& [_, data, _]{ asset.buffers[buffer_index] };
 
-            return data.visit(fastgltf::visitor{
-                [](const auto&) -> std::optional<core::gltf::Image> {
-                    throw std::runtime_error(
-                        "Got an unexpected glTF image data source. "
-                        "Can't load image from buffer view."
-                    );
-                },
-                [&](const fastgltf::sources::Array& array) {
-                    return core::gltf::ImageLoader::load_from_memory(
-                        std::span{ array.bytes }.subspan(byte_offset), buffer_view.mimeType
-                    );
-                },
-                [&](const fastgltf::sources::Vector& vector) {
-                    return core::gltf::ImageLoader::load_from_memory(
-                        std::span{ vector.bytes }.subspan(byte_offset),
-                        buffer_view.mimeType
-                    );
-                } });
-        },
-        [&](const fastgltf::sources::URI& uri) {
-            assert(
-                uri.fileByteOffset == 0 && "We don't support offsets with stbi"
-            );   // TODO: Support offsets?
-            assert(uri.uri.isLocalPath());
+                return std::visit(
+                    fastgltf::visitor{
+                        [](const auto&) -> std::optional<Image> {
+                            throw std::runtime_error(
+                                "Got an unexpected glTF image data source. "
+                                "Can't load image from buffer view."
+                            );
+                        },
+                        [&](const fastgltf::sources::Array& array) {
+                            return ImageLoader::load_from(
+                                std::span{ array.bytes }.subspan(byte_offset),
+                                buffer_view.mimeType
+                            );
+                        },
+                        [&](const fastgltf::sources::Vector& vector) {
+                            return ImageLoader::load_from(
+                                std::span{ vector.bytes }.subspan(byte_offset),
+                                buffer_view.mimeType
+                            );
+                        } },
+                    data
+                );
+            },
+            [&](const fastgltf::sources::URI& uri) {
+                assert(
+                    uri.fileByteOffset == 0 && "We don't support offsets with stbi"
+                );   // TODO: Support offsets?
+                assert(uri.uri.isLocalPath());
 
-            return core::gltf::ImageLoader::load_from_file(
-                std::filesystem::absolute(filepath.parent_path() / uri.uri.fspath())
-            );
+                return ImageLoader::load_from(
+                    std::filesystem::absolute(filepath.parent_path() / uri.uri.fspath())
+                );
+            },
+            [&](const fastgltf::sources::Array& array) {
+                return ImageLoader::load_from(
+                    std::span{ array.bytes }, array.mimeType
+                );
+            },
+            [&](const fastgltf::sources::Vector& vector) {
+                return ImageLoader::load_from(
+                    std::span{ vector.bytes }, vector.mimeType
+                );
+            },
         },
-        [&](const fastgltf::sources::Array& array) {
-            return core::gltf::ImageLoader::load_from_memory(
-                std::span{ array.bytes }, array.mimeType
-            );
-        },
-        [&](const fastgltf::sources::Vector& vector) {
-            return core::gltf::ImageLoader::load_from_memory(
-                std::span{ vector.bytes }, vector.mimeType
-            );
-        },
-    });
+        image.data
+    );
 }
 
 [[nodiscard]]
 static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> filter)
-    -> std::optional<core::gltf::Sampler::MagFilter>
+    -> Sampler::MagFilter
 {
+    using enum Sampler::MagFilter;
+
     if (!filter.has_value()) {
-        return std::nullopt;
+        return eLinear;
     }
 
     using enum fastgltf::Filter;
-    using enum core::gltf::Sampler::MagFilter;
     switch (filter.value()) {
         case Nearest: return eNearest;
         case Linear: return eLinear;
@@ -114,14 +127,15 @@ static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> filter)
 
 [[nodiscard]]
 static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> filter)
-    -> std::optional<core::gltf::Sampler::MinFilter>
+    -> Sampler::MinFilter
 {
+    using enum Sampler::MinFilter;
+
     if (!filter.has_value()) {
-        return std::nullopt;
+        return eLinear;
     }
 
     using enum fastgltf::Filter;
-    using enum core::gltf::Sampler::MinFilter;
     switch (filter.value()) {
         case Nearest: return eNearest;
         case Linear: return eLinear;
@@ -134,10 +148,10 @@ static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> filter)
 }
 
 [[nodiscard]]
-static auto convert(const fastgltf::Wrap wrap) noexcept -> core::gltf::Sampler::WrapMode
+static auto convert(const fastgltf::Wrap wrap) noexcept -> Sampler::WrapMode
 {
     using enum fastgltf::Wrap;
-    using enum core::gltf::Sampler::WrapMode;
+    using enum Sampler::WrapMode;
     switch (wrap) {
         case ClampToEdge: return eClampToEdge;
         case MirroredRepeat: return eMirroredRepeat;
@@ -147,13 +161,13 @@ static auto convert(const fastgltf::Wrap wrap) noexcept -> core::gltf::Sampler::
 }
 
 [[nodiscard]]
-static auto create_sampler(const fastgltf::Sampler& sampler) -> core::gltf::Sampler
+static auto create_sampler(const fastgltf::Sampler& sampler) -> Sampler
 {
-    return core::gltf::Sampler{
-        .mag_filter = convert_to_mag_filter(sampler.magFilter),
-        .min_filter = convert_to_min_filter(sampler.minFilter),
-        .wrap_s     = convert(sampler.wrapS),
-        .wrap_t     = convert(sampler.wrapT),
+    return Sampler{
+        .mag_filter = ::convert_to_mag_filter(sampler.magFilter),
+        .min_filter = ::convert_to_min_filter(sampler.minFilter),
+        .wrap_s     = ::convert(sampler.wrapS),
+        .wrap_t     = ::convert(sampler.wrapT),
     };
 }
 
@@ -168,18 +182,18 @@ static auto convert(const fastgltf::Optional<T>& optional) noexcept
     return static_cast<ReturnType>(optional.value());
 }
 
-static auto create_texture(const fastgltf::Texture& texture) -> core::gltf::Texture
+static auto create_texture(const fastgltf::Texture& texture) -> Texture
 {
     if (texture.basisuImageIndex.has_value()) {
-        return core::gltf::Texture{
-            .sampler_index = convert<size_t, uint32_t>(texture.samplerIndex),
+        return Texture{
+            .sampler_index = ::convert<size_t, uint32_t>(texture.samplerIndex),
             .image_index   = static_cast<uint32_t>(texture.basisuImageIndex.value()),
         };
     }
 
     if (texture.imageIndex.has_value()) {
-        return core::gltf::Texture{
-            .sampler_index = convert<size_t, uint32_t>(texture.samplerIndex),
+        return Texture{
+            .sampler_index = ::convert<size_t, uint32_t>(texture.samplerIndex),
             .image_index   = static_cast<uint32_t>(texture.imageIndex.value()),
         };
     }
@@ -189,11 +203,89 @@ static auto create_texture(const fastgltf::Texture& texture) -> core::gltf::Text
     };
 }
 
+[[nodiscard]]
+static auto convert(const fastgltf::PrimitiveType topology) noexcept
+    -> Mesh::Primitive::Topology
+{
+    using enum Mesh::Primitive::Topology;
+    switch (topology) {
+        case fastgltf::PrimitiveType::Points: return ePoints;
+        case fastgltf::PrimitiveType::Lines: return eLines;
+        case fastgltf::PrimitiveType::LineLoop: return eLineLoops;
+        case fastgltf::PrimitiveType::LineStrip: return eLineStrips;
+        case fastgltf::PrimitiveType::Triangles: return eTriangles;
+        case fastgltf::PrimitiveType::TriangleStrip: return eTriangleStrips;
+        case fastgltf::PrimitiveType::TriangleFan: return eTriangleFans;
+    }
+    std::unreachable();
+}
+
+[[nodiscard]]
+static auto convert(fastgltf::Optional<std::size_t> optional) noexcept
+    -> std::optional<uint32_t>
+{
+    if (!optional.has_value()) {
+        return std::nullopt;
+    }
+    return static_cast<uint32_t>(optional.value());
+}
+
+[[nodiscard]]
+static auto make_accessor_loader(
+    const fastgltf::Asset&      asset,
+    std::vector<Model::Vertex>& vertices,
+    size_t                      first_vertex_index
+)
+{
+    return [&, first_vertex_index]<typename Projection, typename Transformation>(
+               const fastgltf::Accessor& accessor,
+               Projection                project,
+               Transformation            transform
+           ) -> void {
+        using ElementType =
+            std::remove_cvref_t<std::tuple_element_t<0, meta::arguments_t<Transformation>>>;
+        using AttributeType =
+            std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
+
+        fastgltf::iterateAccessorWithIndex<ElementType>(
+            asset,
+            accessor,
+            [&, first_vertex_index](const ElementType& element, const size_t index) {
+                std::invoke(project, vertices[first_vertex_index + index]) =
+                    std::invoke_r<AttributeType>(transform, element);
+            }
+        );
+    };
+}
+
+[[nodiscard]]
+static auto make_identity_accessor_loader(
+    const fastgltf::Asset&      asset,
+    std::vector<Model::Vertex>& vertices,
+    size_t                      first_vertex_index
+)
+{
+    return [&, first_vertex_index]<typename Projection>(
+               const fastgltf::Accessor& accessor, Projection project
+           ) -> void {
+        using AttributeType =
+            std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
+
+        fastgltf::iterateAccessorWithIndex<AttributeType>(
+            asset,
+            accessor,
+            [&, first_vertex_index](const AttributeType& element, const size_t index) {
+                std::invoke(project, vertices[first_vertex_index + index]) = element;
+            }
+        );
+    };
+}
+
 namespace core::gltf {
 
 auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optional<Model>
 {
-    auto asset{ load_asset(filepath) };
+    fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
         SPDLOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
         return std::nullopt;
@@ -205,7 +297,7 @@ auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optio
 auto Loader::load_from_file(const std::filesystem::path& filepath, const size_t scene_index)
     -> std::optional<Model>
 {
-    auto asset{ load_asset(filepath) };
+    fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
         SPDLOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
         return std::nullopt;
@@ -268,7 +360,7 @@ auto Loader::load_images(
 {
     model.m_images.reserve(asset.images.size());
     for (const fastgltf::Image& image : asset.images) {
-        if (std::optional<Image> loaded_image = load_image(filepath, asset, image);
+        if (std::optional<Image> loaded_image = ::load_image(filepath, asset, image);
             loaded_image.has_value())
         {
             model.m_images.push_back(std::move(loaded_image.value()));
@@ -285,12 +377,12 @@ auto Loader::load_images(
 
     model.m_samplers.reserve(asset.samplers.size());
     for (const fastgltf::Sampler& sampler : asset.samplers) {
-        model.m_samplers.push_back(create_sampler(sampler));
+        model.m_samplers.push_back(::create_sampler(sampler));
     }
 
     model.m_textures.reserve(asset.textures.size());
     for (const fastgltf::Texture& texture : asset.textures) {
-        model.m_textures.push_back(create_texture(texture));
+        model.m_textures.push_back(::create_texture(texture));
     }
 }
 
@@ -331,17 +423,21 @@ auto Loader::load_node(
     fastgltf::math::fvec3 scale{ 1.f, 1.f, 1.f };
     fastgltf::math::fquat rotation{ 0.f, 0.f, 0.f, 1.f };
     fastgltf::math::fvec3 translation{};
-    source_node.transform.visit(fastgltf::visitor{
-        [&](const fastgltf::TRS& transform) {
-            scale       = transform.scale;
-            rotation    = transform.rotation;
-            translation = transform.translation;
-        },
-        [&](const fastgltf::math::fmat4x4& matrix) {
-            fastgltf::math::decomposeTransformMatrix(matrix, scale, rotation, translation);
-        } });
+    std::visit(
+        fastgltf::visitor{ [&](const fastgltf::TRS& transform) {
+                              scale       = transform.scale;
+                              rotation    = transform.rotation;
+                              translation = transform.translation;
+                          },
+                           [&](const fastgltf::math::fmat4x4& matrix) {
+                               fastgltf::math::decomposeTransformMatrix(
+                                   matrix, scale, rotation, translation
+                               );
+                           } },
+        source_node.transform
+    );
     node.scale()       = glm::make_vec3(scale.data());
-    node.rotation()    = glm::make_quat(rotation.value_ptr());
+    node.rotation()    = glm::make_quat(rotation.data());
     node.translation() = glm::make_vec3(translation.data());
 
     for (const size_t child_index : source_node.children) {
@@ -382,33 +478,6 @@ auto Loader::load_mesh(
     return index;
 }
 
-[[nodiscard]]
-static auto convert(const fastgltf::PrimitiveType topology) noexcept
-    -> Mesh::Primitive::Topology
-{
-    using enum Mesh::Primitive::Topology;
-    switch (topology) {
-        case fastgltf::PrimitiveType::Points: return ePoints;
-        case fastgltf::PrimitiveType::Lines: return eLines;
-        case fastgltf::PrimitiveType::LineLoop: return eLineLoops;
-        case fastgltf::PrimitiveType::LineStrip: return eLineStrips;
-        case fastgltf::PrimitiveType::Triangles: return eTriangles;
-        case fastgltf::PrimitiveType::TriangleStrip: return eTriangleStrips;
-        case fastgltf::PrimitiveType::TriangleFan: return eTriangleFans;
-    }
-    std::unreachable();
-}
-
-[[nodiscard]]
-static auto convert(fastgltf::Optional<std::size_t> optional) noexcept
-    -> std::optional<uint32_t>
-{
-    if (!optional.has_value()) {
-        return std::nullopt;
-    }
-    return static_cast<uint32_t>(optional.value());
-}
-
 auto Loader::load_primitive(
     Model&                     model,
     const fastgltf::Asset&     asset,
@@ -416,8 +485,8 @@ auto Loader::load_primitive(
 ) -> std::optional<Mesh::Primitive>
 {
     Mesh::Primitive primitive{
-        .mode           = convert(source_primitive.type),
-        .material_index = convert(source_primitive.materialIndex),
+        .mode           = ::convert(source_primitive.type),
+        .material_index = ::convert(source_primitive.materialIndex),
     };
 
     const auto first_vertex_index{ model.m_vertices.size() };
@@ -439,57 +508,6 @@ auto Loader::load_primitive(
     return primitive;
 }
 
-[[nodiscard]]
-static auto make_accessor_loader(
-    const fastgltf::Asset&      asset,
-    std::vector<Model::Vertex>& vertices,
-    size_t                      first_vertex_index
-)
-{
-    return [&, first_vertex_index]<typename Projection, typename Transformation>(
-               const fastgltf::Accessor& accessor,
-               Projection                project,
-               Transformation            transform
-           ) -> void {
-        using ElementType = std::remove_cvref_t<
-            std::tuple_element_t<0, core::meta::arguments_t<Transformation>>>;
-        using AttributeType =
-            std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
-
-        fastgltf::iterateAccessorWithIndex<ElementType>(
-            asset,
-            accessor,
-            [&, first_vertex_index](const ElementType& element, const size_t index) {
-                std::invoke(project, vertices[first_vertex_index + index]) =
-                    std::invoke_r<AttributeType>(transform, element);
-            }
-        );
-    };
-}
-
-[[nodiscard]]
-static auto make_identity_accessor_loader(
-    const fastgltf::Asset&      asset,
-    std::vector<Model::Vertex>& vertices,
-    size_t                      first_vertex_index
-)
-{
-    return [&, first_vertex_index]<typename Projection>(
-               const fastgltf::Accessor& accessor, Projection project
-           ) -> void {
-        using AttributeType =
-            std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
-
-        fastgltf::iterateAccessorWithIndex<AttributeType>(
-            asset,
-            accessor,
-            [&, first_vertex_index](const AttributeType& element, const size_t index) {
-                std::invoke(project, vertices[first_vertex_index + index]) = element;
-            }
-        );
-    };
-}
-
 auto Loader::load_vertices(
     Model&                                                    model,
     Mesh::Primitive&                                          primitive,
@@ -505,10 +523,10 @@ auto Loader::load_vertices(
     }
 
     auto load_accessor{
-        make_accessor_loader(asset, model.m_vertices, model.m_vertices.size())
+        ::make_accessor_loader(asset, model.m_vertices, model.m_vertices.size())
     };
     auto load_identity_accessor{
-        make_identity_accessor_loader(asset, model.m_vertices, model.m_vertices.size())
+        ::make_identity_accessor_loader(asset, model.m_vertices, model.m_vertices.size())
     };
 
     const fastgltf::Accessor& position_accessor{
@@ -518,16 +536,12 @@ auto Loader::load_vertices(
     primitive.vertex_count = static_cast<uint32_t>(position_accessor.count);
     model.m_vertices.resize(model.m_vertices.size() + position_accessor.count);
 
-    load_accessor(position_accessor, &Model::Vertex::position, [](const glm::vec3& vec3) {
-        return glm::make_vec4(vec3);
-    });
+    load_identity_accessor(position_accessor, &Model::Vertex::position);
 
     for (const auto& [name, accessor_index] : attributes) {
         if (name == "NORMAL") {
-            load_accessor(
-                asset.accessors[accessor_index],
-                &Model::Vertex::normal,
-                [](const glm::vec3& vec3) { return glm::make_vec4(vec3); }
+            load_identity_accessor(
+                asset.accessors[accessor_index], &Model::Vertex::normal
             );
         }
         else if (name == "TANGENT") {
@@ -542,12 +556,20 @@ auto Loader::load_vertices(
             load_identity_accessor(asset.accessors[accessor_index], &Model::Vertex::uv_1);
         }
         else if (name == "COLOR_0") {
-            load_identity_accessor(asset.accessors[accessor_index], &Model::Vertex::color);
-            load_accessor(
-                asset.accessors[accessor_index],
-                &Model::Vertex::color,
-                [](const glm::vec3& vec3) { return glm::make_vec4(vec3); }
-            );
+            if (asset.accessors[accessor_index].type == fastgltf::AccessorType::Vec4) {
+                load_identity_accessor(
+                    asset.accessors[accessor_index], &Model::Vertex::color
+                );
+            }
+            else {
+                load_accessor(
+                    asset.accessors[accessor_index],
+                    &Model::Vertex::color,
+                    [](const glm::vec3& vec3) {
+                        return glm::vec4{ vec3.x, vec3.y, vec3.z, 1 };
+                    }
+                );
+            }
         }
     }
 

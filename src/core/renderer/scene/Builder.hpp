@@ -12,27 +12,18 @@ namespace core::renderer {
 
 class Scene::Builder {
 public:
-    struct ModelInfo {
-        cache::Handle<gltf::Model> handle;
-        Effect                     effect;
-    };
-
     auto set_cache(cache::Cache& cache) noexcept -> Builder&;
 
-    auto add_model(const cache::Handle<gltf::Model>& model, const Effect& effect)
-        -> Builder&;
-    auto add_model(cache::Handle<gltf::Model>&& model, const Effect& effect) -> Builder&;
+    auto add_model(const cache::Handle<const gltf::Model>& model) -> Builder&;
+    auto add_model(cache::Handle<const gltf::Model>&& model) -> Builder&;
 
     [[nodiscard]]
-    auto build(
-        vk::Device       transfer_command_buffer,
-        const Allocator& allocator,
-        vk::RenderPass   render_pass
-    ) const -> std::packaged_task<Scene(vk::CommandBuffer)>;
+    auto build(vk::Device device, const Allocator& allocator, vk::RenderPass render_pass)
+        const -> std::packaged_task<Scene(vk::CommandBuffer)>;
 
 private:
     std::optional<std::reference_wrapper<cache::Cache>> m_cache;
-    std::vector<ModelInfo>                              m_models;
+    std::vector<cache::Handle<const gltf::Model>>       m_models;
 };
 
 }   // namespace core::renderer

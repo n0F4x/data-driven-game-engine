@@ -5,7 +5,12 @@
 #include "core/config/vulkan.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
+#include "core/renderer/memory/Buffer.hpp"
+#include "core/renderer/memory/Image.hpp"
 
+#include "helpers.hpp"
+
+using namespace core;
 using namespace core::renderer;
 
 [[nodiscard]]
@@ -87,44 +92,43 @@ static auto vulkan_functions() -> const VmaVulkanFunctions&
 {
     // TODO: use reflection
     static const VmaVulkanFunctions s_vulkan_functions{
-        .vkGetInstanceProcAddr = core::config::vulkan::dispatcher().vkGetInstanceProcAddr,
-        .vkGetDeviceProcAddr   = core::config::vulkan::dispatcher().vkGetDeviceProcAddr,
+        .vkGetInstanceProcAddr = config::vulkan::dispatcher().vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr   = config::vulkan::dispatcher().vkGetDeviceProcAddr,
         .vkGetPhysicalDeviceProperties =
-            core::config::vulkan::dispatcher().vkGetPhysicalDeviceProperties,
+            config::vulkan::dispatcher().vkGetPhysicalDeviceProperties,
         .vkGetPhysicalDeviceMemoryProperties =
-            core::config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties,
-        .vkAllocateMemory = core::config::vulkan::dispatcher().vkAllocateMemory,
-        .vkFreeMemory     = core::config::vulkan::dispatcher().vkFreeMemory,
-        .vkMapMemory      = core::config::vulkan::dispatcher().vkMapMemory,
-        .vkUnmapMemory    = core::config::vulkan::dispatcher().vkUnmapMemory,
+            config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties,
+        .vkAllocateMemory = config::vulkan::dispatcher().vkAllocateMemory,
+        .vkFreeMemory     = config::vulkan::dispatcher().vkFreeMemory,
+        .vkMapMemory      = config::vulkan::dispatcher().vkMapMemory,
+        .vkUnmapMemory    = config::vulkan::dispatcher().vkUnmapMemory,
         .vkFlushMappedMemoryRanges =
-            core::config::vulkan::dispatcher().vkFlushMappedMemoryRanges,
+            config::vulkan::dispatcher().vkFlushMappedMemoryRanges,
         .vkInvalidateMappedMemoryRanges =
-            core::config::vulkan::dispatcher().vkInvalidateMappedMemoryRanges,
-        .vkBindBufferMemory = core::config::vulkan::dispatcher().vkBindBufferMemory,
-        .vkBindImageMemory  = core::config::vulkan::dispatcher().vkBindImageMemory,
+            config::vulkan::dispatcher().vkInvalidateMappedMemoryRanges,
+        .vkBindBufferMemory = config::vulkan::dispatcher().vkBindBufferMemory,
+        .vkBindImageMemory  = config::vulkan::dispatcher().vkBindImageMemory,
         .vkGetBufferMemoryRequirements =
-            core::config::vulkan::dispatcher().vkGetBufferMemoryRequirements,
+            config::vulkan::dispatcher().vkGetBufferMemoryRequirements,
         .vkGetImageMemoryRequirements =
-            core::config::vulkan::dispatcher().vkGetImageMemoryRequirements,
-        .vkCreateBuffer  = core::config::vulkan::dispatcher().vkCreateBuffer,
-        .vkDestroyBuffer = core::config::vulkan::dispatcher().vkDestroyBuffer,
-        .vkCreateImage   = core::config::vulkan::dispatcher().vkCreateImage,
-        .vkDestroyImage  = core::config::vulkan::dispatcher().vkDestroyImage,
-        .vkCmdCopyBuffer = core::config::vulkan::dispatcher().vkCmdCopyBuffer,
+            config::vulkan::dispatcher().vkGetImageMemoryRequirements,
+        .vkCreateBuffer  = config::vulkan::dispatcher().vkCreateBuffer,
+        .vkDestroyBuffer = config::vulkan::dispatcher().vkDestroyBuffer,
+        .vkCreateImage   = config::vulkan::dispatcher().vkCreateImage,
+        .vkDestroyImage  = config::vulkan::dispatcher().vkDestroyImage,
+        .vkCmdCopyBuffer = config::vulkan::dispatcher().vkCmdCopyBuffer,
         .vkGetBufferMemoryRequirements2KHR =
-            core::config::vulkan::dispatcher().vkGetBufferMemoryRequirements2KHR,
+            config::vulkan::dispatcher().vkGetBufferMemoryRequirements2KHR,
         .vkGetImageMemoryRequirements2KHR =
-            core::config::vulkan::dispatcher().vkGetImageMemoryRequirements2KHR,
-        .vkBindBufferMemory2KHR =
-            core::config::vulkan::dispatcher().vkBindBufferMemory2KHR,
-        .vkBindImageMemory2KHR = core::config::vulkan::dispatcher().vkBindImageMemory2KHR,
+            config::vulkan::dispatcher().vkGetImageMemoryRequirements2KHR,
+        .vkBindBufferMemory2KHR = config::vulkan::dispatcher().vkBindBufferMemory2KHR,
+        .vkBindImageMemory2KHR  = config::vulkan::dispatcher().vkBindImageMemory2KHR,
         .vkGetPhysicalDeviceMemoryProperties2KHR =
-            core::config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties2KHR,
+            config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties2KHR,
         .vkGetDeviceBufferMemoryRequirements =
-            core::config::vulkan::dispatcher().vkGetDeviceBufferMemoryRequirements,
+            config::vulkan::dispatcher().vkGetDeviceBufferMemoryRequirements,
         .vkGetDeviceImageMemoryRequirements =
-            core::config::vulkan::dispatcher().vkGetDeviceImageMemoryRequirements,
+            config::vulkan::dispatcher().vkGetDeviceImageMemoryRequirements,
     };
 
     return s_vulkan_functions;
@@ -152,206 +156,22 @@ static auto create_allocator(
     };
 }
 
-[[nodiscard]]
-static auto create_buffer(
-    const VmaAllocator             allocator,
-    const vk::BufferCreateInfo&    buffer_create_info,
-    const VmaAllocationCreateInfo& allocation_create_info
-) -> std::tuple<vk::Buffer, VmaAllocation, VmaAllocationInfo>
-{
-    vk::Buffer        buffer;
-    VmaAllocation     allocation{};
-    VmaAllocationInfo allocation_info;
-
-    const vk::Result result{ vmaCreateBuffer(
-        allocator,
-        reinterpret_cast<const VkBufferCreateInfo*>(&buffer_create_info),
-        &allocation_create_info,
-        reinterpret_cast<VkBuffer*>(&buffer),
-        &allocation,
-        &allocation_info
-    ) };
-    vk::resultCheck(result, "vmaCreateBuffer failed");
-
-    return std::make_tuple(buffer, allocation, allocation_info);
-}
-
-[[nodiscard]]
-static auto create_buffer_with_alignment(
-    const VmaAllocator             allocator,
-    const vk::BufferCreateInfo&    buffer_create_info,
-    const vk::DeviceSize           min_alignment,
-    const VmaAllocationCreateInfo& allocation_create_info
-) -> std::tuple<vk::Buffer, VmaAllocation, VmaAllocationInfo>
-{
-    vk::Buffer        buffer;
-    VmaAllocation     allocation{};
-    VmaAllocationInfo allocation_info;
-
-    const vk::Result result{ vmaCreateBufferWithAlignment(
-        allocator,
-        reinterpret_cast<const VkBufferCreateInfo*>(&buffer_create_info),
-        &allocation_create_info,
-        min_alignment,
-        reinterpret_cast<VkBuffer*>(&buffer),
-        &allocation,
-        &allocation_info
-    ) };
-    vk::resultCheck(result, "vmaCreateBuffer failed");
-
-    return std::make_tuple(buffer, allocation, allocation_info);
-}
-
 namespace core::renderer {
 
 Allocator::Allocator(const Instance& instance, const Device& device)
     : m_allocator{ create_allocator(instance, device) }
 {}
 
-auto Allocator::operator*() const noexcept -> const VmaAllocator_T&
-{
-    return *m_allocator;
-}
-
-auto Allocator::operator*() noexcept -> VmaAllocator_T&
-{
-    return *m_allocator;
-}
-
-auto Allocator::operator->() const noexcept -> VmaAllocator
-{
-    return m_allocator.operator->().operator->();
-}
-
-auto Allocator::get() const noexcept -> VmaAllocator
-{
-    return m_allocator.get();
-}
-
 auto Allocator::allocate_buffer(
     const vk::BufferCreateInfo&    buffer_create_info,
     const VmaAllocationCreateInfo& allocation_create_info
 ) const -> Buffer
 {
-    auto [buffer, allocation, _]{
-        ::create_buffer(m_allocator.get(), buffer_create_info, allocation_create_info)
-    };
-
-    return Buffer{ buffer, allocation, m_allocator.get() };
-}
-
-auto Allocator::allocate_buffer_with_alignment(
-    const vk::BufferCreateInfo&    buffer_create_info,
-    const vk::DeviceSize           min_alignment,
-    const VmaAllocationCreateInfo& allocation_create_info
-) const -> Buffer
-{
-    auto [buffer, allocation, _]{ ::create_buffer_with_alignment(
-        m_allocator.get(), buffer_create_info, min_alignment, allocation_create_info
+    auto [allocation, buffer, _]{ details::create_buffer(
+        m_allocator.get(), buffer_create_info, allocation_create_info
     ) };
 
-    return Buffer{ buffer, allocation, m_allocator.get() };
-}
-
-auto Allocator::allocate_mapped_buffer(const vk::BufferCreateInfo& buffer_create_info
-) const -> MappedBuffer
-{
-    constexpr static VmaAllocationCreateInfo allocation_create_info = {
-        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
-               | VMA_ALLOCATION_CREATE_MAPPED_BIT,
-        .usage = VMA_MEMORY_USAGE_AUTO,
-    };
-
-    auto [buffer, allocation, _]{
-        ::create_buffer(m_allocator.get(), buffer_create_info, allocation_create_info)
-    };
-
-    return MappedBuffer{ buffer, allocation, m_allocator.get() };
-}
-
-auto Allocator::allocate_mapped_buffer_with_alignment(
-    const vk::BufferCreateInfo& buffer_create_info,
-    const vk::DeviceSize        min_alignment
-) const -> MappedBuffer
-{
-    constexpr static VmaAllocationCreateInfo allocation_create_info = {
-        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
-               | VMA_ALLOCATION_CREATE_MAPPED_BIT,
-        .usage = VMA_MEMORY_USAGE_AUTO,
-    };
-
-    auto [buffer, allocation, _]{ ::create_buffer_with_alignment(
-        m_allocator.get(), buffer_create_info, min_alignment, allocation_create_info
-    ) };
-
-    return MappedBuffer{ buffer, allocation, m_allocator.get() };
-}
-
-auto Allocator::allocate_mapped_buffer(
-    const vk::BufferCreateInfo&        buffer_create_info,
-    gsl_lite::not_null_ic<const void*> data
-) const -> MappedBuffer
-{
-    constexpr static VmaAllocationCreateInfo allocation_create_info = {
-        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
-               | VMA_ALLOCATION_CREATE_MAPPED_BIT,
-        .usage = VMA_MEMORY_USAGE_AUTO,
-    };
-
-    auto [buffer, allocation, allocation_info]{
-        ::create_buffer(m_allocator.get(), buffer_create_info, allocation_create_info)
-    };
-
-    std::memcpy(allocation_info.pMappedData, data, buffer_create_info.size);
-
-    vk::MemoryPropertyFlags memory_property_flags;
-    vmaGetAllocationMemoryProperties(
-        m_allocator.get(),
-        allocation,
-        reinterpret_cast<VkMemoryPropertyFlags*>(&memory_property_flags)
-    );
-    if (!(memory_property_flags & vk::MemoryPropertyFlagBits::eHostCoherent)) {
-        const vk::Result result{
-            vmaFlushAllocation(m_allocator.get(), allocation, 0, vk::WholeSize)
-        };
-        vk::resultCheck(result, "vmaFlushAllocation failed");
-    }
-
-    return MappedBuffer{ buffer, allocation, m_allocator.get() };
-}
-
-auto Allocator::allocate_mapped_buffer_with_alignment(
-    const vk::BufferCreateInfo&        buffer_create_info,
-    const vk::DeviceSize               min_alignment,
-    gsl_lite::not_null_ic<const void*> data
-) const -> MappedBuffer
-{
-    constexpr static VmaAllocationCreateInfo allocation_create_info = {
-        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
-               | VMA_ALLOCATION_CREATE_MAPPED_BIT,
-        .usage = VMA_MEMORY_USAGE_AUTO,
-    };
-
-    auto [buffer, allocation, allocation_info]{ ::create_buffer_with_alignment(
-        m_allocator.get(), buffer_create_info, min_alignment, allocation_create_info
-    ) };
-
-    std::memcpy(allocation_info.pMappedData, data, buffer_create_info.size);
-
-    vk::MemoryPropertyFlags memory_property_flags;
-    vmaGetAllocationMemoryProperties(
-        m_allocator.get(),
-        allocation,
-        reinterpret_cast<VkMemoryPropertyFlags*>(&memory_property_flags)
-    );
-    if (!(memory_property_flags & vk::MemoryPropertyFlagBits::eHostCoherent)) {
-        const vk::Result result{
-            vmaFlushAllocation(m_allocator.get(), allocation, 0, vk::WholeSize)
-        };
-        vk::resultCheck(result, "vmaFlushAllocation failed");
-    }
-
-    return MappedBuffer{ buffer, allocation, m_allocator.get() };
+    return Buffer{ m_allocator.get(), allocation, buffer, buffer_create_info.size };
 }
 
 auto Allocator::allocate_image(
@@ -371,7 +191,7 @@ auto Allocator::allocate_image(
     ) };
     vk::resultCheck(result, "vmaCreateImage failed");
 
-    return renderer::Image(image, allocation, m_allocator.get());
+    return Image(image, allocation, m_allocator.get());
 }
 
 }   // namespace core::renderer

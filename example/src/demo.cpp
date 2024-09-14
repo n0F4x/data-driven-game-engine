@@ -2,7 +2,6 @@
 
 #include <atomic>
 #include <future>
-#include <mutex>
 #include <thread>
 
 #include <core/window/events.hpp>
@@ -16,16 +15,13 @@
 #include "DemoRenderer.hpp"
 
 using namespace entt::literals;
-using namespace core;
 
 auto demo::run(App app, const ModelInfo& model_info) -> int
 {
-    return DemoRenderer::create(
-               app.resources, model_info.filepath, model_info.fragment_shader
-    )
+    return DemoRenderer::create(app.resources, model_info.filepath)
         .transform([&](DemoRenderer demo) {
             demo.swapchain.get().on_swapchain_recreated(
-                [&demo](const renderer::Swapchain& swapchain) {
+                [&demo](const core::renderer::Swapchain& swapchain) {
                     demo.depth_image.reset();
                     demo.depth_image = init::create_depth_image(
                         demo.device.get().physical_device(),
@@ -35,7 +31,7 @@ auto demo::run(App app, const ModelInfo& model_info) -> int
                 }
             );
             demo.swapchain.get().on_swapchain_recreated(
-                [&demo](const renderer::Swapchain&) {
+                [&demo](const core::renderer::Swapchain&) {
                     demo.depth_image_view.reset();
                     demo.depth_image_view = init::create_depth_image_view(
                         demo.device, demo.depth_image.get()
@@ -43,7 +39,7 @@ auto demo::run(App app, const ModelInfo& model_info) -> int
                 }
             );
             demo.swapchain.get().on_swapchain_recreated(
-                [&demo](const renderer::Swapchain& swapchain) {
+                [&demo](const core::renderer::Swapchain& swapchain) {
                     demo.framebuffers.clear();
                     demo.framebuffers = init::create_framebuffers(
                         demo.device.get().get(),
@@ -56,26 +52,28 @@ auto demo::run(App app, const ModelInfo& model_info) -> int
             );
 
             bool  running{ true };
-            auto& window{ app.resources.at<window::Window>() };
+            auto& window{ app.resources.at<core::window::Window>() };
 
-            window.set_cursor_mode(window::CursorMode::eDisabled);
+            window.set_cursor_mode(core::window::CursorMode::eDisabled);
             window.set_cursor_position(glm::dvec2{ window.size() } / 2.0);
 
             Controller controller{ model_info.movement_speed };
             bool       reset_mouse{};
 
             std::atomic<vk::Extent2D> framebuffer_size{};
-            window.set_framebuffer_size_callback([&framebuffer_size](Size2i size) {
-                framebuffer_size.store(static_cast<vk::Extent2D>(size));
-            });
+            window.set_framebuffer_size_callback(
+                [&framebuffer_size](const core::Size2i size) {
+                    framebuffer_size.store(static_cast<vk::Extent2D>(size));
+                }
+            );
 
-            graphics::Camera camera;
-            std::mutex       camera_mutex{};
+            core::graphics::Camera camera;
+            std::mutex             camera_mutex{};
 
             auto rendering = std::async(std::launch::async, [&] {
                 while (running) {
                     camera_mutex.lock();
-                    const graphics::Camera render_camera{ camera };
+                    const core::graphics::Camera render_camera{ camera };
                     camera_mutex.unlock();
                     demo.render(framebuffer_size, render_camera);
                 }
@@ -83,7 +81,7 @@ auto demo::run(App app, const ModelInfo& model_info) -> int
 
             std::chrono::time_point last_time{ std::chrono::high_resolution_clock::now() };
             while (running) {
-                window::poll_events();
+                core::window::poll_events();
 
                 const std::chrono::time_point now{
                     std::chrono::high_resolution_clock::now()
@@ -95,16 +93,16 @@ auto demo::run(App app, const ModelInfo& model_info) -> int
                     running = false;
                 }
 
-                if (window.key_pressed(window::eEscape)) {
+                if (window.key_pressed(core::window::eEscape)) {
                     running = false;
                 }
 
-                if (window.key_pressed(window::eLeftControl)) {
-                    window.set_cursor_mode(window::CursorMode::eNormal);
+                if (window.key_pressed(core::window::eLeftControl)) {
+                    window.set_cursor_mode(core::window::CursorMode::eNormal);
                     reset_mouse = true;
                 }
                 else {
-                    window.set_cursor_mode(window::CursorMode::eDisabled);
+                    window.set_cursor_mode(core::window::CursorMode::eDisabled);
 
                     if (!reset_mouse) {
                         controller.update(window, delta_time);

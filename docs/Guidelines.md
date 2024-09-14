@@ -1,9 +1,4 @@
-# Project guidelines
-
-## Compilation
-
-The code must compile with the latest Clang version.
-Please use modern features if possible.
+# Guidelines
 
 ## Style Guide
 
@@ -39,11 +34,6 @@ Please use the following Hungarian notations:
 - Class/Struct Static Variable: s_variable
 - Global Variable: g_variable
 
-### Comments
-
-Make your code self-documenting!  
-Mark each section as seen in the rest of the files.
-
 ### Functions
 
 Use trailing return type.
@@ -64,6 +54,21 @@ The order within public/protected/private parts is the following:
 9. Methods
 
 Declare friend classes as private!
+
+## Coding Guide
+
+### Comments
+
+Make your code self-documenting!
+
+### Namespaces
+
+-   Use global `using namespace` in .cpp files for namespaces that are local to folder. \
+    e.g.: _core/renderer_ -> `using namespace core;`, `using namespace core::renderer`
+
+    Don't use global `using namespace` elsewhere!
+
+-   Use `::` before function calls from global scope
 
 ### Other
 

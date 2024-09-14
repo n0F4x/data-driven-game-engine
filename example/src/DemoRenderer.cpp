@@ -1,43 +1,22 @@
 #include "DemoRenderer.hpp"
 
-#include <spdlog/spdlog.h>
-
 #include <core/gltf/Loader.hpp>
 #include <core/renderer/scene/Builder.hpp>
 #include <core/window/Window.hpp>
 
 #include "demo_init.hpp"
 
-using namespace core;
-
 constexpr static uint32_t g_frame_count{ 1 };
 
 [[nodiscard]]
 static auto load_scene(
-    const renderer::Device&      device,
-    const renderer::Allocator&   allocator,
-    vk::RenderPass               render_pass,
-    gltf::Model&&                model,
-    const std::filesystem::path& fragment_shader_filepath,
-    cache::Cache&                cache
-) -> std::optional<renderer::Scene>
+    const core::renderer::Device&    device,
+    const core::renderer::Allocator& allocator,
+    const vk::RenderPass             render_pass,
+    core::gltf::Model&&              model,
+    core::cache::Cache&              cache
+) -> std::optional<core::renderer::Scene>
 {
-    auto opt_vertex_shader_module{
-        renderer::ShaderModule::create(device.get(), "shaders/model.vert.spv")
-    };
-    if (!opt_vertex_shader_module.has_value()) {
-        SPDLOG_ERROR("Vertex shader could not be created");
-        return std::nullopt;
-    }
-    auto opt_fragment_shader_module{
-        renderer::ShaderModule::create(device.get(), fragment_shader_filepath)
-    };
-    if (!opt_fragment_shader_module.has_value()) {
-        SPDLOG_ERROR("Fragment shader could not be created");
-        return std::nullopt;
-    }
-
-
     auto                                transfer_command_pool{ init::create_command_pool(
         device.get(), device.info().get_queue_index(vkb::QueueType::graphics).value()
     ) };
@@ -51,19 +30,8 @@ static auto load_scene(
     };
 
     auto packaged_scene{
-        renderer::Scene::create()
-            .add_model(
-                cache::make_handle<gltf::Model>(std::move(model)),
-                renderer::Effect{
-                                 renderer::Shader{ cache::make_handle<renderer::ShaderModule>(
-                                 std::move(opt_vertex_shader_module.value())
-                                 ),
-                                 "main" },
-                                 renderer::Shader{ cache::make_handle<renderer::ShaderModule>(
-                                 std::move(opt_fragment_shader_module.value())
-                                 ),
-                                 "main" } }
-            )
+        core::renderer::Scene::create()
+            .add_model(core::cache::make_handle<const core::gltf::Model>(std::move(model)))
             .set_cache(cache)
             .build(device.get(), allocator, render_pass)
     };
@@ -89,18 +57,15 @@ static auto load_scene(
     return packaged_scene.get_future().get();
 }
 
-auto DemoRenderer::create(
-    Store&                       store,
-    const std::filesystem::path& model_filepath,
-    const std::filesystem::path& fragment_shader_filepath
-) -> std::optional<DemoRenderer>
+auto DemoRenderer::create(Store& store, const std::filesystem::path& model_filepath)
+    -> std::optional<DemoRenderer>
 {
-    auto&       cache{ store.at<cache::Cache>() };
-    const auto& window{ store.at<window::Window>() };
-    const auto& device{ store.at<renderer::Device>() };
-    const auto& allocator{ store.at<renderer::Allocator>() };
+    auto&       cache{ store.at<core::cache::Cache>() };
+    const auto& window{ store.at<core::window::Window>() };
+    const auto& device{ store.at<core::renderer::Device>() };
+    const auto& allocator{ store.at<core::renderer::Allocator>() };
 
-    auto& swapchain{ store.at<renderer::SwapchainHolder>() };
+    auto& swapchain{ store.at<core::renderer::SwapchainHolder>() };
     swapchain.set_framebuffer_size(static_cast<vk::Extent2D>(window.framebuffer_size()));
     if (!swapchain.get().has_value()) {
         return std::nullopt;
@@ -172,12 +137,7 @@ auto DemoRenderer::create(
     }
 
     auto opt_scene{ load_scene(
-        device,
-        allocator,
-        render_pass.get(),
-        std::move(opt_model.value()),
-        fragment_shader_filepath,
-        cache
+        device, allocator, render_pass.get(), std::move(opt_model.value()), cache
     ) };
     if (!opt_scene.has_value()) {
         return std::nullopt;
@@ -307,7 +267,7 @@ auto DemoRenderer::record_command_buffer(
         50.f,
         static_cast<float>(swapchain_extent.width)
             / static_cast<float>(swapchain_extent.height),
-        0.1f,
+        0.01f,
         10000.f
     );
 

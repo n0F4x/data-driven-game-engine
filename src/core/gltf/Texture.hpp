@@ -26,10 +26,10 @@ struct Sampler {
         eRepeat
     };
 
-    std::optional<MagFilter> mag_filter;
-    std::optional<MinFilter> min_filter;
-    WrapMode                 wrap_s{ WrapMode::eRepeat };
-    WrapMode                 wrap_t{ WrapMode::eRepeat };
+    MagFilter mag_filter{ MagFilter::eLinear };
+    MinFilter min_filter{ MinFilter::eLinear };
+    WrapMode  wrap_s{ WrapMode::eRepeat };
+    WrapMode  wrap_t{ WrapMode::eRepeat };
 };
 
 struct Texture {

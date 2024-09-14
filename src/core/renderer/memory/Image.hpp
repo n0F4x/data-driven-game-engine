@@ -6,18 +6,20 @@
 
 namespace core::renderer {
 
+class Allocator;
+
+}   // namespace core::renderer
+
+namespace core::renderer {
+
 class Image {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-    explicit Image(
-        vk::Image     image,
-        VmaAllocation allocation,
-        VmaAllocator  allocator
-    ) noexcept;
-    Image(const Image&) = delete;
-    Image(Image&&) noexcept;
+     Image()             = default;
+     Image(const Image&) = delete;
+     Image(Image&&) noexcept;
     ~Image() noexcept;
 
     ///-------------///
@@ -39,12 +41,16 @@ public:
     auto reset() noexcept -> void;
 
 private:
+    friend Allocator;
     ///*************///
     ///  Variables  ///
     ///*************///
     vk::Image     m_image;
-    VmaAllocation m_allocation;
-    VmaAllocator  m_allocator;
+    VmaAllocation m_allocation{};
+    VmaAllocator  m_allocator{};
+
+    explicit
+        Image(vk::Image image, VmaAllocation allocation, VmaAllocator allocator) noexcept;
 };
 
 }   // namespace core::renderer

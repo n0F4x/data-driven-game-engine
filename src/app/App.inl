@@ -2,20 +2,19 @@
 
 #include <core/meta/functional.hpp>
 #include <core/meta/tuple-like.hpp>
+#include <core/store/StoreView.hpp>
 #include <core/utility/tuple.hpp>
 
-#include <core/store/StoreView.hpp>
-
 template <PluginConcept Plugin, typename Self, typename... Args>
-auto App::Builder::append(this Self&& self, Args&&... args) -> Self
+auto App::Builder::use(this Self&& self, Args&&... args) -> Self
 {
-    return std::forward<Self>(self).append(
+    return std::forward<Self>(self).use(
         std::remove_cvref_t<Plugin>(std::forward<Args>(args)...)
     );
 }
 
 template <PluginConcept Plugin, typename Self>
-auto App::Builder::append(this Self&& self, Plugin&& plugin) -> Self
+auto App::Builder::use(this Self&& self, Plugin&& plugin) -> Self
 {
     if constexpr (requires(Plugin t, StoreView plugins) { t.setup(plugins); }) {
         plugin.setup(StoreView{ self.m_plugins });
@@ -30,16 +29,16 @@ auto App::Builder::append(this Self&& self, Plugin&& plugin) -> Self
     return std::forward<Self>(self);
 }
 
-template <PluginGroupConcept PluginGroup, typename Self, typename... Args>
-auto App::Builder::append_group(this Self&& self, Args&&... args) -> Self
+template <ModifierConcept Modifier, typename Self, typename... Args>
+auto App::Builder::apply(this Self&& self, Args&&... args) -> Self
 {
-    return std::forward<Self>(self).append_group(PluginGroup(std::forward<Args>(args)...));
+    return std::forward<Self>(self).use_group(Modifier(std::forward<Args>(args)...));
 }
 
-template <PluginGroupConcept PluginGroup, typename Self>
-auto App::Builder::append_group(this Self&& self, PluginGroup&& plugin_group) -> Self
+template <ModifierConcept Modifier, typename Self>
+auto App::Builder::apply(this Self&& self, Modifier&& plugin_group) -> Self
 {
-    std::invoke(std::forward<PluginGroup>(plugin_group), self);
+    std::invoke(std::forward<Modifier>(plugin_group), self);
 
     return std::forward<Self>(self);
 }
@@ -60,7 +59,7 @@ template <typename Plugin>
 auto gather_resources(App& app)
 {
     using RequiredResourcesTuple = decltype(core::utils::remove_first(
-        std::declval<typename core::meta::arguments_t<Plugin>>()
+        std::declval<core::meta::arguments_t<Plugin>>()
     ));
     return core::utils::generate_tuple<RequiredResourcesTuple>(
         [&app]<typename Resource>() -> Resource {

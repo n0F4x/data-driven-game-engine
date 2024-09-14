@@ -2,7 +2,7 @@
 
 ## Toolchain
 
-The project is required to compile using Clang version 18 with libc++ AND GCC version 14 with libstc++.
+The project is required to compile using Clang version 18 with libc++.
 
 Support for other setups are not a priority until a planned release.
 

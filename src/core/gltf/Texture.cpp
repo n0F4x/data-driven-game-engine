@@ -4,7 +4,7 @@ namespace core::gltf {
 
 auto TextureInfo::create(const fastgltf::TextureInfo& source) -> TextureInfo
 {
-    return core::gltf::TextureInfo{
+    return TextureInfo{
         .texture_index   = static_cast<uint32_t>(source.textureIndex),
         .tex_coord_index = static_cast<uint32_t>(source.texCoordIndex),
     };

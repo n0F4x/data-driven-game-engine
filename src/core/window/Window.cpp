@@ -7,11 +7,13 @@
 
 #include "core/config/vulkan.hpp"
 
+using namespace core;
+
 static auto init_glfw() -> void
 {
     glfwSetErrorCallback([](int, const char* description) { SPDLOG_ERROR(description); });
 
-    glfwInitVulkanLoader(core::config::vulkan::dispatcher().vkGetInstanceProcAddr);
+    glfwInitVulkanLoader(config::vulkan::dispatcher().vkGetInstanceProcAddr);
 
     if (const int success{ glfwInit() }; success != GLFW_TRUE) {
         const char* description{};
@@ -56,8 +58,8 @@ auto Window::vulkan_instance_extensions()
 }
 
 [[nodiscard]]
-static auto
-    create_window(const Size2i& size, const gsl_lite::czstring title) -> GLFWwindow*
+static auto create_window(const Size2i& size, const gsl_lite::czstring title)
+    -> GLFWwindow*
 {
     init_glfw();
 

@@ -9,9 +9,9 @@ namespace core::renderer {
 class Shader {
 public:
     explicit Shader(
-        const cache::Handle<ShaderModule>& shader_module,
-        std::string                        entry_point
-    ) noexcept;
+        cache::Handle<const ShaderModule> shader_module,
+        std::string                       entry_point = "main"
+    );
 
     [[nodiscard]]
     auto filepath() const noexcept -> const std::filesystem::path&;
@@ -21,8 +21,8 @@ public:
     auto entry_point() const noexcept -> const std::string&;
 
 private:
-    cache::Handle<ShaderModule> m_module;
-    std::string                 m_entry_point;
+    cache::Handle<const ShaderModule> m_module;
+    std::string                       m_entry_point;
 
     friend auto hash_value(const Shader& shader) noexcept -> size_t;
 };

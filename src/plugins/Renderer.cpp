@@ -84,7 +84,7 @@ auto RendererPlugin::framebuffer_size_getter() const noexcept
 
 auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
 {
-    app_builder.append(
+    app_builder.use(
         InstancePlugin{}
             .emplace_dependency(InstancePlugin::Dependency{
                 .enable_instance_settings =
@@ -103,9 +103,9 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
             )
     );
 
-    app_builder.append<SurfacePlugin>(m_surface_plugin);
+    app_builder.use<SurfacePlugin>(m_surface_plugin);
 
-    app_builder.append(
+    app_builder.use(
         DevicePlugin{}
             .emplace_dependency(
                 core::renderer::Allocator::Requirements::require_device_settings,
@@ -115,11 +115,11 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
                 core::renderer::Swapchain::Requirements::require_device_settings
             )
             .emplace_dependency(
-                core::renderer::RenderModel::Requirements::require_device_settings
+                core::renderer::ModelLayout::Requirements::require_device_settings
             )
     );
 
-    app_builder.append([create_framebuffer_size_getter = m_create_framebuffer_size_getter](
+    app_builder.use([create_framebuffer_size_getter = m_create_framebuffer_size_getter](
                            App&                          app,
                            const vk::UniqueSurfaceKHR&   surface,
                            const core::renderer::Device& device
@@ -133,7 +133,7 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
         );
     });
 
-    app_builder.append([](App&                            app,
+    app_builder.use([](App&                            app,
                           const core::renderer::Instance& instance,
                           const core::renderer::Device&   device) {
         app.resources.emplace<core::renderer::Allocator>(instance, device);

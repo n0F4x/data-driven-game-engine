@@ -9,7 +9,6 @@ namespace demo {
 struct ModelInfo {
     std::filesystem::path filepath;
     float                 movement_speed{ 5.f };
-    std::filesystem::path fragment_shader{ "shaders/pbr.frag.spv" };
 };
 
 auto run(App app, const ModelInfo& model_info) -> int;

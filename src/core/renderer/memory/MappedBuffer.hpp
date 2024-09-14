@@ -1,17 +1,13 @@
 #pragma once
 
-#include "Buffer.hpp"
+#include "SeqWriteBuffer.hpp"
 
 namespace core::renderer {
 
-class MappedBuffer : public Buffer {
+template <typename T>
+class RandomAccessBuffer : public SeqWriteBuffer<T> {
 public:
-    using Buffer::Buffer;
-
-    template <typename T>
-    auto set(const T& data) const -> void;
+    using SeqWriteBuffer<T>::SeqWriteBuffer;
 };
 
 }   // namespace core::renderer
-
-#include "MappedBuffer.inl"

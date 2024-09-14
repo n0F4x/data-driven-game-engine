@@ -2,13 +2,15 @@
 
 #include "core/utility/hashing.hpp"
 
+using namespace core::renderer;
+
 namespace core::renderer {
 
 Shader::Shader(
-    const cache::Handle<ShaderModule>& shader_module,
-    std::string                        entry_point
-) noexcept
-    : m_module{ shader_module },
+    cache::Handle<const ShaderModule> shader_module,
+    std::string                       entry_point
+)
+    : m_module{ std::move(shader_module) },
       m_entry_point{ std::move(entry_point) }
 {}
 
@@ -35,8 +37,7 @@ auto hash_value(const Shader& shader) noexcept -> size_t
 
 }   // namespace core::renderer
 
-auto std::hash<core::renderer::Shader>::operator()(const core::renderer::Shader& shader
-) const noexcept -> size_t
+auto std::hash<Shader>::operator()(const Shader& shader) const noexcept -> size_t
 {
-    return core::renderer::hash_value(shader);
+    return hash_value(shader);
 }

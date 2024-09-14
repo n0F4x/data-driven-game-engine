@@ -14,13 +14,13 @@ auto Model::hash(
 
 auto Model::default_sampler() -> const Sampler&
 {
-    static const Sampler s_default_sampler{};
+    constexpr static Sampler s_default_sampler{};
     return s_default_sampler;
 }
 
 auto Model::default_material() -> const Material&
 {
-    static const Material s_default_material{};
+    constexpr static Material s_default_material{};
     return s_default_material;
 }
 

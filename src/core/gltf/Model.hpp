@@ -1,14 +1,11 @@
 #pragma once
 
 #include <filesystem>
-#include <memory>
 #include <optional>
 #include <vector>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-
-#include <fastgltf/core.hpp>
 
 #include "core/gltf/extensions/SpecularGlossiness.hpp"
 
@@ -25,8 +22,8 @@ class Loader;
 class Model {
 public:
     struct Vertex {
-        glm::vec4 position{};
-        glm::vec4 normal{};
+        glm::vec3 position{};
+        glm::vec3 normal{};
         glm::vec4 tangent{};
         glm::vec2 uv_0{};
         glm::vec2 uv_1{};

@@ -1,6 +1,7 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        Effect.cpp
+        Program.cpp
         GraphicsPipelineBuilder.cpp
         Shader.cpp
         ShaderModule.cpp
+        VertexLayout.cpp
 )

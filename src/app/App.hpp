@@ -37,7 +37,7 @@ concept PluginConcept = requires(Plugin&& plugin, App& app) {
 };
 
 template <typename PluginGroup>
-concept PluginGroupConcept = requires(PluginGroup&& plugin_group, App::Builder& builder) {
+concept ModifierConcept = requires(PluginGroup&& plugin_group, App::Builder& builder) {
     std::invoke(std::forward<PluginGroup>(plugin_group), builder);
 };
 
@@ -47,14 +47,14 @@ concept RunnerConcept = std::invocable<Runner&&, App&&, Args&&...>;
 class App::Builder {
 public:
     template <PluginConcept Plugin, typename Self, typename... Args>
-    auto append(this Self&&, Args&&... args) -> Self;
+    auto use(this Self&&, Args&&... args) -> Self;
     template <PluginConcept Plugin, typename Self>
-    auto append(this Self&&, Plugin&& plugin) -> Self;
+    auto use(this Self&&, Plugin&& plugin) -> Self;
 
-    template <PluginGroupConcept PluginGroup, typename Self, typename... Args>
-    auto append_group(this Self&&, Args&&... args) -> Self;
-    template <PluginGroupConcept PluginGroup, typename Self>
-    auto append_group(this Self&&, PluginGroup&& plugin_group) -> Self;
+    template <ModifierConcept Modifier, typename Self, typename... Args>
+    auto apply(this Self&&, Args&&... args) -> Self;
+    template <ModifierConcept Modifier, typename Self>
+    auto apply(this Self&&, Modifier&& plugin_group) -> Self;
 
     [[nodiscard]]
     auto build() -> App;

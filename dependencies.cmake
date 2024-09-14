@@ -92,7 +92,7 @@ set(FASTGLTF_ENABLE_DEPRECATED_EXT ON)
 set(FASTGLTF_COMPILE_AS_CPP20 ON)
 FetchContent_Declare(fastgltf
         GIT_REPOSITORY https://github.com/spnda/fastgltf.git
-        GIT_TAG v0.8.0
+        GIT_TAG c462eaf7114f16a977afe84d0a4590b33091a33f # after v0.8.0
         SYSTEM
 )
 FetchContent_MakeAvailable(fastgltf)

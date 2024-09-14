@@ -2,11 +2,11 @@
 
 #include <VkBootstrap.h>
 
-#include "RenderModel.hpp"
+#include "ModelLayout.hpp"
 
 namespace core::renderer {
 
-class RenderModel::Requirements {
+class ModelLayout::Requirements {
 public:
     [[nodiscard]]
     static auto required_instance_settings_are_available(const vkb::SystemInfo& system_info
@@ -14,15 +14,15 @@ public:
 
     static auto enable_instance_settings(
         const vkb::SystemInfo& system_info,
-        vkb::InstanceBuilder&  builder
+        vkb::InstanceBuilder&  instance_builder
     ) -> void;
 
     static auto
-        require_device_settings(vkb::PhysicalDeviceSelector& physical_device_selector
-        ) -> void;
+        require_device_settings(vkb::PhysicalDeviceSelector& physical_device_selector)
+            -> void;
 
-    static auto enable_optional_device_settings(vkb::PhysicalDevice& physical_device
-    ) -> void;
+    static auto enable_optional_device_settings(vkb::PhysicalDevice& physical_device)
+        -> void;
 };
 
 }   // namespace core::renderer

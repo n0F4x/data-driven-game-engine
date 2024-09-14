@@ -1,11 +1,11 @@
 #pragma once
 
-#include <gsl-lite/gsl-lite.hpp>
+#include <memory>
 
 namespace core::cache {
 
 template <typename Resource>
-using Handle = gsl_lite::not_null_ic<std::shared_ptr<Resource>>;
+using Handle = std::shared_ptr<Resource>;
 
 template <typename Resource>
 [[nodiscard]]

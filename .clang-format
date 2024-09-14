@@ -20,6 +20,11 @@ AlignConsecutiveDeclarations:
   AcrossEmptyLines: false
   AcrossComments: true
 AlignConsecutiveMacros: Consecutive
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  AlignCaseColons: false
 AlignEscapedNewlines: Left
 AlignOperands: AlignAfterOperator
 AlignTrailingComments:
@@ -27,8 +32,10 @@ AlignTrailingComments:
   OverEmptyLines: 1
 AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: false
+AllowBreakBeforeNoexceptSpecifier: Always
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: true
+# AllowShortCompoundRequirementOnASingleLine: true
 AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
@@ -41,6 +48,7 @@ AttributeMacros: [ ]
 BinPackArguments: false
 BinPackParameters: false
 BitFieldColonSpacing: Both
+BracedInitializerIndentWidth: 4
 BraceWrapping:
   AfterCaseLabel: false
   AfterClass: false
@@ -59,6 +67,7 @@ BraceWrapping:
   IndentBraces: false
   SplitEmptyFunction: false
   SplitEmptyNamespace: true
+# BreakAdjacentStringLiterals: false
 BreakAfterAttributes: Always
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
@@ -141,6 +150,7 @@ IntegerLiteralSeparator:
   Decimal: 3
   Hex: 2
 KeepEmptyLinesAtTheStartOfBlocks: false
+KeepEmptyLinesAtEOF: true
 LambdaBodyIndentation: Signature
 LineEnding: LF
 MacroBlockBegin: ''
@@ -155,9 +165,10 @@ PenaltyBreakBeforeFirstCallParameter: 0
 PenaltyBreakComment: 0
 PenaltyBreakFirstLessLess: 0
 PenaltyBreakOpenParenthesis: 0
+# PenaltyBreakScopeResolution: 80
 PenaltyBreakString: 50
 PenaltyBreakTemplateDeclaration: 0
-PenaltyExcessCharacter: 50
+PenaltyExcessCharacter: 10
 PenaltyIndentedWhitespace: 0
 PenaltyReturnTypeOnItsOwnLine: 100
 PointerAlignment: Left
@@ -168,11 +179,13 @@ RawStringFormats:
 ReferenceAlignment: Pointer
 ReflowComments: true
 RemoveBracesLLVM: false
-RemoveSemicolon: false
+RemoveParentheses: MultipleParentheses
+RemoveSemicolon: true
 RequiresClausePosition: OwnLine
 RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Always
 ShortNamespaceLines: 0
+# SkipMacroDefinitionBody: true
 SortIncludes: CaseInsensitive
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
@@ -197,17 +210,14 @@ SpaceBeforeParensOptions:
   BeforeNonEmptyParentheses: false
 SpaceBeforeRangeBasedForLoopColon: true
 SpaceBeforeSquareBrackets: false
-SpaceInEmptyBlock: false
-SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 3
+SpaceInEmptyBlock: false
 SpacesInAngles: Never
-SpacesInCStyleCastParentheses: false
-SpacesInConditionalStatement: false
 SpacesInContainerLiterals: false
 SpacesInLineCommentPrefix:
   Minimum: 1
   Maximum: -1
-SpacesInParentheses: false
+SpacesInParens: Never
 SpacesInSquareBrackets: false
 Standard: Latest
 StatementAttributeLikeMacros: [ ]

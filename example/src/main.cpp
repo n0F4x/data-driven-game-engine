@@ -1,9 +1,9 @@
 #include <iostream>
+#include <source_location>
 
 #include <app.hpp>
+#include <core/cache/Cache.hpp>
 #include <plugins.hpp>
-
-#include "core/cache/Cache.hpp"
 
 #include "demo.hpp"
 
@@ -12,27 +12,31 @@ try {
     spdlog::set_level(spdlog::level::trace);
 
     const demo::ModelInfo model_info{
-        //        "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
-        //        "models/Avocado/glTF-Binary/Avocado.glb",
-        "models/FlightHelmet/FlightHelmetUastc.gltf",
-        //        "models/DamagedHelmet.glb",
-        //        "models/Sponza/glTF/Sponza.gltf",
-        //        "models/SponzaKTX2/SponzaUastc.gltf",
-        5,
-        "shaders/pbr.frag.spv"
+        std::filesystem::path{ std::source_location::current().file_name() }
+                .parent_path()
+                .parent_path()
+            /
+            // "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
+            // "models/Avocado/glTF-Binary/Avocado.glb",
+            // "models/PrimitiveModeNormalsTest/glTF/PrimitiveModeNormalsTest.gltf",
+            // "models/FlightHelmet/FlightHelmetUastc.gltf",
+            // "models/DamagedHelmet.glb",
+            "models/Sponza/glTF/Sponza.gltf",
+        // "models/StainedGlassLamp/glTF-KTX-BasisU/StainedGlassLamp.gltf",
+        5
     };
 
     return App::create()
-        .append([](App& app) {
+        .use([](App& app) {
             app.resources.emplace<core::cache::Cache>();
     })
-        .append(plugins::Window{ .size = { 1'280, 720 }, .title = "My window" })
-        .append_group(plugins::Renderer{}.require_vulkan_version(1, 1))
+        .use(plugins::Window{ .size = { 1'280, 720 }, .title = "My window" })
+        .apply(plugins::Renderer{}.require_vulkan_version(1, 1))
         .run(demo::run, model_info);
+
 } catch (const std::exception& error) {
     try {
-        // TODO: use std::println
-        std::cout << error.what();
+        std::println("{}", error.what());
     } catch (...) {
         return -1;
     }

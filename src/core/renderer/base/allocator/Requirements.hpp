@@ -1,5 +1,7 @@
 #pragma once
 
+#include <VkBootstrap.h>
+
 #include "Allocator.hpp"
 
 namespace core::renderer {
@@ -16,11 +18,11 @@ public:
     ) -> void;
 
     static auto
-        require_device_settings(vkb::PhysicalDeviceSelector& physical_device_selector
-        ) -> void;
+        require_device_settings(vkb::PhysicalDeviceSelector& physical_device_selector)
+            -> void;
 
-    static auto enable_optional_device_settings(vkb::PhysicalDevice& physical_device
-    ) -> void;
+    static auto enable_optional_device_settings(vkb::PhysicalDevice& physical_device)
+        -> void;
 };
 
 }   // namespace core::renderer

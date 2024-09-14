@@ -1,23 +1,30 @@
 #include "GraphicsPipelineBuilder.hpp"
 
+#include <ranges>
+
 #include <vulkan/vulkan_hash.hpp>
 
 #include "core/utility/hashing.hpp"
 
+using namespace core::renderer;
+
 namespace core::renderer {
 
-GraphicsPipelineBuilder::GraphicsPipelineBuilder(
-    Effect                                              effect,
-    std::optional<std::reference_wrapper<cache::Cache>> cache
-) noexcept
-    : m_cache{ cache },
-      m_effect{ std::move(effect) }
+GraphicsPipelineBuilder::GraphicsPipelineBuilder(Program program) noexcept
+    : m_program{ std::move(program) }
 {}
 
-auto GraphicsPipelineBuilder::set_effect(Effect effect
-) noexcept -> GraphicsPipelineBuilder&
+auto GraphicsPipelineBuilder::set_program(Program program) noexcept
+    -> GraphicsPipelineBuilder&
 {
-    m_effect = std::move(effect);
+    m_program = std::move(program);
+    return *this;
+}
+
+auto GraphicsPipelineBuilder::add_vertex_layout(VertexLayout vertex_layout)
+    -> GraphicsPipelineBuilder&
+{
+    m_vertex_layouts.push_back(std::move(vertex_layout));
     return *this;
 }
 
@@ -29,8 +36,8 @@ auto GraphicsPipelineBuilder::set_primitive_topology(
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_cull_mode(const vk::CullModeFlags cull_mode
-) noexcept -> GraphicsPipelineBuilder&
+auto GraphicsPipelineBuilder::set_cull_mode(const vk::CullModeFlags cull_mode) noexcept
+    -> GraphicsPipelineBuilder&
 {
     m_cull_mode = cull_mode;
     return *this;
@@ -48,15 +55,15 @@ auto GraphicsPipelineBuilder::disable_blending() noexcept -> GraphicsPipelineBui
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_layout(const vk::PipelineLayout layout
-) noexcept -> GraphicsPipelineBuilder&
+auto GraphicsPipelineBuilder::set_layout(const vk::PipelineLayout layout) noexcept
+    -> GraphicsPipelineBuilder&
 {
     m_layout = layout;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass render_pass
-) noexcept -> GraphicsPipelineBuilder&
+auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass render_pass) noexcept
+    -> GraphicsPipelineBuilder&
 {
     m_render_pass = render_pass;
     return *this;
@@ -64,9 +71,44 @@ auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass render_pass
 
 auto GraphicsPipelineBuilder::build(const vk::Device device) const -> vk::UniquePipeline
 {
-    // TODO: allow vertex input states
-    constexpr static vk::PipelineVertexInputStateCreateInfo
-        vertex_input_state_create_info{};
+    std::array pipeline_stages{ m_program.pipeline_stages() };
+
+    const std::vector<vk::VertexInputBindingDescription> vertex_input_binding_descriptions{
+        std::views::zip(m_vertex_layouts, std::views::iota(0u, m_vertex_layouts.size()))
+        | std::views::transform([](const std::pair<const VertexLayout&, uint32_t> pack) {
+              auto [vertex_layout, index]{ pack };
+              return vk::VertexInputBindingDescription{
+                  .binding   = index,
+                  .stride    = vertex_layout.stride(),
+                  .inputRate = vertex_layout.input_rate(),
+              };
+          })
+        | std::ranges::to<std::vector>()
+    };
+    const std::vector<vk::VertexInputAttributeDescription> vertex_input_attribute_descriptions{
+        std::views::zip(m_vertex_layouts, std::views::iota(0u, m_vertex_layouts.size()))
+        | std::views::transform([](const std::pair<const VertexLayout&, uint32_t> pack) {
+              auto [vertex_layout, index]{ pack };
+              return vertex_layout.attributes()
+                   | std::views::transform([index](const VertexAttribute& attribute) {
+                         return vk::VertexInputAttributeDescription{
+                             .location = attribute.location,
+                             .binding  = index,
+                             .format   = attribute.format,
+                             .offset   = attribute.offset,
+                         };
+                     });
+          })
+        | std::views::join | std::ranges::to<std::vector>()
+    };
+    const vk::PipelineVertexInputStateCreateInfo vertex_input_state_create_info{
+        .vertexBindingDescriptionCount =
+            static_cast<uint32_t>(vertex_input_binding_descriptions.size()),
+        .pVertexBindingDescriptions = vertex_input_binding_descriptions.data(),
+        .vertexAttributeDescriptionCount =
+            static_cast<uint32_t>(vertex_input_attribute_descriptions.size()),
+        .pVertexAttributeDescriptions = vertex_input_attribute_descriptions.data(),
+    };
 
     const vk::PipelineInputAssemblyStateCreateInfo input_assembly_state_create_info{
         .topology = m_primitive_topology
@@ -88,15 +130,15 @@ auto GraphicsPipelineBuilder::build(const vk::Device device) const -> vk::Unique
     };
 
     constexpr vk::PipelineDepthStencilStateCreateInfo depth_stencil_state_create_info{
-        .depthTestEnable       = true,
-        .depthWriteEnable      = true,
+        .depthTestEnable       = vk::True,
+        .depthWriteEnable      = vk::True,
         .depthCompareOp        = vk::CompareOp::eLess,
-        .depthBoundsTestEnable = false,
-        .stencilTestEnable     = false,
+        .depthBoundsTestEnable = vk::False,
+        .stencilTestEnable     = vk::False,
     };
 
     vk::PipelineColorBlendAttachmentState color_blend_attachment_state{
-        .blendEnable    = m_enable_blending,
+        .blendEnable    = static_cast<vk::Bool32>(m_enable_blending),
         .colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
                         | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA,
     };
@@ -110,7 +152,7 @@ auto GraphicsPipelineBuilder::build(const vk::Device device) const -> vk::Unique
         color_blend_attachment_state.dstAlphaBlendFactor = vk::BlendFactor::eZero;
         color_blend_attachment_state.alphaBlendOp        = vk::BlendOp::eAdd;
     }
-    vk::PipelineColorBlendStateCreateInfo color_blend_state_create_info{
+    const vk::PipelineColorBlendStateCreateInfo color_blend_state_create_info{
         .attachmentCount = 1,
         .pAttachments    = &color_blend_attachment_state,
     };
@@ -123,8 +165,8 @@ auto GraphicsPipelineBuilder::build(const vk::Device device) const -> vk::Unique
     };
 
     const vk::GraphicsPipelineCreateInfo create_info{
-        .stageCount          = static_cast<uint32_t>(m_effect.pipeline_stages().size()),
-        .pStages             = m_effect.pipeline_stages().data(),
+        .stageCount          = static_cast<uint32_t>(pipeline_stages.size()),
+        .pStages             = pipeline_stages.data(),
         .pVertexInputState   = &vertex_input_state_create_info,
         .pInputAssemblyState = &input_assembly_state_create_info,
         .pViewportState      = &viewport_state_create_info,
@@ -141,11 +183,11 @@ auto GraphicsPipelineBuilder::build(const vk::Device device) const -> vk::Unique
 }
 
 [[nodiscard]]
-auto hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder
-) noexcept -> size_t
+auto hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder) noexcept
+    -> size_t
 {
     return hash_combine(
-        graphics_pipeline_builder.m_effect,
+        graphics_pipeline_builder.m_program,
         graphics_pipeline_builder.m_primitive_topology,
         graphics_pipeline_builder.m_cull_mode,
         graphics_pipeline_builder.m_enable_blending,
@@ -156,9 +198,9 @@ auto hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder
 
 }   // namespace core::renderer
 
-auto std::hash<core::renderer::GraphicsPipelineBuilder>::operator()(
-    const core::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
+auto std::hash<GraphicsPipelineBuilder>::operator()(
+    const GraphicsPipelineBuilder& graphics_pipeline_builder
 ) const noexcept -> size_t
 {
-    return core::renderer::hash_value(graphics_pipeline_builder);
+    return hash_value(graphics_pipeline_builder);
 }

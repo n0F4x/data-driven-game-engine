@@ -1,9 +1,14 @@
-- use `fastgltf::Asset` instead of `gltf::Model` 
+- use _fpng_ and _libjpeg-turbo_ intead of _stb_image_ 
 - provide a default texture source
 - change image formats before upload
+- use mipmaps
+- rework renderer::Program to support multiple shader types
+- create a system for staging memory
 - build the vulkan validation layers
 - use proper assertions
 - separate logger for debug and actual use
 - let compute queue present according to https://gpuopen.com/learn/rdna-performance-guide/#presenting
 - separate project to multiple libs
 - static job system
+- support raytracing
+- use mesh shaders

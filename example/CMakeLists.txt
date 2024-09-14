@@ -28,5 +28,3 @@ if (engine_debug)
     )
 endif ()
 target_link_libraries(test PRIVATE ${PROJECT_NAME})
-
-add_subdirectory(shaders)
