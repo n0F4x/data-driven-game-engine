@@ -17,9 +17,9 @@ public:
         vkb::InstanceBuilder&  instance_builder
     ) -> void;
 
-    static auto
-        require_device_settings(vkb::PhysicalDeviceSelector& physical_device_selector)
-            -> void;
+    static auto require_device_settings(
+        vkb::PhysicalDeviceSelector& physical_device_selector
+    ) -> void;
 
     static auto enable_optional_device_settings(vkb::PhysicalDevice& physical_device)
         -> void;

@@ -164,11 +164,11 @@ PenaltyBreakAssignment: 50
 PenaltyBreakBeforeFirstCallParameter: 0
 PenaltyBreakComment: 0
 PenaltyBreakFirstLessLess: 0
-PenaltyBreakOpenParenthesis: 0
+PenaltyBreakOpenParenthesis: 20
 # PenaltyBreakScopeResolution: 80
 PenaltyBreakString: 50
 PenaltyBreakTemplateDeclaration: 0
-PenaltyExcessCharacter: 10
+PenaltyExcessCharacter: 50
 PenaltyIndentedWhitespace: 0
 PenaltyReturnTypeOnItsOwnLine: 100
 PointerAlignment: Left

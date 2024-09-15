@@ -1,5 +1,7 @@
 #pragma once
 
+#include <span>
+
 namespace vk {
 
 enum class Format;

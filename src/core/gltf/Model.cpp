@@ -69,9 +69,4 @@ auto Model::root_node_indices() const noexcept -> const std::vector<size_t>&
     return m_root_node_indices;
 }
 
-auto Model::extensions() const noexcept -> const Extensions&
-{
-    return m_extensions;
-}
-
 }   // namespace core::gltf

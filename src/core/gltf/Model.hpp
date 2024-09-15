@@ -7,8 +7,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "core/gltf/extensions/SpecularGlossiness.hpp"
-
 #include "Image.hpp"
 #include "Material.hpp"
 #include "Mesh.hpp"
@@ -28,10 +26,6 @@ public:
         glm::vec2 uv_0{};
         glm::vec2 uv_1{};
         glm::vec4 color{ 1 };
-    };
-
-    struct Extensions {
-        SpecularGlossiness specular_glossiness;
     };
 
     [[nodiscard]]
@@ -64,8 +58,6 @@ public:
     auto nodes() const noexcept -> const std::vector<Node>&;
     [[nodiscard]]
     auto root_node_indices() const noexcept -> const std::vector<size_t>&;
-    [[nodiscard]]
-    auto extensions() const noexcept -> const Extensions&;
 
 private:
     friend Loader;
@@ -79,7 +71,6 @@ private:
     std::vector<Mesh>     m_meshes;
     std::vector<Node>     m_nodes;
     std::vector<size_t>   m_root_node_indices;
-    Extensions            m_extensions;
 };
 
 }   // namespace core::gltf

@@ -1,4 +1,3 @@
-add_subdirectory(extensions)
 add_subdirectory(shaders)
 
 target_sources(${PROJECT_NAME} PRIVATE

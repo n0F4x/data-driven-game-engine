@@ -391,14 +391,6 @@ auto Loader::load_materials(Model& model, const fastgltf::Asset& asset) -> void
     model.m_materials.reserve(asset.materials.size());
     for (const fastgltf::Material& material : asset.materials) {
         model.m_materials.push_back(Material::create(material));
-
-        if (auto specular_glossiness_material{
-                SpecularGlossiness::create_material(material, model.m_materials.size()) })
-        {
-            model.m_extensions.specular_glossiness.materials.push_back(
-                specular_glossiness_material.value()
-            );
-        }
     }
 }
 

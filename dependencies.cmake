@@ -88,7 +88,6 @@ find_package(Stb REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Stb_INCLUDE_DIR})
 
 # fastgltf
-set(FASTGLTF_ENABLE_DEPRECATED_EXT ON)
 set(FASTGLTF_COMPILE_AS_CPP20 ON)
 FetchContent_Declare(fastgltf
         GIT_REPOSITORY https://github.com/spnda/fastgltf.git
