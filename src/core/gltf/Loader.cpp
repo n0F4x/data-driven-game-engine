@@ -1,6 +1,6 @@
 #include "Loader.hpp"
 
-#include <iostream>
+#include <format>
 #include <ranges>
 
 #include <spdlog/spdlog.h>
@@ -93,14 +93,10 @@ static auto load_image(
                 );
             },
             [&](const fastgltf::sources::Array& array) {
-                return ImageLoader::load_from(
-                    std::span{ array.bytes }, array.mimeType
-                );
+                return ImageLoader::load_from(std::span{ array.bytes }, array.mimeType);
             },
             [&](const fastgltf::sources::Vector& vector) {
-                return ImageLoader::load_from(
-                    std::span{ vector.bytes }, vector.mimeType
-                );
+                return ImageLoader::load_from(std::span{ vector.bytes }, vector.mimeType);
             },
         },
         image.data
@@ -120,8 +116,8 @@ static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> filter)
     using enum fastgltf::Filter;
     switch (filter.value()) {
         case Nearest: return eNearest;
-        case Linear: return eLinear;
-        default: std::unreachable();
+        case Linear:  return eLinear;
+        default:      std::unreachable();
     }
 }
 
@@ -137,12 +133,12 @@ static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> filter)
 
     using enum fastgltf::Filter;
     switch (filter.value()) {
-        case Nearest: return eNearest;
-        case Linear: return eLinear;
+        case Nearest:              return eNearest;
+        case Linear:               return eLinear;
         case NearestMipMapNearest: return eNearestMipmapNearest;
-        case LinearMipMapNearest: return eLinearMipmapNearest;
-        case NearestMipMapLinear: return eNearestMipmapLinear;
-        case LinearMipMapLinear: return eLinearMipmapLinear;
+        case LinearMipMapNearest:  return eLinearMipmapNearest;
+        case NearestMipMapLinear:  return eNearestMipmapLinear;
+        case LinearMipMapLinear:   return eLinearMipmapLinear;
     }
     std::unreachable();
 }
@@ -153,9 +149,9 @@ static auto convert(const fastgltf::Wrap wrap) noexcept -> Sampler::WrapMode
     using enum fastgltf::Wrap;
     using enum Sampler::WrapMode;
     switch (wrap) {
-        case ClampToEdge: return eClampToEdge;
+        case ClampToEdge:    return eClampToEdge;
         case MirroredRepeat: return eMirroredRepeat;
-        case Repeat: return eRepeat;
+        case Repeat:         return eRepeat;
     }
     std::unreachable();
 }
@@ -209,13 +205,13 @@ static auto convert(const fastgltf::PrimitiveType topology) noexcept
 {
     using enum Mesh::Primitive::Topology;
     switch (topology) {
-        case fastgltf::PrimitiveType::Points: return ePoints;
-        case fastgltf::PrimitiveType::Lines: return eLines;
-        case fastgltf::PrimitiveType::LineLoop: return eLineLoops;
-        case fastgltf::PrimitiveType::LineStrip: return eLineStrips;
-        case fastgltf::PrimitiveType::Triangles: return eTriangles;
+        case fastgltf::PrimitiveType::Points:        return ePoints;
+        case fastgltf::PrimitiveType::Lines:         return eLines;
+        case fastgltf::PrimitiveType::LineLoop:      return eLineLoops;
+        case fastgltf::PrimitiveType::LineStrip:     return eLineStrips;
+        case fastgltf::PrimitiveType::Triangles:     return eTriangles;
         case fastgltf::PrimitiveType::TriangleStrip: return eTriangleStrips;
-        case fastgltf::PrimitiveType::TriangleFan: return eTriangleFans;
+        case fastgltf::PrimitiveType::TriangleFan:   return eTriangleFans;
     }
     std::unreachable();
 }
@@ -294,8 +290,10 @@ auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optio
     return load_model(filepath, asset.get(), asset->defaultScene.value_or(0));
 }
 
-auto Loader::load_from_file(const std::filesystem::path& filepath, const size_t scene_index)
-    -> std::optional<Model>
+auto Loader::load_from_file(
+    const std::filesystem::path& filepath,
+    const size_t                 scene_index
+) -> std::optional<Model>
 {
     fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
@@ -309,15 +307,10 @@ auto Loader::load_from_file(const std::filesystem::path& filepath, const size_t 
 auto Loader::load_model(
     const std::filesystem::path& filepath,
     const fastgltf::Asset&       asset,
-    size_t                       scene_index
+    const size_t                 scene_index
 ) -> Model
 {
-    // TODO: make this an assertion
-    if (asset.scenes.size() <= scene_index) {
-        SPDLOG_ERROR(
-            "The provided glTF model does not contain the requested scene: {}", scene_index
-        );
-    }
+    assert(scene_index < asset.scenes.size());
 
     Model model;
 
@@ -366,8 +359,7 @@ auto Loader::load_images(
             model.m_images.push_back(std::move(loaded_image.value()));
         }
         else {
-            // TODO: use std::format
-            throw std::runtime_error{ fmt::format(
+            throw std::runtime_error{ std::format(
                 "Failed to load image {} from gltf image {}",
                 image.name,
                 filepath.generic_string()
