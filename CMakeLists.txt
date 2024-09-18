@@ -8,9 +8,9 @@ add_library(${PROJECT_NAME})
 
 option(engine_debug "Turn on debug mode for library" OFF)
 
-
 # TODO: use cxx_std_26
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 26)
 
 # we only support Clang and/or GCC as of now
 target_compile_options(${PROJECT_NAME} PRIVATE
@@ -20,7 +20,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         -Wconversion
         -Werror
         -Wno-missing-field-initializers
-        $<$<COMPILE_LANGUAGE:CXX>:-std=c++2c>
 )
 
 

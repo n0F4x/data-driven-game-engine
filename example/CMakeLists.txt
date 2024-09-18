@@ -7,14 +7,14 @@ add_executable(test
 )
 # TODO: use cxx_std_26
 target_compile_features(test PRIVATE cxx_std_23)
-target_compile_options(${PROJECT_NAME} PRIVATE
+set_target_properties(test PROPERTIES CXX_STANDARD 26)
+target_compile_options(test PRIVATE
         -Wall
         -Wextra
         -pedantic-errors
         -Wconversion
         -Werror
         -Wno-missing-field-initializers
-        $<$<COMPILE_LANGUAGE:CXX>:-std=c++2c>
 )
 target_compile_definitions(test PRIVATE
         VULKAN_HPP_NO_TO_STRING
