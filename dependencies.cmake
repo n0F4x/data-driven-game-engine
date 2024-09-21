@@ -37,6 +37,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 
 # Vulkan
+# TODO: use vulkan_hpp module
 find_package(VulkanHeaders CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
@@ -88,6 +89,7 @@ find_package(Stb REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Stb_INCLUDE_DIR})
 
 # fastgltf
+# TODO: enable modules
 set(FASTGLTF_COMPILE_AS_CPP20 ON)
 FetchContent_Declare(fastgltf
         GIT_REPOSITORY https://github.com/spnda/fastgltf.git

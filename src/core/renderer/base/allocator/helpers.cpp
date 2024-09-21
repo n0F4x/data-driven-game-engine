@@ -1,5 +1,7 @@
 #include "helpers.hpp"
 
+#include <cstring>
+
 namespace core::renderer::details {
 
 auto create_buffer(

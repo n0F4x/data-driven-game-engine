@@ -1,3 +1,5 @@
+#pragma once
+
 namespace core::cache {
 
 template <typename IdType, template <typename...> typename ContainerTemplate>

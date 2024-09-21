@@ -1,5 +1,7 @@
 #include "Material.hpp"
 
+#include <utility>
+
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace core::gltf;

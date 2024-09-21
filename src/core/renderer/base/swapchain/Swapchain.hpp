@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <vector>
 
 #include <vulkan/vulkan.hpp>
 
@@ -40,7 +41,7 @@ public:
     [[nodiscard]]
     auto format() const noexcept -> vk::Format;
     [[nodiscard]]
-    auto image_views() const noexcept -> const std::vector<vk::UniqueImageView>&;
+    auto image_views() const noexcept -> std::span<const vk::UniqueImageView>;
 
 private:
     ///*************///

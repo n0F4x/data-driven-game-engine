@@ -203,7 +203,7 @@ auto Swapchain::format() const noexcept -> vk::Format
     return m_format;
 }
 
-auto Swapchain::image_views() const noexcept -> const std::vector<vk::UniqueImageView>&
+auto Swapchain::image_views() const noexcept -> std::span<const vk::UniqueImageView>
 {
     return m_image_views;
 }

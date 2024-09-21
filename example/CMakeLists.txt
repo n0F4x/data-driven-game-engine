@@ -1,10 +1,4 @@
-add_executable(test
-        src/main.cpp
-        src/Controller.cpp
-        src/demo.cpp
-        src/DemoRenderer.cpp
-        src/demo_init.cpp
-)
+add_executable(test)
 # TODO: use cxx_std_26
 target_compile_features(test PRIVATE cxx_std_23)
 set_target_properties(test PROPERTIES CXX_STANDARD 26)
@@ -27,4 +21,5 @@ if (engine_debug)
             SPDLOG_ACTIVE_LEVEL=${spdlog_level}
     )
 endif ()
+add_subdirectory(src)
 target_link_libraries(test PRIVATE ${PROJECT_NAME})

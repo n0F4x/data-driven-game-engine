@@ -11,8 +11,8 @@
 #include "core/renderer/base/swapchain/SwapchainHolder.hpp"
 
 #include "Controller.hpp"
-#include "demo_init.hpp"
-#include "DemoRenderer.hpp"
+#include "init.hpp"
+#include "Renderer.hpp"
 
 using namespace entt::literals;
 

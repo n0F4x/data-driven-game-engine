@@ -1,5 +1,7 @@
 #include "vulkan.hpp"
 
+#include <vulkan/vulkan_hpp_macros.hpp>
+
 #include <vulkan/vulkan.hpp>
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
@@ -11,12 +13,12 @@ auto init() -> void
     VULKAN_HPP_DEFAULT_DISPATCHER.init();
 }
 
-auto init(vk::Instance instance) noexcept -> void
+auto init(const vk::Instance instance) noexcept -> void
 {
     VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
 }
 
-auto init(vk::Device device) noexcept -> void
+auto init(const vk::Device device) noexcept -> void
 {
     VULKAN_HPP_DEFAULT_DISPATCHER.init(device);
 }

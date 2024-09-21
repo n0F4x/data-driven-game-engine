@@ -1,7 +1,6 @@
 #pragma once
 
 #include <any>
-#include <tuple>
 
 #include <entt/entity/registry.hpp>
 
@@ -36,9 +35,9 @@ concept PluginConcept = requires(Plugin&& plugin, App& app) {
     );
 };
 
-template <typename PluginGroup>
-concept ModifierConcept = requires(PluginGroup&& plugin_group, App::Builder& builder) {
-    std::invoke(std::forward<PluginGroup>(plugin_group), builder);
+template <typename Modifier>
+concept ModifierConcept = requires(Modifier&& modifier, App::Builder& builder) {
+    std::invoke(std::forward<Modifier>(modifier), builder);
 };
 
 template <typename Runner, typename... Args>
@@ -54,7 +53,7 @@ public:
     template <ModifierConcept Modifier, typename Self, typename... Args>
     auto apply(this Self&&, Args&&... args) -> Self;
     template <ModifierConcept Modifier, typename Self>
-    auto apply(this Self&&, Modifier&& plugin_group) -> Self;
+    auto apply(this Self&&, Modifier&& modifier) -> Self;
 
     [[nodiscard]]
     auto build() -> App;

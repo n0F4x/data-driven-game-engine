@@ -1,10 +1,10 @@
-#include "DemoRenderer.hpp"
+#include "Renderer.hpp"
 
 #include <core/gltf/Loader.hpp>
 #include <core/renderer/scene/Builder.hpp>
 #include <core/window/Window.hpp>
 
-#include "demo_init.hpp"
+#include "init.hpp"
 
 constexpr static uint32_t g_frame_count{ 1 };
 

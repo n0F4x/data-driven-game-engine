@@ -1,10 +1,14 @@
 #pragma once
 
+#include <cstdint>
+#include <span>
+#include <vector>
+
 #include <vulkan/vulkan.hpp>
 
 namespace core::renderer {
 
-struct VertexAttribute {
+struct VertexAttribute { // NOLINT(*-member-init)
     uint32_t   location;
     vk::Format format;
     uint32_t   offset;

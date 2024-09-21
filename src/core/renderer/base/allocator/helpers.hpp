@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 #include <vulkan/vulkan.hpp>
 
 #include <vk_mem_alloc.h>

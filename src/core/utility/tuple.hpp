@@ -45,9 +45,7 @@ namespace details {
 template <typename Tuple, typename Generator, size_t... Ints>
 auto generate_tuple(Generator&& generator, std::index_sequence<Ints...>) -> Tuple
 {
-    return Tuple {
-        generator.template operator()<std::tuple_element_t<Ints, Tuple>>()...
-    };
+    return Tuple{ generator.template operator()<std::tuple_element_t<Ints, Tuple>>()... };
 }
 
 }   // namespace details

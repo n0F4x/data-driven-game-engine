@@ -2,8 +2,8 @@
 
 #include <future>
 
+#include "core/cache/Cache.hpp"
 #include "core/renderer/base/allocator/Allocator.hpp"
-#include "core/renderer/material_system/Program.hpp"
 #include "core/renderer/memory/Image.hpp"
 #include "core/renderer/memory/MappedBuffer.hpp"
 #include "core/renderer/model/Drawable.hpp"
@@ -39,6 +39,7 @@ public:
 
 private:
     struct Mesh {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
         struct Primitive {
             cache::Handle<vk::UniquePipeline> pipeline;
             std::optional<uint32_t>           material_index;
@@ -46,7 +47,7 @@ private:
             uint32_t                          index_count;
         };
 
-        std::vector<Primitive> primitives;
+        std::vector<Primitive> primitives{};
     };
 
     renderer::Buffer m_index_buffer;

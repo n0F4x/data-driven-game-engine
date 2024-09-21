@@ -1,3 +1,5 @@
+#pragma once
+
 #include <spdlog/spdlog.h>
 
 #include <core/meta/functional.hpp>
@@ -36,9 +38,9 @@ auto App::Builder::apply(this Self&& self, Args&&... args) -> Self
 }
 
 template <ModifierConcept Modifier, typename Self>
-auto App::Builder::apply(this Self&& self, Modifier&& plugin_group) -> Self
+auto App::Builder::apply(this Self&& self, Modifier&& modifier) -> Self
 {
-    std::invoke(std::forward<Modifier>(plugin_group), self);
+    std::invoke(std::forward<Modifier>(modifier), self);
 
     return std::forward<Self>(self);
 }

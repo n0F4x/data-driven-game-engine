@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <vector>
+
 #include <vulkan/vulkan.hpp>
 
 namespace core::renderer {

@@ -1,6 +1,4 @@
-#include "demo_init.hpp"
-
-#include <print>
+#include "init.hpp"
 
 #include <vulkan/vulkan.hpp>
 

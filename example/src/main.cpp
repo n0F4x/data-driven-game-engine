@@ -1,11 +1,18 @@
 #include <iostream>
 #include <source_location>
 
+#include <spdlog/spdlog.h>
+
 #include <app.hpp>
 #include <core/cache/Cache.hpp>
 #include <plugins.hpp>
 
 #include "demo.hpp"
+
+// TODO: Fix Plugin concept to work with free functions
+static const auto g_cache_plugin{ [](App& app) -> void {
+    app.resources.emplace<core::cache::Cache>();
+} };
 
 auto main() -> int
 try {
@@ -27,9 +34,7 @@ try {
     };
 
     return App::create()
-        .use([](App& app) {
-            app.resources.emplace<core::cache::Cache>();
-    })
+        .use(g_cache_plugin)
         .use(plugins::Window{ .size = { 1'280, 720 }, .title = "My window" })
         .apply(plugins::Renderer{}.require_vulkan_version(1, 1))
         .run(demo::run, model_info);

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <ranges>
+
 #include "DescriptorPool.hpp"
 
 namespace core::renderer {
@@ -15,9 +18,9 @@ public:
     auto build(vk::Device device) noexcept -> DescriptorPool;
 
 private:
-    vk::DescriptorPoolCreateFlags       m_flags;
-    uint32_t                            m_set_count;
-    std::vector<vk::DescriptorPoolSize> m_pool_sizes;
+    vk::DescriptorPoolCreateFlags       m_flags{};
+    uint32_t                            m_set_count{};
+    std::vector<vk::DescriptorPoolSize> m_pool_sizes{};
 };
 
 }   // namespace core::renderer
