@@ -9,10 +9,10 @@
 
 #include "demo.hpp"
 
-// TODO: Fix Plugin concept to work with free functions
-static const auto g_cache_plugin{ [](App& app) -> void {
+static auto cache_plugin(App& app) -> void
+{
     app.resources.emplace<core::cache::Cache>();
-} };
+}
 
 auto main() -> int
 try {
@@ -34,7 +34,7 @@ try {
     };
 
     return App::create()
-        .use(g_cache_plugin)
+        .use(::cache_plugin)
         .use(plugins::Window{ .size = { 1'280, 720 }, .title = "My window" })
         .apply(plugins::Renderer{}.require_vulkan_version(1, 1))
         .run(demo::run, model_info);

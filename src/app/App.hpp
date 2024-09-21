@@ -4,6 +4,8 @@
 
 #include <entt/entity/registry.hpp>
 
+#include <core/meta/functional.hpp>
+
 #include "core/store/Store.hpp"
 
 class App {
@@ -26,14 +28,13 @@ public:
     static auto create() -> Builder;
 };
 
+// A callable that takes a reference to App as its first parameter
 template <typename Plugin>
-concept PluginConcept = requires(Plugin&& plugin, App& app) {
-    std::bind_front(
-        &std::remove_cvref_t<Plugin>::operator(),
-        std::forward<Plugin>(plugin),
-        std::ref(app)
-    );
-};
+concept PluginConcept = std::common_reference_with<
+    std::tuple_element_t<
+        0,
+        core::meta::arguments_t<std::remove_pointer_t<std::decay_t<Plugin>>>>,
+    App&>;
 
 template <typename Modifier>
 concept ModifierConcept = requires(Modifier&& modifier, App::Builder& builder) {

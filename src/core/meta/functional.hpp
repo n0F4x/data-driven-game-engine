@@ -41,21 +41,21 @@ struct arguments;
 
 template <function F>
 struct arguments<F> {
-    using type = signature<F>::type;
+    using type = typename signature<F>::type;
 };
 
 template <member_function F>
 struct arguments<F> {
-    using type = signature<std::decay_t<F>>::type;
+    using type = typename signature<std::decay_t<F>>::type;
 };
 
 template <functor F>
 struct arguments<F> {
-    using type = signature<decltype(&std::decay_t<F>::operator())>::type;
+    using type = typename signature<decltype(&std::decay_t<F>::operator())>::type;
 };
 
 template <typename F>
-using arguments_t = arguments<F>::type;
+using arguments_t = typename arguments<F>::type;
 
 // NOLINTEND(readability-identifier-naming)
 }   // namespace core::meta

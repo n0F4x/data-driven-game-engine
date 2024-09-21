@@ -23,7 +23,7 @@ auto App::Builder::use(this Self&& self, Plugin&& plugin) -> Self
     }
 
     self.m_invocations.emplace_back(
-        self.m_plugins.template emplace<std::remove_cvref_t<Plugin>>(
+        self.m_plugins.template emplace<std::decay_t<Plugin>>(
             std::forward<Plugin>(plugin)
         )
     );
@@ -61,7 +61,7 @@ template <typename Plugin>
 auto gather_resources(App& app)
 {
     using RequiredResourcesTuple = decltype(core::utils::remove_first(
-        std::declval<core::meta::arguments_t<Plugin>>()
+        std::declval<core::meta::arguments_t<std::remove_pointer_t<std::decay_t<Plugin>>>>()
     ));
     return core::utils::generate_tuple<RequiredResourcesTuple>(
         [&app]<typename Resource>() -> Resource {
