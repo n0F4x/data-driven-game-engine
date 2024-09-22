@@ -44,12 +44,6 @@ static auto create_descriptor_set_layouts(
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
- // specular-glossiness materials
-        vk::DescriptorSetLayoutBinding{
-                                       .binding         = 6,
-                                       .descriptorType  = vk::DescriptorType::eUniformBuffer,
-                                       .descriptorCount = 1,
-                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
     constexpr static vk::DescriptorSetLayoutCreateInfo create_info_0{
         .bindingCount = static_cast<uint32_t>(bindings_0.size()),
