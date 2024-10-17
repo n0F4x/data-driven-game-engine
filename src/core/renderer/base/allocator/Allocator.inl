@@ -1,11 +1,11 @@
 #pragma once
 
-#include "core/renderer/memory/MappedBuffer.hpp"
-#include "core/renderer/memory/SeqWriteBuffer.hpp"
+#include "core/renderer/base/memory/MappedBuffer.hpp"
+#include "core/renderer/base/memory/SeqWriteBuffer.hpp"
 
 #include "helpers.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 template <typename T>
 auto Allocator::allocate_seq_write_buffer(

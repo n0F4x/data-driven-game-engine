@@ -15,8 +15,10 @@ public:
     [[nodiscard]]
     static auto create() noexcept -> Builder;
 
-    auto draw(vk::CommandBuffer graphics_command_buffer, const graphics::Camera& camera)
-        const -> void;
+    auto draw(
+        vk::CommandBuffer       graphics_command_buffer,
+        const graphics::Camera& camera
+    ) const -> void;
 
 private:
     struct ShaderScene {
@@ -34,10 +36,10 @@ private:
     vk::UniqueDescriptorSetLayout                m_global_descriptor_set_layout;
     std::array<vk::UniqueDescriptorSetLayout, 3> m_model_descriptor_set_layouts;
     vk::UniquePipelineLayout                     m_pipeline_layout;
-    DescriptorPool                               m_descriptor_pool;
+    base::DescriptorPool                         m_descriptor_pool;
 
-    RandomAccessBuffer<ShaderScene> m_global_buffer;
-    vk::UniqueDescriptorSet         m_global_descriptor_set;
+    base::RandomAccessBuffer<ShaderScene> m_global_buffer;
+    vk::UniqueDescriptorSet               m_global_descriptor_set;
 
     std::vector<gltf::RenderModel> m_models;
 
@@ -45,8 +47,8 @@ private:
         vk::UniqueDescriptorSetLayout&&                global_descriptor_set_layout,
         std::array<vk::UniqueDescriptorSetLayout, 3>&& model_descriptor_set_layouts,
         vk::UniquePipelineLayout&&                     pipeline_layout,
-        DescriptorPool&&                               descriptor_pool,
-        RandomAccessBuffer<ShaderScene>&&              global_buffer,
+        base::DescriptorPool&&                         descriptor_pool,
+        base::RandomAccessBuffer<ShaderScene>&&        global_buffer,
         vk::UniqueDescriptorSet&&                      global_descriptor_set,
         std::vector<gltf::RenderModel>&&               models
     ) noexcept;

@@ -1,6 +1,6 @@
 #include "Instance.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 Instance::Instance(const vkb::Instance& instance) noexcept : m_instance{ instance } {}
 

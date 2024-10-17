@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include <vector>
 
 #include <vulkan/vulkan.hpp>
@@ -8,24 +7,26 @@
 #include <vk_mem_alloc.h>
 
 #include <core/renderer/base/allocator/Allocator.hpp>
-#include <core/renderer/memory/Image.hpp>
+#include <core/renderer/base/memory/Image.hpp>
 
 namespace init {
 
 [[nodiscard]]
-auto create_render_pass(vk::Format color_format, const core::renderer::Device& device)
+auto create_render_pass(vk::Format color_format, const core::renderer::base::Device& device)
     -> vk::UniqueRenderPass;
 
 [[nodiscard]]
 auto create_depth_image(
-    vk::PhysicalDevice               physical_device,
-    const core::renderer::Allocator& allocator,
-    vk::Extent2D                     swapchain_extent
-) -> core::renderer::Image;
+    vk::PhysicalDevice                     physical_device,
+    const core::renderer::base::Allocator& allocator,
+    vk::Extent2D                           swapchain_extent
+) -> core::renderer::base::Image;
 
 [[nodiscard]]
-auto create_depth_image_view(const core::renderer::Device& device, vk::Image depth_image)
-    -> vk::UniqueImageView;
+auto create_depth_image_view(
+    const core::renderer::base::Device& device,
+    vk::Image                           depth_image
+) -> vk::UniqueImageView;
 
 [[nodiscard]]
 auto create_framebuffers(

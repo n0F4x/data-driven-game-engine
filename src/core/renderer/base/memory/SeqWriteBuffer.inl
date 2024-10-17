@@ -1,4 +1,4 @@
-namespace core::renderer {
+namespace core::renderer::base {
 
 template <typename T>
 template <size_t E>

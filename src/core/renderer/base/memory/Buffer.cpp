@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 Buffer::Buffer(Buffer&& other) noexcept
     : Buffer{ std::exchange(other.m_allocator, nullptr),

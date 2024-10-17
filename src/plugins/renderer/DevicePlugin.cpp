@@ -42,9 +42,9 @@ static auto log_setup(const vkb::Device& device) -> void
 namespace plugins::renderer {
 
 auto DevicePlugin::operator()(
-    App&                            app,
-    const core::renderer::Instance& instance,
-    const vk::UniqueSurfaceKHR&     surface
+    App&                                  app,
+    const core::renderer::base::Instance& instance,
+    const vk::UniqueSurfaceKHR&           surface
 ) const -> void
 {
     vkb::PhysicalDeviceSelector physical_device_selector(
@@ -79,8 +79,9 @@ auto DevicePlugin::operator()(
         return;
     }
 
-    const auto& device{ app.resources.emplace<core::renderer::Device>(device_result.value(
-    )) };
+    const auto& device{
+        app.resources.emplace<core::renderer::base::Device>(device_result.value())
+    };
 
     core::config::vulkan::init(device.get());
 

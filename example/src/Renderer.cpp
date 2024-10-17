@@ -10,8 +10,8 @@ constexpr static uint32_t g_frame_count{ 1 };
 
 [[nodiscard]]
 static auto load_scene(
-    const core::renderer::Device&    device,
-    const core::renderer::Allocator& allocator,
+    const core::renderer::base::Device&    device,
+    const core::renderer::base::Allocator& allocator,
     const vk::RenderPass             render_pass,
     core::gltf::Model&&              model,
     core::cache::Cache&              cache
@@ -62,10 +62,10 @@ auto DemoRenderer::create(Store& store, const std::filesystem::path& model_filep
 {
     auto&       cache{ store.at<core::cache::Cache>() };
     const auto& window{ store.at<core::window::Window>() };
-    const auto& device{ store.at<core::renderer::Device>() };
-    const auto& allocator{ store.at<core::renderer::Allocator>() };
+    const auto& device{ store.at<core::renderer::base::Device>() };
+    const auto& allocator{ store.at<core::renderer::base::Allocator>() };
 
-    auto& swapchain{ store.at<core::renderer::SwapchainHolder>() };
+    auto& swapchain{ store.at<core::renderer::base::SwapchainHolder>() };
     swapchain.set_framebuffer_size(static_cast<vk::Extent2D>(window.framebuffer_size()));
     if (!swapchain.get().has_value()) {
         return std::nullopt;

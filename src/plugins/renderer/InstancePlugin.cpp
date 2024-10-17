@@ -182,7 +182,7 @@ auto InstancePlugin::operator()(App& app) const -> void
     }
 
     const auto& instance{
-        app.resources.emplace<core::renderer::Instance>(instance_result.value())
+        app.resources.emplace<core::renderer::base::Instance>(instance_result.value())
     };
 
     core::config::vulkan::init(instance.get());

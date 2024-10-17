@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-namespace core::renderer::details {
+namespace core::renderer::base::details {
 
 auto create_buffer(
     const VmaAllocator             allocator,

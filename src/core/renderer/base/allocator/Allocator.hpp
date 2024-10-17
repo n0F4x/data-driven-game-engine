@@ -6,7 +6,7 @@
 
 #include <vk_mem_alloc.h>
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 class Instance;
 class Device;

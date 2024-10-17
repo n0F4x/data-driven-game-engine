@@ -21,7 +21,7 @@ auto demo::run(App app, const ModelInfo& model_info) -> int
     return DemoRenderer::create(app.resources, model_info.filepath)
         .transform([&](DemoRenderer demo) {
             demo.swapchain.get().on_swapchain_recreated(
-                [&demo](const core::renderer::Swapchain& swapchain) {
+                [&demo](const core::renderer::base::Swapchain& swapchain) {
                     demo.depth_image.reset();
                     demo.depth_image = init::create_depth_image(
                         demo.device.get().physical_device(),
@@ -31,7 +31,7 @@ auto demo::run(App app, const ModelInfo& model_info) -> int
                 }
             );
             demo.swapchain.get().on_swapchain_recreated(
-                [&demo](const core::renderer::Swapchain&) {
+                [&demo](const core::renderer::base::Swapchain&) {
                     demo.depth_image_view.reset();
                     demo.depth_image_view = init::create_depth_image_view(
                         demo.device, demo.depth_image.get()
@@ -39,7 +39,7 @@ auto demo::run(App app, const ModelInfo& model_info) -> int
                 }
             );
             demo.swapchain.get().on_swapchain_recreated(
-                [&demo](const core::renderer::Swapchain& swapchain) {
+                [&demo](const core::renderer::base::Swapchain& swapchain) {
                     demo.framebuffers.clear();
                     demo.framebuffers = init::create_framebuffers(
                         demo.device.get().get(),

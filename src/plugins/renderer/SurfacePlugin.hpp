@@ -7,11 +7,11 @@
 class App;
 class StoreView;
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 class Instance;
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base
 
 namespace plugins::renderer {
 
@@ -28,7 +28,7 @@ public:
     template <typename... Args>
     explicit SurfacePlugin(std::in_place_t, Args&&... args);
 
-    auto operator()(App& app, const core::renderer::Instance&) const -> void;
+    auto operator()(App& app, const core::renderer::base::Instance&) const -> void;
 
     auto setup(StoreView plugins) const -> void;
 

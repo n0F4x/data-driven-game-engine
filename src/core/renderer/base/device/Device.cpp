@@ -1,6 +1,6 @@
 #include "Device.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 Device::Device(const vkb::Device& device) : m_device{ device } {}
 

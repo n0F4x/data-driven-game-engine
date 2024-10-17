@@ -12,7 +12,7 @@ namespace plugins {
 namespace renderer {
 
 using FramebufferSizeGetterCreator =
-    std::function<core::renderer::SwapchainHolder::FramebufferSizeGetter(App&)>;
+    std::function<core::renderer::base::SwapchainHolder::FramebufferSizeGetter(App&)>;
 
 class RendererPlugin {
 public:

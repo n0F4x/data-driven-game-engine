@@ -1,4 +1,4 @@
-namespace core::renderer::details {
+namespace core::renderer::base::details {
 
 template <VmaAllocationCreateFlags Flags>
 auto create_mapped_buffer(

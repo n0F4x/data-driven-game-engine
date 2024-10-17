@@ -2,7 +2,7 @@
 
 #include "Builder.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 auto DescriptorPool::create() noexcept -> Builder
 {

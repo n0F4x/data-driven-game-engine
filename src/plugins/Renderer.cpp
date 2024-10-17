@@ -30,8 +30,8 @@ static auto create_surface(
     );
 }
 
-static auto required_instance_settings_are_available(const vkb::SystemInfo& system_info
-) -> bool
+static auto required_instance_settings_are_available(const vkb::SystemInfo& system_info)
+    -> bool
 {
     return std::ranges::all_of(
         core::window::Window::vulkan_instance_extensions(),
@@ -39,8 +39,8 @@ static auto required_instance_settings_are_available(const vkb::SystemInfo& syst
     );
 }
 
-static auto
-    enable_instance_settings(const vkb::SystemInfo&, vkb::InstanceBuilder& builder) -> void
+static auto enable_instance_settings(const vkb::SystemInfo&, vkb::InstanceBuilder& builder)
+    -> void
 {
     std::ranges::for_each(
         core::window::Window::vulkan_instance_extensions(),
@@ -54,10 +54,10 @@ RendererPlugin::RendererPlugin()
     : m_surface_plugin{
           std::in_place,
           create_surface,
-          renderer::InstancePlugin::Dependency{
-                                               .required_instance_settings_are_available =
-                  ::required_instance_settings_are_available,
-                                               .enable_instance_settings = ::enable_instance_settings }
+          InstancePlugin::Dependency{
+                                     .required_instance_settings_are_available =
+                                     ::required_instance_settings_are_available,
+                                     .enable_instance_settings = ::enable_instance_settings }
 }
 {}
 
@@ -92,14 +92,14 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
                         const vkb::SystemInfo&, vkb::InstanceBuilder& builder
                     ) { builder.require_api_version(vulkan_version); } })
             .emplace_dependency(
-                core::renderer::Allocator::Requirements::
+                core::renderer::base::Allocator::Requirements::
                     required_instance_settings_are_available,
-                core::renderer::Allocator::Requirements::enable_instance_settings
+                core::renderer::base::Allocator::Requirements::enable_instance_settings
             )
             .emplace_dependency(
-                core::renderer::Swapchain::Requirements::
+                core::renderer::base::Swapchain::Requirements::
                     required_instance_settings_are_available,
-                core::renderer::Swapchain::Requirements::enable_instance_settings
+                core::renderer::base::Swapchain::Requirements::enable_instance_settings
             )
     );
 
@@ -108,11 +108,11 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
     app_builder.use(
         DevicePlugin{}
             .emplace_dependency(
-                core::renderer::Allocator::Requirements::require_device_settings,
-                core::renderer::Allocator::Requirements::enable_optional_device_settings
+                core::renderer::base::Allocator::Requirements::require_device_settings,
+                core::renderer::base::Allocator::Requirements::enable_optional_device_settings
             )
             .emplace_dependency(
-                core::renderer::Swapchain::Requirements::require_device_settings
+                core::renderer::base::Swapchain::Requirements::require_device_settings
             )
             .emplace_dependency(
                 core::renderer::ModelLayout::Requirements::require_device_settings
@@ -120,11 +120,11 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
     );
 
     app_builder.use([create_framebuffer_size_getter = m_create_framebuffer_size_getter](
-                           App&                          app,
-                           const vk::UniqueSurfaceKHR&   surface,
-                           const core::renderer::Device& device
-                       ) {
-        app.resources.emplace<core::renderer::SwapchainHolder>(
+                        App&                                app,
+                        const vk::UniqueSurfaceKHR&         surface,
+                        const core::renderer::base::Device& device
+                    ) {
+        app.resources.emplace<core::renderer::base::SwapchainHolder>(
             surface.get(),
             device,
             create_framebuffer_size_getter
@@ -133,10 +133,10 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
         );
     });
 
-    app_builder.use([](App&                            app,
-                          const core::renderer::Instance& instance,
-                          const core::renderer::Device&   device) {
-        app.resources.emplace<core::renderer::Allocator>(instance, device);
+    app_builder.use([](App&                                  app,
+                       const core::renderer::base::Instance& instance,
+                       const core::renderer::base::Device&   device) {
+        app.resources.emplace<core::renderer::base::Allocator>(instance, device);
     });
 
     SPDLOG_TRACE("Added Renderer plugin group");

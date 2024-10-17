@@ -3,7 +3,6 @@
 #include <functional>
 #include <optional>
 #include <span>
-#include <string>
 #include <vector>
 
 #include <vulkan/vulkan.hpp>
@@ -12,7 +11,7 @@
 
 #include "Swapchain.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 class SwapchainHolder {
 public:

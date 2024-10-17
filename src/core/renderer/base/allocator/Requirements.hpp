@@ -4,7 +4,7 @@
 
 #include "Allocator.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 class Allocator::Requirements {
 public:

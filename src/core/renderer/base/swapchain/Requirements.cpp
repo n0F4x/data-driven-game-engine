@@ -1,6 +1,6 @@
 #include "Requirements.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 auto Swapchain::Requirements::
     required_instance_settings_are_available(const vkb::SystemInfo&) -> bool

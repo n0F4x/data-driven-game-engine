@@ -2,7 +2,7 @@
 
 #include "SwapchainHolder.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 class Swapchain::Requirements {
 public:

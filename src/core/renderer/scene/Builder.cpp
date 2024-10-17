@@ -62,7 +62,7 @@ static auto max_sampler_count(const std::span<const cache::Handle<const gltf::Mo
 
 static auto request_descriptors(
     const gltf::Model&       model,
-    DescriptorPool::Builder& descriptor_pool_builder
+    base::DescriptorPool::Builder& descriptor_pool_builder
 ) -> void
 {
     descriptor_pool_builder.request_descriptor_sets(ModelLayout::descriptor_set_count());
@@ -78,9 +78,9 @@ static auto request_descriptors(
 static auto create_descriptor_pool(
     const vk::Device                                        device,
     const std::span<const cache::Handle<const gltf::Model>> models
-) -> DescriptorPool
+) -> base::DescriptorPool
 {
-    auto builder{ DescriptorPool::create() };
+    auto builder{ base::DescriptorPool::create() };
 
     builder.request_descriptor_sets(1);
     builder.request_descriptors(vk::DescriptorPoolSize{
@@ -119,8 +119,8 @@ static auto create_pipeline_layout(
 
 template <typename GlobalUniformBlock>
 [[nodiscard]]
-static auto create_global_buffer(const Allocator& allocator)
-    -> RandomAccessBuffer<GlobalUniformBlock>
+static auto create_global_buffer(const base::Allocator& allocator)
+    -> base::RandomAccessBuffer<GlobalUniformBlock>
 {
     constexpr vk::BufferCreateInfo buffer_create_info = {
         .size  = sizeof(GlobalUniformBlock),
@@ -188,7 +188,7 @@ auto Scene::Builder::add_model(cache::Handle<const gltf::Model>&& model) -> Buil
 
 auto Scene::Builder::build(
     const vk::Device     device,
-    const Allocator&     allocator,
+    const base::Allocator&     allocator,
     const vk::RenderPass render_pass
 ) const -> std::packaged_task<Scene(vk::CommandBuffer)>
 {
@@ -216,9 +216,9 @@ auto Scene::Builder::build(
         }
     ) };
 
-    DescriptorPool descriptor_pool{ create_descriptor_pool(device, m_models) };
+    base::DescriptorPool descriptor_pool{ create_descriptor_pool(device, m_models) };
 
-    RandomAccessBuffer<Scene::ShaderScene> global_buffer{
+    base::RandomAccessBuffer<Scene::ShaderScene> global_buffer{
         create_global_buffer<Scene::ShaderScene>(allocator)
     };
 

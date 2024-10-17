@@ -2,7 +2,7 @@
 
 #include "SeqWriteBuffer.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 template <typename T>
 class RandomAccessBuffer : public SeqWriteBuffer<T> {

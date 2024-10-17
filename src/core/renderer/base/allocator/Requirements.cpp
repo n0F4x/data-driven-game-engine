@@ -2,7 +2,7 @@
 
 #include <gsl-lite/gsl-lite.hpp>
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 [[nodiscard]]
 constexpr static auto optional_instance_extension_names()

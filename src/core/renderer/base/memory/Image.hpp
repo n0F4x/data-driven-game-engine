@@ -4,13 +4,9 @@
 
 #include <vk_mem_alloc.h>
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 class Allocator;
-
-}   // namespace core::renderer
-
-namespace core::renderer {
 
 class Image {
 public:

@@ -8,10 +8,10 @@
 
 #include <vulkan/vulkan_to_string.hpp>
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 SwapchainHolder::SwapchainHolder(
-    vk::SurfaceKHR          surface,
+    const vk::SurfaceKHR    surface,
     const Device&           device,
     FramebufferSizeGetter&& get_framebuffer_size
 )
@@ -65,7 +65,7 @@ auto SwapchainHolder::acquire_next_image(
                         ) };
                             result)
                     {
-                        case vk::Result::eSuccess: [[fallthrough]];
+                        case vk::Result::eSuccess:       [[fallthrough]];
                         case vk::Result::eSuboptimalKHR: {
                             m_image_index = image_index;
                             return image_index;
@@ -87,7 +87,8 @@ auto SwapchainHolder::acquire_next_image(
         );
 }
 
-auto SwapchainHolder::present(const std::span<const vk::Semaphore> wait_semaphores) -> void
+auto SwapchainHolder::present(const std::span<const vk::Semaphore> wait_semaphores)
+    -> void
 {
     assert(m_swapchain.has_value() && "SwapchainHolder::present - swapchain has no value");
 
@@ -115,9 +116,9 @@ auto SwapchainHolder::present(const std::span<const vk::Semaphore> wait_semaphor
     }
 }
 
-auto SwapchainHolder::present(const vk::Semaphore waisemaphore) -> void
+auto SwapchainHolder::present(const vk::Semaphore wait_semaphore) -> void
 {
-    present(std::array{ waisemaphore });
+    present(std::array{ wait_semaphore });
 }
 
 auto SwapchainHolder::on_swapchain_recreated(
@@ -167,4 +168,4 @@ auto SwapchainHolder::recreate_swapchain() -> void
     }
 }
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

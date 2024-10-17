@@ -5,7 +5,7 @@
 
 #include "DescriptorPool.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 class DescriptorPool::Builder {
 public:

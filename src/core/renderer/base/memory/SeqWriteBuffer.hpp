@@ -2,7 +2,7 @@
 
 #include "Buffer.hpp"
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 template <typename T = std::byte>
 class SeqWriteBuffer : public Buffer {

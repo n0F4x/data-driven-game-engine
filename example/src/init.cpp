@@ -47,8 +47,10 @@ auto find_depth_format(const vk::PhysicalDevice physical_device) -> vk::Format
 
 namespace init {
 
-auto create_render_pass(const vk::Format color_format, const renderer::Device& device)
-    -> vk::UniqueRenderPass
+auto create_render_pass(
+    const vk::Format              color_format,
+    const renderer::base::Device& device
+) -> vk::UniqueRenderPass
 {
     const vk::AttachmentDescription color_attachment_description{
         .format         = color_format,
@@ -116,10 +118,10 @@ auto create_render_pass(const vk::Format color_format, const renderer::Device& d
 }
 
 auto create_depth_image(
-    const vk::PhysicalDevice   physical_device,
-    const renderer::Allocator& allocator,
-    const vk::Extent2D         swapchain_extent
-) -> renderer::Image
+    const vk::PhysicalDevice               physical_device,
+    const core::renderer::base::Allocator& allocator,
+    const vk::Extent2D                     swapchain_extent
+) -> renderer::base::Image
 {
     const vk::ImageCreateInfo image_create_info = {
         .imageType   = vk::ImageType::e2D,
@@ -142,8 +144,10 @@ auto create_depth_image(
     return allocator.allocate_image(image_create_info, allocation_create_info);
 }
 
-auto create_depth_image_view(const renderer::Device& device, const vk::Image depth_image)
-    -> vk::UniqueImageView
+auto create_depth_image_view(
+    const renderer::base::Device& device,
+    const vk::Image               depth_image
+) -> vk::UniqueImageView
 {
     const vk::ImageViewCreateInfo image_view_create_info{
         .image    = depth_image,

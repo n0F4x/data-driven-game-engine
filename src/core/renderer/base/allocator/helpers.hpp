@@ -6,7 +6,7 @@
 
 #include <vk_mem_alloc.h>
 
-namespace core::renderer::details {
+namespace core::renderer::base::details {
 
 [[nodiscard]]
 auto create_buffer(

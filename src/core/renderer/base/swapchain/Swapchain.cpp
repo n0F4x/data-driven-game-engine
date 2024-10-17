@@ -9,6 +9,8 @@
 
 #include <vulkan/vulkan_to_string.hpp>
 
+namespace core::renderer::base {
+
 [[nodiscard]]
 static auto get_min_image_count(const vk::SurfaceCapabilitiesKHR& surface_capabilities
 ) noexcept -> uint32_t
@@ -119,8 +121,6 @@ static auto create_image_views(
            })
          | std::ranges::to<std::vector>();
 }
-
-namespace core::renderer {
 
 auto Swapchain::choose_extent(
     const vk::Extent2D&               framebuffer_size,

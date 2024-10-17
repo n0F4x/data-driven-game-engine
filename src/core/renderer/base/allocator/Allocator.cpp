@@ -5,13 +5,12 @@
 #include "core/config/vulkan.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
-#include "core/renderer/memory/Buffer.hpp"
-#include "core/renderer/memory/Image.hpp"
+#include "core/renderer/base/memory/Buffer.hpp"
+#include "core/renderer/base/memory/Image.hpp"
 
 #include "helpers.hpp"
 
-using namespace core;
-using namespace core::renderer;
+namespace core::renderer::base {
 
 [[nodiscard]]
 static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_device_info
@@ -156,8 +155,6 @@ static auto create_allocator(
     };
 }
 
-namespace core::renderer {
-
 Allocator::Allocator(const Instance& instance, const Device& device)
     : m_allocator{ create_allocator(instance, device) }
 {}
@@ -194,4 +191,4 @@ auto Allocator::allocate_image(
     return Image(image, allocation, m_allocator.get());
 }
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

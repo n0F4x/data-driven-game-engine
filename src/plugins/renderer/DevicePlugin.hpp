@@ -9,11 +9,11 @@
 
 class App;
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 class Instance;
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base
 
 namespace plugins::renderer {
 
@@ -25,9 +25,9 @@ public:
     };
 
     auto operator()(
-        App&                            app,
-        const core::renderer::Instance& instance,
-        const vk::UniqueSurfaceKHR&     surface
+        App&                                  app,
+        const core::renderer::base::Instance& instance,
+        const vk::UniqueSurfaceKHR&           surface
     ) const -> void;
 
     template <typename... Args>

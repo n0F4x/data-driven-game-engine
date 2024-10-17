@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 Image::Image(
     const vk::Image     image,

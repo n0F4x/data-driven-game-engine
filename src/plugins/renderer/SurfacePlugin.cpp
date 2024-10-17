@@ -5,7 +5,7 @@
 
 namespace plugins::renderer {
 
-auto SurfacePlugin::operator()(App& app, const core::renderer::Instance& instance) const
+auto SurfacePlugin::operator()(App& app, const core::renderer::base::Instance& instance) const
     -> void
 {
     const std::optional<VkSurfaceKHR> surface_result{
@@ -24,7 +24,7 @@ auto SurfacePlugin::setup(StoreView plugins) const -> void
     const std::optional instance_plugin_result{ plugins.find<InstancePlugin>() };
     if (!instance_plugin_result.has_value()) {
         throw std::runtime_error{
-            "plugins::renderer::InstancePlugin required but not found in 'plugins'"
+            "plugins::renderer::base::InstancePlugin required but not found in 'plugins'"
         };
     }
     InstancePlugin& instance_plugin{ instance_plugin_result.value().get() };

@@ -38,8 +38,8 @@ Scene::Scene(
     vk::UniqueDescriptorSetLayout&&                global_descriptor_set_layout,
     std::array<vk::UniqueDescriptorSetLayout, 3>&& model_descriptor_set_layouts,
     vk::UniquePipelineLayout&&                     pipeline_layout,
-    DescriptorPool&&                               descriptor_pool,
-    RandomAccessBuffer<ShaderScene>&&                    global_buffer,
+    base::DescriptorPool&&                               descriptor_pool,
+    base::RandomAccessBuffer<ShaderScene>&&                    global_buffer,
     vk::UniqueDescriptorSet&&                      global_descriptor_set,
     std::vector<gltf::RenderModel>&&               models
 ) noexcept

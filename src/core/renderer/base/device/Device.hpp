@@ -4,7 +4,7 @@
 
 #include <VkBootstrap.h>
 
-namespace core::renderer {
+namespace core::renderer::base {
 
 class Device {
 public:
