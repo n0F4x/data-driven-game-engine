@@ -1,7 +1,6 @@
 #pragma once
 
 #include <filesystem>
-#include <optional>
 #include <span>
 
 #include <gsl-lite/gsl-lite.hpp>
@@ -31,13 +30,13 @@ public:
     auto depth() const noexcept -> uint32_t final;
 
     [[nodiscard]]
-    auto mip_levels() const noexcept -> uint32_t final;
+    auto mip_level_count() const noexcept -> uint32_t final;
 
     [[nodiscard]]
     auto format() const noexcept -> vk::Format final;
 
     [[nodiscard]]
-    auto offset(uint32_t mip_level, uint32_t layer, uint32_t face_slice) const noexcept
+    auto offset_of(uint32_t mip_level, uint32_t layer, uint32_t face_slice) const noexcept
         -> uint64_t final;
 
 private:

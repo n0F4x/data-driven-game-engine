@@ -70,7 +70,7 @@ auto Image::depth() const noexcept -> uint32_t
     return 1;
 }
 
-auto Image::mip_levels() const noexcept -> uint32_t
+auto Image::mip_level_count() const noexcept -> uint32_t
 {
     return 1;
 }
@@ -86,11 +86,11 @@ auto Image::format() const noexcept -> vk::Format
     };
 }
 
-auto Image::offset(const uint32_t mip_level, const uint32_t, const uint32_t) const noexcept
+auto Image::offset_of(const uint32_t mip_level, const uint32_t, const uint32_t) const noexcept
     -> uint64_t
 {
     // TODO more assertions
-    assert(mip_level < mip_levels());
+    assert(mip_level < mip_level_count());
     return 0;
 }
 

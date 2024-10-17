@@ -45,7 +45,8 @@ static auto max_image_count(const std::span<const cache::Handle<const gltf::Mode
 }
 
 [[nodiscard]]
-static auto max_sampler_count(const std::span<const cache::Handle<const gltf::Model>> models
+static auto max_sampler_count(
+    const std::span<const cache::Handle<const gltf::Model>> models
 ) noexcept -> uint32_t
 {
     return static_cast<uint32_t>(std::ranges::max_element(
@@ -61,7 +62,7 @@ static auto max_sampler_count(const std::span<const cache::Handle<const gltf::Mo
 }
 
 static auto request_descriptors(
-    const gltf::Model&       model,
+    const gltf::Model&             model,
     base::DescriptorPool::Builder& descriptor_pool_builder
 ) -> void
 {
@@ -187,9 +188,9 @@ auto Scene::Builder::add_model(cache::Handle<const gltf::Model>&& model) -> Buil
 }
 
 auto Scene::Builder::build(
-    const vk::Device     device,
-    const base::Allocator&     allocator,
-    const vk::RenderPass render_pass
+    const vk::Device       device,
+    const base::Allocator& allocator,
+    const vk::RenderPass   render_pass
 ) const -> std::packaged_task<Scene(vk::CommandBuffer)>
 {
     cache::Cache temp_cache{};
@@ -242,10 +243,12 @@ auto Scene::Builder::build(
                       model_descriptor_set_layouts[1].get(),
                       model_descriptor_set_layouts[2].get(),
                   },
-                  gltf::RenderModel::PipelineCreateInfo{ .layout = pipeline_layout.get(),
-                                                         .render_pass = render_pass },
+                  gltf::RenderModel::PipelineCreateInfo{
+                      .layout      = pipeline_layout.get(),
+                      .render_pass = render_pass,
+                  },
                   descriptor_pool.get(),
-                  *model,
+                  model,
                   m_cache.value_or(temp_cache)
               );
           })

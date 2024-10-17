@@ -88,7 +88,7 @@ auto Image::depth() const noexcept -> uint32_t
     return m_impl->baseDepth;
 }
 
-auto Image::mip_levels() const noexcept -> uint32_t
+auto Image::mip_level_count() const noexcept -> uint32_t
 {
     return m_impl->numLevels;
 }
@@ -98,13 +98,13 @@ auto Image::format() const noexcept -> vk::Format
     return static_cast<vk::Format>(m_impl->vkFormat);
 }
 
-auto Image::offset(
+auto Image::offset_of(
     const uint32_t mip_level,
     const uint32_t layer,
     const uint32_t face_slice
 ) const noexcept -> uint64_t
 {
-    assert(mip_level < mip_levels());
+    assert(mip_level < mip_level_count());
     assert(layer < m_impl->numLayers);
     assert(face_slice < m_impl->numFaces);
 

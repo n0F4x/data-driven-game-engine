@@ -307,63 +307,11 @@ static auto create_base_descriptor_set(
 }
 
 [[nodiscard]]
-static auto create_image(
-    const renderer::base::Allocator& allocator,
-    const Image&                     image,
-    const vk::ImageTiling            tiling,
-    const vk::ImageUsageFlags        usage
-) -> renderer::base::Image
-{
-    const vk::ImageCreateInfo image_create_info{
-        .imageType     = vk::ImageType::e2D,
-        .format        = image->format(),
-        .extent        = vk::Extent3D{ .width  = image->width(),
-                                      .height = image->height(),
-                                      .depth  = image->depth() },
-        .mipLevels     = image->mip_levels(),
-        .arrayLayers   = 1,
-        .samples       = vk::SampleCountFlagBits::e1,
-        .tiling        = tiling,
-        .usage         = usage,
-        .sharingMode   = vk::SharingMode::eExclusive,
-        .initialLayout = vk::ImageLayout::eUndefined,
-    };
-
-    constexpr static VmaAllocationCreateInfo allocation_create_info = {
-        .flags    = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-        .usage    = VMA_MEMORY_USAGE_AUTO,
-        .priority = 1.f,
-    };
-
-    return allocator.allocate_image(image_create_info, allocation_create_info);
-}
-
-[[nodiscard]]
-static auto create_image_view(
-    const vk::Device device,
-    const vk::Image  image,
-    const vk::Format format
-) -> vk::UniqueImageView
-{
-    const vk::ImageViewCreateInfo view_create_info{
-        .image    = image,
-        .viewType = vk::ImageViewType::e2D,
-        .format   = format,
-        .subresourceRange =
-            vk::ImageSubresourceRange{ .aspectMask = vk::ImageAspectFlagBits::eColor,
-                                      .levelCount = 1,
-                                      .layerCount = 1 },
-    };
-
-    return device.createImageViewUnique(view_create_info);
-}
-
-[[nodiscard]]
 static auto create_image_descriptor_set(
-    const vk::Device                        device,
-    const vk::DescriptorSetLayout           descriptor_set_layout,
-    const vk::DescriptorPool                descriptor_pool,
-    const std::vector<vk::UniqueImageView>& image_views
+    const vk::Device               device,
+    const vk::DescriptorSetLayout  descriptor_set_layout,
+    const vk::DescriptorPool       descriptor_pool,
+    const std::ranges::range auto& image_views
 ) -> vk::UniqueDescriptorSet
 {
     const uint32_t descriptor_count{ static_cast<uint32_t>(image_views.size()) };
@@ -381,9 +329,9 @@ static auto create_image_descriptor_set(
     ) };
 
     const std::vector image_infos{
-        image_views | std::views::transform([](const vk::UniqueImageView& image_view) {
+        image_views | std::views::transform([](const vk::ImageView image_view) {
             return vk::DescriptorImageInfo{
-                .imageView   = image_view.get(),
+                .imageView   = image_view,
                 .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
             };
         })
@@ -617,86 +565,6 @@ static auto create_pipeline(
     );
 }
 
-static auto transition_image_layout(
-    const vk::CommandBuffer command_buffer,
-    const vk::Image         image,
-    const vk::ImageLayout   old_layout,
-    const vk::ImageLayout   new_layout
-) -> void
-{
-    vk::ImageMemoryBarrier barrier{
-        .oldLayout           = old_layout,
-        .newLayout           = new_layout,
-        .srcQueueFamilyIndex = vk::QueueFamilyIgnored,
-        .dstQueueFamilyIndex = vk::QueueFamilyIgnored,
-        .image               = image,
-        .subresourceRange =
-            vk::ImageSubresourceRange{ .aspectMask     = vk::ImageAspectFlagBits::eColor,
-                                      .baseMipLevel   = 0,
-                                      .levelCount     = 1,
-                                      .baseArrayLayer = 0,
-                                      .layerCount     = 1 },
-    };
-    vk::PipelineStageFlags source_stage;
-    vk::PipelineStageFlags destination_stage;
-
-    if (old_layout == vk::ImageLayout::eUndefined
-        && new_layout == vk::ImageLayout::eTransferDstOptimal)
-    {
-        barrier.srcAccessMask = vk::AccessFlagBits::eNone;
-        barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
-
-        source_stage      = vk::PipelineStageFlagBits::eTopOfPipe;
-        destination_stage = vk::PipelineStageFlagBits::eTransfer;
-    }
-    else if (old_layout == vk::ImageLayout::eTransferDstOptimal && new_layout == vk::ImageLayout::eShaderReadOnlyOptimal)
-    {
-        barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-        barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-
-        source_stage      = vk::PipelineStageFlagBits::eTransfer;
-        destination_stage = vk::PipelineStageFlagBits::eFragmentShader;
-    }
-    else {
-        throw std::invalid_argument("unsupported layout transition!");
-    }
-
-    command_buffer.pipelineBarrier(
-        source_stage,
-        destination_stage,
-        vk::DependencyFlags{},
-        0,
-        nullptr,
-        0,
-        nullptr,
-        1,
-        &barrier
-    );
-}
-
-static auto copy_buffer_to_image(
-    const vk::CommandBuffer command_buffer,
-    const vk::Buffer        buffer,
-    const vk::Image         image,
-    const vk::DeviceSize    buffer_offset,
-    const vk::Extent3D&     extent
-) -> void
-{
-    // TODO account for mip-maps
-    // TODO account for base layer
-    const vk::BufferImageCopy region{
-        .bufferOffset = buffer_offset,
-        .imageSubresource =
-            vk::ImageSubresourceLayers{ .aspectMask = vk::ImageAspectFlagBits::eColor,
-                                       .layerCount = 1 },
-        .imageExtent = extent,
-    };
-
-    command_buffer.copyBufferToImage(
-        buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region
-    );
-}
-
 namespace core::gltf {
 
 auto RenderModel::create_loader(
@@ -705,23 +573,23 @@ auto RenderModel::create_loader(
     const std::span<const vk::DescriptorSetLayout, 3> descriptor_set_layouts,
     const PipelineCreateInfo&                         pipeline_create_info,
     const vk::DescriptorPool                          descriptor_pool,
-    const Model&                                      model,
+    const cache::Handle<const Model>&                 model,
     cache::Cache&                                     cache
 ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>
 {
     // TODO: handle model buffers with no elements
 
     renderer::base::SeqWriteBuffer<uint32_t> index_staging_buffer{
-        ::create_staging_buffer(allocator, std::span{ model.indices() })
+        ::create_staging_buffer(allocator, std::span{ model->indices() })
     };
     renderer::base::Buffer index_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eIndexBuffer,
-        static_cast<uint32_t>(std::span{ model.indices() }.size_bytes())
+        static_cast<uint32_t>(std::span{ model->indices() }.size_bytes())
     ) };
 
     std::vector<ShaderVertex> vertices{
-        model.vertices() | std::views::transform([](const Model::Vertex& vertex) {
+        model->vertices() | std::views::transform([](const Model::Vertex& vertex) {
             return ShaderVertex{
                 .position = vertex.position,
                 .normal   = vertex.normal,
@@ -745,20 +613,17 @@ auto RenderModel::create_loader(
         ::create_buffer<vk::DeviceAddress>(allocator)
     };
 
-    std::vector nodes_with_mesh{ model.nodes() | std::views::filter([](const Node& node) {
-                                     return node.mesh_index().has_value();
-                                 })
-                                 | std::views::transform([](const Node& node) {
-                                       return std::cref(node);
-                                   })
-                                 | std::ranges::to<std::vector>() };
+    std::vector nodes_with_mesh{
+        model->nodes() | std::views::filter([](const Node& node) {
+            return node.mesh_index().has_value();
+        })
+        | std::views::transform([](const Node& node) { return std::cref(node); })
+        | std::ranges::to<std::vector>()
+    };
     std::vector<glm::mat4> transforms(nodes_with_mesh.size());
-    std::ranges::for_each(
-        nodes_with_mesh,
-        [&transforms, model = std::cref(model)](const Node& node) {
-            transforms.at(node.mesh_index().value()) = node.matrix(model);
-        }
-    );
+    std::ranges::for_each(nodes_with_mesh, [&transforms, model](const Node& node) {
+        transforms.at(node.mesh_index().value()) = node.matrix(*model);
+    });
     renderer::base::SeqWriteBuffer<glm::mat4> transform_staging_buffer{
         ::create_staging_buffer(allocator, std::span{ transforms })
     };
@@ -777,7 +642,7 @@ auto RenderModel::create_loader(
     };
 
     std::vector<ShaderTexture> textures{
-        model.textures() | std::views::transform([](const Texture& texture) {
+        model->textures() | std::views::transform([](const Texture& texture) {
             return ShaderTexture{
                 .image_index = texture.image_index,
                 .sampler_index =
@@ -810,7 +675,7 @@ auto RenderModel::create_loader(
         )
     };
 
-    std::vector<ShaderMaterial>                    materials{ model.materials()
+    std::vector<ShaderMaterial>                    materials{ model->materials()
                                            | std::views::transform(::convert_material)
                                            | std::ranges::to<std::vector>() };
     renderer::base::SeqWriteBuffer<ShaderMaterial> material_staging_buffer{
@@ -838,53 +703,23 @@ auto RenderModel::create_loader(
         material_uniform
     ) };
 
-    std::vector<vk::Extent3D> image_extents{
-        model.images() | std::views::transform([&](const Image& image) {
-            return vk::Extent3D{ image->width(), image->height(), image->depth() };
-        })
-        | std::ranges::to<std::vector>()
-    };
-    std::vector<uint64_t> image_offsets{ model.images()
-                                         | std::views::transform([&](const Image& image) {
-                                               return image->offset(0, 0, 0);
-                                           })
-                                         | std::ranges::to<std::vector>() };
-    std::vector<renderer::base::SeqWriteBuffer<>> image_staging_buffers{
-        model.images() | std::views::transform([&](const Image& image) {
-            return ::create_staging_buffer(allocator, image->data());
-        })
-        | std::ranges::to<std::vector>()
-    };
-    std::vector<renderer::base::Image> images{
-        model.images() | std::views::transform([&](const Image& image) {
-            return ::create_image(
-                allocator,
-                image,
-                vk::ImageTiling::eOptimal,
-                vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled
-            );
-        })
-        | std::ranges::to<std::vector>()
-    };
-    std::vector<vk::UniqueImageView> image_views{
-        std::views::zip(
-            images | std::views::transform(&renderer::base::Image::get),
-            model.images(
-            ) | std::views::transform([](const Image& image) { return image->format(); })
-        )
-        | std::views::transform([device](auto image_and_format) {
-              return std::apply(
-                  std::bind_front(::create_image_view, device), image_and_format
-              );
+    std::vector<renderer::resources::Image::Loader> image_loaders{
+        model->images()
+        | std::views::transform([device, &allocator](const Image& source) {
+              return renderer::resources::Image::Loader{ device, allocator, *source };
           })
         | std::ranges::to<std::vector>()
     };
+
     vk::UniqueDescriptorSet image_descriptor_set{ ::create_image_descriptor_set(
-        device, descriptor_set_layouts[1], descriptor_pool, image_views
+        device,
+        descriptor_set_layouts[1],
+        descriptor_pool,
+        image_loaders | std::views::transform(&renderer::resources::Image::Loader::view)
     ) };
 
     std::vector<vk::UniqueSampler> samplers{
-        model.samplers()
+        model->samplers()
         | std::views::transform(std::bind_front(::create_sampler, device))
         | std::ranges::to<std::vector>()
     };
@@ -893,7 +728,7 @@ auto RenderModel::create_loader(
     ) };
 
     std::vector<Mesh> meshes{
-        model.meshes() | std::views::transform([&](const gltf::Mesh& mesh) {
+        model->meshes() | std::views::transform([&](const gltf::Mesh& mesh) {
             return Mesh{
                 .primitives =
                     mesh.primitives
@@ -905,7 +740,7 @@ auto RenderModel::create_loader(
                                   primitive,
                                   primitive.material_index
                                       .transform([&model](const size_t material_index) {
-                                          return model.materials().at(material_index);
+                                          return model->materials().at(material_index);
                                       })
                                       .value_or(Model::default_material()),
                                   cache
@@ -924,7 +759,7 @@ auto RenderModel::create_loader(
     return std::packaged_task{
         [device = device,
          index_buffer_size =
-             static_cast<uint32_t>(std::span{ model.indices() }.size_bytes()),
+             static_cast<uint32_t>(std::span{ model->indices() }.size_bytes()),
          index_staging_buffer = auto{ std::move(index_staging_buffer) },
          index_buffer         = auto{ std::move(index_buffer) },
          vertex_buffer_size   = static_cast<uint32_t>(std::span{ vertices }.size_bytes()),
@@ -947,36 +782,32 @@ auto RenderModel::create_loader(
          material_buffer         = auto{ std::move(material_buffer) },
          material_uniform        = auto{ std::move(material_uniform) },
          base_descriptor_set     = auto{ std::move(base_descriptor_set) },
-         image_offsets           = auto{ std::move(image_offsets) },
-         image_extents           = auto{ std::move(image_extents) },
-         image_staging_buffers   = auto{ std::move(image_staging_buffers) },
-         images                  = auto{ std::move(images) },
-         image_views             = auto{ std::move(image_views) },
+         image_loaders           = auto{ std::move(image_loaders) },
          image_descriptor_set    = auto{ std::move(image_descriptor_set) },
          samplers                = auto{ std::move(samplers) },
          sampler_descriptor_set  = auto{ std::move(sampler_descriptor_set) },
          meshes                  = auto{ std::move(meshes
-         ) }](const vk::CommandBuffer t_transfer_command_buffer) mutable -> RenderModel {
-            t_transfer_command_buffer.copyBuffer(
+         ) }](const vk::CommandBuffer transfer_command_buffer) mutable -> RenderModel {
+            transfer_command_buffer.copyBuffer(
                 index_staging_buffer.get(),
                 index_buffer.get(),
                 std::array{ vk::BufferCopy{ .size = index_buffer_size } }
             );
 
-            t_transfer_command_buffer.copyBuffer(
+            transfer_command_buffer.copyBuffer(
                 vertex_staging_buffer.get(),
                 vertex_buffer.get(),
                 std::array{ vk::BufferCopy{ .size = vertex_buffer_size } }
             );
 
-            t_transfer_command_buffer.copyBuffer(
+            transfer_command_buffer.copyBuffer(
                 transform_staging_buffer.get(),
                 transform_buffer.get(),
                 std::array{ vk::BufferCopy{ .size = transform_buffer_size } }
             );
 
             if (texture_buffer_size > 0) {
-                t_transfer_command_buffer.copyBuffer(
+                transfer_command_buffer.copyBuffer(
                     texture_staging_buffer.get(),
                     texture_buffer.get(),
                     std::array{ vk::BufferCopy{ .size = texture_buffer_size } }
@@ -984,37 +815,24 @@ auto RenderModel::create_loader(
             }
 
             if (material_buffer_size > 0) {
-                t_transfer_command_buffer.copyBuffer(
+                transfer_command_buffer.copyBuffer(
                     material_staging_buffer.get(),
                     material_buffer.get(),
                     std::array{ vk::BufferCopy{ .size = material_buffer_size } }
                 );
             }
 
-            for (auto&& [buffer, texture_image, offset, extent] : std::views::zip(
-                     image_staging_buffers, images, image_offsets, image_extents
-                 ))
-            {
-                ::transition_image_layout(
-                    t_transfer_command_buffer,
-                    texture_image.get(),
-                    vk::ImageLayout::eUndefined,
-                    vk::ImageLayout::eTransferDstOptimal
-                );
-                ::copy_buffer_to_image(
-                    t_transfer_command_buffer,
-                    buffer.get(),
-                    texture_image.get(),
-                    offset,
-                    extent
-                );
-                ::transition_image_layout(
-                    t_transfer_command_buffer,
-                    texture_image.get(),
-                    vk::ImageLayout::eTransferDstOptimal,
-                    vk::ImageLayout::eShaderReadOnlyOptimal
-                );
-            }
+            std::vector<renderer::resources::Image> images{
+                std::views::transform(
+                    std::views::as_rvalue(image_loaders),
+                    // TODO: use `bind_back`
+                    [transfer_command_buffer](renderer::resources::Image::Loader&& loader
+                    ) -> renderer::resources::Image {
+                        return std::move(loader)(transfer_command_buffer);
+                    }
+                )
+                | std::ranges::to<std::vector>()
+            };
 
             return RenderModel{ device,
                                 std::move(index_buffer),
@@ -1030,7 +848,6 @@ auto RenderModel::create_loader(
                                 std::move(material_uniform),
                                 std::move(base_descriptor_set),
                                 std::move(images),
-                                std::move(image_views),
                                 std::move(image_descriptor_set),
                                 std::move(samplers),
                                 std::move(sampler_descriptor_set),
@@ -1100,8 +917,7 @@ RenderModel::RenderModel(
     renderer::base::Buffer&&                                material_buffer,
     renderer::base::RandomAccessBuffer<vk::DeviceAddress>&& material_uniform,
     vk::UniqueDescriptorSet&&                               base_descriptor_set,
-    std::vector<renderer::base::Image>&&                    images,
-    std::vector<vk::UniqueImageView>&&                      image_views,
+    std::vector<renderer::resources::Image>&&               images,
     vk::UniqueDescriptorSet&&                               image_descriptor_set,
     std::vector<vk::UniqueSampler>&&                        samplers,
     vk::UniqueDescriptorSet&&                               sampler_descriptor_set,
@@ -1120,7 +936,6 @@ RenderModel::RenderModel(
       m_material_uniform{ std::move(material_uniform) },
       m_base_descriptor_set{ std::move(base_descriptor_set) },
       m_images{ std::move(images) },
-      m_image_views{ std::move(image_views) },
       m_image_descriptor_set{ std::move(image_descriptor_set) },
       m_samplers{ std::move(samplers) },
       m_sampler_descriptor_set{ std::move(sampler_descriptor_set) },

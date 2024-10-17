@@ -42,13 +42,14 @@ enum class SupportedMimeTypes {
 }   // namespace
 
 [[nodiscard]]
-static auto mime_type(std::ranges::range auto&& first_characters)
+static auto mime_type(const std::ranges::range auto& first_characters)
     -> std::optional<SupportedMimeTypes>
 {
-    const auto first_bytes{ first_characters
-                            | std::views::transform([](const std::ifstream::char_type byte) {
-                                  return static_cast<std::byte>(byte);
-                              }) };
+    const auto first_bytes{
+        first_characters | std::views::transform([](const std::ifstream::char_type byte) {
+            return static_cast<std::byte>(byte);
+        })
+    };
 
     using enum SupportedMimeTypes;
     if (std::ranges::starts_with(first_bytes, image::png::MimeType::magic())) {
@@ -95,10 +96,12 @@ auto core::gltf::ImageLoader::load_from(
         case fastgltf::MimeType::JPEG:
             return std::make_unique<image::stb::Image>(image::stb::Image::load_from(data));
         case fastgltf::MimeType::KTX2:
-            return std::make_unique<image::ktx2::Image>(image::ktx2::Image::load_from(data));
+            return std::make_unique<image::ktx2::Image>(image::ktx2::Image::load_from(data
+            ));
         default: {
             SPDLOG_WARN(
-                "Unsupported mime type for loading images: {}", std::to_underlying(mime_type)
+                "Unsupported mime type for loading images: {}",
+                std::to_underlying(mime_type)
             );
             return std::nullopt;
         }
