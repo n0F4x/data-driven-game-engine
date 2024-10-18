@@ -12,9 +12,9 @@ constexpr static uint32_t g_frame_count{ 1 };
 static auto load_scene(
     const core::renderer::base::Device&    device,
     const core::renderer::base::Allocator& allocator,
-    const vk::RenderPass             render_pass,
-    core::gltf::Model&&              model,
-    core::cache::Cache&              cache
+    const vk::RenderPass                   render_pass,
+    core::gltf::Model&&                    model,
+    core::cache::Cache&                    cache
 ) -> std::optional<core::renderer::Scene>
 {
     auto                                transfer_command_pool{ init::create_command_pool(
@@ -33,7 +33,7 @@ static auto load_scene(
         core::renderer::Scene::create()
             .add_model(core::cache::make_handle<const core::gltf::Model>(std::move(model)))
             .set_cache(cache)
-            .build(device.get(), allocator, render_pass)
+            .build(device, allocator, render_pass)
     };
 
     constexpr vk::CommandBufferBeginInfo begin_info{};

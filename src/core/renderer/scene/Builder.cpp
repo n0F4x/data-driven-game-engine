@@ -1,5 +1,6 @@
 #include "Builder.hpp"
 
+#include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/model/ModelLayout.hpp>
 
 #include "core/renderer/base/descriptor_pool/Builder.hpp"
@@ -188,7 +189,7 @@ auto Scene::Builder::add_model(cache::Handle<const gltf::Model>&& model) -> Buil
 }
 
 auto Scene::Builder::build(
-    const vk::Device       device,
+    const base::Device&    device,
     const base::Allocator& allocator,
     const vk::RenderPass   render_pass
 ) const -> std::packaged_task<Scene(vk::CommandBuffer)>
@@ -196,11 +197,11 @@ auto Scene::Builder::build(
     cache::Cache temp_cache{};
 
     vk::UniqueDescriptorSetLayout global_descriptor_set_layout{
-        create_global_descriptor_set_layout(device)
+        create_global_descriptor_set_layout(device.get())
     };
 
     std::array model_descriptor_set_layouts{ ModelLayout::create_descriptor_set_layouts(
-        device,
+        device.get(),
         ModelLayout::DescriptorSetLayoutCreateInfo{
             .max_image_count   = max_image_count(m_models),
             .max_sampler_count = max_sampler_count(m_models),
@@ -208,7 +209,7 @@ auto Scene::Builder::build(
     ) };
 
     vk::UniquePipelineLayout pipeline_layout{ create_pipeline_layout(
-        device,
+        device.get(),
         std::array{
             global_descriptor_set_layout.get(),
             model_descriptor_set_layouts[0].get(),
@@ -217,7 +218,7 @@ auto Scene::Builder::build(
         }
     ) };
 
-    base::DescriptorPool descriptor_pool{ create_descriptor_pool(device, m_models) };
+    base::DescriptorPool descriptor_pool{ create_descriptor_pool(device.get(), m_models) };
 
     base::RandomAccessBuffer<Scene::ShaderScene> global_buffer{
         create_global_buffer<Scene::ShaderScene>(allocator)
@@ -225,7 +226,7 @@ auto Scene::Builder::build(
 
     vk::UniqueDescriptorSet global_descriptor_set{
         create_global_descriptor_set<Scene::ShaderScene>(
-            device,
+            device.get(),
             global_descriptor_set_layout.get(),
             descriptor_pool.get(),
             global_buffer.get()

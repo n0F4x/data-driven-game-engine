@@ -43,11 +43,8 @@ private:
     gsl_lite::not_null<std::unique_ptr<stbi_uc, decltype(&stbi_image_free)>> m_data;
     int                                                                      m_width;
     int                                                                      m_height;
-    int m_channel_count;
 
-    explicit
-        Image(gsl_lite::not_null<stbi_uc*> data, int width, int height, int channel_count)
-            noexcept;
+    explicit Image(gsl_lite::not_null<stbi_uc*> data, int width, int height) noexcept;
 };
 
 }   // namespace core::image::stb

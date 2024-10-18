@@ -18,8 +18,11 @@ public:
     auto add_model(cache::Handle<const gltf::Model>&& model) -> Builder&;
 
     [[nodiscard]]
-    auto build(vk::Device device, const base::Allocator& allocator, vk::RenderPass render_pass)
-        const -> std::packaged_task<Scene(vk::CommandBuffer)>;
+    auto build(
+        const base::Device&    device,
+        const base::Allocator& allocator,
+        vk::RenderPass         render_pass
+    ) const -> std::packaged_task<Scene(vk::CommandBuffer)>;
 
 private:
     std::optional<std::reference_wrapper<cache::Cache>> m_cache;

@@ -5,6 +5,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <core/renderer/base/device/Device.hpp>
+
 #include "core/renderer/base/memory/Image.hpp"
 #include "core/renderer/material_system/GraphicsPipelineBuilder.hpp"
 #include "core/renderer/model/ModelLayout.hpp"
@@ -419,20 +421,28 @@ static auto to_address_mode(const Sampler::WrapMode wrap_mode) noexcept
 }
 
 [[nodiscard]]
-static auto create_sampler(const vk::Device device, const Sampler& sampler_info)
-    -> vk::UniqueSampler
+static auto create_sampler(
+    const core::renderer::base::Device& device,
+    const Sampler&                      sampler_info
+) -> vk::UniqueSampler
 {
-    const vk::SamplerCreateInfo sampler_create_info{
-        .magFilter    = ::to_mag_filter(sampler_info.mag_filter),
-        .minFilter    = ::to_min_filter(sampler_info.min_filter),
-        .mipmapMode   = ::to_mipmap_mode(sampler_info.min_filter),
-        .addressModeU = ::to_address_mode(sampler_info.wrap_s),
-        .addressModeV = ::to_address_mode(sampler_info.wrap_t),
-        .addressModeW = vk::SamplerAddressMode::eRepeat,
-        .maxLod       = vk::LodClampNone,
+    const vk::PhysicalDeviceLimits limits{
+        device.physical_device().getProperties().limits
     };
 
-    return device.createSamplerUnique(sampler_create_info);
+    const vk::SamplerCreateInfo sampler_create_info{
+        .magFilter        = ::to_mag_filter(sampler_info.mag_filter),
+        .minFilter        = ::to_min_filter(sampler_info.min_filter),
+        .mipmapMode       = ::to_mipmap_mode(sampler_info.min_filter),
+        .addressModeU     = ::to_address_mode(sampler_info.wrap_s),
+        .addressModeV     = ::to_address_mode(sampler_info.wrap_t),
+        .addressModeW     = vk::SamplerAddressMode::eRepeat,
+        .anisotropyEnable = vk::True,
+        .maxAnisotropy    = limits.maxSamplerAnisotropy,
+        .maxLod           = vk::LodClampNone,
+    };
+
+    return device->createSamplerUnique(sampler_create_info);
 }
 
 [[nodiscard]]
@@ -568,7 +578,7 @@ static auto create_pipeline(
 namespace core::gltf {
 
 auto RenderModel::create_loader(
-    const vk::Device                                  device,
+    const renderer::base::Device&                     device,
     const renderer::base::Allocator&                  allocator,
     const std::span<const vk::DescriptorSetLayout, 3> descriptor_set_layouts,
     const PipelineCreateInfo&                         pipeline_create_info,
@@ -692,7 +702,7 @@ auto RenderModel::create_loader(
     };
 
     vk::UniqueDescriptorSet base_descriptor_set{ ::create_base_descriptor_set(
-        device,
+        device.get(),
         descriptor_set_layouts[0],
         descriptor_pool,
         vertex_uniform,
@@ -704,15 +714,14 @@ auto RenderModel::create_loader(
     ) };
 
     std::vector<renderer::resources::Image::Loader> image_loaders{
-        model->images()
-        | std::views::transform([device, &allocator](const Image& source) {
-              return renderer::resources::Image::Loader{ device, allocator, *source };
-          })
+        model->images() | std::views::transform([&device, &allocator](const Image& source) {
+            return renderer::resources::Image::Loader{ device.get(), allocator, *source };
+        })
         | std::ranges::to<std::vector>()
     };
 
     vk::UniqueDescriptorSet image_descriptor_set{ ::create_image_descriptor_set(
-        device,
+        device.get(),
         descriptor_set_layouts[1],
         descriptor_pool,
         image_loaders | std::views::transform(&renderer::resources::Image::Loader::view)
@@ -720,11 +729,11 @@ auto RenderModel::create_loader(
 
     std::vector<vk::UniqueSampler> samplers{
         model->samplers()
-        | std::views::transform(std::bind_front(::create_sampler, device))
+        | std::views::transform(std::bind_front(::create_sampler, std::cref(device)))
         | std::ranges::to<std::vector>()
     };
     vk::UniqueDescriptorSet sampler_descriptor_set{ ::create_sampler_descriptor_set(
-        device, descriptor_set_layouts[2], descriptor_pool, samplers
+        device.get(), descriptor_set_layouts[2], descriptor_pool, samplers
     ) };
 
     std::vector<Mesh> meshes{
@@ -735,7 +744,7 @@ auto RenderModel::create_loader(
                     | std::views::transform([&](const gltf::Mesh::Primitive& primitive) {
                           return Mesh::Primitive{
                               .pipeline = ::create_pipeline(
-                                  device,
+                                  device.get(),
                                   pipeline_create_info,
                                   primitive,
                                   primitive.material_index
@@ -757,7 +766,8 @@ auto RenderModel::create_loader(
     };
 
     return std::packaged_task{
-        [device = device,
+        [physical_device = device.physical_device(),
+         device          = device.get(),
          index_buffer_size =
              static_cast<uint32_t>(std::span{ model->indices() }.size_bytes()),
          index_staging_buffer = auto{ std::move(index_staging_buffer) },
@@ -826,9 +836,10 @@ auto RenderModel::create_loader(
                 std::views::transform(
                     std::views::as_rvalue(image_loaders),
                     // TODO: use `bind_back`
-                    [transfer_command_buffer](renderer::resources::Image::Loader&& loader
+                    [physical_device,
+                     transfer_command_buffer](renderer::resources::Image::Loader&& loader
                     ) -> renderer::resources::Image {
-                        return std::move(loader)(transfer_command_buffer);
+                        return std::move(loader)(physical_device, transfer_command_buffer);
                     }
                 )
                 | std::ranges::to<std::vector>()

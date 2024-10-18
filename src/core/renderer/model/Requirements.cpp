@@ -29,6 +29,11 @@ auto ModelLayout::Requirements::require_device_settings(
     vkb::PhysicalDeviceSelector& physical_device_selector
 ) -> void
 {
+    constexpr static vk::PhysicalDeviceFeatures features{
+        .samplerAnisotropy = vk::True,
+    };
+    physical_device_selector.set_required_features(features);
+
     // VK_KHR_buffer_device_address
     physical_device_selector.add_required_extension(VK_KHR_DEVICE_GROUP_EXTENSION_NAME);
     physical_device_selector.add_required_extension(

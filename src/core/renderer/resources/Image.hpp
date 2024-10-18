@@ -25,19 +25,30 @@ public:
         );
 
         [[nodiscard]]
-        auto operator()(vk::CommandBuffer transfer_command_buffer) && -> Image;
+        auto operator()(
+            vk::PhysicalDevice physical_device,
+            vk::CommandBuffer  graphics_command_buffer
+        ) && -> Image;
 
         [[nodiscard]]
         auto view() const -> vk::ImageView;
 
+        [[nodiscard]]
+        auto mip_level_count() const -> uint32_t;
+
+        [[nodiscard]]
+        auto needs_mip_generation() const -> bool;
+
     private:
+        vk::Format                       m_format;
+        vk::Extent3D                     m_extent;
+        uint32_t                         m_mip_level_count;
+        std::vector<vk::BufferImageCopy> m_copy_regions;
+
         base::Image         m_image;
         vk::UniqueImageView m_view;
 
         base::SeqWriteBuffer<> m_staging_buffer;
-
-        vk::Extent3D   m_extent;
-        vk::DeviceSize m_buffer_offset;
     };
 
 private:

@@ -24,7 +24,7 @@ public:
 
     [[nodiscard]]
     static auto create_loader(
-        vk::Device                                  device,
+        const renderer::base::Device&               device,
         const renderer::base::Allocator&            allocator,
         std::span<const vk::DescriptorSetLayout, 3> descriptor_set_layouts,
         const PipelineCreateInfo&                   pipeline_create_info,
