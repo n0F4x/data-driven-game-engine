@@ -7,7 +7,7 @@
 
 #include <core/renderer/base/device/Device.hpp>
 
-#include "core/renderer/base/memory/Image.hpp"
+#include "core/renderer/base/resources/Image.hpp"
 #include "core/renderer/material_system/GraphicsPipelineBuilder.hpp"
 #include "core/renderer/model/ModelLayout.hpp"
 
@@ -73,10 +73,10 @@ template <typename T>
 static auto create_staging_buffer(
     const renderer::base::Allocator& allocator,
     const std::span<T>               data
-) -> renderer::base::SeqWriteBuffer<std::remove_const_t<T>>
+) -> renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>
 {
     if (data.empty()) {
-        return renderer::base::SeqWriteBuffer<std::remove_const_t<T>>{};
+        return renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{};
     }
 
     const vk::BufferCreateInfo staging_buffer_create_info{
@@ -84,9 +84,9 @@ static auto create_staging_buffer(
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
 
-    return allocator.allocate_seq_write_buffer<std::remove_const_t<T>>(
-        staging_buffer_create_info, data.data()
-    );
+    return renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{
+        allocator, staging_buffer_create_info, data.data()
+    };
 }
 
 [[nodiscard]]
@@ -94,29 +94,30 @@ static auto create_gpu_only_buffer(
     const renderer::base::Allocator& allocator,
     const vk::BufferUsageFlags       usage_flags,
     const uint32_t                   size
-) -> renderer::base::Buffer
+) -> renderer::resources::Buffer
 {
     if (size == 0) {
-        return renderer::base::Buffer{};
+        return renderer::resources::Buffer{};
     }
 
     const vk::BufferCreateInfo buffer_create_info = {
         .size = size, .usage = usage_flags | vk::BufferUsageFlagBits::eTransferDst
     };
 
-    return allocator.allocate_buffer(buffer_create_info);
+    return renderer::resources::Buffer{ allocator, buffer_create_info };
 }
 
 template <typename UniformBlock>
 [[nodiscard]]
 static auto create_buffer(const renderer::base::Allocator& allocator)
-    -> renderer::base::RandomAccessBuffer<UniformBlock>
+    -> renderer::resources::RandomAccessBuffer<UniformBlock>
 {
     constexpr static vk::BufferCreateInfo buffer_create_info = {
         .size = sizeof(UniformBlock), .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    return allocator.allocate_random_access_buffer<UniformBlock>(buffer_create_info);
+    return renderer::resources::RandomAccessBuffer<UniformBlock>{ allocator,
+                                                                  buffer_create_info };
 }
 
 [[nodiscard]]
@@ -216,12 +217,12 @@ static auto create_base_descriptor_set(
     const vk::Device              device,
     const vk::DescriptorSetLayout descriptor_set_layout,
     const vk::DescriptorPool      descriptor_pool,
-    const renderer::base::Buffer& vertex_uniform,
-    const renderer::base::Buffer& transform_uniform,
-    const vk::Sampler             default_sampler,
-    const renderer::base::Buffer& texture_uniform,
-    const renderer::base::Buffer& default_material_uniform,
-    const renderer::base::Buffer& material_uniform
+    const renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& vertex_uniform,
+    const renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& transform_uniform,
+    const vk::Sampler                                                 default_sampler,
+    const renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& texture_uniform,
+    const renderer::resources::RandomAccessBuffer<ShaderMaterial>& default_material_uniform,
+    const renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& material_uniform
 ) -> vk::UniqueDescriptorSet
 {
     const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
@@ -589,10 +590,10 @@ auto RenderModel::create_loader(
 {
     // TODO: handle model buffers with no elements
 
-    renderer::base::SeqWriteBuffer<uint32_t> index_staging_buffer{
+    renderer::resources::SeqWriteBuffer<uint32_t> index_staging_buffer{
         ::create_staging_buffer(allocator, std::span{ model->indices() })
     };
-    renderer::base::Buffer index_buffer{ ::create_gpu_only_buffer(
+    renderer::resources::Buffer index_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eIndexBuffer,
         static_cast<uint32_t>(std::span{ model->indices() }.size_bytes())
@@ -610,16 +611,16 @@ auto RenderModel::create_loader(
         })
         | std::ranges::to<std::vector>()
     };
-    renderer::base::SeqWriteBuffer<ShaderVertex> vertex_staging_buffer{
+    renderer::resources::SeqWriteBuffer<ShaderVertex> vertex_staging_buffer{
         ::create_staging_buffer(allocator, std::span{ vertices })
     };
-    renderer::base::Buffer vertex_buffer{ ::create_gpu_only_buffer(
+    renderer::resources::Buffer vertex_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
         static_cast<uint32_t>(std::span{ vertices }.size_bytes())
     ) };
-    renderer::base::RandomAccessBuffer<vk::DeviceAddress> vertex_uniform{
+    renderer::resources::RandomAccessBuffer<vk::DeviceAddress> vertex_uniform{
         ::create_buffer<vk::DeviceAddress>(allocator)
     };
 
@@ -634,16 +635,16 @@ auto RenderModel::create_loader(
     std::ranges::for_each(nodes_with_mesh, [&transforms, model](const Node& node) {
         transforms.at(node.mesh_index().value()) = node.matrix(*model);
     });
-    renderer::base::SeqWriteBuffer<glm::mat4> transform_staging_buffer{
+    renderer::resources::SeqWriteBuffer<glm::mat4> transform_staging_buffer{
         ::create_staging_buffer(allocator, std::span{ transforms })
     };
-    renderer::base::Buffer transform_buffer{ ::create_gpu_only_buffer(
+    renderer::resources::Buffer transform_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
         static_cast<uint32_t>(std::span{ transforms }.size_bytes())
     ) };
-    renderer::base::RandomAccessBuffer<vk::DeviceAddress> transform_uniform{
+    renderer::resources::RandomAccessBuffer<vk::DeviceAddress> transform_uniform{
         ::create_buffer<vk::DeviceAddress>(allocator)
     };
 
@@ -661,43 +662,40 @@ auto RenderModel::create_loader(
         })
         | std::ranges::to<std::vector>()
     };
-    renderer::base::SeqWriteBuffer<ShaderTexture> texture_staging_buffer{
+    renderer::resources::SeqWriteBuffer<ShaderTexture> texture_staging_buffer{
         ::create_staging_buffer(allocator, std::span{ textures })
     };
-    renderer::base::Buffer texture_buffer{ ::create_gpu_only_buffer(
+    renderer::resources::Buffer texture_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
         static_cast<uint32_t>(std::span{ textures }.size_bytes())
     ) };
-    renderer::base::RandomAccessBuffer<vk::DeviceAddress> texture_uniform{
+    renderer::resources::RandomAccessBuffer<vk::DeviceAddress> texture_uniform{
         ::create_buffer<vk::DeviceAddress>(allocator)
     };
 
     const ShaderMaterial default_material{ ::convert_material(Model::default_material()) };
-    renderer::base::RandomAccessBuffer<ShaderMaterial> default_material_uniform{
-        allocator.allocate_random_access_buffer<ShaderMaterial>(
-            vk::BufferCreateInfo{
-                .size  = static_cast<uint32_t>(sizeof(ShaderMaterial)),
-                .usage = vk::BufferUsageFlagBits::eUniformBuffer,
-            },
-            &default_material
-        )
+    renderer::resources::RandomAccessBuffer<ShaderMaterial> default_material_uniform{
+        allocator,
+        vk::BufferCreateInfo{ .size  = static_cast<uint32_t>(sizeof(ShaderMaterial)),
+                             .usage = vk::BufferUsageFlagBits::eUniformBuffer },
+        &default_material
     };
 
-    std::vector<ShaderMaterial>                    materials{ model->materials()
+    std::vector<ShaderMaterial>                         materials{ model->materials()
                                            | std::views::transform(::convert_material)
                                            | std::ranges::to<std::vector>() };
-    renderer::base::SeqWriteBuffer<ShaderMaterial> material_staging_buffer{
+    renderer::resources::SeqWriteBuffer<ShaderMaterial> material_staging_buffer{
         ::create_staging_buffer(allocator, std::span{ materials })
     };
-    renderer::base::Buffer material_buffer{ ::create_gpu_only_buffer(
+    renderer::resources::Buffer material_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
         static_cast<uint32_t>(std::span{ materials }.size_bytes())
     ) };
-    renderer::base::RandomAccessBuffer<vk::DeviceAddress> material_uniform{
+    renderer::resources::RandomAccessBuffer<vk::DeviceAddress> material_uniform{
         ::create_buffer<vk::DeviceAddress>(allocator)
     };
 
@@ -713,10 +711,11 @@ auto RenderModel::create_loader(
         material_uniform
     ) };
 
-    std::vector<renderer::resources::Image::Loader> image_loaders{
-        model->images() | std::views::transform([&device, &allocator](const Image& source) {
-            return renderer::resources::Image::Loader{ device.get(), allocator, *source };
-        })
+    std::vector<gfx::resources::Image::Loader> image_loaders{
+        model->images()
+        | std::views::transform([&device, &allocator](const Image& source) {
+              return gfx::resources::Image::Loader{ device.get(), allocator, *source };
+          })
         | std::ranges::to<std::vector>()
     };
 
@@ -724,7 +723,7 @@ auto RenderModel::create_loader(
         device.get(),
         descriptor_set_layouts[1],
         descriptor_pool,
-        image_loaders | std::views::transform(&renderer::resources::Image::Loader::view)
+        image_loaders | std::views::transform(&gfx::resources::Image::Loader::view)
     ) };
 
     std::vector<vk::UniqueSampler> samplers{
@@ -832,13 +831,13 @@ auto RenderModel::create_loader(
                 );
             }
 
-            std::vector<renderer::resources::Image> images{
+            std::vector<gfx::resources::Image> images{
                 std::views::transform(
                     std::views::as_rvalue(image_loaders),
                     // TODO: use `bind_back`
                     [physical_device,
-                     transfer_command_buffer](renderer::resources::Image::Loader&& loader
-                    ) -> renderer::resources::Image {
+                     transfer_command_buffer](gfx::resources::Image::Loader&& loader
+                    ) -> gfx::resources::Image {
                         return std::move(loader)(physical_device, transfer_command_buffer);
                     }
                 )
@@ -915,24 +914,24 @@ auto RenderModel::draw(
 }
 
 RenderModel::RenderModel(
-    const vk::Device                                        device,
-    renderer::base::Buffer&&                                index_buffer,
-    renderer::base::Buffer&&                                vertex_buffer,
-    renderer::base::RandomAccessBuffer<vk::DeviceAddress>&& vertex_uniform,
-    renderer::base::Buffer&&                                transform_buffer,
-    renderer::base::RandomAccessBuffer<vk::DeviceAddress>&& transform_uniform,
-    vk::UniqueSampler&&                                     default_sampler,
-    renderer::base::Buffer&&                                texture_buffer,
-    renderer::base::RandomAccessBuffer<vk::DeviceAddress>&& texture_uniform,
-    renderer::base::RandomAccessBuffer<ShaderMaterial>&&    default_material_uniform,
-    renderer::base::Buffer&&                                material_buffer,
-    renderer::base::RandomAccessBuffer<vk::DeviceAddress>&& material_uniform,
-    vk::UniqueDescriptorSet&&                               base_descriptor_set,
-    std::vector<renderer::resources::Image>&&               images,
-    vk::UniqueDescriptorSet&&                               image_descriptor_set,
-    std::vector<vk::UniqueSampler>&&                        samplers,
-    vk::UniqueDescriptorSet&&                               sampler_descriptor_set,
-    std::vector<Mesh>&&                                     meshes
+    const vk::Device                                             device,
+    renderer::resources::Buffer&&                                index_buffer,
+    renderer::resources::Buffer&&                                vertex_buffer,
+    renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& vertex_uniform,
+    renderer::resources::Buffer&&                                transform_buffer,
+    renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& transform_uniform,
+    vk::UniqueSampler&&                                          default_sampler,
+    renderer::resources::Buffer&&                                texture_buffer,
+    renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& texture_uniform,
+    renderer::resources::RandomAccessBuffer<ShaderMaterial>&&    default_material_uniform,
+    renderer::resources::Buffer&&                                material_buffer,
+    renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& material_uniform,
+    vk::UniqueDescriptorSet&&                                    base_descriptor_set,
+    std::vector<gfx::resources::Image>&&                         images,
+    vk::UniqueDescriptorSet&&                                    image_descriptor_set,
+    std::vector<vk::UniqueSampler>&&                             samplers,
+    vk::UniqueDescriptorSet&&                                    sampler_descriptor_set,
+    std::vector<Mesh>&&                                          meshes
 )
     : m_index_buffer{ std::move(index_buffer) },
       m_vertex_buffer{ std::move(vertex_buffer) },

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "core/meta/tuple.hpp"
+#include "core/utility/meta/tuple-like.hpp"
+#include "core/utility/meta/tuple.hpp"
 
 // reference: https://devblogs.microsoft.com/oldnewthing/20200625-00/?p=103903
 

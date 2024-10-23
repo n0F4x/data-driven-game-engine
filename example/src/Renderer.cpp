@@ -189,7 +189,7 @@ static auto submit_render(
 
 auto DemoRenderer::render(
     const vk::Extent2D            framebuffer_size,
-    const core::graphics::Camera& camera
+    const core::gfx::Camera& camera
 ) -> void
 {
     swapchain.get().set_framebuffer_size(framebuffer_size);
@@ -231,7 +231,7 @@ auto DemoRenderer::render(
 auto DemoRenderer::record_command_buffer(
     const vk::Extent2D     swapchain_extent,
     const uint32_t         image_index,
-    core::graphics::Camera camera
+    core::gfx::Camera camera
 ) -> void
 {
     const vk::CommandBuffer command_buffer{ command_buffers[frame_index] };

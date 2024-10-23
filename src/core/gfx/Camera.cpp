@@ -4,7 +4,7 @@
 
 #include <glm/ext/matrix_clip_space.hpp>
 
-namespace core::graphics {
+namespace core::gfx {
 
 auto Camera::set_perspective_projection(
     const double fov_y,

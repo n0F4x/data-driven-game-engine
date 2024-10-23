@@ -90,7 +90,12 @@ auto Image::depth() const noexcept -> uint32_t
 
 auto Image::mip_level_count() const noexcept -> uint32_t
 {
-    return m_impl->numLevels;
+    return std::max(m_impl->numLevels, 1u);
+}
+
+auto Image::needs_mip_generation() const noexcept -> bool
+{
+    return m_impl->numLevels == 0;
 }
 
 auto Image::format() const noexcept -> vk::Format

@@ -67,13 +67,13 @@ auto demo::run(App app, const ModelInfo& model_info) -> int
                 }
             );
 
-            core::graphics::Camera camera;
+            core::gfx::Camera camera;
             std::mutex             camera_mutex{};
 
             auto rendering = std::async(std::launch::async, [&] {
                 while (running) {
                     camera_mutex.lock();
-                    const core::graphics::Camera render_camera{ camera };
+                    const core::gfx::Camera render_camera{ camera };
                     camera_mutex.unlock();
                     demo.render(framebuffer_size, render_camera);
                 }

@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-namespace core::graphics {
+namespace core::gfx {
 
 class Camera {
 public:

@@ -13,7 +13,7 @@ auto Scene::create() noexcept -> Builder
 
 auto Scene::draw(
     const vk::CommandBuffer graphics_command_buffer,
-    const graphics::Camera& camera
+    const gfx::Camera& camera
 ) const -> void
 {
     m_global_buffer.set(ShaderScene{
@@ -39,7 +39,7 @@ Scene::Scene(
     std::array<vk::UniqueDescriptorSetLayout, 3>&& model_descriptor_set_layouts,
     vk::UniquePipelineLayout&&                     pipeline_layout,
     base::DescriptorPool&&                               descriptor_pool,
-    base::RandomAccessBuffer<ShaderScene>&&                    global_buffer,
+    resources::RandomAccessBuffer<ShaderScene>&&                    global_buffer,
     vk::UniqueDescriptorSet&&                      global_descriptor_set,
     std::vector<gltf::RenderModel>&&               models
 ) noexcept

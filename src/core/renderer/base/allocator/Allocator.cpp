@@ -5,10 +5,9 @@
 #include "core/config/vulkan.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
-#include "core/renderer/base/memory/Buffer.hpp"
-#include "core/renderer/base/memory/Image.hpp"
-
-#include "helpers.hpp"
+#include "core/renderer/base/resources/Allocation.hpp"
+#include "core/renderer/base/resources/Buffer.hpp"
+#include "core/renderer/base/resources/Image.hpp"
 
 namespace core::renderer::base {
 
@@ -149,7 +148,8 @@ static auto create_allocator(
 
     VmaAllocator     allocator{};
     const vk::Result result{ vmaCreateAllocator(&create_info, &allocator) };
-    vk::resultCheck(result, "vmaCreateAllocator");
+    vk::detail::resultCheck(result, "vmaCreateAllocator");
+
     return std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)>{
         allocator, vmaDestroyAllocator
     };
@@ -159,36 +159,104 @@ Allocator::Allocator(const Instance& instance, const Device& device)
     : m_allocator{ create_allocator(instance, device) }
 {}
 
-auto Allocator::allocate_buffer(
-    const vk::BufferCreateInfo&    buffer_create_info,
+auto Allocator::allocate(
+    const vk::MemoryRequirements&  requirements,
     const VmaAllocationCreateInfo& allocation_create_info
-) const -> Buffer
+) const -> std::tuple<Allocation, VmaAllocationInfo>
 {
-    auto [allocation, buffer, _]{ details::create_buffer(
-        m_allocator.get(), buffer_create_info, allocation_create_info
-    ) };
+    VmaAllocation     allocation{};
+    VmaAllocationInfo allocation_info{};
 
-    return Buffer{ m_allocator.get(), allocation, buffer, buffer_create_info.size };
+    const vk::Result result{ vmaAllocateMemory(
+        m_allocator.get(),
+        reinterpret_cast<const VkMemoryRequirements*>(&requirements),
+        &allocation_create_info,
+        &allocation,
+        &allocation_info
+    ) };
+    vk::detail::resultCheck(result, "vmaAllocateMemory failed");
+
+    return std::make_tuple(
+        Allocation{ m_allocator.get(),
+                    allocation,
+                    allocation_info.memoryType,
+                    allocation_info.size },
+        allocation_info
+    );
 }
 
-auto Allocator::allocate_image(
+auto Allocator::create_buffer(
+    const vk::BufferCreateInfo&    buffer_create_info,
+    const VmaAllocationCreateInfo& allocation_create_info
+) const -> std::tuple<Buffer, Allocation, VmaAllocationInfo>
+{
+    vk::Buffer        buffer;
+    VmaAllocation     allocation{};
+    VmaAllocationInfo allocation_info{};
+    vk::detail::resultCheck(
+        static_cast<vk::Result>(vmaCreateBuffer(
+            m_allocator.get(),
+            reinterpret_cast<const VkBufferCreateInfo*>(&buffer_create_info),
+            &allocation_create_info,
+            reinterpret_cast<VkBuffer*>(&buffer),
+            &allocation,
+            &allocation_info
+        )),
+        "vmaCreateBuffer failed"
+    );
+
+    return std::make_tuple(
+        Buffer{
+            vk::UniqueBuffer{ buffer, device() },
+            buffer_create_info.size
+    },
+        Allocation{ m_allocator.get(),
+                    allocation,
+                    allocation_info.memoryType,
+                    allocation_info.size },
+        allocation_info
+    );
+}
+
+auto Allocator::create_image(
     const vk::ImageCreateInfo&     image_create_info,
     const VmaAllocationCreateInfo& allocation_create_info
-) const -> Image
+) const -> std::tuple<Image, Allocation, VmaAllocationInfo>
 {
-    vk::Image        image{};
-    VmaAllocation    allocation{};
-    const vk::Result result{ vmaCreateImage(
-        m_allocator.get(),
-        reinterpret_cast<const VkImageCreateInfo*>(&image_create_info),
-        &allocation_create_info,
-        reinterpret_cast<VkImage*>(&image),
-        &allocation,
-        nullptr
-    ) };
-    vk::resultCheck(result, "vmaCreateImage failed");
+    vk::Image         image{};
+    VmaAllocation     allocation{};
+    VmaAllocationInfo allocation_info{};
+    vk::detail::resultCheck(
+        static_cast<vk::Result>(vmaCreateImage(
+            m_allocator.get(),
+            reinterpret_cast<const VkImageCreateInfo*>(&image_create_info),
+            &allocation_create_info,
+            reinterpret_cast<VkImage*>(&image),
+            &allocation,
+            &allocation_info
+        )),
+        "vmaCreateImage failed"
+    );
 
-    return Image(image, allocation, m_allocator.get());
+    return std::make_tuple(
+        Image{
+            vk::UniqueImage{ image, device() },
+            image_create_info
+    },
+        Allocation{ m_allocator.get(),
+                    allocation,
+                    allocation_info.memoryType,
+                    allocation_info.size },
+        allocation_info
+    );
+}
+
+auto Allocator::device() const -> vk::Device
+{
+    VmaAllocatorInfo allocator_info;
+    vmaGetAllocatorInfo(m_allocator.get(), &allocator_info);
+
+    return allocator_info.device;
 }
 
 }   // namespace core::renderer::base

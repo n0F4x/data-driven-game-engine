@@ -31,6 +31,8 @@ public:
 
     [[nodiscard]]
     auto mip_level_count() const noexcept -> uint32_t final;
+    [[nodiscard]]
+    auto needs_mip_generation() const noexcept -> bool final;
 
     [[nodiscard]]
     auto format() const noexcept -> vk::Format final;

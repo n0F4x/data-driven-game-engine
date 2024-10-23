@@ -1,3 +1,4 @@
+- use [Host image copy](https://docs.vulkan.org/samples/latest/samples/extensions/host_image_copy/README.html)
 - use _fpng_ and _libjpeg-turbo_ intead of _stb_image_ 
 - provide a default texture source
 - change image formats before upload

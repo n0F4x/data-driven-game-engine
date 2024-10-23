@@ -70,7 +70,12 @@ auto core::image::stb::Image::depth() const noexcept -> uint32_t
 
 auto core::image::stb::Image::mip_level_count() const noexcept -> uint32_t
 {
-    return 0;
+    return 1;
+}
+
+auto core::image::stb::Image::needs_mip_generation() const noexcept -> bool
+{
+    return true;
 }
 
 auto core::image::stb::Image::format() const noexcept -> vk::Format

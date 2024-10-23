@@ -61,8 +61,8 @@ auto Controller::update(
     }
 }
 
-auto Controller::update_camera(core::graphics::Camera camera) const noexcept
-    -> core::graphics::Camera
+auto Controller::update_camera(core::gfx::Camera camera) const noexcept
+    -> core::gfx::Camera
 {
     camera.set_view_yxz(m_position, glm::vec3{ m_vertical_angle, m_horizontal_angle, 0 });
     return camera;

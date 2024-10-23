@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <core/renderer/base/device/Device.hpp>
+#include <core/renderer/resources/Image.hpp>
 
 using namespace core;
 
@@ -121,7 +122,7 @@ auto create_depth_image(
     const vk::PhysicalDevice               physical_device,
     const core::renderer::base::Allocator& allocator,
     const vk::Extent2D                     swapchain_extent
-) -> renderer::base::Image
+) -> renderer::resources::Image
 {
     const vk::ImageCreateInfo image_create_info = {
         .imageType   = vk::ImageType::e2D,
@@ -141,7 +142,9 @@ auto create_depth_image(
         .priority = 1.f,
     };
 
-    return allocator.allocate_image(image_create_info, allocation_create_info);
+    return renderer::resources::Image{ allocator,
+                                       image_create_info,
+                                       allocation_create_info };
 }
 
 auto create_depth_image_view(

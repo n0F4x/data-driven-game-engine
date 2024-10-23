@@ -53,6 +53,10 @@ if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
 endif ()
 
+#Vulkan-Utility
+find_package(VulkanUtilityLibraries CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::UtilityHeaders)
+
 # VulkanMemoryAllocator
 find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 set(VMA_STATIC_FUNCTIONS 0)
@@ -67,7 +71,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC GPUOpen::VulkanMemoryAllocator)
 # TODO: use vcpkg when this version is supported
 FetchContent_Declare(vk-bootstrap
         GIT_REPOSITORY https://github.com/charles-lunarg/vk-bootstrap.git
-        GIT_TAG v1.3.289
+        GIT_TAG v1.3.290
         SYSTEM
 )
 FetchContent_MakeAvailable(vk-bootstrap)

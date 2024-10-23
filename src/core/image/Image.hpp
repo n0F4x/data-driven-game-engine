@@ -26,6 +26,8 @@ public:
 
     [[nodiscard]]
     virtual auto mip_level_count() const noexcept -> uint32_t = 0;
+    [[nodiscard]]
+    virtual auto needs_mip_generation() const noexcept -> bool = 0;
 
     [[nodiscard]]
     virtual auto format() const noexcept -> vk::Format = 0;

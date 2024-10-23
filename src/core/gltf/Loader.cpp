@@ -10,7 +10,7 @@
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
 
-#include "core/meta/functional.hpp"
+#include "core/utility/meta/functional.hpp"
 
 #include "ImageLoader.hpp"
 

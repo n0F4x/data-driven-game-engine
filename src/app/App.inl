@@ -2,10 +2,10 @@
 
 #include <spdlog/spdlog.h>
 
-#include <core/meta/functional.hpp>
-#include <core/meta/tuple-like.hpp>
-#include <core/store/StoreView.hpp>
-#include <core/utility/tuple.hpp>
+#include "core/store/StoreView.hpp"
+#include "core/utility/meta/functional.hpp"
+#include "core/utility/meta/tuple-like.hpp"
+#include "core/utility/tuple.hpp"
 
 template <PluginConcept Plugin, typename Self, typename... Args>
 auto App::Builder::use(this Self&& self, Args&&... args) -> Self
@@ -22,11 +22,9 @@ auto App::Builder::use(this Self&& self, Plugin&& plugin) -> Self
         plugin.setup(StoreView{ self.m_plugins });
     }
 
-    self.m_invocations.emplace_back(
-        self.m_plugins.template emplace<std::decay_t<Plugin>>(
-            std::forward<Plugin>(plugin)
-        )
-    );
+    self.m_invocations.emplace_back(self.m_plugins.template emplace<std::decay_t<Plugin>>(
+        std::forward<Plugin>(plugin)
+    ));
 
     return std::forward<Self>(self);
 }

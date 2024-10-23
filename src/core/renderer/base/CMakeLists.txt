@@ -1,5 +1,5 @@
 add_subdirectory(allocator)
-add_subdirectory(memory)
+add_subdirectory(resources)
 add_subdirectory(descriptor_pool)
 add_subdirectory(device)
 add_subdirectory(instance)

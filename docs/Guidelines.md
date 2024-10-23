@@ -27,12 +27,12 @@ The following naming conventions apply:
 - Parameter: snake_case
 - Local Variable: snake_case
 
-Please use the following Hungarian notations:
+Please use the following pre-/suffixes:
 
 - Enumerator: eEnumerator
 - Class/Struct Private Member Field: m_field
 - Class/Struct Static Variable: s_variable
-- Global Variable: g_variable
+- Global Variable: variable_v
 
 ### Functions
 

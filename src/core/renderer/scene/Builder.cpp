@@ -122,14 +122,15 @@ static auto create_pipeline_layout(
 template <typename GlobalUniformBlock>
 [[nodiscard]]
 static auto create_global_buffer(const base::Allocator& allocator)
-    -> base::RandomAccessBuffer<GlobalUniformBlock>
+    -> resources::RandomAccessBuffer<GlobalUniformBlock>
 {
     constexpr vk::BufferCreateInfo buffer_create_info = {
         .size  = sizeof(GlobalUniformBlock),
         .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    return allocator.allocate_random_access_buffer<GlobalUniformBlock>(buffer_create_info);
+    return resources::RandomAccessBuffer<GlobalUniformBlock>{ allocator,
+                                                              buffer_create_info };
 }
 
 template <typename GlobalUniformBlock>
@@ -220,7 +221,7 @@ auto Scene::Builder::build(
 
     base::DescriptorPool descriptor_pool{ create_descriptor_pool(device.get(), m_models) };
 
-    base::RandomAccessBuffer<Scene::ShaderScene> global_buffer{
+    resources::RandomAccessBuffer<Scene::ShaderScene> global_buffer{
         create_global_buffer<Scene::ShaderScene>(allocator)
     };
 

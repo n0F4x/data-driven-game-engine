@@ -4,9 +4,8 @@
 
 #include <entt/entity/registry.hpp>
 
-#include <core/meta/functional.hpp>
-
 #include "core/store/Store.hpp"
+#include "core/utility/meta/functional.hpp"
 
 class App {
 public:

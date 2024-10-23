@@ -11,11 +11,8 @@ namespace core::renderer::base {
 class Instance;
 class Device;
 
+class Allocation;
 class Buffer;
-template <typename T>
-class SeqWriteBuffer;
-template <typename T>
-class RandomAccessBuffer;
 class Image;
 
 class Allocator {
@@ -28,32 +25,24 @@ public:
     explicit Allocator(const Instance& instance, const Device& device);
 
     [[nodiscard]]
-    auto allocate_buffer(
-        const vk::BufferCreateInfo&    buffer_create_info,
+    auto allocate(
+        const vk::MemoryRequirements& requirements,
         const VmaAllocationCreateInfo& allocation_create_info = {
             .usage = VMA_MEMORY_USAGE_AUTO,
         }
-    ) const -> Buffer;
-
-    template <typename T = std::byte>
-    [[nodiscard]]
-    auto allocate_seq_write_buffer(
-        const vk::BufferCreateInfo& buffer_create_info,
-        const void*                 data = nullptr
-    ) const -> SeqWriteBuffer<T>;
-
-    template <typename T = std::byte>
-    [[nodiscard]]
-    auto allocate_random_access_buffer(
-        const vk::BufferCreateInfo& buffer_create_info,
-        const void*                 data = nullptr
-    ) const -> RandomAccessBuffer<T>;
+    ) const -> std::tuple<Allocation, VmaAllocationInfo>;
 
     [[nodiscard]]
-    auto allocate_image(
+    auto create_buffer(
+        const vk::BufferCreateInfo&    buffer_create_info,
+        const VmaAllocationCreateInfo& allocation_create_info
+    ) const -> std::tuple<Buffer, Allocation, VmaAllocationInfo>;
+
+    [[nodiscard]]
+    auto create_image(
         const vk::ImageCreateInfo&     image_create_info,
         const VmaAllocationCreateInfo& allocation_create_info
-    ) const -> Image;
+    ) const -> std::tuple<Image, Allocation, VmaAllocationInfo>;
 
 private:
     ///*************///
@@ -61,8 +50,9 @@ private:
     ///*************///
     gsl_lite::not_null<std::unique_ptr<VmaAllocator_T, decltype(&vmaDestroyAllocator)>>
         m_allocator;
+
+    [[nodiscard]]
+    auto device() const -> vk::Device;
 };
 
-}   // namespace core::renderer
-
-#include "Allocator.inl"
+}   // namespace core::renderer::base

@@ -4,10 +4,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <vk_mem_alloc.h>
-
 #include <core/renderer/base/allocator/Allocator.hpp>
-#include <core/renderer/base/memory/Image.hpp>
+#include <core/renderer/resources/Image.hpp>
 
 namespace init {
 
@@ -20,7 +18,7 @@ auto create_depth_image(
     vk::PhysicalDevice                     physical_device,
     const core::renderer::base::Allocator& allocator,
     vk::Extent2D                           swapchain_extent
-) -> core::renderer::base::Image;
+) -> core::renderer::resources::Image;
 
 [[nodiscard]]
 auto create_depth_image_view(

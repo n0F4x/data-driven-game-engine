@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "core/gltf/RenderModel.hpp"
-#include "core/graphics/Camera.hpp"
+#include "core/gfx/Camera.hpp"
 #include "core/renderer/base/descriptor_pool/DescriptorPool.hpp"
 
 namespace core::renderer {
@@ -17,7 +17,7 @@ public:
 
     auto draw(
         vk::CommandBuffer       graphics_command_buffer,
-        const graphics::Camera& camera
+        const gfx::Camera& camera
     ) const -> void;
 
 private:
@@ -38,7 +38,7 @@ private:
     vk::UniquePipelineLayout                     m_pipeline_layout;
     base::DescriptorPool                         m_descriptor_pool;
 
-    base::RandomAccessBuffer<ShaderScene> m_global_buffer;
+    resources::RandomAccessBuffer<ShaderScene> m_global_buffer;
     vk::UniqueDescriptorSet               m_global_descriptor_set;
 
     std::vector<gltf::RenderModel> m_models;
@@ -48,7 +48,7 @@ private:
         std::array<vk::UniqueDescriptorSetLayout, 3>&& model_descriptor_set_layouts,
         vk::UniquePipelineLayout&&                     pipeline_layout,
         base::DescriptorPool&&                         descriptor_pool,
-        base::RandomAccessBuffer<ShaderScene>&&        global_buffer,
+        resources::RandomAccessBuffer<ShaderScene>&&        global_buffer,
         vk::UniqueDescriptorSet&&                      global_descriptor_set,
         std::vector<gltf::RenderModel>&&               models
     ) noexcept;

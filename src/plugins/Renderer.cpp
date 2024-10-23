@@ -2,6 +2,8 @@
 
 #include <VkBootstrap.h>
 
+#include "core/gfx/resources/Image.hpp"
+#include "core/gfx/resources/VirtualImage.hpp"
 #include "core/renderer/base/allocator/Requirements.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
@@ -116,6 +118,12 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
             )
             .emplace_dependency(
                 core::renderer::ModelLayout::Requirements::require_device_settings
+            )
+            .emplace_dependency(
+                core::gfx::resources::Image::Requirements::require_device_settings
+            )
+            .emplace_dependency(
+                core::gfx::resources::VirtualImage::Requirements::require_device_settings
             )
     );
 

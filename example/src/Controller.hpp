@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-#include <core/graphics/Camera.hpp>
+#include <core/gfx/Camera.hpp>
 #include <core/window/Window.hpp>
 
 class Controller {
@@ -17,8 +17,7 @@ public:
     ) -> void;
 
     [[nodiscard]]
-    auto update_camera(core::graphics::Camera camera
-    ) const noexcept -> core::graphics::Camera;
+    auto update_camera(core::gfx::Camera camera) const noexcept -> core::gfx::Camera;
 
 private:
     struct MovementKeyMap {
