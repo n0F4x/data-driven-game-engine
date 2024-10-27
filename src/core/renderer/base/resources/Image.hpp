@@ -17,9 +17,13 @@ public:
     };
 
     Image() = default;
+    Image(vk::UniqueImage&& image, const vk::ImageCreateInfo& create_info);
 
     [[nodiscard]]
     auto get() const [[lifetime_bound]] -> vk::Image;
+
+    [[nodiscard]]
+    auto device() const -> vk::Device;
 
     [[nodiscard]]
     auto format() const -> vk::Format;
@@ -47,8 +51,6 @@ private:
     uint32_t     m_mip_level_count{};
 
     State m_state;
-
-    Image(vk::UniqueImage&& image, const vk::ImageCreateInfo& create_info);
 };
 
 }   // namespace core::renderer::base

@@ -34,18 +34,16 @@ public:
 
         [[nodiscard]]
         auto operator()(
-            vk::PhysicalDevice physical_device,
-            vk::CommandBuffer  graphics_command_buffer
+            vk::PhysicalDevice                  physical_device,
+            vk::CommandBuffer                   graphics_command_buffer,
+            const renderer::base::Image::State& new_state
         ) && -> Image;
 
         [[nodiscard]]
+        auto image() const -> const renderer::resources::Image&;
+
+        [[nodiscard]]
         auto view() const -> vk::ImageView;
-
-        [[nodiscard]]
-        auto mip_level_count() const -> uint32_t;
-
-        [[nodiscard]]
-        auto needs_mip_generation() const -> bool;
 
     private:
         renderer::resources::Image m_image;
@@ -61,6 +59,9 @@ public:
             vkb::PhysicalDeviceSelector& physical_device_selector
         ) -> void;
     };
+
+    [[nodiscard]]
+    auto get() const noexcept -> const renderer::resources::Image&;
 
 private:
     renderer::resources::Image m_image;

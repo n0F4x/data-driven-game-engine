@@ -18,6 +18,12 @@ auto core::renderer::resources::Image::reset() -> void
     base::Image::reset();
 }
 
+auto core::renderer::resources::Image::allocation() const noexcept
+    -> const base::Allocation&
+{
+    return m_allocation;
+}
+
 auto core::renderer::resources::Image::make(
     const base::Allocator&         allocator,
     const vk::ImageCreateInfo&     image_create_info,

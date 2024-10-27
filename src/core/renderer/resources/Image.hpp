@@ -24,6 +24,9 @@ public:
 
     auto reset() -> void;
 
+    [[nodiscard]]
+    auto allocation() const noexcept -> const base::Allocation&;
+
 private:
     base::Allocation m_allocation;
 

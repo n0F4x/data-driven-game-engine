@@ -47,6 +47,7 @@ public:
     auto map() const noexcept -> std::span<std::byte>;
     auto unmap() const noexcept -> void;
 
+    auto invalidate(vk::DeviceSize offset, vk::DeviceSize size) const -> void;
     auto flush(vk::DeviceSize offset, vk::DeviceSize size) const -> void;
 
 protected:

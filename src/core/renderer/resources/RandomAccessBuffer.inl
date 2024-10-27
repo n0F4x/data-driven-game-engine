@@ -20,7 +20,8 @@ core::renderer::resources::RandomAccessBuffer<T>::RandomAccessBuffer(
 {}
 
 template <typename T>
-auto core::renderer::resources::RandomAccessBuffer<T>::get() const noexcept -> vk::Buffer
+auto core::renderer::resources::RandomAccessBuffer<T>::buffer() const noexcept
+    -> vk::Buffer
 {
     return m_buffer.get();
 }
@@ -32,11 +33,11 @@ auto core::renderer::resources::RandomAccessBuffer<T>::set(
     const size_t          offset
 ) const -> void
 {
-    assert(data.size_bytes() <= size_bytes() - offset * sizeof(T));
+    assert(data.size() <= size() - offset);
     base::copy(
         data.data(),
         base::CopyRegion{ .allocation = m_allocation, .offset = offset * sizeof(T) },
-        sizeof(T)
+        data.size_bytes()
     );
 }
 
@@ -46,7 +47,7 @@ auto core::renderer::resources::RandomAccessBuffer<T>::set(
     const size_t offset
 ) const -> void
 {
-    assert(sizeof(T) <= size_bytes() - offset * sizeof(T));
+    assert(!empty());
     base::copy(
         std::addressof(data),
         base::CopyRegion{ .allocation = m_allocation, .offset = offset * sizeof(T) },
@@ -55,9 +56,36 @@ auto core::renderer::resources::RandomAccessBuffer<T>::set(
 }
 
 template <typename T>
+template <size_t E>
+auto core::renderer::resources::RandomAccessBuffer<T>::get(
+    std::span<T, E> data,
+    const size_t    offset
+) const -> void
+{
+    assert(data.size() <= size() - offset);
+    base::copy(
+        base::CopyRegion{ .allocation = m_allocation, .offset = offset * sizeof(T) },
+        data.data(),
+        data.size_bytes()
+    );
+}
+
+template <typename T>
+auto core::renderer::resources::RandomAccessBuffer<T>::get(T& data, const size_t offset)
+    const -> void
+{
+    assert(!empty());
+    base::copy(
+        base::CopyRegion{ .allocation = m_allocation, .offset = offset * sizeof(T) },
+        std::addressof(data),
+        sizeof(T)
+    );
+}
+
+template <typename T>
 auto core::renderer::resources::RandomAccessBuffer<T>::size() const noexcept -> size_t
 {
-    return size_bytes() * sizeof(T);
+    return size_bytes() / sizeof(T);
 }
 
 template <typename T>
@@ -65,6 +93,12 @@ auto core::renderer::resources::RandomAccessBuffer<T>::size_bytes() const noexce
     -> size_t
 {
     return m_buffer.size();
+}
+
+template <typename T>
+auto core::renderer::resources::RandomAccessBuffer<T>::empty() const noexcept -> bool
+{
+    return m_buffer.size() == 0;
 }
 
 template <typename T>

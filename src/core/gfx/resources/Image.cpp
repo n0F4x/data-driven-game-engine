@@ -6,6 +6,8 @@
 
 #include "core/image/Image.hpp"
 
+#include "image_helpers.hpp"
+
 [[nodiscard]]
 static auto image_usage_flags(const bool needs_to_blit_mipmaps) -> vk::ImageUsageFlags
 {
@@ -150,41 +152,13 @@ core::gfx::resources::Image::Loader::Loader(
       m_needs_mip_generation{ source.needs_mip_generation() }
 {}
 
-static auto transition_image_layout(
-    const vk::CommandBuffer                   command_buffer,
-    core::renderer::base::Image&              image,
-    const core::renderer::base::Image::State& new_state
-) -> void
-{
-    const auto old_state{ image.transition(new_state) };
-
-    const vk::ImageMemoryBarrier barrier{
-        .srcAccessMask       = old_state.access_mask,
-        .dstAccessMask       = new_state.access_mask,
-        .oldLayout           = old_state.layout,
-        .newLayout           = new_state.layout,
-        .srcQueueFamilyIndex = vk::QueueFamilyIgnored,
-        .dstQueueFamilyIndex = vk::QueueFamilyIgnored,
-        .image               = image.get(),
-        .subresourceRange =
-            vk::ImageSubresourceRange{
-                                      .aspectMask = vk::ImageAspectFlagBits::eColor,
-                                      .levelCount = image.mip_level_count(),
-                                      .layerCount = 1,
-                                      },
-    };
-
-    command_buffer.pipelineBarrier(
-        old_state.stage_mask, new_state.stage_mask, vk::DependencyFlags{}, {}, {}, barrier
-    );
-}
-
 auto core::gfx::resources::Image::Loader::operator()(
-    const vk::PhysicalDevice physical_device,
-    const vk::CommandBuffer  graphics_command_buffer
+    const vk::PhysicalDevice            physical_device,
+    const vk::CommandBuffer             graphics_command_buffer,
+    const renderer::base::Image::State& new_state
 ) && -> Image
 {
-    ::transition_image_layout(
+    transition_image_layout(
         graphics_command_buffer,
         m_image,
         renderer::base::Image::State{
@@ -200,30 +174,20 @@ auto core::gfx::resources::Image::Loader::operator()(
 
     if (m_needs_mip_generation) {
         renderer::base::generate_mipmaps(
-            physical_device,
-            graphics_command_buffer,
-            m_image,
-            renderer::base::Image::State{
-                vk::PipelineStageFlagBits::eFragmentShader,
-                vk::AccessFlagBits::eShaderRead,
-                vk::ImageLayout::eShaderReadOnlyOptimal,
-            }
+            physical_device, graphics_command_buffer, m_image, new_state
         );
     }
     else {
-        ::transition_image_layout(
-            graphics_command_buffer,
-            m_image,
-            renderer::base::Image::State{
-                vk::PipelineStageFlagBits::eFragmentShader,
-                vk::AccessFlagBits::eShaderRead,
-                vk::ImageLayout::eShaderReadOnlyOptimal,
-            }
-        );
+        transition_image_layout(graphics_command_buffer, m_image, new_state);
     }
 
-    // old
     return Image{ std::move(m_image), std::move(m_view) };
+}
+
+auto core::gfx::resources::Image::Loader::image() const
+    -> const renderer::resources::Image&
+{
+    return m_image;
 }
 
 auto core::gfx::resources::Image::Loader::view() const -> vk::ImageView
@@ -239,6 +203,12 @@ auto core::gfx::resources::Image::Requirements::require_device_settings(
         .samplerAnisotropy = vk::True,
     };
     physical_device_selector.set_required_features(features);
+}
+
+auto core::gfx::resources::Image::get() const noexcept
+    -> const renderer::resources::Image&
+{
+    return m_image;
 }
 
 core::gfx::resources::Image::Image(

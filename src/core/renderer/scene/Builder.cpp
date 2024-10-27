@@ -230,7 +230,7 @@ auto Scene::Builder::build(
             device.get(),
             global_descriptor_set_layout.get(),
             descriptor_pool.get(),
-            global_buffer.get()
+            global_buffer.buffer()
         )
     };
 

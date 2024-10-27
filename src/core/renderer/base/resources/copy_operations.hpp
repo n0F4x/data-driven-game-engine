@@ -7,9 +7,11 @@ namespace core::renderer::base {
 // NOLINTNEXTLINE(*-member-init)
 struct CopyRegion {
     std::reference_wrapper<const Allocation> allocation;
-    vk::DeviceSize                     offset{};
+    vk::DeviceSize                           offset{};
 };
 
 auto copy(const void* source, const CopyRegion& destination, vk::DeviceSize size) -> void;
+
+auto copy(const CopyRegion& source, void* destination, vk::DeviceSize size) -> void;
 
 }   // namespace core::renderer::base

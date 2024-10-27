@@ -94,11 +94,25 @@ auto Allocation::unmap() const noexcept -> void
     vmaUnmapMemory(m_allocator, m_allocation);
 }
 
+auto Allocation::invalidate(const vk::DeviceSize offset, const vk::DeviceSize size) const
+    -> void
+{
+    vk::detail::resultCheck(
+        static_cast<vk::Result>(
+            vmaInvalidateAllocation(m_allocator, m_allocation, offset, size)
+        ),
+        "vmaInvalidateAllocation failed"
+    );
+}
+
 auto Allocation::flush(const vk::DeviceSize offset, const vk::DeviceSize size) const
     -> void
 {
-    const vk::Result result{ vmaFlushAllocation(m_allocator, m_allocation, offset, size) };
-    vk::detail::resultCheck(result, "vmaFlushAllocation failed");
+    vk::detail::resultCheck(
+        static_cast<vk::Result>(vmaFlushAllocation(m_allocator, m_allocation, offset, size)
+        ),
+        "vmaFlushAllocation failed"
+    );
 }
 
 Allocation::Allocation(

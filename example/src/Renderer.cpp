@@ -6,7 +6,7 @@
 
 #include "init.hpp"
 
-constexpr static uint32_t g_frame_count{ 1 };
+constexpr static uint32_t frame_count_v{ 1 };
 
 [[nodiscard]]
 static auto load_scene(
@@ -108,25 +108,25 @@ auto DemoRenderer::create(Store& store, const std::filesystem::path& model_filep
     }
 
     auto command_buffers{
-        init::create_command_buffers(device.get(), command_pool.get(), g_frame_count)
+        init::create_command_buffers(device.get(), command_pool.get(), frame_count_v)
     };
     if (command_buffers.empty()) {
         return std::nullopt;
     }
 
-    auto image_acquired_semaphores{ init::create_semaphores(device.get(), g_frame_count) };
+    auto image_acquired_semaphores{ init::create_semaphores(device.get(), frame_count_v) };
     if (image_acquired_semaphores.empty()) {
         return std::nullopt;
     }
 
     auto render_finished_semaphores{
-        init::create_semaphores(device.get(), g_frame_count)
+        init::create_semaphores(device.get(), frame_count_v)
     };
     if (render_finished_semaphores.empty()) {
         return std::nullopt;
     }
 
-    auto in_flight_fences{ init::create_fences(device.get(), g_frame_count) };
+    auto in_flight_fences{ init::create_fences(device.get(), frame_count_v) };
     if (in_flight_fences.empty()) {
         return std::nullopt;
     }
@@ -225,7 +225,7 @@ auto DemoRenderer::render(
         swapchain.get().present(render_finished_semaphores[frame_index].get());
     }
 
-    frame_index = (frame_index + 1) % g_frame_count;
+    frame_index = (frame_index + 1) % frame_count_v;
 }
 
 auto DemoRenderer::record_command_buffer(

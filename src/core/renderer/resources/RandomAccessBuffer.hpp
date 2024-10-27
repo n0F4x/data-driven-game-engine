@@ -5,7 +5,7 @@
 
 namespace core::renderer::resources {
 
-template <typename T>
+template <typename T = std::byte>
 class RandomAccessBuffer {
 public:
              RandomAccessBuffer() = default;
@@ -16,16 +16,22 @@ public:
     );
 
     [[nodiscard]]
-    auto get() const noexcept [[lifetime_bound]] -> vk::Buffer;
+    auto buffer() const noexcept [[lifetime_bound]] -> vk::Buffer;
 
     template <size_t E>
     auto set(std::span<const T, E> data, size_t offset = 0) const -> void;
     auto set(const T& data, size_t offset = 0) const -> void;
 
+    template <size_t E>
+    auto get(std::span<T, E> data, size_t offset = 0) const -> void;
+    auto get(T& data, size_t offset = 0) const -> void;
+
     [[nodiscard]]
     auto size() const noexcept -> size_t;
     [[nodiscard]]
     auto size_bytes() const noexcept -> size_t;
+    [[nodiscard]]
+    auto empty() const noexcept -> bool;
 
 private:
     base::Buffer     m_buffer;

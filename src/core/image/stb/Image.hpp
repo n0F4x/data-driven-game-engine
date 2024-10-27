@@ -38,15 +38,23 @@ public:
     auto format() const noexcept -> vk::Format final;
 
     [[nodiscard]]
-    auto offset_of(uint32_t mip_level, uint32_t layer, uint32_t face_slice) const noexcept
+    auto offset_of(uint32_t mip_level_index, uint32_t layer, uint32_t face_slice) const noexcept
         -> uint64_t final;
 
 private:
-    gsl_lite::not_null<std::unique_ptr<stbi_uc, decltype(&stbi_image_free)>> m_data;
-    int                                                                      m_width;
-    int                                                                      m_height;
+    std::vector<std::byte> m_data;
+    uint32_t               m_base_width;
+    uint32_t               m_base_height;
+    vk::Format             m_format;
+    uint32_t               m_mip_level_count;
 
-    explicit Image(gsl_lite::not_null<stbi_uc*> data, int width, int height) noexcept;
+    explicit Image(
+        std::vector<std::byte>&& data,
+        uint32_t                 base_width,
+        uint32_t                 base_height,
+        vk::Format               format,
+        uint32_t                 mip_level_count
+    ) noexcept;
 };
 
 }   // namespace core::image::stb

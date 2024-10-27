@@ -234,26 +234,26 @@ static auto create_base_descriptor_set(
     ) };
 
     const vk::DescriptorBufferInfo vertex_buffer_info{
-        .buffer = vertex_uniform.get(),
+        .buffer = vertex_uniform.buffer(),
         .range  = vertex_uniform.size_bytes(),
     };
     const vk::DescriptorBufferInfo transform_buffer_info{
-        .buffer = transform_uniform.get(),
+        .buffer = transform_uniform.buffer(),
         .range  = transform_uniform.size_bytes(),
     };
     const vk::DescriptorImageInfo default_sampler_image_info{
         .sampler = default_sampler,
     };
     const vk::DescriptorBufferInfo texture_buffer_info{
-        .buffer = texture_uniform.get(),
+        .buffer = texture_uniform.buffer(),
         .range  = texture_uniform.size_bytes(),
     };
     const vk::DescriptorBufferInfo default_material_buffer_info{
-        .buffer = default_material_uniform.get(),
+        .buffer = default_material_uniform.buffer(),
         .range  = default_material_uniform.size_bytes(),
     };
     const vk::DescriptorBufferInfo material_buffer_info{
-        .buffer = material_uniform.get(),
+        .buffer = material_uniform.buffer(),
         .range  = material_uniform.size_bytes(),
     };
 
@@ -838,7 +838,15 @@ auto RenderModel::create_loader(
                     [physical_device,
                      transfer_command_buffer](gfx::resources::Image::Loader&& loader
                     ) -> gfx::resources::Image {
-                        return std::move(loader)(physical_device, transfer_command_buffer);
+                        return std::move(loader)(
+                            physical_device,
+                            transfer_command_buffer,
+                            renderer::base::Image::State{
+                                vk::PipelineStageFlagBits::eFragmentShader,
+                                vk::AccessFlagBits::eShaderRead,
+                                vk::ImageLayout::eShaderReadOnlyOptimal,
+                            }
+                        );
                     }
                 )
                 | std::ranges::to<std::vector>()
