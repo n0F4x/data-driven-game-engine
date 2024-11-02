@@ -1,7 +1,5 @@
 #include "Image.hpp"
 
-#include <spdlog/spdlog.h>
-
 #include <vulkan/vulkan.hpp>
 
 static auto transcode(ktxTexture2* texture) -> void
@@ -13,7 +11,7 @@ static auto transcode(ktxTexture2* texture) -> void
             ktxTexture2_TranscodeBasis(texture, target_format, KTX_TF_HIGH_QUALITY)
         };
         if (error != KTX_SUCCESS) {
-            throw std::runtime_error(fmt::format(
+            throw std::runtime_error(std::format(
                 "Failed to transcode basisu from KTX2 texture: {}",
                 std::to_underlying(error)
             ));

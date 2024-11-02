@@ -65,17 +65,17 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
         }
     }
 
-    switch (message_severity) {
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+    switch (static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(message_severity)) {
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:
             spdlog::trace(message.str());
             break;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:
             spdlog::info(message.str());
             break;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:
             spdlog::warn(message.str());
             break;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:
             spdlog::error(message.str());
             break;
         default: break;

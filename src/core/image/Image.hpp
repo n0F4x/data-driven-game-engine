@@ -2,11 +2,7 @@
 
 #include <span>
 
-namespace vk {
-
-enum class Format;
-
-}   // namespace vk
+#include <vulkan/vulkan.hpp>
 
 namespace core::image {
 
@@ -23,6 +19,8 @@ public:
     virtual auto height() const noexcept -> uint32_t = 0;
     [[nodiscard]]
     virtual auto depth() const noexcept -> uint32_t = 0;
+    [[nodiscard]]
+    auto extent() const noexcept -> vk::Extent3D;
 
     [[nodiscard]]
     virtual auto mip_level_count() const noexcept -> uint32_t = 0;

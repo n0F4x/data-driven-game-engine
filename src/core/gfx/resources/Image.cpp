@@ -205,12 +205,6 @@ auto core::gfx::resources::Image::Requirements::require_device_settings(
     physical_device_selector.set_required_features(features);
 }
 
-auto core::gfx::resources::Image::get() const noexcept
-    -> const renderer::resources::Image&
-{
-    return m_image;
-}
-
 core::gfx::resources::Image::Image(
     renderer::resources::Image&& image,
     vk::UniqueImageView&&        view

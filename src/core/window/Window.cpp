@@ -7,13 +7,11 @@
 
 #include "core/config/vulkan.hpp"
 
-using namespace core;
-
 static auto init_glfw() -> void
 {
     glfwSetErrorCallback([](int, const char* description) { SPDLOG_ERROR(description); });
 
-    glfwInitVulkanLoader(config::vulkan::dispatcher().vkGetInstanceProcAddr);
+    glfwInitVulkanLoader(core::config::vulkan::dispatcher().vkGetInstanceProcAddr);
 
     if (const int success{ glfwInit() }; success != GLFW_TRUE) {
         const char* description{};
@@ -113,7 +111,7 @@ auto Window::get() const noexcept -> GLFWwindow*
 }
 
 auto Window::create_vulkan_surface(
-    VkInstance                   instance,
+    const VkInstance             instance,
     const VkAllocationCallbacks* allocation_callbacks
 ) const -> std::expected<VkSurfaceKHR, VkResult>
 {
@@ -149,7 +147,7 @@ auto Window::set_cursor_position(const glm::dvec2& position) const -> void
     glfwSetCursorPos(m_impl.get(), position.x, position.y);
 }
 
-auto Window::set_cursor_mode(CursorMode cursor_mode) const -> void
+auto Window::set_cursor_mode(const CursorMode cursor_mode) const -> void
 {
     switch (cursor_mode) {
         case CursorMode::eNormal:
@@ -167,9 +165,9 @@ auto Window::should_close() const -> bool
     return glfwWindowShouldClose(m_impl.get()) == GLFW_TRUE;
 }
 
-auto Window::key_pressed(Key key) const -> bool
+auto Window::key_pressed(const Key key) const -> bool
 {
-    return glfwGetKey(m_impl.get(), static_cast<int>(key)) == GLFW_TRUE;
+    return glfwGetKey(m_impl.get(), key) == GLFW_TRUE;
 }
 
 auto Window::cursor_position() const -> glm::dvec2

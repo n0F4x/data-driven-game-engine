@@ -2,8 +2,8 @@
 
 namespace core::renderer::base {
 
-auto Swapchain::Requirements::
-    required_instance_settings_are_available(const vkb::SystemInfo&) -> bool
+auto Swapchain::Requirements::required_instance_settings_are_available(const vkb::SystemInfo&)
+    -> bool
 {
     return true;
 }
@@ -16,10 +16,11 @@ auto Swapchain::Requirements::require_device_settings(
     vkb::PhysicalDeviceSelector& physical_device_selector
 ) -> void
 {
-    physical_device_selector.add_required_extension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    physical_device_selector.add_required_extension(vk::KHRSwapchainExtensionName);
 }
 
-auto Swapchain::Requirements::enable_optional_device_settings(vkb::PhysicalDevice&) -> void
+auto Swapchain::Requirements::enable_optional_device_settings(vkb::PhysicalDevice&)
+    -> void
 {}
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

@@ -68,10 +68,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PUBLIC GPUOpen::VulkanMemoryAllocator)
 
 # vk-bootstrap
-# TODO: use vcpkg when this version is supported
 FetchContent_Declare(vk-bootstrap
         GIT_REPOSITORY https://github.com/charles-lunarg/vk-bootstrap.git
-        GIT_TAG v1.3.290
+        GIT_TAG v1.3.296
         SYSTEM
 )
 FetchContent_MakeAvailable(vk-bootstrap)

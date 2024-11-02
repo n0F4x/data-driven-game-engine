@@ -60,9 +60,6 @@ public:
         ) -> void;
     };
 
-    [[nodiscard]]
-    auto get() const noexcept -> const renderer::resources::Image&;
-
 private:
     renderer::resources::Image m_image;
     vk::UniqueImageView        m_view;

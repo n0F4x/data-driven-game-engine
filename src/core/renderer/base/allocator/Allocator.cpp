@@ -17,18 +17,16 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_devic
 {
     VmaAllocatorCreateFlags flags{};
 
-    if (physical_device_info.is_extension_present(
-            VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME
-        ))
+    if (physical_device_info.is_extension_present(vk::KHRDedicatedAllocationExtensionName))
     {
         flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
     }
 
-    if (physical_device_info.is_extension_present(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME)) {
+    if (physical_device_info.is_extension_present(vk::KHRBindMemory2ExtensionName)) {
         flags |= VMA_ALLOCATOR_CREATE_KHR_BIND_MEMORY2_BIT;
     }
 
-    if (physical_device_info.is_extension_present(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME)) {
+    if (physical_device_info.is_extension_present(vk::EXTMemoryBudgetExtensionName)) {
         flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
     }
 
@@ -36,9 +34,7 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_devic
         coherent_memory_features_amd{
             .deviceCoherentMemory = vk::True,
         };
-    if (physical_device_info.is_extension_present(
-            VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME
-        )
+    if (physical_device_info.is_extension_present(vk::AMDDeviceCoherentMemoryExtensionName)
         && physical_device_info.are_extension_features_present(coherent_memory_features_amd
         ))
     {
@@ -58,7 +54,7 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_devic
     constexpr static vk::PhysicalDeviceMemoryPriorityFeaturesEXT memory_priority_features{
         .memoryPriority = vk::True,
     };
-    if (physical_device_info.is_extension_present(VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME)
+    if (physical_device_info.is_extension_present(vk::EXTMemoryPriorityExtensionName)
         && physical_device_info.are_extension_features_present(memory_priority_features))
     {
         flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_PRIORITY_BIT;
@@ -67,7 +63,7 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_devic
     constexpr static vk::PhysicalDeviceMaintenance4Features maintenance4_features{
         .maintenance4 = vk::True,
     };
-    if (physical_device_info.is_extension_present(VK_KHR_MAINTENANCE_4_EXTENSION_NAME)
+    if (physical_device_info.is_extension_present(vk::KHRMaintenance4ExtensionName)
         && physical_device_info.are_extension_features_present(maintenance4_features))
     {
         flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT;
@@ -76,7 +72,7 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_devic
     constexpr static vk::PhysicalDeviceMaintenance5FeaturesKHR maintenance5_features{
         .maintenance5 = vk::True,
     };
-    if (physical_device_info.is_extension_present(VK_KHR_MAINTENANCE_5_EXTENSION_NAME)
+    if (physical_device_info.is_extension_present(vk::KHRMaintenance5ExtensionName)
         && physical_device_info.are_extension_features_present(maintenance5_features))
     {
         flags |= VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE4_BIT;

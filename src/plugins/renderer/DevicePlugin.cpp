@@ -13,9 +13,9 @@ static auto log_setup(const vkb::Device& device) -> void
 
     SPDLOG_INFO(
         "Created Vulkan Instance with version: {}.{}.{}",
-        VK_VERSION_MAJOR(instance_version),
-        VK_VERSION_MINOR(instance_version),
-        VK_VERSION_PATCH(instance_version)
+        vk::apiVersionMajor(instance_version),
+        vk::apiVersionMinor(instance_version),
+        vk::apiVersionPatch(instance_version)
     );
 
     const vk::PhysicalDeviceProperties properties{
@@ -25,9 +25,9 @@ static auto log_setup(const vkb::Device& device) -> void
     SPDLOG_INFO(
         "Chose GPU({}) with Vulkan version: {}.{}.{}",
         device.physical_device.name,
-        VK_VERSION_MAJOR(properties.apiVersion),
-        VK_VERSION_MINOR(properties.apiVersion),
-        VK_VERSION_PATCH(properties.apiVersion)
+        vk::apiVersionMajor(properties.apiVersion),
+        vk::apiVersionMinor(properties.apiVersion),
+        vk::apiVersionPatch(properties.apiVersion)
     );
 
     std::string enabled_extensions{ "Enabled device extensions:" };

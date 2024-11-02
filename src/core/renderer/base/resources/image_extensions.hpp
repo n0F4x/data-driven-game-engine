@@ -3,7 +3,9 @@
 #include <vulkan/vulkan.hpp>
 
 namespace core::renderer::base {
+
 class Image;
+
 }   // namespace core::renderer::base
 
 namespace core::renderer::base {
