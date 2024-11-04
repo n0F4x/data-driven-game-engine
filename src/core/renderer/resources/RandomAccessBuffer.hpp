@@ -8,7 +8,6 @@ namespace core::renderer::resources {
 template <typename T = std::byte>
 class RandomAccessBuffer {
 public:
-             RandomAccessBuffer() = default;
     explicit RandomAccessBuffer(
         const base::Allocator&      allocator,
         const vk::BufferCreateInfo& buffer_create_info,

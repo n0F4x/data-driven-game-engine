@@ -121,9 +121,7 @@ static auto create_staging_buffer(
     const std::span<const std::byte>       data
 ) -> core::renderer::resources::SeqWriteBuffer<>
 {
-    if (data.empty()) {
-        return core::renderer::resources::SeqWriteBuffer<>{};
-    }
+    assert(!data.empty() && "image must not be empty");
 
     const vk::BufferCreateInfo staging_buffer_create_info{
         .size  = data.size_bytes(),

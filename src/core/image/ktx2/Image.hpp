@@ -19,6 +19,17 @@ public:
     [[nodiscard]]
     static auto load_from(std::span<const std::byte> data) -> Image;
 
+     Image() = delete;
+     Image(const Image&);
+     Image(Image&&)   = default;
+    ~Image() override = default;
+
+    auto operator=(const Image&) -> Image&;
+    auto operator=(Image&&) -> Image& = default;
+
+    [[nodiscard]]
+    auto clone() const -> std::unique_ptr<image::Image> final;
+
     [[nodiscard]]
     auto data() const noexcept -> std::span<const std::byte> final;
 
@@ -42,6 +53,9 @@ public:
         -> uint64_t final;
 
 private:
+    [[nodiscard]]
+    static auto create_copy(const Image& original) -> Image;
+
     struct Deleter {
         auto operator()(ktxTexture2* texture) const noexcept -> void;
     };

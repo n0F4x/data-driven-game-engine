@@ -5,6 +5,7 @@
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_format_traits.hpp>
 
+#include <stb_image.h>
 #include <stb_image_resize.h>
 
 [[nodiscard]]
@@ -190,6 +191,11 @@ auto core::image::stb::Image::load_from(const std::span<const std::byte> data) -
                   static_cast<uint32_t>(height),
                   format,
                   mip_level_count };
+}
+
+auto core::image::stb::Image::clone() const -> std::unique_ptr<image::Image>
+{
+    return std::make_unique<Image>(*this);
 }
 
 auto core::image::stb::Image::data() const noexcept -> std::span<const std::byte>

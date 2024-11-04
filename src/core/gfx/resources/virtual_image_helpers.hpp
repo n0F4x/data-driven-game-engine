@@ -22,4 +22,18 @@ auto create_mip_tail_region(
     const vk::SparseImageMemoryRequirements& sparse_requirements
 ) -> VirtualImage::MipTailRegion;
 
+[[nodiscard]]
+auto stage_tail(
+    const core::renderer::base::Allocator&   allocator,
+    const core::image::Image&                source,
+    const vk::SparseImageMemoryRequirements& sparse_requirements,
+    const VirtualImage::MipTailRegion&       tail
+) -> core::renderer::resources::SeqWriteBuffer<>;
+
+[[nodiscard]]
+auto create_mip_tail_copy_regions(
+    const core::image::Image&                source,
+    const vk::SparseImageMemoryRequirements& sparse_requirements
+) -> std::vector<vk::BufferImageCopy>;
+
 }   // namespace core::gfx::resources

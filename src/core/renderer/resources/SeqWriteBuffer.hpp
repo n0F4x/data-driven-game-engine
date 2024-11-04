@@ -8,7 +8,6 @@ namespace core::renderer::resources {
 template <typename T = std::byte>
 class SeqWriteBuffer {
 public:
-             SeqWriteBuffer() = default;
     explicit SeqWriteBuffer(
         const base::Allocator&      allocator,
         const vk::BufferCreateInfo& buffer_create_info,

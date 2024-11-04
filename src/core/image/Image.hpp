@@ -11,6 +11,9 @@ public:
     virtual ~Image() = default;
 
     [[nodiscard]]
+    virtual auto clone() const -> std::unique_ptr<Image> = 0;
+
+    [[nodiscard]]
     virtual auto data() const noexcept -> std::span<const std::byte> = 0;
 
     [[nodiscard]]

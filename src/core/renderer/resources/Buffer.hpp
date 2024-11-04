@@ -18,7 +18,7 @@ namespace core::renderer::resources {
 
 class Buffer : public base::Buffer {
 public:
-    Buffer() = default;
+    // Buffer() = default;
     Buffer(
         const base::Allocator&         allocator,
         const vk::BufferCreateInfo&    buffer_create_info,

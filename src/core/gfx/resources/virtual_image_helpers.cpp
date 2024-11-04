@@ -4,10 +4,13 @@
 
 #include <glm/vec3.hpp>
 
+#include <core/image/Image.hpp>
+
 #include "core/renderer/base/resources/image_extensions.hpp"
 
-auto core::gfx::resources::sparse_color_requirements(const core::renderer::base::Image& image)
-    -> vk::SparseImageMemoryRequirements
+auto core::gfx::resources::sparse_color_requirements(
+    const core::renderer::base::Image& image
+) -> vk::SparseImageMemoryRequirements
 {
     const std::vector<vk::SparseImageMemoryRequirements> sparse_image_memory_requirements{
         core::renderer::base::ext_sparse_memory_requirements(image)
@@ -147,4 +150,65 @@ auto core::gfx::resources::create_mip_tail_region(
             allocator.allocate(mip_tail_memory_requirements, allocation_create_info)
         ),
     };
+}
+
+auto core::gfx::resources::stage_tail(
+    const core::renderer::base::Allocator&   allocator,
+    const core::image::Image&                source,
+    const vk::SparseImageMemoryRequirements& sparse_requirements,
+    const VirtualImage::MipTailRegion&       tail
+) -> core::renderer::resources::SeqWriteBuffer<>
+{
+    const vk::BufferCreateInfo create_info{
+        .size  = tail.m_memory.memory_view().size,
+        .usage = vk::BufferUsageFlagBits::eTransferSrc,
+    };
+
+    core::renderer::resources::SeqWriteBuffer<> result{ allocator, create_info };
+
+    result.set(source.data().subspan(
+        source.offset_of(sparse_requirements.imageMipTailFirstLod, 0, 0)
+    ));
+
+    return result;
+}
+
+auto core::gfx::resources::create_mip_tail_copy_regions(
+    const core::image::Image&                source,
+    const vk::SparseImageMemoryRequirements& sparse_requirements
+) -> std::vector<vk::BufferImageCopy>
+{
+    std::vector<vk::BufferImageCopy> regions;
+    regions.reserve(source.mip_level_count() - sparse_requirements.imageMipTailFirstLod);
+
+    const vk::DeviceSize base_offset{
+        source.offset_of(sparse_requirements.imageMipTailFirstLod, 0, 0)
+    };
+
+    for (const uint32_t i : std::views::iota(
+             sparse_requirements.imageMipTailFirstLod, source.mip_level_count()
+         ))
+    {
+        const vk::DeviceSize buffer_offset{ source.offset_of(i, 0, 0) - base_offset };
+
+        const vk::Extent3D image_extent{
+            .width  = std::max(source.width() >> i, 1u),
+            .height = std::max(source.height() >> i, 1u),
+            .depth  = 1,
+        };
+
+        const vk::BufferImageCopy region{
+            .bufferOffset = buffer_offset,
+            .imageSubresource =
+                vk::ImageSubresourceLayers{ .aspectMask = vk::ImageAspectFlagBits::eColor,
+                                           .mipLevel   = i,
+                                           .baseArrayLayer = 0,
+                                           .layerCount     = 1 },
+            .imageExtent = image_extent,
+        };
+
+        regions.push_back(region);
+    }
+
+    return regions;
 }

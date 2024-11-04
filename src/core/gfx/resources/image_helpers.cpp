@@ -4,7 +4,7 @@ auto core::gfx::resources::transition_image_layout(
     const vk::CommandBuffer             command_buffer,
     renderer::base::Image&              image,
     const renderer::base::Image::State& new_state
-) -> void
+) -> renderer::base::Image::State
 {
     const auto old_state{ image.transition(new_state) };
 
@@ -27,4 +27,6 @@ auto core::gfx::resources::transition_image_layout(
     command_buffer.pipelineBarrier(
         old_state.stage_mask, new_state.stage_mask, vk::DependencyFlags{}, {}, {}, barrier
     );
+
+    return old_state;
 }

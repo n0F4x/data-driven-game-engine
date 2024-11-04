@@ -22,20 +22,22 @@ try {
         std::filesystem::path{ std::source_location::current().file_name() }
                 .parent_path()
                 .parent_path()
-            /
-            // "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
-            // "models/Avocado/glTF-Binary/Avocado.glb",
-            // "models/PrimitiveModeNormalsTest/glTF/PrimitiveModeNormalsTest.gltf",
-            // "models/FlightHelmet/FlightHelmetUastc.gltf",
-            // "models/DamagedHelmet.glb",
-            "models/Sponza/glTF/Sponza.gltf",
-        // "models/StainedGlassLamp/glTF-KTX-BasisU/StainedGlassLamp.gltf",
+            // / "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
+            // / "models/Avocado/glTF-Binary/Avocado.glb",
+            // / "models/PrimitiveModeNormalsTest/glTF/PrimitiveModeNormalsTest.gltf",
+            // / "models/FlightHelmet/FlightHelmetUastc.gltf",
+            // / "models/DamagedHelmet.glb",
+            / "models/Sponza/glTF/Sponza.gltf",
+        // / "models/StainedGlassLamp/glTF-KTX-BasisU/StainedGlassLamp.gltf",
         5
     };
 
     return App::create()
         .use(::cache_plugin)
-        .use(plugins::Window{ .size = { 1'280, 720 }, .title = "My window" })
+        .use(plugins::Window{
+            .size = { 1'280, 720 },
+              .title = "My window"
+    })
         .apply(plugins::Renderer{}.require_vulkan_version(1, 1))
         .run(demo::run, model_info);
 

@@ -75,9 +75,7 @@ static auto create_staging_buffer(
     const std::span<T>               data
 ) -> renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>
 {
-    if (data.empty()) {
-        return renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{};
-    }
+    assert(!data.empty() && "buffer must not be empty");
 
     const vk::BufferCreateInfo staging_buffer_create_info{
         .size  = data.size_bytes(),
@@ -96,9 +94,7 @@ static auto create_gpu_only_buffer(
     const uint32_t                   size
 ) -> renderer::resources::Buffer
 {
-    if (size == 0) {
-        return renderer::resources::Buffer{};
-    }
+    assert(size != 0 && "buffer must not be empty");
 
     const vk::BufferCreateInfo buffer_create_info = {
         .size = size, .usage = usage_flags | vk::BufferUsageFlagBits::eTransferDst

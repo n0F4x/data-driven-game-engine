@@ -18,7 +18,6 @@ public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-     Allocation()                  = default;
      Allocation(const Allocation&) = delete;
      Allocation(Allocation&&) noexcept;
     ~Allocation() noexcept;

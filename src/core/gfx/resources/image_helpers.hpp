@@ -8,6 +8,6 @@ auto transition_image_layout(
     vk::CommandBuffer                   command_buffer,
     renderer::base::Image&              image,
     const renderer::base::Image::State& new_state
-) -> void;
+) -> renderer::base::Image::State;
 
 }   // namespace core::gfx::resources

@@ -15,7 +15,7 @@ namespace core::renderer::resources {
 
 class Image : public base::Image {
 public:
-    Image() = default;
+    // Image() = default;
     Image(
         const base::Allocator&         allocator,
         const vk::ImageCreateInfo&     image_create_info,

@@ -3,6 +3,7 @@
 
 #extension GL_EXT_buffer_reference: require
 #extension GL_EXT_nonuniform_qualifier: require
+#extension GL_ARB_sparse_texture2: enable
 
 #include "material.glsl"
 #include "utility.glsl"
@@ -94,6 +95,33 @@ vec4 sampleTexture(uint textureIndex, uint UVIndex) {
     return texture_.samplerIndex == MAX_UINT_VALUE ?
     texture(sampler2D(images[texture_.imageIndex], defaultSampler), UV) :
     texture(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV);
+}
+
+vec4 virtualSampleTexture(uint textureIndex, uint UVIndex) {
+    vec4 result;
+
+    Texture texture_ = textureBuffer_.textures[textureIndex];
+    vec2 UV = UVIndex == 0 ? in_UV0 : in_UV1;
+
+    // Get residency code for current texel
+    int residencyCode =
+    texture_.samplerIndex == MAX_UINT_VALUE ?
+    sparseTextureLodARB(sampler2D(images[texture_.imageIndex], defaultSampler), UV, 0, result) :
+    sparseTextureLodARB(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV, 0, result);
+
+    // Fetch sparse until we get a valid texel
+    int lod = 1;
+    while (!sparseTexelsResidentARB(residencyCode))
+    {
+        residencyCode =
+        texture_.samplerIndex == MAX_UINT_VALUE ?
+        sparseTextureLodARB(sampler2D(images[texture_.imageIndex], defaultSampler), UV, lod, result) :
+        sparseTextureLodARB(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV, lod, result);
+
+        lod++;
+    }
+
+    return result;
 }
 
 vec4 getBaseColor(Material material) {

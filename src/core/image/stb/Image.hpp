@@ -3,10 +3,6 @@
 #include <filesystem>
 #include <span>
 
-#include <gsl-lite/gsl-lite.hpp>
-
-#include <stb_image.h>
-
 #include "core/image/Image.hpp"
 
 namespace core::image::stb {
@@ -18,6 +14,17 @@ public:
 
     [[nodiscard]]
     static auto load_from(std::span<const std::byte> data) -> Image;
+
+     Image()             = delete;
+     Image(const Image&) = default;
+     Image(Image&&)      = default;
+    ~Image() override    = default;
+
+    auto operator=(const Image&) -> Image& = default;
+    auto operator=(Image&&) -> Image&      = default;
+
+    [[nodiscard]]
+    auto clone() const -> std::unique_ptr<image::Image> final;
 
     [[nodiscard]]
     auto data() const noexcept -> std::span<const std::byte> final;
@@ -38,8 +45,8 @@ public:
     auto format() const noexcept -> vk::Format final;
 
     [[nodiscard]]
-    auto offset_of(uint32_t mip_level_index, uint32_t layer, uint32_t face_slice) const noexcept
-        -> uint64_t final;
+    auto offset_of(uint32_t mip_level_index, uint32_t layer, uint32_t face_slice)
+        const noexcept -> uint64_t final;
 
 private:
     std::vector<std::byte> m_data;
