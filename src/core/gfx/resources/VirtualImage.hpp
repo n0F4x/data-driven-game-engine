@@ -4,12 +4,7 @@
 
 #include "core/renderer/base/resources/Allocation.hpp"
 #include "core/renderer/base/resources/Image.hpp"
-
-#include "Image.hpp"
-
-namespace core::renderer {
-class Executor;
-}   // namespace core::renderer
+#include "core/renderer/resources/SeqWriteBuffer.hpp"
 
 namespace core::image {
 
@@ -73,7 +68,7 @@ public:
 
         MipTailRegion m_mip_tail_region;
 
-        core::renderer::resources::SeqWriteBuffer<> m_mip_tail_staging_buffer;
+        renderer::resources::SeqWriteBuffer<> m_mip_tail_staging_buffer;
 
         std::reference_wrapper<const renderer::base::Allocator> m_allocator;
 

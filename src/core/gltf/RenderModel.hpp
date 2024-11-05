@@ -52,27 +52,23 @@ private:
         std::vector<Primitive> primitives;
     };
 
-    renderer::resources::Buffer m_index_buffer;
+    std::optional<renderer::resources::Buffer> m_index_buffer;
 
     // Base descriptor set
-    renderer::resources::Buffer                                m_vertex_buffer;
-    vk::DeviceAddress                                          m_vertex_buffer_address;
+    std::optional<renderer::resources::Buffer>                 m_vertex_buffer;
     renderer::resources::RandomAccessBuffer<vk::DeviceAddress> m_vertex_uniform;
 
-    renderer::resources::Buffer                                m_transform_buffer;
-    vk::DeviceAddress                                          m_transform_buffer_address;
+    std::optional<renderer::resources::Buffer>                 m_transform_buffer;
     renderer::resources::RandomAccessBuffer<vk::DeviceAddress> m_transform_uniform;
 
     vk::UniqueSampler m_default_sampler;
 
-    renderer::resources::Buffer                                m_texture_buffer;
-    vk::DeviceAddress                                          m_texture_buffer_address;
+    std::optional<renderer::resources::Buffer>                 m_texture_buffer;
     renderer::resources::RandomAccessBuffer<vk::DeviceAddress> m_texture_uniform;
 
     renderer::resources::RandomAccessBuffer<ShaderMaterial> m_default_material_uniform;
 
-    renderer::resources::Buffer                                m_material_buffer;
-    vk::DeviceAddress                                          m_material_buffer_address;
+    std::optional<renderer::resources::Buffer>                 m_material_buffer;
     renderer::resources::RandomAccessBuffer<vk::DeviceAddress> m_material_uniform;
 
     vk::UniqueDescriptorSet m_base_descriptor_set;
@@ -91,16 +87,16 @@ private:
 
     explicit RenderModel(
         vk::Device                                                   device,
-        renderer::resources::Buffer&&                                index_buffer,
-        renderer::resources::Buffer&&                                vertex_buffer,
+        std::optional<renderer::resources::Buffer>&&                 index_buffer,
+        std::optional<renderer::resources::Buffer>&&                 vertex_buffer,
         renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& vertex_uniform,
-        renderer::resources::Buffer&&                                transform_buffer,
+        std::optional<renderer::resources::Buffer>&&                 transform_buffer,
         renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& transform_uniform,
         vk::UniqueSampler&&                                          default_sampler,
-        renderer::resources::Buffer&&                                texture_buffer,
+        std::optional<renderer::resources::Buffer>&&                 texture_buffer,
         renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& texture_uniform,
         renderer::resources::RandomAccessBuffer<ShaderMaterial>&& default_material_uniform,
-        renderer::resources::Buffer&&                                material_buffer,
+        std::optional<renderer::resources::Buffer>&&                 material_buffer,
         renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& material_uniform,
         vk::UniqueDescriptorSet&&                                    base_descriptor_set,
         std::vector<gfx::resources::Image>&&                         images,

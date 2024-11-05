@@ -35,8 +35,8 @@ try {
     return App::create()
         .use(::cache_plugin)
         .use(plugins::Window{
-            .size = { 1'280, 720 },
-              .title = "My window"
+            .size  = { 1'280, 720 },
+            .title = "My window",
     })
         .apply(plugins::Renderer{}.require_vulkan_version(1, 1))
         .run(demo::run, model_info);

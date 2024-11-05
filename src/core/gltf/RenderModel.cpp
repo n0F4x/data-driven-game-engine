@@ -73,9 +73,11 @@ template <typename T>
 static auto create_staging_buffer(
     const renderer::base::Allocator& allocator,
     const std::span<T>               data
-) -> renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>
+) -> std::optional<renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>>
 {
-    assert(!data.empty() && "buffer must not be empty");
+    if (data.empty()) {
+        return std::nullopt;
+    }
 
     const vk::BufferCreateInfo staging_buffer_create_info{
         .size  = data.size_bytes(),
@@ -92,9 +94,11 @@ static auto create_gpu_only_buffer(
     const renderer::base::Allocator& allocator,
     const vk::BufferUsageFlags       usage_flags,
     const uint32_t                   size
-) -> renderer::resources::Buffer
+) -> std::optional<renderer::resources::Buffer>
 {
-    assert(size != 0 && "buffer must not be empty");
+    if (size == 0) {
+        return std::nullopt;
+    }
 
     const vk::BufferCreateInfo buffer_create_info = {
         .size = size, .usage = usage_flags | vk::BufferUsageFlagBits::eTransferDst
@@ -586,10 +590,10 @@ auto RenderModel::create_loader(
 {
     // TODO: handle model buffers with no elements
 
-    renderer::resources::SeqWriteBuffer<uint32_t> index_staging_buffer{
+    std::optional<renderer::resources::SeqWriteBuffer<uint32_t>> index_staging_buffer{
         ::create_staging_buffer(allocator, std::span{ model->indices() })
     };
-    renderer::resources::Buffer index_buffer{ ::create_gpu_only_buffer(
+    std::optional<renderer::resources::Buffer> index_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eIndexBuffer,
         static_cast<uint32_t>(std::span{ model->indices() }.size_bytes())
@@ -607,10 +611,10 @@ auto RenderModel::create_loader(
         })
         | std::ranges::to<std::vector>()
     };
-    renderer::resources::SeqWriteBuffer<ShaderVertex> vertex_staging_buffer{
+    std::optional<renderer::resources::SeqWriteBuffer<ShaderVertex>> vertex_staging_buffer{
         ::create_staging_buffer(allocator, std::span{ vertices })
     };
-    renderer::resources::Buffer vertex_buffer{ ::create_gpu_only_buffer(
+    std::optional<renderer::resources::Buffer> vertex_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
@@ -631,10 +635,10 @@ auto RenderModel::create_loader(
     std::ranges::for_each(nodes_with_mesh, [&transforms, model](const Node& node) {
         transforms.at(node.mesh_index().value()) = node.matrix(*model);
     });
-    renderer::resources::SeqWriteBuffer<glm::mat4> transform_staging_buffer{
+    std::optional<renderer::resources::SeqWriteBuffer<glm::mat4>> transform_staging_buffer{
         ::create_staging_buffer(allocator, std::span{ transforms })
     };
-    renderer::resources::Buffer transform_buffer{ ::create_gpu_only_buffer(
+    std::optional<renderer::resources::Buffer> transform_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
@@ -658,10 +662,11 @@ auto RenderModel::create_loader(
         })
         | std::ranges::to<std::vector>()
     };
-    renderer::resources::SeqWriteBuffer<ShaderTexture> texture_staging_buffer{
-        ::create_staging_buffer(allocator, std::span{ textures })
-    };
-    renderer::resources::Buffer texture_buffer{ ::create_gpu_only_buffer(
+    std::optional<renderer::resources::SeqWriteBuffer<ShaderTexture>>
+        texture_staging_buffer{
+            ::create_staging_buffer(allocator, std::span{ textures })
+        };
+    std::optional<renderer::resources::Buffer> texture_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
@@ -679,13 +684,14 @@ auto RenderModel::create_loader(
         &default_material
     };
 
-    std::vector<ShaderMaterial>                         materials{ model->materials()
+    std::vector<ShaderMaterial> materials{ model->materials()
                                            | std::views::transform(::convert_material)
                                            | std::ranges::to<std::vector>() };
-    renderer::resources::SeqWriteBuffer<ShaderMaterial> material_staging_buffer{
-        ::create_staging_buffer(allocator, std::span{ materials })
-    };
-    renderer::resources::Buffer material_buffer{ ::create_gpu_only_buffer(
+    std::optional<renderer::resources::SeqWriteBuffer<ShaderMaterial>>
+        material_staging_buffer{
+            ::create_staging_buffer(allocator, std::span{ materials })
+        };
+    std::optional<renderer::resources::Buffer> material_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eStorageBuffer
             | vk::BufferUsageFlagBits::eShaderDeviceAddress,
@@ -793,36 +799,42 @@ auto RenderModel::create_loader(
          sampler_descriptor_set  = auto{ std::move(sampler_descriptor_set) },
          meshes                  = auto{ std::move(meshes
          ) }](const vk::CommandBuffer transfer_command_buffer) mutable -> RenderModel {
-            transfer_command_buffer.copyBuffer(
-                index_staging_buffer.get(),
-                index_buffer.get(),
-                std::array{ vk::BufferCopy{ .size = index_buffer_size } }
-            );
+            if (index_buffer_size > 0) {
+                transfer_command_buffer.copyBuffer(
+                    index_staging_buffer->get(),
+                    index_buffer->get(),
+                    std::array{ vk::BufferCopy{ .size = index_buffer_size } }
+                );
+            }
 
-            transfer_command_buffer.copyBuffer(
-                vertex_staging_buffer.get(),
-                vertex_buffer.get(),
-                std::array{ vk::BufferCopy{ .size = vertex_buffer_size } }
-            );
+            if (vertex_buffer_size > 0) {
+                transfer_command_buffer.copyBuffer(
+                    vertex_staging_buffer->get(),
+                    vertex_buffer->get(),
+                    std::array{ vk::BufferCopy{ .size = vertex_buffer_size } }
+                );
+            }
 
-            transfer_command_buffer.copyBuffer(
-                transform_staging_buffer.get(),
-                transform_buffer.get(),
-                std::array{ vk::BufferCopy{ .size = transform_buffer_size } }
-            );
+            if (transform_buffer_size > 0) {
+                transfer_command_buffer.copyBuffer(
+                    transform_staging_buffer->get(),
+                    transform_buffer->get(),
+                    std::array{ vk::BufferCopy{ .size = transform_buffer_size } }
+                );
+            }
 
             if (texture_buffer_size > 0) {
                 transfer_command_buffer.copyBuffer(
-                    texture_staging_buffer.get(),
-                    texture_buffer.get(),
+                    texture_staging_buffer->get(),
+                    texture_buffer->get(),
                     std::array{ vk::BufferCopy{ .size = texture_buffer_size } }
                 );
             }
 
             if (material_buffer_size > 0) {
                 transfer_command_buffer.copyBuffer(
-                    material_staging_buffer.get(),
-                    material_buffer.get(),
+                    material_staging_buffer->get(),
+                    material_buffer->get(),
                     std::array{ vk::BufferCopy{ .size = material_buffer_size } }
                 );
             }
@@ -875,9 +887,11 @@ auto RenderModel::draw(
     const vk::PipelineLayout pipeline_layout
 ) const noexcept -> void
 {
-    graphics_command_buffer.bindIndexBuffer(
-        m_index_buffer.get(), 0, vk::IndexType::eUint32
-    );
+    if (m_index_buffer.has_value()) {
+        graphics_command_buffer.bindIndexBuffer(
+            m_index_buffer->get(), 0, vk::IndexType::eUint32
+        );
+    }
 
     graphics_command_buffer.bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics,
@@ -912,23 +926,30 @@ auto RenderModel::draw(
                 &push_constants
             );
 
-            graphics_command_buffer.drawIndexed(index_count, 1, first_index_index, 0, 0);
+            if (m_index_buffer.has_value()) {
+                graphics_command_buffer.drawIndexed(
+                    index_count, 1, first_index_index, 0, 0
+                );
+            }
+            else {
+                // TODO: graphics_command_buffer.draw(...);
+            }
         }
     }
 }
 
 RenderModel::RenderModel(
     const vk::Device                                             device,
-    renderer::resources::Buffer&&                                index_buffer,
-    renderer::resources::Buffer&&                                vertex_buffer,
+    std::optional<renderer::resources::Buffer>&&                 index_buffer,
+    std::optional<renderer::resources::Buffer>&&                 vertex_buffer,
     renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& vertex_uniform,
-    renderer::resources::Buffer&&                                transform_buffer,
+    std::optional<renderer::resources::Buffer>&&                 transform_buffer,
     renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& transform_uniform,
     vk::UniqueSampler&&                                          default_sampler,
-    renderer::resources::Buffer&&                                texture_buffer,
+    std::optional<renderer::resources::Buffer>&&                 texture_buffer,
     renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& texture_uniform,
     renderer::resources::RandomAccessBuffer<ShaderMaterial>&&    default_material_uniform,
-    renderer::resources::Buffer&&                                material_buffer,
+    std::optional<renderer::resources::Buffer>&&                 material_buffer,
     renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& material_uniform,
     vk::UniqueDescriptorSet&&                                    base_descriptor_set,
     std::vector<gfx::resources::Image>&&                         images,
@@ -955,35 +976,45 @@ RenderModel::RenderModel(
       m_sampler_descriptor_set{ std::move(sampler_descriptor_set) },
       m_meshes{ std::move(meshes) }
 {
-    m_vertex_buffer_address = device.getBufferAddress(vk::BufferDeviceAddressInfo{
-        .buffer = m_vertex_buffer.get(),
-    });
-    m_vertex_uniform.set(m_vertex_buffer_address);
+    m_vertex_uniform.set(
+        m_vertex_buffer.transform(&renderer::resources::Buffer::get)
+            .transform([device](const vk::Buffer buffer) {
+                return device.getBufferAddress(vk::BufferDeviceAddressInfo{
+                    .buffer = buffer,
+                });
+            })
+            .value_or(vk::DeviceAddress{})
+    );
 
-    m_transform_buffer_address = device.getBufferAddress(vk::BufferDeviceAddressInfo{
-        .buffer = m_transform_buffer.get(),
-    });
-    m_transform_uniform.set(m_transform_buffer_address);
+    m_transform_uniform.set(
+        m_transform_buffer.transform(&renderer::resources::Buffer::get)
+            .transform([device](const vk::Buffer buffer) {
+                return device.getBufferAddress(vk::BufferDeviceAddressInfo{
+                    .buffer = buffer,
+                });
+            })
+            .value_or(vk::DeviceAddress{})
+    );
 
-    if (m_texture_buffer.get()) {
-        m_texture_buffer_address = device.getBufferAddress(vk::BufferDeviceAddressInfo{
-            .buffer = m_texture_buffer.get(),
-        });
-    }
-    else {
-        m_texture_buffer_address = vk::DeviceAddress{};
-    }
-    m_texture_uniform.set(m_texture_buffer_address);
+    m_texture_uniform.set(
+        m_texture_buffer.transform(&renderer::resources::Buffer::get)
+            .transform([device](const vk::Buffer buffer) {
+                return device.getBufferAddress(vk::BufferDeviceAddressInfo{
+                    .buffer = buffer,
+                });
+            })
+            .value_or(vk::DeviceAddress{})
+    );
 
-    if (m_material_buffer.get()) {
-        m_material_buffer_address = device.getBufferAddress(vk::BufferDeviceAddressInfo{
-            .buffer = m_material_buffer.get(),
-        });
-    }
-    else {
-        m_material_buffer_address = vk::DeviceAddress{};
-    }
-    m_material_uniform.set(m_material_buffer_address);
+    m_material_uniform.set(
+        m_material_buffer.transform(&renderer::resources::Buffer::get)
+            .transform([device](const vk::Buffer buffer) {
+                return device.getBufferAddress(vk::BufferDeviceAddressInfo{
+                    .buffer = buffer,
+                });
+            })
+            .value_or(vk::DeviceAddress{})
+    );
 }
 
 }   // namespace core::gltf
