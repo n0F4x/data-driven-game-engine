@@ -7,7 +7,7 @@
 #include <core/renderer/base/allocator/Allocator.hpp>
 #include <core/renderer/resources/Image.hpp>
 
-namespace init {
+namespace demo::init {
 
 [[nodiscard]]
 auto create_render_pass(vk::Format color_format, const core::renderer::base::Device& device)
@@ -34,20 +34,5 @@ auto create_framebuffers(
     vk::RenderPass                       render_pass,
     vk::ImageView                        depth_image_view
 ) -> std::vector<vk::UniqueFramebuffer>;
-
-[[nodiscard]]
-auto create_command_pool(vk::Device device, uint32_t queue_family_index)
-    -> vk::UniqueCommandPool;
-
-[[nodiscard]]
-auto create_command_buffers(vk::Device device, vk::CommandPool command_pool, uint32_t count)
-    -> std::vector<vk::CommandBuffer>;
-
-[[nodiscard]]
-auto create_semaphores(vk::Device device, uint32_t count)
-    -> std::vector<vk::UniqueSemaphore>;
-
-[[nodiscard]]
-auto create_fences(vk::Device device, uint32_t count) -> std::vector<vk::UniqueFence>;
 
 }   // namespace init

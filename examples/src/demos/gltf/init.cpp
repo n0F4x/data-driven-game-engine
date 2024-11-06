@@ -5,8 +5,6 @@
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/resources/Image.hpp>
 
-using namespace core;
-
 namespace {
 
 [[nodiscard]]
@@ -36,7 +34,7 @@ auto find_supported_format(
 auto find_depth_format(const vk::PhysicalDevice physical_device) -> vk::Format
 {
     using enum vk::Format;
-    return find_supported_format(
+    return ::find_supported_format(
         physical_device,
         std::array{ eD32Sfloat, eD32SfloatS8Uint, eD24UnormS8Uint },
         vk::ImageTiling::eOptimal,
@@ -46,11 +44,9 @@ auto find_depth_format(const vk::PhysicalDevice physical_device) -> vk::Format
 
 }   // namespace
 
-namespace init {
-
-auto create_render_pass(
-    const vk::Format              color_format,
-    const renderer::base::Device& device
+auto demo::init::create_render_pass(
+    const vk::Format                    color_format,
+    const core::renderer::base::Device& device
 ) -> vk::UniqueRenderPass
 {
     const vk::AttachmentDescription color_attachment_description{
@@ -68,7 +64,7 @@ auto create_render_pass(
     };
 
     const vk::AttachmentDescription depth_attachment_description{
-        .format         = find_depth_format(device.physical_device()),
+        .format         = ::find_depth_format(device.physical_device()),
         .samples        = vk::SampleCountFlagBits::e1,
         .loadOp         = vk::AttachmentLoadOp::eClear,
         .storeOp        = vk::AttachmentStoreOp::eDontCare,
@@ -118,15 +114,15 @@ auto create_render_pass(
     return device->createRenderPassUnique(render_pass_create_info);
 }
 
-auto create_depth_image(
+auto demo::init::create_depth_image(
     const vk::PhysicalDevice               physical_device,
     const core::renderer::base::Allocator& allocator,
     const vk::Extent2D                     swapchain_extent
-) -> renderer::resources::Image
+) -> core::renderer::resources::Image
 {
     const vk::ImageCreateInfo image_create_info = {
         .imageType   = vk::ImageType::e2D,
-        .format      = find_depth_format(physical_device),
+        .format      = ::find_depth_format(physical_device),
         .extent      = vk::Extent3D{ swapchain_extent.width, swapchain_extent.height, 1 },
         .mipLevels   = 1,
         .arrayLayers = 1,
@@ -142,20 +138,20 @@ auto create_depth_image(
         .priority = 1.f,
     };
 
-    return renderer::resources::Image{ allocator,
-                                       image_create_info,
-                                       allocation_create_info };
+    return core::renderer::resources::Image{ allocator,
+                                             image_create_info,
+                                             allocation_create_info };
 }
 
-auto create_depth_image_view(
-    const renderer::base::Device& device,
-    const vk::Image               depth_image
+auto demo::init::create_depth_image_view(
+    const core::renderer::base::Device& device,
+    const vk::Image                     depth_image
 ) -> vk::UniqueImageView
 {
     const vk::ImageViewCreateInfo image_view_create_info{
         .image    = depth_image,
         .viewType = vk::ImageViewType::e2D,
-        .format   = find_depth_format(device.physical_device()),
+        .format   = ::find_depth_format(device.physical_device()),
         .subresourceRange =
             vk::ImageSubresourceRange{ .aspectMask     = vk::ImageAspectFlagBits::eDepth,
                                       .baseMipLevel   = 0,
@@ -167,7 +163,7 @@ auto create_depth_image_view(
     return device->createImageViewUnique(image_view_create_info);
 }
 
-auto create_framebuffers(
+auto demo::init::create_framebuffers(
     const vk::Device                           device,
     const vk::Extent2D                         swapchain_extent,
     const std::span<const vk::UniqueImageView> swapchain_image_views,
@@ -195,61 +191,3 @@ auto create_framebuffers(
 
     return framebuffers;
 }
-
-auto create_command_pool(const vk::Device device, const uint32_t queue_family_index)
-    -> vk::UniqueCommandPool
-{
-    const vk::CommandPoolCreateInfo command_pool_create_info{
-        .flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-        .queueFamilyIndex = queue_family_index
-    };
-
-    return device.createCommandPoolUnique(command_pool_create_info);
-}
-
-auto create_command_buffers(
-    const vk::Device      device,
-    const vk::CommandPool command_pool,
-    const uint32_t        count
-) -> std::vector<vk::CommandBuffer>
-{
-    const vk::CommandBufferAllocateInfo command_buffer_allocate_info{
-        .commandPool        = command_pool,
-        .level              = vk::CommandBufferLevel::ePrimary,
-        .commandBufferCount = count
-    };
-
-    return device.allocateCommandBuffers(command_buffer_allocate_info);
-}
-
-auto create_semaphores(const vk::Device device, const uint32_t count)
-    -> std::vector<vk::UniqueSemaphore>
-{
-    constexpr vk::SemaphoreCreateInfo create_info{};
-    std::vector<vk::UniqueSemaphore>  semaphores;
-    semaphores.reserve(count);
-
-    for (uint32_t i{}; i < count; i++) {
-        semaphores.emplace_back(device.createSemaphoreUnique(create_info));
-    }
-
-    return semaphores;
-}
-
-auto create_fences(const vk::Device device, const uint32_t count)
-    -> std::vector<vk::UniqueFence>
-{
-    constexpr vk::FenceCreateInfo fence_create_info{
-        .flags = vk::FenceCreateFlagBits::eSignaled
-    };
-    std::vector<vk::UniqueFence> fences;
-    fences.reserve(count);
-
-    for (uint32_t i{}; i < count; i++) {
-        fences.emplace_back(device.createFenceUnique(fence_create_info));
-    }
-
-    return fences;
-}
-
-}   // namespace init

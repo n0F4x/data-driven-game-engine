@@ -35,7 +35,7 @@ add_subdirectory(src)
 ###########
 ## TESTS ##
 ###########
-add_subdirectory(example)
+add_subdirectory(examples)
 
 
 unset(engine_debug CACHE)

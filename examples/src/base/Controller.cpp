@@ -1,14 +1,14 @@
-#include "Controller.hpp"
+#include "base/Controller.hpp"
 
 #include <limits>
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Controller::Controller(const float movement_speed) noexcept
+examples::base::Controller::Controller(const float movement_speed) noexcept
     : m_movement_speed{ movement_speed }
 {}
 
-auto Controller::update(
+auto examples::base::Controller::update(
     const core::window::Window&   window,
     std::chrono::duration<double> delta_time
 ) -> void
@@ -61,7 +61,7 @@ auto Controller::update(
     }
 }
 
-auto Controller::update_camera(core::gfx::Camera camera) const noexcept
+auto examples::base::Controller::update_camera(core::gfx::Camera camera) const noexcept
     -> core::gfx::Camera
 {
     camera.set_view_yxz(m_position, glm::vec3{ m_vertical_angle, m_horizontal_angle, 0 });

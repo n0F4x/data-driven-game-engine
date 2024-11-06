@@ -10,8 +10,8 @@ namespace plugins {
 
 namespace window {
 
+// NOLINTNEXTLINE(*-member-init)
 struct Window {
-public:
     core::Size2i       size;
     gsl_lite::czstring title;
 

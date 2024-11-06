@@ -7,6 +7,8 @@
 #include <core/gfx/Camera.hpp>
 #include <core/window/Window.hpp>
 
+namespace examples::base {
+
 class Controller {
 public:
     explicit Controller(float movement_speed) noexcept;
@@ -36,3 +38,5 @@ private:
     double     m_horizontal_angle{};
     double     m_vertical_angle{};
 };
+
+}   // namespace examples::base
