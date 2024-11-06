@@ -42,7 +42,7 @@ try {
     })
         .apply(plugins::Renderer{}.require_vulkan_version(1, 1))
         .use(examples::base::DemoBasePlugin{ .movement_speed = movement_speed })
-        .use<demo::DemoPlugin>(model_filepath)
+        .use(demo::DemoPlugin{ .model_filepath = model_filepath })
         .run(demo::run);
 
 } catch (const std::exception& error) {

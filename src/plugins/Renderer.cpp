@@ -105,7 +105,7 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
             )
     );
 
-    app_builder.use<SurfacePlugin>(m_surface_plugin);
+    app_builder.use(m_surface_plugin);
 
     app_builder.use(
         DevicePlugin{}

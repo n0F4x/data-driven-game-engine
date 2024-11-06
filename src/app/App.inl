@@ -7,14 +7,6 @@
 #include "core/utility/meta/tuple-like.hpp"
 #include "core/utility/tuple.hpp"
 
-template <PluginConcept Plugin, typename Self, typename... Args>
-auto App::Builder::use(this Self&& self, Args&&... args) -> Self
-{
-    return std::forward<Self>(self).use(
-        std::remove_cvref_t<Plugin>(std::forward<Args>(args)...)
-    );
-}
-
 template <PluginConcept Plugin, typename Self>
 auto App::Builder::use(this Self&& self, Plugin&& plugin) -> Self
 {
@@ -27,12 +19,6 @@ auto App::Builder::use(this Self&& self, Plugin&& plugin) -> Self
     ));
 
     return std::forward<Self>(self);
-}
-
-template <ModifierConcept Modifier, typename Self, typename... Args>
-auto App::Builder::apply(this Self&& self, Args&&... args) -> Self
-{
-    return std::forward<Self>(self).use_group(Modifier(std::forward<Args>(args)...));
 }
 
 template <ModifierConcept Modifier, typename Self>

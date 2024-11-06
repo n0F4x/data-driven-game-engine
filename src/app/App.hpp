@@ -45,13 +45,9 @@ concept RunnerConcept = std::invocable<Runner&&, App&&, Args&&...>;
 
 class App::Builder {
 public:
-    template <PluginConcept Plugin, typename Self, typename... Args>
-    auto use(this Self&&, Args&&... args) -> Self;
     template <PluginConcept Plugin, typename Self>
     auto use(this Self&&, Plugin&& plugin) -> Self;
 
-    template <ModifierConcept Modifier, typename Self, typename... Args>
-    auto apply(this Self&&, Args&&... args) -> Self;
     template <ModifierConcept Modifier, typename Self>
     auto apply(this Self&&, Modifier&& modifier) -> Self;
 
