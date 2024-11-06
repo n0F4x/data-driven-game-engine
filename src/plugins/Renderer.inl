@@ -1,7 +1,7 @@
-namespace plugins::renderer {
+#pragma once
 
 template <typename Self>
-auto RendererPlugin::require_vulkan_version(
+auto plugins::renderer::RendererPlugin::require_vulkan_version(
     this Self&&    self,
     const uint32_t major,
     const uint32_t minor,
@@ -12,18 +12,25 @@ auto RendererPlugin::require_vulkan_version(
     return std::forward<Self>(self);
 }
 
-template <typename Self, typename... Args>
-auto RendererPlugin::set_surface_plugin(this Self&& self, Args&&... args) -> Self
+template <typename Self, typename SurfacePlugin>
+auto plugins::renderer::RendererPlugin::set_surface_plugin(
+    this Self&&   self,
+    SurfacePlugin surface_plugin
+) -> Self
 {
-    self.m_surface_provider.operator=(std::forward<Args>(args)...);
+    self.m_surface_plugin_provider =
+        [surface_plugin = std::move(surface_plugin)](App::Builder& app_builder) mutable {
+            app_builder.use(std::move(surface_plugin));
+        };
     return std::forward<Self>(self);
 }
 
 template <typename Self, typename... Args>
-auto RendererPlugin::set_framebuffer_size_getter(this Self&& self, Args&&... args) -> Self
+auto plugins::renderer::RendererPlugin::set_framebuffer_size_getter(
+    this Self&& self,
+    Args&&... args
+) -> Self
 {
     self.m_create_framebuffer_size_getter.operator=(std::forward<Args>(args)...);
     return std::forward<Self>(self);
 }
-
-}   // namespace plugins::renderer

@@ -7,11 +7,10 @@
 
 #include <VkBootstrap.h>
 
-class App;
-
 namespace core::renderer::base {
 
 class Instance;
+class Device;
 
 }   // namespace core::renderer::base
 
@@ -25,10 +24,9 @@ public:
     };
 
     auto operator()(
-        App&                                  app,
         const core::renderer::base::Instance& instance,
         const vk::UniqueSurfaceKHR&           surface
-    ) const -> void;
+    ) const -> core::renderer::base::Device;
 
     template <typename... Args>
     auto emplace_dependency(Args&&... args) -> DevicePlugin&;

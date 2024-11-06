@@ -6,9 +6,13 @@ Device::Device(const vkb::Device& device) : m_device{ device } {}
 
 Device::Device(vkb::Device&& device) noexcept : m_device{ std::move(device) } {}
 
+Device::Device(Device&& other) noexcept : m_device{ std::exchange(other.m_device, {}) } {}
+
 Device::~Device()
 {
-    vkb::destroy_device(m_device);
+    if (m_device.device != nullptr) {
+        vkb::destroy_device(m_device);
+    }
 }
 
 auto Device::operator*() const noexcept -> vk::Device
@@ -41,4 +45,4 @@ auto Device::info() const -> vkb::Device
     return m_device;
 }
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

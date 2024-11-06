@@ -4,6 +4,10 @@ namespace core::renderer::base {
 
 Instance::Instance(const vkb::Instance& instance) noexcept : m_instance{ instance } {}
 
+Instance::Instance(Instance&& other) noexcept
+    : m_instance{ std::exchange(other.m_instance, {}) }
+{}
+
 Instance::~Instance()
 {
     vkb::destroy_instance(m_instance);
@@ -34,4 +38,4 @@ Instance::operator vkb::Instance() const noexcept
     return m_instance;
 }
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

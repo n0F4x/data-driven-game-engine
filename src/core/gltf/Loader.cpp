@@ -239,7 +239,7 @@ static auto make_accessor_loader(
                Transformation            transform
            ) -> void {
         using ElementType =
-            std::remove_cvref_t<std::tuple_element_t<0, meta::arguments_t<Transformation>>>;
+            std::remove_cvref_t<std::tuple_element_t<0, meta::arguments_of_t<Transformation>>>;
         using AttributeType =
             std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
 

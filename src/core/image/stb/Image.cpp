@@ -6,7 +6,7 @@
 #include <vulkan/vulkan_format_traits.hpp>
 
 #include <stb_image.h>
-#include <stb_image_resize.h>
+#include <stb_image_resize2.h>
 
 [[nodiscard]]
 static auto count_mip_levels(const uint32_t base_width, const uint32_t base_height)
@@ -53,19 +53,25 @@ static auto mipped_image_size(
 }
 
 [[nodiscard]]
+static auto pixel_layout_from(const vk::Format format) -> stbir_pixel_layout
+{
+    assert(format == vk::Format::eR8G8B8A8Srgb);
+    return stbir_pixel_layout::STBIR_RGBA;
+}
+
+[[nodiscard]]
 static auto generate_mip_maps(
     const std::span<const std::byte> base_image_data,
     const uint32_t                   base_width,
     const uint32_t                   base_height,
-    const uint32_t                   component_count,
-    const uint32_t                   alpha_index,
+    const vk::Format                 format,
     const uint32_t                   mip_level_count
 ) -> std::vector<std::byte>
 {
     std::vector<std::byte> result;
-    result.resize(
-        ::mipped_image_size(base_width, base_height, component_count, mip_level_count)
-    );
+    result.resize(::mipped_image_size(
+        base_width, base_height, vk::componentCount(format), mip_level_count
+    ));
 
     std::memcpy(result.data(), base_image_data.data(), base_image_data.size_bytes());
 
@@ -75,8 +81,9 @@ static auto generate_mip_maps(
     for (const auto _ : std::views::iota(0u, mip_level_count)) {
         const uint32_t next_width{ std::max(width / 2u, 1u) };
         const uint32_t next_height{ std::max(height / 2u, 1u) };
-        const size_t   next_offset{ offset
-                                  + ::mip_level_size(width, height, component_count) };
+        const size_t   next_offset{
+            offset + ::mip_level_size(width, height, vk::componentCount(format))
+        };
 
         ::stbir_resize_uint8_srgb(
             reinterpret_cast<const unsigned char*>(&result[offset]),
@@ -87,9 +94,7 @@ static auto generate_mip_maps(
             static_cast<int>(next_width),
             static_cast<int>(next_height),
             0,
-            static_cast<int>(component_count),
-            static_cast<int>(alpha_index),
-            0
+            ::pixel_layout_from(format)
         );
 
         width  = next_width;
@@ -103,14 +108,16 @@ static auto generate_mip_maps(
 auto core::image::stb::Image::load_from(const std::filesystem::path& filepath) -> Image
 {
     // TODO: request format
-    constexpr static uint8_t    alpha_index{ 3 };
     constexpr static vk::Format format{ vk::Format::eR8G8B8A8Srgb };
-    constexpr static uint8_t    component_count{ vk::componentCount(format) };
 
     int      width{};
     int      height{};
     stbi_uc* raw_image_data{ ::stbi_load(
-        filepath.generic_string().c_str(), &width, &height, nullptr, component_count
+        filepath.generic_string().c_str(),
+        &width,
+        &height,
+        nullptr,
+        vk::componentCount(format)
     ) };
 
     if (raw_image_data == nullptr) {
@@ -124,15 +131,15 @@ auto core::image::stb::Image::load_from(const std::filesystem::path& filepath) -
     };
 
     std::vector<std::byte> image_data{ ::generate_mip_maps(
-        std::as_bytes(std::span{
-            raw_image_data,
-            ::mip_level_size(
-                static_cast<uint32_t>(width), static_cast<uint32_t>(height), component_count
-            ) }),
+        std::as_bytes(std::span{ raw_image_data,
+                                 ::mip_level_size(
+                                     static_cast<uint32_t>(width),
+                                     static_cast<uint32_t>(height),
+                                     vk::componentCount(format)
+                                 ) }),
         static_cast<uint32_t>(width),
         static_cast<uint32_t>(height),
-        component_count,
-        alpha_index,
+        format,
         mip_level_count
     ) };
 
@@ -148,7 +155,6 @@ auto core::image::stb::Image::load_from(const std::filesystem::path& filepath) -
 auto core::image::stb::Image::load_from(const std::span<const std::byte> data) -> Image
 {
     // TODO: request format
-    constexpr static uint8_t    alpha_index{ 3 };
     constexpr static vk::Format format{ vk::Format::eR8G8B8A8Srgb };
     constexpr static uint8_t    component_count{ vk::componentCount(format) };
 
@@ -179,8 +185,7 @@ auto core::image::stb::Image::load_from(const std::span<const std::byte> data) -
             ) }),
         static_cast<uint32_t>(width),
         static_cast<uint32_t>(height),
-        component_count,
-        alpha_index,
+        format,
         mip_level_count
     ) };
 

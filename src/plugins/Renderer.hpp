@@ -2,17 +2,13 @@
 
 #include <functional>
 
-#include "core/renderer/base/swapchain/SwapchainHolder.hpp"
-#include "plugins/renderer/SurfacePlugin.hpp"
+#include <vulkan/vulkan.hpp>
 
-#include "app.hpp"
+#include <app/App.hpp>
 
 namespace plugins {
 
 namespace renderer {
-
-using FramebufferSizeGetterCreator =
-    std::function<core::renderer::base::SwapchainHolder::FramebufferSizeGetter(App&)>;
 
 class RendererPlugin {
 public:
@@ -34,27 +30,15 @@ public:
         uint32_t patch = 0
     ) noexcept -> Self;
 
-    template <typename Self, typename... Args>
-    auto set_surface_plugin(this Self&&, Args&&... args) -> Self;
+    template <typename Self, typename SurfacePlugin>
+    auto set_surface_plugin(this Self&&, SurfacePlugin surface_plugin) -> Self;
 
     template <typename Self, typename... Args>
     auto set_framebuffer_size_getter(this Self&&, Args&&... args) -> Self;
 
-    [[nodiscard]]
-    auto required_vulkan_version() const noexcept -> uint32_t;
-
-    [[nodiscard]]
-    auto surface_plugin() const noexcept -> const SurfacePlugin&;
-    [[nodiscard]]
-    auto surface_plugin() noexcept -> SurfacePlugin&;
-
-    [[nodiscard]]
-    auto framebuffer_size_getter() const noexcept -> const FramebufferSizeGetterCreator&;
-
 private:
-    uint32_t                     m_required_vulkan_version{ vk::ApiVersion10 };
-    SurfacePlugin                m_surface_plugin;
-    FramebufferSizeGetterCreator m_create_framebuffer_size_getter;
+    uint32_t m_required_vulkan_version{ vk::ApiVersion10 };
+    std::function<void(App::Builder& app_builder)> m_surface_plugin_provider;
 };
 
 }   // namespace renderer

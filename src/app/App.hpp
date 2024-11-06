@@ -27,13 +27,9 @@ public:
     static auto create() -> Builder;
 };
 
-// A callable that takes a reference to App as its first parameter
 template <typename Plugin>
-concept PluginConcept = std::common_reference_with<
-    std::tuple_element_t<
-        0,
-        core::meta::arguments_t<std::remove_pointer_t<std::decay_t<Plugin>>>>,
-    App&>;
+concept PluginConcept = !std::is_void_v<
+    core::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>>;
 
 template <typename Modifier>
 concept ModifierConcept = requires(Modifier&& modifier, App::Builder& builder) {
@@ -45,10 +41,10 @@ concept RunnerConcept = std::invocable<Runner&&, App&&, Args&&...>;
 
 class App::Builder {
 public:
-    template <PluginConcept Plugin, typename Self>
+    template <typename Self, PluginConcept Plugin>
     auto use(this Self&&, Plugin&& plugin) -> Self;
 
-    template <ModifierConcept Modifier, typename Self>
+    template <typename Self, ModifierConcept Modifier>
     auto apply(this Self&&, Modifier&& modifier) -> Self;
 
     [[nodiscard]]

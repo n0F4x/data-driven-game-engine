@@ -5,7 +5,11 @@
 
 #include <VkBootstrap.h>
 
-class App;
+namespace core::renderer::base {
+
+class Instance;
+
+}   // namespace core::renderer::base
 
 namespace plugins::renderer {
 
@@ -20,7 +24,7 @@ public:
 
     InstancePlugin();
 
-    auto operator()(App& app) const -> void;
+    auto operator()() const -> core::renderer::base::Instance;
 
     template <typename... Args>
     auto emplace_dependency(Args&&... args) -> InstancePlugin&;

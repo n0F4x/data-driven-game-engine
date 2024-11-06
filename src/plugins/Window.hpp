@@ -6,6 +6,12 @@
 
 class App;
 
+namespace core::window {
+
+class Window;
+
+}   // namespace core::window
+
 namespace plugins {
 
 namespace window {
@@ -18,7 +24,7 @@ struct Window {
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(App& app) const -> void;
+    auto operator()() const -> core::window::Window;
 };
 
 }   // namespace window

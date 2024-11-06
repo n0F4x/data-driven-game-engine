@@ -3,15 +3,15 @@
 #include <core/window/events.hpp>
 
 auto examples::base::DemoBasePlugin::operator()(
-    App&                                   app,
     core::window::Window&                  window,
     const core::renderer::base::Device&    device,
     core::renderer::base::SwapchainHolder& swapchain_holder
-) const -> void
+) const -> DemoBase
 {
-    app.resources.emplace<DemoBase>(
-        window, Controller{ movement_speed }, Renderer{ window, device, swapchain_holder }
-    );
+    return DemoBase{
+        window, Controller{ movement_speed },
+         Renderer{ window, device, swapchain_holder }
+    };
 }
 
 examples::base::DemoBase::DemoBase(

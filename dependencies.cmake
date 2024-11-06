@@ -88,8 +88,10 @@ find_package(Ktx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC KTX::ktx)
 
 # stb
-find_package(Stb REQUIRED)
-target_include_directories(${PROJECT_NAME} PUBLIC ${Stb_INCLUDE_DIR})
+add_subdirectory(external/stb_image)
+target_link_libraries(${PROJECT_NAME} PUBLIC stb_image)
+add_subdirectory(external/stb_image_resize2)
+target_link_libraries(${PROJECT_NAME} PUBLIC stb_image_resize2)
 
 # fastgltf
 # TODO: enable modules

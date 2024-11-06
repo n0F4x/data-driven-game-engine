@@ -13,7 +13,7 @@ public:
     ///------------------------------///
     explicit Instance(const vkb::Instance& instance) noexcept;
     Instance(const Instance&)     = delete;
-    Instance(Instance&&) noexcept = default;
+    Instance(Instance&&) noexcept;
     ~Instance();
 
     ///-------------///

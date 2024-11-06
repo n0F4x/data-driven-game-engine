@@ -9,16 +9,13 @@
 #include "init.hpp"
 
 auto demo::DemoPlugin::operator()(
-    App&                                   app,
     core::cache::Cache&                    cache,
     const core::renderer::base::Device&    device,
     const core::renderer::base::Allocator& allocator,
     core::renderer::base::SwapchainHolder& swapchain_holder
-) const -> void
+) const -> DemoApp
 {
-    app.resources.emplace<DemoApp>(
-        cache, device, allocator, swapchain_holder, model_filepath
-    );
+    return DemoApp{ cache, device, allocator, swapchain_holder, model_filepath };
 }
 
 [[nodiscard]]

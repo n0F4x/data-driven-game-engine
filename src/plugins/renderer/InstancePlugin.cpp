@@ -11,6 +11,7 @@
 #include "core/config/vulkan.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
 
+// ReSharper disable once CppEnforceFunctionDeclarationStyle
 static VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
     const VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
     const VkDebugUtilsMessageTypeFlagsEXT        message_types,
@@ -140,14 +141,14 @@ InstancePlugin::InstancePlugin()
         .enable_instance_settings = ::enable_instance_settings });
 }
 
-auto InstancePlugin::operator()(App& app) const -> void
+auto InstancePlugin::operator()() const -> core::renderer::base::Instance
 {
     core::config::vulkan::init();
 
     const auto system_info_result{ vkb::SystemInfo::get_system_info() };
     if (!system_info_result.has_value()) {
         SPDLOG_ERROR(system_info_result.error().message());
-        return;
+        throw std::runtime_error{ system_info_result.error().message() };
     }
     const vkb::SystemInfo& system_info{ system_info_result.value() };
 
@@ -161,7 +162,9 @@ auto InstancePlugin::operator()(App& app) const -> void
             }
         ))
     {
-        return;
+        throw std::runtime_error{
+            "InstancePlugin: not all required instance settings are available"
+        };
     }
 
     vkb::InstanceBuilder instance_builder{
@@ -178,14 +181,14 @@ auto InstancePlugin::operator()(App& app) const -> void
     const vkb::Result<vkb::Instance> instance_result{ instance_builder.build() };
     if (!instance_result.has_value()) {
         SPDLOG_ERROR(instance_result.error().message());
-        return;
+        throw std::runtime_error{ instance_result.error().message() };
     }
 
-    const auto& instance{
-        app.resources.emplace<core::renderer::base::Instance>(instance_result.value())
-    };
+    core::renderer::base::Instance instance{ instance_result.value() };
 
     core::config::vulkan::init(instance.get());
+
+    return instance;
 }
 
 }   // namespace plugins::renderer

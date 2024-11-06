@@ -14,81 +14,18 @@
 #include "plugins/renderer/InstancePlugin.hpp"
 #include "plugins/renderer/SurfacePlugin.hpp"
 
-[[nodiscard]]
-static auto create_surface(
-    const App&                   app,
-    const VkInstance             instance,
-    const VkAllocationCallbacks* allocation_callbacks
-) -> std::optional<VkSurfaceKHR>
-{
-    return app.resources.find<core::window::Window>().and_then(
-        [instance, allocation_callbacks](const core::window::Window& window) {
-            return window.create_vulkan_surface(instance, allocation_callbacks)
-                .transform([](const VkSurfaceKHR surface) {
-                    return std::make_optional(surface);
-                })
-                .value_or(std::nullopt);
-        }
-    );
-}
-
-static auto required_instance_settings_are_available(const vkb::SystemInfo& system_info)
-    -> bool
-{
-    return std::ranges::all_of(
-        core::window::Window::vulkan_instance_extensions(),
-        std::bind_front(&vkb::SystemInfo::is_extension_available, system_info)
-    );
-}
-
-static auto enable_instance_settings(const vkb::SystemInfo&, vkb::InstanceBuilder& builder)
-    -> void
-{
-    std::ranges::for_each(
-        core::window::Window::vulkan_instance_extensions(),
-        std::bind_front(&vkb::InstanceBuilder::enable_extension, builder)
-    );
-}
-
-namespace plugins::renderer {
-
-RendererPlugin::RendererPlugin()
-    : m_surface_plugin{
-          std::in_place,
-          create_surface,
-          InstancePlugin::Dependency{
-                                     .required_instance_settings_are_available =
-                                     ::required_instance_settings_are_available,
-                                     .enable_instance_settings = ::enable_instance_settings }
-}
+plugins::renderer::RendererPlugin::RendererPlugin()
+    : m_surface_plugin_provider{ [](App::Builder& app_builder) {
+          app_builder.use(SurfacePlugin{});
+      } }
 {}
 
-auto RendererPlugin::required_vulkan_version() const noexcept -> uint32_t
-{
-    return m_required_vulkan_version;
-}
-
-auto RendererPlugin::surface_plugin() const noexcept -> const SurfacePlugin&
-{
-    return m_surface_plugin;
-}
-
-auto RendererPlugin::surface_plugin() noexcept -> SurfacePlugin&
-{
-    return m_surface_plugin;
-}
-
-auto RendererPlugin::framebuffer_size_getter() const noexcept
-    -> const FramebufferSizeGetterCreator&
-{
-    return m_create_framebuffer_size_getter;
-}
-
-auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
+auto plugins::renderer::RendererPlugin::operator()(App::Builder& app_builder) const
+    -> void
 {
     app_builder.use(
-        InstancePlugin{}
-            .emplace_dependency(InstancePlugin::Dependency{
+        plugins::renderer::InstancePlugin{}
+            .emplace_dependency(plugins::renderer::InstancePlugin::Dependency{
                 .enable_instance_settings =
                     [vulkan_version = m_required_vulkan_version](
                         const vkb::SystemInfo&, vkb::InstanceBuilder& builder
@@ -105,10 +42,10 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
             )
     );
 
-    app_builder.use(m_surface_plugin);
+    m_surface_plugin_provider(app_builder);
 
     app_builder.use(
-        DevicePlugin{}
+        plugins::renderer::DevicePlugin{}
             .emplace_dependency(
                 core::renderer::base::Allocator::Requirements::require_device_settings,
                 core::renderer::base::Allocator::Requirements::enable_optional_device_settings
@@ -127,27 +64,20 @@ auto RendererPlugin::operator()(App::Builder& app_builder) const -> void
             )
     );
 
-    app_builder.use([create_framebuffer_size_getter = m_create_framebuffer_size_getter](
-                        App&                                app,
+    // TODO: reallow using create_framebuffer_size_getter
+    app_builder.use([get_framebuffer_size = nullptr](
                         const vk::UniqueSurfaceKHR&         surface,
                         const core::renderer::base::Device& device
                     ) {
-        app.resources.emplace<core::renderer::base::SwapchainHolder>(
-            surface.get(),
-            device,
-            create_framebuffer_size_getter
-                ? std::invoke(create_framebuffer_size_getter, app)
-                : nullptr
-        );
+        return core::renderer::base::SwapchainHolder{ surface.get(),
+                                                      device,
+                                                      get_framebuffer_size };
     });
 
-    app_builder.use([](App&                                  app,
-                       const core::renderer::base::Instance& instance,
+    app_builder.use([](const core::renderer::base::Instance& instance,
                        const core::renderer::base::Device&   device) {
-        app.resources.emplace<core::renderer::base::Allocator>(instance, device);
+        return core::renderer::base::Allocator{ instance, device };
     });
 
     SPDLOG_TRACE("Added Renderer plugin group");
 }
-
-}   // namespace plugins::renderer

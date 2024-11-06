@@ -7,9 +7,9 @@
 
 namespace plugins::window {
 
-auto Window::operator()(App& app) const -> void
+auto Window::operator()() const -> core::window::Window
 {
-    app.resources.emplace<core::window::Window>(size, title);
+    return core::window::Window{size, title};
 }
 
 }   // namespace plugins::window

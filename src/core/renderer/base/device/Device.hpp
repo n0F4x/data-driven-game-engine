@@ -14,7 +14,7 @@ public:
     explicit Device(const vkb::Device& device);
     explicit Device(vkb::Device&& device) noexcept;
     Device(const Device&)     = delete;
-    Device(Device&&) noexcept = default;
+    Device(Device&&) noexcept;
     ~Device();
 
     ///-------------///

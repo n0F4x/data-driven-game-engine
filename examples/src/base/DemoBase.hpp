@@ -1,21 +1,21 @@
 #pragma once
 
-#include <app/App.hpp>
-
 #include "Controller.hpp"
 #include "Renderer.hpp"
 
 namespace examples::base {
 
+class DemoBase;
+
 struct DemoBasePlugin {
     float movement_speed{ 5.f };
 
+    [[nodiscard]]
     auto operator()(
-        App&                                   app,
         core::window::Window&                  window,
         const core::renderer::base::Device&    device,
         core::renderer::base::SwapchainHolder& swapchain_holder
-    ) const -> void;
+    ) const -> DemoBase;
 };
 
 class DemoBase {

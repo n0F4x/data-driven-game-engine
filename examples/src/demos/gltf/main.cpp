@@ -9,9 +9,10 @@
 #include "demo.hpp"
 #include "DemoApp.hpp"
 
-static auto cache_plugin(App& app) -> void
+[[nodiscard]]
+static auto cache_plugin() -> core::cache::Cache
 {
-    app.resources.emplace<core::cache::Cache>();
+    return {};
 }
 
 auto main() -> int

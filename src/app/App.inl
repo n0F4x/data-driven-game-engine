@@ -7,10 +7,10 @@
 #include "core/utility/meta/tuple-like.hpp"
 #include "core/utility/tuple.hpp"
 
-template <PluginConcept Plugin, typename Self>
+template <typename Self, PluginConcept Plugin>
 auto App::Builder::use(this Self&& self, Plugin&& plugin) -> Self
 {
-    if constexpr (requires(Plugin t, StoreView plugins) { t.setup(plugins); }) {
+    if constexpr (requires(StoreView plugins) { plugin.setup(plugins); }) {
         plugin.setup(StoreView{ self.m_plugins });
     }
 
@@ -21,7 +21,7 @@ auto App::Builder::use(this Self&& self, Plugin&& plugin) -> Self
     return std::forward<Self>(self);
 }
 
-template <ModifierConcept Modifier, typename Self>
+template <typename Self, ModifierConcept Modifier>
 auto App::Builder::apply(this Self&& self, Modifier&& modifier) -> Self
 {
     std::invoke(std::forward<Modifier>(modifier), self);
@@ -44,9 +44,8 @@ namespace details {
 template <typename Plugin>
 auto gather_resources(App& app)
 {
-    using RequiredResourcesTuple = decltype(core::utils::remove_first(
-        std::declval<core::meta::arguments_t<std::remove_pointer_t<std::decay_t<Plugin>>>>()
-    ));
+    using RequiredResourcesTuple =
+        core::meta::arguments_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>;
     return core::utils::generate_tuple<RequiredResourcesTuple>(
         [&app]<typename Resource>() -> Resource {
             return app.resources.at<std::remove_cvref_t<Resource>>();
@@ -60,9 +59,11 @@ template <typename Plugin>
 App::Builder::PluginInvocation::PluginInvocation(Plugin& plugin_ref)
     : m_plugin_ref{ plugin_ref },
       m_invocation{ [](std::any& erased_plugin_ref, App& app) {
-          std::apply(
+          using ResourceType =
+              core::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>;
+          app.resources.emplace<ResourceType>(std::apply(
               std::any_cast<Plugin&>(erased_plugin_ref),
-              std::tuple_cat(std::tuple<App&>(app), details::gather_resources<Plugin>(app))
-          );
+              details::gather_resources<Plugin>(app)
+          ));
       } }
 {}

@@ -258,14 +258,14 @@ auto Scene::Builder::build(
     };
 
     return std::packaged_task{
-        [global_descriptor_set_layout = auto{ std::move(global_descriptor_set_layout) },
-         model_descriptor_set_layouts = auto{ std::move(model_descriptor_set_layouts) },
-         pipeline_layout              = auto{ std::move(pipeline_layout) },
-         descriptor_pool              = auto{ std::move(descriptor_pool) },
-         global_buffer                = auto{ std::move(global_buffer) },
-         global_descriptor_set        = auto{ std::move(global_descriptor_set) },
-         model_loaders                = auto{ std::move(model_loaders
-         ) }](vk::CommandBuffer transfer_command_buffer) mutable -> Scene {
+        [global_descriptor_set_layout = std::move(global_descriptor_set_layout),
+         model_descriptor_set_layouts = std::move(model_descriptor_set_layouts),
+         pipeline_layout              = std::move(pipeline_layout),
+         descriptor_pool              = std::move(descriptor_pool),
+         global_buffer                = std::move(global_buffer),
+         global_descriptor_set        = std::move(global_descriptor_set),
+         model_loaders                = std::move(model_loaders
+         )](const vk::CommandBuffer transfer_command_buffer) mutable -> Scene {
             return Scene{
                 std::move(global_descriptor_set_layout),
                 std::move(model_descriptor_set_layouts),

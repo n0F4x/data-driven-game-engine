@@ -8,16 +8,18 @@
 
 namespace demo {
 
+class DemoApp;
+
 struct DemoPlugin {
     std::reference_wrapper<const std::filesystem::path> model_filepath;
 
+    [[nodiscard]]
     auto operator()(
-        App&                                   app,
         core::cache::Cache&                    cache,
         const core::renderer::base::Device&    device,
         const core::renderer::base::Allocator& allocator,
         core::renderer::base::SwapchainHolder& swapchain_holder
-    ) const -> void;
+    ) const -> DemoApp;
 };
 
 class DemoApp {
@@ -45,4 +47,4 @@ private:
     core::renderer::Scene              m_scene;
 };
 
-}
+}   // namespace demo
