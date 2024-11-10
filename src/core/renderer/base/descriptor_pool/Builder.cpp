@@ -1,28 +1,7 @@
 #include "Builder.hpp"
 
-namespace core::renderer::base {
-
-auto DescriptorPool::Builder::set_flags(const vk::DescriptorPoolCreateFlags flags
-) noexcept -> Builder&
-{
-    m_flags |= flags;
-    return *this;
-}
-
-auto DescriptorPool::Builder::request_descriptor_sets(const uint32_t count) -> Builder&
-{
-    m_set_count += count;
-    return *this;
-}
-
-auto DescriptorPool::Builder::request_descriptors(const vk::DescriptorPoolSize& pool_size)
-    -> Builder&
-{
-    m_pool_sizes.push_back(pool_size);
-    return *this;
-}
-
-auto DescriptorPool::Builder::build(const vk::Device device) noexcept -> DescriptorPool
+auto core::renderer::base::DescriptorPool::Builder::build(const vk::Device device
+) noexcept -> DescriptorPool
 {
     const vk::DescriptorPoolCreateInfo descriptor_pool_create_info{
         .flags         = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
@@ -34,5 +13,3 @@ auto DescriptorPool::Builder::build(const vk::Device device) noexcept -> Descrip
     return DescriptorPool{ device.createDescriptorPoolUnique(descriptor_pool_create_info
     ) };
 }
-
-}   // namespace core::renderer::base

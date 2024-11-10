@@ -2,6 +2,8 @@
 
 #include <ranges>
 
+#include <vulkan/utility/vk_format_utils.h>
+
 core::renderer::base::Image::Image(
     vk::UniqueImage&&          image,
     const vk::ImageCreateInfo& create_info
@@ -13,32 +15,49 @@ core::renderer::base::Image::Image(
       m_state{ .layout = create_info.initialLayout }
 {}
 
-auto core::renderer::base::Image::get() const -> vk::Image
+auto core::renderer::base::Image::get() const noexcept -> vk::Image
 {
     return m_image.get();
 }
 
-auto core::renderer::base::Image::device() const -> vk::Device
+auto core::renderer::base::Image::device() const noexcept -> vk::Device
 {
     return m_image.getOwner();
 }
 
-auto core::renderer::base::Image::format() const -> vk::Format
+auto core::renderer::base::Image::format() const noexcept -> vk::Format
 {
     return m_format;
 }
 
-auto core::renderer::base::Image::extent() const -> const vk::Extent3D&
+auto core::renderer::base::Image::aspect_flags() const noexcept -> vk::ImageAspectFlags
+{
+    vk::ImageAspectFlags result;
+
+    if (vkuFormatIsColor(static_cast<VkFormat>(m_format))) {
+        result |= vk::ImageAspectFlagBits::eColor;
+    }
+    if (vkuFormatHasDepth(static_cast<VkFormat>(m_format))) {
+        result |= vk::ImageAspectFlagBits::eDepth;
+    }
+    if (vkuFormatHasStencil(static_cast<VkFormat>(m_format))) {
+        result |= vk::ImageAspectFlagBits::eStencil;
+    }
+
+    return result;
+}
+
+auto core::renderer::base::Image::extent() const noexcept -> const vk::Extent3D&
 {
     return m_extent;
 }
 
-auto core::renderer::base::Image::mip_level_count() const -> uint32_t
+auto core::renderer::base::Image::mip_level_count() const noexcept -> uint32_t
 {
     return m_mip_level_count;
 }
 
-auto core::renderer::base::Image::layout() const -> vk::ImageLayout
+auto core::renderer::base::Image::layout() const noexcept -> vk::ImageLayout
 {
     return m_state.layout;
 }

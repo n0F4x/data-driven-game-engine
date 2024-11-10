@@ -52,8 +52,8 @@ auto DevicePlugin::operator()(
 
     // TODO: use std::bind_back
     for (const Dependency& dependency : m_dependencies) {
-        if (dependency.require_device_settings) {
-            dependency.require_device_settings(physical_device_selector);
+        if (dependency.require_settings) {
+            dependency.require_settings(physical_device_selector);
         }
     }
 
@@ -66,8 +66,8 @@ auto DevicePlugin::operator()(
 
     // TODO: use std::bind_back
     for (const Dependency& dependency : m_dependencies) {
-        if (dependency.enable_optional_device_settings) {
-            dependency.enable_optional_device_settings(physical_device);
+        if (dependency.enable_optional_settings) {
+            dependency.enable_optional_settings(physical_device);
         }
     }
 

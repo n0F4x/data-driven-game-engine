@@ -5,9 +5,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/cache/Cache.hpp"
-#include "core/cache/Handle.hpp"
-
 namespace core::renderer {
 
 class ShaderModule {

@@ -6,29 +6,25 @@
 
 #include "core/utility/hashing.hpp"
 
-using namespace core::renderer;
-
-namespace core::renderer {
-
-GraphicsPipelineBuilder::GraphicsPipelineBuilder(Program program) noexcept
+core::renderer::GraphicsPipelineBuilder::GraphicsPipelineBuilder(Program program) noexcept
     : m_program{ std::move(program) }
 {}
 
-auto GraphicsPipelineBuilder::set_program(Program program) noexcept
+auto core::renderer::GraphicsPipelineBuilder::set_program(Program program) noexcept
     -> GraphicsPipelineBuilder&
 {
     m_program = std::move(program);
     return *this;
 }
 
-auto GraphicsPipelineBuilder::add_vertex_layout(VertexLayout vertex_layout)
-    -> GraphicsPipelineBuilder&
+auto core::renderer::GraphicsPipelineBuilder::add_vertex_layout(VertexLayout vertex_layout
+) -> GraphicsPipelineBuilder&
 {
     m_vertex_layouts.push_back(std::move(vertex_layout));
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_primitive_topology(
+auto core::renderer::GraphicsPipelineBuilder::set_primitive_topology(
     const vk::PrimitiveTopology primitive_topology
 ) noexcept -> GraphicsPipelineBuilder&
 {
@@ -36,40 +32,47 @@ auto GraphicsPipelineBuilder::set_primitive_topology(
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_cull_mode(const vk::CullModeFlags cull_mode) noexcept
-    -> GraphicsPipelineBuilder&
+auto core::renderer::GraphicsPipelineBuilder::set_cull_mode(
+    const vk::CullModeFlags cull_mode
+) noexcept -> GraphicsPipelineBuilder&
 {
     m_cull_mode = cull_mode;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::enable_blending() noexcept -> GraphicsPipelineBuilder&
+auto core::renderer::GraphicsPipelineBuilder::enable_blending() noexcept
+    -> GraphicsPipelineBuilder&
 {
     m_enable_blending = true;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::disable_blending() noexcept -> GraphicsPipelineBuilder&
+auto core::renderer::GraphicsPipelineBuilder::disable_blending() noexcept
+    -> GraphicsPipelineBuilder&
 {
     m_enable_blending = false;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_layout(const vk::PipelineLayout layout) noexcept
-    -> GraphicsPipelineBuilder&
+auto core::renderer::GraphicsPipelineBuilder::set_layout(const vk::PipelineLayout layout
+) noexcept -> GraphicsPipelineBuilder&
 {
     m_layout = layout;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::set_render_pass(const vk::RenderPass render_pass) noexcept
-    -> GraphicsPipelineBuilder&
+auto core::renderer::GraphicsPipelineBuilder::set_render_pass(
+    const vk::RenderPass render_pass
+) noexcept -> GraphicsPipelineBuilder&
 {
     m_render_pass = render_pass;
     return *this;
 }
 
-auto GraphicsPipelineBuilder::build(const vk::Device device) const -> vk::UniquePipeline
+auto core::renderer::GraphicsPipelineBuilder::build(
+    const vk::Device device,
+    const void*      next_create_info_struct
+) const -> vk::UniquePipeline
 {
     std::array pipeline_stages{ m_program.pipeline_stages() };
 
@@ -165,6 +168,7 @@ auto GraphicsPipelineBuilder::build(const vk::Device device) const -> vk::Unique
     };
 
     const vk::GraphicsPipelineCreateInfo create_info{
+        .pNext               = next_create_info_struct,
         .stageCount          = static_cast<uint32_t>(pipeline_stages.size()),
         .pStages             = pipeline_stages.data(),
         .pVertexInputState   = &vertex_input_state_create_info,
@@ -183,10 +187,10 @@ auto GraphicsPipelineBuilder::build(const vk::Device device) const -> vk::Unique
 }
 
 [[nodiscard]]
-auto hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder) noexcept
-    -> size_t
+auto core::renderer::hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder
+) noexcept -> size_t
 {
-    return hash_combine(
+    return ::core::hash_combine(
         graphics_pipeline_builder.m_program,
         graphics_pipeline_builder.m_primitive_topology,
         graphics_pipeline_builder.m_cull_mode,
@@ -196,10 +200,8 @@ auto hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder) noexce
     );
 }
 
-}   // namespace core::renderer
-
-auto std::hash<GraphicsPipelineBuilder>::operator()(
-    const GraphicsPipelineBuilder& graphics_pipeline_builder
+auto std::hash<core::renderer::GraphicsPipelineBuilder>::operator()(
+    const core::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
 ) const noexcept -> size_t
 {
     return hash_value(graphics_pipeline_builder);

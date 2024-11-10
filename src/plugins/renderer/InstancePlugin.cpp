@@ -109,36 +109,32 @@ static auto set_debug_messenger(vkb::InstanceBuilder& builder) -> void
     );
 }
 
-static auto required_instance_settings_are_available(
+static auto required_debug_settings_are_available(
     [[maybe_unused]] const vkb::SystemInfo& system_info
 ) -> bool
 {
-#ifdef ENGINE_VULKAN_DEBUG
     return system_info.validation_layers_available && system_info.debug_utils_available;
-#else
-    return true;
-#endif
 }
 
-static auto enable_instance_settings(
+static auto enable_debug_settings(
     const vkb::SystemInfo&,
     [[maybe_unused]] vkb::InstanceBuilder& instance_builder
 ) -> void
 {
-#ifdef ENGINE_VULKAN_DEBUG
     instance_builder.enable_validation_layers();
-    set_debug_messenger(instance_builder);
-#endif
+    ::set_debug_messenger(instance_builder);
 }
 
 namespace plugins::renderer {
 
 InstancePlugin::InstancePlugin()
 {
+#ifdef ENGINE_VULKAN_DEBUG
     emplace_dependency(Dependency{
-        .required_instance_settings_are_available =
-            ::required_instance_settings_are_available,
-        .enable_instance_settings = ::enable_instance_settings });
+        .required_settings_are_available = ::required_debug_settings_are_available,
+        .enable_settings                 = ::enable_debug_settings,
+    });
+#endif
 }
 
 auto InstancePlugin::operator()() const -> core::renderer::base::Instance
@@ -155,10 +151,10 @@ auto InstancePlugin::operator()() const -> core::renderer::base::Instance
     // TODO: use std::bind_back
     if (!std::ranges::all_of(
             m_dependencies | std::views::filter([](const Dependency& dependency) {
-                return dependency.required_instance_settings_are_available != nullptr;
+                return dependency.required_settings_are_available != nullptr;
             }),
             [&system_info](const Dependency& dependency) {
-                return dependency.required_instance_settings_are_available(system_info);
+                return dependency.required_settings_are_available(system_info);
             }
         ))
     {
@@ -173,8 +169,8 @@ auto InstancePlugin::operator()() const -> core::renderer::base::Instance
 
     // TODO: use std::bind_back
     for (const Dependency& dependency : m_dependencies) {
-        if (dependency.enable_instance_settings) {
-            dependency.enable_instance_settings(system_info, instance_builder);
+        if (dependency.enable_settings) {
+            dependency.enable_settings(system_info, instance_builder);
         }
     }
 

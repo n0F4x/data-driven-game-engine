@@ -60,6 +60,9 @@ public:
         ) -> void;
     };
 
+    [[nodiscard]]
+    auto view() const -> vk::ImageView;
+
 private:
     renderer::resources::Image m_image;
     vk::UniqueImageView        m_view;

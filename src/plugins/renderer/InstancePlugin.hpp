@@ -16,18 +16,16 @@ namespace plugins::renderer {
 class InstancePlugin {
 public:
     struct Dependency {
-        std::function<bool(const vkb::SystemInfo&)>
-            required_instance_settings_are_available;
-        std::function<void(const vkb::SystemInfo&, vkb::InstanceBuilder&)>
-            enable_instance_settings;
+        std::function<bool(const vkb::SystemInfo&)> required_settings_are_available;
+        std::function<void(const vkb::SystemInfo&, vkb::InstanceBuilder&)> enable_settings;
     };
 
     InstancePlugin();
 
     auto operator()() const -> core::renderer::base::Instance;
 
-    template <typename... Args>
-    auto emplace_dependency(Args&&... args) -> InstancePlugin&;
+    template <typename Self>
+    auto emplace_dependency(this Self&&, Dependency dependency) -> Self;
 
 private:
     std::vector<Dependency> m_dependencies;

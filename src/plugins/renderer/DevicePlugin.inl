@@ -1,10 +1,11 @@
-namespace plugins::renderer {
+#pragma once
 
-template <typename... Args>
-auto DevicePlugin::emplace_dependency(Args&&... args) -> DevicePlugin&
+template <typename Self>
+auto plugins::renderer::DevicePlugin::emplace_dependency(
+    this Self&& self,
+    Dependency  dependency
+) -> Self
 {
-    m_dependencies.emplace_back(std::forward<Args>(args)...);
-    return *this;
+    self.m_dependencies.push_back(dependency);
+    return std::forward<Self>(self);
 }
-
-}   // namespace plugins::renderer

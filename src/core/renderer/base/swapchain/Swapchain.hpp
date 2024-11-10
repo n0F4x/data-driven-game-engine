@@ -41,6 +41,8 @@ public:
     [[nodiscard]]
     auto format() const noexcept -> vk::Format;
     [[nodiscard]]
+    auto images() const noexcept -> std::span<const vk::Image>;
+    [[nodiscard]]
     auto image_views() const noexcept -> std::span<const vk::UniqueImageView>;
 
 private:
@@ -52,6 +54,7 @@ private:
     vk::Extent2D                     m_extent;
     vk::Format                       m_format;
     vk::UniqueSwapchainKHR           m_swapchain;
+    std::vector<vk::Image>           m_images;
     std::vector<vk::UniqueImageView> m_image_views;
 
     ///******************************///
@@ -66,4 +69,4 @@ private:
     ) noexcept;
 };
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

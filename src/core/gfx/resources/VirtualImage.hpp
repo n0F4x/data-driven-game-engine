@@ -2,15 +2,12 @@
 
 #include <VkBootstrap.h>
 
+#include "core/image/Image.hpp"
 #include "core/renderer/base/resources/Allocation.hpp"
 #include "core/renderer/base/resources/Image.hpp"
 #include "core/renderer/resources/SeqWriteBuffer.hpp"
 
-namespace core::image {
-
-class Image;
-
-}   // namespace core::image
+#include "Image.hpp"
 
 namespace core::gfx::resources {
 
@@ -48,6 +45,7 @@ public:
 
         [[nodiscard]]
         auto operator()(
+            vk::PhysicalDevice                  physical_device,
             vk::Queue                           sparse_queue,
             vk::CommandBuffer                   transfer_command_buffer,
             const renderer::base::Image::State& new_state
@@ -72,6 +70,8 @@ public:
 
         std::reference_wrapper<const renderer::base::Allocator> m_allocator;
 
+        Image::Loader m_debug_image_loader;
+
         auto bind_tail(vk::Queue sparse_queue) const -> void;
     };
 
@@ -87,6 +87,12 @@ public:
         vk::CommandBuffer                transfer_command_buffer
     ) -> void;
     auto clean_up_after_update() -> void;
+
+    [[nodiscard]]
+    auto view() const -> vk::ImageView;
+
+    [[nodiscard]]
+    auto debug_image() const -> const Image&;
 
 private:
     std::unique_ptr<image::Image> m_source;
@@ -105,6 +111,8 @@ private:
 
     std::optional<core::renderer::resources::SeqWriteBuffer<>> m_staging_buffer;
 
+    Image m_debug_image;
+
     VirtualImage(
         std::unique_ptr<image::Image>&&          source,
         renderer::base::Image&&                  image,
@@ -112,7 +120,8 @@ private:
         const vk::MemoryRequirements&            memory_requirements,
         const vk::SparseImageMemoryRequirements& sparse_requirements,
         std::vector<Block>&&                     blocks,
-        MipTailRegion&&                          mip_tail_region
+        MipTailRegion&&                          mip_tail_region,
+        Image&&                                  debug_image
     );
 
     auto bind_memory_blocks(vk::Queue sparse_queue) -> void;

@@ -24,7 +24,8 @@ public:
     auto set_render_pass(vk::RenderPass render_pass) noexcept -> GraphicsPipelineBuilder&;
 
     [[nodiscard]]
-    auto build(vk::Device device) const -> vk::UniquePipeline;
+    auto build(vk::Device device, const void* next_create_info_struct = nullptr) const
+        -> vk::UniquePipeline;
 
 private:
     Program                   m_program;
@@ -44,6 +45,7 @@ private:
 template <>
 struct std::hash<core::renderer::GraphicsPipelineBuilder> {
     [[nodiscard]]
-    auto operator()(const core::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
+    auto operator()(
+        const core::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
     ) const noexcept -> size_t;
 };

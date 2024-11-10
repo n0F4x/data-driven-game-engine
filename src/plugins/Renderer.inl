@@ -1,14 +1,10 @@
 #pragma once
 
 template <typename Self>
-auto plugins::renderer::RendererPlugin::require_vulkan_version(
-    this Self&&    self,
-    const uint32_t major,
-    const uint32_t minor,
-    const uint32_t patch
-) noexcept -> Self
+auto plugins::renderer::RendererPlugin::require(this Self&& self, Requirement requirement)
+    -> Self
 {
-    self.m_required_vulkan_version = vk::makeApiVersion(0u, major, minor, patch);
+    self.m_requirements.push_back(std::move(requirement));
     return std::forward<Self>(self);
 }
 

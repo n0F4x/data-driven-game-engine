@@ -9,20 +9,27 @@ namespace core::renderer::base {
 
 class DescriptorPool::Builder {
 public:
-    auto set_flags(vk::DescriptorPoolCreateFlags flags) noexcept -> Builder&;
-    auto request_descriptor_sets(uint32_t count) -> Builder&;
-    auto request_descriptors(const vk::DescriptorPoolSize& pool_size) -> Builder&;
-    auto request_descriptors(std::ranges::range auto&& pool_sizes) -> Builder&;
+    template <typename Self>
+    auto set_flags(this Self&& self, vk::DescriptorPoolCreateFlags flags) noexcept
+        -> Self;
+    template <typename Self>
+    auto request_descriptor_sets(this Self&& self, uint32_t count) -> Self;
+    template <typename Self>
+    auto request_descriptors(this Self&& self, const vk::DescriptorPoolSize& pool_size)
+        -> Self;
+    template <typename Self>
+    auto request_descriptors(this Self&& self, std::ranges::range auto&& pool_sizes)
+        -> Self;
 
     [[nodiscard]]
     auto build(vk::Device device) noexcept -> DescriptorPool;
 
 private:
-    vk::DescriptorPoolCreateFlags       m_flags{};
+    vk::DescriptorPoolCreateFlags       m_flags;
     uint32_t                            m_set_count{};
-    std::vector<vk::DescriptorPoolSize> m_pool_sizes{};
+    std::vector<vk::DescriptorPoolSize> m_pool_sizes;
 };
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base
 
 #include "Builder.inl"

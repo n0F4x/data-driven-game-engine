@@ -10,7 +10,7 @@
 auto plugins::renderer::SurfacePlugin::operator()(
     const core::window::Window&           window,
     const core::renderer::base::Instance& instance
-) -> vk::UniqueSurfaceKHR
+) const -> vk::UniqueSurfaceKHR
 {
     const std::expected<VkSurfaceKHR, VkResult> expected_surface{
         window.create_vulkan_surface(instance.get(), nullptr)
@@ -53,7 +53,7 @@ auto plugins::renderer::SurfacePlugin::setup(const StoreView plugins) -> void
     InstancePlugin& instance_plugin{ optional_instance_plugin.value().get() };
 
     instance_plugin.emplace_dependency(InstancePlugin::Dependency{
-        .required_instance_settings_are_available =
-            ::required_instance_settings_are_available,
-        .enable_instance_settings = ::enable_instance_settings });
+        .required_settings_are_available = ::required_instance_settings_are_available,
+        .enable_settings                 = ::enable_instance_settings,
+    });
 }

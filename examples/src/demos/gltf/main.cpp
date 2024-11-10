@@ -15,6 +15,16 @@ static auto cache_plugin() -> core::cache::Cache
     return {};
 }
 
+[[nodiscard]]
+static auto require_vulkan_version(const uint32_t major, const uint32_t minor)
+    -> plugins::renderer::Requirement
+{
+    return { .enable_instance_settings = [=](const vkb::SystemInfo&,
+                                             vkb::InstanceBuilder& instance_builder) {
+        instance_builder.require_api_version(major, minor);
+    } };
+}
+
 auto main() -> int
 try {
     spdlog::set_level(spdlog::level::trace);
@@ -25,13 +35,14 @@ try {
             .parent_path()
             .parent_path()
             .parent_path()
-        // / "models/BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
-        // / "models/Avocado/glTF-Binary/Avocado.glb",
-        // / "models/PrimitiveModeNormalsTest/glTF/PrimitiveModeNormalsTest.gltf",
-        // / "models/FlightHelmet/FlightHelmetUastc.gltf",
-        // / "models/DamagedHelmet.glb",
-        / "models/Sponza/glTF/Sponza.gltf"
-        // / "models/StainedGlassLamp/glTF-KTX-BasisU/StainedGlassLamp.gltf",
+        / "assets/models"
+        // / "BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
+        // / "Avocado/glTF-Binary/Avocado.glb",
+        // / "PrimitiveModeNormalsTest/glTF/PrimitiveModeNormalsTest.gltf",
+        // / "FlightHelmet/FlightHelmetUastc.gltf",
+        // / "DamagedHelmet.glb",
+        / "Sponza/glTF/Sponza.gltf"
+        // / "StainedGlassLamp/glTF-KTX-BasisU/StainedGlassLamp.gltf",
     };
     constexpr static float movement_speed{ 5 };
 
@@ -41,7 +52,7 @@ try {
             .size  = { 1'280, 720 },
             .title = "My window",
     })
-        .apply(plugins::Renderer{}.require_vulkan_version(1, 1))
+        .apply(plugins::Renderer{}.require(::require_vulkan_version(1, 1)))
         .use(examples::base::DemoBasePlugin{ .movement_speed = movement_speed })
         .use(demo::DemoPlugin{ .model_filepath = model_filepath })
         .run(demo::run);
@@ -49,8 +60,9 @@ try {
 } catch (const std::exception& error) {
     try {
         std::println("{}", error.what());
-    } catch (...) {
         return -1;
+    } catch (...) {
+        return -3;
     }
 } catch (...) {
     return -2;

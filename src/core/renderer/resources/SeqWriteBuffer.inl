@@ -58,7 +58,7 @@ auto core::renderer::resources::SeqWriteBuffer<T>::set(const T& data, const size
 template <typename T>
 auto core::renderer::resources::SeqWriteBuffer<T>::size() const noexcept -> size_t
 {
-    return size_bytes() * sizeof(T);
+    return size_bytes() / sizeof(T);
 }
 
 template <typename T>

@@ -5,14 +5,10 @@
 
 #include <spdlog/spdlog.h>
 
-#include <core/renderer/base/device/Device.hpp>
-
+#include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/resources/Image.hpp"
 #include "core/renderer/material_system/GraphicsPipelineBuilder.hpp"
 #include "core/renderer/model/ModelLayout.hpp"
-
-using namespace core;
-using namespace core::gltf;
 
 namespace {
 
@@ -71,9 +67,9 @@ struct ShaderMaterial {
 template <typename T>
 [[nodiscard]]
 static auto create_staging_buffer(
-    const renderer::base::Allocator& allocator,
-    const std::span<T>               data
-) -> std::optional<renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>>
+    const core::renderer::base::Allocator& allocator,
+    const std::span<T>                     data
+) -> std::optional<core::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>>
 {
     if (data.empty()) {
         return std::nullopt;
@@ -84,17 +80,17 @@ static auto create_staging_buffer(
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
 
-    return renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{
+    return core::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{
         allocator, staging_buffer_create_info, data.data()
     };
 }
 
 [[nodiscard]]
 static auto create_gpu_only_buffer(
-    const renderer::base::Allocator& allocator,
-    const vk::BufferUsageFlags       usage_flags,
-    const uint32_t                   size
-) -> std::optional<renderer::resources::Buffer>
+    const core::renderer::base::Allocator& allocator,
+    const vk::BufferUsageFlags             usage_flags,
+    const uint32_t                         size
+) -> std::optional<core::renderer::resources::Buffer>
 {
     if (size == 0) {
         return std::nullopt;
@@ -104,24 +100,26 @@ static auto create_gpu_only_buffer(
         .size = size, .usage = usage_flags | vk::BufferUsageFlagBits::eTransferDst
     };
 
-    return renderer::resources::Buffer{ allocator, buffer_create_info };
+    return core::renderer::resources::Buffer{ allocator, buffer_create_info };
 }
 
 template <typename UniformBlock>
 [[nodiscard]]
-static auto create_buffer(const renderer::base::Allocator& allocator)
-    -> renderer::resources::RandomAccessBuffer<UniformBlock>
+static auto create_buffer(const core::renderer::base::Allocator& allocator)
+    -> core::renderer::resources::RandomAccessBuffer<UniformBlock>
 {
     constexpr static vk::BufferCreateInfo buffer_create_info = {
         .size = sizeof(UniformBlock), .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    return renderer::resources::RandomAccessBuffer<UniformBlock>{ allocator,
-                                                                  buffer_create_info };
+    return core::renderer::resources::RandomAccessBuffer<UniformBlock>{
+        allocator, buffer_create_info
+    };
 }
 
 [[nodiscard]]
-static auto convert_material(const Material& material) noexcept -> ShaderMaterial
+static auto convert_material(const core::gltf::Material& material) noexcept
+    -> ShaderMaterial
 {
     return ShaderMaterial{
         .pbrMetallicRoughness =
@@ -129,48 +127,50 @@ static auto convert_material(const Material& material) noexcept -> ShaderMateria
                                        .baseColorFactor = material.pbr_metallic_roughness.base_color_factor,
                                        .baseColorTexture =
                     ShaderTextureInfo{
-                        .index = material.pbr_metallic_roughness.base_color_texture_info
-                                     .transform([](const TextureInfo& texture_info) {
-                                         return texture_info.texture_index;
-                                     })
-                                     .value_or(std::numeric_limits<uint32_t>::max()),
+                        .index =
+                            material.pbr_metallic_roughness.base_color_texture_info
+                                .transform([](const core::gltf::TextureInfo& texture_info
+                                           ) { return texture_info.texture_index; })
+                                .value_or(std::numeric_limits<uint32_t>::max()),
                         .texCoord =
                             material.pbr_metallic_roughness.base_color_texture_info
-                                .transform([](const TextureInfo& texture_info) {
-                                    return texture_info.tex_coord_index;
-                                })
+                                .transform([](const core::gltf::TextureInfo& texture_info
+                                           ) { return texture_info.tex_coord_index; })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                     }, .metallicFactor  = material.pbr_metallic_roughness.metallic_factor,
                                        .roughnessFactor = material.pbr_metallic_roughness.roughness_factor,
                                        .metallicRoughnessTexture =
                     ShaderTextureInfo{
-                        .index = material.pbr_metallic_roughness
-                                     .metallic_roughness_texture_info
-                                     .transform([](const TextureInfo& texture_info) {
-                                         return texture_info.texture_index;
-                                     })
-                                     .value_or(std::numeric_limits<uint32_t>::max()),
-                        .texCoord = material.pbr_metallic_roughness
-                                        .metallic_roughness_texture_info
-                                        .transform([](const TextureInfo& texture_info) {
-                                            return texture_info.tex_coord_index;
-                                        })
-                                        .value_or(std::numeric_limits<uint32_t>::max()),
+                        .index =
+                            material.pbr_metallic_roughness
+                                .metallic_roughness_texture_info
+                                .transform([](const core::gltf::TextureInfo& texture_info
+                                           ) { return texture_info.texture_index; })
+                                .value_or(std::numeric_limits<uint32_t>::max()),
+                        .texCoord =
+                            material.pbr_metallic_roughness
+                                .metallic_roughness_texture_info
+                                .transform([](const core::gltf::TextureInfo& texture_info
+                                           ) { return texture_info.tex_coord_index; })
+                                .value_or(std::numeric_limits<uint32_t>::max()),
                     }, },
         .normalTexture =
             ShaderNormalTextureInfo{
                                        .index = material.normal_texture_info
-                             .transform([](const Material::NormalTextureInfo& texture_info
+                             .transform([](const core::gltf::Material::NormalTextureInfo&
+                                               texture_info
                                         ) { return texture_info.texture_index; })
                              .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord =
                     material.normal_texture_info
-                        .transform([](const Material::NormalTextureInfo& texture_info) {
-                            return texture_info.tex_coord_index;
-                        })
+                        .transform(
+                            [](const core::gltf::Material::NormalTextureInfo& texture_info
+                            ) { return texture_info.tex_coord_index; }
+                        )
                         .value_or(std::numeric_limits<uint32_t>::max()),
                                        .scale = material.normal_texture_info
-                             .transform([](const Material::NormalTextureInfo& texture_info
+                             .transform([](const core::gltf::Material::NormalTextureInfo&
+                                               texture_info
                                         ) { return texture_info.scale; })
                              .value_or(1.f),
                                        },
@@ -178,35 +178,36 @@ static auto convert_material(const Material& material) noexcept -> ShaderMateria
             ShaderOcclusionTextureInfo{
                                        .index =
                     material.occlusion_texture_info
-                        .transform([](const Material::OcclusionTextureInfo& texture_info
+                        .transform([](const core::gltf::Material::OcclusionTextureInfo&
+                                          texture_info
                                    ) { return texture_info.texture_index; })
                         .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord =
                     material.occlusion_texture_info
-                        .transform([](const Material::OcclusionTextureInfo& texture_info
+                        .transform([](const core::gltf::Material::OcclusionTextureInfo&
+                                          texture_info
                                    ) { return texture_info.tex_coord_index; })
                         .value_or(std::numeric_limits<uint32_t>::max()),
                                        .strength =
                     material.occlusion_texture_info
-                        .transform([](const Material::OcclusionTextureInfo& texture_info
-                                   ) { return texture_info.strength; })
+                        .transform([](const core::gltf::Material::OcclusionTextureInfo&
+                                          texture_info) { return texture_info.strength; })
                         .value_or(1.f),
                                        },
         .emissiveTexture =
             ShaderTextureInfo{
                                        .index = material.emissive_texture_info
-                             .transform([](const TextureInfo& texture_info) {
+                             .transform([](const core::gltf::TextureInfo& texture_info) {
                                  return texture_info.texture_index;
                              })
                              .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord = material.emissive_texture_info
-                                .transform([](const TextureInfo& texture_info) {
-                                    return texture_info.tex_coord_index;
-                                })
+                                .transform([](const core::gltf::TextureInfo& texture_info
+                                           ) { return texture_info.tex_coord_index; })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                                        },
         .emissiveFactor = material.emissive_factor,
-        .alphaCutoff    = material.alpha_mode == Material::AlphaMode::eMask
+        .alphaCutoff    = material.alpha_mode == core::gltf::Material::AlphaMode::eMask
                             ? material.alpha_cutoff
                             : -1.f,
     };
@@ -217,12 +218,14 @@ static auto create_base_descriptor_set(
     const vk::Device              device,
     const vk::DescriptorSetLayout descriptor_set_layout,
     const vk::DescriptorPool      descriptor_pool,
-    const renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& vertex_uniform,
-    const renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& transform_uniform,
-    const vk::Sampler                                                 default_sampler,
-    const renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& texture_uniform,
-    const renderer::resources::RandomAccessBuffer<ShaderMaterial>& default_material_uniform,
-    const renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& material_uniform
+    const core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& vertex_uniform,
+    const core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&
+                      transform_uniform,
+    const vk::Sampler default_sampler,
+    const core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& texture_uniform,
+    const core::renderer::resources::RandomAccessBuffer<ShaderMaterial>&
+        default_material_uniform,
+    const core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& material_uniform
 ) -> vk::UniqueDescriptorSet
 {
     const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
@@ -367,9 +370,10 @@ static auto create_image_descriptor_set(
 }
 
 [[nodiscard]]
-static auto to_mag_filter(const Sampler::MagFilter mag_filter) noexcept -> vk::Filter
+static auto to_mag_filter(const core::gltf::Sampler::MagFilter mag_filter) noexcept
+    -> vk::Filter
 {
-    using enum Sampler::MagFilter;
+    using enum core::gltf::Sampler::MagFilter;
     switch (mag_filter) {
         case eNearest: return vk::Filter::eNearest;
         case eLinear:  return vk::Filter::eLinear;
@@ -378,9 +382,10 @@ static auto to_mag_filter(const Sampler::MagFilter mag_filter) noexcept -> vk::F
 }
 
 [[nodiscard]]
-static auto to_min_filter(const Sampler::MinFilter min_filter) noexcept -> vk::Filter
+static auto to_min_filter(const core::gltf::Sampler::MinFilter min_filter) noexcept
+    -> vk::Filter
 {
-    using enum Sampler::MinFilter;
+    using enum core::gltf::Sampler::MinFilter;
     switch (min_filter) {
         case eNearest:              return vk::Filter::eNearest;
         case eLinear:               return vk::Filter::eLinear;
@@ -393,10 +398,10 @@ static auto to_min_filter(const Sampler::MinFilter min_filter) noexcept -> vk::F
 }
 
 [[nodiscard]]
-static auto to_mipmap_mode(const Sampler::MinFilter min_filter) noexcept
+static auto to_mipmap_mode(const core::gltf::Sampler::MinFilter min_filter) noexcept
     -> vk::SamplerMipmapMode
 {
-    using enum Sampler::MinFilter;
+    using enum core::gltf::Sampler::MinFilter;
     switch (min_filter) {
         case eNearest:              [[fallthrough]];
         case eLinear:               return vk::SamplerMipmapMode::eLinear;
@@ -409,10 +414,10 @@ static auto to_mipmap_mode(const Sampler::MinFilter min_filter) noexcept
 }
 
 [[nodiscard]]
-static auto to_address_mode(const Sampler::WrapMode wrap_mode) noexcept
+static auto to_address_mode(const core::gltf::Sampler::WrapMode wrap_mode) noexcept
     -> vk::SamplerAddressMode
 {
-    using enum Sampler::WrapMode;
+    using enum core::gltf::Sampler::WrapMode;
     switch (wrap_mode) {
         case eClampToEdge:    return vk::SamplerAddressMode::eClampToEdge;
         case eMirroredRepeat: return vk::SamplerAddressMode::eMirroredRepeat;
@@ -424,7 +429,7 @@ static auto to_address_mode(const Sampler::WrapMode wrap_mode) noexcept
 [[nodiscard]]
 static auto create_sampler(
     const core::renderer::base::Device& device,
-    const Sampler&                      sampler_info
+    const core::gltf::Sampler&          sampler_info
 ) -> vk::UniqueSampler
 {
     const vk::PhysicalDeviceLimits limits{
@@ -503,9 +508,10 @@ static auto create_sampler_descriptor_set(
 }
 
 [[nodiscard]]
-static auto convert(const Mesh::Primitive::Topology topology) -> vk::PrimitiveTopology
+static auto convert(const core::gltf::Mesh::Primitive::Topology topology)
+    -> vk::PrimitiveTopology
 {
-    using enum Mesh::Primitive::Topology;
+    using enum core::gltf::Mesh::Primitive::Topology;
     switch (topology) {
         case ePoints:     return vk::PrimitiveTopology::ePointList;
         case eLineStrips: return vk::PrimitiveTopology::eLineStrip;
@@ -522,8 +528,8 @@ static auto convert(const Mesh::Primitive::Topology topology) -> vk::PrimitiveTo
 }
 
 [[nodiscard]]
-static auto create_program(const vk::Device device, cache::Cache& cache)
-    -> renderer::Program
+static auto create_program(const vk::Device device, core::cache::Cache& cache)
+    -> core::renderer::Program
 {
     static const std::filesystem::path shader_path{
         std::filesystem::path{ std::source_location::current().file_name() }.parent_path()
@@ -534,15 +540,17 @@ static auto create_program(const vk::Device device, cache::Cache& cache)
     static const std::filesystem::path fragment_shader_path{ shader_path
                                                              / "pbr.frag.spv" };
 
-    return renderer::Program{
-        renderer::Shader{ cache.lazy_emplace<const renderer::ShaderModule>(
-            renderer::ShaderModule::hash(vertex_shader_path),
-            [device]() { return renderer::ShaderModule::load(device, vertex_shader_path); }
-        ) },
-        renderer::Shader{ cache.lazy_emplace<const renderer::ShaderModule>(
-            renderer::ShaderModule::hash(fragment_shader_path),
+    return core::renderer::Program{
+        core::renderer::Shader{ cache.lazy_emplace<const core::renderer::ShaderModule>(
+            core::renderer::ShaderModule::hash(vertex_shader_path),
             [device]() {
-                return renderer::ShaderModule::load(device, fragment_shader_path);
+                return core::renderer::ShaderModule::load(device, vertex_shader_path);
+            }
+        ) },
+        core::renderer::Shader{ cache.lazy_emplace<const core::renderer::ShaderModule>(
+            core::renderer::ShaderModule::hash(fragment_shader_path),
+            [device]() {
+                return core::renderer::ShaderModule::load(device, fragment_shader_path);
             }
         ) }
     };
@@ -550,14 +558,14 @@ static auto create_program(const vk::Device device, cache::Cache& cache)
 
 [[nodiscard]]
 static auto create_pipeline(
-    const vk::Device                       device,
-    const RenderModel::PipelineCreateInfo& create_info,
-    const Mesh::Primitive                  primitive,
-    const Material                         material,
-    cache::Cache&                          cache
-) -> cache::Handle<vk::UniquePipeline>
+    const vk::Device                                   device,
+    const core::gltf::RenderModel::PipelineCreateInfo& create_info,
+    const core::gltf::Mesh::Primitive                  primitive,
+    const core::gltf::Material                         material,
+    core::cache::Cache&                                cache
+) -> core::cache::Handle<vk::UniquePipeline>
 {
-    renderer::GraphicsPipelineBuilder builder{ ::create_program(device, cache) };
+    core::renderer::GraphicsPipelineBuilder builder{ ::create_program(device, cache) };
 
     builder.set_layout(create_info.layout);
     builder.set_render_pass(create_info.render_pass);
@@ -565,20 +573,21 @@ static auto create_pipeline(
     builder.set_cull_mode(
         material.double_sided ? vk::CullModeFlagBits::eNone : vk::CullModeFlagBits::eBack
     );
-    if (material.alpha_mode == Material::AlphaMode::eBlend) {
+    if (material.alpha_mode == core::gltf::Material::AlphaMode::eBlend) {
         builder.enable_blending();
     }
 
     const size_t hash{ hash_value(builder) };
 
     return cache.lazy_emplace<vk::UniquePipeline>(
-        hash, std::bind_front(&renderer::GraphicsPipelineBuilder::build, builder, device)
+        hash,
+        std::bind_front(
+            &core::renderer::GraphicsPipelineBuilder::build, builder, device, nullptr
+        )
     );
 }
 
-namespace core::gltf {
-
-auto RenderModel::create_loader(
+auto core::gltf::RenderModel::create_loader(
     const renderer::base::Device&                     device,
     const renderer::base::Allocator&                  allocator,
     const std::span<const vk::DescriptorSetLayout, 3> descriptor_set_layouts,
@@ -882,7 +891,7 @@ auto RenderModel::create_loader(
     };
 }
 
-auto RenderModel::draw(
+auto core::gltf::RenderModel::draw(
     const vk::CommandBuffer  graphics_command_buffer,
     const vk::PipelineLayout pipeline_layout
 ) const noexcept -> void
@@ -938,7 +947,7 @@ auto RenderModel::draw(
     }
 }
 
-RenderModel::RenderModel(
+core::gltf::RenderModel::RenderModel(
     const vk::Device                                             device,
     std::optional<renderer::resources::Buffer>&&                 index_buffer,
     std::optional<renderer::resources::Buffer>&&                 vertex_buffer,
@@ -1016,5 +1025,3 @@ RenderModel::RenderModel(
             .value_or(vk::DeviceAddress{})
     );
 }
-
-}   // namespace core::gltf

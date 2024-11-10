@@ -4,11 +4,21 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <VkBootstrap.h>
+
 #include <app/App.hpp>
 
 namespace plugins {
 
 namespace renderer {
+
+struct Requirement {
+    std::function<bool(const vkb::SystemInfo&)> required_instance_settings_are_available;
+    std::function<void(const vkb::SystemInfo&, vkb::InstanceBuilder&)>
+                                                      enable_instance_settings;
+    std::function<void(vkb::PhysicalDeviceSelector&)> require_device_settings;
+    std::function<void(vkb::PhysicalDevice&)>         enable_optional_device_settings;
+};
 
 class RendererPlugin {
 public:
@@ -19,16 +29,8 @@ public:
     ///-------------///
     auto operator()(App::Builder& app_builder) const -> void;
 
-    ///-----------///
-    ///  Methods  ///
-    ///-----------///
     template <typename Self>
-    auto require_vulkan_version(
-        this Self&&,
-        uint32_t major,
-        uint32_t minor,
-        uint32_t patch = 0
-    ) noexcept -> Self;
+    auto require(this Self&&, Requirement requirement) -> Self;
 
     template <typename Self, typename SurfacePlugin>
     auto set_surface_plugin(this Self&&, SurfacePlugin surface_plugin) -> Self;
@@ -37,7 +39,7 @@ public:
     auto set_framebuffer_size_getter(this Self&&, Args&&... args) -> Self;
 
 private:
-    uint32_t m_required_vulkan_version{ vk::ApiVersion10 };
+    std::vector<Requirement> m_requirements;
     std::function<void(App::Builder& app_builder)> m_surface_plugin_provider;
 };
 

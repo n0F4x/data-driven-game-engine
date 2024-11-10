@@ -1,10 +1,11 @@
-namespace plugins::renderer {
+#pragma once
 
-template <typename... Args>
-auto InstancePlugin::emplace_dependency(Args&&... args) -> InstancePlugin&
+template <typename Self>
+auto plugins::renderer::InstancePlugin::emplace_dependency(
+    this Self&& self,
+    Dependency  dependency
+) -> Self
 {
-    m_dependencies.emplace_back(std::forward<Args>(args)...);
-    return *this;
+    self.m_dependencies.push_back(std::move(dependency));
+    return std::forward<Self>(self);
 }
-
-}   // namespace plugins::renderer

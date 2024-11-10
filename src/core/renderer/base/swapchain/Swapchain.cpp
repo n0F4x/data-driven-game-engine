@@ -203,6 +203,11 @@ auto Swapchain::format() const noexcept -> vk::Format
     return m_format;
 }
 
+auto Swapchain::images() const noexcept -> std::span<const vk::Image>
+{
+    return m_images;
+}
+
 auto Swapchain::image_views() const noexcept -> std::span<const vk::UniqueImageView>
 {
     return m_image_views;
@@ -219,7 +224,8 @@ Swapchain::Swapchain(
       m_extent{ extent },
       m_format{ format },
       m_swapchain{ std::move(swapchain) },
+      m_images{ device.getSwapchainImagesKHR(m_swapchain.get()) },
       m_image_views{ std::move(image_views) }
 {}
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

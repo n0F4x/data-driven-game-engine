@@ -19,8 +19,8 @@ namespace plugins::renderer {
 class DevicePlugin {
 public:
     struct Dependency {
-        std::function<void(vkb::PhysicalDeviceSelector&)> require_device_settings;
-        std::function<void(vkb::PhysicalDevice&)>         enable_optional_device_settings;
+        std::function<void(vkb::PhysicalDeviceSelector&)> require_settings;
+        std::function<void(vkb::PhysicalDevice&)>         enable_optional_settings;
     };
 
     auto operator()(
@@ -28,8 +28,8 @@ public:
         const vk::UniqueSurfaceKHR&           surface
     ) const -> core::renderer::base::Device;
 
-    template <typename... Args>
-    auto emplace_dependency(Args&&... args) -> DevicePlugin&;
+    template <typename Self>
+    auto emplace_dependency(this Self&&, Dependency dependency) -> Self;
 
 private:
     std::vector<Dependency> m_dependencies;

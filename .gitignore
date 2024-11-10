@@ -11,4 +11,4 @@ build.sh
 build.bat
 cpp.hint
 
-*/shaders/*.spv
+**/shaders/*.spv

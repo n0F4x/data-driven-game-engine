@@ -1,3 +1,5 @@
+#pragma once
+
 template <typename T>
 auto Store::emplace(auto&&... args) -> T&
 {

@@ -125,7 +125,8 @@ core::gfx::resources::VirtualImage::Loader::Loader(
       m_mip_tail_staging_buffer{
           stage_tail(allocator, *m_source, m_sparse_requirements, m_mip_tail_region)
       },
-      m_allocator{ allocator }
+      m_allocator{ allocator },
+      m_debug_image_loader{ device, allocator, *m_source }
 {
     // Check requested image size against hardware sparse limit
     if (const vk::DeviceSize sparse_address_space_size{
@@ -177,6 +178,7 @@ auto core::gfx::resources::VirtualImage::Loader::bind_tail(const vk::Queue spars
 }
 
 auto core::gfx::resources::VirtualImage::Loader::operator()(
+    const vk::PhysicalDevice            physical_device,
     const vk::Queue                     sparse_queue,
     const vk::CommandBuffer             transfer_command_buffer,
     const renderer::base::Image::State& new_state
@@ -203,10 +205,16 @@ auto core::gfx::resources::VirtualImage::Loader::operator()(
 
     transition_image_layout(transfer_command_buffer, m_image, new_state);
 
-    VirtualImage result{ std::move(m_source),         std::move(m_image),
-                         std::move(m_view),           m_memory_requirements,
-                         m_sparse_requirements,       std::move(m_blocks),
-                         std::move(m_mip_tail_region) };
+    VirtualImage result{ std::move(m_source),
+                         std::move(m_image),
+                         std::move(m_view),
+                         m_memory_requirements,
+                         m_sparse_requirements,
+                         std::move(m_blocks),
+                         std::move(m_mip_tail_region),
+                         std::move(m_debug_image_loader)(
+                             physical_device, transfer_command_buffer, new_state
+                         ) };
 
     return result;
 }
@@ -282,6 +290,16 @@ auto core::gfx::resources::VirtualImage::clean_up_after_update() -> void
     m_staging_buffer.reset();
 }
 
+auto core::gfx::resources::VirtualImage::view() const -> vk::ImageView
+{
+    return m_view.get();
+}
+
+auto core::gfx::resources::VirtualImage::debug_image() const -> const Image&
+{
+    return m_debug_image;
+}
+
 core::gfx::resources::VirtualImage::VirtualImage(
     std::unique_ptr<image::Image>&&          source,
     renderer::base::Image&&                  image,
@@ -289,7 +307,8 @@ core::gfx::resources::VirtualImage::VirtualImage(
     const vk::MemoryRequirements&            memory_requirements,
     const vk::SparseImageMemoryRequirements& sparse_requirements,
     std::vector<Block>&&                     blocks,
-    MipTailRegion&&                          mip_tail_region
+    MipTailRegion&&                          mip_tail_region,
+    Image&&                                  debug_image
 )
     : m_source{ std::move(source) },
       m_image{ std::move(image) },
@@ -297,7 +316,8 @@ core::gfx::resources::VirtualImage::VirtualImage(
       m_memory_requirements{ memory_requirements },
       m_sparse_requirements{ sparse_requirements },
       m_blocks{ std::move(blocks) },
-      m_mip_tail_region{ std::move(mip_tail_region) }
+      m_mip_tail_region{ std::move(mip_tail_region) },
+      m_debug_image{ std::move(debug_image) }
 {}
 
 auto core::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue sparse_queue)
@@ -345,12 +365,14 @@ auto core::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue spar
 }
 
 [[nodiscard]]
-static auto create_copy_regions(std::ranges::sized_range auto memory_blocks)
-    -> std::vector<vk::BufferImageCopy>
+static auto create_copy_regions(
+    const vk::Format              format,
+    std::ranges::sized_range auto memory_blocks
+) -> std::vector<vk::BufferImageCopy>
 {
     return memory_blocks
          | std::views::transform(
-               [offset = 0u](const core::gfx::resources::VirtualImage::Block& block
+               [offset = 0u, format](const core::gfx::resources::VirtualImage::Block& block
                ) mutable -> vk::BufferImageCopy {
                    const vk::BufferImageCopy result{
                        .bufferOffset = offset,
@@ -363,7 +385,7 @@ static auto create_copy_regions(std::ranges::sized_range auto memory_blocks)
                        .imageExtent = block.m_extent,
                    };
 
-                   offset += block.m_size;
+                   offset += block.buffer_size(format);
 
                    return result;
                }
@@ -427,9 +449,9 @@ auto core::gfx::resources::VirtualImage::upload_new_memory_blocks(
                                           return std::ref(m_blocks[index]);
                                       }) };
 
-        const std::vector<vk::BufferImageCopy> copy_regions{
-            ::create_copy_regions(std::ranges::ref_view{ blocks_to_be_uploaded })
-        };
+        const std::vector<vk::BufferImageCopy> copy_regions{ ::create_copy_regions(
+            m_image.format(), std::ranges::ref_view{ blocks_to_be_uploaded }
+        ) };
 
         m_staging_buffer = ::create_staging_buffer(
             allocator, *m_source, std::ranges::ref_view{ blocks_to_be_uploaded }

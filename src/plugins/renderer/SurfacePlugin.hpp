@@ -24,7 +24,7 @@ public:
     auto operator()(
         const core::window::Window&           window,
         const core::renderer::base::Instance& instance
-    ) -> vk::UniqueSurfaceKHR;
+    ) const -> vk::UniqueSurfaceKHR;
 
     static auto setup(StoreView plugins) -> void;
 };

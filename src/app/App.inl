@@ -57,12 +57,12 @@ auto gather_resources(App& app)
 
 template <typename Plugin>
 App::Builder::PluginInvocation::PluginInvocation(Plugin& plugin_ref)
-    : m_plugin_ref{ plugin_ref },
+    : m_plugin_ref{ std::ref(plugin_ref) },
       m_invocation{ [](std::any& erased_plugin_ref, App& app) {
           using ResourceType =
               core::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>;
           app.resources.emplace<ResourceType>(std::apply(
-              std::any_cast<Plugin&>(erased_plugin_ref),
+              std::any_cast<std::reference_wrapper<Plugin>>(erased_plugin_ref),
               details::gather_resources<Plugin>(app)
           ));
       } }

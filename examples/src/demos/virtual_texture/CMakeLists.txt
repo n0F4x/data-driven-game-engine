@@ -22,7 +22,13 @@ if (engine_debug)
     )
 endif ()
 target_sources(virtual_texture PRIVATE
+        demo.cpp
+        DemoApp.cpp
+        init.cpp
         main.cpp
+        VirtualTexture.cpp
 )
-target_link_libraries(gltf PRIVATE base)
+target_link_libraries(virtual_texture PRIVATE base)
 target_link_libraries(virtual_texture PRIVATE ${PROJECT_NAME})
+
+add_subdirectory(shaders)

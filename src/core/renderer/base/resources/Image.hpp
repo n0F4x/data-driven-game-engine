@@ -20,22 +20,25 @@ public:
     Image(vk::UniqueImage&& image, const vk::ImageCreateInfo& create_info);
 
     [[nodiscard]]
-    auto get() const [[lifetime_bound]] -> vk::Image;
+    auto get() const noexcept [[lifetime_bound]] -> vk::Image;
 
     [[nodiscard]]
-    auto device() const -> vk::Device;
+    auto device() const noexcept -> vk::Device;
 
     [[nodiscard]]
-    auto format() const -> vk::Format;
+    auto format() const noexcept -> vk::Format;
 
     [[nodiscard]]
-    auto extent() const -> const vk::Extent3D&;
+    auto aspect_flags() const noexcept -> vk::ImageAspectFlags;
 
     [[nodiscard]]
-    auto mip_level_count() const -> uint32_t;
+    auto extent() const noexcept -> const vk::Extent3D&;
 
     [[nodiscard]]
-    auto layout() const -> vk::ImageLayout;
+    auto mip_level_count() const noexcept -> uint32_t;
+
+    [[nodiscard]]
+    auto layout() const noexcept -> vk::ImageLayout;
 
     auto reset() -> void;
 
