@@ -17,6 +17,8 @@ public:
     struct Block {
         std::vector<std::byte>                    m_source;
         std::optional<renderer::base::Allocation> m_allocation;
+        bool                                      m_bound{};
+        bool                                      m_uploaded{};
         vk::Offset3D                              m_offset;
         vk::Extent3D                              m_extent;
         vk::DeviceSize                            m_size;
@@ -106,8 +108,8 @@ private:
 
     MipTailRegion m_mip_tail_region;
 
-    std::vector<uint32_t> m_to_be_loaded_block_indices;
-    std::vector<uint32_t> m_to_be_unloaded_block_indices;
+    std::vector<bool> m_to_be_loaded_mask;
+    std::vector<bool> m_to_be_unloaded_mask;
 
     std::optional<core::renderer::resources::SeqWriteBuffer<>> m_staging_buffer;
 

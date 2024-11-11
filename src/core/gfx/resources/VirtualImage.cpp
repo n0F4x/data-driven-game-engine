@@ -264,25 +264,30 @@ auto core::gfx::resources::VirtualImage::update(
     const vk::CommandBuffer          transfer_command_buffer
 ) -> void
 {
-    for (const uint32_t index : m_to_be_unloaded_block_indices) {
-        m_blocks[index].m_allocation.reset();
-    }
-    for (const uint32_t index : m_to_be_loaded_block_indices) {
-        m_blocks[index].m_allocation =
-            ::allocate_block(allocator, m_memory_requirements, m_blocks[index]);
+    for (const uint32_t index : std::views::iota(0u, m_blocks.size())) {
+        if (m_to_be_loaded_mask.at(index)) {
+            if (Block & block{ m_blocks.at(index) }; !block.m_allocation.has_value()) {
+                block.m_allocation =
+                    ::allocate_block(allocator, m_memory_requirements, block);
+                assert(block.m_bound == false);
+                assert(block.m_uploaded == false);
+            }
+        }
+        else if (m_to_be_unloaded_mask.at(index)) {
+            Block& block{ m_blocks.at(index) };
+            block.m_allocation.reset();
+            block.m_bound    = false;
+            block.m_uploaded = false;
+        }
     }
 
     bind_memory_blocks(sparse_queue);
     upload_new_memory_blocks(allocator, transfer_command_buffer);
 
-    m_to_be_unloaded_block_indices.clear();
-    m_to_be_loaded_block_indices.clear();
-
-    // TODO: remove this artificial request
-    // m_to_be_unloaded_block_indices = std::views::iota(0u, m_blocks.size())
-    //                                | std::ranges::to<std::vector>();
-    // m_to_be_loaded_block_indices = std::views::iota(0u, m_blocks.size())
-    //                              | std::ranges::to<std::vector>();
+    for (const uint32_t index : std::views::iota(0u, m_blocks.size())) {
+        m_to_be_loaded_mask.at(index)   = false;
+        m_to_be_unloaded_mask.at(index) = false;
+    }
 }
 
 auto core::gfx::resources::VirtualImage::clean_up_after_update() -> void
@@ -315,43 +320,54 @@ core::gfx::resources::VirtualImage::VirtualImage(
       m_sparse_requirements{ sparse_requirements },
       m_blocks{ std::move(blocks) },
       m_mip_tail_region{ std::move(mip_tail_region) },
+      m_to_be_loaded_mask(m_blocks.size()),
+      m_to_be_unloaded_mask(m_blocks.size()),
       m_debug_image{ std::move(debug_image) }
 {
-    m_to_be_loaded_block_indices =
-        std::views::iota(0u, m_blocks.size())
-        | std::views::filter([this](const size_t block_index) {
-              return m_blocks.at(block_index).m_subresource.mipLevel > 5;
-          })
-        | std::ranges::to<std::vector>();
+    m_to_be_loaded_mask.flip();
 }
 
 auto core::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue sparse_queue)
     -> void
 {
+    // TODO: use enumerate
     const std::vector<vk::SparseImageMemoryBind> image_memory_binds{
-        std::array{ m_to_be_loaded_block_indices, m_to_be_unloaded_block_indices }
-        | std::views::join | std::views::transform([&](const uint32_t index) {
-              return std::ref(m_blocks[index]);
-                   }
+        std::views::zip(
+            m_to_be_loaded_mask,
+            m_to_be_unloaded_mask,
+            std::views::iota(0u, m_blocks.size())
         )
-        | std::views::transform([&](const Block& block) {
-              if (block.m_allocation.has_value()) {
-                  return vk::SparseImageMemoryBind{
+        | std::views::filter([&](std::tuple<bool, bool, size_t> zipped) {
+              const bool   to_be_loaded{ std::get<0>(zipped) };
+              const bool   to_be_unloaded{ std::get<1>(zipped) };
+              const size_t block_index{ std::get<2>(zipped) };
+              const Block& block{ m_blocks.at(block_index) };
+
+              return (to_be_loaded && !block.m_bound)
+                  || (to_be_unloaded && block.m_bound);
+          })
+        | std::views::transform([&](std::tuple<bool, bool, size_t> zipped) {
+              const bool   to_be_loaded{ std::get<0>(zipped) };
+              const size_t block_index{ std::get<2>(zipped) };
+              Block&       block{ m_blocks.at(block_index) };
+
+              block.m_bound = !block.m_bound;
+
+              return to_be_loaded ?
+                  vk::SparseImageMemoryBind{
                       .subresource  = block.m_subresource,
                       .offset       = block.m_offset,
                       .extent       = block.m_extent,
                       .memory       = block.m_allocation->memory_view().memory,
                       .memoryOffset = block.m_allocation->memory_view().offset,
-                  };
-              }
-              return vk::SparseImageMemoryBind{
-                  .subresource = block.m_subresource,
-                  .offset      = block.m_offset,
-                  .extent      = block.m_extent,
-                  .memory      = nullptr,
-              };
-                   }
-        )
+                  }
+                : vk::SparseImageMemoryBind{
+                      .subresource = block.m_subresource,
+                      .offset      = block.m_offset,
+                      .extent      = block.m_extent,
+                      .memory      = nullptr,
+                };
+          })
         | std::ranges::to<std::vector>()
     };
 
@@ -443,12 +459,13 @@ auto core::gfx::resources::VirtualImage::upload_new_memory_blocks(
     const vk::CommandBuffer                transfer_command_buffer
 ) -> void
 {
-    if (!m_to_be_loaded_block_indices.empty()) {
-        auto blocks_to_be_uploaded{ m_to_be_loaded_block_indices
-                                    | std::views::transform([&](const uint32_t index) {
-                                          return std::ref(m_blocks[index]);
-                                      }) };
+    std::ranges::view auto blocks_to_be_uploaded{
+        m_blocks | std::views::filter([](const Block& block) {
+            return block.m_bound && !block.m_uploaded;
+        })
+    };
 
+    if (!std::ranges::empty(blocks_to_be_uploaded)) {
         const std::vector<vk::BufferImageCopy> copy_regions{ ::create_copy_regions(
             m_image.format(), std::ranges::ref_view{ blocks_to_be_uploaded }
         ) };
@@ -473,4 +490,8 @@ auto core::gfx::resources::VirtualImage::upload_new_memory_blocks(
 
         transition_image_layout(transfer_command_buffer, m_image, old_state);
     }
+
+    std::ranges::for_each(blocks_to_be_uploaded, [](Block& block) {
+        block.m_uploaded = true;
+    });
 }
