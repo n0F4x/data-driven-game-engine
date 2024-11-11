@@ -39,7 +39,7 @@ auto core::renderer::resources::SeqWriteBuffer<T>::set(
     base::copy(
         data.data(),
         base::CopyRegion{ .allocation = m_allocation, .offset = offset * sizeof(T) },
-        sizeof(T)
+        data.size_bytes()
     );
 }
 

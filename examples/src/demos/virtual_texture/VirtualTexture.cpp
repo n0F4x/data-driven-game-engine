@@ -83,10 +83,10 @@ static auto create_vertex_buffer(
 ) -> core::renderer::resources::Buffer
 {
     constexpr static std::array vertices{
-        demo::Vertex{ .position = { -0.5f, 0.5f, 0.f }, .uv = { 1.0f, 0.0f } },
-        demo::Vertex{  .position = { 0.5f, 0.5f, .0f }, .uv = { 0.0f, 0.0f } },
-        demo::Vertex{   .position = { 0.5f, -0.5f, 0.f }, .uv = { 0.0f, 1.0f } },
-        demo::Vertex{  .position = { -0.5f, -0.5f, 0.f }, .uv = { 1.0f, 1.0f } }
+        demo::Vertex{  .position = { -0.5f, 0.5f, 0.f }, .uv = { 1.0f, 0.0f } },
+        demo::Vertex{   .position = { 0.5f, 0.5f, .0f }, .uv = { 0.0f, 0.0f } },
+        demo::Vertex{  .position = { 0.5f, -0.5f, 0.f }, .uv = { 0.0f, 1.0f } },
+        demo::Vertex{ .position = { -0.5f, -0.5f, 0.f }, .uv = { 1.0f, 1.0f } }
     };
 
     const core::renderer::resources::SeqWriteBuffer staging_buffer{
@@ -166,26 +166,28 @@ demo::VirtualTexture::VirtualTexture(
 
 auto demo::VirtualTexture::view() const noexcept -> vk::ImageView
 {
-    return m_virtual_image.debug_image().view();
+    return m_virtual_image.view();
+    // return m_virtual_image.debug_image().view();
 }
 
 auto demo::VirtualTexture::sampler() const noexcept -> vk::Sampler
 {
-    return m_virtual_image_debug_sampler.get();
+    return m_virtual_image_sampler.get();
+    // return m_virtual_image_debug_sampler.get();
 }
 
 auto demo::VirtualTexture::draw(const vk::CommandBuffer command_buffer) -> void
 {
-    // ::execute_command(
-    //     m_device_ref.get(),
-    //     [this](const vk::CommandBuffer transfer_command_buffer) {
-    //         m_virtual_image.update(
-    //             m_allocator_ref.get(),
-    //             m_device_ref.get().info().get_queue(vkb::QueueType::graphics).value(),
-    //             transfer_command_buffer
-    //         );
-    //     }
-    // );
+    ::execute_command(
+        m_device_ref.get(),
+        [this](const vk::CommandBuffer transfer_command_buffer) {
+            m_virtual_image.update(
+                m_allocator_ref.get(),
+                m_device_ref.get().info().get_queue(vkb::QueueType::graphics).value(),
+                transfer_command_buffer
+            );
+        }
+    );
 
     command_buffer.bindVertexBuffers(0, m_vertex_buffer.get(), { 0 });
     command_buffer.bindIndexBuffer(m_index_buffer.get(), 0, vk::IndexType::eUint32);

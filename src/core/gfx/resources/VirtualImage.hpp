@@ -15,6 +15,7 @@ class VirtualImage {
 public:
     // NOLINTNEXTLINE(*-member-init)
     struct Block {
+        std::vector<std::byte>                    m_source;
         std::optional<renderer::base::Allocation> m_allocation;
         vk::Offset3D                              m_offset;
         vk::Extent3D                              m_extent;
@@ -40,7 +41,7 @@ public:
             vk::PhysicalDevice               physical_device,
             vk::Device                       device,
             const renderer::base::Allocator& allocator,
-            std::unique_ptr<image::Image>&&  source
+            const image::Image&              source
         );
 
         [[nodiscard]]
@@ -55,9 +56,8 @@ public:
         auto view() const -> vk::ImageView;
 
     private:
-        std::unique_ptr<image::Image> m_source;
-        renderer::base::Image         m_image;
-        vk::UniqueImageView           m_view;
+        renderer::base::Image m_image;
+        vk::UniqueImageView   m_view;
 
         vk::MemoryRequirements            m_memory_requirements;
         vk::SparseImageMemoryRequirements m_sparse_requirements;
@@ -67,6 +67,7 @@ public:
         MipTailRegion m_mip_tail_region;
 
         renderer::resources::SeqWriteBuffer<> m_mip_tail_staging_buffer;
+        std::vector<vk::BufferImageCopy>      m_mip_tail_copy_regions;
 
         std::reference_wrapper<const renderer::base::Allocator> m_allocator;
 
@@ -95,9 +96,8 @@ public:
     auto debug_image() const -> const Image&;
 
 private:
-    std::unique_ptr<image::Image> m_source;
-    renderer::base::Image         m_image;
-    vk::UniqueImageView           m_view;
+    renderer::base::Image m_image;
+    vk::UniqueImageView   m_view;
 
     vk::MemoryRequirements            m_memory_requirements;
     vk::SparseImageMemoryRequirements m_sparse_requirements;
@@ -114,7 +114,6 @@ private:
     Image m_debug_image;
 
     VirtualImage(
-        std::unique_ptr<image::Image>&&          source,
         renderer::base::Image&&                  image,
         vk::UniqueImageView&&                    view,
         const vk::MemoryRequirements&            memory_requirements,

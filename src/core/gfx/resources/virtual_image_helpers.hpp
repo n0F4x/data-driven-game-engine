@@ -9,6 +9,7 @@ auto sparse_color_requirements(const core::renderer::base::Image& image)
 
 [[nodiscard]]
 auto create_sparse_blocks(
+    const image::Image&                      source,
     const vk::Extent3D&                      extent,
     uint32_t                                 mip_level_count,
     const vk::MemoryRequirements&            memory_requirements,
@@ -26,8 +27,7 @@ auto create_mip_tail_region(
 auto stage_tail(
     const core::renderer::base::Allocator&   allocator,
     const core::image::Image&                source,
-    const vk::SparseImageMemoryRequirements& sparse_requirements,
-    const VirtualImage::MipTailRegion&       tail
+    const vk::SparseImageMemoryRequirements& sparse_requirements
 ) -> core::renderer::resources::SeqWriteBuffer<>;
 
 [[nodiscard]]

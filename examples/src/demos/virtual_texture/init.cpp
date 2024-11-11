@@ -215,7 +215,7 @@ auto demo::init::create_virtual_image(
     command_buffer.begin(begin_info);
 
     core::gfx::resources::VirtualImage::Loader virtual_image_loader{
-        device.physical_device(), device.get(), allocator, std::move(source)
+        device.physical_device(), device.get(), allocator, *source
     };
 
     core::gfx::resources::VirtualImage virtual_image{ std::move(virtual_image_loader)(

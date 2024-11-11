@@ -17,21 +17,19 @@ static auto count_mip_levels(const uint32_t base_width, const uint32_t base_heig
 }
 
 [[nodiscard]]
-static auto mip_level_size(
-    const uint32_t width,
-    const uint32_t height,
-    const uint32_t component_count
-) -> size_t
+static auto
+    mip_level_size(const uint32_t width, const uint32_t height, const uint32_t block_size)
+        -> size_t
 {
     return static_cast<size_t>(width) * static_cast<size_t>(height)
-         * static_cast<size_t>(component_count);
+         * static_cast<size_t>(block_size);
 }
 
 [[nodiscard]]
 static auto mipped_image_size(
     const uint32_t base_width,
     const uint32_t base_height,
-    const uint32_t component_count,
+    const uint32_t block_size,
     const uint32_t mip_level_count
 ) -> size_t
 {
@@ -42,7 +40,7 @@ static auto mipped_image_size(
     uint32_t height{ base_height };
     uint32_t mip_level_index{};
     while (mip_level_index < mip_level_count) {
-        result += ::mip_level_size(width, height, component_count);
+        result += ::mip_level_size(width, height, block_size);
 
         width  = std::max(width / 2u, 1u);
         height = std::max(height / 2u, 1u);
@@ -70,7 +68,7 @@ static auto generate_mip_maps(
 {
     std::vector<std::byte> result;
     result.resize(::mipped_image_size(
-        base_width, base_height, vk::componentCount(format), mip_level_count
+        base_width, base_height, vk::blockSize(format), mip_level_count
     ));
 
     std::memcpy(result.data(), base_image_data.data(), base_image_data.size_bytes());
@@ -82,7 +80,7 @@ static auto generate_mip_maps(
         const uint32_t next_width{ std::max(width / 2u, 1u) };
         const uint32_t next_height{ std::max(height / 2u, 1u) };
         const size_t   next_offset{
-            offset + ::mip_level_size(width, height, vk::componentCount(format))
+            offset + ::mip_level_size(width, height, vk::blockSize(format))
         };
 
         ::stbir_resize_uint8_srgb(
@@ -135,7 +133,7 @@ auto core::image::stb::Image::load_from(const std::filesystem::path& filepath) -
                                  ::mip_level_size(
                                      static_cast<uint32_t>(width),
                                      static_cast<uint32_t>(height),
-                                     vk::componentCount(format)
+                                     vk::blockSize(format)
                                  ) }),
         static_cast<uint32_t>(width),
         static_cast<uint32_t>(height),
@@ -156,7 +154,6 @@ auto core::image::stb::Image::load_from(const std::span<const std::byte> data) -
 {
     // TODO: request format
     constexpr static vk::Format format{ vk::Format::eR8G8B8A8Srgb };
-    constexpr static uint8_t    component_count{ vk::componentCount(format) };
 
     int      width{};
     int      height{};
@@ -166,7 +163,7 @@ auto core::image::stb::Image::load_from(const std::span<const std::byte> data) -
         &width,
         &height,
         nullptr,
-        component_count
+        vk::componentCount(format)
     ) };
 
     if (raw_image_data == nullptr) {
@@ -181,7 +178,7 @@ auto core::image::stb::Image::load_from(const std::span<const std::byte> data) -
         std::as_bytes(std::span{
             raw_image_data,
             ::mip_level_size(
-                static_cast<uint32_t>(width), static_cast<uint32_t>(height), component_count
+                static_cast<uint32_t>(width), static_cast<uint32_t>(height), vk::blockSize(format)
             ) }),
         static_cast<uint32_t>(width),
         static_cast<uint32_t>(height),
@@ -252,7 +249,7 @@ auto core::image::stb::Image::offset_of(
         const uint32_t next_width{ std::max(width / 2u, 1u) };
         const uint32_t next_height{ std::max(height / 2u, 1u) };
 
-        result += ::mip_level_size(width, height, vk::componentCount(m_format));
+        result += ::mip_level_size(width, height, vk::blockSize(m_format));
 
         width  = next_width;
         height = next_height;
