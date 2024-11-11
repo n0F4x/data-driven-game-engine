@@ -230,6 +230,7 @@ auto core::gfx::resources::VirtualImage::Requirements::require_device_settings(
 {
     constexpr static vk::PhysicalDeviceFeatures features{
         .shaderResourceResidency = vk::True,
+        .shaderResourceMinLod    = vk::True,
         .sparseBinding           = vk::True,
         .sparseResidencyImage2D  = vk::True,
     };
@@ -324,6 +325,7 @@ core::gfx::resources::VirtualImage::VirtualImage(
       m_to_be_unloaded_mask(m_blocks.size()),
       m_debug_image{ std::move(debug_image) }
 {
+    // TODO: load blocks on demand
     m_to_be_loaded_mask.flip();
 }
 

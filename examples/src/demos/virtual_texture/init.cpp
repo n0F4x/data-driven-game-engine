@@ -257,7 +257,7 @@ auto demo::init::create_virtual_image_sampler(const core::renderer::base::Device
     const vk::SamplerCreateInfo sampler_create_info{
         .magFilter        = vk::Filter::eNearest,
         .minFilter        = vk::Filter::eNearest,
-        .mipmapMode       = vk::SamplerMipmapMode::eNearest,
+        .mipmapMode       = vk::SamplerMipmapMode::eLinear,
         .addressModeU     = vk::SamplerAddressMode::eClampToEdge,
         .addressModeV     = vk::SamplerAddressMode::eClampToEdge,
         .addressModeW     = vk::SamplerAddressMode::eRepeat,
