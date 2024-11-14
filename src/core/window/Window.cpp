@@ -16,7 +16,7 @@ static auto init_glfw() -> void
     if (const int success{ glfwInit() }; success != GLFW_TRUE) {
         const char* description{};
         const int   error_code{ glfwGetError(&description) };
-        // TODO: [[assume(description != null)]]
+        [[assume(description != nullptr)]];
         throw std::runtime_error{ std::format(
             "glfwInit failed with error code {} - '{}'", error_code, description
         ) };

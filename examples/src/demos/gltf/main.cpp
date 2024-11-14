@@ -40,9 +40,9 @@ try {
         // / "BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
         // / "Avocado/glTF-Binary/Avocado.glb",
         // / "PrimitiveModeNormalsTest/glTF/PrimitiveModeNormalsTest.gltf",
-        / "FlightHelmet/FlightHelmetUastc.gltf",
+        // / "FlightHelmet/FlightHelmetUastc.gltf",
         // / "DamagedHelmet.glb",
-        // / "Sponza/glTF/Sponza.gltf"
+        / "Sponza/glTF/Sponza.gltf"
         // / "StainedGlassLamp/glTF-KTX-BasisU/StainedGlassLamp.gltf",
     };
     constexpr static float movement_speed{ 5 };

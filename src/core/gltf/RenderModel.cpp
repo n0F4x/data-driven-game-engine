@@ -851,20 +851,16 @@ auto core::gltf::RenderModel::create_loader(
             std::vector<gfx::resources::Image> images{
                 std::views::transform(
                     std::views::as_rvalue(image_loaders),
-                    // TODO: use `bind_back`
-                    [physical_device,
-                     transfer_command_buffer](gfx::resources::Image::Loader&& loader
-                    ) -> gfx::resources::Image {
-                        return std::move(loader)(
-                            physical_device,
-                            transfer_command_buffer,
-                            renderer::base::Image::State{
-                                vk::PipelineStageFlagBits::eFragmentShader,
-                                vk::AccessFlagBits::eShaderRead,
-                                vk::ImageLayout::eShaderReadOnlyOptimal,
-                            }
-                        );
-                    }
+                    std::bind_back(
+                        &gfx::resources::Image::Loader::operator(),
+                        physical_device,
+                        transfer_command_buffer,
+                        renderer::base::Image::State{
+                            vk::PipelineStageFlagBits::eFragmentShader,
+                            vk::AccessFlagBits::eShaderRead,
+                            vk::ImageLayout::eShaderReadOnlyOptimal,
+                        }
+                    )
                 )
                 | std::ranges::to<std::vector>()
             };

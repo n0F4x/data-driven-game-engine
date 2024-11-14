@@ -483,12 +483,9 @@ static auto create_staging_buffer(
         // TODO: use std::ranges::fold_left_first
         .size = std::ranges::fold_left(
             blocks
-                | std::views::transform(
-                    // TODO: use bind_back
-                    [format](const core::gfx::resources::VirtualImage::Block& block) {
-                        return block.buffer_size(format);
-                    }
-                ),
+                | std::views::transform(std::bind_back(
+                    &core::gfx::resources::VirtualImage::Block::buffer_size, format
+                )),
             0u,
             std::plus<>{}
         ),

@@ -13,10 +13,9 @@ auto App::Builder::build() -> App
 {
     App app;
 
-    // TODO: use std::bind_back
-    for (PluginInvocation& invocation : m_invocations) {
-        invocation(app);
-    }
+    std::ranges::for_each(
+        m_invocations, std::bind_back(&PluginInvocation::operator(), std::ref(app))
+    );
 
     return app;
 }
