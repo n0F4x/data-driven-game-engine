@@ -92,10 +92,21 @@ public:
     auto clean_up_after_update() -> void;
 
     [[nodiscard]]
+    auto image() const -> const renderer::base::Image&;
+
+    [[nodiscard]]
     auto view() const -> vk::ImageView;
 
     [[nodiscard]]
     auto debug_image() const -> const Image&;
+
+    [[nodiscard]]
+    auto sparse_properties() const -> const vk::SparseImageMemoryRequirements&;
+
+    [[nodiscard]]
+    auto blocks() const -> std::span<const Block>;
+
+    auto request_block(uint32_t block_index) -> void;
 
 private:
     renderer::base::Image m_image;

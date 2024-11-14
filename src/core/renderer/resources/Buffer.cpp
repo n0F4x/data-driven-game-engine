@@ -15,17 +15,27 @@ core::renderer::resources::Buffer::Buffer(
       )) }
 {}
 
+auto core::renderer::resources::Buffer::buffer() const -> const base::Buffer&
+{
+    return m_buffer;
+}
+
+auto core::renderer::resources::Buffer::allocation() const -> const base::Allocation&
+{
+    return m_allocation;
+}
+
 auto core::renderer::resources::Buffer::reset() noexcept -> void
 {
     m_allocation.reset();
-    base::Buffer::reset();
+    m_buffer.reset();
 }
 
 core::renderer::resources::Buffer::Buffer(
     base::Buffer&&     buffer,
     base::Allocation&& allocation
 ) noexcept
-    : base::Buffer{ std::move(buffer) },
+    : m_buffer{ std::move(buffer) },
       m_allocation{ std::move(allocation) }
 {}
 

@@ -3,7 +3,12 @@ if (DEFINED GLSLC)
     set(SHADERS_IN_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
     set(SHADERS_OUT_DIR ${SHADERS_IN_DIR})
 
-    file(GLOB_RECURSE SHADERS "${SHADERS_IN_DIR}/*.vert" "${SHADERS_IN_DIR}/*.frag")
+    list(APPEND SHADERS
+        "${SHADERS_IN_DIR}/main.vert"
+        "${SHADERS_IN_DIR}/simple_image.frag"
+        "${SHADERS_IN_DIR}/virtual_image_with_request.frag"
+        "${SHADERS_IN_DIR}/virtual_image_without_request.frag"
+    )
 
     file(MAKE_DIRECTORY ${SHADERS_OUT_DIR})
 

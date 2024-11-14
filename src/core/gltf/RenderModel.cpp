@@ -811,7 +811,7 @@ auto core::gltf::RenderModel::create_loader(
             if (index_buffer_size > 0) {
                 transfer_command_buffer.copyBuffer(
                     index_staging_buffer->get(),
-                    index_buffer->get(),
+                    index_buffer->buffer().get(),
                     std::array{ vk::BufferCopy{ .size = index_buffer_size } }
                 );
             }
@@ -819,7 +819,7 @@ auto core::gltf::RenderModel::create_loader(
             if (vertex_buffer_size > 0) {
                 transfer_command_buffer.copyBuffer(
                     vertex_staging_buffer->get(),
-                    vertex_buffer->get(),
+                    vertex_buffer->buffer().get(),
                     std::array{ vk::BufferCopy{ .size = vertex_buffer_size } }
                 );
             }
@@ -827,7 +827,7 @@ auto core::gltf::RenderModel::create_loader(
             if (transform_buffer_size > 0) {
                 transfer_command_buffer.copyBuffer(
                     transform_staging_buffer->get(),
-                    transform_buffer->get(),
+                    transform_buffer->buffer().get(),
                     std::array{ vk::BufferCopy{ .size = transform_buffer_size } }
                 );
             }
@@ -835,7 +835,7 @@ auto core::gltf::RenderModel::create_loader(
             if (texture_buffer_size > 0) {
                 transfer_command_buffer.copyBuffer(
                     texture_staging_buffer->get(),
-                    texture_buffer->get(),
+                    texture_buffer->buffer().get(),
                     std::array{ vk::BufferCopy{ .size = texture_buffer_size } }
                 );
             }
@@ -843,7 +843,7 @@ auto core::gltf::RenderModel::create_loader(
             if (material_buffer_size > 0) {
                 transfer_command_buffer.copyBuffer(
                     material_staging_buffer->get(),
-                    material_buffer->get(),
+                    material_buffer->buffer().get(),
                     std::array{ vk::BufferCopy{ .size = material_buffer_size } }
                 );
             }
@@ -898,7 +898,7 @@ auto core::gltf::RenderModel::draw(
 {
     if (m_index_buffer.has_value()) {
         graphics_command_buffer.bindIndexBuffer(
-            m_index_buffer->get(), 0, vk::IndexType::eUint32
+            m_index_buffer->buffer().get(), 0, vk::IndexType::eUint32
         );
     }
 
@@ -986,7 +986,11 @@ core::gltf::RenderModel::RenderModel(
       m_meshes{ std::move(meshes) }
 {
     m_vertex_uniform.set(
-        m_vertex_buffer.transform(&renderer::resources::Buffer::get)
+        m_vertex_buffer
+            .transform([](const renderer::resources::Buffer& buffer) {
+                return std::cref(buffer.buffer());
+            })
+            .transform(&renderer::base::Buffer::get)
             .transform([device](const vk::Buffer buffer) {
                 return device.getBufferAddress(vk::BufferDeviceAddressInfo{
                     .buffer = buffer,
@@ -996,7 +1000,11 @@ core::gltf::RenderModel::RenderModel(
     );
 
     m_transform_uniform.set(
-        m_transform_buffer.transform(&renderer::resources::Buffer::get)
+        m_transform_buffer
+            .transform([](const renderer::resources::Buffer& buffer) {
+                return std::cref(buffer.buffer());
+            })
+            .transform(&renderer::base::Buffer::get)
             .transform([device](const vk::Buffer buffer) {
                 return device.getBufferAddress(vk::BufferDeviceAddressInfo{
                     .buffer = buffer,
@@ -1006,7 +1014,11 @@ core::gltf::RenderModel::RenderModel(
     );
 
     m_texture_uniform.set(
-        m_texture_buffer.transform(&renderer::resources::Buffer::get)
+        m_texture_buffer
+            .transform([](const renderer::resources::Buffer& buffer) {
+                return std::cref(buffer.buffer());
+            })
+            .transform(&renderer::base::Buffer::get)
             .transform([device](const vk::Buffer buffer) {
                 return device.getBufferAddress(vk::BufferDeviceAddressInfo{
                     .buffer = buffer,
@@ -1016,7 +1028,11 @@ core::gltf::RenderModel::RenderModel(
     );
 
     m_material_uniform.set(
-        m_material_buffer.transform(&renderer::resources::Buffer::get)
+        m_material_buffer
+            .transform([](const renderer::resources::Buffer& buffer) {
+                return std::cref(buffer.buffer());
+            })
+            .transform(&renderer::base::Buffer::get)
             .transform([device](const vk::Buffer buffer) {
                 return device.getBufferAddress(vk::BufferDeviceAddressInfo{
                     .buffer = buffer,

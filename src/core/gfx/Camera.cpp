@@ -61,4 +61,4 @@ auto Camera::projection() const noexcept -> const glm::mat4&
     return m_projection;
 }
 
-}   // namespace core::graphics
+}   // namespace core::gfx

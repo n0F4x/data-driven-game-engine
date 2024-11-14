@@ -1,5 +1,7 @@
 #include "Image.hpp"
 
+#include <cmath>
+#include <format>
 #include <ranges>
 
 #include <vulkan/vulkan.hpp>

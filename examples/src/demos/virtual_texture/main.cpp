@@ -1,3 +1,5 @@
+#include <print>
+
 #include <spdlog/spdlog.h>
 
 #include <base/DemoBase.hpp>

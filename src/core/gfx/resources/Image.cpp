@@ -1,6 +1,7 @@
 #include "Image.hpp"
 
 #include <ranges>
+#include <cmath>
 
 #include <core/renderer/base/resources/mipmap_generation.hpp>
 

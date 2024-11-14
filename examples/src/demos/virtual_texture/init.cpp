@@ -2,11 +2,14 @@
 
 #include <source_location>
 
+#include <spdlog/spdlog.h>
+
 #include <base/init.hpp>
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/material_system/GraphicsPipelineBuilder.hpp>
 
 #include "Vertex.hpp"
+#include "VirtualTexture.hpp"
 
 auto demo::init::create_descriptor_set_layout(const vk::Device device)
     -> vk::UniqueDescriptorSetLayout
@@ -20,6 +23,16 @@ auto demo::init::create_descriptor_set_layout(const vk::Device device)
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 1,
                                        .descriptorType  = vk::DescriptorType::eCombinedImageSampler,
+                                       .descriptorCount = 1,
+                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment },
+        vk::DescriptorSetLayoutBinding{
+                                       .binding         = 2,
+                                       .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                                       .descriptorCount = 1,
+                                       .stageFlags      = vk::ShaderStageFlagBits::eFragment },
+        vk::DescriptorSetLayoutBinding{
+                                       .binding         = 3,
+                                       .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
     };
@@ -129,15 +142,19 @@ auto demo::init::create_depth_image_view(
 }
 
 [[nodiscard]]
-static auto create_program(const vk::Device device) -> core::renderer::Program
+static auto create_program(
+    const vk::Device       device,
+    const std::string_view fragment_shader_file_name
+) -> core::renderer::Program
 {
     static const std::filesystem::path shader_path{
         std::filesystem::path{ std::source_location::current().file_name() }.parent_path()
         / "shaders"
     };
     static const std::filesystem::path vertex_shader_path{ shader_path / "main.vert.spv" };
-    static const std::filesystem::path fragment_shader_path{ shader_path
-                                                             / "main.frag.spv" };
+    static const std::filesystem::path fragment_shader_path{
+        shader_path / fragment_shader_file_name
+    };
 
     return core::renderer::Program{
         core::renderer::Shader{
@@ -155,7 +172,8 @@ auto demo::init::create_pipeline(
     const vk::Device         device,
     const vk::PipelineLayout layout,
     const vk::Format         surface_format,
-    const vk::Format         depth_format
+    const vk::Format         depth_format,
+    const std::string_view   fragment_shader_file_name
 ) -> vk::UniquePipeline
 {
     const vk::PipelineRenderingCreateInfoKHR dynamic_rendering_create_info{
@@ -164,7 +182,9 @@ auto demo::init::create_pipeline(
         .depthAttachmentFormat   = depth_format,
     };
 
-    return core::renderer::GraphicsPipelineBuilder{ ::create_program(device) }
+    return core::renderer::GraphicsPipelineBuilder{
+        ::create_program(device, fragment_shader_file_name)
+    }
         .set_layout(layout)
         .add_vertex_layout(core::renderer::VertexLayout{ sizeof(Vertex),
                                                          vk::VertexInputRate::eVertex }
@@ -269,13 +289,101 @@ auto demo::init::create_virtual_image_sampler(const core::renderer::base::Device
     return device->createSamplerUnique(sampler_create_info);
 }
 
-auto demo::init::create_descriptor_set(
+auto demo::init::create_virtual_texture_info_buffer(
+    const core::renderer::base::Allocator&    allocator,
+    const core::gfx::resources::VirtualImage& virtual_image
+) -> core::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
+{
+    constexpr vk::BufferCreateInfo buffer_create_info = {
+        .size  = sizeof(VirtualTextureInfo),
+        .usage = vk::BufferUsageFlagBits::eUniformBuffer
+    };
+
+    core::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
+        virtual_texture_info_buffer{ allocator, buffer_create_info };
+
+    const glm::uvec2 base_extent{
+        virtual_image.image().extent().width,
+        virtual_image.image().extent().height,
+    };
+    const glm::uvec2 image_granularity{
+        virtual_image.sparse_properties().formatProperties.imageGranularity.width,
+        virtual_image.sparse_properties().formatProperties.imageGranularity.height,
+    };
+
+    virtual_texture_info_buffer.set(VirtualTextureInfo{
+        .baseExtent  = base_extent,
+        .granularity = image_granularity,
+        .block_count = static_cast<uint32_t>(virtual_image.blocks().size()),
+    });
+
+    SPDLOG_DEBUG("Block count: {}", static_cast<uint32_t>(virtual_image.blocks().size()));
+
+    return virtual_texture_info_buffer;
+}
+
+auto demo::init::create_virtual_texture_blocks_buffer(
+    const core::renderer::base::Allocator&    allocator,
+    const core::gfx::resources::VirtualImage& virtual_image
+) -> core::renderer::resources::Buffer
+{
+    const vk::BufferCreateInfo buffer_create_info = {
+        .size  = virtual_image.blocks().size_bytes(),
+        .usage = vk::BufferUsageFlagBits::eStorageBuffer
+               | vk::BufferUsageFlagBits::eShaderDeviceAddress
+    };
+
+    constexpr static VmaAllocationCreateInfo allocation_create_info{
+        .flags = VMA_ALLOCATION_CREATE_MAPPED_BIT
+               | VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT,
+        .usage = VMA_MEMORY_USAGE_AUTO,
+    };
+
+    core::renderer::resources::Buffer virtual_texture_blocks_buffer{
+        allocator, buffer_create_info, allocation_create_info
+    };
+
+    const std::vector<uint32_t> virtual_texture_blocks(virtual_image.blocks().size());
+    core::renderer::base::copy(
+        virtual_texture_blocks.data(),
+        core::renderer::base::CopyRegion{
+            .allocation = virtual_texture_blocks_buffer.allocation(),
+        },
+        virtual_texture_blocks.size() * sizeof(uint32_t)
+    );
+
+    return virtual_texture_blocks_buffer;
+}
+
+auto demo::init::create_virtual_texture_blocks_uniform(
+    const vk::Device                       device,
+    const core::renderer::base::Allocator& allocator,
+    const vk::Buffer                       virtual_blocks_buffer
+) -> core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
+{
+    constexpr vk::BufferCreateInfo buffer_create_info = {
+        .size = sizeof(vk::DeviceAddress), .usage = vk::BufferUsageFlagBits::eUniformBuffer
+    };
+
+    const vk::BufferDeviceAddressInfo buffer_device_address_info{
+        .buffer = virtual_blocks_buffer,
+    };
+
+    core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
+        virtual_texture_block_uniform{ allocator, buffer_create_info };
+
+    virtual_texture_block_uniform.set(device.getBufferAddress(buffer_device_address_info));
+
+    return virtual_texture_block_uniform;
+}
+
+auto demo::init::create_debug_texture_descriptor_set(
     const vk::Device              device,
     const vk::DescriptorSetLayout descriptor_set_layout,
     const vk::DescriptorPool      descriptor_pool,
     const vk::Buffer              camera_buffer,
-    const vk::ImageView           virtual_texture_image_view,
-    const vk::Sampler             virtual_texture_image_sampler
+    const vk::ImageView           image_view,
+    const vk::Sampler             sampler
 ) -> vk::UniqueDescriptorSet
 {
     const vk::DescriptorSetAllocateInfo allocate_info{
@@ -295,8 +403,8 @@ auto demo::init::create_descriptor_set(
     };
 
     const vk::DescriptorImageInfo image_info{
-        .sampler     = virtual_texture_image_sampler,
-        .imageView   = virtual_texture_image_view,
+        .sampler     = sampler,
+        .imageView   = image_view,
         .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
     };
 
@@ -312,6 +420,76 @@ auto demo::init::create_descriptor_set(
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eCombinedImageSampler,
                                .pImageInfo      = &image_info }
+    };
+
+    device.updateDescriptorSets(write_descriptor_sets, {});
+
+    return std::move(descriptor_sets.front());
+}
+
+auto demo::init::create_virtual_texture_descriptor_set(
+    const vk::Device              device,
+    const vk::DescriptorSetLayout descriptor_set_layout,
+    const vk::DescriptorPool      descriptor_pool,
+    const vk::Buffer              camera_buffer,
+    const VirtualTexture&         virtual_texture,
+    const vk::Buffer              virtual_texture_info_buffer,
+    const vk::Buffer              virtual_texture_blocks_uniform
+) -> vk::UniqueDescriptorSet
+{
+    const vk::DescriptorSetAllocateInfo allocate_info{
+        .descriptorPool     = descriptor_pool,
+        .descriptorSetCount = 1,
+        .pSetLayouts        = &descriptor_set_layout,
+    };
+
+    std::vector<vk::UniqueDescriptorSet> descriptor_sets{
+        device.allocateDescriptorSetsUnique(allocate_info)
+    };
+
+    const vk::DescriptorBufferInfo buffer_info{
+        .buffer = camera_buffer,
+        .range  = sizeof(Camera),
+    };
+
+    const vk::DescriptorImageInfo image_info{
+        .sampler     = virtual_texture.sampler(),
+        .imageView   = virtual_texture.view(),
+        .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
+    };
+
+    const vk::DescriptorBufferInfo virtual_texture_info_buffer_info{
+        .buffer = virtual_texture_info_buffer,
+        .range  = sizeof(VirtualTextureInfo),
+    };
+
+    const vk::DescriptorBufferInfo virtual_texture_blocks_buffer_info{
+        .buffer = virtual_texture_blocks_uniform,
+        .range  = sizeof(virtual_texture.get().blocks().size_bytes()),
+    };
+
+    const std::array write_descriptor_sets{
+        vk::WriteDescriptorSet{.dstSet          = descriptor_sets.front().get(),
+                               .dstBinding      = 0,
+                               .descriptorCount = 1,
+                               .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                               .pBufferInfo     = &buffer_info                       },
+        vk::WriteDescriptorSet{
+                               .dstSet          = descriptor_sets.front().get(),
+                               .dstBinding      = 1,
+                               .descriptorCount = 1,
+                               .descriptorType  = vk::DescriptorType::eCombinedImageSampler,
+                               .pImageInfo      = &image_info                        },
+        vk::WriteDescriptorSet{ .dstSet          = descriptor_sets.front().get(),
+                               .dstBinding      = 2,
+                               .descriptorCount = 1,
+                               .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                               .pBufferInfo     = &virtual_texture_info_buffer_info  },
+        vk::WriteDescriptorSet{ .dstSet          = descriptor_sets.front().get(),
+                               .dstBinding      = 3,
+                               .descriptorCount = 1,
+                               .descriptorType  = vk::DescriptorType::eUniformBuffer,
+                               .pBufferInfo     = &virtual_texture_blocks_buffer_info }
     };
 
     device.updateDescriptorSets(write_descriptor_sets, {});

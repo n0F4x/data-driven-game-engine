@@ -6,12 +6,8 @@ namespace core::gfx {
 
 class Camera {
 public:
-    auto set_perspective_projection(
-        double fov_y,
-        double aspect,
-        double near,
-        double far
-    ) noexcept -> void;
+    auto set_perspective_projection(double fov_y, double aspect, double near, double far)
+        noexcept -> void;
 
     auto set_view_yxz(const glm::vec3& position, const glm::vec3& rotation) noexcept
         -> void;
@@ -29,4 +25,4 @@ private:
     glm::mat4 m_projection{ 1.f };
 };
 
-}   // namespace core::graphics
+}   // namespace core::gfx

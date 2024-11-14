@@ -12,6 +12,7 @@
 
 #include "Camera.hpp"
 #include "VirtualTexture.hpp"
+#include "VirtualTextureInfo.hpp"
 
 namespace demo {
 
@@ -52,16 +53,30 @@ private:
     vk::UniqueImageView              m_depth_image_view;
 
     core::renderer::base::DescriptorPool m_descriptor_pool;
-    vk::UniquePipeline                   m_pipeline;
+    vk::UniquePipeline                   m_debug_texture_pipeline;
+    vk::UniquePipeline                   m_virtual_texture_pipeline;
 
     core::renderer::resources::RandomAccessBuffer<Camera> m_camera_buffer;
 
     VirtualTexture m_virtual_texture;
 
-    vk::UniqueDescriptorSet m_descriptor_set;
+    core::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
+        m_virtual_texture_info_buffer;
+
+    // This is also a random access buffer, but with runtime size
+    core::renderer::resources::Buffer m_virtual_texture_blocks_buffer;
+    core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
+        m_virtual_texture_blocks_uniform;
+
+    vk::UniqueDescriptorSet m_virtual_texture_descriptor_set;
+    vk::UniqueDescriptorSet m_debug_texture_descriptor_set;
 
     auto draw(vk::CommandBuffer graphics_command_buffer, const core::gfx::Camera& camera)
         -> void;
+
+    auto update_virtual_texture() -> void;
+
+    auto draw_debug(vk::CommandBuffer graphics_command_buffer) -> void;
 };
 
 }   // namespace demo

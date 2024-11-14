@@ -1,5 +1,7 @@
 #include "Image.hpp"
 
+#include <format>
+
 #include <vulkan/vulkan.hpp>
 
 static auto transcode(ktxTexture2* texture) -> void

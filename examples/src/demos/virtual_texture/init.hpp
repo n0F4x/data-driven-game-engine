@@ -5,8 +5,14 @@
 #include <core/gfx/resources/VirtualImage.hpp>
 #include <core/renderer/resources/Image.hpp>
 #include <core/renderer/resources/RandomAccessBuffer.hpp>
+#include <core/renderer/scene/Builder.hpp>
 
 #include "Camera.hpp"
+#include "VirtualTextureInfo.hpp"
+
+namespace demo {
+class VirtualTexture;
+}   // namespace demo
 
 namespace demo::init {
 
@@ -37,7 +43,8 @@ auto create_pipeline(
     vk::Device         device,
     vk::PipelineLayout layout,
     vk::Format         surface_format,
-    vk::Format         depth_format
+    vk::Format         depth_format,
+    std::string_view   fragment_shader_file_name
 ) -> vk::UniquePipeline;
 
 [[nodiscard]]
@@ -56,13 +63,43 @@ auto create_virtual_image_sampler(const core::renderer::base::Device& device)
     -> vk::UniqueSampler;
 
 [[nodiscard]]
-auto create_descriptor_set(
+auto create_virtual_texture_info_buffer(
+    const core::renderer::base::Allocator&    allocator,
+    const core::gfx::resources::VirtualImage& virtual_image
+) -> core::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>;
+
+[[nodiscard]]
+auto create_virtual_texture_blocks_buffer(
+    const core::renderer::base::Allocator&    allocator,
+    const core::gfx::resources::VirtualImage& virtual_image
+) -> core::renderer::resources::Buffer;
+
+[[nodiscard]]
+auto create_virtual_texture_blocks_uniform(
+    vk::Device                             device,
+    const core::renderer::base::Allocator& allocator,
+    vk::Buffer                             virtual_blocks_buffer
+) -> core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>;
+
+[[nodiscard]]
+auto create_debug_texture_descriptor_set(
     vk::Device              device,
     vk::DescriptorSetLayout descriptor_set_layout,
     vk::DescriptorPool      descriptor_pool,
     vk::Buffer              camera_buffer,
-    vk::ImageView           virtual_texture_image_view,
-    vk::Sampler             virtual_texture_image_sampler
+    vk::ImageView           image_view,
+    vk::Sampler             sampler
+) -> vk::UniqueDescriptorSet;
+
+[[nodiscard]]
+auto create_virtual_texture_descriptor_set(
+    vk::Device              device,
+    vk::DescriptorSetLayout descriptor_set_layout,
+    vk::DescriptorPool      descriptor_pool,
+    vk::Buffer              camera_buffer,
+    const VirtualTexture&   virtual_texture,
+    vk::Buffer              virtual_texture_info_buffer,
+    vk::Buffer              virtual_texture_blocks_uniform
 ) -> vk::UniqueDescriptorSet;
 
 }   // namespace demo::init

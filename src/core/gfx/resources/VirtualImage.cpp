@@ -274,26 +274,32 @@ auto core::gfx::resources::VirtualImage::update(
                 assert(block.m_uploaded == false);
             }
         }
-        else if (m_to_be_unloaded_mask.at(index)) {
-            Block& block{ m_blocks.at(index) };
-            block.m_allocation.reset();
-            block.m_bound    = false;
-            block.m_uploaded = false;
-        }
     }
 
     bind_memory_blocks(sparse_queue);
     upload_new_memory_blocks(allocator, transfer_command_buffer);
 
     for (const uint32_t index : std::views::iota(0u, m_blocks.size())) {
-        m_to_be_loaded_mask.at(index)   = false;
-        m_to_be_unloaded_mask.at(index) = false;
+        if (m_to_be_unloaded_mask.at(index) && !m_to_be_loaded_mask.at(index)) {
+            Block& block{ m_blocks.at(index) };
+            block.m_uploaded = false;
+            block.m_bound    = false;
+            block.m_allocation.reset();
+        }
+
+        m_to_be_loaded_mask.at(index) = false;
+        // m_to_be_unloaded_mask.at(index) = false;
     }
 }
 
 auto core::gfx::resources::VirtualImage::clean_up_after_update() -> void
 {
     m_staging_buffer.reset();
+}
+
+auto core::gfx::resources::VirtualImage::image() const -> const renderer::base::Image&
+{
+    return m_image;
 }
 
 auto core::gfx::resources::VirtualImage::view() const -> vk::ImageView
@@ -304,6 +310,23 @@ auto core::gfx::resources::VirtualImage::view() const -> vk::ImageView
 auto core::gfx::resources::VirtualImage::debug_image() const -> const Image&
 {
     return m_debug_image;
+}
+
+auto core::gfx::resources::VirtualImage::sparse_properties() const
+    -> const vk::SparseImageMemoryRequirements&
+{
+    return m_sparse_requirements;
+}
+
+auto core::gfx::resources::VirtualImage::blocks() const -> std::span<const Block>
+{
+    return m_blocks;
+}
+
+auto core::gfx::resources::VirtualImage::request_block(const uint32_t block_index) -> void
+{
+    // SPDLOG_DEBUG("Requested block at index {}", block_index);
+    m_to_be_loaded_mask.at(block_index) = true;
 }
 
 core::gfx::resources::VirtualImage::VirtualImage(
@@ -327,6 +350,22 @@ core::gfx::resources::VirtualImage::VirtualImage(
 {
     // TODO: load blocks on demand
     m_to_be_loaded_mask.flip();
+    m_to_be_unloaded_mask.flip();
+
+    SPDLOG_DEBUG(
+        "Image base extent: width = {}, height = {}",
+        m_image.extent().width,
+        m_image.extent().height
+    );
+    SPDLOG_DEBUG(
+        "Image granularity: width = {}, height = {}",
+        m_sparse_requirements.formatProperties.imageGranularity.width,
+        m_sparse_requirements.formatProperties.imageGranularity.height
+    );
+    // level 0 block count start: 0        count: 1247
+    // level 0 block count start: 1247     count:  330
+    //                                     sum:   1577
+    //
 }
 
 auto core::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue sparse_queue)
@@ -346,7 +385,7 @@ auto core::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue spar
               const Block& block{ m_blocks.at(block_index) };
 
               return (to_be_loaded && !block.m_bound)
-                  || (to_be_unloaded && block.m_bound);
+                  || (!to_be_loaded && to_be_unloaded && block.m_bound);
           })
         | std::views::transform([&](std::tuple<bool, bool, size_t> zipped) {
               const bool   to_be_loaded{ std::get<0>(zipped) };
@@ -379,9 +418,25 @@ auto core::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue spar
             .bindCount = static_cast<uint32_t>(image_memory_binds.size()),
             .pBinds    = image_memory_binds.data(),
         };
+        const renderer::base::MemoryView mip_tail_memory_view{
+            m_mip_tail_region.m_memory.memory_view()
+        };
+        const vk::SparseMemoryBind opaque_memory_bind{
+            .resourceOffset = m_sparse_requirements.imageMipTailOffset,
+            .size           = mip_tail_memory_view.size,
+            .memory         = mip_tail_memory_view.memory,
+            .memoryOffset   = mip_tail_memory_view.offset
+        };
+        const vk::SparseImageOpaqueMemoryBindInfo image_opaque_memory_bind_info{
+            .image     = m_image.get(),
+            .bindCount = 1,
+            .pBinds    = &opaque_memory_bind,
+        };
         const vk::BindSparseInfo bind_sparse_info{
-            .imageBindCount = 1,
-            .pImageBinds    = &image_memory_bind_info,
+            .imageOpaqueBindCount = 1,
+            .pImageOpaqueBinds    = &image_opaque_memory_bind_info,
+            .imageBindCount       = 1,
+            .pImageBinds          = &image_memory_bind_info,
         };
         sparse_queue.bindSparse(bind_sparse_info);
     }

@@ -83,10 +83,10 @@ static auto create_vertex_buffer(
 ) -> core::renderer::resources::Buffer
 {
     constexpr static std::array vertices{
-        demo::Vertex{  .position = { -0.5f, 0.5f, 0.f }, .uv = { 1.0f, 0.0f } },
-        demo::Vertex{   .position = { 0.5f, 0.5f, .0f }, .uv = { 0.0f, 0.0f } },
-        demo::Vertex{  .position = { 0.5f, -0.5f, 0.f }, .uv = { 0.0f, 1.0f } },
-        demo::Vertex{ .position = { -0.5f, -0.5f, 0.f }, .uv = { 1.0f, 1.0f } }
+        demo::Vertex{  .position = { -1.f, 0.5f, -1.0f }, .uv = { 1.0f, 0.0f } },
+        demo::Vertex{  .position = { -0.f, 0.5f, -1.0f }, .uv = { 0.0f, 0.0f } },
+        demo::Vertex{ .position = { -0.f, -0.5f, -1.0f }, .uv = { 0.0f, 1.0f } },
+        demo::Vertex{ .position = { -1.f, -0.5f, -1.0f }, .uv = { 1.0f, 1.0f } }
     };
 
     const core::renderer::resources::SeqWriteBuffer staging_buffer{
@@ -104,7 +104,43 @@ static auto create_vertex_buffer(
         const vk::BufferCopy copy_region{
             .size = static_cast<uint32_t>(staging_buffer.size_bytes()),
         };
-        command_buffer.copyBuffer(staging_buffer.get(), vertex_buffer.get(), copy_region);
+        command_buffer.copyBuffer(
+            staging_buffer.get(), vertex_buffer.buffer().get(), copy_region
+        );
+    });
+
+    return vertex_buffer;
+}
+
+[[nodiscard]]
+static auto create_debug_vertex_buffer(
+    const core::renderer::base::Device&    device,
+    const core::renderer::base::Allocator& allocator
+) -> core::renderer::resources::Buffer
+{
+    constexpr static std::array vertices{
+        demo::Vertex{  .position = { 0.f, 0.5f, -1.0f }, .uv = { 1.0f, 0.0f } },
+        demo::Vertex{  .position = { 1.f, 0.5f, -1.0f }, .uv = { 0.0f, 0.0f } },
+        demo::Vertex{ .position = { 1.f, -0.5f, -1.0f }, .uv = { 0.0f, 1.0f } },
+        demo::Vertex{ .position = { 0.f, -0.5f, -1.0f }, .uv = { 1.0f, 1.0f } }
+    };
+
+    const core::renderer::resources::SeqWriteBuffer staging_buffer{
+        ::create_staging_buffer<demo::Vertex>(allocator, vertices)
+    };
+    staging_buffer.set(std::span{ vertices });
+
+    core::renderer::resources::Buffer vertex_buffer{ ::create_gpu_only_buffer(
+        allocator,
+        vk::BufferUsageFlagBits::eVertexBuffer,
+        static_cast<uint32_t>(staging_buffer.size_bytes())
+    ) };
+
+    ::execute_command(device, [&](const vk::CommandBuffer command_buffer) {
+        const vk::BufferCopy copy_region{
+            .size = static_cast<uint32_t>(staging_buffer.size_bytes()),
+        };
+        command_buffer.copyBuffer(staging_buffer.get(), vertex_buffer.buffer().get(), copy_region);
     });
 
     return vertex_buffer;
@@ -134,7 +170,7 @@ static auto create_index_buffer(
         const vk::BufferCopy copy_region{
             .size = static_cast<uint32_t>(staging_buffer.size_bytes()),
         };
-        command_buffer.copyBuffer(staging_buffer.get(), index_buffer.get(), copy_region);
+        command_buffer.copyBuffer(staging_buffer.get(), index_buffer.buffer().get(), copy_region);
     });
 
     return index_buffer;
@@ -147,6 +183,7 @@ demo::VirtualTexture::VirtualTexture(
     : m_device_ref{ device },
       m_allocator_ref{ allocator },
       m_vertex_buffer{ ::create_vertex_buffer(device, allocator) },
+      m_debug_vertex_buffer{ ::create_debug_vertex_buffer(device, allocator) },
       m_index_buffer{ ::create_index_buffer(device, allocator) },
       m_virtual_image{ init::create_virtual_image(
           device,
@@ -164,16 +201,35 @@ demo::VirtualTexture::VirtualTexture(
       m_virtual_image_debug_sampler{ init::create_virtual_image_sampler(device) }
 {}
 
+auto demo::VirtualTexture::get() noexcept -> core::gfx::resources::VirtualImage&
+{
+    return m_virtual_image;
+}
+
+auto demo::VirtualTexture::get() const noexcept
+    -> const core::gfx::resources::VirtualImage&
+{
+    return m_virtual_image;
+}
+
 auto demo::VirtualTexture::view() const noexcept -> vk::ImageView
 {
     return m_virtual_image.view();
-    // return m_virtual_image.debug_image().view();
+}
+
+auto demo::VirtualTexture::debug_view() const noexcept -> vk::ImageView
+{
+    return m_virtual_image.debug_image().view();
 }
 
 auto demo::VirtualTexture::sampler() const noexcept -> vk::Sampler
 {
     return m_virtual_image_sampler.get();
-    // return m_virtual_image_debug_sampler.get();
+}
+
+auto demo::VirtualTexture::debug_sampler() const noexcept -> vk::Sampler
+{
+    return m_virtual_image_debug_sampler.get();
 }
 
 auto demo::VirtualTexture::draw(const vk::CommandBuffer command_buffer) -> void
@@ -188,9 +244,17 @@ auto demo::VirtualTexture::draw(const vk::CommandBuffer command_buffer) -> void
             );
         }
     );
+    m_virtual_image.clean_up_after_update();
 
-    command_buffer.bindVertexBuffers(0, m_vertex_buffer.get(), { 0 });
-    command_buffer.bindIndexBuffer(m_index_buffer.get(), 0, vk::IndexType::eUint32);
+    command_buffer.bindVertexBuffers(0, m_vertex_buffer.buffer().get(), { 0 });
+    command_buffer.bindIndexBuffer(m_index_buffer.buffer().get(), 0, vk::IndexType::eUint32);
 
+    command_buffer.drawIndexed(6, 1, 0, 0, 0);
+}
+
+auto demo::VirtualTexture::draw_debug(const vk::CommandBuffer command_buffer) const
+    -> void
+{
+    command_buffer.bindVertexBuffers(0, m_debug_vertex_buffer.buffer().get(), { 0 });
     command_buffer.drawIndexed(6, 1, 0, 0, 0);
 }

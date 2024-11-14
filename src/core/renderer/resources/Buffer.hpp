@@ -16,9 +16,8 @@ class Allocator;
 
 namespace core::renderer::resources {
 
-class Buffer : public base::Buffer {
+class Buffer {
 public:
-    // Buffer() = default;
     Buffer(
         const base::Allocator&         allocator,
         const vk::BufferCreateInfo&    buffer_create_info,
@@ -26,9 +25,15 @@ public:
             VmaAllocationCreateInfo{ .usage = VMA_MEMORY_USAGE_AUTO }
     );
 
+    [[nodiscard]]
+    auto buffer() const -> const base::Buffer&;
+    [[nodiscard]]
+    auto allocation() const -> const base::Allocation&;
+
     auto reset() noexcept -> void;
 
 private:
+    base::Buffer     m_buffer;
     base::Allocation m_allocation;
 
     [[nodiscard]]

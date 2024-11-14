@@ -73,7 +73,8 @@ demo::DemoApp::DemoApp(
     core::renderer::base::SwapchainHolder& swapchain_holder
 )
     : m_swapchain_holder_ref{ swapchain_holder },
-      m_descriptor_set_layout{ demo::init::create_descriptor_set_layout(device.get()) },
+      m_descriptor_set_layout{ demo::init::create_descriptor_set_layout(device.get()
+      ) },
       m_pipeline_layout{ demo::init::create_pipeline_layout(
           device.get(),
           std::array{ m_descriptor_set_layout.get() }
@@ -94,22 +95,68 @@ demo::DemoApp::DemoApp(
                                  .type = vk::DescriptorType::eCombinedImageSampler,
                                  .descriptorCount = 1,
                              })
+                             .request_descriptors(vk::DescriptorPoolSize{
+                                 .type            = vk::DescriptorType::eUniformBuffer,
+                                 .descriptorCount = 1,
+                             })
+                             .request_descriptors(vk::DescriptorPoolSize{
+                                 .type            = vk::DescriptorType::eUniformBuffer,
+                                 .descriptorCount = 1,
+                             })
+                             // DEBUG
+                             .request_descriptor_sets(1)
+                             .request_descriptors(vk::DescriptorPoolSize{
+                                 .type            = vk::DescriptorType::eUniformBuffer,
+                                 .descriptorCount = 1,
+                             })
+                             .request_descriptors(vk::DescriptorPoolSize{
+                                 .type = vk::DescriptorType::eCombinedImageSampler,
+                                 .descriptorCount = 1,
+                             })
                              .build(device.get()) },
-      m_pipeline{ init::create_pipeline(
+      m_debug_texture_pipeline{ init::create_pipeline(
           device.get(),
           m_pipeline_layout.get(),
           swapchain_holder.get().value().format(),
-          m_depth_image.format()
+          m_depth_image.format(),
+          "virtual_image_with_request.frag.spv"
+      ) },
+      m_virtual_texture_pipeline{ init::create_pipeline(
+          device.get(),
+          m_pipeline_layout.get(),
+          swapchain_holder.get().value().format(),
+          m_depth_image.format(),
+          "virtual_image_with_request.frag.spv"
       ) },
       m_camera_buffer{ init::create_camera_buffer(allocator) },
       m_virtual_texture{ device, allocator },
-      m_descriptor_set{ init::create_descriptor_set(
+      m_virtual_texture_info_buffer{
+          init::create_virtual_texture_info_buffer(allocator, m_virtual_texture.get())
+      },
+      m_virtual_texture_blocks_buffer{
+          init::create_virtual_texture_blocks_buffer(allocator, m_virtual_texture.get())
+      },
+      m_virtual_texture_blocks_uniform{ init::create_virtual_texture_blocks_uniform(
+          device.get(),
+          allocator,
+          m_virtual_texture_blocks_buffer.buffer().get()
+      ) },
+      m_virtual_texture_descriptor_set{ init::create_virtual_texture_descriptor_set(
           device.get(),
           m_descriptor_set_layout.get(),
           m_descriptor_pool.get(),
           m_camera_buffer.buffer(),
-          m_virtual_texture.view(),
-          m_virtual_texture.sampler()
+          m_virtual_texture,
+          m_virtual_texture_info_buffer.buffer(),
+          m_virtual_texture_blocks_uniform.buffer()
+      ) },
+      m_debug_texture_descriptor_set{ init::create_debug_texture_descriptor_set(
+          device.get(),
+          m_descriptor_set_layout.get(),
+          m_descriptor_pool.get(),
+          m_camera_buffer.buffer(),
+          m_virtual_texture.debug_view(),
+          m_virtual_texture.debug_sampler()
       ) }
 {
     swapchain_holder.on_swapchain_recreated(
@@ -260,13 +307,59 @@ auto demo::DemoApp::draw(
         vk::PipelineBindPoint::eGraphics,
         m_pipeline_layout.get(),
         0,
-        m_descriptor_set.get(),
+        m_virtual_texture_descriptor_set.get(),
         {}
     );
 
     graphics_command_buffer.bindPipeline(
-        vk::PipelineBindPoint::eGraphics, m_pipeline.get()
+        vk::PipelineBindPoint::eGraphics, m_virtual_texture_pipeline.get()
     );
 
     m_virtual_texture.draw(graphics_command_buffer);
+    update_virtual_texture();
+
+    // draw_debug(graphics_command_buffer);
+}
+
+auto demo::DemoApp::update_virtual_texture() -> void
+{
+    std::vector<uint32_t> virtual_texture_blocks(m_virtual_texture.get().blocks().size());
+    core::renderer::base::copy(
+        core::renderer::base::CopyRegion{
+            .allocation = m_virtual_texture_blocks_buffer.allocation() },
+        virtual_texture_blocks.data(),
+        virtual_texture_blocks.size() * sizeof(uint32_t)
+    );
+    for (const uint32_t block_index :
+         std::views::iota(0u, m_virtual_texture.get().blocks().size()))
+    {
+        if (virtual_texture_blocks.at(block_index) > 0) {
+            m_virtual_texture.get().request_block(block_index);
+            virtual_texture_blocks.at(block_index) = 0;
+        }
+    }
+    core::renderer::base::copy(
+        virtual_texture_blocks.data(),
+        core::renderer::base::CopyRegion{
+            .allocation = m_virtual_texture_blocks_buffer.allocation(),
+        },
+        virtual_texture_blocks.size() * sizeof(uint32_t)
+    );
+}
+
+auto demo::DemoApp::draw_debug(const vk::CommandBuffer graphics_command_buffer) -> void
+{
+    graphics_command_buffer.bindDescriptorSets(
+        vk::PipelineBindPoint::eGraphics,
+        m_pipeline_layout.get(),
+        0,
+        m_debug_texture_descriptor_set.get(),
+        {}
+    );
+
+    graphics_command_buffer.bindPipeline(
+        vk::PipelineBindPoint::eGraphics, m_debug_texture_pipeline.get()
+    );
+
+    m_virtual_texture.draw_debug(graphics_command_buffer);
 }
