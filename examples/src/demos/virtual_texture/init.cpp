@@ -152,7 +152,7 @@ static auto create_program(
         / "shaders"
     };
     static const std::filesystem::path vertex_shader_path{ shader_path / "main.vert.spv" };
-    static const std::filesystem::path fragment_shader_path{
+    const std::filesystem::path fragment_shader_path{
         shader_path / fragment_shader_file_name
     };
 

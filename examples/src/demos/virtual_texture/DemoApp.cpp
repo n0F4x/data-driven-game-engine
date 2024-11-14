@@ -119,7 +119,7 @@ demo::DemoApp::DemoApp(
           m_pipeline_layout.get(),
           swapchain_holder.get().value().format(),
           m_depth_image.format(),
-          "virtual_image_with_request.frag.spv"
+          "simple_image.frag.spv"
       ) },
       m_virtual_texture_pipeline{ init::create_pipeline(
           device.get(),
@@ -318,7 +318,7 @@ auto demo::DemoApp::draw(
     m_virtual_texture.draw(graphics_command_buffer);
     update_virtual_texture();
 
-    // draw_debug(graphics_command_buffer);
+    draw_debug(graphics_command_buffer);
 }
 
 auto demo::DemoApp::update_virtual_texture() -> void
