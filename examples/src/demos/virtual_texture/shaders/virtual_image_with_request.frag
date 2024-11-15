@@ -9,7 +9,8 @@ layout (binding = 1) uniform sampler2D texSampler;
 layout (binding = 2) uniform ImageInfo {
     uvec2 baseExtent;
     uvec2 granularity;
-    uint block_count;
+    uint blockCount;
+    uint mipTailFirstLod;
 } imageInfo;
 
 layout (std430, buffer_reference, buffer_reference_align = 4) readonly buffer BlockRequestBuffer {
@@ -41,16 +42,20 @@ uint mip_offset_index(uvec2 bind_counts, vec2 mipOffset) {
 
 
 void main() {
-    vec4 color = vec4(0.f);
+    vec4 color;
 
     float lod = textureQueryLod(texSampler, in_UV).x;
     int residencyCode = sparseTextureLodARB(texSampler, in_UV, lod, color);
 
-    float minLod = floor(lod);
-    while (!sparseTexelsResidentARB(residencyCode))
+    if (!sparseTexelsResidentARB(residencyCode))
     {
-        minLod++;
-        residencyCode = sparseTextureLodARB(texSampler, in_UV, minLod, color);
+        residencyCode = sparseTextureLodARB(texSampler, in_UV, floor(lod) + 1, color);
+        if (!sparseTexelsResidentARB(residencyCode)) {
+            residencyCode = sparseTextureLodARB(texSampler, in_UV, ceil(lod) - 1, color);
+            if (!sparseTexelsResidentARB(residencyCode)) {
+                residencyCode = sparseTextureLodARB(texSampler, in_UV, imageInfo.mipTailFirstLod, color);
+            }
+        }
     }
 
     uint flooredLod = uint(floor(lod));
@@ -69,7 +74,7 @@ void main() {
     uint flooredBlockIndex = blockIndex
     + mip_offset_index(bind_counts, in_UV * mipExtent)
     ;
-    if (flooredBlockIndex < imageInfo.block_count) {
+    if (flooredBlockIndex < imageInfo.blockCount) {
         atomicOr(blockRequestBuffer.blockRequests[flooredBlockIndex], 1);
     }
 

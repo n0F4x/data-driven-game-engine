@@ -311,9 +311,10 @@ auto demo::init::create_virtual_texture_info_buffer(
     };
 
     virtual_texture_info_buffer.set(VirtualTextureInfo{
-        .baseExtent  = base_extent,
-        .granularity = image_granularity,
-        .block_count = static_cast<uint32_t>(virtual_image.blocks().size()),
+        .baseExtent         = base_extent,
+        .granularity        = image_granularity,
+        .block_count        = static_cast<uint32_t>(virtual_image.blocks().size()),
+        .mip_tail_first_lod = virtual_image.sparse_properties().imageMipTailFirstLod,
     });
 
     SPDLOG_DEBUG("Block count: {}", static_cast<uint32_t>(virtual_image.blocks().size()));
