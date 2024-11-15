@@ -41,12 +41,16 @@ public:
     auto size() const -> Size2i;
     [[nodiscard]]
     auto framebuffer_size() const -> Size2i;
+    [[nodiscard]]
+    auto title() const -> std::string_view;
 
     /***********/
     /* Setters */
     /***********/
     template <std::invocable<Size2i> Callback>
     auto set_framebuffer_size_callback(Callback&& callback) -> void;
+    template<typename Self>
+    auto set_title(this Self&&, gsl_lite::czstring title) -> Self;
 
     /************/
     /* KeyBoard */

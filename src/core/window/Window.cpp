@@ -142,6 +142,11 @@ auto Window::framebuffer_size() const -> Size2i
     return result;
 }
 
+auto Window::title() const -> std::string_view
+{
+    return glfwGetWindowTitle(m_impl.get());
+}
+
 auto Window::set_cursor_position(const glm::dvec2& position) const -> void
 {
     glfwSetCursorPos(m_impl.get(), position.x, position.y);

@@ -16,7 +16,7 @@ try {
     App::create()
         .use(plugins::Window{
             .size  = { 1'280, 720 },
-            .title = "My window",
+            .title = "Virtual texturing demo",
     })
         .apply(plugins::Renderer{})
         .use(examples::base::DemoBasePlugin{ .movement_speed = 1.f })

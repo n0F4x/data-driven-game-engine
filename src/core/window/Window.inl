@@ -14,4 +14,11 @@ auto Window::set_framebuffer_size_callback(Callback&& callback) -> void
     );
 }
 
+template <typename Self>
+auto Window::set_title(this Self&& self, const gsl_lite::czstring title) -> Self
+{
+    glfwSetWindowTitle(self.m_impl.get(), title);
+    return std::forward<Self>(self);
+}
+
 }   // namespace core::window
