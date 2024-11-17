@@ -73,8 +73,7 @@ demo::DemoApp::DemoApp(
     core::renderer::base::SwapchainHolder& swapchain_holder
 )
     : m_swapchain_holder_ref{ swapchain_holder },
-      m_descriptor_set_layout{ demo::init::create_descriptor_set_layout(device.get()
-      ) },
+      m_descriptor_set_layout{ demo::init::create_descriptor_set_layout(device.get()) },
       m_pipeline_layout{ demo::init::create_pipeline_layout(
           device.get(),
           std::array{ m_descriptor_set_layout.get() }
@@ -316,14 +315,16 @@ auto demo::DemoApp::draw(
     );
 
     m_virtual_texture.draw(graphics_command_buffer);
-    update_virtual_texture();
+    update_virtual_texture(camera);
 
     draw_debug(graphics_command_buffer);
 }
 
-auto demo::DemoApp::update_virtual_texture() -> void
+auto demo::DemoApp::update_virtual_texture([[maybe_unused]] const core::gfx::Camera& camera) -> void
 {
-    std::vector<uint32_t> virtual_texture_blocks(m_virtual_texture.get().blocks().size());
+    // Update based on feedback from shader
+    std::vector<uint32_t>
+    virtual_texture_blocks(m_virtual_texture.get().blocks().size());
     core::renderer::base::copy(
         core::renderer::base::CopyRegion{
             .allocation = m_virtual_texture_blocks_buffer.allocation() },
@@ -345,6 +346,11 @@ auto demo::DemoApp::update_virtual_texture() -> void
         },
         virtual_texture_blocks.size() * sizeof(uint32_t)
     );
+
+    // Update based on distance from texture to camera
+    // m_virtual_texture.get().request_blocks_by_distance_from_camera(
+    //     glm::distance(camera.position(), m_virtual_texture.position())
+    // );
 }
 
 auto demo::DemoApp::draw_debug(const vk::CommandBuffer graphics_command_buffer) -> void

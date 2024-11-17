@@ -74,7 +74,7 @@ private:
     auto draw(vk::CommandBuffer graphics_command_buffer, const core::gfx::Camera& camera)
         -> void;
 
-    auto update_virtual_texture() -> void;
+    auto update_virtual_texture(const core::gfx::Camera& camera) -> void;
 
     auto draw_debug(vk::CommandBuffer graphics_command_buffer) -> void;
 };

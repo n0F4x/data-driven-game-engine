@@ -329,6 +329,24 @@ auto core::gfx::resources::VirtualImage::request_block(const uint32_t block_inde
     m_to_be_loaded_mask.at(block_index) = true;
 }
 
+auto core::gfx::resources::VirtualImage::request_blocks_by_distance_from_camera(const double distance)
+    -> void
+{
+    constexpr static double magic_distance{ 0.3 };
+    const double            delta{ std::max(distance / magic_distance, 1.0) };
+    const double            lod{ std::log2(delta) };
+
+    std::ranges::for_each(
+        // TODO: std::views::enumerate
+        std::views::zip(m_blocks, std::views::iota(0z))
+            | std::views::drop_while([lod](auto&& block_and_index) {
+                  return std::get<0>(block_and_index).m_subresource.mipLevel < lod;
+              })
+            | std::views::elements<1>,
+        [this](const size_t block_index) { m_to_be_loaded_mask.at(block_index) = true; }
+    );
+}
+
 core::gfx::resources::VirtualImage::VirtualImage(
     renderer::base::Image&&                  image,
     vk::UniqueImageView&&                    view,

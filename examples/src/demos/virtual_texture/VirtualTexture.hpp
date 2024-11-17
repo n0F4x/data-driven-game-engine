@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/ext/vector_float3.hpp>
+
 #include <core/gfx/resources/VirtualImage.hpp>
 #include <core/renderer/resources/Buffer.hpp>
 
@@ -11,6 +13,11 @@ public:
         const core::renderer::base::Device&    device,
         const core::renderer::base::Allocator& allocator
     );
+
+    [[nodiscard]]
+    auto position() const noexcept -> const glm::vec3&;
+    [[nodiscard]]
+    auto debug_position() const noexcept -> const glm::vec3&;
 
     [[nodiscard]]
     auto get() noexcept -> core::gfx::resources::VirtualImage&;
@@ -33,6 +40,8 @@ public:
 private:
     std::reference_wrapper<const core::renderer::base::Device>    m_device_ref;
     std::reference_wrapper<const core::renderer::base::Allocator> m_allocator_ref;
+    glm::vec3                                                     m_position;
+    glm::vec3                                                     m_debug_position;
     core::renderer::resources::Buffer                             m_vertex_buffer;
     core::renderer::resources::Buffer                             m_debug_vertex_buffer;
     core::renderer::resources::Buffer                             m_index_buffer;

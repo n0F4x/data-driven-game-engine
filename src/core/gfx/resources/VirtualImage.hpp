@@ -107,6 +107,7 @@ public:
     auto blocks() const -> std::span<const Block>;
 
     auto request_block(uint32_t block_index) -> void;
+    auto request_blocks_by_distance_from_camera(double distance) -> void;
 
 private:
     renderer::base::Image m_image;
