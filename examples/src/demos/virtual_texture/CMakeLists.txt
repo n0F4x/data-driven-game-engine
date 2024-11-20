@@ -1,7 +1,5 @@
 add_executable(virtual_texture)
-# TODO: use cxx_std_26
-target_compile_features(virtual_texture PRIVATE cxx_std_23)
-set_target_properties(virtual_texture PROPERTIES CXX_STANDARD 26)
+target_compile_features(virtual_texture PRIVATE cxx_std_26)
 target_compile_options(virtual_texture PRIVATE
         -Wall
         -Wextra

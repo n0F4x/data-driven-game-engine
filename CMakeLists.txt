@@ -1,8 +1,7 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.30)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 project(engine C CXX)
-
-set(CMAKE_CXX_STANDARD 26)
 
 
 add_library(${PROJECT_NAME})
@@ -10,8 +9,7 @@ add_library(${PROJECT_NAME})
 
 option(engine_debug "Turn on debug mode for library" OFF)
 
-# TODO: use cxx_std_26
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_26)
 
 # we only support Clang and/or GCC as of now
 target_compile_options(${PROJECT_NAME} PRIVATE

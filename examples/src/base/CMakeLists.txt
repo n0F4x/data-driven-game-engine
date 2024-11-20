@@ -1,7 +1,5 @@
 add_library(base)
-# TODO: use cxx_std_26
-target_compile_features(base PRIVATE cxx_std_23)
-set_target_properties(base PROPERTIES CXX_STANDARD 26)
+target_compile_features(base PRIVATE cxx_std_26)
 target_compile_options(base PRIVATE
         -Wall
         -Wextra
