@@ -1,5 +1,6 @@
 #include "virtual_image_helpers.hpp"
 
+#include <cstddef>
 #include <ranges>
 
 #include <vulkan/vulkan_format_traits.hpp>
@@ -249,16 +250,12 @@ auto core::gfx::resources::create_mip_tail_copy_regions(
     std::vector<vk::BufferImageCopy> regions;
     regions.reserve(source.mip_level_count() - sparse_requirements.imageMipTailFirstLod);
 
-    const vk::DeviceSize base_offset{
-        source.offset_of(sparse_requirements.imageMipTailFirstLod, 0, 0)
-    };
+    vk::DeviceSize buffer_offset{};
 
     for (const uint32_t i : std::views::iota(
              sparse_requirements.imageMipTailFirstLod, source.mip_level_count()
          ))
     {
-        const vk::DeviceSize buffer_offset{ source.offset_of(i, 0, 0) - base_offset };
-
         const vk::Extent3D image_extent{
             .width  = std::max(source.width() >> i, 1u),
             .height = std::max(source.height() >> i, 1u),
@@ -276,6 +273,13 @@ auto core::gfx::resources::create_mip_tail_copy_regions(
         };
 
         regions.push_back(region);
+
+        const vk::DeviceSize mip_size{
+            static_cast<const vk::DeviceSize>(vk::blockSize(source.format()))
+            * image_extent.width * image_extent.height * image_extent.depth
+        };
+
+        buffer_offset += mip_size;
     }
 
     return regions;

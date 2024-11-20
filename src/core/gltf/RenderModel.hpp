@@ -1,7 +1,10 @@
 #pragma once
 
 #include <future>
+#include <variant>
 
+#include <core/gfx/Camera.hpp>
+#include <core/gfx/resources/VirtualImage.hpp>
 #include <core/renderer/resources/Buffer.hpp>
 
 #include "core/cache/Cache.hpp"
@@ -12,6 +15,9 @@
 
 #include "Model.hpp"
 
+namespace core::gfx {
+class Camera;
+}   // namespace core::gfx
 struct ShaderMaterial;
 
 namespace core::gltf {
@@ -31,8 +37,16 @@ public:
         const PipelineCreateInfo&                   pipeline_create_info,
         vk::DescriptorPool                          descriptor_pool,
         const cache::Handle<const Model>&           model,
-        cache::Cache&                               cache
+        cache::Cache&                               cache,
+        bool                                        use_virtual_images
     ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>;
+
+    auto update(
+        const gfx::Camera&               camera,
+        const renderer::base::Allocator& allocator,
+        vk::Queue                        sparse_queue,
+        vk::CommandBuffer                transfer_command_buffer
+    ) -> void;
 
     auto draw(
         vk::CommandBuffer  graphics_command_buffer,
@@ -74,8 +88,11 @@ private:
     vk::UniqueDescriptorSet m_base_descriptor_set;
 
     // Image descriptor set
-    std::vector<gfx::resources::Image> m_images;
-    vk::UniqueDescriptorSet            m_image_descriptor_set;
+    using ImageVariantLoader =
+        std::variant<gfx::resources::Image::Loader, gfx::resources::VirtualImage::Loader>;
+    using ImageVariant = std::variant<gfx::resources::Image, gfx::resources::VirtualImage>;
+    std::vector<ImageVariant> m_images;
+    vk::UniqueDescriptorSet   m_image_descriptor_set;
 
     // Sampler descriptor set
     std::vector<vk::UniqueSampler> m_samplers;
@@ -83,6 +100,10 @@ private:
 
     // Pipelines
     std::vector<Mesh> m_meshes;
+
+    using UpdateVirtualImagesT = std::function<
+        void(std::span<ImageVariant>, const gfx::Camera&, uint32_t, std::optional<uint32_t>)>;
+    UpdateVirtualImagesT m_update_virtual_images;
 
 
     explicit RenderModel(
@@ -99,11 +120,12 @@ private:
         std::optional<renderer::resources::Buffer>&&                 material_buffer,
         renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& material_uniform,
         vk::UniqueDescriptorSet&&                                    base_descriptor_set,
-        std::vector<gfx::resources::Image>&&                         images,
+        std::vector<ImageVariant>&&                                  images,
         vk::UniqueDescriptorSet&&                                    image_descriptor_set,
         std::vector<vk::UniqueSampler>&&                             samplers,
         vk::UniqueDescriptorSet&& sampler_descriptor_set,
-        std::vector<Mesh>&&       meshes
+        std::vector<Mesh>&&       meshes,
+        UpdateVirtualImagesT&&    update_virtual_images
     );
 };
 

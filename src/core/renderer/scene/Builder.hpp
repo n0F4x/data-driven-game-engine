@@ -21,7 +21,8 @@ public:
     auto build(
         const base::Device&    device,
         const base::Allocator& allocator,
-        vk::RenderPass         render_pass
+        vk::RenderPass         render_pass,
+        bool                   use_virtual_images
     ) const -> std::packaged_task<Scene(vk::CommandBuffer)>;
 
 private:

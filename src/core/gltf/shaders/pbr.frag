@@ -104,21 +104,24 @@ vec4 virtualSampleTexture(uint textureIndex, uint UVIndex) {
     vec2 UV = UVIndex == 0 ? in_UV0 : in_UV1;
 
     // Get residency code for current texel
-    int residencyCode =
+    float lod =
     texture_.samplerIndex == MAX_UINT_VALUE ?
-    sparseTextureLodARB(sampler2D(images[texture_.imageIndex], defaultSampler), UV, 0, result) :
-    sparseTextureLodARB(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV, 0, result);
+    textureQueryLod(sampler2D(images[texture_.imageIndex], defaultSampler), UV).x :
+    textureQueryLod(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV).x;
 
-    // Fetch sparse until we get a valid texel
-    int lod = 1;
+    int residencyCode =
+    texture_.samplerIndex == MAX_UINT_VALUE
+    ? sparseTextureLodARB(sampler2D(images[texture_.imageIndex], defaultSampler), UV, lod, result)
+    : sparseTextureLodARB(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV, lod, result);
+
+    float minLod = floor(lod);
     while (!sparseTexelsResidentARB(residencyCode))
     {
+        minLod++;
         residencyCode =
-        texture_.samplerIndex == MAX_UINT_VALUE ?
-        sparseTextureLodARB(sampler2D(images[texture_.imageIndex], defaultSampler), UV, lod, result) :
-        sparseTextureLodARB(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV, lod, result);
-
-        lod++;
+        texture_.samplerIndex == MAX_UINT_VALUE
+        ? sparseTextureLodARB(sampler2D(images[texture_.imageIndex], defaultSampler), UV, lod, result)
+        : sparseTextureLodARB(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV, lod, result);
     }
 
     return result;
@@ -127,7 +130,7 @@ vec4 virtualSampleTexture(uint textureIndex, uint UVIndex) {
 vec4 getBaseColor(Material material) {
     vec4 baseColor = material.pbrMetallicRoughnessBaseColorFactor;
     if (material.pbrMetallicRoughnessBaseColorTextureIndex != MAX_UINT_VALUE) {
-        vec4 colorSample = sampleTexture(material.pbrMetallicRoughnessBaseColorTextureIndex, material.pbrMetallicRoughnessBaseColorTextureTexCoord);
+        vec4 colorSample = virtualSampleTexture(material.pbrMetallicRoughnessBaseColorTextureIndex, material.pbrMetallicRoughnessBaseColorTextureTexCoord);
         baseColor *= sRGBtoLinear(colorSample);
     }
 
@@ -158,7 +161,7 @@ vec3 getNormal(Material material) {
     vec3 B = -normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
 
-    vec4 normalSample = sampleTexture(material.normalTextureIndex, material.normalTextureTexCoord);
+    vec4 normalSample = virtualSampleTexture(material.normalTextureIndex, material.normalTextureTexCoord);
     vec3 tangentNormal = normalSample.xyz * 2.0 - 1.0;
 
     return normalize(TBN * tangentNormal);
@@ -216,7 +219,7 @@ void main() {
     float roughness = material.pbrMetallicRoughnessRoughnessFactor;
     float metallic = material.pbrMetallicRoughnessMetallicFactor;
     if (material.pbrMetallicRoughnessMetallicRoughnessTextureIndex != MAX_UINT_VALUE) {
-        vec4 metallicRoughnessSample = sampleTexture(material.pbrMetallicRoughnessMetallicRoughnessTextureIndex, material.pbrMetallicRoughnessMetallicRoughnessTextureTexCoord);
+        vec4 metallicRoughnessSample = virtualSampleTexture(material.pbrMetallicRoughnessMetallicRoughnessTextureIndex, material.pbrMetallicRoughnessMetallicRoughnessTextureTexCoord);
         roughness *= metallicRoughnessSample.g;
         metallic *= metallicRoughnessSample.b;
     }
@@ -277,13 +280,13 @@ void main() {
     // Apply optional PBR terms for additional (optional) shading
     if (material.occlusionTextureIndex != MAX_UINT_VALUE) {
         float occlusionStrength = material.occlusionTextureScale;
-        vec4 occlusionSample = sampleTexture(material.occlusionTextureIndex, material.occlusionTextureTexCoord);
+        vec4 occlusionSample = virtualSampleTexture(material.occlusionTextureIndex, material.occlusionTextureTexCoord);
         color = mix(color, color * occlusionSample.r, occlusionStrength);
     }
 
     vec3 emissive = material.emissiveFactor;
     if (material.emissiveTextureIndex != MAX_UINT_VALUE) {
-        vec4 emissiveSample = sampleTexture(material.emissiveTextureIndex, material.emissiveTextureTexCoord);
+        vec4 emissiveSample = virtualSampleTexture(material.emissiveTextureIndex, material.emissiveTextureTexCoord);
         emissive *= sRGBtoLinear(emissiveSample).rgb;
     };
     color += emissive;

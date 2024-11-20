@@ -320,11 +320,11 @@ auto demo::DemoApp::draw(
     draw_debug(graphics_command_buffer);
 }
 
-auto demo::DemoApp::update_virtual_texture([[maybe_unused]] const core::gfx::Camera& camera) -> void
+auto demo::DemoApp::update_virtual_texture([[maybe_unused]] const core::gfx::Camera& camera
+) -> void
 {
     // Update based on feedback from shader
-    std::vector<uint32_t>
-    virtual_texture_blocks(m_virtual_texture.get().blocks().size());
+    std::vector<uint32_t> virtual_texture_blocks(m_virtual_texture.get().blocks().size());
     core::renderer::base::copy(
         core::renderer::base::CopyRegion{
             .allocation = m_virtual_texture_blocks_buffer.allocation() },
@@ -347,9 +347,9 @@ auto demo::DemoApp::update_virtual_texture([[maybe_unused]] const core::gfx::Cam
         virtual_texture_blocks.size() * sizeof(uint32_t)
     );
 
-    // Update based on distance from texture to camera
+    // // Update based on distance from texture to camera
     // m_virtual_texture.get().request_blocks_by_distance_from_camera(
-    //     glm::distance(camera.position(), m_virtual_texture.position())
+    //     glm::distance(camera.position(), m_virtual_texture.position()), 10
     // );
 }
 

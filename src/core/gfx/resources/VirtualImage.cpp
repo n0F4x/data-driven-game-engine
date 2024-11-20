@@ -288,7 +288,6 @@ auto core::gfx::resources::VirtualImage::update(
         }
 
         m_to_be_loaded_mask.at(index) = false;
-        // m_to_be_unloaded_mask.at(index) = false;
     }
 }
 
@@ -329,12 +328,16 @@ auto core::gfx::resources::VirtualImage::request_block(const uint32_t block_inde
     m_to_be_loaded_mask.at(block_index) = true;
 }
 
-auto core::gfx::resources::VirtualImage::request_blocks_by_distance_from_camera(const double distance)
-    -> void
+auto core::gfx::resources::VirtualImage::request_blocks_by_distance_from_camera(
+    const double distance,
+    const double map_scale
+) -> void
 {
-    constexpr static double magic_distance{ 0.3 };
-    const double            delta{ std::max(distance / magic_distance, 1.0) };
-    const double            lod{ std::log2(delta) };
+    const double magic_distance{ 0.3 * map_scale };
+    const double delta{ std::max(distance / magic_distance, 1.0) };
+    const double lod{ std::log2(delta) };
+
+    uint32_t request_block_count{};
 
     std::ranges::for_each(
         // TODO: std::views::enumerate
@@ -343,7 +346,22 @@ auto core::gfx::resources::VirtualImage::request_blocks_by_distance_from_camera(
                   return std::get<0>(block_and_index).m_subresource.mipLevel < lod;
               })
             | std::views::elements<1>,
-        [this](const size_t block_index) { m_to_be_loaded_mask.at(block_index) = true; }
+        [this, &request_block_count](const size_t block_index) {
+            m_to_be_loaded_mask.at(block_index) = true;
+            request_block_count++;
+        }
+    );
+
+    // if (request_block_count != 0) {
+    //     SPDLOG_DEBUG("Request {} blocks by distance", request_block_count);
+    // }
+}
+
+auto core::gfx::resources::VirtualImage::request_all_blocks() -> void
+{
+    std::ranges::for_each(
+        std::views::iota(0u, m_to_be_loaded_mask.size()),
+        [this](const size_t index) { m_to_be_loaded_mask.at(index) = true; }
     );
 }
 
@@ -363,23 +381,19 @@ core::gfx::resources::VirtualImage::VirtualImage(
       m_blocks{ std::move(blocks) },
       m_mip_tail_region{ std::move(mip_tail_region) },
       m_to_be_loaded_mask(m_blocks.size()),
-      m_to_be_unloaded_mask(m_blocks.size()),
+      m_to_be_unloaded_mask(m_blocks.size(), true),
       m_debug_image{ std::move(debug_image) }
 {
-    // TODO: load blocks on demand
-    m_to_be_loaded_mask.flip();
-    m_to_be_unloaded_mask.flip();
-
-    SPDLOG_DEBUG(
-        "Image base extent: width = {}, height = {}",
-        m_image.extent().width,
-        m_image.extent().height
-    );
-    SPDLOG_DEBUG(
-        "Image granularity: width = {}, height = {}",
-        m_sparse_requirements.formatProperties.imageGranularity.width,
-        m_sparse_requirements.formatProperties.imageGranularity.height
-    );
+    // SPDLOG_DEBUG(
+    //     "Image base extent: width = {}, height = {}",
+    //     m_image.extent().width,
+    //     m_image.extent().height
+    // );
+    // SPDLOG_DEBUG(
+    //     "Image granularity: width = {}, height = {}",
+    //     m_sparse_requirements.formatProperties.imageGranularity.width,
+    //     m_sparse_requirements.formatProperties.imageGranularity.height
+    // );
     // level 0 block count start: 0        count: 1247
     // level 0 block count start: 1247     count:  330
     //                                     sum:   1577

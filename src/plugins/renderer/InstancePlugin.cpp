@@ -109,17 +109,17 @@ static auto set_debug_messenger(vkb::InstanceBuilder& builder) -> void
     );
 }
 
-static auto required_debug_settings_are_available(
-    [[maybe_unused]] const vkb::SystemInfo& system_info
-) -> bool
+[[maybe_unused]]
+static auto required_debug_settings_are_available(const vkb::SystemInfo& system_info)
+    -> bool
 {
     return system_info.validation_layers_available && system_info.debug_utils_available;
 }
 
-static auto enable_debug_settings(
-    const vkb::SystemInfo&,
-    [[maybe_unused]] vkb::InstanceBuilder& instance_builder
-) -> void
+[[maybe_unused]]
+static auto
+    enable_debug_settings(const vkb::SystemInfo&, vkb::InstanceBuilder& instance_builder)
+        -> void
 {
     instance_builder.enable_validation_layers();
     ::set_debug_messenger(instance_builder);
@@ -130,10 +130,12 @@ namespace plugins::renderer {
 InstancePlugin::InstancePlugin()
 {
 #ifdef ENGINE_VULKAN_DEBUG
-    emplace_dependency(Dependency{
-        .required_settings_are_available = ::required_debug_settings_are_available,
-        .enable_settings                 = ::enable_debug_settings,
-    });
+    emplace_dependency(
+        Dependency{
+            .required_settings_are_available = ::required_debug_settings_are_available,
+            .enable_settings                 = ::enable_debug_settings,
+        }
+    );
 #endif
 }
 

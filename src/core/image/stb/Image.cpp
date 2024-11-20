@@ -197,11 +197,6 @@ auto core::image::stb::Image::load_from(const std::span<const std::byte> data) -
                   mip_level_count };
 }
 
-auto core::image::stb::Image::clone() const -> std::unique_ptr<image::Image>
-{
-    return std::make_unique<Image>(*this);
-}
-
 auto core::image::stb::Image::data() const noexcept -> std::span<const std::byte>
 {
     return m_data;

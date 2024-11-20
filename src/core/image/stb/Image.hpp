@@ -16,9 +16,6 @@ public:
     static auto load_from(std::span<const std::byte> data) -> Image;
 
     [[nodiscard]]
-    auto clone() const -> std::unique_ptr<image::Image> final;
-
-    [[nodiscard]]
     auto data() const noexcept -> std::span<const std::byte> final;
 
     [[nodiscard]]

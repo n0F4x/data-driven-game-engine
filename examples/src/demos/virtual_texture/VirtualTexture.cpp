@@ -80,17 +80,28 @@ static auto
 static auto create_vertex_buffer(
     const core::renderer::base::Device&    device,
     const core::renderer::base::Allocator& allocator,
-    const glm::vec3&                       center
+    const glm::vec3&                       center,
+    const float                            scale = 1.f
 ) -> core::renderer::resources::Buffer
 {
+    const float scale_divided_by_2{ scale / 2 };
+
     const std::array vertices{
-        demo::Vertex{ .position = { center.x - 0.5f, center.y + 0.5f, center.z },
+        demo::Vertex{ .position = { center.x - scale_divided_by_2,
+ center.y + scale_divided_by_2,
+ center.z },
                      .uv       = { 1.0f, 0.0f } },
-        demo::Vertex{ .position = { center.x + 0.5f, center.y + 0.5f, center.z },
+        demo::Vertex{ .position = { center.x + scale_divided_by_2,
+ center.y + scale_divided_by_2,
+ center.z },
                      .uv       = { 0.0f, 0.0f } },
-        demo::Vertex{ .position = { center.x + 0.5f, center.y - 0.5f, center.z },
+        demo::Vertex{ .position = { center.x + scale_divided_by_2,
+ center.y - scale_divided_by_2,
+ center.z },
                      .uv       = { 0.0f, 1.0f } },
-        demo::Vertex{ .position = { center.x - 0.5f, center.y - 0.5f, center.z },
+        demo::Vertex{ .position = { center.x - scale_divided_by_2,
+ center.y - scale_divided_by_2,
+ center.z },
                      .uv       = { 1.0f, 1.0f } }
     };
 
@@ -157,7 +168,7 @@ demo::VirtualTexture::VirtualTexture(
       m_allocator_ref{ allocator },
       m_position{ -0.5, 0.f, -1.f },
       m_debug_position{ 0.5, 0.f, -1.f },
-      m_vertex_buffer{ ::create_vertex_buffer(device, allocator, m_position) },
+      m_vertex_buffer{ ::create_vertex_buffer(device, allocator, m_position, 1.f) },
       m_debug_vertex_buffer{ ::create_vertex_buffer(device, allocator, m_debug_position) },
       m_index_buffer{ ::create_index_buffer(device, allocator) },
       m_virtual_image{ init::create_virtual_image(

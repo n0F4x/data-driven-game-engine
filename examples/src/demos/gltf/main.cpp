@@ -45,7 +45,7 @@ try {
         / "Sponza/glTF/Sponza.gltf"
         // / "StainedGlassLamp/glTF-KTX-BasisU/StainedGlassLamp.gltf",
     };
-    constexpr static float movement_speed{ 5 };
+    constexpr static float movement_speed{ 10 };
 
     App::create()
         .use(::cache_plugin)
@@ -55,7 +55,10 @@ try {
     })
         .apply(plugins::Renderer{}.require(::require_vulkan_version(1, 1)))
         .use(examples::base::DemoBasePlugin{ .movement_speed = movement_speed })
-        .use(demo::DemoPlugin{ .model_filepath = model_filepath })
+        .use(demo::DemoPlugin{
+            .model_filepath     = model_filepath,
+            .use_virtual_images = false,
+        })
         .run(demo::run);
 
 } catch (const std::exception& error) {

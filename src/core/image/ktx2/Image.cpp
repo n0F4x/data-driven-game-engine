@@ -66,22 +66,6 @@ auto core::image::ktx2::Image::load_from(const std::span<const std::byte> data) 
     return Image{ gsl::make_not_null(texture) };
 }
 
-core::image::ktx2::Image::Image(const Image&) : Image{ create_copy(*this) } {}
-
-auto core::image::ktx2::Image::operator=(const Image& other) -> Image&
-{
-    if (this == &other) {
-        return *this;
-    }
-
-    return Image::operator=(create_copy(*this));
-}
-
-auto core::image::ktx2::Image::clone() const -> std::unique_ptr<image::Image>
-{
-    return std::make_unique<Image>(*this);
-}
-
 auto core::image::ktx2::Image::data() const noexcept -> std::span<const std::byte>
 {
     return std::as_bytes(std::span{ m_impl->pData, m_impl->dataSize });

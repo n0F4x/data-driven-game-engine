@@ -15,7 +15,45 @@ auto demo::DemoPlugin::operator()(
     core::renderer::base::SwapchainHolder& swapchain_holder
 ) const -> DemoApp
 {
-    return DemoApp{ cache, device, allocator, swapchain_holder, model_filepath };
+    return DemoApp{ cache,          device,
+                    allocator,      swapchain_holder,
+                    model_filepath, use_virtual_images };
+}
+
+template <std::invocable<vk::CommandBuffer> Executor>
+static auto
+    execute_command(const core::renderer::base::Device& device, Executor&& executor)
+        -> void
+{
+    const vk::UniqueCommandPool command_pool{ examples::base::init::create_command_pool(
+        device.get(), device.info().get_queue_index(vkb::QueueType::graphics).value()
+    ) };
+    const vk::CommandBufferAllocateInfo command_buffer_allocate_info{
+        .commandPool        = command_pool.get(),
+        .level              = vk::CommandBufferLevel::ePrimary,
+        .commandBufferCount = 1
+    };
+    const vk::CommandBuffer command_buffer{
+        device->allocateCommandBuffers(command_buffer_allocate_info).front()
+    };
+    constexpr static vk::CommandBufferBeginInfo begin_info{};
+    command_buffer.begin(begin_info);
+
+
+    std::invoke(std::forward<Executor>(executor), command_buffer);
+
+
+    command_buffer.end();
+    const vk::SubmitInfo submit_info{
+        .commandBufferCount = 1,
+        .pCommandBuffers    = &command_buffer,
+    };
+    vk::UniqueFence fence{ device->createFenceUnique({}) };
+    static_cast<vk::Queue>(device.info().get_queue(vkb::QueueType::graphics).value())
+        .submit(submit_info, fence.get());
+    std::ignore =
+        device->waitForFences(std::array{ fence.get() }, vk::True, 100'000'000'000);
+    device->resetCommandPool(command_pool.get());
 }
 
 [[nodiscard]]
@@ -24,45 +62,18 @@ static auto load_scene(
     const core::renderer::base::Allocator& allocator,
     const vk::RenderPass                   render_pass,
     core::gltf::Model&&                    model,
-    core::cache::Cache&                    cache
+    core::cache::Cache&                    cache,
+    const bool                             use_virtual_images
 ) -> core::renderer::Scene
 {
-    vk::UniqueCommandPool transfer_command_pool{ examples::base::init::create_command_pool(
-        device.get(), device.info().get_queue_index(vkb::QueueType::graphics).value()
-    ) };
-    const vk::CommandBufferAllocateInfo command_buffer_allocate_info{
-        .commandPool        = transfer_command_pool.get(),
-        .level              = vk::CommandBufferLevel::ePrimary,
-        .commandBufferCount = 1
-    };
-    auto command_buffer{
-        device->allocateCommandBuffers(command_buffer_allocate_info).front()
-    };
-
     auto packaged_scene{
         core::renderer::Scene::create()
             .add_model(core::cache::make_handle<const core::gltf::Model>(std::move(model)))
             .set_cache(cache)
-            .build(device, allocator, render_pass)
+            .build(device, allocator, render_pass, use_virtual_images)
     };
 
-    constexpr vk::CommandBufferBeginInfo begin_info{};
-    command_buffer.begin(begin_info);
-    std::invoke(packaged_scene, command_buffer);
-    command_buffer.end();
-
-    const vk::SubmitInfo submit_info{
-        .commandBufferCount = 1,
-        .pCommandBuffers    = &command_buffer,
-    };
-    vk::UniqueFence fence{ device->createFenceUnique({}) };
-
-    static_cast<vk::Queue>(device.info().get_queue(vkb::QueueType::graphics).value())
-        .submit(submit_info, fence.get());
-
-    std::ignore =
-        device->waitForFences(std::array{ fence.get() }, vk::True, 100'000'000'000);
-    device->resetCommandPool(transfer_command_pool.get());
+    ::execute_command(device, packaged_scene);
 
     return packaged_scene.get_future().get();
 }
@@ -72,12 +83,14 @@ demo::DemoApp::DemoApp(
     const core::renderer::base::Device&    device,
     const core::renderer::base::Allocator& allocator,
     core::renderer::base::SwapchainHolder& swapchain_holder,
-    const std::filesystem::path&           model_filepath
+    const std::filesystem::path&           model_filepath,
+    const bool                             use_virtual_images
 )
-    : m_render_pass{ init::create_render_pass(
-          swapchain_holder.get().value().format(),
-          device
-      ) },
+    : m_allocator{ allocator },
+      m_device{ device },
+      m_render_pass{
+          init::create_render_pass(swapchain_holder.get().value().format(), device)
+      },
       m_depth_image{ init::create_depth_image(
           device.physical_device(),
           allocator,
@@ -96,7 +109,8 @@ demo::DemoApp::DemoApp(
           allocator,
           m_render_pass.get(),
           core::gltf::Loader::load_from_file(model_filepath).value(),
-          cache
+          cache,
+          use_virtual_images
       ) }
 {
     swapchain_holder.on_swapchain_recreated(
@@ -148,6 +162,16 @@ auto demo::DemoApp::record_command_buffer(
         render_pass_begin_info, vk::SubpassContents::eInline
     );
 
+    ::execute_command(
+        m_device,
+        std::bind_front(
+            &core::renderer::Scene::update,
+            std::ref(m_scene),
+            std::cref(camera),
+            m_allocator,
+            m_device.get().info().get_queue(vkb::QueueType::graphics).value()
+        )
+    );
     m_scene.draw(graphics_command_buffer, camera);
 
     graphics_command_buffer.endRenderPass();

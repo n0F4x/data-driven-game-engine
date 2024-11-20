@@ -594,7 +594,8 @@ auto core::gltf::RenderModel::create_loader(
     const PipelineCreateInfo&                         pipeline_create_info,
     const vk::DescriptorPool                          descriptor_pool,
     const cache::Handle<const Model>&                 model,
-    cache::Cache&                                     cache
+    cache::Cache&                                     cache,
+    const bool                                        use_virtual_images
 ) -> std::packaged_task<RenderModel(vk::CommandBuffer)>
 {
     // TODO: handle model buffers with no elements
@@ -722,11 +723,19 @@ auto core::gltf::RenderModel::create_loader(
         material_uniform
     ) };
 
-    std::vector<gfx::resources::Image::Loader> image_loaders{
+    std::vector<ImageVariantLoader> image_loaders{
         model->images()
-        | std::views::transform([&device, &allocator](const Image& source) {
-              return gfx::resources::Image::Loader{ device.get(), allocator, *source };
-          })
+        | std::views::transform(
+            [&device, &allocator, use_virtual_images](const Image& source
+            ) -> ImageVariantLoader {
+                if (use_virtual_images) {
+                    return gfx::resources::VirtualImage::Loader{
+                        device.physical_device(), device.get(), allocator, *source
+                    };
+                }
+                return gfx::resources::Image::Loader{ device.get(), allocator, *source };
+            }
+        )
         | std::ranges::to<std::vector>()
     };
 
@@ -734,7 +743,12 @@ auto core::gltf::RenderModel::create_loader(
         device.get(),
         descriptor_set_layouts[1],
         descriptor_pool,
-        image_loaders | std::views::transform(&gfx::resources::Image::Loader::view)
+        image_loaders
+            | std::views::transform([](const ImageVariantLoader& variant_loader) {
+                  return std::visit(
+                      [](const auto& loader) { return loader.view(); }, variant_loader
+                  );
+              })
     ) };
 
     std::vector<vk::UniqueSampler> samplers{
@@ -775,9 +789,110 @@ auto core::gltf::RenderModel::create_loader(
         | std::ranges::to<std::vector>()
     };
 
+    auto update_virtual_images_callback{ [transforms, materials, default_material](
+                                             [[maybe_unused]] const std::span<ImageVariant>
+                                                                                 images,
+                                             [[maybe_unused]] const gfx::Camera& camera,
+                                             const uint32_t          transform_index,
+                                             std::optional<uint32_t> material_index
+                                         ) mutable {
+        const glm::mat4& transform{ transforms.at(transform_index) };
+        const glm::vec3 position{ glm::vec4{ 1.f } * transform };
+
+        std::ranges::for_each(
+            std::views::single(material_index
+                                   .transform([&materials](const uint32_t material_index) {
+                                       return std::cref(materials.at(material_index));
+                                   })
+                                   .value_or(std::cref(default_material))),
+            [&images, &camera, &position](const ShaderMaterial& material) {
+                if (material.pbrMetallicRoughness.baseColorTexture.index
+                    != std::numeric_limits<uint32_t>::max())
+                {
+                    if (ImageVariant
+                            & image_variant{ images.at(
+                                material.pbrMetallicRoughness.baseColorTexture.index
+                            ) };
+                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant
+                        ))
+                    {
+                        std::get<gfx::resources::VirtualImage>(image_variant)
+                            .request_blocks_by_distance_from_camera(
+                                glm::distance(camera.position(), position), 10
+                            );
+                    }
+                }
+
+                if (material.pbrMetallicRoughness.metallicRoughnessTexture.index
+                    != std::numeric_limits<uint32_t>::max())
+                {
+                    if (ImageVariant
+                            & image_variant{ images.at(
+                                material.pbrMetallicRoughness.metallicRoughnessTexture.index
+                            ) };
+                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant
+                        ))
+                    {
+                        std::get<gfx::resources::VirtualImage>(image_variant)
+                            // .request_all_blocks();
+                            .request_blocks_by_distance_from_camera(
+                                glm::distance(camera.position(), position), 10
+                            );
+                    }
+                }
+
+                if (material.normalTexture.index != std::numeric_limits<uint32_t>::max())
+                {
+                    if (ImageVariant
+                            & image_variant{ images.at(material.normalTexture.index) };
+                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant
+                        ))
+                    {
+                        std::get<gfx::resources::VirtualImage>(image_variant)
+                            // .request_all_blocks();
+                            .request_blocks_by_distance_from_camera(
+                                glm::distance(camera.position(), position), 10
+                            );
+                    }
+                }
+
+                if (material.occlusionTexture.index
+                    != std::numeric_limits<uint32_t>::max()) {
+                    if (ImageVariant
+                            & image_variant{ images.at(material.occlusionTexture.index) };
+                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant
+                        ))
+                    {
+                        std::get<gfx::resources::VirtualImage>(image_variant)
+                            // .request_all_blocks();
+                            .request_blocks_by_distance_from_camera(
+                                glm::distance(camera.position(), position), 10
+                            );
+                    }
+                }
+
+                if (material.emissiveTexture.index
+                    != std::numeric_limits<uint32_t>::max()) {
+                    if (ImageVariant
+                            & image_variant{ images.at(material.emissiveTexture.index) };
+                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant
+                        ))
+                    {
+                        std::get<gfx::resources::VirtualImage>(image_variant)
+                            // .request_all_blocks();
+                            .request_blocks_by_distance_from_camera(
+                                glm::distance(camera.position(), position), 10
+                            );
+                    }
+                }
+            }
+        );
+    } };
+
     return std::packaged_task{
         [physical_device = device.physical_device(),
          device          = device.get(),
+         sparse_queue    = device.info().get_queue(vkb::QueueType::graphics).value(),
          index_buffer_size =
              static_cast<uint32_t>(std::span{ model->indices() }.size_bytes()),
          index_staging_buffer = std::move(index_staging_buffer),
@@ -798,16 +913,17 @@ auto core::gltf::RenderModel::create_loader(
          texture_uniform          = std::move(texture_uniform),
          default_material_uniform = std::move(default_material_uniform),
          material_buffer_size = static_cast<uint32_t>(std::span{ materials }.size_bytes()),
-         material_staging_buffer = std::move(material_staging_buffer),
-         material_buffer         = std::move(material_buffer),
-         material_uniform        = std::move(material_uniform),
-         base_descriptor_set     = std::move(base_descriptor_set),
-         image_loaders           = std::move(image_loaders),
-         image_descriptor_set    = std::move(image_descriptor_set),
-         samplers                = std::move(samplers),
-         sampler_descriptor_set  = std::move(sampler_descriptor_set),
-         meshes = std::move(meshes)](const vk::CommandBuffer transfer_command_buffer
-        ) mutable -> RenderModel {
+         material_staging_buffer        = std::move(material_staging_buffer),
+         material_buffer                = std::move(material_buffer),
+         material_uniform               = std::move(material_uniform),
+         base_descriptor_set            = std::move(base_descriptor_set),
+         image_loaders                  = std::move(image_loaders),
+         image_descriptor_set           = std::move(image_descriptor_set),
+         samplers                       = std::move(samplers),
+         sampler_descriptor_set         = std::move(sampler_descriptor_set),
+         meshes                         = std::move(meshes),
+         update_virtual_images_callback = std::move(update_virtual_images_callback
+         )](const vk::CommandBuffer transfer_command_buffer) mutable -> RenderModel {
             if (index_buffer_size > 0) {
                 transfer_command_buffer.copyBuffer(
                     index_staging_buffer->get(),
@@ -848,19 +964,39 @@ auto core::gltf::RenderModel::create_loader(
                 );
             }
 
-            std::vector<gfx::resources::Image> images{
+            std::vector<ImageVariant> images{
                 std::views::transform(
                     std::views::as_rvalue(image_loaders),
-                    std::bind_back(
-                        &gfx::resources::Image::Loader::operator(),
-                        physical_device,
-                        transfer_command_buffer,
-                        renderer::base::Image::State{
-                            vk::PipelineStageFlagBits::eFragmentShader,
-                            vk::AccessFlagBits::eShaderRead,
-                            vk::ImageLayout::eShaderReadOnlyOptimal,
+                    [physical_device, sparse_queue, transfer_command_buffer](
+                        ImageVariantLoader&& image_variant_loader
+                    ) -> ImageVariant {
+                        if (std::holds_alternative<gfx::resources::VirtualImage::Loader>(
+                                image_variant_loader
+                            ))
+                        {
+                            return std::get<gfx::resources::VirtualImage::
+                                                Loader>(std::move(image_variant_loader))(
+                                physical_device,
+                                sparse_queue,
+                                transfer_command_buffer,
+                                renderer::base::Image::State{
+                                    vk::PipelineStageFlagBits::eFragmentShader,
+                                    vk::AccessFlagBits::eShaderRead,
+                                    vk::ImageLayout::eShaderReadOnlyOptimal,
+                                }
+                            );
                         }
-                    )
+                        return std::get<
+                            gfx::resources::Image::Loader>(std::move(image_variant_loader))(
+                            physical_device,
+                            transfer_command_buffer,
+                            renderer::base::Image::State{
+                                vk::PipelineStageFlagBits::eFragmentShader,
+                                vk::AccessFlagBits::eShaderRead,
+                                vk::ImageLayout::eShaderReadOnlyOptimal,
+                            }
+                        );
+                    }
                 )
                 | std::ranges::to<std::vector>()
             };
@@ -882,9 +1018,40 @@ auto core::gltf::RenderModel::create_loader(
                                 std::move(image_descriptor_set),
                                 std::move(samplers),
                                 std::move(sampler_descriptor_set),
-                                std::move(meshes) };
+                                std::move(meshes),
+                                std::move(update_virtual_images_callback) };
         }
     };
+}
+
+auto core::gltf::RenderModel::update(
+    const gfx::Camera&               camera,
+    const renderer::base::Allocator& allocator,
+    const vk::Queue                  sparse_queue,
+    const vk::CommandBuffer          transfer_command_buffer
+) -> void
+{
+    if (m_update_virtual_images) {
+        for (const auto& [mesh, mesh_index] :
+             std::views::zip(m_meshes, std::views::iota(0u, m_meshes.size())))
+        {
+            for (const auto& [pipeline, material_index, first_index_index, index_count] :
+                 mesh.primitives)
+            {
+                m_update_virtual_images(m_images, camera, mesh_index, material_index);
+            }
+        }
+    }
+
+    std::ranges::for_each(
+        m_images,
+        [&allocator, sparse_queue, transfer_command_buffer](ImageVariant& image_variant) {
+            if (std::holds_alternative<gfx::resources::VirtualImage>(image_variant)) {
+                std::get<gfx::resources::VirtualImage>(image_variant)
+                    .update(allocator, sparse_queue, transfer_command_buffer);
+            }
+        }
+    );
 }
 
 auto core::gltf::RenderModel::draw(
@@ -957,11 +1124,12 @@ core::gltf::RenderModel::RenderModel(
     std::optional<renderer::resources::Buffer>&&                 material_buffer,
     renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&& material_uniform,
     vk::UniqueDescriptorSet&&                                    base_descriptor_set,
-    std::vector<gfx::resources::Image>&&                         images,
+    std::vector<ImageVariant>&&                                  images,
     vk::UniqueDescriptorSet&&                                    image_descriptor_set,
     std::vector<vk::UniqueSampler>&&                             samplers,
     vk::UniqueDescriptorSet&&                                    sampler_descriptor_set,
-    std::vector<Mesh>&&                                          meshes
+    std::vector<Mesh>&&                                          meshes,
+    UpdateVirtualImagesT&&                                       update_virtual_images
 )
     : m_index_buffer{ std::move(index_buffer) },
       m_vertex_buffer{ std::move(vertex_buffer) },
@@ -979,7 +1147,8 @@ core::gltf::RenderModel::RenderModel(
       m_image_descriptor_set{ std::move(image_descriptor_set) },
       m_samplers{ std::move(samplers) },
       m_sampler_descriptor_set{ std::move(sampler_descriptor_set) },
-      m_meshes{ std::move(meshes) }
+      m_meshes{ std::move(meshes) },
+      m_update_virtual_images{ std::move(update_virtual_images) }
 {
     m_vertex_uniform.set(
         m_vertex_buffer

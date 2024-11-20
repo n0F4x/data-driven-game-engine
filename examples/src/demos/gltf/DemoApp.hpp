@@ -12,6 +12,7 @@ class DemoApp;
 
 struct DemoPlugin {
     std::reference_wrapper<const std::filesystem::path> model_filepath;
+    bool                                                use_virtual_images{};
 
     [[nodiscard]]
     auto operator()(
@@ -29,7 +30,8 @@ public:
         const core::renderer::base::Device&    device,
         const core::renderer::base::Allocator& allocator,
         core::renderer::base::SwapchainHolder& swapchain_holder,
-        const std::filesystem::path&           model_filepath
+        const std::filesystem::path&           model_filepath,
+        bool                                   use_virtual_images
     );
 
     auto record_command_buffer(
@@ -40,11 +42,13 @@ public:
     ) -> void;
 
 private:
-    vk::UniqueRenderPass               m_render_pass;
-    core::renderer::resources::Image   m_depth_image;
-    vk::UniqueImageView                m_depth_image_view;
-    std::vector<vk::UniqueFramebuffer> m_framebuffers;
-    core::renderer::Scene              m_scene;
+    std::reference_wrapper<const core::renderer::base::Allocator> m_allocator;
+    std::reference_wrapper<const core::renderer::base::Device>    m_device;
+    vk::UniqueRenderPass                                          m_render_pass;
+    core::renderer::resources::Image                              m_depth_image;
+    vk::UniqueImageView                                           m_depth_image_view;
+    std::vector<vk::UniqueFramebuffer>                            m_framebuffers;
+    core::renderer::Scene                                         m_scene;
 };
 
 }   // namespace demo

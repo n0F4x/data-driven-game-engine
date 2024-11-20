@@ -15,6 +15,13 @@ public:
     [[nodiscard]]
     static auto create() noexcept -> Builder;
 
+    auto update(
+        const gfx::Camera&               camera,
+        const renderer::base::Allocator& allocator,
+        vk::Queue                        sparse_queue,
+        vk::CommandBuffer                transfer_command_buffer
+    ) -> void;
+
     auto draw(
         vk::CommandBuffer       graphics_command_buffer,
         const gfx::Camera& camera

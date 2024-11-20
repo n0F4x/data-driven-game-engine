@@ -192,7 +192,8 @@ auto Scene::Builder::add_model(cache::Handle<const gltf::Model>&& model) -> Buil
 auto Scene::Builder::build(
     const base::Device&    device,
     const base::Allocator& allocator,
-    const vk::RenderPass   render_pass
+    const vk::RenderPass   render_pass,
+    const bool             use_virtual_images
 ) const -> std::packaged_task<Scene(vk::CommandBuffer)>
 {
     cache::Cache temp_cache{};
@@ -251,7 +252,8 @@ auto Scene::Builder::build(
                   },
                   descriptor_pool.get(),
                   model,
-                  m_cache.value_or(temp_cache)
+                  m_cache.value_or(temp_cache),
+                  use_virtual_images
               );
           })
         | std::ranges::to<std::vector>()
