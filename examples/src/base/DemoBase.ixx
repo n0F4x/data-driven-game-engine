@@ -1,13 +1,20 @@
-#pragma once
+module;
 
-#include "Controller.hpp"
-#include "Renderer.hpp"
+#include <core/gfx/Camera.hpp>
+#include <core/renderer/base/device/Device.hpp>
+#include <core/renderer/base/swapchain/SwapchainHolder.hpp>
+#include <core/window/Window.hpp>
+
+export module examples.base.DemoBase;
+
+import examples.base.Controller;
+import examples.base.Renderer;
 
 namespace examples::base {
 
-class DemoBase;
+export class DemoBase;
 
-struct DemoBasePlugin {
+export struct DemoBasePlugin {
     float movement_speed{ 5.f };
 
     [[nodiscard]]
@@ -18,7 +25,7 @@ struct DemoBasePlugin {
     ) const -> DemoBase;
 };
 
-class DemoBase {
+export class DemoBase {
 public:
     DemoBase(
         core::window::Window& window,
@@ -26,8 +33,8 @@ public:
         Renderer&&            renderer
     ) noexcept;
 
-    auto run(const std::function<void(Renderer&, vk::Extent2D, core::gfx::Camera)>& render
-    ) -> void;
+    auto run(const std::function<void(Renderer&, vk::Extent2D, core::gfx::Camera)>& render)
+        -> void;
 
 private:
     std::reference_wrapper<core::window::Window> m_window;

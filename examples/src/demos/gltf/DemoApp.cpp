@@ -1,12 +1,15 @@
-#include "DemoApp.hpp"
+module;
 
-#include <base/init.hpp>
 #include <core/gltf/Loader.hpp>
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 #include <core/renderer/scene/Builder.hpp>
 #include <core/window/Window.hpp>
 
-#include "init.hpp"
+module demos.gltf.DemoApp;
+
+import examples.base.init;
+
+import demos.gltf.init;
 
 auto demo::DemoPlugin::operator()(
     core::cache::Cache&                    cache,

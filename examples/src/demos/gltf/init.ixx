@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <vector>
 
@@ -7,26 +7,28 @@
 #include <core/renderer/base/allocator/Allocator.hpp>
 #include <core/renderer/resources/Image.hpp>
 
+export module demos.gltf.init;
+
 namespace demo::init {
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_render_pass(vk::Format color_format, const core::renderer::base::Device& device)
     -> vk::UniqueRenderPass;
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_depth_image(
     vk::PhysicalDevice                     physical_device,
     const core::renderer::base::Allocator& allocator,
     vk::Extent2D                           swapchain_extent
 ) -> core::renderer::resources::Image;
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_depth_image_view(
     const core::renderer::base::Device& device,
     vk::Image                           depth_image
 ) -> vk::UniqueImageView;
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_framebuffers(
     vk::Device                           device,
     vk::Extent2D                         swapchain_extent,
@@ -35,4 +37,4 @@ auto create_framebuffers(
     vk::ImageView                        depth_image_view
 ) -> std::vector<vk::UniqueFramebuffer>;
 
-}   // namespace init
+}   // namespace demo::init

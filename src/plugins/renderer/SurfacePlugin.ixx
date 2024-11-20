@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
@@ -16,9 +16,11 @@ class Instance;
 
 }   // namespace core::renderer::base
 
+export module plugins.renderer.SurfacePlugin;
+
 namespace plugins::renderer {
 
-class SurfacePlugin {
+export class SurfacePlugin {
 public:
     [[nodiscard]]
     auto operator()(

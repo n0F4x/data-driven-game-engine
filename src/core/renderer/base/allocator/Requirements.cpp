@@ -1,5 +1,7 @@
 #include "Requirements.hpp"
 
+#include <vulkan/vulkan.hpp>
+
 #include <gsl-lite/gsl-lite.hpp>
 
 namespace core::renderer::base {

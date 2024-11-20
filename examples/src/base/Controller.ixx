@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <chrono>
 
@@ -7,9 +7,11 @@
 #include <core/gfx/Camera.hpp>
 #include <core/window/Window.hpp>
 
+export module examples.base.Controller;
+
 namespace examples::base {
 
-class Controller {
+export class Controller {
 public:
     explicit Controller(float movement_speed) noexcept;
 

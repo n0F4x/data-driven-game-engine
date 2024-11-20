@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include "core/store/Store.hpp"
+import store.Store;
 
 #include "Handle.hpp"
 

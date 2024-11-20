@@ -1,15 +1,28 @@
-#include "init.hpp"
+module;
+
+#include <glm/ext/vector_uint2.hpp>
 
 #include <source_location>
 
 #include <spdlog/spdlog.h>
 
-#include <base/init.hpp>
+#include <core/gfx/resources/VirtualImage.hpp>
+#include <core/image/Image.hpp>
+#include <core/renderer/base/allocator/Allocator.hpp>
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/material_system/GraphicsPipelineBuilder.hpp>
+#include <core/renderer/resources/Buffer.hpp>
+#include <core/renderer/resources/Image.hpp>
+#include <core/renderer/resources/RandomAccessBuffer.hpp>
 
-#include "Vertex.hpp"
-#include "VirtualTexture.hpp"
+module demos.virtual_texture.init;
+
+import examples.base.init;
+
+import demos.virtual_texture.Camera;
+import demos.virtual_texture.Vertex;
+import demos.virtual_texture.VirtualTexture;
+import demos.virtual_texture.VirtualTextureInfo;
 
 auto demo::init::create_descriptor_set_layout(const vk::Device device)
     -> vk::UniqueDescriptorSetLayout
@@ -185,18 +198,23 @@ auto demo::init::create_pipeline(
         ::create_program(device, fragment_shader_file_name)
     }
         .set_layout(layout)
-        .add_vertex_layout(core::renderer::VertexLayout{ sizeof(Vertex),
-                                                         vk::VertexInputRate::eVertex }
-                               .add_attribute(core::renderer::VertexAttribute{
-                                   .location = 0,
-                                   .format   = vk::Format::eR32G32B32Sfloat,
-                                   .offset   = 0,
-                               })
-                               .add_attribute(core::renderer::VertexAttribute{
-                                   .location = 1,
-                                   .format   = vk::Format::eR32G32Sfloat,
-                                   .offset   = offsetof(Vertex, uv),
-                               }))
+        .add_vertex_layout(
+            core::renderer::VertexLayout{ sizeof(Vertex), vk::VertexInputRate::eVertex }
+                .add_attribute(
+                    core::renderer::VertexAttribute{
+                        .location = 0,
+                        .format   = vk::Format::eR32G32B32Sfloat,
+                        .offset   = 0,
+                    }
+                )
+                .add_attribute(
+                    core::renderer::VertexAttribute{
+                        .location = 1,
+                        .format   = vk::Format::eR32G32Sfloat,
+                        .offset   = offsetof(Vertex, uv),
+                    }
+                )
+        )
         .set_primitive_topology(vk::PrimitiveTopology::eTriangleList)
         .set_cull_mode(vk::CullModeFlagBits::eNone)
         .build(device, &dynamic_rendering_create_info);
@@ -310,12 +328,14 @@ auto demo::init::create_virtual_texture_info_buffer(
         virtual_image.sparse_properties().formatProperties.imageGranularity.height,
     };
 
-    virtual_texture_info_buffer.set(VirtualTextureInfo{
-        .baseExtent         = base_extent,
-        .granularity        = image_granularity,
-        .block_count        = static_cast<uint32_t>(virtual_image.blocks().size()),
-        .mip_tail_first_lod = virtual_image.sparse_properties().imageMipTailFirstLod,
-    });
+    virtual_texture_info_buffer.set(
+        VirtualTextureInfo{
+            .baseExtent         = base_extent,
+            .granularity        = image_granularity,
+            .block_count        = static_cast<uint32_t>(virtual_image.blocks().size()),
+            .mip_tail_first_lod = virtual_image.sparse_properties().imageMipTailFirstLod,
+        }
+    );
 
     SPDLOG_DEBUG("Block count: {}", static_cast<uint32_t>(virtual_image.blocks().size()));
 

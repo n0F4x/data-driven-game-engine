@@ -1,9 +1,11 @@
-#include "init.hpp"
+module;
 
 #include <vulkan/vulkan.hpp>
 
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/resources/Image.hpp>
+
+module demos.gltf.init;
 
 namespace {
 
@@ -90,7 +92,7 @@ auto demo::init::create_render_pass(
         .pDepthStencilAttachment = &depth_attachment_reference,
     };
 
-    const vk::SubpassDependency subpass_dependency{
+    constexpr static vk::SubpassDependency subpass_dependency{
         .srcSubpass   = vk::SubpassExternal,
         .dstSubpass   = 0,
         .srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput

@@ -1,8 +1,12 @@
-#pragma once
+module;
+
+#include <glm/vec2.hpp>
+
+export module demos.virtual_texture.VirtualTextureInfo;
 
 namespace demo {
 
-struct VirtualTextureInfo {
+export struct VirtualTextureInfo {
     glm::uvec2 baseExtent;
     glm::uvec2 granularity;
     uint32_t   block_count;

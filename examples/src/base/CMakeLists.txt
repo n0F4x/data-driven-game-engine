@@ -26,4 +26,13 @@ target_sources(base PRIVATE
         init.cpp
         Renderer.cpp
 )
+target_sources(base PUBLIC
+        FILE_SET CXX_MODULES
+        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+        FILES
+        Controller.ixx
+        DemoBase.ixx
+        init.ixx
+        Renderer.ixx
+)
 target_link_libraries(base PRIVATE ${PROJECT_NAME})

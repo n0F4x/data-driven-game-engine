@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <vector>
 
@@ -6,21 +6,23 @@
 
 #include <core/renderer/resources/Image.hpp>
 
+export module examples.base.init;
+
 namespace examples::base::init {
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_command_pool(vk::Device device, uint32_t queue_family_index)
     -> vk::UniqueCommandPool;
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_command_buffers(vk::Device device, vk::CommandPool command_pool, uint32_t count)
     -> std::vector<vk::CommandBuffer>;
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_semaphores(vk::Device device, uint32_t count)
     -> std::vector<vk::UniqueSemaphore>;
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_fences(vk::Device device, uint32_t count) -> std::vector<vk::UniqueFence>;
 
-}   // namespace init
+}   // namespace examples::base::init

@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <functional>
 #include <optional>
@@ -8,7 +8,9 @@
 
 #include <entt/core/any.hpp>
 
-class Store {
+export module store.Store;
+
+export class Store {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///

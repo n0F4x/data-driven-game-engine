@@ -1,6 +1,16 @@
-#include "DemoBase.hpp"
+module;
 
+#include <atomic>
+#include <future>
+#include <mutex>
+
+#include <core/gfx/Camera.hpp>
+#include <core/renderer/base/device/Device.hpp>
+#include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 #include <core/window/events.hpp>
+#include <core/window/Window.hpp>
+
+module examples.base.DemoBase;
 
 auto examples::base::DemoBasePlugin::operator()(
     core::window::Window&                  window,

@@ -1,4 +1,6 @@
-#include "Renderer.hpp"
+module;
+
+#include <spdlog/spdlog.h>
 
 #include <VkBootstrap.h>
 
@@ -10,9 +12,12 @@
 #include "core/renderer/base/swapchain/Requirements.hpp"
 #include "core/renderer/model/Requirements.hpp"
 #include "core/window/Window.hpp"
-#include "plugins/renderer/DevicePlugin.hpp"
-#include "plugins/renderer/InstancePlugin.hpp"
-#include "plugins/renderer/SurfacePlugin.hpp"
+
+module plugins.renderer.Renderer;
+
+import plugins.renderer.DevicePlugin;
+import plugins.renderer.InstancePlugin;
+import plugins.renderer.SurfacePlugin;
 
 template <typename RequirementT>
 static auto make_requirement() -> plugins::renderer::Requirement

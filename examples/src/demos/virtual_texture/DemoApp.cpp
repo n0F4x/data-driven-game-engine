@@ -1,12 +1,18 @@
-#include "DemoApp.hpp"
+module;
 
+#include <core/gfx/Camera.hpp>
 #include <core/gfx/resources/image_helpers.hpp>
 #include <core/renderer/base/descriptor_pool/Builder.hpp>
+#include <core/renderer/base/resources/copy_operations.hpp>
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
-#include <plugins/renderer/DevicePlugin.hpp>
-#include <plugins/renderer/InstancePlugin.hpp>
 
-#include "init.hpp"
+module demos.virtual_texture.DemoApp;
+
+import plugins.renderer.DevicePlugin;
+import plugins.renderer.InstancePlugin;
+
+import demos.virtual_texture.init;
+import demos.virtual_texture.Camera;
 
 auto demo::DemoPlugin::setup(const StoreView plugins) -> void
 {
@@ -86,32 +92,44 @@ demo::DemoApp::DemoApp(
       m_depth_image_view{ init::create_depth_image_view(device, m_depth_image.get()) },
       m_descriptor_pool{ core::renderer::base::DescriptorPool::create()
                              .request_descriptor_sets(1)
-                             .request_descriptors(vk::DescriptorPoolSize{
-                                 .type            = vk::DescriptorType::eUniformBuffer,
-                                 .descriptorCount = 1,
-                             })
-                             .request_descriptors(vk::DescriptorPoolSize{
-                                 .type = vk::DescriptorType::eCombinedImageSampler,
-                                 .descriptorCount = 1,
-                             })
-                             .request_descriptors(vk::DescriptorPoolSize{
-                                 .type            = vk::DescriptorType::eUniformBuffer,
-                                 .descriptorCount = 1,
-                             })
-                             .request_descriptors(vk::DescriptorPoolSize{
-                                 .type            = vk::DescriptorType::eUniformBuffer,
-                                 .descriptorCount = 1,
-                             })
+                             .request_descriptors(
+                                 vk::DescriptorPoolSize{
+                                     .type = vk::DescriptorType::eUniformBuffer,
+                                     .descriptorCount = 1,
+                                 }
+                             )
+                             .request_descriptors(
+                                 vk::DescriptorPoolSize{
+                                     .type = vk::DescriptorType::eCombinedImageSampler,
+                                     .descriptorCount = 1,
+                                 }
+                             )
+                             .request_descriptors(
+                                 vk::DescriptorPoolSize{
+                                     .type = vk::DescriptorType::eUniformBuffer,
+                                     .descriptorCount = 1,
+                                 }
+                             )
+                             .request_descriptors(
+                                 vk::DescriptorPoolSize{
+                                     .type = vk::DescriptorType::eUniformBuffer,
+                                     .descriptorCount = 1,
+                                 }
+                             )
                              // DEBUG
                              .request_descriptor_sets(1)
-                             .request_descriptors(vk::DescriptorPoolSize{
-                                 .type            = vk::DescriptorType::eUniformBuffer,
-                                 .descriptorCount = 1,
-                             })
-                             .request_descriptors(vk::DescriptorPoolSize{
-                                 .type = vk::DescriptorType::eCombinedImageSampler,
-                                 .descriptorCount = 1,
-                             })
+                             .request_descriptors(
+                                 vk::DescriptorPoolSize{
+                                     .type = vk::DescriptorType::eUniformBuffer,
+                                     .descriptorCount = 1,
+                                 }
+                             )
+                             .request_descriptors(
+                                 vk::DescriptorPoolSize{
+                                     .type = vk::DescriptorType::eCombinedImageSampler,
+                                     .descriptorCount = 1,
+                                 }
+                             )
                              .build(device.get()) },
       m_debug_texture_pipeline{ init::create_pipeline(
           device.get(),
@@ -296,11 +314,13 @@ auto demo::DemoApp::draw(
     const core::gfx::Camera& camera
 ) -> void
 {
-    m_camera_buffer.set(Camera{
-        .position   = glm::vec4{ camera.position(), 1 },
-        .view       = camera.view(),
-        .projection = camera.projection()
-    });
+    m_camera_buffer.set(
+        Camera{
+            .position   = glm::vec4{ camera.position(), 1 },
+            .view       = camera.view(),
+            .projection = camera.projection(),
+    }
+    );
 
     graphics_command_buffer.bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics,

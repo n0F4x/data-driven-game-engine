@@ -19,7 +19,7 @@ auto core::gfx::resources::transition_image_layout(
         .subresourceRange =
             vk::ImageSubresourceRange{ .aspectMask = image.aspect_flags(),
                                       .levelCount = image.mip_level_count(),
-                                      .layerCount = 1 },
+                                      .layerCount = 1u },
     };
 
     command_buffer.pipelineBarrier(

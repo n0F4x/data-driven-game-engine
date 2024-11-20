@@ -1,13 +1,19 @@
-#pragma once
+module;
 
 #include <any>
 
 #include <entt/entity/registry.hpp>
 
-#include "core/store/Store.hpp"
+#include <spdlog/spdlog.h>
+
 #include "core/utility/meta/functional.hpp"
 
-class App {
+export module app.App;
+
+import store.Store;
+import store.StoreView;
+
+export class App {
 public:
     ///------------------///
     ///  Nested classes  ///

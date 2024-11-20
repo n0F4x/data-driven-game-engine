@@ -26,6 +26,18 @@ target_sources(virtual_texture PRIVATE
         main.cpp
         VirtualTexture.cpp
 )
+target_sources(base PUBLIC
+        FILE_SET CXX_MODULES
+        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+        FILES
+        Camera.ixx
+        demo.ixx
+        DemoApp.ixx
+        init.ixx
+        Vertex.ixx
+        VirtualTexture.ixx
+        VirtualTextureInfo.ixx
+)
 target_link_libraries(virtual_texture PRIVATE base)
 target_link_libraries(virtual_texture PRIVATE ${PROJECT_NAME})
 

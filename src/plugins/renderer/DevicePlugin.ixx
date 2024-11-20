@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <functional>
 #include <vector>
@@ -6,6 +6,8 @@
 #include <vulkan/vulkan.hpp>
 
 #include <VkBootstrap.h>
+
+export module plugins.renderer.DevicePlugin;
 
 namespace core::renderer::base {
 
@@ -16,7 +18,7 @@ class Device;
 
 namespace plugins::renderer {
 
-class DevicePlugin {
+export class DevicePlugin {
 public:
     struct Dependency {
         std::function<void(vkb::PhysicalDeviceSelector&)> require_settings;

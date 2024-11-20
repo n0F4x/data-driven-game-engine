@@ -1,13 +1,17 @@
-#pragma once
+module;
 
 #include <glm/ext/vector_float3.hpp>
 
 #include <core/gfx/resources/VirtualImage.hpp>
 #include <core/renderer/resources/Buffer.hpp>
 
+export module demos.virtual_texture.VirtualTexture;
+
+import examples.base.init;
+
 namespace demo {
 
-class VirtualTexture {
+export class VirtualTexture {
 public:
     VirtualTexture(
         const core::renderer::base::Device&    device,

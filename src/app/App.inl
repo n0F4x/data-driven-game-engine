@@ -1,8 +1,5 @@
 #pragma once
 
-#include <spdlog/spdlog.h>
-
-#include "core/store/StoreView.hpp"
 #include "core/utility/meta/functional.hpp"
 #include "core/utility/meta/tuple-like.hpp"
 #include "core/utility/tuple.hpp"

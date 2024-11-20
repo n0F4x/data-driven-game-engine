@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <functional>
 
@@ -6,13 +6,15 @@
 
 #include <VkBootstrap.h>
 
-#include <app/App.hpp>
+export module plugins.renderer.Renderer;
+
+import app.App;
 
 namespace plugins {
 
 namespace renderer {
 
-struct Requirement {
+export struct Requirement {
     std::function<bool(const vkb::SystemInfo&)> required_instance_settings_are_available;
     std::function<void(const vkb::SystemInfo&, vkb::InstanceBuilder&)>
                                                       enable_instance_settings;
@@ -20,7 +22,7 @@ struct Requirement {
     std::function<void(vkb::PhysicalDevice&)>         enable_optional_device_settings;
 };
 
-class RendererPlugin {
+export class RendererPlugin {
 public:
     RendererPlugin();
 
@@ -45,7 +47,7 @@ private:
 
 }   // namespace renderer
 
-using Renderer = renderer::RendererPlugin;
+export using Renderer = renderer::RendererPlugin;
 
 }   // namespace plugins
 

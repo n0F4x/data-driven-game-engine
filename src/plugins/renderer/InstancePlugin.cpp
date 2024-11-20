@@ -1,4 +1,4 @@
-#include "InstancePlugin.hpp"
+module;
 
 #include <ranges>
 
@@ -7,9 +7,12 @@
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
 
-#include "app/App.hpp"
 #include "core/config/vulkan.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
+
+module plugins.renderer.InstancePlugin;
+
+import app.App;
 
 // ReSharper disable once CppEnforceFunctionDeclarationStyle
 static VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(

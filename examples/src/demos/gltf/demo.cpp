@@ -1,9 +1,17 @@
-#include "demo.hpp"
+module;
 
-#include <base/DemoBase.hpp>
-#include <base/Renderer.hpp>
+#include <functional>
 
-#include "DemoApp.hpp"
+#include <vulkan/vulkan.hpp>
+
+#include <core/gfx/Camera.hpp>
+
+module demos.gltf;
+
+import examples.base.DemoBase;
+import examples.base.Renderer;
+
+import demos.gltf.DemoApp;
 
 auto demo::run(App app) -> void
 {

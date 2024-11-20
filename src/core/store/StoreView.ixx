@@ -1,8 +1,13 @@
-#pragma once
+module;
 
-#include "Store.hpp"
+#include <functional>
+#include <optional>
 
-class StoreView {
+export module store.StoreView;
+
+import store.Store;
+
+export class StoreView {
 public:
     explicit StoreView(Store& store) noexcept;
 

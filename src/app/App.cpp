@@ -1,6 +1,8 @@
-#include "App.hpp"
+module;
 
 #include <spdlog/spdlog.h>
+
+module app.App;
 
 auto App::create() -> Builder
 {

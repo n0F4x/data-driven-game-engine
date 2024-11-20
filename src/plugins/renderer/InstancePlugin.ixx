@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <functional>
 #include <vector>
@@ -11,9 +11,11 @@ class Instance;
 
 }   // namespace core::renderer::base
 
+export module plugins.renderer.InstancePlugin;
+
 namespace plugins::renderer {
 
-class InstancePlugin {
+export class InstancePlugin {
 public:
     struct Dependency {
         std::function<bool(const vkb::SystemInfo&)> required_settings_are_available;

@@ -1,13 +1,15 @@
-#pragma once
+module;
 
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 #include <core/renderer/scene/Scene.hpp>
 #include <core/window/Window.hpp>
 
+export module examples.base.Renderer;
+
 namespace examples::base {
 
-struct Renderer {
+export struct Renderer {
     constexpr static uint32_t frame_count_v{ 1 };
 
     explicit Renderer(

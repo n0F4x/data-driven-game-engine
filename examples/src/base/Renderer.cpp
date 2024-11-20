@@ -1,9 +1,12 @@
-#include "Renderer.hpp"
+module;
 
+#include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 #include <core/renderer/scene/Builder.hpp>
 #include <core/window/Window.hpp>
 
-#include "init.hpp"
+module examples.base.Renderer;
+
+import  examples.base.init;
 
 examples::base::Renderer::Renderer(
     const core::window::Window&            window,

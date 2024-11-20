@@ -1,11 +1,15 @@
-#include "SurfacePlugin.hpp"
+module;
 
-#include <core/window/Window.hpp>
+#include <spdlog/spdlog.h>
 
-#include "app/App.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
+#include "core/window/Window.hpp"
 
-#include "InstancePlugin.hpp"
+module plugins.renderer.SurfacePlugin;
+
+import app.App;
+import store.StoreView;
+import plugins.renderer.InstancePlugin;
 
 auto plugins::renderer::SurfacePlugin::operator()(
     const core::window::Window&           window,
@@ -52,8 +56,10 @@ auto plugins::renderer::SurfacePlugin::setup(const StoreView plugins) -> void
     }
     InstancePlugin& instance_plugin{ optional_instance_plugin.value().get() };
 
-    instance_plugin.emplace_dependency(InstancePlugin::Dependency{
-        .required_settings_are_available = ::required_instance_settings_are_available,
-        .enable_settings                 = ::enable_instance_settings,
-    });
+    instance_plugin.emplace_dependency(
+        InstancePlugin::Dependency{
+            .required_settings_are_available = ::required_instance_settings_are_available,
+            .enable_settings                 = ::enable_instance_settings,
+        }
+    );
 }

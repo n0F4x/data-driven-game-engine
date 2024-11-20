@@ -1,8 +1,14 @@
-#include "base/Controller.hpp"
+module;
 
+#include <chrono>
 #include <limits>
 
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <core/gfx/Camera.hpp>
+#include <core/window/Window.hpp>
+
+module examples.base.Controller;
 
 examples::base::Controller::Controller(const float movement_speed) noexcept
     : m_movement_speed{ movement_speed }

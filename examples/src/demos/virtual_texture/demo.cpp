@@ -1,8 +1,19 @@
-#include "demo.hpp"
+module;
 
-#include <base/DemoBase.hpp>
+#include <functional>
 
-#include "DemoApp.hpp"
+#include <vulkan/vulkan.hpp>
+
+#include <core/gfx/Camera.hpp>
+
+module demos.virtual_texture;
+
+import app.App;
+
+import examples.base.DemoBase;
+import examples.base.Renderer;
+
+import demos.virtual_texture.DemoApp;
 
 auto demo::run(App app) -> void
 {

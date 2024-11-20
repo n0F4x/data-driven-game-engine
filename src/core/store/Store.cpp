@@ -1,4 +1,4 @@
-#include "Store.hpp"
+module store.Store;
 
 Store::~Store() noexcept
 {

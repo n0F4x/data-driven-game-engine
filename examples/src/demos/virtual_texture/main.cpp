@@ -2,11 +2,13 @@
 
 #include <spdlog/spdlog.h>
 
-#include <base/DemoBase.hpp>
-#include <plugins.hpp>
+import app;
+import plugins;
 
-#include "demo.hpp"
-#include "DemoApp.hpp"
+import examples.base.DemoBase;
+
+import demos.virtual_texture;
+import demos.virtual_texture.DemoApp;
 
 
 auto main() -> int

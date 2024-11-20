@@ -37,18 +37,28 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 
 # Vulkan
-# TODO: use vulkan_hpp module
 find_package(VulkanHeaders CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
-target_compile_definitions(${PROJECT_NAME} PUBLIC
+
+get_target_property(VulkanHeaders_INCLUDE_DIRS Vulkan::Headers INTERFACE_INCLUDE_DIRECTORIES)
+add_library(VulkanHppModule)
+target_sources(VulkanHppModule PUBLIC
+        FILE_SET CXX_MODULES
+        BASE_DIRS ${VulkanHeaders_INCLUDE_DIRS}
+        FILES ${VulkanHeaders_INCLUDE_DIRS}/vulkan/vulkan.cppm
+)
+target_compile_definitions(VulkanHppModule PUBLIC
         VK_NO_PROTOTYPES
 )
-target_compile_definitions(${PROJECT_NAME} PRIVATE
+target_compile_definitions(VulkanHppModule PUBLIC
         VULKAN_HPP_NO_TO_STRING
         VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
         VULKAN_HPP_NO_SETTERS
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
 )
+target_compile_features(VulkanHppModule PUBLIC cxx_std_20)
+target_link_libraries(VulkanHppModule PUBLIC Vulkan::Headers)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC VulkanHppModule)
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
 endif ()

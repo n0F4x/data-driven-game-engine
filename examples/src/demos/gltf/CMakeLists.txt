@@ -25,5 +25,13 @@ target_sources(gltf PRIVATE
         DemoApp.cpp
         main.cpp
 )
+target_sources(base PUBLIC
+        FILE_SET CXX_MODULES
+        BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+        FILES
+        demo.ixx
+        init.ixx
+        DemoApp.ixx
+)
 target_link_libraries(gltf PRIVATE base)
 target_link_libraries(gltf PRIVATE ${PROJECT_NAME})

@@ -1,14 +1,19 @@
+#include <filesystem>
 #include <print>
 #include <source_location>
 
 #include <spdlog/spdlog.h>
 
-#include <base/DemoBase.hpp>
-#include <core/cache/Cache.hpp>
-#include <plugins.hpp>
+#include <VkBootstrap.h>
 
-#include "demo.hpp"
-#include "DemoApp.hpp"
+#include <core/cache/Cache.hpp>
+
+import app;
+import plugins;
+
+import examples.base.DemoBase;
+import demos.gltf.DemoApp;
+import demos.gltf;
 
 [[nodiscard]]
 static auto cache_plugin() -> core::cache::Cache
@@ -49,16 +54,20 @@ try {
 
     App::create()
         .use(::cache_plugin)
-        .use(plugins::Window{
-            .size  = { 1'280, 720 },
-            .title = "My window",
-    })
+        .use(
+            plugins::Window{
+                .size  = { 1'280, 720 },
+                .title = "My window",
+    }
+        )
         .apply(plugins::Renderer{}.require(::require_vulkan_version(1, 1)))
         .use(examples::base::DemoBasePlugin{ .movement_speed = movement_speed })
-        .use(demo::DemoPlugin{
-            .model_filepath     = model_filepath,
-            .use_virtual_images = false,
-        })
+        .use(
+            demo::DemoPlugin{
+                .model_filepath     = model_filepath,
+                .use_virtual_images = false,
+            }
+        )
         .run(demo::run);
 
 } catch (const std::exception& error) {

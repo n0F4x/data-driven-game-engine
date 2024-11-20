@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
@@ -8,17 +8,21 @@
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 #include <core/renderer/resources/Image.hpp>
 #include <core/renderer/resources/RandomAccessBuffer.hpp>
-#include <core/store/StoreView.hpp>
+#include <core/renderer/resources/Buffer.hpp>
 
-#include "Camera.hpp"
-#include "VirtualTexture.hpp"
-#include "VirtualTextureInfo.hpp"
+export module demos.virtual_texture.DemoApp;
+
+import store.StoreView;
+
+import demos.virtual_texture.Camera;
+import demos.virtual_texture.VirtualTexture;
+import demos.virtual_texture.VirtualTextureInfo;
 
 namespace demo {
 
-class DemoApp;
+export class DemoApp;
 
-struct DemoPlugin {
+export struct DemoPlugin {
     static auto setup(StoreView plugins) -> void;
 
     auto operator()(
@@ -28,7 +32,7 @@ struct DemoPlugin {
     ) const -> DemoApp;
 };
 
-class DemoApp {
+export class DemoApp {
 public:
     DemoApp(
         const core::renderer::base::Device&    device,

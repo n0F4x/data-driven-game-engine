@@ -1,16 +1,19 @@
-#pragma once
+module;
 
-#include <app/App.hpp>
 #include <core/renderer/base/allocator/Allocator.hpp>
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 #include <core/renderer/scene/Scene.hpp>
 
+export module demos.gltf.DemoApp;
+
+import app.App;
+
 namespace demo {
 
-class DemoApp;
+export class DemoApp;
 
-struct DemoPlugin {
+export struct DemoPlugin {
     std::reference_wrapper<const std::filesystem::path> model_filepath;
     bool                                                use_virtual_images{};
 
@@ -23,7 +26,7 @@ struct DemoPlugin {
     ) const -> DemoApp;
 };
 
-class DemoApp {
+export class DemoApp {
 public:
     DemoApp(
         core::cache::Cache&                    cache,
