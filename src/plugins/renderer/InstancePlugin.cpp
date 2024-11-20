@@ -21,47 +21,49 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
 {
     std::ostringstream message;
 
-    message << "Vulkan message "
-            << vk::to_string(
-                   static_cast<const vk::DebugUtilsMessageTypeFlagsEXT>(message_types)
-               )
-            << ":\n";
-    message << std::string("\t") << "messageIDName   = <" << callback_data->pMessageIdName
-            << ">\n";
-    message << std::string("\t") << "messageIdNumber = " << callback_data->messageIdNumber
-            << "\n";
-    message << std::string("\t") << "message         = <" << callback_data->pMessage
-            << ">\n";
+    message << std::format(
+        "Vulkan message {}:\n"
+        "\tmessageIdName\t= <{}>\n"
+        "\tmessageIdNumber\t= <{}>\n"
+        "\tmessage\t\t= <{}>\n",
+        vk::to_string(static_cast<const vk::DebugUtilsMessageTypeFlagsEXT>(message_types)),
+        callback_data->pMessageIdName,
+        callback_data->messageIdNumber,
+        callback_data->pMessage
+    );
     if (0 < callback_data->queueLabelCount) {
-        message << std::string("\t") << "Queue Labels:\n";
+        message << "\tQueueLabels:\n";
         for (uint32_t i = 0; i < callback_data->queueLabelCount; i++) {
-            message << std::string("\t\t") << "labelName = <"
-                    << callback_data->pQueueLabels[i].pLabelName << ">\n";
+            message << std::format(
+                "\t\tlabelName = <{}>\n", callback_data->pQueueLabels[i].pLabelName
+            );
         }
     }
     if (0 < callback_data->cmdBufLabelCount) {
-        message << std::string("\t") << "CommandBuffer Labels:\n";
+        message << "\tCommandBuffer Labels:\n";
         for (uint32_t i = 0; i < callback_data->cmdBufLabelCount; i++) {
-            message << std::string("\t\t") << "labelName = <"
-                    << callback_data->pCmdBufLabels[i].pLabelName << ">\n";
+            message << std::format(
+                "\t\tlabelName = <{}>\n", callback_data->pCmdBufLabels[i].pLabelName
+            );
         }
     }
     if (0 < callback_data->objectCount) {
-        message << std::string("\t") << "Objects:\n";
+        message << "\tObjects:\n";
         for (uint32_t i = 0; i < callback_data->objectCount; i++) {
-            message << std::string("\t\t") << "Object " << i << "\n";
-            message
-                << std::string("\t\t\t") << "objectType   = "
-                << vk::to_string(
-                       static_cast<vk::ObjectType>(callback_data->pObjects[i].objectType)
-                   )
-                << "\n";
-            message << std::string("\t\t\t")
-                    << "objectcache::Handle = " << callback_data->pObjects[i].objectHandle
-                    << "\n";
+            message << std::format(
+                "\t\tObject {}\n"
+                "\t\t\tobjectType\t\t= {}\n"
+                "\t\t\tobjectcache::Handle\t= {}\n",
+                i,
+                vk::to_string(
+                    static_cast<vk::ObjectType>(callback_data->pObjects[i].objectType)
+                ),
+                callback_data->pObjects[i].objectHandle
+            );
             if (callback_data->pObjects[i].pObjectName) {
-                message << std::string("\t\t\t") << "objectName   = <"
-                        << callback_data->pObjects[i].pObjectName << ">\n";
+                message << std::format(
+                    "\t\t\tobjectName\t= <{}>\n", callback_data->pObjects[i].pObjectName
+                );
             }
         }
     }
@@ -90,7 +92,7 @@ static auto set_debug_messenger(vkb::InstanceBuilder& builder) -> void
 {
     builder.set_debug_callback(debug_message);
 
-    const vk::DebugUtilsMessageSeverityFlagsEXT severity_flags(
+    constexpr static vk::DebugUtilsMessageSeverityFlagsEXT severity_flags(
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
         | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
     );
@@ -98,7 +100,7 @@ static auto set_debug_messenger(vkb::InstanceBuilder& builder) -> void
         severity_flags.operator vk::DebugUtilsMessageSeverityFlagsEXT::MaskType()
     );
 
-    const vk::DebugUtilsMessageTypeFlagsEXT message_type_flags(
+    constexpr static vk::DebugUtilsMessageTypeFlagsEXT message_type_flags(
         vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding
         | vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
         | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance

@@ -233,8 +233,9 @@ static auto create_base_descriptor_set(
         .descriptorSetCount = 1,
         .pSetLayouts        = &descriptor_set_layout,
     };
-    auto descriptor_sets{ device.allocateDescriptorSetsUnique(descriptor_set_allocate_info
-    ) };
+    auto descriptor_sets{
+        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
+    };
 
     const vk::DescriptorBufferInfo vertex_buffer_info{
         .buffer = vertex_uniform.buffer(),
@@ -331,8 +332,9 @@ static auto create_image_descriptor_set(
         .descriptorSetCount = 1,
         .pSetLayouts        = &descriptor_set_layout,
     };
-    auto descriptor_sets{ device.allocateDescriptorSetsUnique(descriptor_set_allocate_info
-    ) };
+    auto descriptor_sets{
+        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
+    };
 
     const std::vector image_infos{
         image_views | std::views::transform([](const vk::ImageView image_view) {
@@ -470,8 +472,9 @@ static auto create_sampler_descriptor_set(
         .descriptorSetCount = 1,
         .pSetLayouts        = &descriptor_set_layout,
     };
-    auto descriptor_sets{ device.allocateDescriptorSetsUnique(descriptor_set_allocate_info
-    ) };
+    auto descriptor_sets{
+        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
+    };
 
     const std::vector image_infos{
         samplers | std::views::transform([](const vk::UniqueSampler& sampler) {
@@ -726,8 +729,9 @@ auto core::gltf::RenderModel::create_loader(
     std::vector<ImageVariantLoader> image_loaders{
         model->images()
         | std::views::transform(
-            [&device, &allocator, use_virtual_images](const Image& source
-            ) -> ImageVariantLoader {
+            [&device,
+             &allocator,
+             use_virtual_images](const Image& source) -> ImageVariantLoader {
                 if (use_virtual_images) {
                     return gfx::resources::VirtualImage::Loader{
                         device.physical_device(), device.get(), allocator, *source
@@ -743,12 +747,9 @@ auto core::gltf::RenderModel::create_loader(
         device.get(),
         descriptor_set_layouts[1],
         descriptor_pool,
-        image_loaders
-            | std::views::transform([](const ImageVariantLoader& variant_loader) {
-                  return std::visit(
-                      [](const auto& loader) { return loader.view(); }, variant_loader
-                  );
-              })
+        image_loaders | std::views::transform([](const ImageVariantLoader& variant_loader) {
+            return variant_loader.visit([](const auto& loader) { return loader.view(); });
+        })
     ) };
 
     std::vector<vk::UniqueSampler> samplers{
@@ -791,8 +792,9 @@ auto core::gltf::RenderModel::create_loader(
 
     auto update_virtual_images_callback{ [transforms, materials, default_material](
                                              [[maybe_unused]] const std::span<ImageVariant>
-                                                                                 images,
-                                             [[maybe_unused]] const gfx::Camera& camera,
+                                                 images,
+                                             [[maybe_unused]]
+                                             const gfx::Camera&      camera,
                                              const uint32_t          transform_index,
                                              std::optional<uint32_t> material_index
                                          ) mutable {
@@ -922,8 +924,9 @@ auto core::gltf::RenderModel::create_loader(
          samplers                       = std::move(samplers),
          sampler_descriptor_set         = std::move(sampler_descriptor_set),
          meshes                         = std::move(meshes),
-         update_virtual_images_callback = std::move(update_virtual_images_callback
-         )](const vk::CommandBuffer transfer_command_buffer) mutable -> RenderModel {
+         update_virtual_images_callback = std::move(update_virtual_images_callback)](
+            const vk::CommandBuffer transfer_command_buffer
+        ) mutable -> RenderModel {
             if (index_buffer_size > 0) {
                 transfer_command_buffer.copyBuffer(
                     index_staging_buffer->get(),
@@ -1150,59 +1153,59 @@ core::gltf::RenderModel::RenderModel(
       m_meshes{ std::move(meshes) },
       m_update_virtual_images{ std::move(update_virtual_images) }
 {
-    m_vertex_uniform.set(
-        m_vertex_buffer
-            .transform([](const renderer::resources::Buffer& buffer) {
-                return std::cref(buffer.buffer());
-            })
-            .transform(&renderer::base::Buffer::get)
-            .transform([device](const vk::Buffer buffer) {
-                return device.getBufferAddress(vk::BufferDeviceAddressInfo{
-                    .buffer = buffer,
-                });
-            })
-            .value_or(vk::DeviceAddress{})
-    );
+    m_vertex_uniform.set(m_vertex_buffer
+                             .transform([](const renderer::resources::Buffer& buffer) {
+                                 return std::cref(buffer.buffer());
+                             })
+                             .transform(&renderer::base::Buffer::get)
+                             .transform([device](const vk::Buffer buffer) {
+                                 return device.getBufferAddress(
+                                     vk::BufferDeviceAddressInfo{
+                                         .buffer = buffer,
+                                     }
+                                 );
+                             })
+                             .value_or(vk::DeviceAddress{}));
 
-    m_transform_uniform.set(
-        m_transform_buffer
-            .transform([](const renderer::resources::Buffer& buffer) {
-                return std::cref(buffer.buffer());
-            })
-            .transform(&renderer::base::Buffer::get)
-            .transform([device](const vk::Buffer buffer) {
-                return device.getBufferAddress(vk::BufferDeviceAddressInfo{
-                    .buffer = buffer,
-                });
-            })
-            .value_or(vk::DeviceAddress{})
-    );
+    m_transform_uniform.set(m_transform_buffer
+                                .transform([](const renderer::resources::Buffer& buffer) {
+                                    return std::cref(buffer.buffer());
+                                })
+                                .transform(&renderer::base::Buffer::get)
+                                .transform([device](const vk::Buffer buffer) {
+                                    return device.getBufferAddress(
+                                        vk::BufferDeviceAddressInfo{
+                                            .buffer = buffer,
+                                        }
+                                    );
+                                })
+                                .value_or(vk::DeviceAddress{}));
 
-    m_texture_uniform.set(
-        m_texture_buffer
-            .transform([](const renderer::resources::Buffer& buffer) {
-                return std::cref(buffer.buffer());
-            })
-            .transform(&renderer::base::Buffer::get)
-            .transform([device](const vk::Buffer buffer) {
-                return device.getBufferAddress(vk::BufferDeviceAddressInfo{
-                    .buffer = buffer,
-                });
-            })
-            .value_or(vk::DeviceAddress{})
-    );
+    m_texture_uniform.set(m_texture_buffer
+                              .transform([](const renderer::resources::Buffer& buffer) {
+                                  return std::cref(buffer.buffer());
+                              })
+                              .transform(&renderer::base::Buffer::get)
+                              .transform([device](const vk::Buffer buffer) {
+                                  return device.getBufferAddress(
+                                      vk::BufferDeviceAddressInfo{
+                                          .buffer = buffer,
+                                      }
+                                  );
+                              })
+                              .value_or(vk::DeviceAddress{}));
 
-    m_material_uniform.set(
-        m_material_buffer
-            .transform([](const renderer::resources::Buffer& buffer) {
-                return std::cref(buffer.buffer());
-            })
-            .transform(&renderer::base::Buffer::get)
-            .transform([device](const vk::Buffer buffer) {
-                return device.getBufferAddress(vk::BufferDeviceAddressInfo{
-                    .buffer = buffer,
-                });
-            })
-            .value_or(vk::DeviceAddress{})
-    );
+    m_material_uniform.set(m_material_buffer
+                               .transform([](const renderer::resources::Buffer& buffer) {
+                                   return std::cref(buffer.buffer());
+                               })
+                               .transform(&renderer::base::Buffer::get)
+                               .transform([device](const vk::Buffer buffer) {
+                                   return device.getBufferAddress(
+                                       vk::BufferDeviceAddressInfo{
+                                           .buffer = buffer,
+                                       }
+                                   );
+                               })
+                               .value_or(vk::DeviceAddress{}));
 }

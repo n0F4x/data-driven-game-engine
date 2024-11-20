@@ -40,7 +40,7 @@ static auto load_image(
     const fastgltf::Image&       image
 ) -> std::optional<Image>
 {
-    return std::visit(
+    return image.data.visit(
         fastgltf::visitor{
             [](std::monostate) -> std::optional<gltf::Image> {
                 assert(false &&
@@ -59,7 +59,7 @@ static auto load_image(
                 };
                 const auto& [_, data, _]{ asset.buffers[buffer_index] };
 
-                return std::visit(
+                return data.visit(
                     fastgltf::visitor{
                         [](const auto&) -> std::optional<Image> {
                             throw std::runtime_error(
@@ -78,8 +78,7 @@ static auto load_image(
                                 std::span{ vector.bytes }.subspan(byte_offset),
                                 buffer_view.mimeType
                             );
-                        } },
-                    data
+                        } }
                 );
             },
             [&](const fastgltf::sources::URI& uri) {
@@ -98,8 +97,7 @@ static auto load_image(
             [&](const fastgltf::sources::Vector& vector) {
                 return ImageLoader::load_from(std::span{ vector.bytes }, vector.mimeType);
             },
-        },
-        image.data
+        }
     );
 }
 
@@ -238,8 +236,8 @@ static auto make_accessor_loader(
                Projection                project,
                Transformation            transform
            ) -> void {
-        using ElementType =
-            std::remove_cvref_t<std::tuple_element_t<0, meta::arguments_of_t<Transformation>>>;
+        using ElementType = std::remove_cvref_t<
+            std::tuple_element_t<0, meta::arguments_of_t<Transformation>>>;
         using AttributeType =
             std::remove_cvref_t<std::invoke_result_t<Projection, const Model::Vertex&>>;
 
@@ -407,7 +405,7 @@ auto Loader::load_node(
     fastgltf::math::fvec3 scale{ 1.f, 1.f, 1.f };
     fastgltf::math::fquat rotation{ 0.f, 0.f, 0.f, 1.f };
     fastgltf::math::fvec3 translation{};
-    std::visit(
+    source_node.transform.visit(
         fastgltf::visitor{ [&](const fastgltf::TRS& transform) {
                               scale       = transform.scale;
                               rotation    = transform.rotation;
@@ -417,8 +415,7 @@ auto Loader::load_node(
                                fastgltf::math::decomposeTransformMatrix(
                                    matrix, scale, rotation, translation
                                );
-                           } },
-        source_node.transform
+                           } }
     );
     node.scale()       = glm::make_vec3(scale.data());
     node.rotation()    = glm::make_quat(rotation.data());
