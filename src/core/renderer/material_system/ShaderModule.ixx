@@ -1,13 +1,15 @@
-#pragma once
+module;
 
 #include <filesystem>
 #include <optional>
 
 #include <vulkan/vulkan.hpp>
 
+export module core.renderer.material_system.ShaderModule;
+
 namespace core::renderer {
 
-class ShaderModule {
+export class ShaderModule {
 public:
     [[nodiscard]]
     static auto hash(const std::filesystem::path& filepath) noexcept -> size_t;
@@ -35,7 +37,7 @@ private:
 
 }   // namespace core::renderer
 
-template <>
+export template <>
 struct std::hash<core::renderer::ShaderModule> {
     [[nodiscard]]
     auto operator()(const core::renderer::ShaderModule& shader_module) const noexcept

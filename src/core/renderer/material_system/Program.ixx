@@ -1,12 +1,16 @@
-#pragma once
+module;
 
 #include <filesystem>
 
-#include "Shader.hpp"
+#include <vulkan/vulkan.hpp>
+
+export module core.renderer.material_system.Program;
+
+import core.renderer.material_system.Shader;
 
 namespace core::renderer {
 
-class Program {
+export class Program {
 public:
     explicit Program(Shader vertex_shader, Shader fragment_shader) noexcept;
 
@@ -27,7 +31,7 @@ private:
 
 }   // namespace core::renderer
 
-template <>
+export template <>
 struct std::hash<core::renderer::Program> {
     [[nodiscard]]
     auto operator()(const core::renderer::Program& program) const noexcept -> size_t;

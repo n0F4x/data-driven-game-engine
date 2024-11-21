@@ -10,7 +10,7 @@ class Window;
 
 }   // namespace core::window
 
-export module plugins.window.Window;
+export module plugins.window.WindowPlugin;
 
 namespace plugins {
 

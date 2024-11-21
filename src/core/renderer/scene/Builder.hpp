@@ -3,7 +3,9 @@
 #include <ranges>
 #include <vector>
 
-#include "core/cache/Handle.hpp"
+import core.cache.Cache;
+import core.cache.Handle;
+
 #include "core/gltf/Model.hpp"
 
 #include "Scene.hpp"

@@ -1,14 +1,17 @@
-#pragma once
+module;
 
+#include <memory>
 #include <unordered_map>
+
+export module core.cache.Cache;
 
 import store.Store;
 
-#include "Handle.hpp"
+import core.cache.Handle;
 
 namespace core::cache {
 
-template <typename IdType, template <typename...> typename ContainerTemplate>
+export template <typename IdType, template <typename...> typename ContainerTemplate>
 class BasicCache {
 public:
     using ID = IdType;
@@ -46,7 +49,7 @@ private:
     Store m_store;
 };
 
-using Cache = BasicCache<size_t, std::unordered_map>;
+export using Cache = BasicCache<size_t, std::unordered_map>;
 
 }   // namespace core::cache
 

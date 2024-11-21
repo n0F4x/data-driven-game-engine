@@ -1,10 +1,12 @@
-#include "GraphicsPipelineBuilder.hpp"
+module;
 
 #include <ranges>
 
 #include <vulkan/vulkan_hash.hpp>
 
 #include "core/utility/hashing.hpp"
+
+module core.renderer.material_system.GraphicsPipelineBuilder;
 
 core::renderer::GraphicsPipelineBuilder::GraphicsPipelineBuilder(Program program) noexcept
     : m_program{ std::move(program) }

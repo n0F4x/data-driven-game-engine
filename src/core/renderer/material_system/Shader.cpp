@@ -1,6 +1,12 @@
-#include "Shader.hpp"
+module;
+
+#include <filesystem>
+
+#include <vulkan/vulkan.hpp>
 
 #include "core/utility/hashing.hpp"
+
+module core.renderer.material_system.Shader;
 
 using namespace core::renderer;
 

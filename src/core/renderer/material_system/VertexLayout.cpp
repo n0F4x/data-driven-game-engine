@@ -1,4 +1,10 @@
-#include "VertexLayout.hpp"
+module;
+
+#include <cstdint>
+
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.material_system.VertexLayout;
 
 namespace core::renderer {
 

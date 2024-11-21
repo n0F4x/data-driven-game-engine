@@ -1,10 +1,11 @@
-#include "ShaderModule.hpp"
+module;
 
 #include <fstream>
-#include <optional>
 #include <vector>
 
-using namespace core::renderer;
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.material_system.ShaderModule;
 
 [[nodiscard]]
 static auto load_shader(const vk::Device device, const std::filesystem::path& filepath)
@@ -45,8 +46,10 @@ auto ShaderModule::load(const vk::Device device, const std::filesystem::path& fi
     return ShaderModule{ filepath, ::load_shader(device, filepath) };
 }
 
-ShaderModule::ShaderModule(std::filesystem::path filepath, vk::UniqueShaderModule&& module)
-    noexcept
+ShaderModule::ShaderModule(
+    std::filesystem::path    filepath,
+    vk::UniqueShaderModule&& module
+) noexcept
     : m_filepath{ std::move(filepath) },
       m_module{ std::move(module) }
 {}
@@ -69,8 +72,9 @@ auto hash_value(const ShaderModule& shader_module) noexcept -> size_t
 
 }   // namespace core::renderer
 
-auto std::hash<ShaderModule>::operator()(const ShaderModule& shader_module) const noexcept
-    -> size_t
+auto std::hash<core::renderer::ShaderModule>::operator()(
+    const core::renderer::ShaderModule& shader_module
+) const noexcept -> size_t
 {
     return hash_value(shader_module);
 }

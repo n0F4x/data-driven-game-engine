@@ -7,8 +7,12 @@
 
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/resources/Image.hpp"
-#include "core/renderer/material_system/GraphicsPipelineBuilder.hpp"
 #include "core/renderer/model/ModelLayout.hpp"
+
+import core.renderer.material_system.GraphicsPipelineBuilder;
+import core.renderer.material_system.Program;
+import core.renderer.material_system.Shader;
+import core.renderer.material_system.ShaderModule;
 
 namespace {
 

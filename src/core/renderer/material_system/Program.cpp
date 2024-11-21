@@ -1,8 +1,12 @@
-#include "Program.hpp"
+module;
 
 #include <string_view>
 
+#include <vulkan/vulkan.hpp>
+
 #include "core/utility/hashing.hpp"
+
+module core.renderer.material_system.Program;
 
 using namespace core::renderer;
 

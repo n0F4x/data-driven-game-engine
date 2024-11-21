@@ -1,15 +1,17 @@
-#pragma once
+module;
 
 #include <optional>
 
 #include <vulkan/vulkan.hpp>
 
-#include "Program.hpp"
-#include "VertexLayout.hpp"
+export module core.renderer.material_system.GraphicsPipelineBuilder;
+
+import core.renderer.material_system.Program;
+import core.renderer.material_system.VertexLayout;
 
 namespace core::renderer {
 
-class GraphicsPipelineBuilder {
+export class GraphicsPipelineBuilder {
 public:
     explicit GraphicsPipelineBuilder(Program program) noexcept;
 
@@ -36,13 +38,14 @@ private:
     vk::PipelineLayout    m_layout;
     vk::RenderPass        m_render_pass;
 
-    friend auto hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder
+    friend auto hash_value(
+        const GraphicsPipelineBuilder& graphics_pipeline_builder
     ) noexcept -> size_t;
 };
 
 }   // namespace core::renderer
 
-template <>
+export template <>
 struct std::hash<core::renderer::GraphicsPipelineBuilder> {
     [[nodiscard]]
     auto operator()(

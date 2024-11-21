@@ -1,13 +1,15 @@
-#pragma once
+module;
 
 #include <memory>
 
+export module core.cache.Handle;
+
 namespace core::cache {
 
-template <typename Resource>
+export template <typename Resource>
 using Handle = std::shared_ptr<Resource>;
 
-template <typename Resource>
+export template <typename Resource>
 [[nodiscard]]
 auto make_handle(auto&&... args) -> Handle<Resource>;
 

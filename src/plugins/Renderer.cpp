@@ -13,7 +13,7 @@ module;
 #include "core/renderer/model/Requirements.hpp"
 #include "core/window/Window.hpp"
 
-module plugins.renderer.Renderer;
+module plugins.renderer.RendererPlugin;
 
 import plugins.renderer.DevicePlugin;
 import plugins.renderer.InstancePlugin;

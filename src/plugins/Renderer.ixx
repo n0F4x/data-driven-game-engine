@@ -6,7 +6,7 @@ module;
 
 #include <VkBootstrap.h>
 
-export module plugins.renderer.Renderer;
+export module plugins.renderer.RendererPlugin;
 
 import app.App;
 

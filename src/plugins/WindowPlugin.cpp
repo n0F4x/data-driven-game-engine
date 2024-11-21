@@ -2,7 +2,7 @@ module;
 
 #include "core/window/Window.hpp"
 
-module plugins.window.Window;
+module plugins.window.WindowPlugin;
 
 namespace plugins::window {
 

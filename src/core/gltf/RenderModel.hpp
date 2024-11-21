@@ -7,17 +7,22 @@
 #include <core/gfx/resources/VirtualImage.hpp>
 #include <core/renderer/resources/Buffer.hpp>
 
-#include "core/cache/Cache.hpp"
 #include "core/gfx/resources/Image.hpp"
 #include "core/renderer/base/allocator/Allocator.hpp"
 #include "core/renderer/model/Drawable.hpp"
 #include "core/renderer/resources/RandomAccessBuffer.hpp"
 
+import core.cache.Cache;
+import core.cache.Handle;
+
 #include "Model.hpp"
 
 namespace core::gfx {
+
 class Camera;
+
 }   // namespace core::gfx
+
 struct ShaderMaterial;
 
 namespace core::gltf {

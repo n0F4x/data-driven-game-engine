@@ -1,12 +1,18 @@
-#pragma once
+module;
 
-#include "core/cache/Handle.hpp"
+#include <filesystem>
 
-#include "ShaderModule.hpp"
+#include <vulkan/vulkan.hpp>
+
+export module core.renderer.material_system.Shader;
+
+import core.cache.Handle;
+
+import core.renderer.material_system.ShaderModule;
 
 namespace core::renderer {
 
-class Shader {
+export class Shader {
 public:
     explicit Shader(
         cache::Handle<const ShaderModule> shader_module,
@@ -29,7 +35,7 @@ private:
 
 }   // namespace core::renderer
 
-template <>
+export template <>
 struct std::hash<core::renderer::Shader> {
     [[nodiscard]]
     auto operator()(const core::renderer::Shader& shader) const noexcept -> size_t;

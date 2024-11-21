@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <cstdint>
 #include <span>
@@ -6,15 +6,17 @@
 
 #include <vulkan/vulkan.hpp>
 
+export module core.renderer.material_system.VertexLayout;
+
 namespace core::renderer {
 
-struct VertexAttribute { // NOLINT(*-member-init)
+export struct VertexAttribute {   // NOLINT(*-member-init)
     uint32_t   location;
     vk::Format format;
     uint32_t   offset;
 };
 
-class VertexLayout {
+export class VertexLayout {
 public:
     explicit VertexLayout(
         uint32_t            stride,
