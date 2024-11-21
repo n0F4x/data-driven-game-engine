@@ -5,7 +5,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include "core/config/vulkan.hpp"
+import core.config.vulkan;
 
 static auto init_glfw() -> void
 {

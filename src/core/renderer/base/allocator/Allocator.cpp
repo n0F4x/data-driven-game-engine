@@ -2,12 +2,13 @@
 
 #include <spdlog/spdlog.h>
 
-#include "core/config/vulkan.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
 #include "core/renderer/base/resources/Allocation.hpp"
 #include "core/renderer/base/resources/Buffer.hpp"
 #include "core/renderer/base/resources/Image.hpp"
+
+import core.config.vulkan;
 
 [[nodiscard]]
 static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_device_info

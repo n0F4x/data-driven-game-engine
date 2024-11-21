@@ -4,11 +4,11 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
-#include <core/gfx/Camera.hpp>
-
 module demos.virtual_texture;
 
 import app.App;
+
+import core.gfx.Camera;
 
 import examples.base.DemoBase;
 import examples.base.Renderer;

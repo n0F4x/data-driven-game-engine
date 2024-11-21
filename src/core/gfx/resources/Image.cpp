@@ -1,13 +1,20 @@
-#include "Image.hpp"
+module;
 
-#include <ranges>
+#include "core/renderer/base/resources/Image.hpp"
+
 #include <cmath>
+#include <ranges>
 
-#include <core/renderer/base/resources/mipmap_generation.hpp>
+#include <VkBootstrap.h>
 
 #include "core/image/Image.hpp"
+#include "core/renderer/base/resources/mipmap_generation.hpp"
+#include "core/renderer/resources/Image.hpp"
+#include "core/renderer/resources/SeqWriteBuffer.hpp"
 
-#include "image_helpers.hpp"
+module core.gfx.resources.Image;
+
+import core.gfx.resources.image_helpers;
 
 [[nodiscard]]
 static auto image_usage_flags(const bool needs_to_blit_mipmaps) -> vk::ImageUsageFlags

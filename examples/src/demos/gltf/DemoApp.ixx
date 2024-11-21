@@ -3,6 +3,7 @@ module;
 #include <core/renderer/base/allocator/Allocator.hpp>
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
+#include <core/renderer/resources/Image.hpp>
 #include <core/renderer/scene/Scene.hpp>
 
 export module demos.gltf.DemoApp;

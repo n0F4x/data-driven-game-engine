@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
@@ -20,9 +20,11 @@ class Allocator;
 
 }   // namespace core::renderer::base
 
+export module core.gfx.resources.Image;
+
 namespace core::gfx::resources {
 
-class Image {
+export class Image {
 public:
     class Loader {
     public:

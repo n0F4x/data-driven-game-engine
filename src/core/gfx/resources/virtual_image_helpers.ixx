@@ -1,13 +1,32 @@
-#pragma once
+module;
 
-#include "VirtualImage.hpp"
+#include <vulkan/vulkan.hpp>
+
+#include <core/renderer/resources/SeqWriteBuffer.hpp>
+
+namespace core::image {
+
+class Image;
+
+}   // namespace core::image
+
+namespace core::renderer::base {
+
+class Allocator;
+class Image;
+
+}   // namespace core::renderer::base
+
+export module core.gfx.resources.virtual_image_helpers;
+
+import core.gfx.resources.VirtualImage;
 
 namespace core::gfx::resources {
 
-auto sparse_color_requirements(const core::renderer::base::Image& image)
+export auto sparse_color_requirements(const core::renderer::base::Image& image)
     -> vk::SparseImageMemoryRequirements;
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_sparse_blocks(
     const image::Image&                      source,
     const vk::Extent3D&                      extent,
@@ -16,21 +35,21 @@ auto create_sparse_blocks(
     const vk::SparseImageMemoryRequirements& sparse_requirements
 ) -> std::vector<VirtualImage::Block>;
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_mip_tail_region(
     const core::renderer::base::Allocator&   allocator,
     const vk::MemoryRequirements&            memory_requirements,
     const vk::SparseImageMemoryRequirements& sparse_requirements
 ) -> VirtualImage::MipTailRegion;
 
-[[nodiscard]]
+export [[nodiscard]]
 auto stage_tail(
     const core::renderer::base::Allocator&   allocator,
     const core::image::Image&                source,
     const vk::SparseImageMemoryRequirements& sparse_requirements
-) -> core::renderer::resources::SeqWriteBuffer<>;
+) -> renderer::resources::SeqWriteBuffer<>;
 
-[[nodiscard]]
+export [[nodiscard]]
 auto create_mip_tail_copy_regions(
     const core::image::Image&                source,
     const vk::SparseImageMemoryRequirements& sparse_requirements

@@ -1,4 +1,4 @@
-#include "virtual_image_helpers.hpp"
+module;
 
 #include <cstddef>
 #include <ranges>
@@ -7,9 +7,12 @@
 
 #include <glm/vec3.hpp>
 
-#include <core/image/Image.hpp>
-
+#include "core/image/Image.hpp"
+#include "core/renderer/base/allocator/Allocator.hpp"
 #include "core/renderer/base/resources/image_extensions.hpp"
+#include "core/renderer/resources/SeqWriteBuffer.hpp"
+
+module core.gfx.resources.virtual_image_helpers;
 
 auto core::gfx::resources::sparse_color_requirements(
     const core::renderer::base::Image& image
@@ -180,15 +183,17 @@ auto core::gfx::resources::create_sparse_blocks(
                         image_granularity, mip_extent, sparse_bind_counts, x, y, z
                     ) };
 
-                    result.push_back(core::gfx::resources::VirtualImage::Block{
-                        .m_source = ::create_block_source(
-                            source, offset, block_extent, mip_level_index
-                        ),
-                        .m_offset      = offset,
-                        .m_extent      = block_extent,
-                        .m_size        = memory_requirements.alignment,
-                        .m_subresource = subresource,
-                    });
+                    result.push_back(
+                        core::gfx::resources::VirtualImage::Block{
+                            .m_source = ::create_block_source(
+                                source, offset, block_extent, mip_level_index
+                            ),
+                            .m_offset      = offset,
+                            .m_extent      = block_extent,
+                            .m_size        = memory_requirements.alignment,
+                            .m_subresource = subresource,
+                        }
+                    );
                 }
             }
         }

@@ -5,8 +5,9 @@ module;
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <core/gfx/Camera.hpp>
 #include <core/window/Window.hpp>
+
+import core.gfx.Camera;
 
 module examples.base.Controller;
 

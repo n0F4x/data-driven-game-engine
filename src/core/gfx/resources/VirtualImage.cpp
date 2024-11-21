@@ -1,4 +1,4 @@
-#include "VirtualImage.hpp"
+module;
 
 #include <numeric>
 #include <ranges>
@@ -9,14 +9,19 @@
 #include <vulkan/vulkan_format_traits.hpp>
 #include <vulkan/vulkan_to_string.hpp>
 
+#include <VkBootstrap.h>
+
 #include <glm/vec3.hpp>
 
 #include "core/image/Image.hpp"
 #include "core/renderer/base/resources/Allocation.hpp"
 #include "core/renderer/base/resources/image_extensions.hpp"
+#include "core/renderer/resources/SeqWriteBuffer.hpp"
 
-#include "image_helpers.hpp"
-#include "virtual_image_helpers.hpp"
+module core.gfx.resources.VirtualImage;
+
+import core.gfx.resources.image_helpers;
+import core.gfx.resources.virtual_image_helpers;
 
 [[nodiscard]]
 static auto image_usage_flags() -> vk::ImageUsageFlags
@@ -153,7 +158,8 @@ core::gfx::resources::VirtualImage::Loader::Loader(
     }
 }
 
-auto core::gfx::resources::VirtualImage::Loader::bind_tail(const vk::Queue sparse_queue
+auto core::gfx::resources::VirtualImage::Loader::bind_tail(
+    const vk::Queue sparse_queue
 ) const -> void
 {
     const renderer::base::MemoryView mip_tail_memory_view{
@@ -482,7 +488,8 @@ static auto create_copy_regions(
 {
     return memory_blocks
          | std::views::transform(
-               [offset = 0u, format](const core::gfx::resources::VirtualImage::Block& block
+               [offset = 0u, format](
+                   const core::gfx::resources::VirtualImage::Block& block
                ) mutable -> vk::BufferImageCopy {
                    const vk::BufferImageCopy result{
                        .bufferOffset = offset,
@@ -515,9 +522,11 @@ static auto create_staging_buffer(
         // TODO: use std::ranges::fold_left_first
         .size = std::ranges::fold_left(
             blocks
-                | std::views::transform(std::bind_back(
-                    &core::gfx::resources::VirtualImage::Block::buffer_size, format
-                )),
+                | std::views::transform(
+                    std::bind_back(
+                        &core::gfx::resources::VirtualImage::Block::buffer_size, format
+                    )
+                ),
             0u,
             std::plus<>{}
         ),

@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <VkBootstrap.h>
 
@@ -7,11 +7,13 @@
 #include "core/renderer/base/resources/Image.hpp"
 #include "core/renderer/resources/SeqWriteBuffer.hpp"
 
-#include "Image.hpp"
+export module core.gfx.resources.VirtualImage;
+
+import core.gfx.resources.Image;
 
 namespace core::gfx::resources {
 
-class VirtualImage {
+export class VirtualImage {
 public:
     // NOLINTNEXTLINE(*-member-init)
     struct Block {
@@ -107,7 +109,8 @@ public:
     auto blocks() const -> std::span<const Block>;
 
     auto request_block(uint32_t block_index) -> void;
-    auto request_blocks_by_distance_from_camera(double distance, double map_scale = 1.f) -> void;
+    auto request_blocks_by_distance_from_camera(double distance, double map_scale = 1.f)
+        -> void;
     auto request_all_blocks() -> void;
 
 private:

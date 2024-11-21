@@ -2,13 +2,9 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
+#include "core/window/Window.hpp"
+
 class StoreView;
-
-namespace core::window {
-
-class Window;
-
-}   // namespace core::window
 
 namespace core::renderer::base {
 

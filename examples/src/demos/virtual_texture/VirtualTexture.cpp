@@ -4,15 +4,15 @@ module;
 
 #include <glm/ext/vector_float3.hpp>
 
-#include <core/gfx/resources/VirtualImage.hpp>
 #include <core/image/stb/Image.hpp>
 #include <core/renderer/base/allocator/Allocator.hpp>
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/resources/Buffer.hpp>
 #include <core/renderer/resources/SeqWriteBuffer.hpp>
 
-
 module demos.virtual_texture.VirtualTexture;
+
+import core.gfx.resources.VirtualImage;
 
 import demos.virtual_texture.init;
 import demos.virtual_texture.Vertex;

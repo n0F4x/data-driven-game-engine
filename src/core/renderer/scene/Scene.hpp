@@ -3,8 +3,9 @@
 #include <vulkan/vulkan.hpp>
 
 #include "core/gltf/RenderModel.hpp"
-#include "core/gfx/Camera.hpp"
 #include "core/renderer/base/descriptor_pool/DescriptorPool.hpp"
+
+import core.gfx.Camera;
 
 namespace core::renderer {
 

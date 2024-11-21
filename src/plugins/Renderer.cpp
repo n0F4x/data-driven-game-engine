@@ -4,16 +4,16 @@ module;
 
 #include <VkBootstrap.h>
 
-#include "core/gfx/resources/Image.hpp"
-#include "core/gfx/resources/VirtualImage.hpp"
 #include "core/renderer/base/allocator/Requirements.hpp"
 #include "core/renderer/base/device/Device.hpp"
 #include "core/renderer/base/instance/Instance.hpp"
 #include "core/renderer/base/swapchain/Requirements.hpp"
 #include "core/renderer/model/Requirements.hpp"
-#include "core/window/Window.hpp"
 
 module plugins.renderer.RendererPlugin;
+
+import core.gfx.resources.Image;
+import core.gfx.resources.VirtualImage;
 
 import plugins.renderer.DevicePlugin;
 import plugins.renderer.InstancePlugin;

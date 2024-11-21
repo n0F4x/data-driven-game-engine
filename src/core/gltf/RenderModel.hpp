@@ -3,25 +3,18 @@
 #include <future>
 #include <variant>
 
-#include <core/gfx/Camera.hpp>
-#include <core/gfx/resources/VirtualImage.hpp>
-#include <core/renderer/resources/Buffer.hpp>
-
-#include "core/gfx/resources/Image.hpp"
 #include "core/renderer/base/allocator/Allocator.hpp"
 #include "core/renderer/model/Drawable.hpp"
+#include "core/renderer/resources/Buffer.hpp"
 #include "core/renderer/resources/RandomAccessBuffer.hpp"
 
 import core.cache.Cache;
 import core.cache.Handle;
+import core.gfx.Camera;
+import core.gfx.resources.VirtualImage;
+import core.gfx.resources.Image;
 
 #include "Model.hpp"
-
-namespace core::gfx {
-
-class Camera;
-
-}   // namespace core::gfx
 
 struct ShaderMaterial;
 

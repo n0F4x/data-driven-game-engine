@@ -1,11 +1,12 @@
 module;
 
-#include <core/gfx/Camera.hpp>
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 #include <core/window/Window.hpp>
 
 export module examples.base.DemoBase;
+
+import core.gfx.Camera;
 
 import examples.base.Controller;
 import examples.base.Renderer;

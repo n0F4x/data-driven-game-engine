@@ -1,12 +1,16 @@
 module;
 
-#include <core/gfx/Camera.hpp>
-#include <core/gfx/resources/image_helpers.hpp>
+#include <glm/ext/matrix_float4x4.hpp>
+
 #include <core/renderer/base/descriptor_pool/Builder.hpp>
 #include <core/renderer/base/resources/copy_operations.hpp>
+#include <core/renderer/base/resources/Image.hpp>
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 
 module demos.virtual_texture.DemoApp;
+
+import core.gfx.Camera;
+import core.gfx.resources.image_helpers;
 
 import plugins.renderer.DevicePlugin;
 import plugins.renderer.InstancePlugin;
