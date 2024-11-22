@@ -1,9 +1,15 @@
-#include "Builder.hpp"
+module;
 
-#include <core/renderer/base/device/Device.hpp>
-#include <core/renderer/model/ModelLayout.hpp>
+#include <future>
+#include <ranges>
 
-#include "core/renderer/base/descriptor_pool/Builder.hpp"
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.scene.Scene;
+
+import core.renderer.base.device.Device;
+import core.renderer.base.descriptor_pool.DescriptorPool;
+import core.renderer.model.ModelLayout;
 
 using namespace core;
 using namespace core::renderer;
@@ -18,7 +24,7 @@ static auto create_global_descriptor_set_layout(const vk::Device device)
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex
-                                       | vk::ShaderStageFlagBits::eFragment },
+                        | vk::ShaderStageFlagBits::eFragment },
     };
 
     constexpr static vk::DescriptorSetLayoutCreateInfo create_info{
@@ -30,7 +36,8 @@ static auto create_global_descriptor_set_layout(const vk::Device device)
 }
 
 [[nodiscard]]
-static auto max_image_count(const std::span<const cache::Handle<const gltf::Model>> models
+static auto max_image_count(
+    const std::span<const cache::Handle<const gltf::Model>> models
 ) noexcept -> uint32_t
 {
     return static_cast<uint32_t>(std::ranges::max_element(
@@ -69,10 +76,12 @@ static auto request_descriptors(
 {
     descriptor_pool_builder.request_descriptor_sets(ModelLayout::descriptor_set_count());
     descriptor_pool_builder.request_descriptors(
-        ModelLayout::descriptor_pool_sizes(ModelLayout::DescriptorSetLayoutCreateInfo{
-            .max_image_count   = static_cast<uint32_t>(model.images().size()),
-            .max_sampler_count = static_cast<uint32_t>(model.samplers().size()),
-        })
+        ModelLayout::descriptor_pool_sizes(
+            ModelLayout::DescriptorSetLayoutCreateInfo{
+                .max_image_count   = static_cast<uint32_t>(model.images().size()),
+                .max_sampler_count = static_cast<uint32_t>(model.samplers().size()),
+            }
+        )
     );
 }
 
@@ -85,10 +94,12 @@ static auto create_descriptor_pool(
     auto builder{ base::DescriptorPool::create() };
 
     builder.request_descriptor_sets(1);
-    builder.request_descriptors(vk::DescriptorPoolSize{
-        .type            = vk::DescriptorType::eUniformBuffer,
-        .descriptorCount = 1,
-    });
+    builder.request_descriptors(
+        vk::DescriptorPoolSize{
+            .type            = vk::DescriptorType::eUniformBuffer,
+            .descriptorCount = 1,
+        }
+    );
 
     std::ranges::for_each(
         models,
@@ -147,8 +158,9 @@ static auto create_global_descriptor_set(
         .descriptorSetCount = 1,
         .pSetLayouts        = &layout,
     };
-    auto descriptor_sets{ device.allocateDescriptorSetsUnique(descriptor_set_allocate_info
-    ) };
+    auto descriptor_sets{
+        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
+    };
 
     const vk::DescriptorBufferInfo buffer_info{
         .buffer = global_buffer,
@@ -259,36 +271,36 @@ auto Scene::Builder::build(
         | std::ranges::to<std::vector>()
     };
 
-    return std::packaged_task{
-        [global_descriptor_set_layout = std::move(global_descriptor_set_layout),
-         model_descriptor_set_layouts = std::move(model_descriptor_set_layouts),
-         pipeline_layout              = std::move(pipeline_layout),
-         descriptor_pool              = std::move(descriptor_pool),
-         global_buffer                = std::move(global_buffer),
-         global_descriptor_set        = std::move(global_descriptor_set),
-         model_loaders                = std::move(model_loaders
-         )](const vk::CommandBuffer transfer_command_buffer) mutable -> Scene {
-            return Scene{
-                std::move(global_descriptor_set_layout),
-                std::move(model_descriptor_set_layouts),
-                std::move(pipeline_layout),
-                std::move(descriptor_pool),
-                std::move(global_buffer),
-                std::move(global_descriptor_set),
-                model_loaders
-                    | std::views::transform(
-                        [transfer_command_buffer](
-                            std::packaged_task<gltf::RenderModel(vk::CommandBuffer)>&
-                                model_task
-                        ) {
-                            std::invoke(model_task, transfer_command_buffer);
-                            return model_task.get_future().get();
-                        }
-                    )
-                    | std::ranges::to<std::vector>()
-            };
-        }
-    };
+    return std::packaged_task{ [global_descriptor_set_layout =
+                                    std::move(global_descriptor_set_layout),
+                                model_descriptor_set_layouts =
+                                    std::move(model_descriptor_set_layouts),
+                                pipeline_layout       = std::move(pipeline_layout),
+                                descriptor_pool       = std::move(descriptor_pool),
+                                global_buffer         = std::move(global_buffer),
+                                global_descriptor_set = std::move(global_descriptor_set),
+                                model_loaders         = std::move(model_loaders)](
+                                   const vk::CommandBuffer transfer_command_buffer
+                               ) mutable -> Scene {
+        return Scene{
+            std::move(global_descriptor_set_layout),
+            std::move(model_descriptor_set_layouts),
+            std::move(pipeline_layout),
+            std::move(descriptor_pool),
+            std::move(global_buffer),
+            std::move(global_descriptor_set),
+            model_loaders
+                | std::views::transform(
+                    [transfer_command_buffer](
+                        std::packaged_task<gltf::RenderModel(vk::CommandBuffer)>& model_task
+                    ) {
+                        std::invoke(model_task, transfer_command_buffer);
+                        return model_task.get_future().get();
+                    }
+                )
+                | std::ranges::to<std::vector>()
+        };
+    } };
 }
 
 }   // namespace core::renderer

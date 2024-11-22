@@ -1,4 +1,4 @@
-#include "SwapchainHolder.hpp"
+module;
 
 #include <array>
 #include <limits>
@@ -6,7 +6,12 @@
 
 #include <spdlog/spdlog.h>
 
+#include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
+
+#include <VkBootstrap.h>
+
+module core.renderer.base.swapchain.SwapchainHolder;
 
 namespace core::renderer::base {
 

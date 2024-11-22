@@ -4,10 +4,7 @@ module;
 #include <future>
 #include <variant>
 
-#include "core/renderer/base/allocator/Allocator.hpp"
-#include "core/renderer/model/Drawable.hpp"
-#include "core/renderer/resources/Buffer.hpp"
-#include "core/renderer/resources/RandomAccessBuffer.hpp"
+#include <vulkan/vulkan.hpp>
 
 export module core.gltf.RenderModel;
 
@@ -18,6 +15,12 @@ import core.gfx.resources.VirtualImage;
 import core.gfx.resources.Image;
 
 import core.gltf.Model;
+
+import core.renderer.base.device.Device;
+import core.renderer.base.allocator.Allocator;
+import core.renderer.model.Drawable;
+import core.renderer.resources.Buffer;
+import core.renderer.resources.RandomAccessBuffer;
 
 struct ShaderMaterial;
 

@@ -1,18 +1,17 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
-namespace core::renderer::base {
+export module core.renderer.base.resources.image_extensions;
 
-class Image;
-
-}   // namespace core::renderer::base
+import core.renderer.base.resources.Image;
 
 namespace core::renderer::base {
 
-[[nodiscard]]
+export [[nodiscard]]
 auto ext_memory_requirements(const Image& image) -> vk::MemoryRequirements;
-auto ext_sparse_memory_requirements(const Image& image)
+
+export auto ext_sparse_memory_requirements(const Image& image)
     -> std::vector<vk::SparseImageMemoryRequirements>;
 
 }   // namespace core::renderer::base

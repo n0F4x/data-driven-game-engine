@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
@@ -6,20 +6,27 @@
 
 #include "core/utility/lifetime_bound.hpp"
 
-#include "MemoryTypeIndex.hpp"
-#include "MemoryView.hpp"
+export module core.renderer.base.resources.Allocation;
+
+import core.renderer.base.resources.MemoryTypeIndex;
+import core.renderer.base.resources.MemoryView;
 
 namespace core::renderer::base {
 
-class Allocator;
-
-class Allocation {
+export class Allocation {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///
     ///------------------------------///
-     Allocation(const Allocation&) = delete;
-     Allocation(Allocation&&) noexcept;
+    // TODO: allow only Allocator to construct this
+    explicit Allocation(
+        VmaAllocator   allocator,
+        VmaAllocation  allocation,
+        uint32_t       memory_type_index,
+        vk::DeviceSize size
+    ) noexcept;
+    Allocation(const Allocation&) = delete;
+    Allocation(Allocation&&) noexcept;
     ~Allocation() noexcept;
 
     ///-------------///
@@ -56,20 +63,11 @@ protected:
     auto allocator() const noexcept -> VmaAllocator;
 
 private:
-    friend Allocator;
-
     VmaAllocator  m_allocator{};
     VmaAllocation m_allocation{};
 
     MemoryTypeIndex m_memory_type_index{ invalid_memory_type_index_v };
     vk::DeviceSize  m_size{};
-
-    explicit Allocation(
-        VmaAllocator   allocator,
-        VmaAllocation  allocation,
-        uint32_t       memory_type_index,
-        vk::DeviceSize size
-    ) noexcept;
 };
 
 }   // namespace core::renderer::base

@@ -1,22 +1,18 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
 #include <vk_mem_alloc.h>
 
-#include <core/renderer/base/resources/Buffer.hpp>
+export module core.renderer.resources.Buffer;
 
-#include "core/renderer/base/resources/Allocation.hpp"
-
-namespace core::renderer::base {
-
-class Allocator;
-
-}   // namespace core::renderer::base
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.resources.Allocation;
+import core.renderer.base.resources.Buffer;
 
 namespace core::renderer::resources {
 
-class Buffer {
+export class Buffer {
 public:
     Buffer(
         const base::Allocator&         allocator,

@@ -1,8 +1,14 @@
-#include "Image.hpp"
+module;
 
 #include <ranges>
 
-#include "core/renderer/base/allocator/Allocator.hpp"
+#include <vulkan/vulkan.hpp>
+
+#include <vk_mem_alloc.h>
+
+module core.renderer.resources.Image;
+
+import core.renderer.base.allocator.Allocator;
 
 core::renderer::resources::Image::Image(
     const base::Allocator&         allocator,

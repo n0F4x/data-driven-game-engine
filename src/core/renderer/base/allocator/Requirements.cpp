@@ -1,8 +1,12 @@
-#include "Requirements.hpp"
+module;
 
 #include <vulkan/vulkan.hpp>
 
+#include <VkBootstrap.h>
+
 #include <gsl-lite/gsl-lite.hpp>
+
+module core.renderer.base.allocator.Allocator;
 
 namespace core::renderer::base {
 

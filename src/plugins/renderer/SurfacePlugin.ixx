@@ -4,13 +4,9 @@ module;
 
 class StoreView;
 
-namespace core::renderer::base {
-
-class Instance;
-
-}   // namespace core::renderer::base
-
 export module plugins.renderer.SurfacePlugin;
+
+import core.renderer.base.instance.Instance;
 
 import core.window.Window;
 

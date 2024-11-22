@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <gsl-lite/gsl-lite.hpp>
 
@@ -6,16 +6,20 @@
 
 #include <vk_mem_alloc.h>
 
+#include <VkBootstrap.h>
+
+export module core.renderer.base.allocator.Allocator;
+
+import core.renderer.base.instance.Instance;
+import core.renderer.base.device.Device;
+
+import core.renderer.base.resources.Allocation;
+import core.renderer.base.resources.Buffer;
+import core.renderer.base.resources.Image;
+
 namespace core::renderer::base {
 
-class Instance;
-class Device;
-
-class Allocation;
-class Buffer;
-class Image;
-
-class Allocator {
+export class Allocator {
 public:
     class Requirements;
 
@@ -53,6 +57,26 @@ private:
 
     [[nodiscard]]
     auto device() const -> vk::Device;
+};
+
+class Allocator::Requirements {
+public:
+    [[nodiscard]]
+    static auto required_instance_settings_are_available(
+        const vkb::SystemInfo& system_info
+    ) -> bool;
+
+    static auto enable_instance_settings(
+        const vkb::SystemInfo& system_info,
+        vkb::InstanceBuilder&  builder
+    ) -> void;
+
+    static auto require_device_settings(
+        vkb::PhysicalDeviceSelector& physical_device_selector
+    ) -> void;
+
+    static auto enable_optional_device_settings(vkb::PhysicalDevice& physical_device)
+        -> void;
 };
 
 }   // namespace core::renderer::base

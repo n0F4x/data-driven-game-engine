@@ -2,18 +2,21 @@ module;
 
 #include <spdlog/spdlog.h>
 
-#include <VkBootstrap.h>
+#include <vulkan/vulkan.hpp>
 
-#include "core/renderer/base/allocator/Requirements.hpp"
-#include "core/renderer/base/device/Device.hpp"
-#include "core/renderer/base/instance/Instance.hpp"
-#include "core/renderer/base/swapchain/Requirements.hpp"
-#include "core/renderer/model/Requirements.hpp"
+#include <VkBootstrap.h>
 
 module plugins.renderer.RendererPlugin;
 
 import core.gfx.resources.Image;
 import core.gfx.resources.VirtualImage;
+
+import core.renderer.base.instance.Instance;
+import core.renderer.base.device.Device;
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.swapchain.Swapchain;
+import core.renderer.base.swapchain.SwapchainHolder;
+import core.renderer.model.ModelLayout;
 
 import plugins.renderer.DevicePlugin;
 import plugins.renderer.InstancePlugin;

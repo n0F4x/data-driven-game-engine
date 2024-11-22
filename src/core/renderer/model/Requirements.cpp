@@ -1,4 +1,10 @@
-#include "Requirements.hpp"
+module;
+
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
+
+module core.renderer.model.ModelLayout;
 
 // Required extensions:
 //     - VK_KHR_buffer_device_address

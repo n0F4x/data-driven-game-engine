@@ -7,14 +7,10 @@ module;
 
 #include <VkBootstrap.h>
 
-namespace core::renderer::base {
-
-class Instance;
-class Device;
-
-}   // namespace core::renderer::base
-
 export module plugins.renderer.DevicePlugin;
+
+import core.renderer.base.instance.Instance;
+import core.renderer.base.device.Device;
 
 namespace plugins::renderer {
 

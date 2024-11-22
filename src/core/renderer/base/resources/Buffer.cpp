@@ -1,4 +1,8 @@
-#include "Buffer.hpp"
+module;
+
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.base.resources.Buffer;
 
 auto core::renderer::base::Buffer::get() const -> vk::Buffer
 {

@@ -1,4 +1,4 @@
-#include "Swapchain.hpp"
+module;
 
 #include <limits>
 #include <ranges>
@@ -7,7 +7,10 @@
 
 #include <spdlog/spdlog.h>
 
+#include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
+
+module core.renderer.base.swapchain.Swapchain;
 
 namespace core::renderer::base {
 

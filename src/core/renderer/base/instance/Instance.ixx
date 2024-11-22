@@ -1,12 +1,14 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
 #include <VkBootstrap.h>
 
+export module core.renderer.base.instance.Instance;
+
 namespace core::renderer::base {
 
-class Instance {
+export class Instance {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///

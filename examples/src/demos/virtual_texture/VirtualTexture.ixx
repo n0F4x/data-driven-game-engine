@@ -1,13 +1,15 @@
 module;
 
-#include <glm/ext/vector_float3.hpp>
+#include <vulkan/vulkan.hpp>
 
-#include <core/renderer/base/device/Device.hpp>
-#include <core/renderer/resources/Buffer.hpp>
+#include <glm/ext/vector_float3.hpp>
 
 export module demos.virtual_texture.VirtualTexture;
 
 import core.gfx.resources.VirtualImage;
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.device.Device;
+import core.renderer.resources.Buffer;
 
 import examples.base.init;
 

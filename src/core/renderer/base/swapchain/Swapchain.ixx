@@ -1,13 +1,17 @@
-#pragma once
+module;
 
 #include <optional>
 #include <vector>
 
 #include <vulkan/vulkan.hpp>
 
+#include <VkBootstrap.h>
+
+export module core.renderer.base.swapchain.Swapchain;
+
 namespace core::renderer::base {
 
-class Swapchain {
+export class Swapchain {
 public:
     class Requirements;
 
@@ -67,6 +71,25 @@ private:
         vk::UniqueSwapchainKHR&&           swapchain,
         std::vector<vk::UniqueImageView>&& image_views
     ) noexcept;
+};
+
+class Swapchain::Requirements {
+public:
+    [[nodiscard]]
+    static auto required_instance_settings_are_available(const vkb::SystemInfo& system_info
+    ) -> bool;
+
+    static auto enable_instance_settings(
+        const vkb::SystemInfo& system_info,
+        vkb::InstanceBuilder&  builder
+    ) -> void;
+
+    static auto
+        require_device_settings(vkb::PhysicalDeviceSelector& physical_device_selector
+        ) -> void;
+
+    static auto enable_optional_device_settings(vkb::PhysicalDevice& physical_device
+    ) -> void;
 };
 
 }   // namespace core::renderer::base

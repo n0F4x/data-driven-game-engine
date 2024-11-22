@@ -1,11 +1,26 @@
-#pragma once
+module;
 
-#include <cstdint>
-#include <ranges>
+#include <vulkan/vulkan.hpp>
 
-#include "DescriptorPool.hpp"
+export module core.renderer.base.descriptor_pool.DescriptorPool;
 
 namespace core::renderer::base {
+
+export class DescriptorPool {
+public:
+    class Builder;
+
+    [[nodiscard]]
+    static auto create() noexcept -> Builder;
+
+    explicit DescriptorPool(vk::UniqueDescriptorPool&& descriptor_pool) noexcept;
+
+    [[nodiscard]]
+    auto get() const noexcept -> vk::DescriptorPool;
+
+private:
+    vk::UniqueDescriptorPool m_descriptor_pool;
+};
 
 class DescriptorPool::Builder {
 public:

@@ -1,13 +1,17 @@
 module;
 
-#include <core/renderer/base/swapchain/SwapchainHolder.hpp>
-#include <core/renderer/scene/Builder.hpp>
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
 
 module examples.base.Renderer;
 
+import core.renderer.base.swapchain.SwapchainHolder;
+import core.renderer.scene.Scene;
+
 import core.window.Window;
 
-import  examples.base.init;
+import examples.base.init;
 
 examples::base::Renderer::Renderer(
     const core::window::Window&            window,
@@ -93,7 +97,8 @@ static auto submit_render(
     queue.submit(submit_info, signal_fence);
 }
 
-auto examples::base::Renderer::finish_rendering(const vk::CommandBuffer command_buffer) -> void
+auto examples::base::Renderer::finish_rendering(const vk::CommandBuffer command_buffer)
+    -> void
 {
     command_buffer.end();
 

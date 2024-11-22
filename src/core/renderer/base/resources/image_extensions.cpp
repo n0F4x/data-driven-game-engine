@@ -1,6 +1,10 @@
-#include "image_extensions.hpp"
+module;
 
-#include "Image.hpp"
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.base.resources.image_extensions;
+
+import core.renderer.base.resources.Image;
 
 auto core::renderer::base::ext_memory_requirements(const Image& image)
     -> vk::MemoryRequirements

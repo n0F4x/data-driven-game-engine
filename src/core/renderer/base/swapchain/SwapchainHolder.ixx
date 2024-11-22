@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <functional>
 #include <optional>
@@ -7,13 +7,15 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/renderer/base/device/Device.hpp"
+export module core.renderer.base.swapchain.SwapchainHolder;
 
-#include "Swapchain.hpp"
+import core.renderer.base.swapchain.Swapchain;
+
+import core.renderer.base.device.Device;
 
 namespace core::renderer::base {
 
-class SwapchainHolder {
+export class SwapchainHolder {
 public:
     ///----------------///
     ///  Type aliases  ///

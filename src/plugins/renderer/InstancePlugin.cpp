@@ -7,13 +7,14 @@ module;
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
 
-#include "core/renderer/base/instance/Instance.hpp"
+#include <VkBootstrap.h>
 
 module plugins.renderer.InstancePlugin;
 
 import app.App;
 
 import core.config.vulkan;
+import core.renderer.base.instance.Instance;
 
 // ReSharper disable once CppEnforceFunctionDeclarationStyle
 static VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(

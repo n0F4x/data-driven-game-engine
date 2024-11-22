@@ -1,4 +1,10 @@
-#include "Instance.hpp"
+module;
+
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
+
+module core.renderer.base.instance.Instance;
 
 namespace core::renderer::base {
 

@@ -2,16 +2,18 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
-#include <core/renderer/base/descriptor_pool/DescriptorPool.hpp>
-#include <core/renderer/base/swapchain/SwapchainHolder.hpp>
-#include <core/renderer/resources/Image.hpp>
-#include <core/renderer/resources/RandomAccessBuffer.hpp>
-#include <core/renderer/resources/Buffer.hpp>
-
 export module demos.virtual_texture.DemoApp;
 
 import core.gfx.Camera;
 import core.gfx.resources.VirtualImage;
+
+import core.renderer.base.device.Device;
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.descriptor_pool.DescriptorPool;
+import core.renderer.base.swapchain.SwapchainHolder;
+import core.renderer.resources.Buffer;
+import core.renderer.resources.Image;
+import core.renderer.resources.RandomAccessBuffer;
 
 import store.StoreView;
 

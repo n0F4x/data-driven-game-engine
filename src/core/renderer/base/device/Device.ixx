@@ -1,12 +1,14 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
 #include <VkBootstrap.h>
 
+export module core.renderer.base.device.Device;
+
 namespace core::renderer::base {
 
-class Device {
+export class Device {
 public:
     ///------------------------------///
     ///  Constructors / Destructors  ///

@@ -4,19 +4,14 @@ module;
 
 #include <VkBootstrap.h>
 
-#include <core/renderer/resources/SeqWriteBuffer.hpp>
-
-#include "core/renderer/resources/Image.hpp"
-
-namespace core::renderer::base {
-
-class Allocator;
-
-}   // namespace core::renderer::base
-
 export module core.gfx.resources.Image;
 
 import core.image.Image;
+
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.resources.Image;
+import core.renderer.resources.Image;
+import core.renderer.resources.SeqWriteBuffer;
 
 namespace core::gfx::resources {
 

@@ -2,9 +2,9 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/renderer/base/resources/Image.hpp"
-
 module core.gfx.resources.image_helpers;
+
+import core.renderer.base.resources.Image;
 
 auto core::gfx::resources::transition_image_layout(
     const vk::CommandBuffer             command_buffer,

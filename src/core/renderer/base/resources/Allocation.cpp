@@ -1,6 +1,15 @@
-#include "Allocation.hpp"
+module;
 
+#include <cassert>
 #include <utility>
+
+#include <vulkan/vulkan.hpp>
+
+#include <vk_mem_alloc.h>
+
+module core.renderer.base.resources.Allocation;
+
+import core.renderer.base.resources.MemoryTypeIndex;
 
 namespace core::renderer::base {
 

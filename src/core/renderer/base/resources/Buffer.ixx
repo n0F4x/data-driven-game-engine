@@ -1,16 +1,17 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
 #include "core/utility/lifetime_bound.hpp"
 
+export module core.renderer.base.resources.Buffer;
+
 namespace core::renderer::base {
 
-class Allocator;
-
-class Buffer {
+export class Buffer {
 public:
     Buffer() = default;
+    Buffer(vk::UniqueBuffer&& buffer, vk::DeviceSize buffer_size) noexcept;
 
     [[nodiscard]]
     auto get() const [[lifetime_bound]] -> vk::Buffer;
@@ -21,12 +22,8 @@ public:
     auto reset() -> void;
 
 private:
-    friend Allocator;
-
     vk::UniqueBuffer m_buffer;
     vk::DeviceSize   m_size{};
-
-    Buffer(vk::UniqueBuffer&& buffer, vk::DeviceSize buffer_size) noexcept;
 };
 
 }   // namespace core::renderer::base

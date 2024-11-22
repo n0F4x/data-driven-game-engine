@@ -1,17 +1,28 @@
-#include "Allocator.hpp"
+module;
+
+#include <gsl-lite/gsl-lite.hpp>
 
 #include <spdlog/spdlog.h>
 
-#include "core/renderer/base/device/Device.hpp"
-#include "core/renderer/base/instance/Instance.hpp"
-#include "core/renderer/base/resources/Allocation.hpp"
-#include "core/renderer/base/resources/Buffer.hpp"
-#include "core/renderer/base/resources/Image.hpp"
+#include <vulkan/vulkan.hpp>
+
+#include <vk_mem_alloc.h>
+
+#include <VkBootstrap.h>
+
+module core.renderer.base.allocator.Allocator;
+import core.renderer.base.resources.Allocation;
+import core.renderer.base.resources.Buffer;
+import core.renderer.base.resources.Image;
 
 import core.config.vulkan;
 
+import core.renderer.base.instance.Instance;
+import core.renderer.base.device.Device;
+
 [[nodiscard]]
-static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_device_info
+static auto vma_allocator_create_flags(
+    const vkb::PhysicalDevice& physical_device_info
 ) noexcept -> VmaAllocatorCreateFlags
 {
     VmaAllocatorCreateFlags flags{};
@@ -34,7 +45,8 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_devic
             .deviceCoherentMemory = vk::True,
         };
     if (physical_device_info.is_extension_present(vk::AMDDeviceCoherentMemoryExtensionName)
-        && physical_device_info.are_extension_features_present(coherent_memory_features_amd
+        && physical_device_info.are_extension_features_present(
+            coherent_memory_features_amd
         ))
     {
         flags |= VMA_ALLOCATOR_CREATE_AMD_DEVICE_COHERENT_MEMORY_BIT;
@@ -44,8 +56,7 @@ static auto vma_allocator_create_flags(const vkb::PhysicalDevice& physical_devic
         buffer_device_address_features{
             .bufferDeviceAddress = vk::True,
         };
-    if (physical_device_info.are_extension_features_present(buffer_device_address_features
-        ))
+    if (physical_device_info.are_extension_features_present(buffer_device_address_features))
     {
         flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     }

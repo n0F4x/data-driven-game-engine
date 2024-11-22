@@ -1,8 +1,11 @@
-#include "Image.hpp"
+module;
 
 #include <ranges>
 
 #include <vulkan/utility/vk_format_utils.h>
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.base.resources.Image;
 
 core::renderer::base::Image::Image(
     vk::UniqueImage&&          image,

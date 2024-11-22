@@ -1,8 +1,14 @@
-#include "Scene.hpp"
+module;
 
-#include "core/renderer/base/descriptor_pool/Builder.hpp"
+#include <functional>
 
-#include "Builder.hpp"
+#include <vulkan/vulkan.hpp>
+
+#include <glm/ext/vector_float4.hpp>
+
+module core.renderer.scene.Scene;
+
+import core.renderer.base.descriptor_pool.DescriptorPool;
 
 namespace core::renderer {
 
@@ -35,11 +41,13 @@ auto Scene::draw(
     const gfx::Camera&      camera
 ) const -> void
 {
-    m_global_buffer.set(ShaderScene{
-        .camera = ShaderScene::Camera{ .position   = glm::vec4{ camera.position(), 1 },
-                                      .view       = camera.view(),
-                                      .projection = camera.projection() },
-    });
+    m_global_buffer.set(
+        ShaderScene{
+            .camera = ShaderScene::Camera{ .position = glm::vec4{ camera.position(), 1 },
+                                          .view     = camera.view(),
+                                          .projection = camera.projection() },
+    }
+    );
     graphics_command_buffer.bindDescriptorSets(
         vk::PipelineBindPoint::eGraphics,
         m_pipeline_layout.get(),

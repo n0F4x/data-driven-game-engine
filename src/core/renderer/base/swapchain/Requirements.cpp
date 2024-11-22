@@ -1,4 +1,10 @@
-#include "Requirements.hpp"
+module;
+
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
+
+module core.renderer.base.swapchain.Swapchain;
 
 namespace core::renderer::base {
 

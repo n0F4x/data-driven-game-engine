@@ -1,8 +1,14 @@
-#include "Buffer.hpp"
+module;
 
-#include <core/renderer/base/allocator/Allocator.hpp>
+#include <vulkan/vulkan.hpp>
+
+#include <vk_mem_alloc.h>
+
+module core.renderer.resources.Buffer;
 
 import core.utility.tuple;
+
+import core.renderer.base.allocator.Allocator;
 
 core::renderer::resources::Buffer::Buffer(
     const base::Allocator&         allocator,

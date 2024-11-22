@@ -1,44 +1,46 @@
-#include "ModelLayout.hpp"
+module;
 
-using namespace core::renderer;
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.model.ModelLayout;
 
 [[nodiscard]]
 static auto create_descriptor_set_layouts(
-    const vk::Device                                  device,
-    const ModelLayout::DescriptorSetLayoutCreateInfo& info
+    const vk::Device                                                  device,
+    const core::renderer::ModelLayout::DescriptorSetLayoutCreateInfo& info
 ) -> std::array<vk::UniqueDescriptorSetLayout, 3>
 {
     constexpr static std::array bindings_0{
-  // vertices
+        // vertices
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 0,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
- // transforms
+        // transforms
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 1,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eVertex  },
- // defaultSampler
+        // defaultSampler
         vk::DescriptorSetLayoutBinding{ .binding         = 2,
                                        .descriptorType  = vk::DescriptorType::eSampler,
                                        .descriptorCount = 1,
                                        .stageFlags = vk::ShaderStageFlagBits::eFragment     },
- // textures
+        // textures
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 3,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
- // defaultMaterial
+        // defaultMaterial
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 4,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                        .descriptorCount = 1,
                                        .stageFlags      = vk::ShaderStageFlagBits::eFragment },
- // materials
+        // materials
         vk::DescriptorSetLayoutBinding{
                                        .binding         = 5,
                                        .descriptorType  = vk::DescriptorType::eUniformBuffer,
@@ -110,37 +112,41 @@ auto ModelLayout::descriptor_pool_sizes(const DescriptorSetLayoutCreateInfo& inf
     -> std::vector<vk::DescriptorPoolSize>
 {
     std::vector pool_sizes{
-  // vertices
+        // vertices
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
- // transforms
+        // transforms
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
- // defaultSampler
+        // defaultSampler
         vk::DescriptorPoolSize{       .type            = vk::DescriptorType::eSampler,
                                .descriptorCount = 1u },
- // textures
+        // textures
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
- // defaultMaterial
+        // defaultMaterial
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
- // materials
+        // materials
         vk::DescriptorPoolSize{ .type            = vk::DescriptorType::eUniformBuffer,
                                .descriptorCount = 1u },
     };
 
     if (info.max_image_count > 0) {
-        pool_sizes.push_back(vk::DescriptorPoolSize{
-            .type            = vk::DescriptorType::eSampledImage,
-            .descriptorCount = info.max_image_count,
-        });
+        pool_sizes.push_back(
+            vk::DescriptorPoolSize{
+                .type            = vk::DescriptorType::eSampledImage,
+                .descriptorCount = info.max_image_count,
+            }
+        );
     }
     if (info.max_sampler_count > 0) {
-        pool_sizes.push_back(vk::DescriptorPoolSize{
-            .type            = vk::DescriptorType::eSampler,
-            .descriptorCount = info.max_sampler_count,
-        });
+        pool_sizes.push_back(
+            vk::DescriptorPoolSize{
+                .type            = vk::DescriptorType::eSampler,
+                .descriptorCount = info.max_sampler_count,
+            }
+        );
     }
 
     return pool_sizes;

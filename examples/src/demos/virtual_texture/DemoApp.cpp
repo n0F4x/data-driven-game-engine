@@ -1,16 +1,23 @@
 module;
 
-#include <glm/ext/matrix_float4x4.hpp>
+#include <ranges>
 
-#include <core/renderer/base/descriptor_pool/Builder.hpp>
-#include <core/renderer/base/resources/copy_operations.hpp>
-#include <core/renderer/base/resources/Image.hpp>
-#include <core/renderer/base/swapchain/SwapchainHolder.hpp>
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
+
+#include <glm/ext/matrix_float4x4.hpp>
 
 module demos.virtual_texture.DemoApp;
 
 import core.gfx.Camera;
 import core.gfx.resources.image_helpers;
+import core.renderer.base.device.Device;
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.resources.copy_operations;
+import core.renderer.base.resources.Image;
+import core.renderer.base.swapchain.Swapchain;
+import core.renderer.base.swapchain.SwapchainHolder;
 
 import plugins.renderer.DevicePlugin;
 import plugins.renderer.InstancePlugin;

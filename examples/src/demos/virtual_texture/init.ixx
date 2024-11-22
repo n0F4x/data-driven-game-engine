@@ -2,15 +2,16 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
-#include <core/renderer/resources/Buffer.hpp>
-#include <core/renderer/resources/Image.hpp>
-#include <core/renderer/resources/RandomAccessBuffer.hpp>
-#include <core/renderer/scene/Builder.hpp>
-
 export module demos.virtual_texture.init;
 
 import core.image.Image;
 import core.gfx.resources.VirtualImage;
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.device.Device;
+import core.renderer.resources.Buffer;
+import core.renderer.resources.Image;
+import core.renderer.resources.RandomAccessBuffer;
+import core.renderer.scene.Scene;
 
 import demos.virtual_texture.Camera;
 import demos.virtual_texture.VirtualTexture;

@@ -2,9 +2,9 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/renderer/base/resources/Image.hpp"
-
 export module core.gfx.resources.image_helpers;
+
+import core.renderer.base.resources.Image;
 
 namespace core::gfx::resources {
 

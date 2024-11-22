@@ -5,13 +5,9 @@ module;
 
 #include <VkBootstrap.h>
 
-namespace core::renderer::base {
-
-class Instance;
-
-}   // namespace core::renderer::base
-
 export module plugins.renderer.InstancePlugin;
+
+import core.renderer.base.instance.Instance;
 
 namespace plugins::renderer {
 

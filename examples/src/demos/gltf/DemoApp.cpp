@@ -1,13 +1,19 @@
 module;
 
 #include <filesystem>
+#include <functional>
 
-#include <core/renderer/base/swapchain/SwapchainHolder.hpp>
-#include <core/renderer/scene/Builder.hpp>
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
 
 module demos.gltf.DemoApp;
 
+import core.cache.Handle;
 import core.gltf.Model;
+import core.renderer.base.swapchain.Swapchain;
+import core.renderer.base.swapchain.SwapchainHolder;
+import core.renderer.scene.Scene;
 import core.window.Window;
 
 import examples.base.init;

@@ -1,21 +1,19 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/renderer/base/resources/Allocation.hpp"
-#include "core/renderer/base/resources/Image.hpp"
+#include <vk_mem_alloc.h>
 
-namespace core::renderer::base {
+export module core.renderer.resources.Image;
 
-class Allocator;
-
-}   // namespace core::renderer::base
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.resources.Allocation;
+import core.renderer.base.resources.Image;
 
 namespace core::renderer::resources {
 
-class Image : public base::Image {
+export class Image : public base::Image {
 public:
-    // Image() = default;
     Image(
         const base::Allocator&         allocator,
         const vk::ImageCreateInfo&     image_create_info,

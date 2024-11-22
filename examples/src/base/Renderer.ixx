@@ -1,10 +1,13 @@
 module;
 
-#include <core/renderer/base/device/Device.hpp>
-#include <core/renderer/base/swapchain/SwapchainHolder.hpp>
-#include <core/renderer/scene/Scene.hpp>
+#include <vulkan/vulkan.hpp>
 
 export module examples.base.Renderer;
+
+import core.gfx.Camera;
+import core.renderer.base.device.Device;
+import core.renderer.base.swapchain.SwapchainHolder;
+import core.renderer.scene.Scene;
 
 import core.window.Window;
 
@@ -19,7 +22,9 @@ export struct Renderer {
         core::renderer::base::SwapchainHolder& swapchain_holder
     );
 
-    template <std::invocable<uint32_t, vk::Extent2D, vk::CommandBuffer, const core::gfx::Camera&> Recorder>
+    template <
+        std::invocable<uint32_t, vk::Extent2D, vk::CommandBuffer, const core::gfx::Camera&>
+            Recorder>
     auto render(
         vk::Extent2D      framebuffer_size,
         core::gfx::Camera camera,

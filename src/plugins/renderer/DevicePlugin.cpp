@@ -2,14 +2,18 @@ module;
 
 #include <spdlog/spdlog.h>
 
-#include "core/renderer/base/device/Device.hpp"
-#include "core/renderer/base/instance/Instance.hpp"
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
 
 module plugins.renderer.DevicePlugin;
 
 import app.App;
 
 import core.config.vulkan;
+
+import core.renderer.base.instance.Instance;
+import core.renderer.base.device.Device;
 
 static auto log_setup(const vkb::Device& device) -> void
 {

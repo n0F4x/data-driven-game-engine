@@ -1,4 +1,8 @@
-#include "Builder.hpp"
+module;
+
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.base.descriptor_pool.DescriptorPool;
 
 auto core::renderer::base::DescriptorPool::Builder::build(const vk::Device device
 ) noexcept -> DescriptorPool

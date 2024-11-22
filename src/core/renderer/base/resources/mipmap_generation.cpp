@@ -1,8 +1,12 @@
-#include "mipmap_generation.hpp"
+module;
 
 #include <ranges>
 
-#include "Image.hpp"
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.base.resources.mipmap_generation;
+
+import core.renderer.base.resources.Image;
 
 auto core::renderer::base::generate_mipmaps(
     const vk::PhysicalDevice physical_device,

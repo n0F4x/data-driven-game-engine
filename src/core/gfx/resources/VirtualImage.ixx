@@ -1,16 +1,21 @@
 module;
 
-#include <VkBootstrap.h>
+#include <optional>
 
-#include "core/renderer/base/resources/Allocation.hpp"
-#include "core/renderer/base/resources/Image.hpp"
-#include "core/renderer/resources/SeqWriteBuffer.hpp"
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
 
 export module core.gfx.resources.VirtualImage;
 
 import core.image.Image;
 
 import core.gfx.resources.Image;
+
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.resources.Allocation;
+import core.renderer.base.resources.Image;
+import core.renderer.resources.SeqWriteBuffer;
 
 namespace core::gfx::resources {
 

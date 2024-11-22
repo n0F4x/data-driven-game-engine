@@ -1,14 +1,14 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
 #include "core/utility/lifetime_bound.hpp"
 
+export module core.renderer.base.resources.Image;
+
 namespace core::renderer::base {
 
-class Allocator;
-
-class Image {
+export class Image {
 public:
     struct State {
         vk::PipelineStageFlags stage_mask{ vk::PipelineStageFlagBits::eTopOfPipe };
@@ -45,8 +45,6 @@ public:
     auto transition(const State& new_state) -> State;
 
 private:
-    friend Allocator;
-
     vk::UniqueImage m_image;
 
     vk::Format   m_format{};

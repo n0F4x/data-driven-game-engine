@@ -7,16 +7,14 @@ module;
 
 #include <spdlog/spdlog.h>
 
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
+
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
-
-#include "core/renderer/base/device/Device.hpp"
-#include "core/renderer/model/ModelLayout.hpp"
-#include "core/renderer/resources/Buffer.hpp"
-#include "core/renderer/resources/RandomAccessBuffer.hpp"
-#include "core/renderer/resources/SeqWriteBuffer.hpp"
 
 module core.gltf.RenderModel;
 
@@ -25,10 +23,17 @@ import core.gltf.Material;
 import core.gltf.Mesh;
 import core.gltf.Texture;
 
+import core.renderer.base.device.Device;
+import core.renderer.base.resources.Buffer;
+import core.renderer.base.resources.Image;
 import core.renderer.material_system.GraphicsPipelineBuilder;
 import core.renderer.material_system.Program;
 import core.renderer.material_system.Shader;
 import core.renderer.material_system.ShaderModule;
+import core.renderer.model.ModelLayout;
+import core.renderer.resources.Buffer;
+import core.renderer.resources.RandomAccessBuffer;
+import core.renderer.resources.SeqWriteBuffer;
 
 namespace {
 

@@ -1,6 +1,8 @@
-#include "DescriptorPool.hpp"
+module;
 
-#include "Builder.hpp"
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.base.descriptor_pool.DescriptorPool;
 
 namespace core::renderer::base {
 

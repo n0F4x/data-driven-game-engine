@@ -1,25 +1,28 @@
-#pragma once
+module;
+
+#include <future>
 
 #include <vulkan/vulkan.hpp>
 
 #include <glm/ext/matrix_float4x4.hpp>
 
-#include <core/renderer/resources/RandomAccessBuffer.hpp>
+export module core.renderer.scene.Scene;
 
-#include "core/renderer/base/descriptor_pool/DescriptorPool.hpp"
+import core.cache.Cache;
+import core.cache.Handle;
 
 import core.gfx.Camera;
+import core.gltf.Model;
 import core.gltf.RenderModel;
+
+import core.renderer.base.device.Device;
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.descriptor_pool.DescriptorPool;
+import core.renderer.resources.RandomAccessBuffer;
 
 namespace core::renderer {
 
-namespace base {
-
-class Allocator;
-
-}   // namespace base
-
-class Scene {
+export class Scene {
 public:
     class Builder;
 
@@ -68,6 +71,26 @@ private:
         vk::UniqueDescriptorSet&&                      global_descriptor_set,
         std::vector<gltf::RenderModel>&&               models
     ) noexcept;
+};
+
+class Scene::Builder {
+public:
+    auto set_cache(cache::Cache& cache) noexcept -> Builder&;
+
+    auto add_model(const cache::Handle<const gltf::Model>& model) -> Builder&;
+    auto add_model(cache::Handle<const gltf::Model>&& model) -> Builder&;
+
+    [[nodiscard]]
+    auto build(
+        const base::Device&    device,
+        const base::Allocator& allocator,
+        vk::RenderPass         render_pass,
+        bool                   use_virtual_images
+    ) const -> std::packaged_task<Scene(vk::CommandBuffer)>;
+
+private:
+    std::optional<std::reference_wrapper<cache::Cache>> m_cache;
+    std::vector<cache::Handle<const gltf::Model>>       m_models;
 };
 
 }   // namespace core::renderer

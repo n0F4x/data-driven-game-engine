@@ -3,18 +3,22 @@ module;
 #include <filesystem>
 #include <source_location>
 
-#include <glm/ext/vector_float3.hpp>
+#include <vulkan/vulkan.hpp>
 
-#include <core/renderer/base/allocator/Allocator.hpp>
-#include <core/renderer/base/device/Device.hpp>
-#include <core/renderer/resources/Buffer.hpp>
-#include <core/renderer/resources/SeqWriteBuffer.hpp>
+#include <VkBootstrap.h>
+
+#include <glm/ext/vector_float3.hpp>
 
 module demos.virtual_texture.VirtualTexture;
 
 import core.gfx.resources.VirtualImage;
 
 import core.image.stb.Image;
+
+import core.renderer.base.device.Device;
+import core.renderer.base.allocator.Allocator;
+import core.renderer.resources.Buffer;
+import core.renderer.resources.SeqWriteBuffer;
 
 import demos.virtual_texture.init;
 import demos.virtual_texture.Vertex;

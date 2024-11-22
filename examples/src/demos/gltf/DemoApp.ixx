@@ -2,17 +2,21 @@ module;
 
 #include <filesystem>
 
-#include <core/renderer/base/allocator/Allocator.hpp>
-#include <core/renderer/base/device/Device.hpp>
-#include <core/renderer/base/swapchain/SwapchainHolder.hpp>
-#include <core/renderer/resources/Image.hpp>
-#include <core/renderer/scene/Scene.hpp>
+#include <vulkan/vulkan.hpp>
 
 export module demos.gltf.DemoApp;
 
 import app.App;
 
 import core.cache.Cache;
+
+import core.gfx.Camera;
+
+import core.renderer.base.device.Device;
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.swapchain.SwapchainHolder;
+import core.renderer.resources.Image;
+import core.renderer.scene.Scene;
 
 namespace demo {
 

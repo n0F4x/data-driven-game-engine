@@ -4,10 +4,11 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
-#include <core/renderer/base/allocator/Allocator.hpp>
-#include <core/renderer/resources/Image.hpp>
-
 export module demos.gltf.init;
+
+import core.renderer.base.device.Device;
+import core.renderer.base.allocator.Allocator;
+import core.renderer.resources.Image;
 
 namespace demo::init {
 

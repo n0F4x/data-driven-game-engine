@@ -4,9 +4,9 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
-#include <core/renderer/resources/Image.hpp>
-
 export module examples.base.init;
+
+import core.renderer.resources.Image;
 
 namespace examples::base::init {
 

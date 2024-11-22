@@ -9,13 +9,11 @@ module;
 #include <vulkan/vulkan_format_traits.hpp>
 #include <vulkan/vulkan_to_string.hpp>
 
+#include <vk_mem_alloc.h>
+
 #include <VkBootstrap.h>
 
 #include <glm/vec3.hpp>
-
-#include "core/renderer/base/resources/Allocation.hpp"
-#include "core/renderer/base/resources/image_extensions.hpp"
-#include "core/renderer/resources/SeqWriteBuffer.hpp"
 
 module core.gfx.resources.VirtualImage;
 
@@ -23,6 +21,11 @@ import core.image.Image;
 
 import core.gfx.resources.image_helpers;
 import core.gfx.resources.virtual_image_helpers;
+
+import core.renderer.base.resources.Allocation;
+import core.renderer.base.resources.image_extensions;
+import core.renderer.base.resources.MemoryView;
+import core.renderer.resources.SeqWriteBuffer;
 
 [[nodiscard]]
 static auto image_usage_flags() -> vk::ImageUsageFlags

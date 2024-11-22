@@ -1,4 +1,8 @@
-#include "copy_operations.hpp"
+module;
+
+#include <vulkan/vulkan.hpp>
+
+module core.renderer.base.resources.copy_operations;
 
 auto core::renderer::base::copy(
     const void*       source,

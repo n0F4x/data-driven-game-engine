@@ -1,13 +1,18 @@
 module;
 
+#include <expected>
+
 #include <spdlog/spdlog.h>
 
-#include "core/renderer/base/instance/Instance.hpp"
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
 
 module plugins.renderer.SurfacePlugin;
 
 import app.App;
 import store.StoreView;
+import core.renderer.base.instance.Instance;
 import core.window.Window;
 import plugins.renderer.InstancePlugin;
 

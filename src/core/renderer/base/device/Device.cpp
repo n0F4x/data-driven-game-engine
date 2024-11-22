@@ -1,4 +1,10 @@
-#include "Device.hpp"
+module;
+
+#include <vulkan/vulkan.hpp>
+
+#include <VkBootstrap.h>
+
+module core.renderer.base.device.Device;
 
 namespace core::renderer::base {
 

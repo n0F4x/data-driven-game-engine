@@ -5,15 +5,18 @@ module;
 
 #include <vulkan/vulkan_format_traits.hpp>
 
-#include <glm/vec3.hpp>
+#include <vk_mem_alloc.h>
 
-#include "core/renderer/base/allocator/Allocator.hpp"
-#include "core/renderer/base/resources/image_extensions.hpp"
-#include "core/renderer/resources/SeqWriteBuffer.hpp"
+#include <glm/vec3.hpp>
 
 module core.gfx.resources.virtual_image_helpers;
 
 import core.image.Image;
+
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.resources.Allocation;
+import core.renderer.base.resources.image_extensions;
+import core.renderer.resources.SeqWriteBuffer;
 
 auto core::gfx::resources::sparse_color_requirements(
     const core::renderer::base::Image& image

@@ -2,20 +2,15 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
-#include <core/renderer/resources/SeqWriteBuffer.hpp>
-
-namespace core::renderer::base {
-
-class Allocator;
-class Image;
-
-}   // namespace core::renderer::base
-
 export module core.gfx.resources.virtual_image_helpers;
 
 import core.image.Image;
 
 import core.gfx.resources.VirtualImage;
+
+import core.renderer.base.allocator.Allocator;
+import core.renderer.base.resources.Image;
+import core.renderer.resources.SeqWriteBuffer;
 
 namespace core::gfx::resources {
 

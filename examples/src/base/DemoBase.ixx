@@ -1,11 +1,14 @@
 module;
 
-#include <core/renderer/base/device/Device.hpp>
-#include <core/renderer/base/swapchain/SwapchainHolder.hpp>
+#include <functional>
+
+#include <vulkan/vulkan.hpp>
 
 export module examples.base.DemoBase;
 
 import core.gfx.Camera;
+import core.renderer.base.device.Device;
+import core.renderer.base.swapchain.SwapchainHolder;
 import core.window.Window;
 
 import examples.base.Controller;
