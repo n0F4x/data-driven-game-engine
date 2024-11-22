@@ -1,10 +1,13 @@
-#pragma once
+module;
 
 #include <span>
+#include <array>
+
+export module core.image.jpeg.MimeType;
 
 namespace core::image::jpeg {
 
-struct MimeType {
+export struct MimeType {
     [[nodiscard]]
     constexpr static auto magic() noexcept -> std::span<const std::byte, 3>;
 };

@@ -2,8 +2,6 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/window/Window.hpp"
-
 class StoreView;
 
 namespace core::renderer::base {
@@ -13,6 +11,8 @@ class Instance;
 }   // namespace core::renderer::base
 
 export module plugins.renderer.SurfacePlugin;
+
+import core.window.Window;
 
 namespace plugins::renderer {
 

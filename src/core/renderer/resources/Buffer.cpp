@@ -1,18 +1,19 @@
 #include "Buffer.hpp"
 
-#include <utility>
-
 #include <core/renderer/base/allocator/Allocator.hpp>
-#include <core/utility/tuple.hpp>
+
+import core.utility.tuple;
 
 core::renderer::resources::Buffer::Buffer(
     const base::Allocator&         allocator,
     const vk::BufferCreateInfo&    buffer_create_info,
     const VmaAllocationCreateInfo& allocation_create_info
 )
-    : Buffer{ make_from(core::utils::remove_last(
-          allocator.create_buffer(buffer_create_info, allocation_create_info)
-      )) }
+    : Buffer{ make_from(
+          core::utils::remove_last(
+              allocator.create_buffer(buffer_create_info, allocation_create_info)
+          )
+      ) }
 {}
 
 auto core::renderer::resources::Buffer::buffer() const -> const base::Buffer&

@@ -1,12 +1,14 @@
-#pragma once
+module;
 
 #include <span>
 
 #include <vulkan/vulkan.hpp>
 
+export module core.image.Image;
+
 namespace core::image {
 
-class Image {
+export class Image {
 public:
     virtual ~Image() = default;
 

@@ -2,12 +2,22 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/gltf/RenderModel.hpp"
+#include <glm/ext/matrix_float4x4.hpp>
+
+#include <core/renderer/resources/RandomAccessBuffer.hpp>
+
 #include "core/renderer/base/descriptor_pool/DescriptorPool.hpp"
 
 import core.gfx.Camera;
+import core.gltf.RenderModel;
 
 namespace core::renderer {
+
+namespace base {
+
+class Allocator;
+
+}   // namespace base
 
 class Scene {
 public:
@@ -23,10 +33,8 @@ public:
         vk::CommandBuffer                transfer_command_buffer
     ) -> void;
 
-    auto draw(
-        vk::CommandBuffer       graphics_command_buffer,
-        const gfx::Camera& camera
-    ) const -> void;
+    auto draw(vk::CommandBuffer graphics_command_buffer, const gfx::Camera& camera) const
+        -> void;
 
 private:
     struct ShaderScene {
@@ -47,7 +55,7 @@ private:
     base::DescriptorPool                         m_descriptor_pool;
 
     resources::RandomAccessBuffer<ShaderScene> m_global_buffer;
-    vk::UniqueDescriptorSet               m_global_descriptor_set;
+    vk::UniqueDescriptorSet                    m_global_descriptor_set;
 
     std::vector<gltf::RenderModel> m_models;
 
@@ -56,7 +64,7 @@ private:
         std::array<vk::UniqueDescriptorSetLayout, 3>&& model_descriptor_set_layouts,
         vk::UniquePipelineLayout&&                     pipeline_layout,
         base::DescriptorPool&&                         descriptor_pool,
-        resources::RandomAccessBuffer<ShaderScene>&&        global_buffer,
+        resources::RandomAccessBuffer<ShaderScene>&&   global_buffer,
         vk::UniqueDescriptorSet&&                      global_descriptor_set,
         std::vector<gltf::RenderModel>&&               models
     ) noexcept;

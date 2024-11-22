@@ -1,8 +1,8 @@
 module;
 
-#include "core/window/Window.hpp"
-
 module plugins.window.WindowPlugin;
+
+import core.window.Window;
 
 namespace plugins::window {
 

@@ -1,8 +1,15 @@
-#include "Image.hpp"
+module;
 
+#include <filesystem>
 #include <format>
 
+#include <gsl-lite/gsl-lite.hpp>
+
 #include <vulkan/vulkan.hpp>
+
+#include <ktx.h>
+
+module core.image.ktx2.Image;
 
 static auto transcode(ktxTexture2* texture) -> void
 {
@@ -13,10 +20,12 @@ static auto transcode(ktxTexture2* texture) -> void
             ::ktxTexture2_TranscodeBasis(texture, target_format, KTX_TF_HIGH_QUALITY)
         };
         if (error != KTX_SUCCESS) {
-            throw std::runtime_error(std::format(
-                "Failed to transcode basisu from KTX2 texture: {}",
-                std::to_underlying(error)
-            ));
+            throw std::runtime_error(
+                std::format(
+                    "Failed to transcode basisu from KTX2 texture: {}",
+                    std::to_underlying(error)
+                )
+            );
         }
     }
 }
@@ -32,11 +41,13 @@ auto core::image::ktx2::Image::load_from(const std::filesystem::path& filepath) 
         ) };
         result != KTX_SUCCESS)
     {
-        throw std::runtime_error(std::format(
-            "ktxTexture2_CreateFromNamedFile failed loading file {}: '{}'",
-            filepath.generic_string(),
-            ::ktxErrorString(result)
-        ));
+        throw std::runtime_error(
+            std::format(
+                "ktxTexture2_CreateFromNamedFile failed loading file {}: '{}'",
+                filepath.generic_string(),
+                ::ktxErrorString(result)
+            )
+        );
     }
 
     ::transcode(texture);

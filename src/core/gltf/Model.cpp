@@ -1,6 +1,13 @@
-#include "Model.hpp"
+module;
 
-#include "core/utility/hashing.hpp"
+#include <filesystem>
+#include <optional>
+
+module core.gltf.Model;
+
+import core.utility.hashing;
+
+import core.gltf.Texture;
 
 namespace core::gltf {
 

@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <filesystem>
 #include <optional>
@@ -6,11 +6,13 @@
 
 #include <fastgltf/core.hpp>
 
-#include "Image.hpp"
+export module core.gltf.ImageLoader;
+
+import core.gltf.Image;
 
 namespace core::gltf {
 
-class ImageLoader {
+export class ImageLoader {
 public:
     [[nodiscard]]
     static auto load_from(const std::filesystem::path& filepath) -> std::optional<Image>;

@@ -13,12 +13,13 @@ module;
 
 #include <glm/vec3.hpp>
 
-#include "core/image/Image.hpp"
 #include "core/renderer/base/resources/Allocation.hpp"
 #include "core/renderer/base/resources/image_extensions.hpp"
 #include "core/renderer/resources/SeqWriteBuffer.hpp"
 
 module core.gfx.resources.VirtualImage;
+
+import core.image.Image;
 
 import core.gfx.resources.image_helpers;
 import core.gfx.resources.virtual_image_helpers;

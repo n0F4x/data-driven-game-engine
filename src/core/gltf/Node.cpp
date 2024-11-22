@@ -1,8 +1,10 @@
-#include "Node.hpp"
+module;
+
+#include <optional>
 
 #include <glm/gtc/quaternion.hpp>
 
-#include "Model.hpp"
+module core.gltf.Model;
 
 namespace core::gltf {
 

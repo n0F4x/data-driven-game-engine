@@ -8,12 +8,6 @@ module;
 
 #include "core/renderer/resources/Image.hpp"
 
-namespace core::image {
-
-class Image;
-
-}   // namespace core::image
-
 namespace core::renderer::base {
 
 class Allocator;
@@ -21,6 +15,8 @@ class Allocator;
 }   // namespace core::renderer::base
 
 export module core.gfx.resources.Image;
+
+import core.image.Image;
 
 namespace core::gfx::resources {
 

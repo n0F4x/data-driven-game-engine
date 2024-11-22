@@ -1,12 +1,14 @@
-#pragma once
+module;
 
 #include <optional>
 
 #include <fastgltf/types.hpp>
 
+export module core.gltf.Texture;
+
 namespace core::gltf {
 
-struct Sampler {
+export struct Sampler {
     enum class MagFilter {
         eNearest,
         eLinear
@@ -32,12 +34,14 @@ struct Sampler {
     WrapMode  wrap_t{ WrapMode::eRepeat };
 };
 
-struct Texture {
+// NOLINTNEXTLINE(*-member-init)
+export struct Texture {
     std::optional<uint32_t> sampler_index;
     uint32_t                image_index;
 };
 
-struct TextureInfo {
+// NOLINTNEXTLINE(*-member-init)
+export struct TextureInfo {
     uint32_t texture_index;
     uint32_t tex_coord_index{};
 

@@ -1,5 +1,6 @@
-#pragma once
+module;
 
+#include <functional>
 #include <future>
 #include <variant>
 
@@ -8,19 +9,21 @@
 #include "core/renderer/resources/Buffer.hpp"
 #include "core/renderer/resources/RandomAccessBuffer.hpp"
 
+export module core.gltf.RenderModel;
+
 import core.cache.Cache;
 import core.cache.Handle;
 import core.gfx.Camera;
 import core.gfx.resources.VirtualImage;
 import core.gfx.resources.Image;
 
-#include "Model.hpp"
+import core.gltf.Model;
 
 struct ShaderMaterial;
 
 namespace core::gltf {
 
-class RenderModel : public renderer::Drawable {
+export class RenderModel : public renderer::Drawable {
 public:
     struct PipelineCreateInfo {
         vk::PipelineLayout layout;

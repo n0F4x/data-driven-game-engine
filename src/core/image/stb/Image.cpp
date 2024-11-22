@@ -1,6 +1,7 @@
-#include "Image.hpp"
+module;
 
 #include <cmath>
+#include <filesystem>
 #include <format>
 #include <ranges>
 
@@ -9,6 +10,8 @@
 
 #include <stb_image.h>
 #include <stb_image_resize2.h>
+
+module core.image.stb.Image;
 
 [[nodiscard]]
 static auto count_mip_levels(const uint32_t base_width, const uint32_t base_height)
@@ -69,9 +72,9 @@ static auto generate_mip_maps(
 ) -> std::vector<std::byte>
 {
     std::vector<std::byte> result;
-    result.resize(::mipped_image_size(
-        base_width, base_height, vk::blockSize(format), mip_level_count
-    ));
+    result.resize(
+        ::mipped_image_size(base_width, base_height, vk::blockSize(format), mip_level_count)
+    );
 
     std::memcpy(result.data(), base_image_data.data(), base_image_data.size_bytes());
 
@@ -131,12 +134,14 @@ auto core::image::stb::Image::load_from(const std::filesystem::path& filepath) -
     };
 
     std::vector<std::byte> image_data{ ::generate_mip_maps(
-        std::as_bytes(std::span{ raw_image_data,
-                                 ::mip_level_size(
-                                     static_cast<uint32_t>(width),
-                                     static_cast<uint32_t>(height),
-                                     vk::blockSize(format)
-                                 ) }),
+        std::as_bytes(
+            std::span{ raw_image_data,
+                       ::mip_level_size(
+                           static_cast<uint32_t>(width),
+                           static_cast<uint32_t>(height),
+                           vk::blockSize(format)
+                       ) }
+        ),
         static_cast<uint32_t>(width),
         static_cast<uint32_t>(height),
         format,
@@ -177,11 +182,14 @@ auto core::image::stb::Image::load_from(const std::span<const std::byte> data) -
     };
 
     std::vector<std::byte> image_data{ ::generate_mip_maps(
-        std::as_bytes(std::span{
-            raw_image_data,
-            ::mip_level_size(
-                static_cast<uint32_t>(width), static_cast<uint32_t>(height), vk::blockSize(format)
-            ) }),
+        std::as_bytes(
+            std::span{ raw_image_data,
+                       ::mip_level_size(
+                           static_cast<uint32_t>(width),
+                           static_cast<uint32_t>(height),
+                           vk::blockSize(format)
+                       ) }
+        ),
         static_cast<uint32_t>(width),
         static_cast<uint32_t>(height),
         format,

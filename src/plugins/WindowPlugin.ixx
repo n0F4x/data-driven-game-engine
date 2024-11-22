@@ -2,15 +2,11 @@ module;
 
 #include <gsl/gsl-lite.hpp>
 
-#include "core/utility/Size.hpp"
-
-namespace core::window {
-
-class Window;
-
-}   // namespace core::window
-
 export module plugins.window.WindowPlugin;
+
+import core.utility.Size;
+
+import core.window.Window;
 
 namespace plugins {
 

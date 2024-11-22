@@ -1,15 +1,17 @@
-#pragma once
+module;
 
 #include <vulkan/vulkan.hpp>
 
 #include <glm/glm.hpp>
 
+export module core.utility.Size;
+
 namespace core {
 
-template <unsigned dimensions, typename T>
+export template <unsigned dimensions, typename T>
 struct Size;
 
-template <typename T>
+export template <typename T>
 struct Size<2, T> {
     T width{};
     T height{};
@@ -26,7 +28,7 @@ struct Size<2, T> {
     }
 };
 
-template <typename T>
+export template <typename T>
 struct Size<3, T> {
     T width{};
     T height{};
@@ -48,10 +50,10 @@ struct Size<3, T> {
     }
 };
 
-using Size2i = Size<2, int>;
-using Size2f = Size<2, float>;
+export using Size2i = Size<2, int>;
+export using Size2f = Size<2, float>;
 
-using Size3i = Size<3, int>;
-using Size3f = Size<3, float>;
+export using Size3i = Size<3, int>;
+export using Size3f = Size<3, float>;
 
 }   // namespace core

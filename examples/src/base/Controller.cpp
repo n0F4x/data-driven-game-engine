@@ -5,11 +5,10 @@ module;
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <core/window/Window.hpp>
+module examples.base.Controller;
 
 import core.gfx.Camera;
-
-module examples.base.Controller;
+import core.window.Window;
 
 examples::base::Controller::Controller(const float movement_speed) noexcept
     : m_movement_speed{ movement_speed }

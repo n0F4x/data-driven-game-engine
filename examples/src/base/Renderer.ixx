@@ -3,9 +3,10 @@ module;
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 #include <core/renderer/scene/Scene.hpp>
-#include <core/window/Window.hpp>
 
 export module examples.base.Renderer;
+
+import core.window.Window;
 
 namespace examples::base {
 

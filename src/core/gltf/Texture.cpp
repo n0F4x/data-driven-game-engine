@@ -1,4 +1,8 @@
-#include "Texture.hpp"
+module;
+
+#include <fastgltf/types.hpp>
+
+module core.gltf.Texture;
 
 namespace core::gltf {
 

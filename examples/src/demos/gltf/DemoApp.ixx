@@ -1,5 +1,7 @@
 module;
 
+#include <filesystem>
+
 #include <core/renderer/base/allocator/Allocator.hpp>
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
@@ -9,6 +11,8 @@ module;
 export module demos.gltf.DemoApp;
 
 import app.App;
+
+import core.cache.Cache;
 
 namespace demo {
 

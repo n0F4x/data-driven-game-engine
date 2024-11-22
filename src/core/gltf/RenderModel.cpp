@@ -1,14 +1,29 @@
-#include "RenderModel.hpp"
+module;
 
+#include <filesystem>
+#include <future>
 #include <ranges>
 #include <source_location>
 
 #include <spdlog/spdlog.h>
 
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/ext/vector_float2.hpp>
+#include <glm/ext/vector_float3.hpp>
+#include <glm/ext/vector_float4.hpp>
+
 #include "core/renderer/base/device/Device.hpp"
-#include "core/renderer/base/resources/Image.hpp"
 #include "core/renderer/model/ModelLayout.hpp"
+#include "core/renderer/resources/Buffer.hpp"
+#include "core/renderer/resources/RandomAccessBuffer.hpp"
 #include "core/renderer/resources/SeqWriteBuffer.hpp"
+
+module core.gltf.RenderModel;
+
+import core.gltf.Image;
+import core.gltf.Material;
+import core.gltf.Mesh;
+import core.gltf.Texture;
 
 import core.renderer.material_system.GraphicsPipelineBuilder;
 import core.renderer.material_system.Program;

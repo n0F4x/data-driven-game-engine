@@ -2,13 +2,15 @@ module;
 
 #include <any>
 
-#include <entt/entity/registry.hpp>
-
 #include <spdlog/spdlog.h>
 
-#include "core/utility/meta/functional.hpp"
+#include <entt/entity/registry.hpp>
 
 export module app.App;
+
+import core.utility.meta.functional;
+import core.utility.meta.tuple_like;
+import core.utility.tuple;
 
 import store.Store;
 import store.StoreView;

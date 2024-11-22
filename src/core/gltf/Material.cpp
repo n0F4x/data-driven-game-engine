@@ -1,32 +1,36 @@
-#include "Material.hpp"
-
-#include <utility>
+module;
 
 #include <glm/gtc/type_ptr.hpp>
 
-using namespace core::gltf;
+#include <fastgltf/types.hpp>
+
+module core.gltf.Material;
+
+import core.gltf.Texture;
 
 [[nodiscard]]
-static auto convert(const fastgltf::PBRData& source) -> Material::PbrMetallicRoughness
+static auto convert(const fastgltf::PBRData& source)
+    -> core::gltf::Material::PbrMetallicRoughness
 {
-    return Material::PbrMetallicRoughness{
-        .base_color_factor       = glm::make_vec4(source.baseColorFactor.data()),
-        .base_color_texture_info = source.baseColorTexture.transform(TextureInfo::create),
-        .metallic_factor         = source.metallicFactor,
-        .roughness_factor        = source.roughnessFactor,
+    return core::gltf::Material::PbrMetallicRoughness{
+        .base_color_factor = glm::make_vec4(source.baseColorFactor.data()),
+        .base_color_texture_info =
+            source.baseColorTexture.transform(core::gltf::TextureInfo::create),
+        .metallic_factor  = source.metallicFactor,
+        .roughness_factor = source.roughnessFactor,
         .metallic_roughness_texture_info =
-            source.metallicRoughnessTexture.transform(TextureInfo::create),
+            source.metallicRoughnessTexture.transform(core::gltf::TextureInfo::create),
     };
 }
 
 [[nodiscard]]
 static auto convert(const fastgltf::Optional<fastgltf::NormalTextureInfo>& optional)
-    -> std::optional<Material::NormalTextureInfo>
+    -> std::optional<core::gltf::Material::NormalTextureInfo>
 {
     if (!optional.has_value()) {
         return std::nullopt;
     }
-    return Material::NormalTextureInfo{
+    return core::gltf::Material::NormalTextureInfo{
         .texture_index   = static_cast<uint32_t>(optional->textureIndex),
         .tex_coord_index = static_cast<uint32_t>(optional->texCoordIndex),
         .scale           = optional->scale,
@@ -35,12 +39,12 @@ static auto convert(const fastgltf::Optional<fastgltf::NormalTextureInfo>& optio
 
 [[nodiscard]]
 static auto convert(const fastgltf::Optional<fastgltf::OcclusionTextureInfo>& optional)
-    -> std::optional<Material::OcclusionTextureInfo>
+    -> std::optional<core::gltf::Material::OcclusionTextureInfo>
 {
     if (!optional.has_value()) {
         return std::nullopt;
     }
-    return Material::OcclusionTextureInfo{
+    return core::gltf::Material::OcclusionTextureInfo{
         .texture_index   = static_cast<uint32_t>(optional->textureIndex),
         .tex_coord_index = static_cast<uint32_t>(optional->texCoordIndex),
         .strength        = optional->strength,
@@ -48,9 +52,10 @@ static auto convert(const fastgltf::Optional<fastgltf::OcclusionTextureInfo>& op
 }
 
 [[nodiscard]]
-static auto convert(const fastgltf::AlphaMode alpha_mode) noexcept -> Material::AlphaMode
+static auto convert(const fastgltf::AlphaMode alpha_mode) noexcept
+    -> core::gltf::Material::AlphaMode
 {
-    using enum Material::AlphaMode;
+    using enum core::gltf::Material::AlphaMode;
     switch (alpha_mode) {
         case fastgltf::AlphaMode::Opaque: return eOpaque;
         case fastgltf::AlphaMode::Mask:   return eMask;

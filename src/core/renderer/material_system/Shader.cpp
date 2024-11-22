@@ -4,9 +4,9 @@ module;
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/utility/hashing.hpp"
-
 module core.renderer.material_system.Shader;
+
+import core.utility.hashing;
 
 using namespace core::renderer;
 

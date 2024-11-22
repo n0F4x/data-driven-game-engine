@@ -2,9 +2,10 @@ module;
 
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 #include <core/renderer/scene/Builder.hpp>
-#include <core/window/Window.hpp>
 
 module examples.base.Renderer;
+
+import core.window.Window;
 
 import  examples.base.init;
 

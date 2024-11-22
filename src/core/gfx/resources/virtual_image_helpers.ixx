@@ -4,12 +4,6 @@ module;
 
 #include <core/renderer/resources/SeqWriteBuffer.hpp>
 
-namespace core::image {
-
-class Image;
-
-}   // namespace core::image
-
 namespace core::renderer::base {
 
 class Allocator;
@@ -18,6 +12,8 @@ class Image;
 }   // namespace core::renderer::base
 
 export module core.gfx.resources.virtual_image_helpers;
+
+import core.image.Image;
 
 import core.gfx.resources.VirtualImage;
 

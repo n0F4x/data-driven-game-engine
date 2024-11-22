@@ -1,13 +1,17 @@
-#pragma once
+module;
 
 #include <filesystem>
 #include <span>
 
-#include "core/image/Image.hpp"
+#include <vulkan/vulkan.hpp>
+
+export module core.image.stb.Image;
+
+import core.image.Image;
 
 namespace core::image::stb {
 
-class Image : public image::Image {
+export class Image : public image::Image {
 public:
     [[nodiscard]]
     static auto load_from(const std::filesystem::path& filepath) -> Image;
@@ -34,8 +38,11 @@ public:
     auto format() const noexcept -> vk::Format final;
 
     [[nodiscard]]
-    auto offset_of(uint32_t mip_level_index, uint32_t layer, uint32_t face_slice)
-        const noexcept -> uint64_t final;
+    auto offset_of(
+        uint32_t mip_level_index,
+        uint32_t layer,
+        uint32_t face_slice
+    ) const noexcept -> uint64_t final;
 
 private:
     std::vector<std::byte> m_data;

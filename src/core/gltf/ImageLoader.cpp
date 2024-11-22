@@ -1,22 +1,28 @@
-#include "ImageLoader.hpp"
+module;
 
 #include <algorithm>
 #include <ranges>
 
 #include <spdlog/spdlog.h>
 
-#include "core/image/jpeg/MimeType.hpp"
-#include "core/image/ktx2/Image.hpp"
-#include "core/image/ktx2/MimeType.hpp"
-#include "core/image/png/MimeType.hpp"
-#include "core/image/stb/Image.hpp"
+#include <fastgltf/types.hpp>
+
+module core.gltf.ImageLoader;
+
+import core.image.jpeg.MimeType;
+import core.image.ktx2.Image;
+import core.image.ktx2.MimeType;
+import core.image.png.MimeType;
+import core.image.stb.Image;
 
 using namespace core;
 
 template <
-    size_t N = std::max({ image::png::MimeType::magic().size_bytes(),
-                          image::jpeg::MimeType::magic().size_bytes(),
-                          image::ktx2::MimeType::magic().size_bytes() })>
+    size_t N = std::max(
+        { image::png::MimeType::magic().size_bytes(),
+          image::jpeg::MimeType::magic().size_bytes(),
+          image::ktx2::MimeType::magic().size_bytes() }
+    )>
 [[nodiscard]]
 static auto read_n_from(const std::filesystem::path& filepath)
     -> std::array<std::ifstream::char_type, N>
@@ -96,8 +102,8 @@ auto core::gltf::ImageLoader::load_from(
         case fastgltf::MimeType::JPEG:
             return std::make_unique<image::stb::Image>(image::stb::Image::load_from(data));
         case fastgltf::MimeType::KTX2:
-            return std::make_unique<image::ktx2::Image>(image::ktx2::Image::load_from(data
-            ));
+            return std::make_unique<image::ktx2::Image>(image::ktx2::Image::load_from(data)
+            );
         default: {
             SPDLOG_WARN(
                 "Unsupported mime type for loading images: {}",

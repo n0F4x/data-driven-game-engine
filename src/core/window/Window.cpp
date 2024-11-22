@@ -1,9 +1,20 @@
-#include "Window.hpp"
+module;
 
 #include <format>
 #include <stdexcept>
+#include <expected>
+
+#include <gsl-lite/gsl-lite.hpp>
+
+#include <glm/ext/vector_double2.hpp>
 
 #include <spdlog/spdlog.h>
+
+#include <GLFW/glfw3.h>
+
+module core.window.Window;
+
+import core.utility.Size;
 
 import core.config.vulkan;
 

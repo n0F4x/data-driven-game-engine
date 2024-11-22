@@ -1,11 +1,14 @@
 module;
 
-#include <core/gltf/Loader.hpp>
+#include <filesystem>
+
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
 #include <core/renderer/scene/Builder.hpp>
-#include <core/window/Window.hpp>
 
 module demos.gltf.DemoApp;
+
+import core.gltf.Model;
+import core.window.Window;
 
 import examples.base.init;
 

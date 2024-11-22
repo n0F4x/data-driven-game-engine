@@ -1,16 +1,24 @@
 #pragma once
 
+#include <future>
 #include <ranges>
 #include <vector>
+
+#include "Scene.hpp"
 
 import core.cache.Cache;
 import core.cache.Handle;
 
-#include "core/gltf/Model.hpp"
-
-#include "Scene.hpp"
+import core.gltf.Model;
 
 namespace core::renderer {
+
+namespace base {
+
+class Allocator;
+class Device;
+
+}   // namespace base
 
 class Scene::Builder {
 public:

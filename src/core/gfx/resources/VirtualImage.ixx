@@ -2,12 +2,13 @@ module;
 
 #include <VkBootstrap.h>
 
-#include "core/image/Image.hpp"
 #include "core/renderer/base/resources/Allocation.hpp"
 #include "core/renderer/base/resources/Image.hpp"
 #include "core/renderer/resources/SeqWriteBuffer.hpp"
 
 export module core.gfx.resources.VirtualImage;
+
+import core.image.Image;
 
 import core.gfx.resources.Image;
 

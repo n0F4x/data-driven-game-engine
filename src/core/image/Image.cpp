@@ -1,4 +1,8 @@
-#include "Image.hpp"
+module;
+
+#include <vulkan/vulkan.hpp>
+
+module core.image.Image;
 
 auto core::image::Image::extent() const noexcept -> vk::Extent3D
 {

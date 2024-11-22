@@ -4,9 +4,9 @@ module;
 
 #include <vulkan/vulkan_hash.hpp>
 
-#include "core/utility/hashing.hpp"
-
 module core.renderer.material_system.GraphicsPipelineBuilder;
+
+import core.utility.hashing;
 
 core::renderer::GraphicsPipelineBuilder::GraphicsPipelineBuilder(Program program) noexcept
     : m_program{ std::move(program) }

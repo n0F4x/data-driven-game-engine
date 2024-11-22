@@ -4,11 +4,11 @@ module;
 
 #include <glm/glm.hpp>
 
-#include <core/window/Window.hpp>
-
 export module examples.base.Controller;
 
 import core.gfx.Camera;
+import core.window.Key;
+import core.window.Window;
 
 namespace examples::base {
 

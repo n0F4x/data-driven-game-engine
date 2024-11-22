@@ -7,12 +7,13 @@ module;
 
 #include <glm/vec3.hpp>
 
-#include "core/image/Image.hpp"
 #include "core/renderer/base/allocator/Allocator.hpp"
 #include "core/renderer/base/resources/image_extensions.hpp"
 #include "core/renderer/resources/SeqWriteBuffer.hpp"
 
 module core.gfx.resources.virtual_image_helpers;
+
+import core.image.Image;
 
 auto core::gfx::resources::sparse_color_requirements(
     const core::renderer::base::Image& image

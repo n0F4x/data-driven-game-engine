@@ -1,8 +1,8 @@
-#pragma once
+export module core.window.CursorMode;
 
 namespace core::window {
 
-enum class CursorMode {
+export enum class CursorMode {
     eNormal,
     eDisabled,
 };

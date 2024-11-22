@@ -7,12 +7,13 @@ module;
 
 #include <VkBootstrap.h>
 
-#include "core/image/Image.hpp"
 #include "core/renderer/base/resources/mipmap_generation.hpp"
 #include "core/renderer/resources/Image.hpp"
 #include "core/renderer/resources/SeqWriteBuffer.hpp"
 
 module core.gfx.resources.Image;
+
+import core.image.Image;
 
 import core.gfx.resources.image_helpers;
 

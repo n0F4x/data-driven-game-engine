@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <expected>
 #include <functional>
@@ -10,14 +10,16 @@
 
 #include <GLFW/glfw3.h>
 
-#include "core/utility/Size.hpp"
+export module core.window.Window;
 
-#include "CursorMode.hpp"
-#include "Key.hpp"
+import core.utility.Size;
+
+import core.window.CursorMode;
+import core.window.Key;
 
 namespace core::window {
 
-class Window {
+export class Window {
 public:
     [[nodiscard]]
     static auto vulkan_instance_extensions()
@@ -49,7 +51,7 @@ public:
     /***********/
     template <std::invocable<Size2i> Callback>
     auto set_framebuffer_size_callback(Callback&& callback) -> void;
-    template<typename Self>
+    template <typename Self>
     auto set_title(this Self&&, gsl_lite::czstring title) -> Self;
 
     /************/

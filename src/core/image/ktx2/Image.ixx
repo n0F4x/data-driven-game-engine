@@ -1,17 +1,21 @@
-#pragma once
+module;
 
 #include <filesystem>
 #include <span>
 
 #include <gsl-lite/gsl-lite.hpp>
 
+#include <vulkan/vulkan.hpp>
+
 #include <ktx.h>
 
-#include "core/image/Image.hpp"
+export module core.image.ktx2.Image;
+
+import core.image.Image;
 
 namespace core::image::ktx2 {
 
-class Image : public image::Image {
+export class Image : public image::Image {
 public:
     [[nodiscard]]
     static auto load_from(const std::filesystem::path& filepath) -> Image;
@@ -19,8 +23,8 @@ public:
     [[nodiscard]]
     static auto load_from(std::span<const std::byte> data) -> Image;
 
-     Image()          = delete;
-     Image(Image&&)   = default;
+    Image()           = delete;
+    Image(Image&&)    = default;
     ~Image() override = default;
 
     auto operator=(Image&&) -> Image& = default;

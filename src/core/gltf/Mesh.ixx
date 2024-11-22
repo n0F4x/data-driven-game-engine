@@ -1,11 +1,13 @@
-#pragma once
+module;
 
 #include <optional>
 #include <vector>
 
+export module core.gltf.Mesh;
+
 namespace core::gltf {
 
-struct Mesh {
+export struct Mesh {
     struct Primitive {
         enum class Topology {
             ePoints,

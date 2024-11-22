@@ -3,12 +3,12 @@ module;
 #include <spdlog/spdlog.h>
 
 #include "core/renderer/base/instance/Instance.hpp"
-#include "core/window/Window.hpp"
 
 module plugins.renderer.SurfacePlugin;
 
 import app.App;
 import store.StoreView;
+import core.window.Window;
 import plugins.renderer.InstancePlugin;
 
 auto plugins::renderer::SurfacePlugin::operator()(

@@ -7,7 +7,6 @@ module;
 
 #include <glm/ext/vector_uint2.hpp>
 
-#include <core/image/Image.hpp>
 #include <core/renderer/base/allocator/Allocator.hpp>
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/resources/Buffer.hpp>
@@ -17,6 +16,8 @@ module;
 module demos.virtual_texture.init;
 
 import core.cache.Handle;
+
+import core.image.Image;
 
 import core.gfx.resources.VirtualImage;
 

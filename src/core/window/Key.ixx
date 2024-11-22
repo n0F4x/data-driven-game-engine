@@ -1,10 +1,12 @@
-#pragma once
+module;
 
 #include <GLFW/glfw3.h>
 
+export module core.window.Key;
+
 namespace core::window {
 
-enum Key {
+export enum Key {
     eSpace         = GLFW_KEY_SPACE,
     eApostrophe    = GLFW_KEY_APOSTROPHE,
     eComma         = GLFW_KEY_COMMA,
@@ -129,7 +131,7 @@ enum Key {
     eMenu           = GLFW_KEY_MENU,
 };
 
-enum class KeyState {
+export enum class KeyState {
     eReleased = GLFW_RELEASE,
     ePressed  = GLFW_PRESS,
 };

@@ -4,14 +4,19 @@ module;
 #include <future>
 #include <mutex>
 
+#include <glm/ext/vector_double2.hpp>
+
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/base/swapchain/SwapchainHolder.hpp>
-#include <core/window/events.hpp>
-#include <core/window/Window.hpp>
 
 module examples.base.DemoBase;
 
 import core.gfx.Camera;
+import core.utility.Size;
+import core.window.CursorMode;
+import core.window.events;
+import core.window.Key;
+import core.window.Window;
 
 auto examples::base::DemoBasePlugin::operator()(
     core::window::Window&                  window,

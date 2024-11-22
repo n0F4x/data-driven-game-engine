@@ -1,10 +1,10 @@
 module;
 
+#include <filesystem>
 #include <source_location>
 
 #include <glm/ext/vector_float3.hpp>
 
-#include <core/image/stb/Image.hpp>
 #include <core/renderer/base/allocator/Allocator.hpp>
 #include <core/renderer/base/device/Device.hpp>
 #include <core/renderer/resources/Buffer.hpp>
@@ -13,6 +13,8 @@ module;
 module demos.virtual_texture.VirtualTexture;
 
 import core.gfx.resources.VirtualImage;
+
+import core.image.stb.Image;
 
 import demos.virtual_texture.init;
 import demos.virtual_texture.Vertex;
