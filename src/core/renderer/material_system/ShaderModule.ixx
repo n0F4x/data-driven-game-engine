@@ -3,9 +3,9 @@ module;
 #include <filesystem>
 #include <optional>
 
-#include <vulkan/vulkan.hpp>
-
 export module core.renderer.material_system.ShaderModule;
+
+import vulkan_hpp;
 
 namespace core::renderer {
 

@@ -2,9 +2,9 @@ module;
 
 #include <filesystem>
 
-#include <vulkan/vulkan.hpp>
-
 export module core.renderer.material_system.Shader;
+
+import vulkan_hpp;
 
 import core.cache.Handle;
 

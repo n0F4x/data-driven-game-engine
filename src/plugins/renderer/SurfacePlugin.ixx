@@ -1,10 +1,10 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
-class StoreView;
-
 export module plugins.renderer.SurfacePlugin;
+
+import vulkan_hpp;
+
+import store.StoreView;
 
 import core.renderer.base.instance.Instance;
 

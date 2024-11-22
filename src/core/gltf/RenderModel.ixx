@@ -4,9 +4,9 @@ module;
 #include <future>
 #include <variant>
 
-#include <vulkan/vulkan.hpp>
-
 export module core.gltf.RenderModel;
+
+import vulkan_hpp;
 
 import core.cache.Cache;
 import core.cache.Handle;

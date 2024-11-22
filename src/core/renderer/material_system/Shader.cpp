@@ -2,7 +2,7 @@ module;
 
 #include <filesystem>
 
-#include <vulkan/vulkan.hpp>
+
 
 module core.renderer.material_system.Shader;
 

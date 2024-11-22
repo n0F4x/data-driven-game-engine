@@ -1,10 +1,12 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <tuple>
 
 #include <vk_mem_alloc.h>
 
 export module core.renderer.resources.Buffer;
+
+import vulkan_hpp;
 
 import core.renderer.base.allocator.Allocator;
 import core.renderer.base.resources.Allocation;

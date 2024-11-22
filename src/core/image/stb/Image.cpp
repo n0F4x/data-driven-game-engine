@@ -5,7 +5,7 @@ module;
 #include <format>
 #include <ranges>
 
-#include <vulkan/vulkan.hpp>
+
 #include <vulkan/vulkan_format_traits.hpp>
 
 #include <stb_image.h>

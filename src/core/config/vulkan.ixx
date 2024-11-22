@@ -1,8 +1,8 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 export module core.config.vulkan;
+
+import vulkan_hpp;
 
 namespace core::config::vulkan {
 

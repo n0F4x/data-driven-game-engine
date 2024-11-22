@@ -1,10 +1,12 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <cstdint>
 
 #include "core/utility/lifetime_bound.hpp"
 
 export module core.renderer.base.resources.Image;
+
+import vulkan_hpp;
 
 namespace core::renderer::base {
 

@@ -7,7 +7,7 @@ module;
 
 #include <spdlog/spdlog.h>
 
-#include <vulkan/vulkan.hpp>
+
 
 #include <VkBootstrap.h>
 

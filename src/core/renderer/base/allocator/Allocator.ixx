@@ -2,13 +2,13 @@ module;
 
 #include <gsl-lite/gsl-lite.hpp>
 
-#include <vulkan/vulkan.hpp>
-
 #include <vk_mem_alloc.h>
 
 #include <VkBootstrap.h>
 
 export module core.renderer.base.allocator.Allocator;
+
+import vulkan_hpp;
 
 import core.renderer.base.instance.Instance;
 import core.renderer.base.device.Device;

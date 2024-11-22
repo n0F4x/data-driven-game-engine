@@ -3,7 +3,7 @@ module;
 #include <ranges>
 
 #include <vulkan/utility/vk_format_utils.h>
-#include <vulkan/vulkan.hpp>
+
 
 module core.renderer.base.resources.Image;
 

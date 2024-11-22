@@ -1,10 +1,9 @@
 module;
 
+#include <algorithm>
 #include <expected>
 
 #include <spdlog/spdlog.h>
-
-#include <vulkan/vulkan.hpp>
 
 #include <VkBootstrap.h>
 

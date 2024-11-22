@@ -61,8 +61,9 @@ auto SwapchainHolder::acquire_next_image(
 {
     return m_swapchain.transform(&Swapchain::get)
         .and_then(
-            [this, semaphore, fence](const vk::SwapchainKHR swapchain
-            ) -> std::optional<uint32_t> {
+            [this,
+             semaphore,
+             fence](const vk::SwapchainKHR swapchain) -> std::optional<uint32_t> {
                 try {
                     switch (const auto [result, image_index]{
                         m_device.get()->acquireNextImageKHR(

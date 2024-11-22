@@ -1,8 +1,8 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 export module core.renderer.model.Drawable;
+
+import vulkan_hpp;
 
 namespace core::renderer {
 

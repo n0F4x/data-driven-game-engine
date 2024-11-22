@@ -1,10 +1,10 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 #include <glm/glm.hpp>
 
 export module core.utility.Size;
+
+import vulkan_hpp;
 
 namespace core {
 

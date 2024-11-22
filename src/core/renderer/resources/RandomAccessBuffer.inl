@@ -71,8 +71,10 @@ auto core::renderer::resources::RandomAccessBuffer<T>::get(
 }
 
 template <typename T>
-auto core::renderer::resources::RandomAccessBuffer<T>::get(T& data, const size_t offset)
-    const -> void
+auto core::renderer::resources::RandomAccessBuffer<T>::get(
+    T&           data,
+    const size_t offset
+) const -> void
 {
     assert(!empty());
     base::copy(

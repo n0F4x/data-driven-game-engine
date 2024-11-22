@@ -1,12 +1,17 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <cassert>
+#include <cstddef>
+#include <span>
+#include <tuple>
 
 #include <vk_mem_alloc.h>
 
 #include "core/utility/lifetime_bound.hpp"
 
 export module core.renderer.resources.SeqWriteBuffer;
+
+import vulkan_hpp;
 
 import core.renderer.base.allocator.Allocator;
 import core.renderer.base.resources.Allocation;

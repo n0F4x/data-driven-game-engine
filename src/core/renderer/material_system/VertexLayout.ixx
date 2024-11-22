@@ -4,9 +4,9 @@ module;
 #include <span>
 #include <vector>
 
-#include <vulkan/vulkan.hpp>
-
 export module core.renderer.material_system.VertexLayout;
+
+import vulkan_hpp;
 
 namespace core::renderer {
 

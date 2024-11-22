@@ -11,6 +11,8 @@ module;
 
 module plugins.renderer.InstancePlugin;
 
+import vulkan_hpp;
+
 import app.App;
 
 import core.config.vulkan;

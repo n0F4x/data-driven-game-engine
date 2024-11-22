@@ -1,8 +1,7 @@
 module;
 
+#include <algorithm>
 #include <functional>
-
-#include <vulkan/vulkan.hpp>
 
 #include <glm/ext/vector_float4.hpp>
 

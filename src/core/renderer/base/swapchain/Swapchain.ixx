@@ -3,11 +3,11 @@ module;
 #include <optional>
 #include <vector>
 
-#include <vulkan/vulkan.hpp>
-
 #include <VkBootstrap.h>
 
 export module core.renderer.base.swapchain.Swapchain;
+
+import vulkan_hpp;
 
 namespace core::renderer::base {
 

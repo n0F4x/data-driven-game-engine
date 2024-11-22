@@ -1,6 +1,6 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <array>
 
 module core.renderer.model.ModelLayout;
 

@@ -1,10 +1,11 @@
 module;
 
+#include <cstdint>
 #include <span>
 
-#include <vulkan/vulkan.hpp>
-
 export module core.image.Image;
+
+import vulkan_hpp;
 
 namespace core::image {
 

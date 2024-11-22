@@ -1,6 +1,7 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <tuple>
+#include <utility>
 
 #include <vk_mem_alloc.h>
 

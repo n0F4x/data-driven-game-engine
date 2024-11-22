@@ -1,12 +1,13 @@
 module;
 
 #include <future>
-
-#include <vulkan/vulkan.hpp>
+#include <optional>
 
 #include <glm/ext/matrix_float4x4.hpp>
 
 export module core.renderer.scene.Scene;
+
+import vulkan_hpp;
 
 import core.cache.Cache;
 import core.cache.Handle;

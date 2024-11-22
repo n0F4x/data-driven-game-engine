@@ -1,12 +1,14 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <span>
 
 #include <vk_mem_alloc.h>
 
 #include "core/utility/lifetime_bound.hpp"
 
 export module core.renderer.base.resources.Allocation;
+
+import vulkan_hpp;
 
 import core.renderer.base.resources.MemoryTypeIndex;
 import core.renderer.base.resources.MemoryView;

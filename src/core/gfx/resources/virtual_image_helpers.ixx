@@ -1,8 +1,11 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <cstdint>
+#include <vector>
 
 export module core.gfx.resources.virtual_image_helpers;
+
+import vulkan_hpp;
 
 import core.image.Image;
 

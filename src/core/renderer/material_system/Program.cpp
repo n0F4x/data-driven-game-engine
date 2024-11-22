@@ -2,7 +2,7 @@ module;
 
 #include <string_view>
 
-#include <vulkan/vulkan.hpp>
+
 
 module core.renderer.material_system.Program;
 

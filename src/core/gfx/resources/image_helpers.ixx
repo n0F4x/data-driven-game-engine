@@ -1,8 +1,8 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 export module core.gfx.resources.image_helpers;
+
+import vulkan_hpp;
 
 import core.renderer.base.resources.Image;
 

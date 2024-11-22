@@ -1,10 +1,10 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 #include <VkBootstrap.h>
 
 export module core.gfx.resources.Image;
+
+import vulkan_hpp;
 
 import core.image.Image;
 

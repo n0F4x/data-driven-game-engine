@@ -1,10 +1,10 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 #include <VkBootstrap.h>
 
 export module core.renderer.base.instance.Instance;
+
+import vulkan_hpp;
 
 namespace core::renderer::base {
 

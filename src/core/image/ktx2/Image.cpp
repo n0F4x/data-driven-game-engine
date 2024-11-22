@@ -1,11 +1,11 @@
 module;
 
+#include <cassert>
 #include <filesystem>
 #include <format>
+#include <span>
 
 #include <gsl-lite/gsl-lite.hpp>
-
-#include <vulkan/vulkan.hpp>
 
 #include <ktx.h>
 

@@ -3,7 +3,7 @@ module;
 #include <cmath>
 #include <ranges>
 
-#include <vulkan/vulkan.hpp>
+
 
 #include <vk_mem_alloc.h>
 

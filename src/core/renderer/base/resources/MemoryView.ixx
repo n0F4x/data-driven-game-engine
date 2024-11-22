@@ -1,8 +1,8 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 export module core.renderer.base.resources.MemoryView;
+
+import vulkan_hpp;
 
 namespace core::renderer::base {
 

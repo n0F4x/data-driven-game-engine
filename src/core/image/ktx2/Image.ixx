@@ -5,11 +5,13 @@ module;
 
 #include <gsl-lite/gsl-lite.hpp>
 
-#include <vulkan/vulkan.hpp>
+
 
 #include <ktx.h>
 
 export module core.image.ktx2.Image;
+
+import vulkan_hpp;
 
 import core.image.Image;
 

@@ -1,8 +1,7 @@
 module;
 
 #include <cstdint>
-
-#include <vulkan/vulkan.hpp>
+#include <span>
 
 module core.renderer.material_system.VertexLayout;
 

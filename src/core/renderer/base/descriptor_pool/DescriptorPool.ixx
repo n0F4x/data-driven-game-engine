@@ -1,8 +1,11 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <cstdint>
+#include <vector>
 
 export module core.renderer.base.descriptor_pool.DescriptorPool;
+
+import vulkan_hpp;
 
 namespace core::renderer::base {
 

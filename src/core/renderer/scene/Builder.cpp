@@ -1,9 +1,8 @@
 module;
 
+#include <algorithm>
 #include <future>
 #include <ranges>
-
-#include <vulkan/vulkan.hpp>
 
 module core.renderer.scene.Scene;
 

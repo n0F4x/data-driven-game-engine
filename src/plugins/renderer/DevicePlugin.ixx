@@ -3,11 +3,11 @@ module;
 #include <functional>
 #include <vector>
 
-#include <vulkan/vulkan.hpp>
-
 #include <VkBootstrap.h>
 
 export module plugins.renderer.DevicePlugin;
+
+import vulkan_hpp;
 
 import core.renderer.base.instance.Instance;
 import core.renderer.base.device.Device;

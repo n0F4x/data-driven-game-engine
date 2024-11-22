@@ -1,6 +1,6 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+
 
 module core.image.Image;
 

@@ -1,6 +1,7 @@
 module;
 
 #include <cassert>
+#include <span>
 #include <utility>
 
 #include <vulkan/vulkan.hpp>

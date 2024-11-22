@@ -2,11 +2,11 @@ module;
 
 #include <spdlog/spdlog.h>
 
-#include <vulkan/vulkan.hpp>
-
 #include <VkBootstrap.h>
 
 module plugins.renderer.RendererPlugin;
+
+import vulkan_hpp;
 
 import core.gfx.resources.Image;
 import core.gfx.resources.VirtualImage;

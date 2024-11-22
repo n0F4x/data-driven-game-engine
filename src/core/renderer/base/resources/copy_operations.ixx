@@ -1,8 +1,10 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <functional>
 
 export module core.renderer.base.resources.copy_operations;
+
+import vulkan_hpp;
 
 import core.renderer.base.resources.Allocation;
 

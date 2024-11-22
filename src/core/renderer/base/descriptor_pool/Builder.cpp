@@ -1,6 +1,6 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <cstdint>
 
 module core.renderer.base.descriptor_pool.DescriptorPool;
 

@@ -1,10 +1,11 @@
 module;
 
 #include <optional>
-
-#include <vulkan/vulkan.hpp>
+#include <vector>
 
 export module core.renderer.material_system.GraphicsPipelineBuilder;
+
+import vulkan_hpp;
 
 import core.renderer.material_system.Program;
 import core.renderer.material_system.VertexLayout;

@@ -1,10 +1,10 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 #include <VkBootstrap.h>
 
 export module core.renderer.base.device.Device;
+
+import vulkan_hpp;
 
 namespace core::renderer::base {
 

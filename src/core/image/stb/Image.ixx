@@ -3,9 +3,9 @@ module;
 #include <filesystem>
 #include <span>
 
-#include <vulkan/vulkan.hpp>
-
 export module core.image.stb.Image;
+
+import vulkan_hpp;
 
 import core.image.Image;
 

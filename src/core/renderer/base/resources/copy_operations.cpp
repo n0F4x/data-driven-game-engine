@@ -1,6 +1,8 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <cassert>
+#include <cstring>
+#include <span>
 
 module core.renderer.base.resources.copy_operations;
 

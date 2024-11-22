@@ -1,8 +1,8 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 export module core.renderer.base.resources.mipmap_generation;
+
+import vulkan_hpp;
 
 import core.renderer.base.resources.Image;
 

@@ -1,10 +1,10 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 #include <vk_mem_alloc.h>
 
 export module core.renderer.resources.Image;
+
+import vulkan_hpp;
 
 import core.renderer.base.allocator.Allocator;
 import core.renderer.base.resources.Allocation;

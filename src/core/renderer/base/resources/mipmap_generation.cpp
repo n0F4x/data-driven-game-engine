@@ -2,7 +2,7 @@ module;
 
 #include <ranges>
 
-#include <vulkan/vulkan.hpp>
+
 
 module core.renderer.base.resources.mipmap_generation;
 

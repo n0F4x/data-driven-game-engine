@@ -3,7 +3,7 @@ module;
 #include <fstream>
 #include <vector>
 
-#include <vulkan/vulkan.hpp>
+
 
 module core.renderer.material_system.ShaderModule;
 

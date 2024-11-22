@@ -1,6 +1,6 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <vector>
 
 module core.renderer.base.resources.image_extensions;
 

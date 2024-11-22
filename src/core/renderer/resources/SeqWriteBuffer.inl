@@ -41,8 +41,10 @@ auto core::renderer::resources::SeqWriteBuffer<T>::set(
 }
 
 template <typename T>
-auto core::renderer::resources::SeqWriteBuffer<T>::set(const T& data, const size_t offset)
-    const -> void
+auto core::renderer::resources::SeqWriteBuffer<T>::set(
+    const T&     data,
+    const size_t offset
+) const -> void
 {
     assert(sizeof(T) <= size_bytes() - offset * sizeof(T));
     base::copy(

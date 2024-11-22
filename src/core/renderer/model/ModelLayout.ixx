@@ -3,11 +3,11 @@ module;
 #include <cstdint>
 #include <vector>
 
-#include <vulkan/vulkan.hpp>
-
 #include <VkBootstrap.h>
 
 export module core.renderer.model.ModelLayout;
+
+import vulkan_hpp;
 
 namespace core::renderer {
 

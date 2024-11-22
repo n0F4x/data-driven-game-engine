@@ -5,9 +5,9 @@ module;
 #include <span>
 #include <vector>
 
-#include <vulkan/vulkan.hpp>
-
 export module core.renderer.base.swapchain.SwapchainHolder;
+
+import vulkan_hpp;
 
 import core.renderer.base.swapchain.Swapchain;
 
@@ -49,8 +49,8 @@ public:
     auto present(std::span<const vk::Semaphore> wait_semaphores = {}) -> void;
     auto present(vk::Semaphore wait_semaphore) -> void;
 
-    auto on_swapchain_recreated(SwapchainRecreatedEvent&& swapchain_recreated_event
-    ) -> uint32_t;
+    auto on_swapchain_recreated(SwapchainRecreatedEvent&& swapchain_recreated_event)
+        -> uint32_t;
 
     auto remove_swapchain_recreated_event(uint32_t id) noexcept -> void;
 
@@ -73,4 +73,4 @@ private:
     auto recreate_swapchain() -> void;
 };
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

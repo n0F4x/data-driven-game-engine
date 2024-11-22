@@ -7,15 +7,15 @@ module;
 
 #include <spdlog/spdlog.h>
 
-#include <vulkan/vulkan.hpp>
-#include <vulkan/vulkan_to_string.hpp>
-
 module core.renderer.base.swapchain.Swapchain;
+
+import vulkan_hpp;
 
 namespace core::renderer::base {
 
 [[nodiscard]]
-static auto get_min_image_count(const vk::SurfaceCapabilitiesKHR& surface_capabilities
+static auto get_min_image_count(
+    const vk::SurfaceCapabilitiesKHR& surface_capabilities
 ) noexcept -> uint32_t
 {
     uint32_t image_count = surface_capabilities.minImageCount + 1;

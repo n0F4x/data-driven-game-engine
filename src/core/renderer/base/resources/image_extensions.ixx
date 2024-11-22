@@ -1,8 +1,10 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <vector>
 
 export module core.renderer.base.resources.image_extensions;
+
+import vulkan_hpp;
 
 import core.renderer.base.resources.Image;
 
