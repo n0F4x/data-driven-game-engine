@@ -1,7 +1,7 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        DevicePlugin.cpp
-        InstancePlugin.cpp
-        SurfacePlugin.cpp
+        DevicePlugin.cxx
+        InstancePlugin.cxx
+        SurfacePlugin.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

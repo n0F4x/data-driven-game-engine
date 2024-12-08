@@ -1,5 +1,5 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        Image.cpp
+        Image.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

@@ -1,10 +1,10 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        Allocation.cpp
-        Buffer.cpp
-        copy_operations.cpp
-        Image.cpp
-        image_extensions.cpp
-        mipmap_generation.cpp
+        Allocation.cxx
+        Buffer.cxx
+        copy_operations.cxx
+        Image.cxx
+        image_extensions.cxx
+        mipmap_generation.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

@@ -1,8 +1,8 @@
 module;
 
 #include <atomic>
-#include <future>
 #include <functional>
+#include <future>
 #include <mutex>
 
 #include <vulkan/vulkan.hpp>

@@ -1,13 +1,13 @@
 add_subdirectory(shaders)
 
 target_sources(${PROJECT_NAME} PRIVATE
-        ImageLoader.cpp
-        Loader.cpp
-        Material.cpp
-        Model.cpp
-        Node.cpp
-        RenderModel.cpp
-        Texture.cpp
+        ImageLoader.cxx
+        Loader.cxx
+        Material.cxx
+        Model.cxx
+        Node.cxx
+        RenderModel.cxx
+        Texture.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

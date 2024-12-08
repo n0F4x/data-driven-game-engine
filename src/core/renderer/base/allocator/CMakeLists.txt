@@ -1,6 +1,6 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        Allocator.cpp
-        Requirements.cpp
+        Allocator.cxx
+        Requirements.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

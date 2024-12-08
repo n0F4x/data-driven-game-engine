@@ -63,7 +63,7 @@ if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
 endif ()
 
-#Vulkan-Utility
+# Vulkan-Utility
 find_package(VulkanUtilityLibraries CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::UtilityHeaders)
 

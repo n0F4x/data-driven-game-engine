@@ -1,7 +1,7 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        Requirements.cpp
-        SwapchainHolder.cpp
-        Swapchain.cpp
+        Requirements.cxx
+        SwapchainHolder.cxx
+        Swapchain.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

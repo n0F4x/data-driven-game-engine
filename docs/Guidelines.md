@@ -63,11 +63,6 @@ Make your code self-documenting!
 
 ### Namespaces
 
--   Use global `using namespace` in .cpp files for namespaces that are local to folder. \
-    e.g.: _core/renderer_ -> `using namespace core;`, `using namespace core::renderer`
-
-    Don't use global `using namespace` elsewhere!
-
 -   Use `::` before function calls from global scope
 
 ### Other

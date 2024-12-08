@@ -1,6 +1,6 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        Store.cpp
-        StoreView.cpp
+        Store.cxx
+        StoreView.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

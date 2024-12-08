@@ -1,5 +1,5 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        Instance.cpp
+        Instance.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

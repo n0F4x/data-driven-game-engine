@@ -1,6 +1,6 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        Builder.cpp
-        Scene.cpp
+        Builder.cxx
+        Scene.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

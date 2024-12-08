@@ -1,6 +1,6 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        ModelLayout.cpp
-        Requirements.cpp
+        ModelLayout.cxx
+        Requirements.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

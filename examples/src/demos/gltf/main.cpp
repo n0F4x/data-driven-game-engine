@@ -65,7 +65,7 @@ try {
         .use(
             demo::DemoPlugin{
                 .model_filepath     = model_filepath,
-                .use_virtual_images = false,
+                .use_virtual_images = true,
             }
         )
         .run(demo::run);

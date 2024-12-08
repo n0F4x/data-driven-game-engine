@@ -20,11 +20,11 @@ if (engine_debug)
     )
 endif ()
 target_sources(virtual_texture PRIVATE
-        demo.cpp
-        DemoApp.cpp
-        init.cpp
+        demo.cxx
+        DemoApp.cxx
+        init.cxx
         main.cpp
-        VirtualTexture.cpp
+        VirtualTexture.cxx
 )
 target_sources(base PUBLIC
         FILE_SET CXX_MODULES

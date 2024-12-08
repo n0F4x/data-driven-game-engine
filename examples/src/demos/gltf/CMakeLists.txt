@@ -20,9 +20,9 @@ if (engine_debug)
     )
 endif ()
 target_sources(gltf PRIVATE
-        demo.cpp
-        init.cpp
-        DemoApp.cpp
+        demo.cxx
+        init.cxx
+        DemoApp.cxx
         main.cpp
 )
 target_sources(base PUBLIC

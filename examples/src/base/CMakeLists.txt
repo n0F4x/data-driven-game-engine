@@ -21,10 +21,10 @@ if (engine_debug)
 endif ()
 target_include_directories(base PUBLIC ../../src)
 target_sources(base PRIVATE
-        DemoBase.cpp
-        Controller.cpp
-        init.cpp
-        Renderer.cpp
+        DemoBase.cxx
+        Controller.cxx
+        init.cxx
+        Renderer.cxx
 )
 target_sources(base PUBLIC
         FILE_SET CXX_MODULES

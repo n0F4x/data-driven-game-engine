@@ -1,8 +1,8 @@
 add_subdirectory(renderer)
 
 target_sources(${PROJECT_NAME} PRIVATE
-        Renderer.cpp
-        WindowPlugin.cpp
+        Renderer.cxx
+        WindowPlugin.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

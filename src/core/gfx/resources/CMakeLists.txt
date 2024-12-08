@@ -1,8 +1,8 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        Image.cpp
-        image_helpers.cpp
-        virtual_image_helpers.cpp
-        VirtualImage.cpp
+        Image.cxx
+        image_helpers.cxx
+        virtual_image_helpers.cxx
+        VirtualImage.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC
