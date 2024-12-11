@@ -1,6 +1,7 @@
 module;
 
 #include <functional>
+#include <memory>
 #include <optional>
 #include <typeindex>
 
@@ -51,7 +52,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    tsl::ordered_map<std::type_index, entt::any> m_map;
+    tsl::ordered_map<std::type_index, std::unique_ptr<entt::any>> m_map;
 };
 
 #include "Store.inl"

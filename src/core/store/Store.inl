@@ -3,13 +3,15 @@
 template <typename T>
 auto Store::emplace(auto&&... args) -> T&
 {
-    return entt::any_cast<T&>(
-        m_map
-            .try_emplace(
-                typeid(T), std::in_place_type<T>, std::forward<decltype(args)>(args)...
-            )
-            .first.value()
-    );
+    return entt::any_cast<T&>(*m_map
+                                   .try_emplace(
+                                       typeid(T),
+                                       std::make_unique<entt::any>(
+                                           std::in_place_type<T>,
+                                           std::forward<decltype(args)>(args)...
+                                       )
+                                   )
+                                   .first.value());
 }
 
 template <typename T>
@@ -20,7 +22,7 @@ auto Store::find() noexcept -> std::optional<std::reference_wrapper<T>>
         return std::nullopt;
     }
 
-    return entt::any_cast<T&>(iter.value());
+    return entt::any_cast<T&>(*iter.value());
 }
 
 template <typename T>
@@ -31,19 +33,19 @@ auto Store::find() const noexcept -> std::optional<std::reference_wrapper<const 
         return std::nullopt;
     }
 
-    return entt::any_cast<const T&>(iter.value());
+    return entt::any_cast<const T&>(*iter.value());
 }
 
 template <typename T>
 auto Store::at() -> T&
 {
-    return entt::any_cast<T&>(m_map.at(typeid(T)));
+    return entt::any_cast<T&>(*m_map.at(typeid(T)));
 }
 
 template <typename T>
 auto Store::at() const -> const T&
 {
-    return entt::any_cast<const T&>(m_map.at(typeid(T)));
+    return entt::any_cast<const T&>(*m_map.at(typeid(T)));
 }
 
 template <typename T>
