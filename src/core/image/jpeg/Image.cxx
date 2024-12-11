@@ -5,13 +5,12 @@ module;
 #include <format>
 #include <ranges>
 
-
 #include <vulkan/vulkan_format_traits.hpp>
 
 #include <stb_image.h>
 #include <stb_image_resize2.h>
 
-module core.image.stb.Image;
+module core.image.jpeg.Image;
 
 [[nodiscard]]
 static auto count_mip_levels(const uint32_t base_width, const uint32_t base_height)
@@ -108,7 +107,7 @@ static auto generate_mip_maps(
     return result;
 }
 
-auto core::image::stb::Image::load_from(const std::filesystem::path& filepath) -> Image
+auto core::image::jpeg::Image::load_from(const std::filesystem::path& filepath) -> Image
 {
     // TODO: request format
     constexpr static vk::Format format{ vk::Format::eR8G8B8A8Srgb };
@@ -157,7 +156,7 @@ auto core::image::stb::Image::load_from(const std::filesystem::path& filepath) -
                   mip_level_count };
 }
 
-auto core::image::stb::Image::load_from(const std::span<const std::byte> data) -> Image
+auto core::image::jpeg::Image::load_from(const std::span<const std::byte> data) -> Image
 {
     // TODO: request format
     constexpr static vk::Format format{ vk::Format::eR8G8B8A8Srgb };
@@ -205,42 +204,42 @@ auto core::image::stb::Image::load_from(const std::span<const std::byte> data) -
                   mip_level_count };
 }
 
-auto core::image::stb::Image::data() const noexcept -> std::span<const std::byte>
+auto core::image::jpeg::Image::data() const noexcept -> std::span<const std::byte>
 {
     return m_data;
 }
 
-auto core::image::stb::Image::width() const noexcept -> uint32_t
+auto core::image::jpeg::Image::width() const noexcept -> uint32_t
 {
     return m_base_width;
 }
 
-auto core::image::stb::Image::height() const noexcept -> uint32_t
+auto core::image::jpeg::Image::height() const noexcept -> uint32_t
 {
     return m_base_height;
 }
 
-auto core::image::stb::Image::depth() const noexcept -> uint32_t
+auto core::image::jpeg::Image::depth() const noexcept -> uint32_t
 {
     return 1;
 }
 
-auto core::image::stb::Image::mip_level_count() const noexcept -> uint32_t
+auto core::image::jpeg::Image::mip_level_count() const noexcept -> uint32_t
 {
     return m_mip_level_count;
 }
 
-auto core::image::stb::Image::needs_mip_generation() const noexcept -> bool
+auto core::image::jpeg::Image::needs_mip_generation() const noexcept -> bool
 {
     return false;
 }
 
-auto core::image::stb::Image::format() const noexcept -> vk::Format
+auto core::image::jpeg::Image::format() const noexcept -> vk::Format
 {
     return m_format;
 }
 
-auto core::image::stb::Image::offset_of(
+auto core::image::jpeg::Image::offset_of(
     const uint32_t mip_level_index,
     const uint32_t,
     const uint32_t
@@ -263,7 +262,7 @@ auto core::image::stb::Image::offset_of(
     return result;
 }
 
-core::image::stb::Image::Image(
+core::image::jpeg::Image::Image(
     std::vector<std::byte>&& data,
     const uint32_t           base_width,
     const uint32_t           base_height,

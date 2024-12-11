@@ -2,14 +2,15 @@ module;
 
 #include <filesystem>
 #include <span>
+#include <vector>
 
-export module core.image.stb.Image;
+export module core.image.jpeg.Image;
 
 import vulkan_hpp;
 
 import core.image.Image;
 
-namespace core::image::stb {
+namespace core::image::jpeg {
 
 export class Image : public image::Image {
 public:
@@ -60,4 +61,4 @@ private:
     ) noexcept;
 };
 
-}   // namespace core::image::stb
+}   // namespace core::image::jpeg

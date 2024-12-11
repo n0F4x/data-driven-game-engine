@@ -9,11 +9,12 @@ module;
 
 module core.gltf.ImageLoader;
 
+import core.image.jpeg.Image;
 import core.image.jpeg.MimeType;
 import core.image.ktx2.Image;
 import core.image.ktx2.MimeType;
+import core.image.png.Image;
 import core.image.png.MimeType;
-import core.image.stb.Image;
 
 using namespace core;
 
@@ -79,9 +80,12 @@ auto core::gltf::ImageLoader::load_from(const std::filesystem::path& filepath)
             using enum SupportedMimeTypes;
             switch (mime_type) {
                 case ePNG:
+                    return std::make_unique<image::png::Image>(
+                        image::png::Image::load_from(filepath)
+                    );
                 case eJPG:
-                    return std::make_unique<image::stb::Image>(
-                        image::stb::Image::load_from(filepath)
+                    return std::make_unique<image::jpeg::Image>(
+                        image::jpeg::Image::load_from(filepath)
                     );
                 case eKTX2:
                     return std::make_unique<image::ktx2::Image>(
@@ -99,8 +103,10 @@ auto core::gltf::ImageLoader::load_from(
 {
     switch (mime_type) {
         case fastgltf::MimeType::PNG:
+            return std::make_unique<image::png::Image>(image::png::Image::load_from(data));
         case fastgltf::MimeType::JPEG:
-            return std::make_unique<image::stb::Image>(image::stb::Image::load_from(data));
+            return std::make_unique<image::jpeg::Image>(image::jpeg::Image::load_from(data)
+            );
         case fastgltf::MimeType::KTX2:
             return std::make_unique<image::ktx2::Image>(image::ktx2::Image::load_from(data)
             );

@@ -13,7 +13,7 @@ module demos.virtual_texture.VirtualTexture;
 
 import core.gfx.resources.VirtualImage;
 
-import core.image.stb.Image;
+import core.image.jpeg.Image;
 
 import core.renderer.base.device.Device;
 import core.renderer.base.allocator.Allocator;
@@ -188,7 +188,7 @@ demo::VirtualTexture::VirtualTexture(
       m_virtual_image{ init::create_virtual_image(
           device,
           allocator,
-          std::make_unique<core::image::stb::Image>(core::image::stb::Image::load_from(
+          std::make_unique<core::image::jpeg::Image>(core::image::jpeg::Image::load_from(
               std::filesystem::path{ std::source_location::current().file_name() }
                   .parent_path()
                   .parent_path()
