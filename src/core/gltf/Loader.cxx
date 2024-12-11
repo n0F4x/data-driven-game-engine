@@ -13,7 +13,7 @@ module;
 
 module core.gltf.Model;
 
-import core.utility.meta.functional;
+import utility.meta.functional;
 
 import core.gltf.Image;
 import core.gltf.ImageLoader;

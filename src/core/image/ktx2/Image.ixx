@@ -54,9 +54,6 @@ public:
         -> uint64_t final;
 
 private:
-    [[nodiscard]]
-    static auto create_copy(const Image& original) -> Image;
-
     struct Deleter {
         auto operator()(ktxTexture2* texture) const noexcept -> void;
     };

@@ -1,8 +1,7 @@
 module;
 
-#include <spdlog/spdlog.h>
-
-#include <VkBootstrap.h>
+#include <../../../build/Clang-MinGW-debug/_deps/vk-bootstrap-src/src/VkBootstrap.h>
+#include <../../../build/Clang-MinGW-debug/vcpkg_installed/x64-mingw-static/include/spdlog/spdlog.h>
 
 module plugins.renderer.RendererPlugin;
 

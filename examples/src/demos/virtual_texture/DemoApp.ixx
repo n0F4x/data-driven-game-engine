@@ -15,7 +15,7 @@ import core.renderer.resources.Buffer;
 import core.renderer.resources.Image;
 import core.renderer.resources.RandomAccessBuffer;
 
-import store.StoreView;
+import core.store.StoreView;
 
 import demos.virtual_texture.Camera;
 import demos.virtual_texture.VirtualTexture;

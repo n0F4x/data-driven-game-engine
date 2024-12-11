@@ -6,7 +6,7 @@ module;
 
 #include <functional>
 
-export module core.utility.hashing;
+export module utility.hashing;
 
 namespace core {
 

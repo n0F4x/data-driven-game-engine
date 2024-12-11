@@ -12,7 +12,7 @@ module;
 
 export module core.window.Window;
 
-import core.utility.Size;
+import utility.Size;
 
 import core.window.CursorMode;
 import core.window.Key;

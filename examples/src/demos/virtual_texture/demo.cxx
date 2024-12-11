@@ -6,7 +6,7 @@ module;
 
 module demos.virtual_texture;
 
-import app.App;
+import core.app.App;
 
 import core.gfx.Camera;
 

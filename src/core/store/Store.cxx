@@ -1,4 +1,4 @@
-module store.Store;
+module core.store.Store;
 
 Store::~Store() noexcept
 {

@@ -5,7 +5,7 @@ module;
 
 module core.gltf.Model;
 
-import core.utility.hashing;
+import utility.hashing;
 
 import core.gltf.Texture;
 

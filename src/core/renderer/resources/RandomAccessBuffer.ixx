@@ -7,7 +7,7 @@ module;
 
 #include <vk_mem_alloc.h>
 
-#include "core/utility/lifetime_bound.hpp"
+#include "utility/lifetime_bound.hpp"
 
 export module core.renderer.resources.RandomAccessBuffer;
 

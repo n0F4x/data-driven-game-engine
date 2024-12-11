@@ -9,8 +9,8 @@ module;
 
 module plugins.renderer.SurfacePlugin;
 
-import app.App;
-import store.StoreView;
+import core.app.App;
+import core.store.StoreView;
 import core.renderer.base.instance.Instance;
 import core.window.Window;
 import plugins.renderer.InstancePlugin;

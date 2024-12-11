@@ -1,6 +1,6 @@
 export module demos.virtual_texture;
 
-import app.App;
+import core.app.App;
 
 namespace demo {
 

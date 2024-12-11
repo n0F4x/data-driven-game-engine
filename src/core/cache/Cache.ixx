@@ -5,7 +5,7 @@ module;
 
 export module core.cache.Cache;
 
-import store.Store;
+import core.store.Store;
 
 import core.cache.Handle;
 

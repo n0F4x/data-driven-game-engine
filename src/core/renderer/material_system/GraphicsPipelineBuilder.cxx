@@ -6,7 +6,7 @@ module;
 
 module core.renderer.material_system.GraphicsPipelineBuilder;
 
-import core.utility.hashing;
+import utility.hashing;
 
 core::renderer::GraphicsPipelineBuilder::GraphicsPipelineBuilder(Program program) noexcept
     : m_program{ std::move(program) }

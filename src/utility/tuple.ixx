@@ -4,10 +4,10 @@ module;
 
 // reference: https://devblogs.microsoft.com/oldnewthing/20200625-00/?p=103903
 
-export module core.utility.tuple;
+export module utility.tuple;
 
-import core.utility.meta.tuple_like;
-import core.utility.meta.tuple;
+import utility.meta.tuple_like;
+import utility.meta.tuple;
 
 namespace core::utils {
 

@@ -4,7 +4,7 @@ export module plugins.renderer.SurfacePlugin;
 
 import vulkan_hpp;
 
-import store.StoreView;
+import core.store.StoreView;
 
 import core.renderer.base.instance.Instance;
 

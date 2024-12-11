@@ -14,7 +14,7 @@ module examples.base.DemoBase;
 import core.gfx.Camera;
 import core.renderer.base.device.Device;
 import core.renderer.base.swapchain.SwapchainHolder;
-import core.utility.Size;
+import utility.Size;
 import core.window.CursorMode;
 import core.window.events;
 import core.window.Key;

@@ -4,7 +4,7 @@ module;
 #include <type_traits>
 
 // reference: https://stackoverflow.com/a/70954691
-export module core.utility.meta.functional;
+export module utility.meta.functional;
 
 namespace core::meta {
 // NOLINTBEGIN(readability-identifier-naming)

@@ -3,7 +3,7 @@ module;
 #include <tuple>
 
 // reference: https://devblogs.microsoft.com/oldnewthing/20200625-00/?p=103903
-export module core.utility.meta.tuple;
+export module utility.meta.tuple;
 
 namespace core::meta {
 // NOLINTBEGIN(readability-identifier-naming)

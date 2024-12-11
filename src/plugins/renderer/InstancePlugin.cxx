@@ -13,7 +13,7 @@ module plugins.renderer.InstancePlugin;
 
 import vulkan_hpp;
 
-import app.App;
+import core.app.App;
 
 import core.config.vulkan;
 import core.renderer.base.instance.Instance;

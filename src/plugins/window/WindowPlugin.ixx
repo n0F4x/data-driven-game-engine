@@ -4,7 +4,7 @@ module;
 
 export module plugins.window.WindowPlugin;
 
-import core.utility.Size;
+import utility.Size;
 
 import core.window.Window;
 

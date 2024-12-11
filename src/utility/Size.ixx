@@ -2,7 +2,7 @@ module;
 
 #include <glm/glm.hpp>
 
-export module core.utility.Size;
+export module utility.Size;
 
 import vulkan_hpp;
 

@@ -129,28 +129,12 @@ auto core::image::ktx2::Image::offset_of(
     return offset;
 }
 
-auto core::image::ktx2::Image::Deleter::operator()(ktxTexture2* texture) const noexcept
-    -> void
+auto core::image::ktx2::Image::Deleter::operator()(ktxTexture2* const texture
+) const noexcept -> void
 {
     ktxTexture_Destroy(ktxTexture(texture));
 }
 
-core::image::ktx2::Image::Image(gsl_lite::not_null<ktxTexture2*> texture) noexcept
+core::image::ktx2::Image::Image(const gsl_lite::not_null<ktxTexture2*> texture) noexcept
     : m_impl{ texture }
 {}
-
-[[nodiscard]]
-auto core::image::ktx2::Image::create_copy(const Image& original) -> Image
-{
-    ktxTexture2* new_texture{};
-    if (const ktxResult result{
-            // TODO: ktxTexture2_CreateCopy always SEGFAULTS
-            ::ktxTexture2_CreateCopy(original.m_impl.get(), &new_texture) };
-        result != KTX_SUCCESS)
-    {
-        throw std::runtime_error{ std::format(
-            "ktxTexture2_CreateFromMemory failed with '{}'", ::ktxErrorString(result)
-        ) };
-    }
-    return Image{ gsl::make_not_null(new_texture) };
-}

@@ -2,7 +2,7 @@ module;
 
 #include <cstdint>
 
-#include "core/utility/lifetime_bound.hpp"
+#include "utility/lifetime_bound.hpp"
 
 export module core.renderer.base.resources.Image;
 

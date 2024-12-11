@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-import app;
+import core.app;
 import plugins;
 
 import examples.base.DemoBase;

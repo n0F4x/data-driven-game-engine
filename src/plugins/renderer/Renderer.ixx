@@ -2,13 +2,11 @@ module;
 
 #include <functional>
 
-
-
 #include <VkBootstrap.h>
 
 export module plugins.renderer.RendererPlugin;
 
-import app.App;
+import core.app.App;
 
 namespace plugins {
 

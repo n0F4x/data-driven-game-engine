@@ -1,6 +1,6 @@
 export module demos.gltf;
 
-import app.App;
+import core.app.App;
 
 namespace demo {
 

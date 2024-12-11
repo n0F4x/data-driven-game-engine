@@ -6,10 +6,8 @@
 
 #include <VkBootstrap.h>
 
-import app;
+import core;
 import plugins;
-
-import core.cache.Cache;
 
 import examples.base.DemoBase;
 import demos.gltf.DemoApp;

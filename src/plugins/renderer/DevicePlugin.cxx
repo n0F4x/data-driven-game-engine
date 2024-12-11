@@ -8,7 +8,7 @@ module;
 
 module plugins.renderer.DevicePlugin;
 
-import app.App;
+import core.app.App;
 
 import core.config.vulkan;
 

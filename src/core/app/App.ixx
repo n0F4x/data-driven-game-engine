@@ -6,14 +6,14 @@ module;
 
 #include <entt/entity/registry.hpp>
 
-export module app.App;
+export module core.app.App;
 
-import core.utility.meta.functional;
-import core.utility.meta.tuple_like;
-import core.utility.tuple;
+import utility.meta.functional;
+import utility.meta.tuple_like;
+import utility.tuple;
 
-import store.Store;
-import store.StoreView;
+import core.store.Store;
+import core.store.StoreView;
 
 export class App {
 public:

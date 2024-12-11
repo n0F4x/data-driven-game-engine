@@ -2,7 +2,7 @@ module;
 
 #include <spdlog/spdlog.h>
 
-module app.App;
+module core.app.App;
 
 auto App::create() -> Builder
 {

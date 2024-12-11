@@ -7,7 +7,7 @@ module;
 
 module core.renderer.resources.Buffer;
 
-import core.utility.tuple;
+import utility.tuple;
 
 import core.renderer.base.allocator.Allocator;
 

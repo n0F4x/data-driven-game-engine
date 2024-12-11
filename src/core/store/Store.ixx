@@ -8,7 +8,7 @@ module;
 
 #include <entt/core/any.hpp>
 
-export module store.Store;
+export module core.store.Store;
 
 export class Store {
 public:

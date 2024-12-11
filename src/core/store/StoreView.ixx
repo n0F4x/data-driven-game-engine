@@ -3,9 +3,9 @@ module;
 #include <functional>
 #include <optional>
 
-export module store.StoreView;
+export module core.store.StoreView;
 
-import store.Store;
+import core.store.Store;
 
 export class StoreView {
 public:

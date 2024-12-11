@@ -6,7 +6,7 @@ module;
 
 module core.renderer.material_system.Shader;
 
-import core.utility.hashing;
+import utility.hashing;
 
 using namespace core::renderer;
 

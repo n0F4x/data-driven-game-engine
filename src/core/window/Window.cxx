@@ -14,7 +14,7 @@ module;
 
 module core.window.Window;
 
-import core.utility.Size;
+import utility.Size;
 
 import core.config.vulkan;
 
