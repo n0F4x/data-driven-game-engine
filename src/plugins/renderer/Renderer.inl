@@ -15,7 +15,7 @@ auto plugins::renderer::RendererPlugin::set_surface_plugin(
 ) -> Self
 {
     self.m_surface_plugin_provider =
-        [surface_plugin = std::move(surface_plugin)](App::Builder& app_builder) mutable {
+        [surface_plugin = std::move(surface_plugin)](core::app::Builder& app_builder) mutable {
             app_builder.use(std::move(surface_plugin));
         };
     return std::forward<Self>(self);

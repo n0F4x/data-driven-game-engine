@@ -6,7 +6,7 @@ module;
 
 export module plugins.renderer.RendererPlugin;
 
-import core.app.App;
+import core.app.Builder;
 
 namespace plugins {
 
@@ -27,7 +27,7 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    auto operator()(App::Builder& app_builder) const -> void;
+    auto operator()(core::app::Builder& app_builder) const -> void;
 
     template <typename Self>
     auto require(this Self&&, Requirement requirement) -> Self;
@@ -40,7 +40,7 @@ public:
 
 private:
     std::vector<Requirement> m_requirements;
-    std::function<void(App::Builder& app_builder)> m_surface_plugin_provider;
+    std::function<void(core::app::Builder& app_builder)> m_surface_plugin_provider;
 };
 
 }   // namespace renderer

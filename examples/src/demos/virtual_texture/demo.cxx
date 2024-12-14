@@ -15,7 +15,7 @@ import examples.base.Renderer;
 
 import demos.virtual_texture.DemoApp;
 
-auto demo::run(App app) -> void
+auto demo::run(core::app::App app) -> void
 {
     app.resources.at<examples::base::DemoBase>().run(
         [demo_app = std::ref(app.resources.at<DemoApp>()

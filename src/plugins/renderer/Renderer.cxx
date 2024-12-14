@@ -82,7 +82,7 @@ static auto make_requirement() -> plugins::renderer::Requirement
 }
 
 plugins::renderer::RendererPlugin::RendererPlugin()
-    : m_surface_plugin_provider{ [](App::Builder& app_builder) {
+    : m_surface_plugin_provider{ [](core::app::Builder& app_builder) {
           app_builder.use(SurfacePlugin{});
       } }
 {
@@ -114,7 +114,7 @@ static auto to_device_dependency(const plugins::renderer::Requirement& requireme
     };
 }
 
-auto plugins::renderer::RendererPlugin::operator()(App::Builder& app_builder) const
+auto plugins::renderer::RendererPlugin::operator()(core::app::Builder& app_builder) const
     -> void
 {
     app_builder.use([this] {

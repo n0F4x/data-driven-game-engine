@@ -15,7 +15,7 @@ auto main() -> int
 try {
     spdlog::set_level(spdlog::level::trace);
 
-    App::create()
+    core::app::create()
         .use(plugins::Window{
             .size  = { 1'280, 720 },
             .title = "Virtual texturing demo",

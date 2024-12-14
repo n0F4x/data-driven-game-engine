@@ -50,7 +50,7 @@ try {
     };
     constexpr static float movement_speed{ 10 };
 
-    App::create()
+    core::app::create()
         .use(::cache_plugin)
         .use(
             plugins::Window{

@@ -25,7 +25,7 @@ auto init(const vk::Device device) noexcept -> void
     VULKAN_HPP_DEFAULT_DISPATCHER.init(device);
 }
 
-auto dispatcher() -> const vk::DispatchLoaderDynamic&
+auto dispatcher() noexcept -> const vk::DispatchLoaderDynamic&
 {
     return VULKAN_HPP_DEFAULT_DISPATCHER;
 }

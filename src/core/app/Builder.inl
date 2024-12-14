@@ -1,7 +1,9 @@
 #pragma once
 
+namespace core::app {
+
 template <typename Self, PluginConcept Plugin>
-auto App::Builder::use(this Self&& self, Plugin&& plugin) -> Self
+auto Builder::use(this Self&& self, Plugin&& plugin) -> Self
 {
     if constexpr (requires(StoreView plugins) { plugin.setup(plugins); }) {
         plugin.setup(StoreView{ self.m_plugins });
@@ -15,7 +17,7 @@ auto App::Builder::use(this Self&& self, Plugin&& plugin) -> Self
 }
 
 template <typename Self, ModifierConcept Modifier>
-auto App::Builder::apply(this Self&& self, Modifier&& modifier) -> Self
+auto Builder::apply(this Self&& self, Modifier&& modifier) -> Self
 {
     std::invoke(std::forward<Modifier>(modifier), self);
 
@@ -24,15 +26,13 @@ auto App::Builder::apply(this Self&& self, Modifier&& modifier) -> Self
 
 template <typename Runner, typename... Args>
     requires(RunnerConcept<Runner, Args...>)
-auto App::Builder::run(Runner&& runner, Args&&... args)
+auto Builder::run(Runner&& runner, Args&&... args)
     -> std::invoke_result_t<Runner&&, App&&, Args&&...>
 {
     SPDLOG_INFO("App is running");
 
     return std::invoke(std::forward<Runner>(runner), build(), std::forward<Args>(args)...);
 }
-
-namespace details {
 
 template <typename Plugin>
 auto gather_resources(App& app)
@@ -46,17 +46,17 @@ auto gather_resources(App& app)
     );
 }
 
-}   // namespace details
-
 template <typename Plugin>
-App::Builder::PluginInvocation::PluginInvocation(Plugin& plugin_ref)
+PluginInvocation::PluginInvocation(Plugin& plugin_ref)
     : m_plugin_ref{ std::ref(plugin_ref) },
       m_invocation{ [](std::any& erased_plugin_ref, App& app) {
           using ResourceType =
               core::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>;
           app.resources.emplace<ResourceType>(std::apply(
               std::any_cast<std::reference_wrapper<Plugin>>(erased_plugin_ref),
-              details::gather_resources<Plugin>(app)
+              gather_resources<Plugin>(app)
           ));
       } }
 {}
+
+}   // namespace core::app
