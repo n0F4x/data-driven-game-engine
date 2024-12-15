@@ -13,7 +13,6 @@ import utility.meta.tuple_like;
 import utility.tuple;
 
 import core.store.Store;
-import core.store.StoreView;
 
 namespace core::app {
 

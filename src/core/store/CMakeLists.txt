@@ -1,6 +1,5 @@
 target_sources(${PROJECT_NAME} PRIVATE
         Store.cxx
-        StoreView.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC
@@ -9,5 +8,4 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         store.cppm
         Store.ixx
-        StoreView.ixx
 )

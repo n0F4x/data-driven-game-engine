@@ -11,7 +11,6 @@ export module core.app.Builder;
 
 import core.app.App;
 import core.store.Store;
-import core.store.StoreView;
 
 import utility.meta.functional.arguments_of;
 import utility.meta.functional.concepts;
