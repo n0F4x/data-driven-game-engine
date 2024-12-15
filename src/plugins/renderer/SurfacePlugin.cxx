@@ -10,7 +10,6 @@ module;
 module plugins.renderer.SurfacePlugin;
 
 import core.app.App;
-import core.store.StoreView;
 import core.renderer.base.instance.Instance;
 import core.window.Window;
 import plugins.renderer.InstancePlugin;
@@ -29,6 +28,7 @@ auto plugins::renderer::SurfacePlugin::operator()(
         throw std::runtime_error{ "Vulkan surface creation failed" };
     }
 
+    std::bind_front(&SurfacePlugin::setup, *this);
     return vk::UniqueSurfaceKHR{ expected_surface.value(), instance.get() };
 }
 
@@ -50,16 +50,8 @@ static auto enable_instance_settings(const vkb::SystemInfo&, vkb::InstanceBuilde
     );
 }
 
-auto plugins::renderer::SurfacePlugin::setup(const StoreView plugins) -> void
+auto plugins::renderer::SurfacePlugin::setup(InstancePlugin& instance_plugin) -> void
 {
-    const std::optional optional_instance_plugin{ plugins.find<InstancePlugin>() };
-    if (!optional_instance_plugin.has_value()) {
-        throw std::runtime_error{
-            "plugins::renderer::base::InstancePlugin required but not found in 'plugins'"
-        };
-    }
-    InstancePlugin& instance_plugin{ optional_instance_plugin.value().get() };
-
     instance_plugin.emplace_dependency(
         InstancePlugin::Dependency{
             .required_settings_are_available = ::required_instance_settings_are_available,

@@ -15,7 +15,8 @@ import core.renderer.resources.Buffer;
 import core.renderer.resources.Image;
 import core.renderer.resources.RandomAccessBuffer;
 
-import core.store.StoreView;
+import plugins.renderer.DevicePlugin;
+import plugins.renderer.InstancePlugin;
 
 import demos.virtual_texture.Camera;
 import demos.virtual_texture.VirtualTexture;
@@ -26,7 +27,10 @@ namespace demo {
 export class DemoApp;
 
 export struct DemoPlugin {
-    static auto setup(StoreView plugins) -> void;
+    static auto setup(
+        plugins::renderer::InstancePlugin& instance_plugin,
+        plugins::renderer::DevicePlugin&   device_plugin
+    ) -> void;
 
     auto operator()(
         const core::renderer::base::Device&    device,

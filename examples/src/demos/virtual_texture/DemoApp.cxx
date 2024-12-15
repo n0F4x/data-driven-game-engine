@@ -25,9 +25,12 @@ import plugins.renderer.InstancePlugin;
 import demos.virtual_texture.init;
 import demos.virtual_texture.Camera;
 
-auto demo::DemoPlugin::setup(const StoreView plugins) -> void
+auto demo::DemoPlugin::setup(
+    plugins::renderer::InstancePlugin& instance_plugin,
+    plugins::renderer::DevicePlugin&   device_plugin
+) -> void
 {
-    plugins.at<plugins::renderer::InstancePlugin>().emplace_dependency(
+    instance_plugin.emplace_dependency(
         plugins::renderer::InstancePlugin::Dependency{
             .required_settings_are_available = [](const vkb::SystemInfo& system_info
                                                ) -> bool {
@@ -44,7 +47,7 @@ auto demo::DemoPlugin::setup(const StoreView plugins) -> void
         }
     );
 
-    plugins.at<plugins::renderer::DevicePlugin>().emplace_dependency(
+    device_plugin.emplace_dependency(
         plugins::renderer::DevicePlugin::Dependency{
             .require_settings =
                 [](vkb::PhysicalDeviceSelector& physical_device_selector) {
