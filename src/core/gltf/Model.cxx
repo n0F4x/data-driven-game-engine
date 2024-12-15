@@ -16,7 +16,7 @@ auto Model::hash(
     const std::optional<size_t>  scene_index
 ) noexcept -> size_t
 {
-    return hash_combine(filepath, scene_index);
+    return utils::hash_combine(filepath, scene_index);
 }
 
 auto Model::default_sampler() -> const Sampler&

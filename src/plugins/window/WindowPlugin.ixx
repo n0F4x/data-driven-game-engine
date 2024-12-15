@@ -14,7 +14,7 @@ namespace window {
 
 // NOLINTNEXTLINE(*-member-init)
 export struct WindowPlugin {
-    core::Size2i       size;
+    utils::Size2i       size;
     gsl_lite::czstring title;
 
     ///-------------///

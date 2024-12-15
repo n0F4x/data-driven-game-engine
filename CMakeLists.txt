@@ -20,6 +20,10 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         -Wno-missing-field-initializers
 )
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    CHECK_LIFETIME_BOUND
+)
+
 
 include(dependencies.cmake)
 

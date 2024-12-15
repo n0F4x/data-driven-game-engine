@@ -17,7 +17,7 @@ core::renderer::resources::Buffer::Buffer(
     const VmaAllocationCreateInfo& allocation_create_info
 )
     : Buffer{ make_from(
-          core::utils::remove_last(
+          utils::remove_last(
               allocator.create_buffer(buffer_create_info, allocation_create_info)
           )
       ) }

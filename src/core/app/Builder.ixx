@@ -13,7 +13,8 @@ import core.app.App;
 import core.store.Store;
 import core.store.StoreView;
 
-import utility.meta.functional;
+import utility.meta.functional.arguments_of;
+import utility.meta.functional.invoke_result_of;
 import utility.meta.tuple_like;
 import utility.tuple;
 
@@ -23,7 +24,7 @@ export class Builder;
 
 template <typename Plugin>
 concept PluginConcept = !std::is_void_v<
-    core::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>>;
+    utils::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>>;
 
 template <typename Modifier>
 concept ModifierConcept = requires(Modifier&& modifier, Builder& builder) {

@@ -1,11 +1,7 @@
 #pragma once
 
-#ifndef CHECK_LIFETIME_BOUND
-  #define CHECK_LIFETIME_BOUND 1
-#endif
 
-
-#if CHECK_LIFETIME_BOUND == 1
+#ifdef CHECK_LIFETIME_BOUND
   #ifndef __has_cpp_attribute
     #define lifetime_bound
   #elif __has_cpp_attribute(msvc::lifetimebound)

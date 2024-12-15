@@ -192,7 +192,7 @@ auto core::renderer::GraphicsPipelineBuilder::build(
 auto core::renderer::hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder
 ) noexcept -> size_t
 {
-    return ::core::hash_combine(
+    return utils::hash_combine(
         graphics_pipeline_builder.m_program,
         graphics_pipeline_builder.m_primitive_topology,
         graphics_pipeline_builder.m_cull_mode,

@@ -67,7 +67,7 @@ auto Window::vulkan_instance_extensions()
 }
 
 [[nodiscard]]
-static auto create_window(const Size2i& size, const gsl_lite::czstring title)
+static auto create_window(const utils::Size2i& size, const gsl_lite::czstring title)
     -> GLFWwindow*
 {
     init_glfw();
@@ -87,7 +87,7 @@ static auto create_window(const Size2i& size, const gsl_lite::czstring title)
     return window;
 }
 
-Window::Window(const Size2i& size, const gsl_lite::czstring title)
+Window::Window(const utils::Size2i& size, const gsl_lite::czstring title)
     : m_impl{
           std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)>{
                                                                     create_window(size, title),
@@ -139,16 +139,16 @@ auto Window::create_vulkan_surface(
     return surface;
 }
 
-auto Window::size() const -> Size2i
+auto Window::size() const -> utils::Size2i
 {
-    Size2i result{};
+    utils::Size2i result{};
     glfwGetWindowSize(m_impl.get(), &result.width, &result.height);
     return result;
 }
 
-auto Window::framebuffer_size() const -> Size2i
+auto Window::framebuffer_size() const -> utils::Size2i
 {
-    Size2i result{};
+    utils::Size2i result{};
     glfwGetFramebufferSize(m_impl.get(), &result.width, &result.height);
     return result;
 }

@@ -56,7 +56,7 @@ auto examples::base::DemoBase::run(
 
     std::atomic<vk::Extent2D> framebuffer_size{};
     m_window.get().set_framebuffer_size_callback(
-        [&framebuffer_size](const core::Size2i size) {
+        [&framebuffer_size](const utils::Size2i size) {
             framebuffer_size.store(static_cast<vk::Extent2D>(size));
         }
     );

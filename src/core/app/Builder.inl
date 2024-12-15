@@ -38,8 +38,8 @@ template <typename Plugin>
 auto gather_resources(App& app)
 {
     using RequiredResourcesTuple =
-        core::meta::arguments_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>;
-    return core::utils::generate_tuple<RequiredResourcesTuple>(
+        utils::meta::arguments_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>;
+    return utils::generate_tuple<RequiredResourcesTuple>(
         [&app]<typename Resource>() -> Resource {
             return app.resources.at<std::remove_cvref_t<Resource>>();
         }
@@ -51,7 +51,7 @@ PluginInvocation::PluginInvocation(Plugin& plugin_ref)
     : m_plugin_ref{ std::ref(plugin_ref) },
       m_invocation{ [](std::any& erased_plugin_ref, App& app) {
           using ResourceType =
-              core::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>;
+              utils::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin>>>;
           app.resources.emplace<ResourceType>(std::apply(
               std::any_cast<std::reference_wrapper<Plugin>>(erased_plugin_ref),
               gather_resources<Plugin>(app)
