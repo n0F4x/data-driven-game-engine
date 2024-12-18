@@ -32,7 +32,6 @@ Please use the following pre-/suffixes:
 - Enumerator: eEnumerator
 - Class/Struct Private Member Field: m_field
 - Class/Struct Static Variable: s_variable
-- Global Variable: variable_v
 
 ### Functions
 

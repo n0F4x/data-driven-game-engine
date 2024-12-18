@@ -13,6 +13,7 @@ import examples.base.DemoBase;
 import demos.gltf.DemoApp;
 import demos.gltf;
 
+
 [[nodiscard]]
 static auto cache_plugin() -> core::cache::Cache
 {
@@ -51,6 +52,9 @@ try {
     constexpr static float movement_speed{ 10 };
 
     core::app::create()
+        .customize<plugins::functional::Customization>()
+        .customize<plugins::store::Customization>()
+        .customize<plugins::runnable::Customization>()
         .use(::cache_plugin)
         .use(
             plugins::Window{

@@ -19,8 +19,8 @@ import core.renderer.base.resources.Image;
 import core.renderer.base.swapchain.Swapchain;
 import core.renderer.base.swapchain.SwapchainHolder;
 
-import plugins.renderer.DevicePlugin;
-import plugins.renderer.InstancePlugin;
+import addons.renderer.DevicePlugin;
+import addons.renderer.InstancePlugin;
 
 import demos.virtual_texture.init;
 import demos.virtual_texture.Camera;

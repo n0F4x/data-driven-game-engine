@@ -1,6 +1,6 @@
 module;
 
-module plugins.window.WindowPlugin;
+module addons.window.WindowPlugin;
 
 import core.window.Window;
 

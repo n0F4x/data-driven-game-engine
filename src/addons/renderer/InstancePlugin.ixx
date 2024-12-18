@@ -5,7 +5,7 @@ module;
 
 #include <VkBootstrap.h>
 
-export module plugins.renderer.InstancePlugin;
+export module addons.renderer.InstancePlugin;
 
 import core.renderer.base.instance.Instance;
 

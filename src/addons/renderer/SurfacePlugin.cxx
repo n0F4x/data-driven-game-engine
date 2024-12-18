@@ -7,12 +7,12 @@ module;
 
 #include <VkBootstrap.h>
 
-module plugins.renderer.SurfacePlugin;
+module addons.renderer.SurfacePlugin;
 
 import core.app.App;
 import core.renderer.base.instance.Instance;
 import core.window.Window;
-import plugins.renderer.InstancePlugin;
+import addons.renderer.InstancePlugin;
 
 auto plugins::renderer::SurfacePlugin::operator()(
     const core::window::Window&           window,

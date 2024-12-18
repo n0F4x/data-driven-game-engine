@@ -46,7 +46,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    Store m_store;
+    core::store::Store m_store;
 };
 
 export using Cache = BasicCache<size_t, std::unordered_map>;

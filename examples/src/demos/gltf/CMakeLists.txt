@@ -20,7 +20,6 @@ if (engine_debug)
     )
 endif ()
 target_sources(gltf PRIVATE
-        demo.cxx
         init.cxx
         DemoApp.cxx
         main.cpp

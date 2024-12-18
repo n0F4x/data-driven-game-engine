@@ -6,7 +6,7 @@ module;
 
 #include <VkBootstrap.h>
 
-module plugins.renderer.DevicePlugin;
+module addons.renderer.DevicePlugin;
 
 import core.app.App;
 

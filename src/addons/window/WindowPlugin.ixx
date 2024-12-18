@@ -2,7 +2,7 @@ module;
 
 #include <gsl/gsl-lite.hpp>
 
-export module plugins.window.WindowPlugin;
+export module addons.window.WindowPlugin;
 
 import utility.Size;
 

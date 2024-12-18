@@ -1,6 +1,6 @@
 module core.store.Store;
 
-Store::~Store() noexcept
+core::store::Store::~Store() noexcept
 {
     while (!m_map.empty()) {
         m_map.pop_back();

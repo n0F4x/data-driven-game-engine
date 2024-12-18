@@ -8,7 +8,7 @@ export module utility.tuple;
 
 import utility.meta.concat;
 import utility.meta.offset;
-import utility.meta.tuple_like;
+import utility.meta.tuple.tuple_like;
 
 namespace utils {
 

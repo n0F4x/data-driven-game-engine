@@ -9,7 +9,7 @@ module;
 
 #include <VkBootstrap.h>
 
-module plugins.renderer.InstancePlugin;
+module addons.renderer.InstancePlugin;
 
 import vulkan_hpp;
 

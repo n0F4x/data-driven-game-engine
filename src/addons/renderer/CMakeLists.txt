@@ -1,7 +1,6 @@
 target_sources(${PROJECT_NAME} PRIVATE
         DevicePlugin.cxx
         InstancePlugin.cxx
-        Renderer.cxx
         SurfacePlugin.cxx
 )
 

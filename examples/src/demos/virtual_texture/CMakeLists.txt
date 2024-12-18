@@ -20,7 +20,6 @@ if (engine_debug)
     )
 endif ()
 target_sources(virtual_texture PRIVATE
-        demo.cxx
         DemoApp.cxx
         init.cxx
         main.cpp

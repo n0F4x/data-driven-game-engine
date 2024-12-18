@@ -1,6 +1,6 @@
 module;
 
-export module plugins.renderer.SurfacePlugin;
+export module addons.renderer.SurfacePlugin;
 
 import vulkan_hpp;
 
@@ -8,7 +8,7 @@ import core.renderer.base.instance.Instance;
 
 import core.window.Window;
 
-import plugins.renderer.InstancePlugin;
+import addons.renderer.InstancePlugin;
 
 namespace plugins::renderer {
 

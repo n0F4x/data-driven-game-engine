@@ -5,7 +5,7 @@ module;
 
 #include <VkBootstrap.h>
 
-export module plugins.renderer.DevicePlugin;
+export module addons.renderer.DevicePlugin;
 
 import vulkan_hpp;
 
