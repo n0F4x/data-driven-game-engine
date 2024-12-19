@@ -13,7 +13,6 @@ import examples.base.DemoBase;
 import demos.gltf.DemoApp;
 import demos.gltf;
 
-
 [[nodiscard]]
 static auto cache_plugin() -> core::cache::Cache
 {

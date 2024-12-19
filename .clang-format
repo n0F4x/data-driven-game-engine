@@ -34,8 +34,9 @@ AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowBreakBeforeNoexceptSpecifier: Always
 AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseExpressionOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
-# AllowShortCompoundRequirementOnASingleLine: true
+AllowShortCompoundRequirementOnASingleLine: true
 AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
@@ -67,16 +68,18 @@ BraceWrapping:
   IndentBraces: false
   SplitEmptyFunction: false
   SplitEmptyNamespace: true
-# BreakAdjacentStringLiterals: false
+BreakAdjacentStringLiterals: false
 BreakAfterAttributes: Always
+BreakAfterReturnType: Automatic
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 BreakBeforeConceptDeclarations: Always
-# BreakBeforeInlineASMColon:
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
+BreakFunctionDefinitionParameters: false
 BreakInheritanceList: BeforeColon
 BreakStringLiterals: true
+BreakTemplateDeclarations: Yes
 ColumnLimit: 90
 CommentPragmas: ''
 CompactNamespaces: false
@@ -149,12 +152,15 @@ IntegerLiteralSeparator:
   Binary: 4
   Decimal: 3
   Hex: 2
-KeepEmptyLinesAtTheStartOfBlocks: false
-KeepEmptyLinesAtEOF: true
+KeepEmptyLines:
+  AtEndOfFile: true
+  AtStartOfBlock: false
+  AtStartOfFile: false
 LambdaBodyIndentation: Signature
 LineEnding: LF
 MacroBlockBegin: ''
 MacroBlockEnd: ''
+MainIncludeChar: Quote
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: None
 NamespaceMacros: [ ]
@@ -165,7 +171,7 @@ PenaltyBreakBeforeFirstCallParameter: 0
 PenaltyBreakComment: 0
 PenaltyBreakFirstLessLess: 0
 PenaltyBreakOpenParenthesis: 20
-# PenaltyBreakScopeResolution: 80
+PenaltyBreakScopeResolution: 200
 PenaltyBreakString: 50
 PenaltyBreakTemplateDeclaration: 0
 PenaltyExcessCharacter: 50

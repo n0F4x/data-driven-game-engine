@@ -119,12 +119,12 @@ vec4 virtualSampleTexture(uint textureIndex, uint UVIndex) {
 }
 
 vec4 sampleTexture(uint textureIndex, uint UVIndex) {
-//    Texture texture_ = textureBuffer_.textures[textureIndex];
-//    vec2 UV = UVIndex == 0 ? in_UV0 : in_UV1;
-//
-//    return texture_.samplerIndex == MAX_UINT_VALUE ?
-//    texture(sampler2D(images[texture_.imageIndex], defaultSampler), UV) :
-//    texture(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV);
+    //    Texture texture_ = textureBuffer_.textures[textureIndex];
+    //    vec2 UV = UVIndex == 0 ? in_UV0 : in_UV1;
+    //
+    //    return texture_.samplerIndex == MAX_UINT_VALUE ?
+    //    texture(sampler2D(images[texture_.imageIndex], defaultSampler), UV) :
+    //    texture(sampler2D(images[texture_.imageIndex], samplers[texture_.samplerIndex]), UV);
     return virtualSampleTexture(textureIndex, UVIndex);
 }
 
