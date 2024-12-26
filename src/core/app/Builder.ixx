@@ -18,9 +18,7 @@ public:
     constexpr BuilderBase() = default;
 
     template <typename Base_T, typename... Args_T>
-        requires std::
-            convertible_to<Base_T, core::app::BuilderBase<RestOfCustomizations_T...>>
-        constexpr explicit BuilderBase(Base_T&& base, Args_T&&... args);
+    constexpr explicit BuilderBase(Base_T&& base, Args_T&&... args);
 
     template <typename Self_T, typename App_T>
         requires app_c<std::remove_cvref_t<App_T>>
@@ -49,10 +47,9 @@ public:
     constexpr Builder() = default;
 
     template <typename OtherBuilder_T, typename... Args_T>
-        requires std::same_as<
-            std::remove_cvref_t<OtherBuilder_T>,
-            Builder<RestOfCustomizations_T...>>
-    constexpr explicit Builder(OtherBuilder_T&& other, Args_T&&... args);
+        requires std::
+            same_as<std::remove_cvref_t<OtherBuilder_T>, Builder<RestOfCustomizations_T...>>
+        constexpr explicit Builder(OtherBuilder_T&& other, Args_T&&... args);
 
     template <customization_c NewCustomization_T, typename Self_T, typename... Args_T>
     constexpr auto customize(this Self_T&& self, Args_T&&... args)
@@ -66,17 +63,18 @@ export [[nodiscard]]
 constexpr auto create() -> Builder<>;
 
 export template <typename Builder_T>
-concept builder_c = std::derived_from<Builder_T, BuilderBase<MonoCustomization>>;
+concept builder_c =
+    std::derived_from<std::remove_cvref_t<Builder_T>, BuilderBase<MonoCustomization>>;
 
 export template <typename Builder_T, typename... Customizations>
-concept customization_of_c = builder_c<Builder_T>
-                          && (std::derived_from<Builder_T, Customizations> && ...);
+concept customization_of_c =
+    builder_c<Builder_T>
+    && (std::derived_from<std::remove_cvref_t<Builder_T>, Customizations> && ...);
 
 }   // namespace core::app
 
 template <typename Customization_T, typename... RestOfCustomizations_T>
 template <typename Base_T, typename... Args_T>
-    requires std::convertible_to<Base_T, core::app::BuilderBase<RestOfCustomizations_T...>>
 constexpr core::app::BuilderBase<Customization_T, RestOfCustomizations_T...>::BuilderBase(
     Base_T&& base,
     Args_T&&... args
@@ -153,16 +151,19 @@ constexpr auto core::app::Builder<Customization_T, RestOfCustomizations_T...>::c
     };
 }
 
-template <core::app::customization_c Customization_T, core::app::customization_c... RestOfCustomizations_T>
+template <
+    core::app::customization_c Customization_T,
+    core::app::customization_c... RestOfCustomizations_T>
 template <typename Self>
 constexpr auto core::app::Builder<Customization_T, RestOfCustomizations_T...>::build(
     this Self&& self
 )
 {
-    return std::forward<Self>(self).BuilderBase<Customization_T, RestOfCustomizations_T...>::build(App<>{});
+    return std::forward<Self>(self)
+        .BuilderBase<Customization_T, RestOfCustomizations_T...>::build(App<>{});
 }
 
 constexpr auto core::app::create() -> Builder<>
 {
-    return {};
+    return Builder<>{};
 }

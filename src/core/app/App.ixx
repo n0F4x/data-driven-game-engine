@@ -14,7 +14,6 @@ protected:
     constexpr AppBase() = default;
 
     template <typename Base_T, typename... Args_T>
-        requires std::convertible_to<Base_T, core::app::AppBase<RestOfMixins_T...>>
     constexpr explicit AppBase(Base_T&& base, Args_T&&... args);
 };
 
@@ -41,16 +40,15 @@ public:
 };
 
 export template <typename App_T>
-concept app_c = std::derived_from<App_T, AppBase<MonoMixin>>;
+concept app_c = std::derived_from<std::remove_cvref_t<App_T>, AppBase<MonoMixin>>;
 
 export template <typename App_T, typename... Mixins>
-concept mixed_with_c = app_c<App_T> && (std::derived_from<App_T, Mixins> && ...);
+concept mixed_with_c = app_c<App_T> && (std::derived_from<std::remove_cvref_t<App_T>, Mixins> && ...);
 
 }   // namespace core::app
 
 template <typename Mixin_T, typename... RestOfMixins_T>
 template <typename Base_T, typename... Args_T>
-    requires std::convertible_to<Base_T, core::app::AppBase<RestOfMixins_T...>>
 constexpr core::app::AppBase<Mixin_T, RestOfMixins_T...>::AppBase(
     Base_T&& base,
     Args_T&&... args
