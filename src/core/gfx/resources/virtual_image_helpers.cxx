@@ -141,7 +141,7 @@ static auto create_block_source(
 auto core::gfx::resources::create_sparse_blocks(
     const image::Image&                      source,
     const vk::Extent3D&                      extent,
-    const uint32_t                           mip_level_count,
+    [[maybe_unused]] const uint32_t          mip_level_count,
     const vk::MemoryRequirements&            memory_requirements,
     const vk::SparseImageMemoryRequirements& sparse_requirements
 ) -> std::vector<VirtualImage::Block>

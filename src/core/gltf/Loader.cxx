@@ -50,11 +50,13 @@ static auto load_image(
                     "Got `std::monostate` while visiting fastgltf::DataSource, which is "
                     "an error in fastgltf."
                 );
+                return std::nullopt;
             },
             [](const auto&) -> std::optional<core::gltf::Image> {
                 assert(
                     false && "Got an unexpected glTF image data source. Can't load image."
                 );
+                return std::nullopt;
             },
             [&](const fastgltf::sources::BufferView& buffer_view) {
                 const auto& [buffer_index, byte_offset, _, _, _, _, _]{

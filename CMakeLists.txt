@@ -25,7 +25,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 
-include(dependencies.cmake)
+include(cmake/dependencies.cmake)
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC src)

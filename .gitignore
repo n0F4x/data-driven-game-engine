@@ -1,14 +1,16 @@
-.venv
-.vs
-.vscode
-.idea
-bin
-out
-build
+.conan2/profiles/
+.venv/
+.vs/
+.vscode/
+.idea/
+bin/
+out/
+build/
 cmake-build-*/
 
 build.sh
 build.bat
+CMakeUserPresets.json
 cpp.hint
 
 **/shaders/*.spv

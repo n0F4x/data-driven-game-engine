@@ -1,6 +1,7 @@
 module;
 
 #include <algorithm>
+#include <filesystem>
 #include <ranges>
 
 #include <spdlog/spdlog.h>
@@ -19,11 +20,10 @@ import core.image.png.MimeType;
 using namespace core;
 
 template <
-    size_t N = std::max(
-        { image::png::MimeType::magic().size_bytes(),
-          image::jpeg::MimeType::magic().size_bytes(),
-          image::ktx2::MimeType::magic().size_bytes() }
-    )>
+    size_t N = std::
+        max({ image::png::MimeType::magic().size_bytes(),
+              image::jpeg::MimeType::magic().size_bytes(),
+              image::ktx2::MimeType::magic().size_bytes() })>
 [[nodiscard]]
 static auto read_n_from(const std::filesystem::path& filepath)
     -> std::array<std::ifstream::char_type, N>

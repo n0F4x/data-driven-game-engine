@@ -7,15 +7,11 @@ if (DEFINED CMAKE_TOOLCHAIN_FILE)
 endif ()
 
 # gsl-lite
-fetchcontent_declare(gsl-lite
-        GIT_REPOSITORY https://github.com/gsl-lite/gsl-lite.git
-        GIT_TAG a8c7e5bbbd08841836f9b92d72747fb8769dbec4
-        SYSTEM
-)
-fetchcontent_makeavailable(gsl-lite)
-target_link_libraries(${PROJECT_NAME} PUBLIC gsl::gsl-lite-v1)
+find_package(gsl-lite CONFIG REQUIRED)
+target_compile_definitions(${PROJECT_NAME} PRIVATE gsl_CONFIG_DEFAULTS_VERSION=1)
+target_link_libraries(${PROJECT_NAME} PUBLIC gsl::gsl-lite)
 
-# ordered_map
+# tsl-ordered_map
 find_package(tsl-ordered-map CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC tsl::ordered_map)
 
@@ -31,7 +27,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:w
 
 # GLFW
 find_package(glfw3 CONFIG REQUIRED)
-target_compile_definitions(${PROJECT_NAME} PUBLIC
+target_compile_definitions(${PROJECT_NAME} PRIVATE
         GLFW_INCLUDE_VULKAN
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
@@ -48,8 +44,6 @@ target_sources(VulkanHppModule PUBLIC
 )
 target_compile_definitions(VulkanHppModule PUBLIC
         VK_NO_PROTOTYPES
-)
-target_compile_definitions(VulkanHppModule PUBLIC
         VULKAN_HPP_NO_TO_STRING
         VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
         VULKAN_HPP_NO_SETTERS
@@ -64,26 +58,34 @@ if (engine_debug)
 endif ()
 
 # Vulkan-Utility
-find_package(VulkanUtilityLibraries CONFIG REQUIRED)
+fetchcontent_declare(VulkanUtilityLibraries
+        GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Utility-Libraries.git
+        GIT_TAG v1.3.296
+        SYSTEM
+)
+fetchcontent_makeavailable(VulkanUtilityLibraries)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::UtilityHeaders)
 
 # VulkanMemoryAllocator
-find_package(VulkanMemoryAllocator CONFIG REQUIRED)
-set(VMA_STATIC_FUNCTIONS 0)
-set(VMA_DYNAMIC_FUNCTIONS 0)
+fetchcontent_declare(VulkanMemoryAllocator
+        GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+        GIT_TAG v3.1.0
+        SYSTEM
+)
+fetchcontent_makeavailable(VulkanMemoryAllocator)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-        VMA_STATIC_VULKAN_FUNCTIONS=${VMA_STATIC_FUNCTIONS}
-        VMA_DYNAMIC_VULKAN_FUNCTIONS=${VMA_STATIC_FUNCTIONS}
+        VMA_STATIC_VULKAN_FUNCTIONS=0
+        VMA_DYNAMIC_VULKAN_FUNCTIONS=0
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC GPUOpen::VulkanMemoryAllocator)
 
 # vk-bootstrap
-FetchContent_Declare(vk-bootstrap
+fetchcontent_declare(vk-bootstrap
         GIT_REPOSITORY https://github.com/charles-lunarg/vk-bootstrap.git
         GIT_TAG v1.3.296
         SYSTEM
 )
-FetchContent_MakeAvailable(vk-bootstrap)
+fetchcontent_makeavailable(vk-bootstrap)
 target_link_libraries(${PROJECT_NAME} PUBLIC vk-bootstrap::vk-bootstrap)
 
 # glm
@@ -98,20 +100,18 @@ find_package(Ktx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC KTX::ktx)
 
 # stb
-add_subdirectory(external/stb_image)
-target_link_libraries(${PROJECT_NAME} PUBLIC stb_image)
-add_subdirectory(external/stb_image_resize2)
-target_link_libraries(${PROJECT_NAME} PUBLIC stb_image_resize2)
+find_package(stb CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC stb::stb)
 
 # fastgltf
-# TODO: enable modules
-set(FASTGLTF_COMPILE_AS_CPP20 ON)
-FetchContent_Declare(fastgltf
+fetchcontent_declare(fastgltf
         GIT_REPOSITORY https://github.com/spnda/fastgltf.git
         GIT_TAG c462eaf7114f16a977afe84d0a4590b33091a33f # after v0.8.0
         SYSTEM
 )
-FetchContent_MakeAvailable(fastgltf)
+# TODO: enable modules
+set(FASTGLTF_COMPILE_AS_CPP20 ON)
+fetchcontent_makeavailable(fastgltf)
 target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)
 
 # EnTT

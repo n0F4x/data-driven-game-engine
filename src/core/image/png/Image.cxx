@@ -55,7 +55,8 @@ static auto mipped_image_size(
 }
 
 [[nodiscard]]
-static auto pixel_layout_from(const vk::Format format) -> stbir_pixel_layout
+static auto pixel_layout_from([[maybe_unused]] const vk::Format format)
+    -> stbir_pixel_layout
 {
     assert(format == vk::Format::eR8G8B8A8Srgb);
     return stbir_pixel_layout::STBIR_RGBA;
