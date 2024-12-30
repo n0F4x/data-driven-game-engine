@@ -105,10 +105,12 @@ auto addons::store::Customization::inject(this Self_T&& self, Plugin_T&& plugin)
 template <core::app::app_c App_T>
 auto addons::store::Customization::operator()(App_T&& app) &&
 {
+    core::store::Store store;
+
     std::ranges::for_each(
         std::move(m_invocations),
-        std::bind_back(&PluginInvocation::operator(), std::ref(m_store))
+        std::bind_back(&PluginInvocation::operator(), std::ref(store))
     );
 
-    return std::forward<App_T>(app).template mix<Mixin>(std::move(m_store));
+    return std::forward<App_T>(app).template mix<Mixin>(std::move(store));
 }
