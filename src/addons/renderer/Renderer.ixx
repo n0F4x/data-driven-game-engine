@@ -186,16 +186,12 @@ auto addons::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T&& b
             return device_plugin;
         }())
         // TODO: reallow using create_framebuffer_size_getter
-        .inject([get_framebuffer_size = nullptr](
-                 const vk::UniqueSurfaceKHR&         surface,
-                 const core::renderer::base::Device& device
-             ) {
-            return core::renderer::base::SwapchainHolder{ surface.get(),
-                                                          device,
-                                                          get_framebuffer_size };
+        .inject([](const vk::UniqueSurfaceKHR&         surface,
+                   const core::renderer::base::Device& device) {
+            return core::renderer::base::SwapchainHolder{ surface.get(), device, nullptr };
         })
         .inject([](const core::renderer::base::Instance& instance,
-                const core::renderer::base::Device&   device) {
+                   const core::renderer::base::Device&   device) {
             return core::renderer::base::Allocator{ instance, device };
         })
         .apply([](Builder_T&& b) -> Builder_T {

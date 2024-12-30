@@ -1,5 +1,6 @@
 module;
 
+#include <concepts>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -12,6 +13,9 @@ module;
 export module core.store.Store;
 
 namespace core::store {
+
+export template <typename T>
+concept storable_c = std::movable<T>;
 
 export class Store {
 public:
@@ -29,7 +33,7 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    template <typename T>
+    template <storable_c T>
     auto emplace(auto&&... args) -> T&;
 
     template <typename T>
@@ -57,9 +61,9 @@ private:
     tsl::ordered_map<std::type_index, std::unique_ptr<entt::any>> m_map;
 };
 
-}
+}   // namespace core::store
 
-template <typename T>
+template <core::store::storable_c T>
 auto core::store::Store::emplace(auto&&... args) -> T&
 {
     return entt::any_cast<T&>(*m_map
@@ -85,7 +89,8 @@ auto core::store::Store::find() noexcept -> std::optional<std::reference_wrapper
 }
 
 template <typename T>
-auto core::store::Store::find() const noexcept -> std::optional<std::reference_wrapper<const T>>
+auto core::store::Store::find() const noexcept
+    -> std::optional<std::reference_wrapper<const T>>
 {
     const auto iter{ m_map.find(typeid(T)) };
     if (iter == m_map.cend()) {
