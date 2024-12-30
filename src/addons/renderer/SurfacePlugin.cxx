@@ -14,7 +14,7 @@ import core.renderer.base.instance.Instance;
 import core.window.Window;
 import addons.renderer.InstancePlugin;
 
-auto plugins::renderer::SurfacePlugin::operator()(
+auto addons::renderer::SurfacePlugin::operator()(
     const core::window::Window&           window,
     const core::renderer::base::Instance& instance
 ) const -> vk::UniqueSurfaceKHR
@@ -50,7 +50,7 @@ static auto enable_instance_settings(const vkb::SystemInfo&, vkb::InstanceBuilde
     );
 }
 
-auto plugins::renderer::SurfacePlugin::setup(InstancePlugin& instance_plugin) -> void
+auto addons::renderer::SurfacePlugin::setup(InstancePlugin& instance_plugin) -> void
 {
     instance_plugin.emplace_dependency(
         InstancePlugin::Dependency{

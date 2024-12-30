@@ -28,8 +28,8 @@ export class DemoApp;
 
 export struct DemoPlugin {
     static auto setup(
-        plugins::renderer::InstancePlugin& instance_plugin,
-        plugins::renderer::DevicePlugin&   device_plugin
+        addons::renderer::InstancePlugin& instance_plugin,
+        addons::renderer::DevicePlugin&   device_plugin
     ) -> void;
 
     auto operator()(

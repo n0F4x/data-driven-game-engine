@@ -1,7 +1,7 @@
 #pragma once
 
 template <typename Self>
-auto plugins::renderer::InstancePlugin::emplace_dependency(
+auto addons::renderer::InstancePlugin::emplace_dependency(
     this Self&& self,
     Dependency  dependency
 ) -> Self

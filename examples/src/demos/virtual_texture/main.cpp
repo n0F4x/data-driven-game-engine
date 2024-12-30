@@ -3,7 +3,7 @@
 #include <spdlog/spdlog.h>
 
 import core.app;
-import plugins;
+import addons;
 
 import core.app.Builder;
 
@@ -22,16 +22,16 @@ try {
     spdlog::set_level(spdlog::level::trace);
 
     core::app::create()
-        .customize<plugins::functional::Customization>()
-        .customize<plugins::store::Customization>()
-        .customize<plugins::runnable::Customization>()
-        .use(plugins::Window{
+        .customize<addons::functional::Customization>()
+        .customize<addons::store::Customization>()
+        .customize<addons::runnable::Customization>()
+        .inject(addons::Window{
             .size  = { 1'280, 720 },
             .title = "Virtual texturing demo",
     })
-        .apply(plugins::Renderer{})
-        .use(examples::base::DemoBasePlugin{ .movement_speed = 1.f })
-        .use(demo::DemoPlugin{})
+        .apply(addons::Renderer{})
+        .inject(examples::base::DemoBasePlugin{ .movement_speed = 1.f })
+        .inject(demo::DemoPlugin{})
         .run(demo::run);
 
 } catch (const std::exception& error) {

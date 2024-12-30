@@ -6,7 +6,7 @@ export module addons.functional.Customization;
 
 import core.app.Builder;
 
-namespace plugins::functional {
+namespace addons::functional {
 
 template <typename Modifier_T, typename Builder_T>
 concept modifier_c = requires {
@@ -22,10 +22,10 @@ public:
         -> std::invoke_result_t<Modifier_T&&, Self_T&&>;
 };
 
-}   // namespace plugins::functional
+}   // namespace addons::functional
 
-template <core::app::builder_c Self_T, plugins::functional::modifier_c<Self_T> Modifier_T>
-auto plugins::functional::Customization::apply(this Self_T&& self, Modifier_T&& modifier)
+template <core::app::builder_c Self_T, addons::functional::modifier_c<Self_T> Modifier_T>
+auto addons::functional::Customization::apply(this Self_T&& self, Modifier_T&& modifier)
     -> std::invoke_result_t<Modifier_T&&, Self_T&&>
 {
     return std::invoke(std::forward<Modifier_T>(modifier), std::forward<Self_T>(self));

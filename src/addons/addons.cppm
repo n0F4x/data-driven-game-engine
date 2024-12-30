@@ -1,4 +1,4 @@
-export module plugins;
+export module addons;
 
 export import addons.functional;
 export import addons.renderer.RendererPlugin;

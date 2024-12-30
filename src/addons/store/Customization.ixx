@@ -18,7 +18,7 @@ import utility.tuple;
 
 import addons.store.Mixin;
 
-namespace plugins::store {
+namespace addons::store {
 
 export template <typename Plugin_T>
 concept plugin_c = !std::is_void_v<
@@ -39,7 +39,7 @@ private:
 export class Customization {
 public:
     template <core::app::builder_c Self_T, plugin_c Plugin_T>
-    auto use(this Self_T&&, Plugin_T&& plugin) -> Self_T;
+    auto inject(this Self_T&&, Plugin_T&& plugin) -> Self_T;
 
 protected:
     template <core::app::app_c App_T>
@@ -50,7 +50,7 @@ private:
     std::vector<PluginInvocation> m_invocations;
 };
 
-}   // namespace plugins::store
+}   // namespace addons::store
 
 template <typename Callable_T>
 auto gather_resources(core::store::Store& store)
@@ -64,7 +64,7 @@ auto gather_resources(core::store::Store& store)
 }
 
 template <typename Plugin_T>
-plugins::store::PluginInvocation::PluginInvocation(Plugin_T& plugin_ref)
+addons::store::PluginInvocation::PluginInvocation(Plugin_T& plugin_ref)
     : m_plugin_ref{ std::ref(plugin_ref) },
       m_invocation{ [](std::any& erased_plugin_ref, core::store::Store& store) {
           using ResourceType = utils::meta::
@@ -76,8 +76,8 @@ plugins::store::PluginInvocation::PluginInvocation(Plugin_T& plugin_ref)
       } }
 {}
 
-template <core::app::builder_c Self_T, plugins::store::plugin_c Plugin_T>
-auto plugins::store::Customization::use(this Self_T&& self, Plugin_T&& plugin) -> Self_T
+template <core::app::builder_c Self_T, addons::store::plugin_c Plugin_T>
+auto addons::store::Customization::inject(this Self_T&& self, Plugin_T&& plugin) -> Self_T
 {
     if constexpr (requires { requires std::is_function_v<decltype(Plugin_T::setup)>; }) {
         std::apply(
@@ -103,7 +103,7 @@ auto plugins::store::Customization::use(this Self_T&& self, Plugin_T&& plugin) -
 }
 
 template <core::app::app_c App_T>
-auto plugins::store::Customization::operator()(App_T&& app) &&
+auto addons::store::Customization::operator()(App_T&& app) &&
 
 {
     std::ranges::for_each(

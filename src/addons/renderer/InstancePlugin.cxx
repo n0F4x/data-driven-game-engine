@@ -134,7 +134,7 @@ static auto
     ::set_debug_messenger(instance_builder);
 }
 
-namespace plugins::renderer {
+namespace addons::renderer {
 
 InstancePlugin::InstancePlugin()
 {
@@ -198,4 +198,4 @@ auto InstancePlugin::operator()() const -> core::renderer::base::Instance
     return instance;
 }
 
-}   // namespace plugins::renderer
+}   // namespace addons::renderer

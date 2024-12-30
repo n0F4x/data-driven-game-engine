@@ -47,7 +47,7 @@ static auto log_setup(const vkb::Device& device) -> void
     SPDLOG_DEBUG(enabled_extensions);
 }
 
-namespace plugins::renderer {
+namespace addons::renderer {
 
 auto DevicePlugin::operator()(
     const core::renderer::base::Instance& instance,
@@ -95,4 +95,4 @@ auto DevicePlugin::operator()(
     return device;
 }
 
-}   // namespace plugins::renderer
+}   // namespace addons::renderer

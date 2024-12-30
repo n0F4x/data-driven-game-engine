@@ -10,7 +10,7 @@ import core.window.Window;
 
 import addons.renderer.InstancePlugin;
 
-namespace plugins::renderer {
+namespace addons::renderer {
 
 export class SurfacePlugin {
 public:
@@ -23,4 +23,4 @@ public:
     static auto setup(InstancePlugin& instance_plugin) -> void;
 };
 
-}   // namespace plugins::renderer
+}   // namespace addons::renderer

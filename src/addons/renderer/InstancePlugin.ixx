@@ -9,7 +9,7 @@ export module addons.renderer.InstancePlugin;
 
 import core.renderer.base.instance.Instance;
 
-namespace plugins::renderer {
+namespace addons::renderer {
 
 export class InstancePlugin {
 public:
@@ -29,6 +29,6 @@ private:
     std::vector<Dependency> m_dependencies;
 };
 
-}   // namespace plugins::renderer
+}   // namespace addons::renderer
 
 #include "InstancePlugin.inl"

@@ -2,10 +2,10 @@ export module addons.store.Mixin;
 
 import core.store.Store;
 
-namespace plugins::store {
+namespace addons::store {
 
 export struct Mixin {
     core::store::Store resources;
 };
 
-}   // namespace plugins::store
+}   // namespace addons::store

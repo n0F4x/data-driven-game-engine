@@ -8,7 +8,7 @@ export module addons.runnable.Customization;
 
 import core.app.Builder;
 
-namespace plugins::runnable {
+namespace addons::runnable {
 
 template <typename Runner_T, typename Builder_T, typename... Args_T>
 concept runner_c = requires(Runner_T&& runner, Builder_T&& builder, Args_T&&... args) {
@@ -29,13 +29,13 @@ public:
         -> std::invoke_result_t<Runner_T&&, decltype(std::forward<Self_T>(self).build()), Args_T&&...>;
 };
 
-}   // namespace plugins::runnable
+}   // namespace addons::runnable
 
 template <
     core::app::builder_c Self_T,
     typename... Args_T,
-    plugins::runnable::runner_c<Self_T, Args_T...> Runner_T>
-auto plugins::runnable::Customization::run(
+    addons::runnable::runner_c<Self_T, Args_T...> Runner_T>
+auto addons::runnable::Customization::run(
     this Self_T&& self,
     Runner_T&&    runner,
     Args_T&&... args

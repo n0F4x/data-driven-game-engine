@@ -8,7 +8,7 @@ import utility.Size;
 
 import core.window.Window;
 
-namespace plugins {
+namespace addons {
 
 namespace window {
 
@@ -27,4 +27,4 @@ export struct WindowPlugin {
 
 export using Window = window::WindowPlugin;
 
-}   // namespace plugins
+}   // namespace addons

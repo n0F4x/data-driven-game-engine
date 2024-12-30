@@ -12,7 +12,7 @@ import vulkan_hpp;
 import core.renderer.base.instance.Instance;
 import core.renderer.base.device.Device;
 
-namespace plugins::renderer {
+namespace addons::renderer {
 
 export class DevicePlugin {
 public:
@@ -33,6 +33,6 @@ private:
     std::vector<Dependency> m_dependencies;
 };
 
-}   // namespace plugins::renderer
+}   // namespace addons::renderer
 
 #include "DevicePlugin.inl"
