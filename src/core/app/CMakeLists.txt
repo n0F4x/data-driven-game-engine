@@ -4,5 +4,11 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         app.cppm
         App.ixx
+        App-details.ixx
+        App-fwd.ixx
+        App-mixin_c.ixx
         Builder.ixx
+        Builder-customization_c.ixx
+        Builder-details.ixx
+        Builder-fwd.ixx
 )

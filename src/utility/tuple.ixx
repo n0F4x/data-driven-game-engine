@@ -24,7 +24,7 @@ export template <typename Tuple>
 auto remove_first(Tuple&& tuple)
 {
     constexpr static size_t size{ std::tuple_size_v<Tuple> };
-    using Indices = meta::offset_t<1, std::make_index_sequence<size - 1>>;
+    using Indices = meta::offset_t<std::make_index_sequence<size - 1>, 1>;
     return select_tuple(std::forward<Tuple>(tuple), Indices{});
 }
 
@@ -41,7 +41,7 @@ auto remove_nth(Tuple&& tuple)
 {
     constexpr static size_t size{ std::tuple_size_v<Tuple> };
     using First   = std::make_index_sequence<N>;
-    using Rest    = meta::offset_t<N + 1, std::make_index_sequence<size - N - 1>>;
+    using Rest    = meta::offset_t<std::make_index_sequence<size - N - 1>, N + 1>;
     using Indices = meta::concat_t<First, Rest>;
     return select_tuple(std::forward<Tuple>(tuple), Indices{});
 }

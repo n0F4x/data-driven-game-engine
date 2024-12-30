@@ -8,16 +8,16 @@ export module utility.meta.offset;
 namespace utils::meta {
 // NOLINTBEGIN(readability-identifier-naming)
 
-template <size_t N, typename Seq>
+template <typename Sequence_T, size_t Offset_V>
 struct offset;
 
-template <size_t N, std::size_t... Ints>
-struct offset<N, std::index_sequence<Ints...>> {
-    using type = std::index_sequence<Ints + N...>;
+template <size_t Offset_V, size_t... Ints_V>
+struct offset<std::index_sequence<Ints_V...>, Offset_V> {
+    using type = std::index_sequence<Ints_V + Offset_V...>;
 };
 
-export template <size_t N, typename Seq>
-using offset_t = typename offset<N, Seq>::type;
+export template <typename Sequence_T, size_t Offset_V>
+using offset_t = typename offset<Sequence_T, Offset_V>::type;
 
 // NOLINTEND(readability-identifier-naming)
 }   // namespace utils::meta

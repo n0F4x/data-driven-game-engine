@@ -67,8 +67,8 @@ template <typename Plugin_T>
 plugins::store::PluginInvocation::PluginInvocation(Plugin_T& plugin_ref)
     : m_plugin_ref{ std::ref(plugin_ref) },
       m_invocation{ [](std::any& erased_plugin_ref, core::store::Store& store) {
-          using ResourceType =
-              utils::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin_T>>>;
+          using ResourceType = utils::meta::
+              invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin_T>>>;
           store.emplace<ResourceType>(std::apply(
               std::any_cast<std::reference_wrapper<Plugin_T>>(erased_plugin_ref),
               gather_resources<std::remove_pointer_t<std::decay_t<Plugin_T>>>(store)
@@ -85,8 +85,8 @@ auto plugins::store::Customization::use(this Self_T&& self, Plugin_T&& plugin) -
         );
     }
     else if constexpr (requires {
-                           requires std::is_member_function_pointer_v<
-                               decltype(&Plugin_T::setup)>;
+                           requires std::
+                               is_member_function_pointer_v<decltype(&Plugin_T::setup)>;
                        })
     {
         std::apply(
@@ -111,5 +111,5 @@ auto plugins::store::Customization::operator()(App_T&& app) &&
         std::bind_back(&PluginInvocation::operator(), std::ref(m_store))
     );
 
-    return std::forward<App_T>(app).template mix<Mixin>(std::move(m_store));
+    return std::forward<App_T>(app).template mix<Mixin>(Mixin{ std::move(m_store) });
 }
