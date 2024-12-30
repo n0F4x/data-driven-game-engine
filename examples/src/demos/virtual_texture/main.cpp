@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-import core.app;
+import core;
 import addons;
 
 import core.app.Builder;
@@ -25,10 +25,7 @@ try {
         .customize<addons::functional::Customization>()
         .customize<addons::store::Customization>()
         .customize<addons::runnable::Customization>()
-        .inject(addons::Window{
-            .size  = { 1'280, 720 },
-            .title = "Virtual texturing demo",
-    })
+        .use(core::window::Window(utils::Size2i{ 1'280, 720 }, "Virtual texturing demo"))
         .apply(addons::Renderer{})
         .inject(examples::base::DemoBasePlugin{ .movement_speed = 1.f })
         .inject(demo::DemoPlugin{})

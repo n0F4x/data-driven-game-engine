@@ -55,12 +55,7 @@ try {
         .customize<addons::store::Customization>()
         .customize<addons::runnable::Customization>()
         .inject(::cache_plugin)
-        .inject(
-            addons::Window{
-                .size  = { 1'280, 720 },
-                .title = "My window",
-    }
-        )
+        .use(core::window::Window(utils::Size2i{ 1'280, 720 }, "My window"))
         .apply(addons::Renderer{}.require(::require_vulkan_version(1, 1)))
         .inject(examples::base::DemoBasePlugin{ .movement_speed = movement_speed })
         .inject(

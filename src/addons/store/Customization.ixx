@@ -38,7 +38,10 @@ private:
 
 export class Customization {
 public:
-    template <core::app::builder_c Self_T, plugin_c Plugin_T>
+    template <typename Self_T, typename Resource_T>
+    auto use(this Self_T&&, Resource_T&& resource) -> Self_T;
+
+    template <typename Self_T, plugin_c Plugin_T>
     auto inject(this Self_T&&, Plugin_T&& plugin) -> Self_T;
 
 protected:
@@ -76,7 +79,26 @@ addons::store::PluginInvocation::PluginInvocation(Plugin_T& plugin_ref)
       } }
 {}
 
-template <core::app::builder_c Self_T, addons::store::plugin_c Plugin_T>
+template <typename Self_T, typename Resource_T>
+auto addons::store::Customization::use(this Self_T&& self, Resource_T&& resource) -> Self_T
+{
+    using Resource = std::remove_cvref_t<Resource_T>;
+
+    struct Injection {
+        auto operator()() -> Resource
+        {
+            return std::move(resource);
+        }
+
+        Resource resource;
+    };
+
+    return std::forward<Self_T>(self).inject(
+        Injection{ std::forward<Resource_T>(resource) }
+    );
+}
+
+template <typename Self_T, addons::store::plugin_c Plugin_T>
 auto addons::store::Customization::inject(this Self_T&& self, Plugin_T&& plugin) -> Self_T
 {
     if constexpr (requires { requires std::is_function_v<decltype(Plugin_T::setup)>; }) {
