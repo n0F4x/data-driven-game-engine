@@ -354,8 +354,6 @@ auto demo::init::create_virtual_texture_info_buffer(
         }
     );
 
-    SPDLOG_DEBUG("Block count: {}", static_cast<uint32_t>(virtual_image.blocks().size()));
-
     return virtual_texture_info_buffer;
 }
 

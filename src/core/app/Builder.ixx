@@ -77,7 +77,7 @@ template <customization_c... Customizations_T>
 template <typename Self>
 constexpr auto core::app::Builder<Customizations_T...>::build(this Self&& self)
 {
-    SPDLOG_INFO("Building app...");
+    SPDLOG_INFO("Building app");
     return std::forward<Self>(self)
         .BuilderBase<Customizations_T..., MonoCustomization>::build(App<>{});
 }

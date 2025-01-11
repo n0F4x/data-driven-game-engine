@@ -1,6 +1,8 @@
 module;
 
 #include <filesystem>
+#include <format>
+#include <functional>
 #include <future>
 #include <ranges>
 #include <source_location>

@@ -393,22 +393,7 @@ core::gfx::resources::VirtualImage::VirtualImage(
       m_to_be_loaded_mask(m_blocks.size()),
       m_to_be_unloaded_mask(m_blocks.size(), true),
       m_debug_image{ std::move(debug_image) }
-{
-    // SPDLOG_DEBUG(
-    //     "Image base extent: width = {}, height = {}",
-    //     m_image.extent().width,
-    //     m_image.extent().height
-    // );
-    // SPDLOG_DEBUG(
-    //     "Image granularity: width = {}, height = {}",
-    //     m_sparse_requirements.formatProperties.imageGranularity.width,
-    //     m_sparse_requirements.formatProperties.imageGranularity.height
-    // );
-    // level 0 block count start: 0        count: 1247
-    // level 0 block count start: 1247     count:  330
-    //                                     sum:   1577
-    //
-}
+{}
 
 auto core::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue sparse_queue)
     -> void
