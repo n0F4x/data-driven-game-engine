@@ -2,6 +2,8 @@ module;
 
 #include <concepts>
 
+#include <spdlog/spdlog.h>
+
 export module core.app.Builder;
 
 import :customization_c;
@@ -37,7 +39,7 @@ export template <typename Builder_T>
 concept builder_c =
     std::derived_from<std::remove_cvref_t<Builder_T>, BuilderBase<MonoCustomization>>;
 
-export template<typename Customization_T>
+export template <typename Customization_T>
 concept customization_c = ::customization_c<Customization_T>;
 
 export template <typename Builder_T, typename... Customizations_T>
@@ -75,6 +77,7 @@ template <customization_c... Customizations_T>
 template <typename Self>
 constexpr auto core::app::Builder<Customizations_T...>::build(this Self&& self)
 {
+    SPDLOG_INFO("Building app...");
     return std::forward<Self>(self)
         .BuilderBase<Customizations_T..., MonoCustomization>::build(App<>{});
 }

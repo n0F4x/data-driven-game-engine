@@ -1,6 +1,6 @@
 module addons.store.Customization;
 
-auto addons::store::PluginInvocation::operator()(core::store::Store& store) -> void
+auto addons::store::InjectionInvocation::operator()(core::store::Store& store) -> void
 {
-    m_invocation(m_plugin_ref, store);
+    m_invocation(m_injection_ref, store);
 }

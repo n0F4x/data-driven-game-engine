@@ -92,8 +92,14 @@ auto examples::base::DemoBase::run(
                              }
                          }) } };
 
+    auto rendering_finished{ [&rendering] {
+        return rendering
+            && rendering.value().wait_for(std::chrono::seconds{0})
+                   == std::future_status::ready;
+    } };
+
     std::chrono::time_point last_time{ std::chrono::high_resolution_clock::now() };
-    while (running) {
+    while (running && !rendering_finished()) {
         core::window::poll_events();
 
         const std::chrono::time_point now{ std::chrono::high_resolution_clock::now() };

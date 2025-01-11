@@ -41,7 +41,7 @@ export struct Requirement {
     std::function<void(vkb::PhysicalDevice&)>         enable_optional_device_settings;
 };
 
-export template <addons::store::plugin_c SurfacePlugin_T>
+export template <addons::store::injection_c SurfacePlugin_T>
 class RendererPlugin {
 public:
     RendererPlugin();
@@ -131,7 +131,7 @@ auto make_requirement() -> addons::renderer::Requirement
     return requirement;
 }
 
-template <addons::store::plugin_c SurfacePlugin_T>
+template <addons::store::injection_c SurfacePlugin_T>
 addons::renderer::RendererPlugin<SurfacePlugin_T>::RendererPlugin()
 {
     require(::make_requirement<core::renderer::base::Allocator::Requirements>());
@@ -162,7 +162,7 @@ auto to_device_dependency(const addons::renderer::Requirement& requirement)
     };
 }
 
-template <addons::store::plugin_c SurfacePlugin_T>
+template <addons::store::injection_c SurfacePlugin_T>
 template <core::app::customization_of_c<
     addons::store::Customization,
     addons::functional::Customization> Builder_T>
@@ -200,7 +200,7 @@ auto addons::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T&& b
         });
 }
 
-template <addons::store::plugin_c SurfacePlugin_T>
+template <addons::store::injection_c SurfacePlugin_T>
 template <typename Self>
 auto addons::renderer::RendererPlugin<SurfacePlugin_T>::require(
     this Self&& self,
@@ -211,7 +211,7 @@ auto addons::renderer::RendererPlugin<SurfacePlugin_T>::require(
     return std::forward<Self>(self);
 }
 
-template <addons::store::plugin_c SurfacePlugin_T>
+template <addons::store::injection_c SurfacePlugin_T>
 template <typename Self, typename... Args>
 auto addons::renderer::RendererPlugin<SurfacePlugin_T>::set_framebuffer_size_getter(
     this Self&& self,

@@ -20,19 +20,22 @@ import addons.store.Mixin;
 
 namespace addons::store {
 
-export template <typename Plugin_T>
-concept plugin_c = !std::is_void_v<
-    utils::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin_T>>>>;
+export template <typename Resource_T>
+concept resource_c = core::store::storable_c<Resource_T>;
 
-class PluginInvocation {
+export template <typename Injection_T>
+concept injection_c = resource_c<
+    utils::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Injection_T>>>>;
+
+class InjectionInvocation {
 public:
-    template <typename Plugin_T>
-    explicit PluginInvocation(Plugin_T& plugin_ref);
+    template <typename Injection_T>
+    explicit InjectionInvocation(Injection_T& injection_ref);
 
     auto operator()(core::store::Store& store) -> void;
 
 private:
-    std::any                                            m_plugin_ref;
+    std::any                                            m_injection_ref;
     std::function<void(std::any&, core::store::Store&)> m_invocation;
 };
 
@@ -41,22 +44,22 @@ public:
     template <typename Self_T, typename Resource_T>
     auto use(this Self_T&&, Resource_T&& resource) -> Self_T;
 
-    template <typename Self_T, plugin_c Plugin_T>
-    auto inject(this Self_T&&, Plugin_T&& plugin) -> Self_T;
+    template <typename Self_T, injection_c Injection_T>
+    auto inject(this Self_T&&, Injection_T&& injection) -> Self_T;
 
 protected:
     template <core::app::app_c App_T>
     auto operator()(App_T&& app) &&;
 
 private:
-    core::store::Store            m_store;
-    std::vector<PluginInvocation> m_invocations;
+    core::store::Store               m_injections;
+    std::vector<InjectionInvocation> m_invocations;
 };
 
 }   // namespace addons::store
 
 template <typename Callable_T>
-auto gather_resources(core::store::Store& store)
+auto gather_parameters(core::store::Store& store)
 {
     using RequiredResourcesTuple = utils::meta::arguments_of_t<Callable_T>;
     return utils::generate_tuple<RequiredResourcesTuple>(
@@ -66,21 +69,22 @@ auto gather_resources(core::store::Store& store)
     );
 }
 
-template <typename Plugin_T>
-addons::store::PluginInvocation::PluginInvocation(Plugin_T& plugin_ref)
-    : m_plugin_ref{ std::ref(plugin_ref) },
-      m_invocation{ [](std::any& erased_plugin_ref, core::store::Store& store) {
+template <typename Injection_T>
+addons::store::InjectionInvocation::InjectionInvocation(Injection_T& injection_ref)
+    : m_injection_ref{ std::ref(injection_ref) },
+      m_invocation{ [](std::any& erased_injection_ref, core::store::Store& store) {
           using ResourceType = utils::meta::
-              invoke_result_of_t<std::remove_pointer_t<std::decay_t<Plugin_T>>>;
+              invoke_result_of_t<std::remove_pointer_t<std::decay_t<Injection_T>>>;
           store.emplace<ResourceType>(std::apply(
-              std::any_cast<std::reference_wrapper<Plugin_T>>(erased_plugin_ref),
-              gather_resources<std::remove_pointer_t<std::decay_t<Plugin_T>>>(store)
+              std::any_cast<std::reference_wrapper<Injection_T>>(erased_injection_ref),
+              ::gather_parameters<std::remove_pointer_t<std::decay_t<Injection_T>>>(store)
           ));
       } }
 {}
 
 template <typename Self_T, typename Resource_T>
-auto addons::store::Customization::use(this Self_T&& self, Resource_T&& resource) -> Self_T
+auto addons::store::Customization::use(this Self_T&& self, Resource_T&& resource)
+    -> Self_T
 {
     using Resource = std::remove_cvref_t<Resource_T>;
 
@@ -98,28 +102,33 @@ auto addons::store::Customization::use(this Self_T&& self, Resource_T&& resource
     );
 }
 
-template <typename Self_T, addons::store::plugin_c Plugin_T>
-auto addons::store::Customization::inject(this Self_T&& self, Plugin_T&& plugin) -> Self_T
+template <typename Self_T, addons::store::injection_c Injection_T>
+auto addons::store::Customization::inject(this Self_T&& self, Injection_T&& injection)
+    -> Self_T
 {
-    if constexpr (requires { requires std::is_function_v<decltype(Plugin_T::setup)>; }) {
+    if constexpr (requires { requires std::is_function_v<decltype(Injection_T::setup)>; })
+    {
         std::apply(
-            Plugin_T::setup, gather_resources<decltype(Plugin_T::setup)>(self.m_store)
+            Injection_T::setup,
+            ::gather_parameters<decltype(Injection_T::setup)>(self.m_injections)
         );
     }
     else if constexpr (requires {
                            requires std::
-                               is_member_function_pointer_v<decltype(&Plugin_T::setup)>;
+                               is_member_function_pointer_v<decltype(&Injection_T::setup)>;
                        })
     {
         std::apply(
-            std::bind_front(&Plugin_T::setup, plugin),
-            gather_resources<decltype(&Plugin_T::setup)>(self.m_store)
+            std::bind_front(&Injection_T::setup, injection),
+            ::gather_parameters<decltype(&Injection_T::setup)>(self.m_injections)
         );
     }
 
-    self.m_invocations.emplace_back(self.m_store.template emplace<std::decay_t<Plugin_T>>(
-        std::forward<Plugin_T>(plugin)
-    ));
+    self.m_invocations.emplace_back(
+        self.m_injections.template emplace<std::decay_t<Injection_T>>(
+            std::forward<Injection_T>(injection)
+        )
+    );
 
     return std::forward<Self_T>(self);
 }
@@ -131,7 +140,7 @@ auto addons::store::Customization::operator()(App_T&& app) &&
 
     std::ranges::for_each(
         std::move(m_invocations),
-        std::bind_back(&PluginInvocation::operator(), std::ref(store))
+        std::bind_back(&InjectionInvocation::operator(), std::ref(store))
     );
 
     return std::forward<App_T>(app).template mix<Mixin>(std::move(store));

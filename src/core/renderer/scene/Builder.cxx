@@ -3,6 +3,7 @@ module;
 #include <algorithm>
 #include <future>
 #include <ranges>
+#include <vector>
 
 module core.renderer.scene.Scene;
 

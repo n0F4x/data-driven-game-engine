@@ -2,6 +2,7 @@ module;
 
 #include <future>
 #include <optional>
+#include <vector>
 
 #include <glm/ext/matrix_float4x4.hpp>
 

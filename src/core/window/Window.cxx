@@ -1,14 +1,14 @@
 module;
 
+#include <expected>
 #include <format>
 #include <stdexcept>
-#include <expected>
 
 #include <gsl-lite/gsl-lite.hpp>
 
-#include <glm/ext/vector_double2.hpp>
-
 #include <spdlog/spdlog.h>
+
+#include <glm/ext/vector_double2.hpp>
 
 #include <GLFW/glfw3.h>
 
@@ -68,7 +68,7 @@ auto Window::vulkan_instance_extensions()
 
 [[nodiscard]]
 static auto create_window(const utils::Size2i& size, const gsl_lite::czstring title)
-    -> GLFWwindow*
+    -> gsl_lite::not_null<GLFWwindow*>
 {
     init_glfw();
 
@@ -84,7 +84,7 @@ static auto create_window(const utils::Size2i& size, const gsl_lite::czstring ti
             std::to_string(glfwGetError(nullptr))
         ) };
     }
-    return window;
+    return gsl_lite::make_not_null(window);
 }
 
 Window::Window(const utils::Size2i& size, const gsl_lite::czstring title)

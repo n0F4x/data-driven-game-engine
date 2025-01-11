@@ -5,10 +5,6 @@ module;
 #include <ranges>
 #include <source_location>
 
-#include <spdlog/spdlog.h>
-
-
-
 #include <VkBootstrap.h>
 
 #include <glm/ext/matrix_float4x4.hpp>
@@ -186,13 +182,11 @@ static auto convert_material(const core::gltf::Material& material) noexcept
                                                texture_info
                                         ) { return texture_info.texture_index; })
                              .value_or(std::numeric_limits<uint32_t>::max()),
-                                       .texCoord =
-                    material.normal_texture_info
-                        .transform(
-                            [](const core::gltf::Material::NormalTextureInfo& texture_info
-                            ) { return texture_info.tex_coord_index; }
-                        )
-                        .value_or(std::numeric_limits<uint32_t>::max()),
+                                       .texCoord = material.normal_texture_info
+                                .transform([](const core::gltf::Material::
+                                                  NormalTextureInfo& texture_info
+                                           ) { return texture_info.tex_coord_index; })
+                                .value_or(std::numeric_limits<uint32_t>::max()),
                                        .scale = material.normal_texture_info
                              .transform([](const core::gltf::Material::NormalTextureInfo&
                                                texture_info
@@ -201,23 +195,21 @@ static auto convert_material(const core::gltf::Material& material) noexcept
                                        },
         .occlusionTexture =
             ShaderOcclusionTextureInfo{
-                                       .index =
-                    material.occlusion_texture_info
-                        .transform([](const core::gltf::Material::OcclusionTextureInfo&
-                                          texture_info
-                                   ) { return texture_info.texture_index; })
-                        .value_or(std::numeric_limits<uint32_t>::max()),
-                                       .texCoord =
-                    material.occlusion_texture_info
-                        .transform([](const core::gltf::Material::OcclusionTextureInfo&
-                                          texture_info
-                                   ) { return texture_info.tex_coord_index; })
-                        .value_or(std::numeric_limits<uint32_t>::max()),
-                                       .strength =
-                    material.occlusion_texture_info
-                        .transform([](const core::gltf::Material::OcclusionTextureInfo&
-                                          texture_info) { return texture_info.strength; })
-                        .value_or(1.f),
+                                       .index = material.occlusion_texture_info
+                             .transform([](const core::gltf::Material::
+                                               OcclusionTextureInfo& texture_info
+                                        ) { return texture_info.texture_index; })
+                             .value_or(std::numeric_limits<uint32_t>::max()),
+                                       .texCoord = material.occlusion_texture_info
+                                .transform([](const core::gltf::Material::
+                                                  OcclusionTextureInfo& texture_info
+                                           ) { return texture_info.tex_coord_index; })
+                                .value_or(std::numeric_limits<uint32_t>::max()),
+                                       .strength = material.occlusion_texture_info
+                                .transform([](const core::gltf::Material::
+                                                  OcclusionTextureInfo& texture_info
+                                           ) { return texture_info.strength; })
+                                .value_or(1.f),
                                        },
         .emissiveTexture =
             ShaderTextureInfo{
@@ -815,11 +807,12 @@ auto core::gltf::RenderModel::create_loader(
         | std::ranges::to<std::vector>()
     };
 
-    auto update_virtual_images_callback{ [transforms, materials, default_material](
-                                             [[maybe_unused]] const std::span<ImageVariant>
-                                                 images,
-                                             [[maybe_unused]]
-                                             const gfx::Camera&      camera,
+    auto update_virtual_images_callback{ [transforms,
+                                          textures,
+                                          materials,
+                                          default_material](
+                                             const std::span<ImageVariant> images,
+                                             const gfx::Camera&            camera,
                                              const uint32_t          transform_index,
                                              std::optional<uint32_t> material_index
                                          ) mutable {
@@ -832,13 +825,16 @@ auto core::gltf::RenderModel::create_loader(
                                        return std::cref(materials.at(material_index));
                                    })
                                    .value_or(std::cref(default_material))),
-            [&images, &camera, &position](const ShaderMaterial& material) {
+            [&textures, &images, &camera, &position](const ShaderMaterial& material) {
                 if (material.pbrMetallicRoughness.baseColorTexture.index
                     != std::numeric_limits<uint32_t>::max())
                 {
                     if (ImageVariant
                             & image_variant{ images.at(
-                                material.pbrMetallicRoughness.baseColorTexture.index
+                                textures
+                                    .at(material.pbrMetallicRoughness.baseColorTexture.index
+                                    )
+                                    .image_index
                             ) };
                         std::holds_alternative<gfx::resources::VirtualImage>(image_variant
                         ))
@@ -855,13 +851,15 @@ auto core::gltf::RenderModel::create_loader(
                 {
                     if (ImageVariant
                             & image_variant{ images.at(
-                                material.pbrMetallicRoughness.metallicRoughnessTexture.index
+                                textures
+                                    .at(material.pbrMetallicRoughness
+                                            .metallicRoughnessTexture.index)
+                                    .image_index
                             ) };
                         std::holds_alternative<gfx::resources::VirtualImage>(image_variant
                         ))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
-                            // .request_all_blocks();
                             .request_blocks_by_distance_from_camera(
                                 glm::distance(camera.position(), position), 10
                             );
@@ -871,12 +869,13 @@ auto core::gltf::RenderModel::create_loader(
                 if (material.normalTexture.index != std::numeric_limits<uint32_t>::max())
                 {
                     if (ImageVariant
-                            & image_variant{ images.at(material.normalTexture.index) };
+                            & image_variant{ images.at(
+                                textures.at(material.normalTexture.index).image_index
+                            ) };
                         std::holds_alternative<gfx::resources::VirtualImage>(image_variant
                         ))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
-                            // .request_all_blocks();
                             .request_blocks_by_distance_from_camera(
                                 glm::distance(camera.position(), position), 10
                             );
@@ -886,12 +885,13 @@ auto core::gltf::RenderModel::create_loader(
                 if (material.occlusionTexture.index
                     != std::numeric_limits<uint32_t>::max()) {
                     if (ImageVariant
-                            & image_variant{ images.at(material.occlusionTexture.index) };
+                            & image_variant{ images.at(
+                                textures.at(material.occlusionTexture.index).image_index
+                            ) };
                         std::holds_alternative<gfx::resources::VirtualImage>(image_variant
                         ))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
-                            // .request_all_blocks();
                             .request_blocks_by_distance_from_camera(
                                 glm::distance(camera.position(), position), 10
                             );
@@ -901,12 +901,13 @@ auto core::gltf::RenderModel::create_loader(
                 if (material.emissiveTexture.index
                     != std::numeric_limits<uint32_t>::max()) {
                     if (ImageVariant
-                            & image_variant{ images.at(material.emissiveTexture.index) };
+                            & image_variant{ images.at(
+                                textures.at(material.emissiveTexture.index).image_index
+                            ) };
                         std::holds_alternative<gfx::resources::VirtualImage>(image_variant
                         ))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
-                            // .request_all_blocks();
                             .request_blocks_by_distance_from_camera(
                                 glm::distance(camera.position(), position), 10
                             );
@@ -1014,8 +1015,8 @@ auto core::gltf::RenderModel::create_loader(
                                 }
                             );
                         }
-                        return std::get<
-                            gfx::resources::Image::Loader>(std::move(image_variant_loader))(
+                        return std::get<gfx::resources::Image::
+                                            Loader>(std::move(image_variant_loader))(
                             physical_device,
                             transfer_command_buffer,
                             renderer::base::Image::State{

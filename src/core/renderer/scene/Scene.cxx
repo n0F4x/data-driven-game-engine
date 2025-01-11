@@ -2,6 +2,7 @@ module;
 
 #include <algorithm>
 #include <functional>
+#include <vector>
 
 #include <glm/ext/vector_float4.hpp>
 

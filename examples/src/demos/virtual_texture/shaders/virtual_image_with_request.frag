@@ -13,7 +13,7 @@ layout (binding = 2) uniform ImageInfo {
     uint mipTailFirstLod;
 } imageInfo;
 
-layout (std430, buffer_reference, buffer_reference_align = 4) readonly buffer BlockRequestBuffer {
+layout (std430, buffer_reference, buffer_reference_align = 4) buffer BlockRequestBuffer {
     uint blockRequests[];
 };
 layout (binding = 3) uniform BlockRequest {
