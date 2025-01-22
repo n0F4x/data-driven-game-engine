@@ -19,9 +19,9 @@ public:
     constexpr BuilderBase() = default;
 
     template <typename Base_T, typename... Args_T>
-    constexpr explicit BuilderBase(Base_T&& base, Args_T&&... args)
+    constexpr explicit BuilderBase(Base_T&& base, std::in_place_t, Args_T&&... args)
         : BuilderBase<RestOfCustomizations_T...>{ std::forward<Base_T>(base) },
-          Customization_T(std::get<Args_T>(args)...)
+          Customization_T(std::forward<Args_T>(args)...)
     {}
 
     template <typename Self_T, typename App_T>

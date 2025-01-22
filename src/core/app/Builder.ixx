@@ -15,6 +15,8 @@ namespace core::app {
 
 export template <customization_c... Customizations_T>
 class Builder : public BuilderBase<Customizations_T..., MonoCustomization> {
+    using Base = BuilderBase<Customizations_T..., MonoCustomization>;
+
 public:
     constexpr Builder() = default;
 
@@ -55,10 +57,9 @@ constexpr core::app::Builder<Customizations_T...>::Builder(
     OtherBuilder_T&& other,
     Args_T&&... args
 )
-    : BuilderBase<Customizations_T..., MonoCustomization>{
-          std::forward<OtherBuilder_T>(other),
-          std::forward<Args_T>(args)...
-      }
+    : Base{ std::forward<OtherBuilder_T>(other),
+            std::in_place,
+            std::forward<Args_T>(args)... }
 {}
 
 template <customization_c... Customizations_T>
@@ -78,8 +79,7 @@ template <typename Self>
 constexpr auto core::app::Builder<Customizations_T...>::build(this Self&& self)
 {
     SPDLOG_INFO("Building app");
-    return std::forward<Self>(self)
-        .BuilderBase<Customizations_T..., MonoCustomization>::build(App<>{});
+    return std::forward<Self>(self).Base::build(App<>{});
 }
 
 constexpr auto core::app::create() -> Builder<>

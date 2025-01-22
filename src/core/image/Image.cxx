@@ -1,8 +1,8 @@
 module;
 
-
-
 module core.image.Image;
+
+import vulkan_hpp;
 
 auto core::image::Image::extent() const noexcept -> vk::Extent3D
 {

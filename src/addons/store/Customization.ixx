@@ -5,6 +5,8 @@ module;
 #include <functional>
 #include <type_traits>
 
+#include <spdlog/spdlog.h>
+
 export module addons.store.Customization;
 
 import core.app.App;
@@ -27,17 +29,12 @@ export template <typename Injection_T>
 concept injection_c = resource_c<
     utils::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Injection_T>>>>;
 
-class InjectionInvocation {
-public:
-    template <typename Injection_T>
-    explicit InjectionInvocation(Injection_T& injection_ref);
+using InjectionInvocation =
+    std::function<void(core::store::Store& injections, core::store::Store& resources)>;
 
-    auto operator()(core::store::Store& store) -> void;
-
-private:
-    std::any                                            m_injection_ref;
-    std::function<void(std::any&, core::store::Store&)> m_invocation;
-};
+template <typename Injection_T>
+[[nodiscard]]
+auto create_injection_invocation() -> InjectionInvocation;
 
 export class Customization {
 public:
@@ -70,17 +67,18 @@ auto gather_parameters(core::store::Store& store)
 }
 
 template <typename Injection_T>
-addons::store::InjectionInvocation::InjectionInvocation(Injection_T& injection_ref)
-    : m_injection_ref{ std::ref(injection_ref) },
-      m_invocation{ [](std::any& erased_injection_ref, core::store::Store& store) {
-          using ResourceType = utils::meta::
-              invoke_result_of_t<std::remove_pointer_t<std::decay_t<Injection_T>>>;
-          store.emplace<ResourceType>(std::apply(
-              std::any_cast<std::reference_wrapper<Injection_T>>(erased_injection_ref),
-              ::gather_parameters<std::remove_pointer_t<std::decay_t<Injection_T>>>(store)
-          ));
-      } }
-{}
+auto addons::store::create_injection_invocation() -> InjectionInvocation
+{
+    return [](core::store::Store& injections, core::store::Store& resources) {
+        using Injection = std::decay_t<Injection_T>;
+        using ResourceType =
+            utils::meta::invoke_result_of_t<std::remove_pointer_t<Injection>>;
+        resources.emplace<ResourceType>(std::apply(
+            std::ref(injections.at<Injection>()),
+            ::gather_parameters<std::remove_pointer_t<Injection>>(resources)
+        ));
+    };
+}
 
 template <typename Self_T, typename Resource_T>
 auto addons::store::Customization::use(this Self_T&& self, Resource_T&& resource)
@@ -124,11 +122,10 @@ auto addons::store::Customization::inject(this Self_T&& self, Injection_T&& inje
         );
     }
 
-    self.m_invocations.emplace_back(
-        self.m_injections.template emplace<std::decay_t<Injection_T>>(
-            std::forward<Injection_T>(injection)
-        )
+    self.m_injections.template emplace<std::decay_t<Injection_T>>(
+        std::forward<Injection_T>(injection)
     );
+    self.m_invocations.push_back(create_injection_invocation<Injection_T>());
 
     return std::forward<Self_T>(self);
 }
@@ -138,9 +135,13 @@ auto addons::store::Customization::operator()(App_T&& app) &&
 {
     core::store::Store store;
 
+    SPDLOG_ERROR("m_invocations.size(): {}", m_invocations.size());
+
     std::ranges::for_each(
-        std::move(m_invocations),
-        std::bind_back(&InjectionInvocation::operator(), std::ref(store))
+        m_invocations,
+        std::bind_back(
+            &InjectionInvocation::operator(), std::ref(m_injections), std::ref(store)
+        )
     );
 
     return std::forward<App_T>(app).template mix<Mixin>(std::move(store));

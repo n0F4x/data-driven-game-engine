@@ -17,13 +17,11 @@ import core.image.ktx2.MimeType;
 import core.image.png.Image;
 import core.image.png.MimeType;
 
-using namespace core;
-
 template <
     size_t N = std::
-        max({ image::png::MimeType::magic().size_bytes(),
-              image::jpeg::MimeType::magic().size_bytes(),
-              image::ktx2::MimeType::magic().size_bytes() })>
+        max({ core::image::png::MimeType::magic().size_bytes(),
+              core::image::jpeg::MimeType::magic().size_bytes(),
+              core::image::ktx2::MimeType::magic().size_bytes() })>
 [[nodiscard]]
 static auto read_n_from(const std::filesystem::path& filepath)
     -> std::array<std::ifstream::char_type, N>
@@ -38,15 +36,11 @@ static auto read_n_from(const std::filesystem::path& filepath)
     return first_characters;
 }
 
-namespace {
-
 enum class SupportedMimeTypes {
     ePNG,
     eJPG,
     eKTX2
 };
-
-}   // namespace
 
 [[nodiscard]]
 static auto mime_type(const std::ranges::range auto& first_characters)
@@ -59,13 +53,13 @@ static auto mime_type(const std::ranges::range auto& first_characters)
     };
 
     using enum SupportedMimeTypes;
-    if (std::ranges::starts_with(first_bytes, image::png::MimeType::magic())) {
+    if (std::ranges::starts_with(first_bytes, core::image::png::MimeType::magic())) {
         return ePNG;
     }
-    if (std::ranges::starts_with(first_bytes, image::jpeg::MimeType::magic())) {
+    if (std::ranges::starts_with(first_bytes, core::image::jpeg::MimeType::magic())) {
         return eJPG;
     }
-    if (std::ranges::starts_with(first_bytes, image::ktx2::MimeType::magic())) {
+    if (std::ranges::starts_with(first_bytes, core::image::ktx2::MimeType::magic())) {
         return eKTX2;
     }
 
