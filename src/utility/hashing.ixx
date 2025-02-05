@@ -8,7 +8,7 @@ module;
 
 export module utility.hashing;
 
-namespace utils {
+namespace util {
 
 export template <template <typename> typename Hasher, typename T>
 auto hash_combine(std::size_t& seed, const T& v) -> void

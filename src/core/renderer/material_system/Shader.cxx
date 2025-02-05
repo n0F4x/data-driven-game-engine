@@ -38,7 +38,7 @@ auto Shader::entry_point() const noexcept -> const std::string&
 [[nodiscard]]
 auto hash_value(const Shader& shader) noexcept -> size_t
 {
-    return utils::hash_combine(*shader.m_module, shader.m_entry_point);
+    return util::hash_combine(*shader.m_module, shader.m_entry_point);
 }
 
 }   // namespace core::renderer

@@ -8,6 +8,8 @@
 
 import core;
 import addons;
+import extensions;
+import plugins;
 
 import utility.Size;
 
@@ -23,7 +25,7 @@ static auto cache_plugin() -> core::cache::Cache
 
 [[nodiscard]]
 static auto require_vulkan_version(const uint32_t major, const uint32_t minor)
-    -> addons::renderer::Requirement
+    -> plugins::renderer::Requirement
 {
     return { .enable_instance_settings = [=](const vkb::SystemInfo&,
                                              vkb::InstanceBuilder& instance_builder) {
@@ -53,14 +55,14 @@ try {
     constexpr static float movement_speed{ 10 };
 
     core::app::create()
-        .customize<addons::functional::Customization>()
-        .customize<addons::store::Customization>()
-        .customize<addons::runnable::Customization>()
-        .inject(::cache_plugin)
-        .use(core::window::Window(utils::Size2i{ 1'280, 720 }, "My window"))
-        .apply(addons::Renderer{}.require(::require_vulkan_version(1, 1)))
-        .inject(examples::base::DemoBasePlugin{ .movement_speed = movement_speed })
-        .inject(
+        .extend_with<extensions::Functional>()
+        .extend_with<extensions::ResourceManager>()
+        .extend_with<extensions::Runnable>()
+        .inject_resource(::cache_plugin)
+        .use_resource(core::window::Window(util::Size2i{ 1'280, 720 }, "My window"))
+        .transform(plugins::Renderer{}.require(::require_vulkan_version(1, 1)))
+        .inject_resource(examples::base::DemoBasePlugin{ .movement_speed = movement_speed })
+        .inject_resource(
             demo::DemoPlugin{
                 .model_filepath     = model_filepath,
                 .use_virtual_images = true,

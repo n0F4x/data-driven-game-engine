@@ -1,10 +1,10 @@
 export module core.app.App:fwd;
 
-import :mixin_c;
+import :addon_c;
 
 namespace core::app {
 
-export template <mixin_c... Mixins_T>
+export template <addon_c... Addons_T>
 class App;
 
 }

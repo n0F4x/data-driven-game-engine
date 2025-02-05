@@ -25,7 +25,7 @@ public:
     static auto vulkan_instance_extensions()
         -> const std::vector<gsl_lite::not_null<gsl_lite::czstring>>&;
 
-    explicit Window(const utils::Size2i& size, gsl_lite::czstring title);
+    explicit Window(const util::Size2i& size, gsl_lite::czstring title);
     Window(const Window&) = delete;
     Window(Window&&) noexcept;
 
@@ -40,16 +40,16 @@ public:
     [[nodiscard]]
     auto should_close() const -> bool;
     [[nodiscard]]
-    auto size() const -> utils::Size2i;
+    auto size() const -> util::Size2i;
     [[nodiscard]]
-    auto framebuffer_size() const -> utils::Size2i;
+    auto framebuffer_size() const -> util::Size2i;
     [[nodiscard]]
     auto title() const -> std::string_view;
 
     /***********/
     /* Setters */
     /***********/
-    template <std::invocable<utils::Size2i> Callback>
+    template <std::invocable<util::Size2i> Callback>
     auto set_framebuffer_size_callback(Callback&& callback) -> void;
     template <typename Self>
     auto set_title(this Self&&, gsl_lite::czstring title) -> Self;
@@ -79,9 +79,28 @@ public:
 
 private:
     gsl_lite::not_null<std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)>> m_impl;
-    std::function<void(utils::Size2i)> m_framebuffer_resized;
+    std::function<void(util::Size2i)> m_framebuffer_resized;
 };
 
 }   // namespace core::window
 
-#include "Window.inl"
+template <std::invocable<util::Size2i> Callback>
+auto core::window::Window::set_framebuffer_size_callback(Callback&& callback) -> void
+{
+    m_framebuffer_resized = std::forward<Callback>(callback);
+
+    glfwSetFramebufferSizeCallback(
+        m_impl.get(),
+        [](GLFWwindow* window, const int width, const int height) {
+            static_cast<Window*>(glfwGetWindowUserPointer(window))
+                ->m_framebuffer_resized(util::Size2i{ width, height });
+        }
+    );
+}
+
+template <typename Self>
+auto core::window::Window::set_title(this Self&& self, const gsl_lite::czstring title) -> Self
+{
+    glfwSetWindowTitle(self.m_impl.get(), title);
+    return std::forward<Self>(self);
+}

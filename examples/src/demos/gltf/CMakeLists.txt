@@ -24,7 +24,7 @@ target_sources(gltf PRIVATE
         DemoApp.cxx
         main.cpp
 )
-target_sources(gltf PUBLIC
+target_sources(gltf PRIVATE
         FILE_SET CXX_MODULES
         BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
         FILES

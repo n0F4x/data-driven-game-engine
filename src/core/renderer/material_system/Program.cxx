@@ -44,7 +44,7 @@ auto Program::pipeline_stages() const -> std::array<vk::PipelineShaderStageCreat
 [[nodiscard]]
 auto hash_value(const Program& program) noexcept -> size_t
 {
-    return utils::hash_combine(program.m_vertex_shader, program.m_fragment_shader);
+    return util::hash_combine(program.m_vertex_shader, program.m_fragment_shader);
 }
 
 }   // namespace core::renderer

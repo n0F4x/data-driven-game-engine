@@ -6,32 +6,32 @@ module;
 
 export module core.app.Builder;
 
-import :customization_c;
+import :extension_c;
 import :details;
 
 import core.app.App;
 
 namespace core::app {
 
-export template <customization_c... Customizations_T>
-class Builder : public BuilderBase<Customizations_T..., MonoCustomization> {
-    using Base = BuilderBase<Customizations_T..., MonoCustomization>;
+export template <extension_c... Extensions_T>
+class Builder : public BuilderBase<Extensions_T..., RootExtension> {
+    using Base = BuilderBase<Extensions_T..., RootExtension>;
 
 public:
     constexpr Builder() = default;
 
-    template <customization_c NewCustomization_T, typename Self_T, typename... Args_T>
-    constexpr auto customize(this Self_T&& self, Args_T&&... args)
-        -> Builder<NewCustomization_T, Customizations_T...>;
+    template <extension_c NewExtension_T, typename Self_T, typename... Args_T>
+    constexpr auto extend_with(this Self_T&& self, Args_T&&... args)
+        -> Builder<NewExtension_T, Extensions_T...>;
 
     template <typename Self>
     constexpr auto build(this Self&& self);
 
 private:
-    friend old_builder_t<Customizations_T...>;
+    friend old_builder_t<Extensions_T...>;
 
     template <typename OtherBuilder_T, typename... Args_T>
-    constexpr explicit Builder(OtherBuilder_T&& other, Args_T&&... args);
+    constexpr explicit Builder(OtherBuilder_T&& other, std::in_place_t, Args_T&&... args);
 };
 
 export [[nodiscard]]
@@ -39,22 +39,23 @@ constexpr auto create() -> Builder<>;
 
 export template <typename Builder_T>
 concept builder_c =
-    std::derived_from<std::remove_cvref_t<Builder_T>, BuilderBase<MonoCustomization>>;
+    std::derived_from<std::remove_cvref_t<Builder_T>, BuilderBase<RootExtension>>;
 
-export template <typename Customization_T>
-concept customization_c = ::customization_c<Customization_T>;
+export template <typename Extension_T>
+concept extension_c = ::extension_c<Extension_T>;
 
-export template <typename Builder_T, typename... Customizations_T>
-concept customization_of_c =
-    builder_c<Builder_T>
-    && (std::derived_from<std::remove_cvref_t<Builder_T>, Customizations_T> && ...);
+export template <typename Builder_T, typename... Extensions_T>
+concept extended_with_c = builder_c<Builder_T>
+                       && (std::derived_from<std::remove_cvref_t<Builder_T>, Extensions_T>
+                           && ...);
 
 }   // namespace core::app
 
-template <customization_c... Customizations_T>
+template <extension_c... Extensions_T>
 template <typename OtherBuilder_T, typename... Args_T>
-constexpr core::app::Builder<Customizations_T...>::Builder(
+constexpr core::app::Builder<Extensions_T...>::Builder(
     OtherBuilder_T&& other,
+    std::in_place_t,
     Args_T&&... args
 )
     : Base{ std::forward<OtherBuilder_T>(other),
@@ -62,21 +63,20 @@ constexpr core::app::Builder<Customizations_T...>::Builder(
             std::forward<Args_T>(args)... }
 {}
 
-template <customization_c... Customizations_T>
-template <customization_c NewCustomization_T, typename Self_T, typename... Args_T>
-constexpr auto core::app::Builder<Customizations_T...>::customize(
-    this Self_T&& self,
-    Args_T&&... args
-) -> Builder<NewCustomization_T, Customizations_T...>
+template <extension_c... Extensions_T>
+template <extension_c NewExtension_T, typename Self_T, typename... Args_T>
+constexpr auto
+    core::app::Builder<Extensions_T...>::extend_with(this Self_T&& self, Args_T&&... args)
+        -> Builder<NewExtension_T, Extensions_T...>
 {
-    return Builder<NewCustomization_T, Customizations_T...>{
-        std::forward<Self_T>(self), std::forward<Args_T>(args)...
-    };
+    return Builder<NewExtension_T, Extensions_T...>{ std::forward<Self_T>(self),
+                                                     std::in_place,
+                                                     std::forward<Args_T>(args)... };
 }
 
-template <customization_c... Customizations_T>
+template <extension_c... Extensions_T>
 template <typename Self>
-constexpr auto core::app::Builder<Customizations_T...>::build(this Self&& self)
+constexpr auto core::app::Builder<Extensions_T...>::build(this Self&& self)
 {
     SPDLOG_INFO("Building app");
     return std::forward<Self>(self).Base::build(App<>{});

@@ -5,27 +5,27 @@ module;
 
 export module core.app.App:details;
 
-import utility.meta.offset;
+import utility.type_traits.integer_sequence.offset_integer_sequence;
 
-import :mixin_c;
+import :addon_c;
 import :fwd;
 
-template <typename Mixin_T, typename... RestOfMixins_T>
-class AppBase : public AppBase<RestOfMixins_T...>, public Mixin_T {
+template <typename Addon_T, typename... RestOfAddons_T>
+class AppBase : public AppBase<RestOfAddons_T...>, public Addon_T {
 protected:
     constexpr AppBase() = default;
 
     template <typename Base_T, typename... Args_T>
-    constexpr explicit AppBase(Base_T&& base, Args_T&&... args)
-        : AppBase<RestOfMixins_T...>{ std::forward<Base_T>(base) },
-          Mixin_T(std::forward<Args_T>(args)...)
+    constexpr explicit AppBase(Base_T&& base, std::in_place_t, Args_T&&... args)
+        : AppBase<RestOfAddons_T...>{ std::forward<Base_T>(base) },
+          Addon_T(std::forward<Args_T>(args)...)
     {}
 };
 
-class MonoMixin {};
+class RootAddon {};
 
 template <>
-class AppBase<MonoMixin> {};
+class AppBase<RootAddon> {};
 
 template <typename T, typename... Ts>
 struct old_app;
@@ -40,12 +40,12 @@ struct old_app<std::integer_sequence<size_t>, T> {
     using type = core::app::App<>;
 };
 
-template <typename... Mixins_T>
+template <typename... Addons_T>
 using old_app_t = std::conditional_t<
-    sizeof...(Mixins_T) != 0,
+    sizeof...(Addons_T) != 0,
     typename old_app<
-        utils::meta::offset_t<
-            std::make_index_sequence<std::max(static_cast<int>(sizeof...(Mixins_T)) - 1, 0)>,
+        util::meta::offset_integer_sequence_t<
+            std::make_index_sequence<std::max(static_cast<int>(sizeof...(Addons_T)) - 1, 0)>,
             1>,
-        Mixins_T...>::type,
+        Addons_T...>::type,
     void>;

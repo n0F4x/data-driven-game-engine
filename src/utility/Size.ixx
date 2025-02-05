@@ -6,7 +6,7 @@ export module utility.Size;
 
 import vulkan_hpp;
 
-namespace utils {
+namespace util {
 
 export template <unsigned dimensions, typename T>
 struct Size;

@@ -15,8 +15,8 @@ import core.renderer.resources.Buffer;
 import core.renderer.resources.Image;
 import core.renderer.resources.RandomAccessBuffer;
 
-import addons.renderer.DevicePlugin;
-import addons.renderer.InstancePlugin;
+import plugins.renderer.DevicePlugin;
+import plugins.renderer.InstancePlugin;
 
 import demos.virtual_texture.Camera;
 import demos.virtual_texture.VirtualTexture;
@@ -28,8 +28,8 @@ export class DemoApp;
 
 export struct DemoPlugin {
     static auto setup(
-        addons::renderer::InstancePlugin& instance_plugin,
-        addons::renderer::DevicePlugin&   device_plugin
+        plugins::renderer::InstancePlugin& instance_plugin,
+        plugins::renderer::DevicePlugin&   device_plugin
     ) -> void;
 
     auto operator()(

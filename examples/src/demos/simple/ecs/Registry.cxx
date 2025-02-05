@@ -1,0 +1,3 @@
+module ecs;
+
+import :Query;

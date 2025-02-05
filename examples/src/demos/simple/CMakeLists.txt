@@ -19,8 +19,12 @@ if (engine_debug)
             SPDLOG_ACTIVE_LEVEL=${spdlog_level}
     )
 endif ()
+
+set(CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(ecs)
+
 target_sources(simple PRIVATE
-        src/main.cpp
+        main.cpp
 )
 
 fetchcontent_declare(SFML

@@ -8,50 +8,50 @@ export module core.app.Builder:details;
 
 import :fwd;
 
-import utility.meta.offset;
+import utility.type_traits.integer_sequence.offset_integer_sequence;
 
 import core.app.App;
 
-template <typename Customization_T, typename... RestOfCustomizations_T>
-class BuilderBase : public BuilderBase<RestOfCustomizations_T...>,
-                    public Customization_T {
+template <typename Extension_T, typename... RestOfExtensions_T>
+class BuilderBase : public BuilderBase<RestOfExtensions_T...>, public Extension_T {
 public:
     constexpr BuilderBase() = default;
 
     template <typename Base_T, typename... Args_T>
     constexpr explicit BuilderBase(Base_T&& base, std::in_place_t, Args_T&&... args)
-        : BuilderBase<RestOfCustomizations_T...>{ std::forward<Base_T>(base) },
-          Customization_T(std::forward<Args_T>(args)...)
+        : BuilderBase<RestOfExtensions_T...>{ std::forward<Base_T>(base) },
+          Extension_T(std::forward<Args_T>(args)...)
     {}
 
     template <typename Self_T, typename App_T>
         requires core::app::app_c<App_T>
     constexpr auto build(this Self_T&& self, App_T&& app)
     {
-        if constexpr (class DummyMixin{}; requires(core::app::App<DummyMixin> dummy_app) {
+        if constexpr (class DummyAddon{}; requires(core::app::App<DummyAddon> dummy_app) {
                           core::app::app_c<
-                              decltype(std::forward<Self_T>(self).Customization_T::
-                                           operator()(std::forward_like<Self_T>(dummy_app)
-                                           ))>;
+                              decltype(std::forward<Self_T>(self).Extension_T::operator()(
+                                  std::forward_like<Self_T>(dummy_app)
+                              ))>;
                       })
         {
-            return std::forward<Self_T>(self).Customization_T::operator()(
-                std::forward<Self_T>(self).BuilderBase<RestOfCustomizations_T...>::build(
+            return std::forward<Self_T>(self).Extension_T::operator()(
+                std::forward<Self_T>(self).BuilderBase<RestOfExtensions_T...>::build(
                     std::forward<App_T>(app)
                 )
             );
         }
         else {
-            return std::forward<Self_T>(self)
-                .BuilderBase<RestOfCustomizations_T...>::build(std::forward<App_T>(app));
+            return std::forward<Self_T>(self).BuilderBase<RestOfExtensions_T...>::build(
+                std::forward<App_T>(app)
+            );
         }
     }
 };
 
-class MonoCustomization {};
+class RootExtension {};
 
 template <>
-class BuilderBase<MonoCustomization> {
+class BuilderBase<RootExtension> {
 public:
     template <typename App_T>
     [[nodiscard]]
@@ -74,13 +74,13 @@ struct old_builder<std::integer_sequence<size_t>, T> {
     using type = core::app::Builder<>;
 };
 
-template <typename... Customizations_T>
+template <typename... Extensions_T>
 using old_builder_t = std::conditional_t<
-    sizeof...(Customizations_T) != 0,
+    sizeof...(Extensions_T) != 0,
     typename old_builder<
-        utils::meta::offset_t<
+        util::meta::offset_integer_sequence_t<
             std::make_index_sequence<
-                std::max(static_cast<int>(sizeof...(Customizations_T)) - 1, 0)>,
+                std::max(static_cast<int>(sizeof...(Extensions_T)) - 1, 0)>,
             1>,
-        Customizations_T...>::type,
+        Extensions_T...>::type,
     void>;

@@ -10,7 +10,7 @@ import core.app.App;
 
 import core.gfx.Camera;
 
-import addons.store.Mixin;
+import addons.ResourceManager;
 
 import examples.base.DemoBase;
 import examples.base.Renderer;
@@ -20,7 +20,7 @@ import demos.gltf.DemoApp;
 namespace demo {
 
 export constexpr auto run =
-    []<core::app::mixed_with_c<addons::store::Mixin> App_T>(App_T&& app) -> void {
+    []<core::app::has_addons_c<addons::ResourceManager> App_T>(App_T&& app) -> void {
     app.resources.template at<examples::base::DemoBase>().run(
         [demo_app = std::ref(app.resources.template at<DemoApp>()
          )](examples::base::Renderer& renderer,

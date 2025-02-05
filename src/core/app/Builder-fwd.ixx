@@ -1,10 +1,10 @@
 export module core.app.Builder:fwd;
 
-import :customization_c;
+import :extension_c;
 
 namespace core::app {
 
-export template <customization_c... Customizations_T>
+export template <extension_c... Extensions_T>
 class Builder;
 
 }

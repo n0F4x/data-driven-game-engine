@@ -25,7 +25,7 @@ target_sources(virtual_texture PRIVATE
         main.cpp
         VirtualTexture.cxx
 )
-target_sources(virtual_texture PUBLIC
+target_sources(virtual_texture PRIVATE
         FILE_SET CXX_MODULES
         BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
         FILES

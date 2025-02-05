@@ -13,7 +13,7 @@ module;
 
 module core.gltf.Model;
 
-import utility.meta.functional.arguments_of;
+import utility.type_traits.functional.arguments_of;
 
 import core.gltf.Image;
 import core.gltf.ImageLoader;
@@ -246,7 +246,7 @@ static auto make_accessor_loader(
                Transformation&&          transform
            ) -> void {
         using ElementType = std::remove_cvref_t<
-            std::tuple_element_t<0, utils::meta::arguments_of_t<Transformation>>>;
+            std::tuple_element_t<0, util::meta::arguments_of_t<Transformation>>>;
         using AttributeType = std::remove_cvref_t<
             std::invoke_result_t<Projection, const core::gltf::Model::Vertex&>>;
 
