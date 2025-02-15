@@ -1,5 +1,4 @@
-add_subdirectory(concepts)
-add_subdirectory(type_traits)
+add_subdirectory(meta)
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET CXX_MODULES
@@ -7,6 +6,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         utility.cppm
         hashing.ixx
+        OptionalRef.ixx
+        ScopeGuard.ixx
         Size.ixx
+        SparseSet.ixx
         tuple.ixx
 )

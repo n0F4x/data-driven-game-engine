@@ -13,7 +13,7 @@ module;
 
 module core.gltf.Model;
 
-import utility.type_traits.functional.arguments_of;
+import utility.meta.type_traits.functional.arguments_of;
 
 import core.gltf.Image;
 import core.gltf.ImageLoader;

@@ -6,13 +6,13 @@ module;
 
 export module utility.tuple;
 
-import utility.concepts.integer_sequence_c;
-import utility.concepts.type_list.type_list_c;
-import utility.type_traits.integer_sequence.concat_integer_sequence;
-import utility.type_traits.integer_sequence.integer_sequence_size;
-import utility.type_traits.integer_sequence.offset_integer_sequence;
-import utility.type_traits.type_list.type_list_size;
-import utility.concepts.tuple_like_c;
+import utility.meta.concepts.integer_sequence_c;
+import utility.meta.concepts.type_list.type_list_c;
+import utility.meta.type_traits.integer_sequence.concat_integer_sequence;
+import utility.meta.type_traits.integer_sequence.integer_sequence_size;
+import utility.meta.type_traits.integer_sequence.offset_integer_sequence;
+import utility.meta.type_traits.type_list.type_list_size;
+import utility.meta.concepts.tuple_like_c;
 
 namespace util {
 

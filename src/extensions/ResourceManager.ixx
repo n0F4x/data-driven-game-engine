@@ -13,8 +13,8 @@ import core.app.App;
 import core.app.Builder;
 import core.store.Store;
 
-import utility.type_traits.functional.arguments_of;
-import utility.type_traits.functional.invoke_result_of;
+import utility.meta.type_traits.functional.arguments_of;
+import utility.meta.type_traits.functional.invoke_result_of;
 
 import utility.tuple;
 
@@ -23,7 +23,7 @@ import addons.ResourceManager;
 namespace extensions {
 
 export template <typename Resource_T>
-concept resource_c = core::store::storable_c<Resource_T>;
+concept resource_c = addons::resource_c<Resource_T>;
 
 export template <typename Injection_T>
 concept injection_c = resource_c<

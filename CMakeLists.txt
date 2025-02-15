@@ -7,6 +7,7 @@ add_library(${PROJECT_NAME})
 
 
 option(engine_debug "Turn on debug mode for library" OFF)
+option(engine_test "Turn on debug mode for library" OFF)
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_26)
 
@@ -23,6 +24,11 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     CHECK_LIFETIME_BOUND
 )
+if (engine_test)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+            ENGINE_ENABLE_TESTS
+    )
+endif ()
 
 
 include(cmake/dependencies.cmake)
@@ -33,9 +39,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC src)
 add_subdirectory(src)
 
 
-###########
-## TESTS ##
-###########
 add_subdirectory(examples)
 
 

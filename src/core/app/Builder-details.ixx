@@ -8,7 +8,7 @@ export module core.app.Builder:details;
 
 import :fwd;
 
-import utility.type_traits.integer_sequence.offset_integer_sequence;
+import utility.meta.type_traits.integer_sequence.offset_integer_sequence;
 
 import core.app.App;
 
