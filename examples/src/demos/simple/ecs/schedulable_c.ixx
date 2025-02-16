@@ -7,10 +7,10 @@ export module ecs:schedulable_c;
 import :Query;
 import :Res;
 
-import utility.concepts.functional.callable_c;
-import utility.concepts.type_list.all_of_type_list_c;
-import utility.type_traits.functional.arguments_of;
-import utility.type_traits.is_specialization_of;
+import utility.meta.concepts.functional.callable_c;
+import utility.meta.concepts.type_list.all_of_type_list_c;
+import utility.meta.type_traits.functional.arguments_of;
+import utility.meta.type_traits.is_specialization_of;
 
 namespace ecs {
 

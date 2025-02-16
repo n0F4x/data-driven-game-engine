@@ -15,9 +15,9 @@ import :schedulable_c;
 import core.store.Store;
 
 import utility.tuple;
-import utility.type_traits.is_specialization_of;
-import utility.type_traits.functional.arguments_of;
-import utility.type_traits.type_list.type_list_filter;
+import utility.meta.type_traits.is_specialization_of;
+import utility.meta.type_traits.functional.arguments_of;
+import utility.meta.type_traits.type_list.type_list_filter;
 
 namespace ecs {
 

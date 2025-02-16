@@ -12,23 +12,23 @@ export module ecs:Query;
 
 import :Registry;
 
-import utility.concepts.type_list.type_list_c;
-import utility.concepts.specialization_of;
+import utility.meta.concepts.type_list.type_list_c;
+import utility.meta.concepts.specialization_of;
 
-import utility.type_traits.type_list.type_list_at;
-import utility.type_traits.type_list.type_list_chunk_sub;
-import utility.type_traits.type_list.type_list_concat;
-import utility.type_traits.type_list.type_list_disjoin;
-import utility.type_traits.type_list.type_list_filter;
-import utility.type_traits.type_list.type_list_join;
-import utility.type_traits.type_list.type_list_size;
-import utility.type_traits.type_list.type_list_to;
-import utility.type_traits.type_list.type_list_transform;
-import utility.type_traits.type_list.type_list_unique;
-import utility.type_traits.add_wrapper;
-import utility.type_traits.is_specialization_of;
-import utility.type_traits.remove_wrapper_if;
-import utility.type_traits.underlying;
+import utility.meta.type_traits.type_list.type_list_at;
+import utility.meta.type_traits.type_list.type_list_chunk_sub;
+import utility.meta.type_traits.type_list.type_list_concat;
+import utility.meta.type_traits.type_list.type_list_disjoin;
+import utility.meta.type_traits.type_list.type_list_filter;
+import utility.meta.type_traits.type_list.type_list_join;
+import utility.meta.type_traits.type_list.type_list_size;
+import utility.meta.type_traits.type_list.type_list_to;
+import utility.meta.type_traits.type_list.type_list_transform;
+import utility.meta.type_traits.type_list.type_list_unique;
+import utility.meta.type_traits.add_wrapper;
+import utility.meta.type_traits.is_specialization_of;
+import utility.meta.type_traits.remove_wrapper_if;
+import utility.meta.type_traits.underlying;
 
 import utility.tuple;
 
