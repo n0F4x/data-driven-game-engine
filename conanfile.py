@@ -21,6 +21,8 @@ class ConanApplication(ConanFile):
         self.requires("stb/cci.20240531")
         self.requires("entt/3.14.0")
 
+        self.requires("catch2/3.8.0", test=True)
+
     def build(self):
         cmake = CMake(self)
         cmake.configure()

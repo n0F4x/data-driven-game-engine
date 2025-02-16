@@ -80,7 +80,7 @@ auto util::OptionalRef<T>::operator*() const -> T&
 template <typename T>
 auto util::OptionalRef<T>::has_value() const -> bool
 {
-    return m_handle == nullptr;
+    return m_handle != nullptr;
 }
 
 template <typename T>

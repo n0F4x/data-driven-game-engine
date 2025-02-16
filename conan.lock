@@ -12,9 +12,12 @@
         "glm/1.0.1#94392c53a527f7d830119b84fe80c754%1713951421.775",
         "glfw/3.4#41cc24c744dc4c80571f5dd10dcd9cda%1732635892.515",
         "fmt/11.0.2#5c7438ef4d5d69ab106a41e460ce11f3%1721637745.688",
-        "entt/3.14.0#578c094ee0af1ad2882005a294d92f38%1730025813.55"
+        "entt/3.14.0#578c094ee0af1ad2882005a294d92f38%1730025813.55",
+        "catch2/3.8.0"
     ],
-    "build_requires": [],
+    "build_requires": [
+        "cmake/3.30.5"
+    ],
     "python_requires": [],
     "config_requires": []
 }

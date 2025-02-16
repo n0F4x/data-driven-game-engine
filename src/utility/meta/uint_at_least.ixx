@@ -34,6 +34,6 @@ struct uint_at_least<SizeInBits_V> {
 };
 
 export template <size_t SizeInBits_V>
-using uint_at_least_t = uint_at_least<SizeInBits_V>;
+using uint_at_least_t = typename uint_at_least<SizeInBits_V>::type;
 
 }   // namespace util::meta
