@@ -48,6 +48,8 @@ add_subdirectory(src)
 
 if (NOT engine_test)
     add_subdirectory(examples)
+else ()
+    add_subdirectory(test)
 endif ()
 
 

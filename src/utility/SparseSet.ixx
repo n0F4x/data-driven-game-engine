@@ -1,13 +1,12 @@
 module;
 
 #include <bitset>
+#include <cassert>
 #include <concepts>
 #include <limits>
 #include <ranges>
 #include <utility>
 #include <vector>
-
-#include <catch2/catch_test_macros.hpp>
 
 export module utility.SparseSet;
 
@@ -15,7 +14,6 @@ import utility.meta.concepts.nothrow_movable;
 import utility.meta.type_traits.forward_like;
 import utility.meta.uint_at_least;
 import utility.OptionalRef;
-import utility.ScopeGuard;
 
 namespace util {
 
@@ -30,18 +28,18 @@ public:
     using Key = Key_T;
 
     template <typename... Args>
-    auto emplace(Args&&... args) -> Key;
+    constexpr auto emplace(Args&&... args) -> Key;
 
-    auto erase(Key key) -> bool;
+    constexpr auto erase(Key key) -> bool;
 
     template <typename Self>
     [[nodiscard]]
-    auto get(this Self&&, Key key) -> meta::forward_like_t<T, Self>;
+    constexpr auto get(this Self&&, Key key) -> meta::forward_like_t<T, Self>;
 
     [[nodiscard]]
-    auto find(Key key) -> OptionalRef<T>;
+    constexpr auto find(Key key) -> OptionalRef<T>;
     [[nodiscard]]
-    auto find(Key key) const -> OptionalRef<const T>;
+    constexpr auto find(Key key) const -> OptionalRef<const T>;
 
 private:
     constexpr static uint8_t key_bit_size{ sizeof(Key_T) * 8 };
@@ -172,7 +170,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::make_pointer(
 template <key_c Key_T, typename T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 template <typename... Args>
-auto SparseSet<Key_T, T, version_bits_T>::emplace(Args&&... args) -> Key
+constexpr auto SparseSet<Key_T, T, version_bits_T>::emplace(Args&&... args) -> Key
 {
     m_values.emplace_back(std::forward<Args>(args)...);
     const Index new_index{ m_values.size() - 1 };
@@ -212,7 +210,7 @@ auto SparseSet<Key_T, T, version_bits_T>::emplace(Args&&... args) -> Key
 
 template <key_c Key_T, typename T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
-auto SparseSet<Key_T, T, version_bits_T>::erase(const Key key) -> bool
+constexpr auto SparseSet<Key_T, T, version_bits_T>::erase(const Key key) -> bool
 {
     const Index id{ id_from_key(key) };
     if (id >= m_pointers.size()) {
@@ -249,21 +247,21 @@ auto SparseSet<Key_T, T, version_bits_T>::erase(const Key key) -> bool
 template <key_c Key_T, typename T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 template <typename Self>
-auto SparseSet<Key_T, T, version_bits_T>::get(this Self&& self, const Key key)
+constexpr auto SparseSet<Key_T, T, version_bits_T>::get(this Self&& self, const Key key)
     -> meta::forward_like_t<T, Self>
 {
-    assert(
-        version_from_key(key) == version_from_pointer(self.m_pointers[id_from_key(key)])
-    );
+    const Index id{ id_from_key(key) };
+    const Key   pointer{ self.m_pointers[id] };
 
-    return std::forward_like<Self>(
-        self.m_values.at(index_from_pointer(self.m_pointers[id_from_key(key)]))
-    );
+    assert(id < self.m_pointers.size());
+    assert(version_from_key(key) == version_from_pointer(pointer));
+
+    return std::forward_like<Self>(self.m_values[index_from_pointer(pointer)]);
 }
 
 template <key_c Key_T, typename T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
-auto SparseSet<Key_T, T, version_bits_T>::find(const Key key) -> OptionalRef<T>
+constexpr auto SparseSet<Key_T, T, version_bits_T>::find(const Key key) -> OptionalRef<T>
 {
     const Index id{ id_from_key(key) };
     if (id >= m_pointers.size()) {
@@ -273,9 +271,7 @@ auto SparseSet<Key_T, T, version_bits_T>::find(const Key key) -> OptionalRef<T>
     const Pointer pointer{ m_pointers[id] };
     const Index   index{ index_from_pointer(pointer) };
     const Version version{ version_from_pointer(pointer) };
-    const auto    v = (key & version_mask)
-                >> (key_bit_size - first_version_bit - version_bit_size);
-    if (index == invalid_index || v != version) {
+    if (version_from_key(key) != version) {
         return std::nullopt;
     }
 
@@ -284,7 +280,7 @@ auto SparseSet<Key_T, T, version_bits_T>::find(const Key key) -> OptionalRef<T>
 
 template <key_c Key_T, typename T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
-auto SparseSet<Key_T, T, version_bits_T>::find(const Key key) const
+constexpr auto SparseSet<Key_T, T, version_bits_T>::find(const Key key) const
     -> OptionalRef<const T>
 {
     return const_cast<SparseSet>(*this).find(key);
@@ -296,49 +292,82 @@ module :private;
 
 #ifdef ENGINE_ENABLE_TESTS
 
-TEST_CASE(typeid(util::SparseSet<uint64_t, int>).name(), "[SparseSet]")
-{
-    using Key   = uint64_t;
-    using Value = int;
-    util::SparseSet<Key, Value> sparse_set;
-    constexpr Value             value = 8;
+using Key   = uint64_t;
+using Value = int;
+constexpr Value value{ 8 };
+constexpr Key   missing_key{ std::numeric_limits<Key>::max() };
 
-    SECTION("emplace")
-    {
-        sparse_set.emplace(value);
-    }
+static_assert(
+    [] {
+        util::SparseSet<Key, Value> sparse_set;
+        const Key                   key{ sparse_set.emplace(value) };
 
-    SECTION("get")
-    {
-        const Key key{ sparse_set.emplace(value) };
-        REQUIRE(sparse_set.get(key) == value);
-    }
+        assert(sparse_set.get(key) == value);
 
-    SECTION("find")
-    {
-        const Key key{ sparse_set.emplace(value) };
-        REQUIRE(*sparse_set.find(key) == value);
+        return true;
+    }(),
+    "get test failed"
+);
 
-        constexpr Key missing_key{ 100'000 };
-        REQUIRE(!sparse_set.find(missing_key).has_value());
-    }
+static_assert(
+    [] {
+        util::SparseSet<Key, Value> sparse_set;
+        const Key                   key{ sparse_set.emplace(value) };
 
-    SECTION("erase")
-    {
-        const Key key{ sparse_set.emplace(value) };
+        assert(*sparse_set.find(key) == value);
 
-        REQUIRE(sparse_set.erase(key));
-        REQUIRE(!sparse_set.erase(key));
-    }
+        return true;
+    }(),
+    "find contained value test failed"
+);
 
-    SECTION("version is updated")
-    {
-        const Key old_key{ sparse_set.emplace(value) };
+static_assert(
+    [] {
+        util::SparseSet<Key, Value> sparse_set;
+
+        assert(!sparse_set.find(missing_key).has_value());
+
+        return true;
+    }(),
+    "find missing value test failed"
+);
+
+static_assert(
+    [] {
+        util::SparseSet<Key, Value> sparse_set;
+        const Key                   key{ sparse_set.emplace(value) };
+
+        assert(sparse_set.erase(key));
+        assert(!sparse_set.find(key).has_value());
+
+        return true;
+    }(),
+    "erase contained value test failed"
+);
+
+static_assert(
+    [] {
+        util::SparseSet<Key, Value> sparse_set;
+
+        assert(!sparse_set.erase(missing_key));
+
+        return true;
+    }(),
+    "erase missing value test failed"
+);
+
+static_assert(
+    [] {
+        util::SparseSet<Key, Value> sparse_set;
+        const Key                   old_key{ sparse_set.emplace(value) };
         sparse_set.erase(old_key);
-        REQUIRE(!sparse_set.find(old_key).has_value());
         sparse_set.emplace(value);
-        REQUIRE(!sparse_set.find(old_key).has_value());
-    }
-}
+
+        assert(!sparse_set.find(old_key).has_value());
+
+        return true;
+    }(),
+    "version test failed"
+);
 
 #endif
