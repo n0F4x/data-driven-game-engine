@@ -30,6 +30,7 @@ import utility.meta.type_traits.is_specialization_of;
 import utility.meta.type_traits.remove_wrapper_if;
 import utility.meta.type_traits.underlying;
 
+import utility.OptionalRef;
 import utility.tuple;
 
 namespace ecs {
@@ -177,51 +178,56 @@ class Query {
         std::tuple>;
 
 public:
-    class Iterator {
-        template <typename T>
-        struct convert_to_proper_reference {
-            using type = T&;
-        };
-
-        template <typename T>
-            requires(is_specialization_of_Optional<T>::value)
-        struct convert_to_proper_reference<T> {
-            using type =
-                std::optional<std::reference_wrapper<util::meta::underlying_t<T>>>;
-        };
-
-        using Value = util::meta::type_list_to_t<
-            util::meta::
-                type_list_transform_t<ExtendedComponents, convert_to_proper_reference>,
-            std::tuple>;
-
-    public:
-        [[nodiscard]]
-        auto operator==(Iterator other) const -> bool;
-        auto operator++() -> Iterator&;
-        auto operator++(int) -> Iterator;
-        [[nodiscard]]
-        auto operator*() const -> Value;
-
-    private:
-        friend Query;
-
-        typename View::iterator m_iterator;
-        Query                   m_query;
-
-        Iterator(typename View::iterator iterator, Query query);
-    };
+    class Iterator;
 
     explicit Query(entt::registry& registry);
 
     auto begin() const -> Iterator;
     auto end() const -> Iterator;
 
+    template <typename F>
+    auto each(F&& func) const -> void;
+
 private:
     friend Iterator;
 
     View                  m_view;
     OptionalStoragesTuple m_optional_storages;
+};
+
+template <queryable_c... Filters_T>
+    requires(no_duplicate_filter<Filters_T...>)
+class Query<Filters_T...>::Iterator {
+    template <typename T>
+    struct convert_to_proper_reference {
+        using type = T&;
+    };
+
+    template <typename T>
+        requires(is_specialization_of_Optional<T>::value)
+    struct convert_to_proper_reference<T> {
+        using type = util::OptionalRef<util::meta::underlying_t<T>>;
+    };
+
+    using Value = util::meta::type_list_to_t<
+        util::meta::type_list_transform_t<ExtendedComponents, convert_to_proper_reference>,
+        std::tuple>;
+
+public:
+    [[nodiscard]]
+    auto operator==(Iterator other) const -> bool;
+    auto operator++() -> Iterator&;
+    auto operator++(int) -> Iterator;
+    [[nodiscard]]
+    auto operator*() const -> Value;
+
+private:
+    friend Query;
+
+    typename View::iterator m_iterator;
+    Query                   m_query;
+
+    Iterator(typename View::iterator iterator, Query query);
 };
 
 }   // namespace ecs
@@ -261,7 +267,7 @@ auto ecs::Query<Filters_T...>::Iterator::operator*() const -> Value
             }
             else if constexpr (is_specialization_of_Optional<Component>::value) {
                 using RealComp   = util::meta::underlying_t<Component>;
-                using ReturnType = std::optional<std::reference_wrapper<RealComp>>;
+                using ReturnType = util::OptionalRef<RealComp>;
 
                 if (auto& storage{
                         std::get<std::reference_wrapper<storage_for_component_t<RealComp>>>(
@@ -331,4 +337,14 @@ template <ecs::queryable_c... Filters_T>
 auto ecs::Query<Filters_T...>::end() const -> Iterator
 {
     return Iterator{ m_view.end(), *this };
+}
+
+template <ecs::queryable_c... Filters_T>
+    requires(ecs::no_duplicate_filter<Filters_T...>)
+template <typename F>
+auto ecs::Query<Filters_T...>::each(F&& func) const -> void
+{
+    for (auto&& tuple : *this) {
+        std::apply(func, std::forward<decltype(tuple)>(tuple));
+    }
 }

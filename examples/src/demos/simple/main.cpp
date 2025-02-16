@@ -5,7 +5,7 @@
 import core.app;
 import addons;
 import extensions;
-import plugins;
+import utility;
 
 import ecs;
 
@@ -29,17 +29,18 @@ auto game_loop(
         ecs::Optional<Renderable, const Collider>> entities
 ) -> void
 {
-    for (auto [position, opt_renderable, opt_collider] : entities)
-    {
-        static_assert(std::same_as<
-                      decltype(opt_renderable),
-                      std::optional<std::reference_wrapper<Renderable>>>);
+    for (auto [position, opt_renderable, opt_collider] : entities) {
+        static_assert(std::same_as<decltype(opt_renderable), util::OptionalRef<Renderable>>);
         static_assert(std::same_as<
                       decltype(opt_collider),
-                      std::optional<std::reference_wrapper<const Collider>>>);
+                      util::OptionalRef<const Collider>>);
 
         std::println("{}", position);
     }
+
+    entities.each([](const Position,
+                     util::OptionalRef<Renderable>,
+                     util::OptionalRef<const Collider>) {});
 
     window->create(sf::VideoMode::getDesktopMode(), "Simple Window");
 
