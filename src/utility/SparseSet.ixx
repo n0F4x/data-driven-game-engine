@@ -18,10 +18,12 @@ import utility.OptionalRef;
 namespace util {
 
 template <typename T>
-concept key_c = std::unsigned_integral<T> && !std::is_const_v<T>
-             && util::meta::nothrow_movable_c<T>;
+concept key_c = std::unsigned_integral<T> && !std::is_const_v<T>;
 
-export template <key_c Key_T, typename T, uint8_t version_bits_T = sizeof(Key_T) * 2>
+template <typename T>
+concept value_c = !std::is_const_v<T> && util::meta::nothrow_movable_c<T>;
+
+export template <key_c Key_T, value_c T, uint8_t version_bits_T = sizeof(Key_T) * 2>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 class SparseSet {
 public:
@@ -99,7 +101,7 @@ private:
     constexpr static auto make_pointer(Index index, Version version) noexcept -> Pointer;
 };
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 constexpr auto SparseSet<Key_T, T, version_bits_T>::id_from_key(const Key key) noexcept
     -> Index
@@ -109,7 +111,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::id_from_key(const Key key) n
     );
 }
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 constexpr auto SparseSet<Key_T, T, version_bits_T>::version_from_key(
     const Key key
@@ -120,7 +122,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::version_from_key(
     );
 }
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 constexpr auto SparseSet<Key_T, T, version_bits_T>::make_key(
     const Index   index,
@@ -133,7 +135,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::make_key(
             & version_mask);
 }
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 constexpr auto SparseSet<Key_T, T, version_bits_T>::index_from_pointer(
     const Pointer pointer
@@ -144,7 +146,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::index_from_pointer(
     return id_from_key(pointer);
 }
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 constexpr auto SparseSet<Key_T, T, version_bits_T>::version_from_pointer(
     const Pointer pointer
@@ -155,7 +157,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::version_from_pointer(
     return version_from_key(pointer);
 }
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 constexpr auto SparseSet<Key_T, T, version_bits_T>::make_pointer(
     const Index   index,
@@ -167,7 +169,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::make_pointer(
     return make_key(index, version);
 }
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 template <typename... Args>
 constexpr auto SparseSet<Key_T, T, version_bits_T>::emplace(Args&&... args) -> Key
@@ -208,7 +210,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::emplace(Args&&... args) -> K
     }();
 }
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 constexpr auto SparseSet<Key_T, T, version_bits_T>::erase(const Key key) -> bool
 {
@@ -244,7 +246,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::erase(const Key key) -> bool
     return true;
 }
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 template <typename Self>
 constexpr auto SparseSet<Key_T, T, version_bits_T>::get(this Self&& self, const Key key)
@@ -259,7 +261,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::get(this Self&& self, const 
     return std::forward_like<Self>(self.m_values[index_from_pointer(pointer)]);
 }
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 constexpr auto SparseSet<Key_T, T, version_bits_T>::find(const Key key) -> OptionalRef<T>
 {
@@ -278,7 +280,7 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::find(const Key key) -> Optio
     return OptionalRef<T>{ m_values[index] };
 }
 
-template <key_c Key_T, typename T, uint8_t version_bits_T>
+template <key_c Key_T, value_c T, uint8_t version_bits_T>
     requires(sizeof(Key_T) * 8 > version_bits_T)
 constexpr auto SparseSet<Key_T, T, version_bits_T>::find(const Key key) const
     -> OptionalRef<const T>
