@@ -1,19 +1,40 @@
 module;
 
 #include <cassert>
+#include <locale>
 #include <memory>
 #include <optional>
+
+#ifdef ENGINE_ENABLE_TESTS
+  #include <expected>
+#endif
 
 export module utility.OptionalRef;
 
 namespace util {
 
+export template <typename T>
+class OptionalRef;
+
+}   // namespace util
+
 template <typename F, typename T>
 concept and_then_func_c =
-    std::constructible_from<std::invoke_result_t<F, T>, std::nullopt_t>;
+    std::constructible_from<std::invoke_result_t<F, T&>, std::nullopt_t>;
 
-template <typename F>
-concept or_else_func_c = std::constructible_from<std::invoke_result_t<F>, std::nullopt_t>;
+template <typename F, typename T>
+using transform_result_t = std::conditional_t<
+    std::is_reference_v<std::invoke_result_t<F, T&>>,
+    util::OptionalRef<std::remove_reference_t<std::invoke_result_t<F, T&>>>,
+    std::optional<std::invoke_result_t<F, T&>>>;
+
+template <typename F, typename T>
+concept transform_func_c = std::invocable<F, T&>;
+
+template <typename F, typename T>
+concept or_else_func_c = std::constructible_from<std::invoke_result_t<F>, T&>;
+
+namespace util {
 
 export template <typename T>
 class OptionalRef {
@@ -35,12 +56,12 @@ public:
     [[nodiscard]]
     constexpr auto value_or(T& other) const -> T&;
 
-    template <typename Self, and_then_func_c<T&> F>
-    constexpr auto and_then(this Self&&, F&& func);
-    template <typename Self, typename F>
-    constexpr auto transform(this Self&&, F&& func);
-    template <typename Self, or_else_func_c F>
-    constexpr auto or_else(this Self&&, F&& func);
+    template <and_then_func_c<T> F>
+    constexpr auto and_then(F&& func) const -> std::invoke_result_t<F, T>;
+    template <transform_func_c<T> F>
+    constexpr auto transform(F&& func) const -> transform_result_t<F, T>;
+    template <or_else_func_c<T> F>
+    constexpr auto or_else(F&& func) const -> std::invoke_result_t<F>;
 
 private:
     T* m_handle{};
@@ -93,41 +114,125 @@ constexpr auto util::OptionalRef<T>::value_or(T& other) const -> T&
 }
 
 template <typename T>
-template <typename Self, util::and_then_func_c<T&> F>
-constexpr auto util::OptionalRef<T>::and_then(this Self&& self, F&& func)
+template <and_then_func_c<T> F>
+constexpr auto util::OptionalRef<T>::and_then(F&& func) const
+    -> std::invoke_result_t<F, T>
 {
-    if (self.has_value()) {
-        return std::invoke(std::forward<F>(func), static_cast<T&>(*self.m_handle));
+    if (has_value()) {
+        return std::invoke(std::forward<F>(func), static_cast<T&>(*m_handle));
     }
     return std::nullopt;
 }
 
 template <typename T>
-template <typename Self, typename F>
-constexpr auto util::OptionalRef<T>::transform(this Self&& self, F&& func)
+template <transform_func_c<T> F>
+constexpr auto util::OptionalRef<T>::transform(F&& func) const -> transform_result_t<F, T>
 {
-    if (self.has_value()) {
-        using Result = std::invoke_result_t<F, T&>;
-        if constexpr (std::is_reference_v<Result>) {
-            return OptionalRef{
-                std::invoke(std::forward<F>(func), static_cast<T&>(*self.m_handle))
-            };
-        }
-        else {
-            return std::optional{
-                std::invoke(std::forward<F>(func), static_cast<T&>(*self.m_handle))
-            };
-        }
+    if (has_value()) {
+        return { std::invoke(std::forward<F>(func), static_cast<T&>(*m_handle)) };
     }
-    return std::forward<Self>(self);
+    return std::nullopt;
 }
 
 template <typename T>
-template <typename Self, util::or_else_func_c F>
-constexpr auto util::OptionalRef<T>::or_else(this Self&& self, F&& func)
+template <or_else_func_c<T> F>
+constexpr auto util::OptionalRef<T>::or_else(F&& func) const -> std::invoke_result_t<F>
 {
-    if (!self.has_value()) {
+    if (!has_value()) {
         return std::invoke(std::forward<F>(func));
     }
-    return std::forward<Self>(self);
+    return { **this };
 }
+
+module :private;
+
+#ifdef ENGINE_ENABLE_TESTS
+
+static_assert(
+    [] {
+        constexpr util::OptionalRef<int> optional_ref{};
+        [[maybe_unused]]
+        auto optional{ optional_ref.transform([](int&) -> float { return {}; }) };
+
+        static_assert(std::is_same_v<decltype(optional), std::optional<float>>);
+
+        return true;
+    }(),
+    "transform to optional test failed"
+);
+
+static_assert(
+    [] {
+        int                          value{ 2 };
+        const util::OptionalRef<int> optional_ref{ value };
+        constexpr static float       other_value{ 3.2f };
+        const auto                   optional{ optional_ref.transform([](int&) -> float {
+            return other_value;
+        }) };
+
+        assert(optional.value() == other_value);
+
+        return true;
+    }(),
+    "transform to optional with value test failed"
+);
+
+static_assert(
+    [] {
+        constexpr util::OptionalRef<int> optional_ref{};
+        constexpr static float           other_value{ 3.2f };
+        constexpr auto optional{ optional_ref.transform([](int&) -> float {
+            return other_value;
+        }) };
+
+        assert(!optional.has_value());
+
+        return true;
+    }(),
+    "transform to optional without value test failed"
+);
+
+static_assert(
+    [] {
+        constexpr util::OptionalRef<int> optional{};
+        [[maybe_unused]]
+        auto expected{ optional.or_else([] -> std::expected<int, float> { return {}; }) };
+
+        static_assert(std::is_same_v<decltype(expected), std::expected<int, float>>);
+
+        return true;
+    }(),
+    "or_else to expected test failed"
+);
+
+static_assert(
+    [] {
+        int                          value{ 2 };
+        const util::OptionalRef<int> optional{ value };
+        const auto expected{ optional.or_else([] -> std::expected<int, float> {
+            return {};
+        }) };
+
+        assert(expected.value() == value);
+
+        return true;
+    }(),
+    "or_else with value test failed"
+);
+
+static_assert(
+    [] {
+        constexpr util::OptionalRef<int> optional{};
+        constexpr static float           error{ 6.7f };
+        constexpr auto expected{ optional.or_else([] -> std::expected<int, float> {
+            return std::unexpected<float>{ error };
+        }) };
+
+        assert(expected.error() == error);
+
+        return true;
+    }(),
+    "or_else without value test failed"
+);
+
+#endif

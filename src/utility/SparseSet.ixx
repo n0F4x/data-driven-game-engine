@@ -231,7 +231,6 @@ constexpr auto SparseSet<Key_T, T, version_bits_T>::erase(const Key key) -> bool
     const Index moved_id = m_ids[index] = std::move(m_ids.back());
     m_ids.pop_back();
     m_pointers[moved_id] = pointer;
-    // TODO: handle m_pointers.pop_back();
 
     if (oldest_dead_id == invalid_index) {
         oldest_dead_id = id;

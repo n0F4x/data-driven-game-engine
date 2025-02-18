@@ -1,7 +1,5 @@
 #include <print>
 
-#include <spdlog/spdlog.h>
-
 import core;
 import addons;
 import extensions;
@@ -17,7 +15,7 @@ import demos.virtual_texture.DemoApp;
 
 auto main() -> int
 try {
-    spdlog::set_level(spdlog::level::trace);
+    core::config::logging::set_level(core::config::logging::eTrace);
 
     core::app::create()
         .extend_with<extensions::Functional>()

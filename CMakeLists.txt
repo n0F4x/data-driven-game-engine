@@ -23,6 +23,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         -Wconversion
         -Werror
         -Wno-missing-field-initializers
+        -fvisibility=hidden
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE

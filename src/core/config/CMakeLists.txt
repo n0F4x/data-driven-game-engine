@@ -10,5 +10,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}
         FILES
         config.cppm
+        logging.ixx
         vulkan.ixx
 )

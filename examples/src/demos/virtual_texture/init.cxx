@@ -3,8 +3,6 @@ module;
 #include <filesystem>
 #include <source_location>
 
-#include <spdlog/spdlog.h>
-
 #include <vulkan/vulkan.hpp>
 
 #include <vk_mem_alloc.h>
