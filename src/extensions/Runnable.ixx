@@ -2,7 +2,7 @@ module;
 
 #include <concepts>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 export module extensions.Runnable;
 
@@ -46,7 +46,7 @@ auto extensions::Runnable::run(
         std::forward<Runner_T>(runner),
         [&] {
             auto app{ std::forward<Self_T>(self).build() };
-            SPDLOG_INFO("App is running");
+            ENGINE_LOG_INFO("App is running");
             return app;
         }(),
         std::forward<Args_T>(args)...

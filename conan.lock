@@ -6,6 +6,7 @@
         "tsl-ordered-map/1.1.0#8ddec55fa369456ef4319f42bcb9af49%1694770345.954",
         "stb/cci.20240531#ede183dce303916dab0c1b835df3926a%1720366012.336",
         "spdlog/1.15.0#da21f74dd84627fa68601c4e3b9c3f00%1731353167.297",
+        "plf_colony/7.39",
         "opengl/system#4df6fecde4084386beded3ed0e56e4ea%1709801735.507",
         "ktx/4.3.2#5cdb5ff71d0bcca8f3f243946454c448%1716133493.851",
         "gsl-lite/0.42.0#1a0c9f187d3435370fd9752437abb768%1730720255.818",

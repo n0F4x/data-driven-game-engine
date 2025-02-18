@@ -2,7 +2,7 @@ module;
 
 #include <gsl-lite/gsl-lite.hpp>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 #include <vulkan/vulkan.hpp>
 

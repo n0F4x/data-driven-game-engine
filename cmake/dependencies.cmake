@@ -34,7 +34,7 @@ find_package(glfw3 CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         GLFW_INCLUDE_VULKAN
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # Vulkan
 find_package(VulkanHeaders CONFIG REQUIRED)
@@ -56,7 +56,7 @@ target_compile_definitions(VulkanHppModule PUBLIC
 target_compile_features(VulkanHppModule PUBLIC cxx_std_26)
 target_link_libraries(VulkanHppModule PUBLIC Vulkan::Headers)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC VulkanHppModule)
+target_link_libraries(${PROJECT_NAME} PRIVATE VulkanHppModule)
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
 endif ()
@@ -68,7 +68,7 @@ fetchcontent_declare(VulkanUtilityLibraries
         SYSTEM
 )
 fetchcontent_makeavailable(VulkanUtilityLibraries)
-target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::UtilityHeaders)
+target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::UtilityHeaders)
 
 # VulkanMemoryAllocator
 fetchcontent_declare(VulkanMemoryAllocator
@@ -81,7 +81,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         VMA_STATIC_VULKAN_FUNCTIONS=0
         VMA_DYNAMIC_VULKAN_FUNCTIONS=0
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC GPUOpen::VulkanMemoryAllocator)
+target_link_libraries(${PROJECT_NAME} PRIVATE GPUOpen::VulkanMemoryAllocator)
 
 # vk-bootstrap
 fetchcontent_declare(vk-bootstrap
@@ -90,22 +90,22 @@ fetchcontent_declare(vk-bootstrap
         SYSTEM
 )
 fetchcontent_makeavailable(vk-bootstrap)
-target_link_libraries(${PROJECT_NAME} PUBLIC vk-bootstrap::vk-bootstrap)
+target_link_libraries(${PROJECT_NAME} PRIVATE vk-bootstrap::vk-bootstrap)
 
 # glm
 find_package(glm CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         GLM_FORCE_DEPTH_ZERO_TO_ONE
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 
 # KTX
 find_package(Ktx CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC KTX::ktx)
+target_link_libraries(${PROJECT_NAME} PRIVATE KTX::ktx)
 
 # stb
 find_package(stb CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC stb::stb)
+target_link_libraries(${PROJECT_NAME} PRIVATE stb::stb)
 
 # fastgltf
 fetchcontent_declare(fastgltf
@@ -116,8 +116,8 @@ fetchcontent_declare(fastgltf
 # TODO: enable modules
 set(FASTGLTF_COMPILE_AS_CPP20 ON)
 fetchcontent_makeavailable(fastgltf)
-target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)
+target_link_libraries(${PROJECT_NAME} PRIVATE fastgltf::fastgltf)
 
 # EnTT
 find_package(EnTT CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC EnTT::EnTT)
+target_link_libraries(${PROJECT_NAME} PRIVATE EnTT::EnTT)

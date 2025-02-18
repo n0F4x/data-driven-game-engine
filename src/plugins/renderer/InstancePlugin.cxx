@@ -2,7 +2,7 @@ module;
 
 #include <ranges>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
@@ -154,7 +154,7 @@ auto InstancePlugin::operator()() const -> core::renderer::base::Instance
 
     const auto system_info_result{ vkb::SystemInfo::get_system_info() };
     if (!system_info_result.has_value()) {
-        SPDLOG_ERROR(system_info_result.error().message());
+        ENGINE_LOG_ERROR(system_info_result.error().message());
         throw std::runtime_error{ system_info_result.error().message() };
     }
     const vkb::SystemInfo& system_info{ system_info_result.value() };
@@ -187,7 +187,7 @@ auto InstancePlugin::operator()() const -> core::renderer::base::Instance
 
     const vkb::Result<vkb::Instance> instance_result{ instance_builder.build() };
     if (!instance_result.has_value()) {
-        SPDLOG_ERROR(instance_result.error().message());
+        ENGINE_LOG_ERROR(instance_result.error().message());
         throw std::runtime_error{ instance_result.error().message() };
     }
 

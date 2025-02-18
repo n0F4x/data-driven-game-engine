@@ -3,7 +3,7 @@ module;
 #include <algorithm>
 #include <expected>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 #include <VkBootstrap.h>
 
@@ -24,7 +24,7 @@ auto plugins::renderer::SurfacePlugin::operator()(
     };
 
     if (!expected_surface.has_value()) {
-        SPDLOG_ERROR("Vulkan surface creation failed");
+        ENGINE_LOG_ERROR("Vulkan surface creation failed");
         throw std::runtime_error{ "Vulkan surface creation failed" };
     }
 

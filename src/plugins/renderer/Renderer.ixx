@@ -2,7 +2,7 @@ module;
 
 #include <functional>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 #include <VkBootstrap.h>
 
@@ -194,7 +194,7 @@ auto plugins::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T&& 
             return core::renderer::base::Allocator{ instance, device };
         })
         .transform([](Builder_T&& b) -> Builder_T {
-            SPDLOG_TRACE("Added Renderer plugin group");
+            ENGINE_LOG_TRACE("Added Renderer plugin group");
             return std::forward<Builder_T>(b);
         });
 }

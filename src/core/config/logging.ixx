@@ -1,6 +1,6 @@
 module;
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 export module core.config.logging;
 
@@ -24,6 +24,6 @@ module :private;
 
 auto core::config::logging::set_level(const Level level) -> void
 {
-    spdlog::default_logger()->flush();
-    spdlog::set_level(static_cast<spdlog::level::level_enum>(level));
+    core::log::internal::logger().flush();
+    core::log::internal::logger().set_level(static_cast<spdlog::level::level_enum>(level));
 }

@@ -4,7 +4,7 @@ module;
 #include <limits>
 #include <ranges>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
@@ -77,7 +77,7 @@ auto SwapchainHolder::acquire_next_image(
                             return image_index;
                         }
                         default: {
-                            SPDLOG_ERROR(
+                            ENGINE_LOG_ERROR(
                                 "vk::Device::acquireNextImage succeeded with unexpected "
                                 "result: "
                                 "{}",

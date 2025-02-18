@@ -2,7 +2,7 @@ module;
 
 #include <concepts>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 export module core.app.Builder;
 
@@ -78,7 +78,7 @@ template <extension_c... Extensions_T>
 template <typename Self>
 constexpr auto core::app::Builder<Extensions_T...>::build(this Self&& self)
 {
-    SPDLOG_INFO("Building app");
+    ENGINE_LOG_INFO("Building app");
     return std::forward<Self>(self).Base::build(App<>{});
 }
 

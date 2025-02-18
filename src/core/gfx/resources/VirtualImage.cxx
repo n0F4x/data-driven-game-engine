@@ -3,7 +3,7 @@ module;
 #include <numeric>
 #include <ranges>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 #include <vulkan/utility/vk_format_utils.h>
 #include <vulkan/vulkan_format_traits.hpp>
@@ -42,7 +42,7 @@ static auto create_image(
 ) -> core::renderer::base::Image
 {
     if (!vkuFormatIsColor(static_cast<VkFormat>(source.format()))) {
-        SPDLOG_ERROR(
+        ENGINE_LOG_ERROR(
             "Sparse image creation is only supported for color formats (given format was "
             "`{}`)",
             vk::to_string(source.format())
@@ -61,7 +61,7 @@ static auto create_image(
             )
             .empty())
     {
-        SPDLOG_ERROR(
+        ENGINE_LOG_ERROR(
             "Sparse image creation are not supported for given format `{}`",
             vk::to_string(source.format())
         );
@@ -142,7 +142,7 @@ core::gfx::resources::VirtualImage::Loader::Loader(
             physical_device.getProperties().limits.sparseAddressSpaceSize };
         m_memory_requirements.size > sparse_address_space_size)
     {
-        SPDLOG_ERROR(
+        ENGINE_LOG_ERROR(
             "Requested sparse image size ({}) "
             "exceeds supported sparse address space size ({})",
             m_memory_requirements.size,
@@ -156,7 +156,7 @@ core::gfx::resources::VirtualImage::Loader::Loader(
     }
 
     if (source.mip_level_count() <= m_sparse_requirements.imageMipTailFirstLod) {
-        SPDLOG_ERROR("Image source has not enough mip levels for it to be virtual");
+        ENGINE_LOG_ERROR("Image source has not enough mip levels for it to be virtual");
         spdlog::shutdown();
         assert(false && "Image source has not enough mip levels for it to be virtual");
     }
@@ -334,7 +334,7 @@ auto core::gfx::resources::VirtualImage::blocks() const -> std::span<const Block
 
 auto core::gfx::resources::VirtualImage::request_block(const uint32_t block_index) -> void
 {
-    // SPDLOG_DEBUG("Requested block at index {}", block_index);
+    // ENGINE_LOG_DEBUG("Requested block at index {}", block_index);
     m_to_be_loaded_mask.at(block_index) = true;
 }
 
@@ -363,7 +363,7 @@ auto core::gfx::resources::VirtualImage::request_blocks_by_distance_from_camera(
     );
 
     // if (request_block_count != 0) {
-    //     SPDLOG_DEBUG("Request {} blocks by distance", request_block_count);
+    //     ENGINE_LOG_DEBUG("Request {} blocks by distance", request_block_count);
     // }
 }
 

@@ -4,7 +4,7 @@ module;
 #include <filesystem>
 #include <ranges>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 #include <fastgltf/types.hpp>
 
@@ -105,7 +105,7 @@ auto core::gltf::ImageLoader::load_from(
             return std::make_unique<image::ktx2::Image>(image::ktx2::Image::load_from(data)
             );
         default: {
-            SPDLOG_WARN(
+            ENGINE_LOG_WARNING(
                 "Unsupported mime type for loading images: {}",
                 std::to_underlying(mime_type)
             );

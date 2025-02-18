@@ -4,7 +4,7 @@ module;
 #include <ranges>
 #include <span>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -290,7 +290,7 @@ auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optio
 {
     fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
-        SPDLOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
+        ENGINE_LOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
         return std::nullopt;
     }
 
@@ -304,7 +304,7 @@ auto Loader::load_from_file(
 {
     fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
-        SPDLOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
+        ENGINE_LOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
         return std::nullopt;
     }
 

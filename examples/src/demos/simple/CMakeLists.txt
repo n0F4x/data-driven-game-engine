@@ -27,6 +27,11 @@ target_sources(simple PRIVATE
         main.cpp
 )
 
+target_link_libraries(simple PRIVATE ${PROJECT_NAME})
+
+
+# Third-party dependencies
+
 fetchcontent_declare(SFML
         GIT_REPOSITORY https://github.com/SFML/SFML.git
         GIT_TAG 3.0.0
@@ -35,4 +40,4 @@ fetchcontent_declare(SFML
 fetchcontent_makeavailable(SFML)
 target_link_libraries(simple PRIVATE SFML::Graphics)
 
-target_link_libraries(simple PRIVATE ${PROJECT_NAME})
+target_link_libraries(simple PRIVATE EnTT::EnTT)

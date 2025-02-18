@@ -29,6 +29,13 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         CHECK_LIFETIME_BOUND
 )
+
+if (engine_debug)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+            ENGINE_LOG_LEVEL=ENGINE_LOG_LEVEL_OFF
+    )
+endif ()
+
 if (engine_test)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
             ENGINE_ENABLE_TESTS
@@ -42,7 +49,7 @@ endif ()
 include(cmake/dependencies.cmake)
 
 
-target_include_directories(${PROJECT_NAME} PUBLIC src)
+target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 add_subdirectory(src)
 

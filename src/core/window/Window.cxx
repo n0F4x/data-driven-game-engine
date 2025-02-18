@@ -6,11 +6,11 @@ module;
 
 #include <gsl-lite/gsl-lite.hpp>
 
-#include <spdlog/spdlog.h>
-
 #include <glm/ext/vector_double2.hpp>
 
 #include <GLFW/glfw3.h>
+
+#include "core/log/log.hpp"
 
 module core.window.Window;
 
@@ -20,7 +20,11 @@ import core.config.vulkan;
 
 static auto init_glfw() -> void
 {
-    glfwSetErrorCallback([](int, const char* description) { SPDLOG_ERROR(description); });
+    glfwSetErrorCallback([](int,
+                            [[maybe_unused]]
+                            const char* const description) {
+        ENGINE_LOG_ERROR(description);
+    });
 
     glfwInitVulkanLoader(core::config::vulkan::dispatcher().vkGetInstanceProcAddr);
 
@@ -34,7 +38,7 @@ static auto init_glfw() -> void
     }
 
     if (const int result{ std::atexit(glfwTerminate) }; result != 0) {
-        SPDLOG_ERROR("std::atexit failed with error code {}", result);
+        ENGINE_LOG_ERROR("std::atexit failed with error code {}", result);
     }
 }
 

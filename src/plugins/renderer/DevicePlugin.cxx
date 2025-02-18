@@ -1,8 +1,8 @@
 module;
 
-#include <spdlog/spdlog.h>
-
 #include <VkBootstrap.h>
+
+#include "core/log/log.hpp"
 
 module plugins.renderer.DevicePlugin;
 
@@ -15,20 +15,22 @@ import core.renderer.base.device.Device;
 
 static auto log_setup(const vkb::Device& device) -> void
 {
+    [[maybe_unused]]
     const uint32_t instance_version{ device.instance_version };
 
-    SPDLOG_INFO(
+    ENGINE_LOG_INFO(
         "Created Vulkan Instance with version: {}.{}.{}",
         vk::apiVersionMajor(instance_version),
         vk::apiVersionMinor(instance_version),
         vk::apiVersionPatch(instance_version)
     );
 
+    [[maybe_unused]]
     const vk::PhysicalDeviceProperties properties{
         vk::PhysicalDevice(device.physical_device.physical_device).getProperties()
     };
 
-    SPDLOG_INFO(
+    ENGINE_LOG_INFO(
         "Chose GPU({}) with Vulkan version: {}.{}.{}",
         device.physical_device.name,
         vk::apiVersionMajor(properties.apiVersion),
@@ -42,7 +44,7 @@ static auto log_setup(const vkb::Device& device) -> void
         enabled_extensions += '\t';
         enabled_extensions += extension;
     }
-    SPDLOG_DEBUG(enabled_extensions);
+    ENGINE_LOG_DEBUG(enabled_extensions);
 }
 
 namespace plugins::renderer {
@@ -65,7 +67,7 @@ auto DevicePlugin::operator()(
 
     vkb::Result physical_device_result{ physical_device_selector.select() };
     if (!physical_device_result.has_value()) {
-        SPDLOG_ERROR(physical_device_result.error().message());
+        ENGINE_LOG_ERROR(physical_device_result.error().message());
         throw std::runtime_error{ physical_device_result.error().message() };
     }
     vkb::PhysicalDevice& physical_device{ physical_device_result.value() };
@@ -80,7 +82,7 @@ auto DevicePlugin::operator()(
     const vkb::DeviceBuilder device_builder{ physical_device };
     const auto               device_result{ device_builder.build() };
     if (!device_result.has_value()) {
-        SPDLOG_ERROR(device_result.error().message());
+        ENGINE_LOG_ERROR(device_result.error().message());
         throw std::runtime_error{ device_result.error().message() };
     }
 

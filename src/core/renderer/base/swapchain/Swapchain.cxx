@@ -5,7 +5,7 @@ module;
 #include <set>
 #include <utility>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 module core.renderer.base.swapchain.Swapchain;
 

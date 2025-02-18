@@ -5,7 +5,7 @@ module;
 #include <functional>
 #include <type_traits>
 
-#include <spdlog/spdlog.h>
+#include "core/log/log.hpp"
 
 export module extensions.ResourceManager;
 

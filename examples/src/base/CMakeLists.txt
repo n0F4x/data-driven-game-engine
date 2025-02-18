@@ -19,7 +19,6 @@ if (engine_debug)
             SPDLOG_ACTIVE_LEVEL=${spdlog_level}
     )
 endif ()
-target_include_directories(base PUBLIC ../../src)
 target_sources(base PRIVATE
         DemoBase.cxx
         Controller.cxx
@@ -36,3 +35,9 @@ target_sources(base PUBLIC
         Renderer.ixx
 )
 target_link_libraries(base PRIVATE ${PROJECT_NAME})
+
+
+# Third-party dependencies
+target_link_libraries(base PRIVATE VulkanHppModule)
+target_link_libraries(base PRIVATE vk-bootstrap::vk-bootstrap)
+target_link_libraries(base PRIVATE glm::glm)
