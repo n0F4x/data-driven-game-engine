@@ -32,7 +32,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
-            ENGINE_LOG_LEVEL=ENGINE_LOG_LEVEL_OFF
+            ENGINE_LOG_LEVEL=ENGINE_LOG_LEVEL_DEBUG
     )
 endif ()
 
