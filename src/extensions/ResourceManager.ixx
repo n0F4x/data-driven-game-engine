@@ -4,8 +4,7 @@ module;
 #include <any>
 #include <functional>
 #include <type_traits>
-
-#include "core/log/log.hpp"
+#include <utility>
 
 export module extensions.ResourceManager;
 
@@ -15,7 +14,9 @@ import core.store.Store;
 
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.invoke_result_of;
-import utility.tuple.generate_tuple_from;
+import utility.meta.type_traits.type_list.type_list_drop_back;
+import utility.meta.type_traits.select_last;
+import utility.tuple;
 
 import addons.ResourceManager;
 
@@ -28,63 +29,85 @@ export template <typename Injection_T>
 concept injection_c = resource_c<
     util::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Injection_T>>>>;
 
-using InjectionInvocation =
-    std::function<void(core::store::Store& injections, core::store::Store& resources)>;
+}   // namespace extensions
 
-template <typename Injection_T>
-[[nodiscard]]
-auto create_injection_invocation() -> InjectionInvocation;
+template <extensions::injection_c... Injections_T>
+class ResourceManager;
 
-export class ResourceManager {
+namespace extensions {
+
+export using ResourceManager = ::ResourceManager<>;
+
+export struct ResourceManagerTag {};
+
+}   // namespace extensions
+
+template <typename... Injections_T>
+using old_resource_manager_t =
+    util::meta::type_list_drop_back_t<ResourceManager<Injections_T...>>;
+
+template <extensions::injection_c... Injections_T>
+class ResourceManager {
 public:
-    template <typename Self_T, typename Resource_T>
-    auto use_resource(this Self_T&&, Resource_T&& resource) -> Self_T;
+    using ExtensionTag = extensions::ResourceManagerTag;
 
-    template <typename Self_T, injection_c Injection_T>
-    auto inject_resource(this Self_T&&, Injection_T&& injection) -> Self_T;
+    constexpr ResourceManager() = default;
+
+    template <typename OldResourceManager, typename... Args>
+        requires std::same_as<
+            std::remove_cvref_t<OldResourceManager>,
+            old_resource_manager_t<Injections_T...>>
+    constexpr ResourceManager(
+        OldResourceManager&& old_resource_manager,
+        std::in_place_t,
+        Args&&... args
+    );
+
+    template <core::app::builder_c Self_T, typename Resource_T>
+        requires extensions::resource_c<std::remove_cvref_t<Resource_T>>
+    auto use_resource(this Self_T&&, Resource_T&& resource);
+
+    template <core::app::builder_c Self_T, extensions::injection_c Injection_T>
+    auto inject_resource(this Self_T&&, Injection_T&& injection);
 
 protected:
     template <core::app::app_c App_T>
     auto operator()(App_T&& app) &&;
 
 private:
-    core::store::Store               m_injections;
-    std::vector<InjectionInvocation> m_invocations;
+    template <extensions::injection_c...>
+    friend class ResourceManager;
+
+    std::tuple<std::decay_t<Injections_T>...> m_injections;
 };
 
-}   // namespace extensions
+template <extensions::injection_c... Injections_T>
+template <typename OldResourceManager, typename... Args>
+    requires std::same_as<
+        std::remove_cvref_t<OldResourceManager>,
+        old_resource_manager_t<Injections_T...>>
+constexpr ResourceManager<Injections_T...>::ResourceManager(
+    OldResourceManager&& old_resource_manager,
+    std::in_place_t,
+    Args&&... args
+)
+    : m_injections{ std::tuple_cat(
+          std::forward_like<OldResourceManager>(old_resource_manager.m_injections),
+          std::make_tuple(
+              std::decay_t<util::meta::select_last_t<Injections_T...>>(
+                  std::forward<Args>(args)...
+              )
+          )
+      ) }
+{}
 
-template <typename Callable_T>
-auto gather_parameters(core::store::Store& store)
-{
-    using RequiredResourcesTuple = util::meta::arguments_of_t<Callable_T>;
-    return util::generate_tuple_from<RequiredResourcesTuple>(
-        [&store]<typename Resource>() -> Resource {
-            return store.at<std::remove_cvref_t<Resource>>();
-        }
-    );
-}
-
-template <typename Injection_T>
-auto extensions::create_injection_invocation() -> InjectionInvocation
-{
-    return [](core::store::Store& injections, core::store::Store& resources) {
-        using Injection = std::decay_t<Injection_T>;
-        using ResourceType =
-            util::meta::invoke_result_of_t<std::remove_pointer_t<Injection>>;
-
-        if (!resources.contains<ResourceType>()) {
-            resources.emplace<ResourceType>(std::apply(
-                std::ref(injections.at<Injection>()),
-                ::gather_parameters<std::remove_pointer_t<Injection>>(resources)
-            ));
-        }
-    };
-}
-
-template <typename Self_T, typename Resource_T>
-auto extensions::ResourceManager::use_resource(this Self_T&& self, Resource_T&& resource)
-    -> Self_T
+template <extensions::injection_c... Injections_T>
+template <core::app::builder_c Self_T, typename Resource_T>
+    requires extensions::resource_c<std::remove_cvref_t<Resource_T>>
+auto ResourceManager<Injections_T...>::use_resource(
+    this Self_T&& self,
+    Resource_T&&  resource
+)
 {
     using Resource = std::remove_cvref_t<Resource_T>;
 
@@ -102,11 +125,33 @@ auto extensions::ResourceManager::use_resource(this Self_T&& self, Resource_T&& 
     );
 }
 
-template <typename Self_T, extensions::injection_c Injection_T>
-auto extensions::ResourceManager::inject_resource(
+template <typename>
+struct gather_helper;
+
+template <template <typename...> typename TypeList_T, typename... SelectedTypes_T>
+struct gather_helper<TypeList_T<SelectedTypes_T...>> {
+    template <typename... Ts>
+    [[nodiscard]]
+    static auto operator()(std::tuple<Ts...>& tuple) -> std::tuple<SelectedTypes_T...>
+    {
+        return { std::get<std::remove_cvref_t<SelectedTypes_T>>(tuple)... };
+    }
+};
+
+template <typename Callable_T, typename... Ts>
+auto gather_parameters(std::tuple<Ts...>& tuple)
+{
+    using RequiredResourcesTuple_T = util::meta::arguments_of_t<Callable_T>;
+
+    return gather_helper<RequiredResourcesTuple_T>::operator()(tuple);
+}
+
+template <extensions::injection_c... Injections_T>
+template <core::app::builder_c Self_T, extensions::injection_c Injection_T>
+auto ResourceManager<Injections_T...>::inject_resource(
     this Self_T&& self,
     Injection_T&& injection
-) -> Self_T
+)
 {
     if constexpr (requires { requires std::is_function_v<decltype(Injection_T::setup)>; })
     {
@@ -126,40 +171,66 @@ auto extensions::ResourceManager::inject_resource(
         );
     }
 
-    self.m_injections.template emplace<std::decay_t<Injection_T>>(
-        std::forward<Injection_T>(injection)
+    return std::forward<Self_T>(self).template swap_extension<ResourceManager>(
+        [&]<typename ResourceManager_T>
+            requires(std::is_same_v<std::remove_cvref_t<ResourceManager_T>, ResourceManager>)
+        (ResourceManager_T&& resource_manager) {
+            return ResourceManager<Injections_T..., std::decay_t<Injection_T>>{
+                std::forward<ResourceManager_T>(resource_manager),
+                std::in_place,
+                std::forward<Injection_T>(injection)
+            };
+        }
     );
-    self.m_invocations.push_back(create_injection_invocation<Injection_T>());
-
-    return std::forward<Self_T>(self);
 }
 
-template <core::app::app_c App_T>
-auto extensions::ResourceManager::operator()(App_T&& app) &&
+template <
+    template <typename...> typename ResourcesTuple_T,
+    typename... Resources_T,
+    template <typename...> typename InjectionsTuple_T,
+    typename... Injections_T>
+auto invoke_injections(
+    ResourcesTuple_T<Resources_T...>&&   resources,
+    InjectionsTuple_T<Injections_T...>&& injections
+)
 {
-    constexpr static auto transform_app{ []<typename X_App_T>(X_App_T&& x_app) {
-        if constexpr (!core::app::has_addons_c<App_T, addons::ResourceManager>) {
-            return std::forward<App_T>(x_app).template add_on<addons::ResourceManager>();
-        }
-        else {
-            return std::forward<App_T>(x_app);
-        }
-    } };
+    if constexpr (sizeof...(Injections_T) == 0) {
+        return std::forward<ResourcesTuple_T<Resources_T...>>(resources);
+    }
+    else {
+        return invoke_injections(
+            std::tuple_cat(
+                std::forward<ResourcesTuple_T<Resources_T...>>(resources),
+                std::tuple<util::meta::invoke_result_of_t<
+                    std::remove_pointer_t<std::decay_t<Injections_T...[0]>>>>{
+                    std::apply(
+                        std::forward<Injections_T...[0]>(std::get<0>(
+                            std::forward<InjectionsTuple_T<Injections_T...>>(injections)
+                        )),
+                        ::gather_parameters<std::remove_pointer_t<
+                            std::decay_t<Injections_T...[0]>>>(resources)
+                    ) }
+            ),
+            util::tuple_drop_front(
+                std::forward<InjectionsTuple_T<Injections_T...>>(injections)
+            )
+        );
+    }
+}
 
-    const auto invoke_plugins{
-        [this]<typename AppWithResources_T>(AppWithResources_T&& app_with_resources) {
-            std::ranges::for_each(
-                std::move(m_invocations),
-                std::bind_back(
-                    &InjectionInvocation::operator(),
-                    std::ref(m_injections),
-                    std::ref(app_with_resources.resources)
-                )
-            );
+template <extensions::injection_c... Injections_T>
+template <core::app::app_c App_T>
+auto ResourceManager<Injections_T...>::operator()(App_T&& app) &&
+{
+    using ResourceManagerAddon =
+        addons::BasicResourceManager<util::meta::invoke_result_of_t<
+            std::remove_pointer_t<std::decay_t<Injections_T>>>...>;
 
-            return std::forward<AppWithResources_T>(app_with_resources);
-        }
-    };
+    static_assert(!core::app::has_addons_c<App_T, ResourceManagerAddon>);
 
-    return invoke_plugins(transform_app(std::forward<App_T>(app)));
+    return std::forward<App_T>(app)
+        .template add_on<ResourceManagerAddon>(
+            invoke_injections(std::make_tuple(), std::move(m_injections))
+        )
+        .template add_on<addons::ResourceManagerTag>();
 }

@@ -59,7 +59,7 @@ auto game_loop(
 auto main() -> int
 {
     core::app::create()
-        .extend_with<extensions::v2::ResourceManager<>>()
+        .extend_with<extensions::ResourceManager>()
         .use_resource(sf::RenderWindow{})
         .extend_with<extensions::AddonManager>()
         .use_addon<ecs::RegistryAddon>()

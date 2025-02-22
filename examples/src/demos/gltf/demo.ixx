@@ -20,19 +20,19 @@ import demos.gltf.DemoApp;
 namespace demo {
 
 export constexpr auto run =
-    []<core::app::has_addons_c<addons::ResourceManager> App_T>(App_T&& app) -> void {
-    app.resources.template at<examples::base::DemoBase>().run(
-        [demo_app = std::ref(app.resources.template at<DemoApp>()
-         )](examples::base::Renderer& renderer,
-            const vk::Extent2D        framebuffer_size,
-            core::gfx::Camera         camera) {
+    []<core::app::has_addons_c<addons::ResourceManagerTag> App_T>(App_T&& app) -> void {
+    std::get<examples::base::DemoBase>(app.resources)
+        .run([demo_app = std::ref(std::get<DemoApp>(app.resources))](
+                 examples::base::Renderer& renderer,
+                 const vk::Extent2D        framebuffer_size,
+                 core::gfx::Camera         camera
+             ) {
             renderer.render(
                 framebuffer_size,
                 camera,
                 std::bind_front(&DemoApp::record_command_buffer, std::ref(demo_app))
             );
-        }
-    );
+        });
 };
 
 }   // namespace demo

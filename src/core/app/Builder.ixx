@@ -33,8 +33,7 @@ public:
         );
 
     template <extension_c NewExtension_T, typename Self_T, typename... Args_T>
-    constexpr auto extend_with(this Self_T&& self, Args_T&&... args)
-        -> Builder<NewExtension_T, Extensions_T...>;
+    constexpr auto extend_with(this Self_T&& self, Args_T&&... args);
 
     template <
         typename OldExtension_T,
@@ -95,11 +94,24 @@ template <extension_c... Extensions_T>
 template <extension_c NewExtension_T, typename Self_T, typename... Args_T>
 constexpr auto
     core::app::Builder<Extensions_T...>::extend_with(this Self_T&& self, Args_T&&... args)
-        -> Builder<NewExtension_T, Extensions_T...>
 {
-    return Builder<NewExtension_T, Extensions_T...>{ std::forward<Self_T>(self),
-                                                     std::in_place,
-                                                     std::forward<Args_T>(args)... };
+    return
+        []<typename Builder_T>(Builder_T&& builder) {
+            if constexpr (requires {
+                              typename NewExtension_T::ExtensionTag;
+                              util::meta::type_list_contains_v<
+                                  Builder<NewExtension_T, Extensions_T...>,
+                                  typename NewExtension_T::ExtensionTag>;
+                          })
+            {
+                return std::forward<Builder_T>(builder)
+                    .template extend_with<typename NewExtension_T::ExtensionTag>();
+            }
+            else {
+                return std::forward<Builder_T>(builder);
+            }
+        }(Builder<NewExtension_T, Extensions_T...>{
+            std::forward<Self_T>(self), std::in_place, std::forward<Args_T>(args)... });
 }
 
 template <extension_c... Extensions_T>

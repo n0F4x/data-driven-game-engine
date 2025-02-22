@@ -2,9 +2,9 @@ module;
 
 #include <functional>
 
-#include "core/log/log.hpp"
-
 #include <VkBootstrap.h>
+
+#include "core/log/log.hpp"
 
 export module plugins.renderer.RendererPlugin;
 
@@ -49,9 +49,10 @@ public:
     ///-------------///
     ///  Operators  ///
     ///-------------///
-    template <core::app::extended_with_c<extensions::ResourceManager, extensions::Functional>
-                  Builder_T>
-    auto operator()(Builder_T&& builder) -> Builder_T;
+    template <
+        core::app::extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
+            Builder_T>
+    auto operator()(Builder_T&& builder);
 
     template <typename Self>
     auto require(this Self&&, Requirement requirement) -> Self;
@@ -162,11 +163,9 @@ auto to_device_dependency(const plugins::renderer::Requirement& requirement)
 }
 
 template <extensions::injection_c SurfacePlugin_T>
-template <core::app::extended_with_c<
-    extensions::ResourceManager,
-    extensions::Functional> Builder_T>
+template <core::app::extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
+              Builder_T>
 auto plugins::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T&& builder)
-    -> Builder_T
 {
     return std::forward<Builder_T>(builder)
         .inject_resource([this] {
@@ -193,9 +192,9 @@ auto plugins::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T&& 
                             const core::renderer::base::Device&   device) {
             return core::renderer::base::Allocator{ instance, device };
         })
-        .transform([](Builder_T&& b) -> Builder_T {
+        .transform([]<typename B_T>(B_T&& b) -> B_T {
             ENGINE_LOG_TRACE("Added Renderer plugin group");
-            return std::forward<Builder_T>(b);
+            return std::forward<B_T>(b);
         });
 }
 

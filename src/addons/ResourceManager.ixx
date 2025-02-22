@@ -11,19 +11,13 @@ namespace addons {
 export template <typename T>
 concept resource_c = core::store::storable_c<T>;
 
-export struct ResourceManager {
-    core::store::Store resources;
-};
-
-}   // namespace addons
-
-namespace addons::v2 {
-
-export struct ResourceManagerTag{};
-
 export template <typename... Resources_T>
-struct ResourceManager {
+struct BasicResourceManager {
     std::tuple<Resources_T...> resources;
 };
 
-}   // namespace addons::v2
+export using ResourceManager = BasicResourceManager<>;
+
+export struct ResourceManagerTag {};
+
+}   // namespace addons

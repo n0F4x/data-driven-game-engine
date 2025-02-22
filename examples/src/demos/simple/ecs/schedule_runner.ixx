@@ -14,7 +14,7 @@ import core.app.App;
 namespace ecs {
 
 export constexpr auto schedule_runner{ [](core::app::has_addons_c<
-                                           addons::v2::ResourceManagerTag,
+                                           addons::ResourceManagerTag,
                                            ecs::SchedulerAddonTag,
                                            ecs::RegistryAddon> auto app) -> void {
     std::move(app.scheduler).run(app.resources, app.registry);

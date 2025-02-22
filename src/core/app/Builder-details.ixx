@@ -66,7 +66,11 @@ public:
             return Result{ std::forward<Self_T>(self).BuilderBase<RestOfExtensions_T...>::
                                template swap_extension<OldExtension_T>(
                                    std::forward<Transform_T>(transform_extension)
-                               ) };
+                               ),
+                           std::in_place,
+                           static_cast<util::meta::forward_like_t<Extension_T, Self_T>>(
+                               std::forward<Self_T>(self)
+                           ) };
         }
     }
 

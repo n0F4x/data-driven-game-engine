@@ -9,7 +9,7 @@ namespace util::meta {
 export template <typename... Ts>
     requires(sizeof...(Ts) != 0)
 struct select_last {
-    using type = decltype((std::type_identity_t<Ts>{}, ...));
+    using type = typename decltype((std::type_identity<Ts>{}, ...))::type;
 };
 
 export template <typename... Ts>
