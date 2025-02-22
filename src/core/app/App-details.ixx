@@ -6,6 +6,7 @@ module;
 export module core.app.App:details;
 
 import utility.meta.type_traits.integer_sequence.offset_integer_sequence;
+import utility.meta.type_traits.type_list.type_list_drop_front;
 
 import :addon_c;
 import :fwd;
@@ -27,25 +28,5 @@ class RootAddon {};
 template <>
 class AppBase<RootAddon> {};
 
-template <typename T, typename... Ts>
-struct old_app;
-
-template <size_t... I, typename... Ts>
-struct old_app<std::index_sequence<I...>, Ts...> {
-    using type = core::app::App<std::tuple_element_t<I, std::tuple<Ts...>>...>;
-};
-
-template <typename T>
-struct old_app<std::integer_sequence<size_t>, T> {
-    using type = core::app::App<>;
-};
-
 template <typename... Addons_T>
-using old_app_t = std::conditional_t<
-    sizeof...(Addons_T) != 0,
-    typename old_app<
-        util::meta::offset_integer_sequence_t<
-            std::make_index_sequence<std::max(static_cast<int>(sizeof...(Addons_T)) - 1, 0)>,
-            1>,
-        Addons_T...>::type,
-    void>;
+using old_app_t = util::meta::type_list_drop_front_t<core::app::App<Addons_T...>>;

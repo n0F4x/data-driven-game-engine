@@ -15,15 +15,13 @@ class App : public AppBase<Addons_T..., RootAddon> {
 public:
     constexpr App() = default;
 
+    template <typename OldApp_T, typename... Args_T>
+        requires std::same_as<std::remove_cvref_t<OldApp_T>, old_app_t<Addons_T...>>
+    constexpr explicit App(OldApp_T&& old_app, std::in_place_t, Args_T&&... args);
+
     template <addon_c NewAddon_T, typename Self_T, typename... Args_T>
     constexpr auto add_on(this Self_T&& self, Args_T&&... args)
         -> App<NewAddon_T, Addons_T...>;
-
-private:
-    friend old_app_t<Addons_T...>;
-
-    template <typename OldApp_T, typename... Args_T>
-    constexpr explicit App(OldApp_T&& old_app, std::in_place_t, Args_T&&... args);
 };
 
 export template <typename App_T>
@@ -39,17 +37,8 @@ concept has_addons_c = app_c<App_T>
 }   // namespace core::app
 
 template <addon_c... Addons_T>
-template <addon_c NewAddon_T, typename Self_T, typename... Args_T>
-constexpr auto core::app::App<Addons_T...>::add_on(this Self_T&& self, Args_T&&... args)
-    -> App<NewAddon_T, Addons_T...>
-{
-    return App<NewAddon_T, Addons_T...>{ std::forward<Self_T>(self),
-                                         std::in_place,
-                                         std::forward<Args_T>(args)... };
-}
-
-template <addon_c... Addons_T>
 template <typename OldApp_T, typename... Args_T>
+    requires std::same_as<std::remove_cvref_t<OldApp_T>, old_app_t<Addons_T...>>
 constexpr core::app::App<Addons_T...>::App(
     OldApp_T&& old_app,
     std::in_place_t,
@@ -59,3 +48,13 @@ constexpr core::app::App<Addons_T...>::App(
                                        std::in_place,
                                        std::forward<Args_T>(args)... }
 {}
+
+template <addon_c... Addons_T>
+template <addon_c NewAddon_T, typename Self_T, typename... Args_T>
+constexpr auto core::app::App<Addons_T...>::add_on(this Self_T&& self, Args_T&&... args)
+    -> App<NewAddon_T, Addons_T...>
+{
+    return App<NewAddon_T, Addons_T...>{ std::forward<Self_T>(self),
+                                         std::in_place,
+                                         std::forward<Args_T>(args)... };
+}

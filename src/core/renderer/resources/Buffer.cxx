@@ -7,7 +7,7 @@ module;
 
 module core.renderer.resources.Buffer;
 
-import utility.tuple;
+import utility.tuple.tuple_drop_back;
 
 import core.renderer.base.allocator.Allocator;
 
@@ -17,7 +17,7 @@ core::renderer::resources::Buffer::Buffer(
     const VmaAllocationCreateInfo& allocation_create_info
 )
     : Buffer{ make_from(
-          util::remove_last(
+          util::tuple_drop_back(
               allocator.create_buffer(buffer_create_info, allocation_create_info)
           )
       ) }

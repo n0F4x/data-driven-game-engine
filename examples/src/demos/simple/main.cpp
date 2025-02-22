@@ -59,11 +59,11 @@ auto game_loop(
 auto main() -> int
 {
     core::app::create()
-        .extend_with<extensions::ResourceManager>()
+        .extend_with<extensions::v2::ResourceManager<>>()
         .use_resource(sf::RenderWindow{})
         .extend_with<extensions::AddonManager>()
         .use_addon<ecs::RegistryAddon>()
-        .use_addon<ecs::SchedulerAddon>(ecs::Scheduler{}.schedule(::game_loop))
+        .use_addon(ecs::Scheduler{}.schedule(::game_loop))
         .extend_with<extensions::Runnable>()
         .run(ecs::schedule_runner);
 }

@@ -8,8 +8,11 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         type_traits.cppm
         add_wrapper.ixx
+        all_different.ixx
+        all_same.ixx
         forward_like.ixx
         is_specialization_of.ixx
         remove_wrapper_if.ixx
+        select_last.ixx
         underlying.ixx
 )

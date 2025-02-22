@@ -1,10 +1,14 @@
+module;
+
+#include <tuple>
+
 export module addons.ResourceManager;
 
 import core.store.Store;
 
 namespace addons {
 
-export template<typename T>
+export template <typename T>
 concept resource_c = core::store::storable_c<T>;
 
 export struct ResourceManager {
@@ -12,3 +16,14 @@ export struct ResourceManager {
 };
 
 }   // namespace addons
+
+namespace addons::v2 {
+
+export struct ResourceManagerTag{};
+
+export template <typename... Resources_T>
+struct ResourceManager {
+    std::tuple<Resources_T...> resources;
+};
+
+}   // namespace addons::v2

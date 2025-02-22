@@ -2,6 +2,10 @@ module;
 
 #include <type_traits>
 
+#ifdef ENGINE_ENABLE_TESTS
+  #include <tuple>
+#endif
+
 export module utility.meta.type_traits.type_list.type_list_unique;
 
 import utility.meta.type_traits.type_list.type_list_contains;
@@ -34,3 +38,13 @@ export template <typename TypeList_T>
 using type_list_unique_t = typename type_list_unique<TypeList_T>::type;
 
 }   // namespace util::meta
+
+module :private;
+
+#ifdef ENGINE_ENABLE_TESTS
+
+static_assert(std::is_same_v<
+              util::meta::type_list_unique_t<std::tuple<int, float, int>>,
+              std::tuple<int, float>>);
+
+#endif

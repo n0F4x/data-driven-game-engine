@@ -2,57 +2,17 @@ module;
 
 #include <utility>
 
-// reference: https://devblogs.microsoft.com/oldnewthing/20200625-00/?p=103903
-
-export module utility.tuple;
+export module utility.tuple.generate_tuple_from;
 
 import utility.meta.concepts.integer_sequence_c;
-import utility.meta.concepts.type_list.type_list_c;
-import utility.meta.type_traits.integer_sequence.concat_integer_sequence;
+import utility.meta.concepts.type_list;
 import utility.meta.type_traits.integer_sequence.integer_sequence_size;
-import utility.meta.type_traits.integer_sequence.offset_integer_sequence;
 import utility.meta.type_traits.type_list.type_list_size;
-import utility.meta.concepts.tuple_like_c;
 
 namespace util {
 
-export template <typename Tuple_T, size_t... Ints_V>
-auto select_tuple(Tuple_T&& tuple, std::index_sequence<Ints_V...>)
-{
-    return std::tuple<std::tuple_element_t<Ints_V, Tuple_T>...>{
-        std::get<Ints_V>(std::forward<Tuple_T>(tuple))...
-    };
-}
-
-export template <typename Tuple_T>
-auto remove_first(Tuple_T&& tuple)
-{
-    constexpr static size_t size{ std::tuple_size_v<Tuple_T> };
-    using Indices = meta::offset_integer_sequence_t<std::make_index_sequence<size - 1>, 1>;
-    return select_tuple(std::forward<Tuple_T>(tuple), Indices{});
-}
-
-export template <typename Tuple_T>
-auto remove_last(Tuple_T&& tuple)
-{
-    constexpr static size_t size{ std::tuple_size_v<Tuple_T> };
-    using Indices = std::make_index_sequence<size - 1>;
-    return select_tuple(std::forward<Tuple_T>(tuple), Indices{});
-}
-
-export template <size_t N, typename Tuple_T>
-auto remove_nth(Tuple_T&& tuple)
-{
-    constexpr static size_t size{ std::tuple_size_v<Tuple_T> };
-    using First = std::make_index_sequence<N>;
-    using Rest =
-        meta::offset_integer_sequence_t<std::make_index_sequence<size - N - 1>, N + 1>;
-    using Indices = meta::concat_integer_sequence_t<First, Rest>;
-    return select_tuple(std::forward<Tuple_T>(tuple), Indices{});
-}
-
-export template <template <typename...> typename Tuple_T, typename... Ts>
-auto make_tuple(Ts&&... args) -> Tuple_T<Ts...>
+template <template <typename...> typename TypeList_T, typename... Ts>
+auto make_tuple(Ts&&... args) -> TypeList_T<Ts...>
 {
     return { std::forward<Ts>(args)... };
 }

@@ -1,8 +1,5 @@
 target_sources(simple PRIVATE
-        Registry.cxx
-        Scheduler.cxx
-        System.cxx
-        SystemBuilder.cxx
+        Task.cxx
 )
 
 target_sources(simple PRIVATE
@@ -14,10 +11,11 @@ target_sources(simple PRIVATE
         Registry.ixx
         RegistryAddon.ixx
         Res.ixx
-        schedulable_c.ixx
+        system_c.ixx
         schedule_runner.ixx
         Scheduler.ixx
         SchedulerAddon.ixx
-        System.ixx
-        SystemBuilder.ixx
+        SchedulerAddonTag.ixx
+        Task.ixx
+        TaskBuilder.ixx
 )

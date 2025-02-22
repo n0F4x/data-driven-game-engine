@@ -1,7 +1,3 @@
-module;
-
-#include <entt/entity/registry.hpp>
-
 export module ecs:RegistryAddon;
 
 import :Registry;

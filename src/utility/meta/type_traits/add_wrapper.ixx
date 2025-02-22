@@ -1,5 +1,3 @@
-module;
-
 export module utility.meta.type_traits.add_wrapper;
 
 import utility.meta.type_traits.underlying;

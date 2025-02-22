@@ -15,8 +15,7 @@ import core.store.Store;
 
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.invoke_result_of;
-
-import utility.tuple;
+import utility.tuple.generate_tuple_from;
 
 import addons.ResourceManager;
 

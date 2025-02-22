@@ -28,6 +28,10 @@ export class AddonManager {
 public:
     template <core::app::addon_c Addon_T, core::app::builder_c Self_T, typename... Args_T>
     auto use_addon(this Self_T&&, Args_T&&... args);
+
+    template <typename Self_T, typename T>
+        requires(requires { typename T::Addon; })
+    auto use_addon(this Self_T&&, T&& arg);
 };
 
 }   // namespace extensions
@@ -51,4 +55,20 @@ auto extensions::AddonManager::use_addon(this Self_T&& self, Args_T&&... args)
     return std::forward<Self_T>(self).template extend_with<AddonBuilder<Addon_T>>(
         std::in_place, std::forward<Args_T>(args)...
     );
+}
+
+template <typename Self_T, typename T>
+    requires(requires { typename T::Addon; })
+auto extensions::AddonManager::use_addon(this Self_T&& self, T&& arg)
+{
+    return []<typename AddonManager_T>(AddonManager_T&& addon_manager) {
+        if constexpr (requires { typename T::AddonTag; }) {
+            return std::forward<AddonManager_T>(addon_manager)
+                .template use_addon<typename T::AddonTag>();
+        }
+        else {
+            return std::forward<AddonManager_T>(addon_manager);
+        }
+    }(std::forward<Self_T>(self).template use_addon<typename T::Addon>(std::forward<T>(arg
+           )));
 }

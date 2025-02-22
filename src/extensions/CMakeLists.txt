@@ -7,4 +7,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         Functional.ixx
         ResourceManager.ixx
         Runnable.ixx
+
+        v2/ResourceManager.ixx
 )
