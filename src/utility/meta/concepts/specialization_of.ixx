@@ -6,7 +6,7 @@ import utility.meta.type_traits.is_specialization_of;
 
 namespace util::meta {
 
-export template <typename SpecializationT, template <typename...> typename T>
-concept specialization_of_c = is_specialization_of_v<SpecializationT, T>;
+export template <typename T, template <typename...> typename TypeList_T>
+concept specialization_of_c = is_specialization_of_v<T, TypeList_T>;
 
 }   // namespace util::meta

@@ -1,5 +1,6 @@
-add_subdirectory(meta)
 add_subdirectory(containers)
+add_subdirectory(memory)
+add_subdirectory(meta)
 add_subdirectory(tuple)
 
 target_sources(${PROJECT_NAME} PUBLIC
@@ -9,7 +10,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         utility.cppm
         all_same.ixx
         hashing.ixx
-        OptionalRef.ixx
         ScopeGuard.ixx
         Size.ixx
         TypeList.ixx

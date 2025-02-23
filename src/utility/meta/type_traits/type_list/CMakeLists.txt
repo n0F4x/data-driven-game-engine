@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         type_list_drop.ixx
         type_list_drop_back.ixx
         type_list_drop_front.ixx
+        type_list_is_sorted.ixx
         type_list_filter.ixx
         type_list_front.ixx
         type_list_join.ixx
@@ -19,6 +20,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         type_list_push_front.ixx
         type_list_replace.ixx
         type_list_size.ixx
+        type_list_sort.ixx
         type_list_take.ixx
         type_list_to.ixx
         type_list_transform.ixx

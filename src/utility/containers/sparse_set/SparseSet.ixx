@@ -13,7 +13,7 @@ import utility.containers.sparse_set.SparseSetBase;
 import utility.containers.sparse_set.value_c;
 
 import utility.meta.type_traits.forward_like;
-import utility.OptionalRef;
+import utility.containers.OptionalRef;
 import utility.ScopeGuard;
 
 namespace util::sparse_set {

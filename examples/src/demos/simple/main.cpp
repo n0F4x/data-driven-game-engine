@@ -25,7 +25,7 @@ struct Collider {
     int hi{};
 };
 
-auto game_loop(
+auto my_system(
     const ecs::Res<sf::RenderWindow> window,
     const ecs::Query<
         const Position,
@@ -68,7 +68,7 @@ auto main() -> int
         .use_resource(sf::RenderWindow{})
         .extend_with<extensions::AddonManager>()
         .use_addon<ecs::RegistryAddon>()
-        .use_addon(ecs::Scheduler{}.schedule(::game_loop))
+        .use_addon(ecs::Scheduler{}.schedule(::my_system))
         .extend_with<extensions::Runnable>()
         .run(ecs::schedule_runner);
 }
