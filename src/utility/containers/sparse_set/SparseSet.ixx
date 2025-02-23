@@ -1,8 +1,6 @@
 module;
 
-#include <bitset>
 #include <cassert>
-#include <limits>
 #include <ranges>
 #include <tuple>
 #include <utility>
@@ -77,31 +75,27 @@ constexpr auto util::sparse_set::SparseSet<Key_T, T, version_bits_T>::emplace(
     ScopeGuard value_guard{ util::make_scope_guard([this] noexcept {
         m_values.pop_back();
     }) };
-    const Index index{ m_values.size() - 1 };
+    const Index index{ static_cast<Index>(m_values.size() - 1) };
 
     m_ids.emplace_back(index);
     ScopeGuard id_guard{ util::make_scope_guard([this] noexcept { m_ids.pop_back(); }) };
 
-    const auto [id, version] = [this, index] {
-        if (oldest_dead_id == invalid_index) {
-            const Index   new_id{ m_pointers.size() };
-            const Version new_version{};
-            m_pointers.push_back(make_pointer(index, new_version));
-            return std::make_tuple(new_id, new_version);
-        }
+    if (oldest_dead_id == invalid_index) {
+        const Index   new_id{ static_cast<Index>(m_pointers.size()) };
+        const Version new_version{};
+        m_pointers.push_back(make_pointer(index, new_version));
+        return make_key(new_id, new_version);
+    }
 
-        const Pointer old_pointer{ m_pointers[oldest_dead_id] };
-        const Index   new_id{ oldest_dead_id };
-        const Version new_version{ version_from_pointer(old_pointer) };
-        oldest_dead_id = index_from_pointer(old_pointer);
-        if (youngest_dead_id == new_id) {
-            youngest_dead_id = invalid_index;
-        }
-        m_pointers[new_id] = make_pointer(index, new_version);
-        return std::make_tuple(new_id, new_version);
-    }();
-
-    return make_key(id, version);
+    const Pointer old_pointer{ m_pointers[oldest_dead_id] };
+    const Index   new_id{ oldest_dead_id };
+    const Version new_version{ version_from_pointer(old_pointer) };
+    oldest_dead_id = index_from_pointer(old_pointer);
+    if (youngest_dead_id == new_id) {
+        youngest_dead_id = invalid_index;
+    }
+    m_pointers[new_id] = make_pointer(index, new_version);
+    return make_key(new_id, new_version);
 }
 
 template <util::sparse_set::key_c Key_T, util::sparse_set::value_c T, uint8_t version_bits_T>
@@ -185,14 +179,14 @@ constexpr auto util::sparse_set::SparseSet<Key_T, T, version_bits_T>::find(
     const Key key
 ) const -> OptionalRef<const T>
 {
-    return const_cast<SparseSet>(*this).find(key);
+    return const_cast<SparseSet&>(*this).find(key);
 }
 
 module :private;
 
-#ifdef ENGINE_ENABLE_TESTS
+#ifdef ENGINE_ENABLE_STATIC_TESTS
 
-using Key   = uint64_t;
+using Key   = uint32_t;
 using Value = int;
 constexpr Value value{ 8 };
 constexpr Key   missing_key{ std::numeric_limits<Key>::max() };
