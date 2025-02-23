@@ -20,7 +20,7 @@ using select_last_t = typename select_last<Ts...>::type;
 
 module :private;
 
-#ifdef ENGINE_ENABLE_TESTS
+#ifdef ENGINE_ENABLE_STATIC_TESTS
 
 static_assert(std::is_same_v<util::meta::select_last_t<int>, int>);
 static_assert(std::is_same_v<util::meta::select_last_t<int, long>, long>);

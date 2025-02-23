@@ -6,7 +6,7 @@ export module utility.meta.type_traits.type_list.type_list_replace;
 
 import utility.meta.concepts.type_list.type_list_c;
 
-#ifdef ENGINE_ENABLE_TESTS
+#ifdef ENGINE_ENABLE_STATIC_TESTS
 import utility.TypeList;
 #endif
 
@@ -31,7 +31,7 @@ using type_list_replace_t =
 
 }   // namespace util::meta
 
-#ifdef ENGINE_ENABLE_TESTS
+#ifdef ENGINE_ENABLE_STATIC_TESTS
 
 static_assert(std::is_same_v<
               util::meta::type_list_replace_t<util::TypeList<int, float, int>, int, long>,

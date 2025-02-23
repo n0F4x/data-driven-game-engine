@@ -33,12 +33,14 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 if (engine_debug)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
             ENGINE_LOG_LEVEL=ENGINE_LOG_LEVEL_DEBUG
+            ENGINE_ENABLE_STATIC_TESTS
     )
 endif ()
 
 if (engine_test)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
             ENGINE_ENABLE_TESTS
+            ENGINE_ENABLE_STATIC_TESTS
     )
 
     find_package(Catch2 REQUIRED)

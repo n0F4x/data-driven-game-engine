@@ -5,7 +5,7 @@ module;
 #include <memory>
 #include <optional>
 
-#ifdef ENGINE_ENABLE_TESTS
+#ifdef ENGINE_ENABLE_STATIC_TESTS
   #include <expected>
 #endif
 
@@ -146,7 +146,7 @@ constexpr auto util::OptionalRef<T>::or_else(F&& func) const -> std::invoke_resu
 
 module :private;
 
-#ifdef ENGINE_ENABLE_TESTS
+#ifdef ENGINE_ENABLE_STATIC_TESTS
 
 static_assert(
     [] {

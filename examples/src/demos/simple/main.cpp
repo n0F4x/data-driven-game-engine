@@ -13,6 +13,10 @@ using Position = float;
 using Velocity = double;
 using Health   = int;
 
+struct EnemyTag {};
+
+struct MageTag {};
+
 struct Renderable {
     int hi{};
 };
@@ -26,6 +30,7 @@ auto game_loop(
     const ecs::Query<
         const Position,
         ecs::Without<Health, const Velocity>,
+        ecs::With<EnemyTag, const MageTag>,
         ecs::Optional<Renderable, const Collider>> entities
 ) -> void
 {
@@ -58,7 +63,7 @@ auto game_loop(
 
 auto main() -> int
 {
-    core::app::create()
+    core::app::Builder{}
         .extend_with<extensions::ResourceManager>()
         .use_resource(sf::RenderWindow{})
         .extend_with<extensions::AddonManager>()

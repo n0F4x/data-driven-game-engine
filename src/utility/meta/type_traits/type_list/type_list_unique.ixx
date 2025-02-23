@@ -2,7 +2,7 @@ module;
 
 #include <type_traits>
 
-#ifdef ENGINE_ENABLE_TESTS
+#ifdef ENGINE_ENABLE_STATIC_TESTS
   #include <tuple>
 #endif
 
@@ -41,7 +41,7 @@ using type_list_unique_t = typename type_list_unique<TypeList_T>::type;
 
 module :private;
 
-#ifdef ENGINE_ENABLE_TESTS
+#ifdef ENGINE_ENABLE_STATIC_TESTS
 
 static_assert(std::is_same_v<
               util::meta::type_list_unique_t<std::tuple<int, float, int>>,

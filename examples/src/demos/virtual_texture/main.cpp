@@ -17,7 +17,7 @@ auto main() -> int
 try {
     core::config::logging::set_level(core::config::logging::eTrace);
 
-    core::app::create()
+    core::app::Builder{}
         .extend_with<extensions::Functional>()
         .extend_with<extensions::ResourceManager>()
         .extend_with<extensions::Runnable>()
