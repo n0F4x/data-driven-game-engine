@@ -7,6 +7,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}
         FILES
         concepts.cppm
+        allocator.ixx
         decayed.ixx
         nothrow_assignable_from.ixx
         nothrow_constructible_from.ixx

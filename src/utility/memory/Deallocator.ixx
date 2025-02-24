@@ -4,11 +4,11 @@ module;
 
 export module utility.memory.Deallocator;
 
-import utility.meta.concepts.decayed;
+import utility.meta.concepts.allocator;
 
 namespace util {
 
-export template <::util::meta::decayed_c Allocator_T>
+export template <::util::meta::allocator_c Allocator_T>
 class Deallocator {
 public:
     template <typename UAllocator_T>
@@ -24,14 +24,14 @@ private:
 
 }   // namespace util
 
-template <::util::meta::decayed_c Allocator_T>
+template <::util::meta::allocator_c Allocator_T>
 template <typename UAllocator_T>
     requires std::constructible_from<Allocator_T, UAllocator_T>
 constexpr util::Deallocator<Allocator_T>::Deallocator(UAllocator_T&& allocator)
     : m_allocator{ std::forward<UAllocator_T>(allocator) }
 {}
 
-template <::util::meta::decayed_c Allocator_T>
+template <::util::meta::allocator_c Allocator_T>
 template <typename T>
 constexpr auto util::Deallocator<Allocator_T>::operator()(T* pointer) -> void
 {
