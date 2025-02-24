@@ -11,18 +11,16 @@ import utility.meta.concepts.type_list.all_of_type_list_c;
 namespace util::meta {
 
 template <template <typename> typename Hash_T>
-struct hash_has_member_value_of_size_t {
+struct hash_has_valid_member_value {
     template <typename T>
     struct type {
         constexpr static bool value =
-            std::is_same_v<std::remove_cvref_t<decltype(Hash_T<T>::value)>, size_t>;
+            std::convertible_to<std::remove_cvref_t<decltype(Hash_T<T>::value)>, size_t>;
     };
 };
 
 export template <type_list_c TypeList_T, template <typename> typename Hash_T>
-    requires all_of_type_list_c<
-        TypeList_T,
-        hash_has_member_value_of_size_t<Hash_T>::template type>
+    requires all_of_type_list_c<TypeList_T, hash_has_valid_member_value<Hash_T>::template type>
 struct type_list_sort;
 
 template <
@@ -51,14 +49,12 @@ struct type_list_sort<TypeList_T<Ts...>, Hash_T> {
     };
 
     using type = typename helper<
-        std::array{ (Hash_T<Ts>::value)... },
+        std::array{ static_cast<size_t>(Hash_T<Ts>::value)... },
         std::make_index_sequence<sizeof...(Ts)>>::type;
 };
 
 export template <type_list_c TypeList_T, template <typename> typename Hash_T>
-    requires all_of_type_list_c<
-                 TypeList_T,
-                 hash_has_member_value_of_size_t<Hash_T>::template type>
+    requires all_of_type_list_c<TypeList_T, hash_has_valid_member_value<Hash_T>::template type>
 using type_list_sort_t = typename type_list_sort<TypeList_T, Hash_T>::type;
 
 }   // namespace util::meta

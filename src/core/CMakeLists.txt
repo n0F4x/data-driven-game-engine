@@ -1,6 +1,7 @@
 add_subdirectory(app)
 add_subdirectory(cache)
 add_subdirectory(config)
+add_subdirectory(ecs)
 add_subdirectory(gfx)
 add_subdirectory(gltf)
 add_subdirectory(image)
