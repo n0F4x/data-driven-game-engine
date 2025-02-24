@@ -18,6 +18,7 @@ concept storable_c = std::copyable<T>;
 
 namespace util {
 
+// TODO: let Allocator_T be small buffer optimized by default
 export template <typename Allocator_T = Allocator>
 class BasicAny;
 
@@ -38,26 +39,35 @@ public:
     constexpr BasicAny(BasicAny&&) noexcept;
 
     template <storable_c T, typename... Args_T>
-    constexpr explicit BasicAny(std::in_place_type_t<T>, Args_T&&... args);
+    constexpr explicit BasicAny(
+        std::in_place_type_t<T>,
+        std::tuple<Args_T...> args,
+        const Allocator&      allocator = Allocator{}
+    );
 
-    // TODO: assignment
+    constexpr ~BasicAny();
+
+    // TODO: assignment operators
 
 private:
-    using DeallocateFunc = auto (*)(void*) -> void;
-    // TODO: try using std::indirect
-    using Handle         = std::unique_ptr<void, DeallocateFunc>;
-    using CopyFunc       = auto (*)(const Handle&) -> Handle;
-    using MoveFunc       = auto (*)(Handle&&) -> Handle;
+    using Handle         = void*;
+    using CopyFunc       = auto (*)(Allocator& allocator, const Handle&) -> Handle;
+    using MoveFunc       = auto (*)(Allocator& allocator, Handle&&) -> Handle;
+    using DestroyFunc    = auto (*)(Allocator& allocator, Handle&) -> void;
+    using DeallocateFunc = auto (*)(Allocator& allocator, Handle&) -> void;
 
-    // TODO: small buffer optimization
-    Handle   m_handle;
+    Allocator      m_allocator;
     // TODO: store only one function for all operations
-    CopyFunc m_copy_func;
-    MoveFunc m_move_func;
+    CopyFunc       m_copy_func;
+    MoveFunc       m_move_func;
+    DestroyFunc    m_destroy_func;
+    DeallocateFunc m_deallocate_func;
+    Handle         m_handle;
 
     template <typename T, typename... Args_T>
     [[nodiscard]]
-    constexpr static auto create(Args_T&&... args) -> Handle;
+    constexpr static auto allocate_and_construct(Allocator& allocator, Args_T&&... args)
+        -> Handle;
 
     template <typename T>
     [[nodiscard]]
@@ -69,83 +79,27 @@ private:
 
     template <typename T>
     [[nodiscard]]
+    constexpr static auto make_destroy_func() -> DeallocateFunc;
+
+    template <typename T>
+    [[nodiscard]]
     constexpr static auto make_deallocate_func() -> DeallocateFunc;
+
     template <typename T, typename Any_T>
         requires std::
             constructible_from<T, meta::forward_like_t<std::remove_cvref_t<T>, Any_T>>
         constexpr friend auto any_cast(Any_T&& any) noexcept -> T;
 };
 
-export using Any = BasicAny<>;
+export class Any : public BasicAny<> {
+    using Base = BasicAny<>;
+
+public:
+    template <storable_c T, typename... Args_T>
+    constexpr explicit Any(std::in_place_type_t<T>, Args_T&&... args);
+};
 
 }   // namespace util
-
-template <typename Allocator_T>
-template <storable_c T, typename... Args_T>
-constexpr util::BasicAny<Allocator_T>::BasicAny(std::in_place_type_t<T>, Args_T&&... args)
-    : m_handle{ create<T>(std::forward<Args_T>(args)...) },
-      m_copy_func{ make_copy_func<T>() },
-      m_move_func{ make_move_func<T>() }
-{}
-
-template <typename Allocator_T>
-template <typename T, typename... Args_T>
-constexpr auto util::BasicAny<Allocator_T>::create(Args_T&&... args) -> Handle
-{
-    Allocator                                          allocator;
-    std::unique_ptr<T, ::util::Deallocator<Allocator>> handle{
-        allocator.template allocate<T>()
-    };
-    allocator.construct(handle.get(), std::forward<Args_T>(args)...);
-    const DeallocateFunc deallocate_func{ make_deallocate_func<T>() };
-    return Handle{ handle.release(), deallocate_func };
-}
-
-template <typename Allocator_T>
-template <typename T>
-constexpr auto util::BasicAny<Allocator_T>::make_copy_func() -> CopyFunc
-{
-    return +[](const Handle& other) {
-        Allocator                                          allocator;
-        std::unique_ptr<T, ::util::Deallocator<Allocator>> handle{
-            allocator.template allocate<T>()
-        };
-        allocator.construct(handle.get(), *static_cast<const T*>(other.get()));
-        const DeallocateFunc deallocate_func{ make_deallocate_func<T>() };
-        return Handle{ handle.release(), deallocate_func };
-    };
-}
-
-template <typename Allocator_T>
-template <typename T>
-constexpr auto util::BasicAny<Allocator_T>::make_move_func() -> MoveFunc
-{
-    return +[](Handle&& other) noexcept { return std::move(other); };
-}
-
-template <typename Allocator_T>
-template <typename T>
-constexpr auto util::BasicAny<Allocator_T>::make_deallocate_func() -> DeallocateFunc
-{
-    return +[](void* const pointer) {
-        Allocator allocator;
-        allocator.deallocate(static_cast<T*>(pointer));
-    };
-}
-
-template <typename Allocator_T>
-constexpr util::BasicAny<Allocator_T>::BasicAny(const BasicAny& other)
-    : m_handle{ other.m_copy_func(other.m_handle) },
-      m_copy_func{ other.m_copy_func },
-      m_move_func{ other.m_move_func }
-{}
-
-template <typename Allocator_T>
-constexpr util::BasicAny<Allocator_T>::BasicAny(BasicAny&& other) noexcept
-    : m_handle{ std::exchange(other.m_handle, nullptr) },
-      m_copy_func{ other.m_copy_func },
-      m_move_func{ other.m_move_func }
-{}
 
 template <typename T, typename Any_T>
     requires std::
@@ -158,10 +112,116 @@ template <typename T, typename Any_T>
     );
     // TODO: assert that types match
 
-    return std::forward_like<Any_T>(
-        *static_cast<std::remove_reference_t<T>*>(any.m_handle.get())
-    );
+    return std::forward_like<Any_T>(*static_cast<std::remove_reference_t<T>*>(any.m_handle
+    ));
 }
+
+template <typename Allocator_T>
+constexpr util::BasicAny<Allocator_T>::BasicAny(const BasicAny& other)
+    : m_allocator{ other.m_allocator },
+      m_copy_func{ other.m_copy_func },
+      m_move_func{ other.m_move_func },
+      m_destroy_func{ other.m_destroy_func },
+      m_deallocate_func{ other.m_deallocate_func },
+      m_handle{ m_copy_func(m_allocator, other.m_handle) }
+{}
+
+template <typename Allocator_T>
+constexpr util::BasicAny<Allocator_T>::BasicAny(BasicAny&& other) noexcept
+    : m_allocator{ other.m_allocator },
+      m_copy_func{ other.m_copy_func },
+      m_move_func{ other.m_move_func },
+      m_destroy_func{ other.m_destroy_func },
+      m_deallocate_func{ other.m_deallocate_func },
+      m_handle{ std::exchange(other.m_handle, Handle{}) }
+{}
+
+template <typename Allocator_T>
+template <storable_c T, typename... Args_T>
+constexpr util::BasicAny<Allocator_T>::BasicAny(
+    std::in_place_type_t<T>,
+    std::tuple<Args_T...> args,
+    const Allocator&      allocator
+)
+    : m_allocator{ allocator },
+      m_copy_func{ make_copy_func<T>() },
+      m_move_func{ make_move_func<T>() },
+      m_destroy_func{ make_destroy_func<T>() },
+      m_deallocate_func{ make_deallocate_func<T>() },
+      m_handle{ allocate_and_construct<T>(m_allocator, std::get<Args_T>(args)...) }
+{}
+
+template <typename Allocator_T>
+constexpr util::BasicAny<Allocator_T>::~BasicAny<Allocator_T>()
+{
+    if (m_handle) {
+        m_destroy_func(m_allocator, m_handle);
+        m_deallocate_func(m_allocator, m_handle);
+    }
+}
+
+template <typename Allocator_T>
+template <typename T, typename... Args_T>
+constexpr auto util::BasicAny<Allocator_T>::allocate_and_construct(
+    Allocator& allocator,
+    Args_T&&... args
+) -> Handle
+{
+    using Deallocator = ::util::Deallocator<Allocator>;
+    std::unique_ptr<T, Deallocator> handle{ allocator.template allocate<T>(),
+                                            Deallocator{ allocator } };
+    allocator.construct(handle.get(), std::forward<Args_T>(args)...);
+    return Handle{ handle.release() };
+}
+
+template <typename Allocator_T>
+template <typename T>
+constexpr auto util::BasicAny<Allocator_T>::make_copy_func() -> CopyFunc
+{
+    return +[](Allocator& allocator, const Handle& other) {
+        using Deallocator = ::util::Deallocator<Allocator>;
+        std::unique_ptr<T, Deallocator> handle{ allocator.template allocate<T>(),
+                                                Deallocator{ allocator } };
+        allocator.construct(handle.get(), *static_cast<const T*>(other));
+        return Handle{ handle.release() };
+    };
+}
+
+template <typename Allocator_T>
+template <typename T>
+constexpr auto util::BasicAny<Allocator_T>::make_move_func() -> MoveFunc
+{
+    return +[](Allocator& allocator, Handle&& other) {
+        using Deallocator = ::util::Deallocator<Allocator>;
+        std::unique_ptr<T, Deallocator> handle{ allocator.template allocate<T>(),
+                                                Deallocator{ allocator } };
+        allocator.construct(handle.get(), std::move(*static_cast<const T*>(other)));
+        return Handle{ handle.release() };
+    };
+}
+
+template <typename Allocator_T>
+template <typename T>
+constexpr auto util::BasicAny<Allocator_T>::make_destroy_func() -> DeallocateFunc
+{
+    return +[](Allocator& allocator, Handle& handle) {
+        allocator.destroy(static_cast<T*>(handle));
+    };
+}
+
+template <typename Allocator_T>
+template <typename T>
+constexpr auto util::BasicAny<Allocator_T>::make_deallocate_func() -> DeallocateFunc
+{
+    return +[](Allocator& allocator, Handle& handle) {
+        allocator.deallocate(static_cast<T*>(handle));
+    };
+}
+
+template <storable_c T, typename... Args_T>
+constexpr util::Any::Any(std::in_place_type_t<T>, Args_T&&... args)
+    : Base{ std::in_place_type<T>, std::forward_as_tuple(std::forward<Args_T>(args)...) }
+{}
 
 module :private;
 
