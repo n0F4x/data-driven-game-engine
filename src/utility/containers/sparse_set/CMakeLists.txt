@@ -3,8 +3,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}
         FILES
         key_c.ixx
-        MultiSparseSet.ixx
-        SparseSet.ixx
         SparseSetBase.ixx
         value_c.ixx
 )

@@ -6,6 +6,8 @@ export module utility.meta.reflection.hash;
 
 namespace util::meta {
 
+// TODO: use proper reflection
+
 export using hash_type = entt::id_type;
 
 export template <typename T>

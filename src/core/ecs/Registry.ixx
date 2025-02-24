@@ -1,9 +1,9 @@
 module;
 
 #include <any>
+#include <cassert>
 #include <cstdint>
 #include <set>
-#include <tuple>
 #include <unordered_map>
 
 #ifdef ENGINE_ENABLE_TESTS

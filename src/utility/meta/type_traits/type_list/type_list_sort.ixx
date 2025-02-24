@@ -34,12 +34,12 @@ struct type_list_sort<TypeList_T<Ts...>, Hash_T> {
     template <std::array<size_t, sizeof...(Ts)> hashes_T, size_t... Is>
     struct helper<hashes_T, std::index_sequence<Is...>> {
         constexpr static std::array sorted_indices = [] {
-            std::array result{
+            std::array<std::pair<size_t, size_t>, sizeof...(Ts)> result{
                 std::pair{ Is, hashes_T[Is] }
                 ...
             };
             std::ranges::sort(result, {}, &std::pair<size_t, size_t>::second);
-            return std::array{ (result[Is].first)... };
+            return std::array<size_t, sizeof...(Ts)>{ (result[Is].first)... };
         }();
 
         template <size_t I>
@@ -49,7 +49,7 @@ struct type_list_sort<TypeList_T<Ts...>, Hash_T> {
     };
 
     using type = typename helper<
-        std::array{ static_cast<size_t>(Hash_T<Ts>::value)... },
+        std::array<size_t, sizeof...(Ts)>{ Hash_T<Ts>::value... },
         std::make_index_sequence<sizeof...(Ts)>>::type;
 };
 
@@ -72,6 +72,7 @@ struct Hash {
     constexpr static size_t value = Int::value + 10;
 };
 
+static_assert(std::is_same_v<util::meta::type_list_sort_t<TypeList<>, Hash>, TypeList<>>);
 static_assert(std::is_same_v<
               util::meta::type_list_sort_t<TypeList<Int<1>, Int<2>, Int<0>>, Hash>,
               TypeList<Int<0>, Int<1>, Int<2>>>);
