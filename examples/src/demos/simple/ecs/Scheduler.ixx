@@ -12,7 +12,7 @@ import :SchedulerAddonTag;
 import :system_c;
 import :TaskBuilder;
 
-import core.store;
+import core.resource.ResourceManager;
 import utility.meta.concepts.specialization_of;
 import utility.meta.type_traits.type_list.type_list_to;
 
@@ -48,7 +48,10 @@ public:
         -> Scheduler<TaskBuilders_T..., task_builder_for<System_T>>;
 
     template <typename... Resources_T>
-    auto run(std::tuple<Resources_T...>& resources, ecs::Registry& registry) && -> void;
+    auto run(
+        core::resource::ResourceManager<Resources_T...>& resources,
+        ecs::Registry&                                   registry
+    ) && -> void;
 
 private:
     template <util::meta::specialization_of_c<ecs::TaskBuilder>...>
@@ -74,8 +77,8 @@ auto Scheduler<TaskBuilders_T...>::schedule(this Self_T&& self, System_T&& syste
 template <util::meta::specialization_of_c<ecs::TaskBuilder>... TaskBuilders_T>
 template <typename... Resources_T>
 auto Scheduler<TaskBuilders_T...>::run(
-    std::tuple<Resources_T...>& resources,
-    ecs::Registry&              registry
+    core::resource::ResourceManager<Resources_T...>& resources,
+    ecs::Registry&                                   registry
 ) && -> void
 {
     std::apply(

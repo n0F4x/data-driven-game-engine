@@ -12,7 +12,7 @@ import :Registry;
 import :Res;
 import :system_c;
 
-import core.store.Store;
+import core.resource.ResourceManager;
 
 import utility.tuple;
 import utility.meta.type_traits.is_specialization_of;
@@ -25,7 +25,11 @@ namespace ecs {
 export class Task {
 public:
     template <system_c System_T, typename... Resources_T>
-    Task(System_T&& system, std::tuple<Resources_T...>& resources, Registry& registry);
+    Task(
+        System_T&&                                       system,
+        core::resource::ResourceManager<Resources_T...>& resources,
+        Registry&                                        registry
+    );
 
     auto operator()() const -> void;
 
@@ -36,7 +40,10 @@ private:
 }   // namespace ecs
 
 template <typename System_T, typename... Resources_T>
-auto collect_params_of(std::tuple<Resources_T...>& resources, ecs::Registry& registry)
+auto collect_params_of(
+    core::resource::ResourceManager<Resources_T...>& resources,
+    ecs::Registry&                                   registry
+)
 {
     using ParamsTuple =
         util::meta::arguments_of_t<std::remove_pointer_t<std::decay_t<System_T>>>;
@@ -46,14 +53,13 @@ auto collect_params_of(std::tuple<Resources_T...>& resources, ecs::Registry& reg
         if constexpr (util::meta::is_specialization_of_v<Param_T, ecs::Res>) {
             static_assert(
                 util::meta::type_list_contains_v<
-                    std::tuple<Resources_T...>,
+                    core::resource::ResourceManager<Resources_T...>,
                     typename Param_T::Underlying>,
                 // TODO (reflection): Specify resource name in assertion string
                 "The required resource is missing."
             );
-            return [res = Param_T{ std::get<typename Param_T::Underlying>(resources) }] {
-                return res;
-            };
+            return [res = Param_T{ resources.template get<typename Param_T::Underlying>(
+                    ) }] { return res; };
         }
         else if constexpr (util::meta::is_specialization_of_v<Param_T, ecs::Query>) {
             return [&registry] { return Param_T{ registry.get() }; };
@@ -67,9 +73,9 @@ auto collect_params_of(std::tuple<Resources_T...>& resources, ecs::Registry& reg
 
 template <ecs::system_c System_T, typename... Resources_T>
 ecs::Task::Task(
-    System_T&&                  system,
-    std::tuple<Resources_T...>& resources,
-    Registry&                   registry
+    System_T&&                                       system,
+    core::resource::ResourceManager<Resources_T...>& resources,
+    Registry&                                        registry
 )
     : m_invocation{ [param_builders_tuple =
                          ::collect_params_of<System_T>(resources, registry),

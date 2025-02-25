@@ -184,53 +184,20 @@ auto ResourceManager<Injections_T...>::inject_resource(
     );
 }
 
-template <
-    template <typename...> typename ResourcesTuple_T,
-    typename... Resources_T,
-    template <typename...> typename InjectionsTuple_T,
-    typename... Injections_T>
-auto invoke_injections(
-    ResourcesTuple_T<Resources_T...>&&   resources,
-    InjectionsTuple_T<Injections_T...>&& injections
-)
-{
-    if constexpr (sizeof...(Injections_T) == 0) {
-        return std::forward<ResourcesTuple_T<Resources_T...>>(resources);
-    }
-    else {
-        return invoke_injections(
-            std::tuple_cat(
-                std::forward<ResourcesTuple_T<Resources_T...>>(resources),
-                std::tuple<util::meta::invoke_result_of_t<
-                    std::remove_pointer_t<std::decay_t<Injections_T...[0]>>>>{
-                    std::apply(
-                        std::forward<Injections_T...[0]>(std::get<0>(
-                            std::forward<InjectionsTuple_T<Injections_T...>>(injections)
-                        )),
-                        ::gather_parameters<std::remove_pointer_t<
-                            std::decay_t<Injections_T...[0]>>>(resources)
-                    ) }
-            ),
-            util::tuple_drop_front(
-                std::forward<InjectionsTuple_T<Injections_T...>>(injections)
-            )
-        );
-    }
-}
-
 template <extensions::injection_c... Injections_T>
 template <core::app::app_c App_T>
 auto ResourceManager<Injections_T...>::operator()(App_T&& app) &&
 {
-    using ResourceManagerAddon =
-        addons::BasicResourceManager<util::meta::invoke_result_of_t<
-            std::remove_pointer_t<std::decay_t<Injections_T>>>...>;
+    using ResourceManagerAddon = addons::ResourceManager<util::meta::invoke_result_of_t<
+        std::remove_pointer_t<std::decay_t<Injections_T>>>...>;
 
     static_assert(!core::app::has_addons_c<App_T, ResourceManagerAddon>);
 
-    return std::forward<App_T>(app)
-        .template add_on<ResourceManagerAddon>(
-            invoke_injections(std::make_tuple(), std::move(m_injections))
-        )
-        .template add_on<addons::ResourceManagerTag>();
+    return [this, &app]<size_t... Is>(std::index_sequence<Is...>) {
+        return std::forward<App_T>(app)
+            .template add_on<ResourceManagerAddon>(
+                std::in_place, std::move(std::get<Is>(m_injections))...
+            )
+            .template add_on<addons::ResourceManagerTag>();
+    }(std::make_index_sequence<sizeof...(Injections_T)>{});
 }

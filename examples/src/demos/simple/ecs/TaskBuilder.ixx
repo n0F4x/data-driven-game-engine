@@ -6,7 +6,7 @@ module;
 
 export module ecs:TaskBuilder;
 
-import core.store.Store;
+import core.resource.ResourceManager;
 import utility.meta.type_traits.functional.arguments_of;
 
 import :Registry;
@@ -23,7 +23,10 @@ public:
 
     template <typename... Resources_T>
     [[nodiscard]]
-    auto build(std::tuple<Resources_T...>& resources, Registry& registry) && -> Task;
+    auto build(
+        core::resource::ResourceManager<Resources_T...>& resources,
+        Registry&                                        registry
+    ) && -> Task;
 
 private:
     std::function<void(Params_T...)> m_system;
@@ -40,8 +43,8 @@ ecs::TaskBuilder<Params_T...>::TaskBuilder(System_T&& system)
 template <typename... Params_T>
 template <typename... Resources_T>
 auto ecs::TaskBuilder<Params_T...>::build(
-    std::tuple<Resources_T...>& resources,
-    ecs::Registry&              registry
+    core::resource::ResourceManager<Resources_T...>& resources,
+    ecs::Registry&                                   registry
 ) && -> Task
 {
     return Task{ std::move(m_system), resources, registry };

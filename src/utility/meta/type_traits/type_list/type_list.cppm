@@ -8,6 +8,7 @@ export import utility.meta.type_traits.type_list.type_list_contains;
 export import utility.meta.type_traits.type_list.type_list_disjoin;
 export import utility.meta.type_traits.type_list.type_list_drop;
 export import utility.meta.type_traits.type_list.type_list_drop_back;
+export import utility.meta.type_traits.type_list.type_list_drop_front;
 export import utility.meta.type_traits.type_list.type_list_filter;
 export import utility.meta.type_traits.type_list.type_list_front;
 export import utility.meta.type_traits.type_list.type_list_join;

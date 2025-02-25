@@ -43,6 +43,7 @@ module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
+static_assert(std::is_same_v<util::meta::type_list_unique_t<std::tuple<>>, std::tuple<>>);
 static_assert(std::is_same_v<
               util::meta::type_list_unique_t<std::tuple<int, float, int>>,
               std::tuple<int, float>>);

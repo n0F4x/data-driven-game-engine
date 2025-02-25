@@ -20,7 +20,7 @@ concept storable_c = std::copyable<T>;
 namespace util {
 
 // TODO: let Allocator_T be small buffer optimized by default
-export template <::util::meta::allocator_c Allocator_T = Allocator>
+export template <::util::meta::generic_allocator_c Allocator_T = Allocator>
 class BasicAny;
 
 template <typename T>
@@ -31,7 +31,7 @@ export template <typename T, typename Any_T>
     requires std::constructible_from<T, meta::forward_like_t<std::remove_cvref_t<T>, Any_T>>
 constexpr auto any_cast(Any_T&& any) noexcept -> T;
 
-export template <::util::meta::allocator_c Allocator_T = Allocator>
+export template <::util::meta::generic_allocator_c Allocator_T = Allocator>
 class BasicAny {
 public:
     using Allocator = Allocator_T;
@@ -117,7 +117,7 @@ template <typename T, typename Any_T>
     ));
 }
 
-template <::util::meta::allocator_c Allocator_T>
+template <::util::meta::generic_allocator_c Allocator_T>
 constexpr util::BasicAny<Allocator_T>::BasicAny(const BasicAny& other)
     : m_allocator{ other.m_allocator },
       m_copy_func{ other.m_copy_func },
@@ -127,7 +127,7 @@ constexpr util::BasicAny<Allocator_T>::BasicAny(const BasicAny& other)
       m_handle{ m_copy_func(m_allocator, other.m_handle) }
 {}
 
-template <::util::meta::allocator_c Allocator_T>
+template <::util::meta::generic_allocator_c Allocator_T>
 constexpr util::BasicAny<Allocator_T>::BasicAny(BasicAny&& other) noexcept
     : m_allocator{ other.m_allocator },
       m_copy_func{ other.m_copy_func },
@@ -137,7 +137,7 @@ constexpr util::BasicAny<Allocator_T>::BasicAny(BasicAny&& other) noexcept
       m_handle{ std::exchange(other.m_handle, Handle{}) }
 {}
 
-template <::util::meta::allocator_c Allocator_T>
+template <::util::meta::generic_allocator_c Allocator_T>
 template <storable_c T, typename... Args_T>
 constexpr util::BasicAny<Allocator_T>::BasicAny(
     std::in_place_type_t<T>,
@@ -152,7 +152,7 @@ constexpr util::BasicAny<Allocator_T>::BasicAny(
       m_handle{ allocate_and_construct<T>(m_allocator, std::get<Args_T>(args)...) }
 {}
 
-template <::util::meta::allocator_c Allocator_T>
+template <::util::meta::generic_allocator_c Allocator_T>
 constexpr util::BasicAny<Allocator_T>::~BasicAny<Allocator_T>()
 {
     if (m_handle) {
@@ -162,7 +162,7 @@ constexpr util::BasicAny<Allocator_T>::~BasicAny<Allocator_T>()
     }
 }
 
-template <::util::meta::allocator_c Allocator_T>
+template <::util::meta::generic_allocator_c Allocator_T>
 template <typename T, typename... Args_T>
 constexpr auto util::BasicAny<Allocator_T>::allocate_and_construct(
     Allocator& allocator,
@@ -176,7 +176,7 @@ constexpr auto util::BasicAny<Allocator_T>::allocate_and_construct(
     return Handle{ handle.release() };
 }
 
-template <::util::meta::allocator_c Allocator_T>
+template <::util::meta::generic_allocator_c Allocator_T>
 template <typename T>
 constexpr auto util::BasicAny<Allocator_T>::make_copy_func() -> CopyFunc
 {
@@ -187,7 +187,7 @@ constexpr auto util::BasicAny<Allocator_T>::make_copy_func() -> CopyFunc
     };
 }
 
-template <::util::meta::allocator_c Allocator_T>
+template <::util::meta::generic_allocator_c Allocator_T>
 template <typename T>
 constexpr auto util::BasicAny<Allocator_T>::make_move_func() -> MoveFunc
 {
@@ -200,14 +200,14 @@ constexpr auto util::BasicAny<Allocator_T>::make_move_func() -> MoveFunc
     };
 }
 
-template <::util::meta::allocator_c Allocator_T>
+template <::util::meta::generic_allocator_c Allocator_T>
 template <typename T>
 constexpr auto util::BasicAny<Allocator_T>::make_destroy_func() -> DestroyFunc
 {
     return +[](const Handle handle) { std::destroy_at(static_cast<T*>(handle)); };
 }
 
-template <::util::meta::allocator_c Allocator_T>
+template <::util::meta::generic_allocator_c Allocator_T>
 template <typename T>
 constexpr auto util::BasicAny<Allocator_T>::make_deallocate_func() -> DeallocateFunc
 {
