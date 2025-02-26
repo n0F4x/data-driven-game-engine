@@ -18,7 +18,6 @@ import utility.meta.type_traits.type_list.type_list_replace;
 import utility.meta.type_traits.forward_like;
 import utility.TypeList;
 
-
 import core.app.App;
 
 template <typename Extension_T, typename... RestOfExtensions_T>

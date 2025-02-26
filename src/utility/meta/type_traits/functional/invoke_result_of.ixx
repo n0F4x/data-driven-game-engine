@@ -6,7 +6,7 @@ import utility.meta.concepts.functional.member_function_pointer_c;
 import utility.meta.type_traits.functional.signature;
 
 namespace util::meta {
-// NOLINTBEGIN(readability-identifier-naming)
+
 template <typename F>
 struct invoke_result_of;
 
@@ -28,5 +28,4 @@ struct invoke_result_of<F> {
 export template <typename F>
 using invoke_result_of_t = typename invoke_result_of<F>::type;
 
-// NOLINTEND(readability-identifier-naming)
 }   // namespace util::meta

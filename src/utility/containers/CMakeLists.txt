@@ -9,4 +9,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         MultiSparseSet.ixx
         OptionalRef.ixx
         SparseSet.ixx
+        StackedTuple.ixx
 )
