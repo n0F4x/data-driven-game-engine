@@ -1,7 +1,6 @@
 #include <functional>
 
 import core.app;
-import addons;
 import extensions;
 
 struct First {
@@ -11,12 +10,6 @@ struct First {
 struct Second {
     std::reference_wrapper<const int> ref;
 };
-
-[[nodiscard]]
-constexpr auto make_second(const First& first) -> Second
-{
-    return Second{ .ref = first.value };
-}
 
 auto main() -> int
 {
