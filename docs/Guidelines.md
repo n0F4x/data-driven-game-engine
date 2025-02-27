@@ -26,12 +26,22 @@ The following naming conventions apply:
 - Global Variable: snake_case
 - Parameter: snake_case
 - Local Variable: snake_case
+- Concept: snake_case
 
 Please use the following pre-/suffixes:
 
 - Enumerator: eEnumerator
 - Class/Struct Private Member Field: m_field
 - Class/Struct Static Variable: s_variable
+- Template type parameter: Type_T
+- Template variable parameter: variable_T
+- Concept: concept_c
+
+Exceptions:
+
+- By default, write type trait aliases using `_t` suffix and `snake_case`.
+  Type trait structs should also use `snake_case`.
+  Type trait variables (like `std::is_same_v`) should also have the `_v` suffix.
 
 ### Functions
 
@@ -62,7 +72,7 @@ Make your code self-documenting!
 
 ### Namespaces
 
--   Use `::` before function calls from global scope
+- Start with `::` when referencing another context
 
 ### Other
 
