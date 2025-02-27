@@ -25,7 +25,7 @@ public:
         core::app::builder_c Self_T,
         typename... Args_T,
         runner_c<Self_T, Args_T...> Runner_T>
-    auto run(this Self_T&& self, Runner_T&& runner, Args_T&&... args) -> std::
+    constexpr auto run(this Self_T&& self, Runner_T&& runner, Args_T&&... args) -> std::
         invoke_result_t<Runner_T&&, decltype(std::forward<Self_T>(self).build()), Args_T&&...>;
 };
 
@@ -35,7 +35,7 @@ template <
     core::app::builder_c Self_T,
     typename... Args_T,
     extensions::runner_c<Self_T, Args_T...> Runner_T>
-auto extensions::Runnable::run(
+constexpr auto extensions::Runnable::run(
     this Self_T&& self,
     Runner_T&&    runner,
     Args_T&&... args
@@ -46,7 +46,11 @@ auto extensions::Runnable::run(
         std::forward<Runner_T>(runner),
         [&] {
             auto app{ std::forward<Self_T>(self).build() };
-            ENGINE_LOG_INFO("App is running");
+
+            if !consteval {
+                ENGINE_LOG_INFO("App is running");
+            }
+
             return app;
         }(),
         std::forward<Args_T>(args)...

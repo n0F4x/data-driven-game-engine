@@ -208,7 +208,10 @@ public:
     template <typename Self_T>
     constexpr auto build(this Self_T&& self)
     {
-        ENGINE_LOG_INFO("Building app");
+        if !consteval {
+            ENGINE_LOG_INFO("Building app");
+        }
+
         return std::forward<Self_T>(self).Base::build(core::app::App<>{});
     }
 };

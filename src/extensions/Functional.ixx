@@ -18,14 +18,14 @@ concept modifier_c = requires {
 export class Functional {
 public:
     template <core::app::builder_c Self_T, modifier_c<Self_T> Modifier_T>
-    auto transform(this Self_T&&, Modifier_T&& modifier)
+    constexpr auto transform(this Self_T&&, Modifier_T&& modifier)
         -> std::invoke_result_t<Modifier_T, Self_T&&>;
 };
 
 }   // namespace extensions
 
 template <core::app::builder_c Self_T, extensions::modifier_c<Self_T> Modifier_T>
-auto extensions::Functional::transform(this Self_T&& self, Modifier_T&& modifier)
+constexpr auto extensions::Functional::transform(this Self_T&& self, Modifier_T&& modifier)
     -> std::invoke_result_t<Modifier_T, Self_T&&>
 {
     return std::invoke(std::forward<Modifier_T>(modifier), std::forward<Self_T>(self));

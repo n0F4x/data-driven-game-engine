@@ -65,14 +65,14 @@ public:
 
     template <core::app::builder_c Self_T, typename Resource_T>
         requires extensions::resource_c<std::remove_cvref_t<Resource_T>>
-    auto use_resource(this Self_T&&, Resource_T&& resource);
+    constexpr auto use_resource(this Self_T&&, Resource_T&& resource);
 
     template <core::app::builder_c Self_T, extensions::injection_c Injection_T>
-    auto inject_resource(this Self_T&&, Injection_T&& injection);
+    constexpr auto inject_resource(this Self_T&&, Injection_T&& injection);
 
 protected:
     template <core::app::app_c App_T>
-    auto operator()(App_T&& app) &&;
+    constexpr auto operator()(App_T&& app) &&;
 
 private:
     template <extensions::injection_c...>
@@ -104,7 +104,7 @@ constexpr ResourceManager<Injections_T...>::ResourceManager(
 template <extensions::injection_c... Injections_T>
 template <core::app::builder_c Self_T, typename Resource_T>
     requires extensions::resource_c<std::remove_cvref_t<Resource_T>>
-auto ResourceManager<Injections_T...>::use_resource(
+constexpr auto ResourceManager<Injections_T...>::use_resource(
     this Self_T&& self,
     Resource_T&&  resource
 )
@@ -112,7 +112,7 @@ auto ResourceManager<Injections_T...>::use_resource(
     using Resource = std::remove_cvref_t<Resource_T>;
 
     struct Injection {
-        auto operator()() -> Resource
+        constexpr auto operator()() -> Resource
         {
             return std::move(resource);
         }
@@ -132,14 +132,15 @@ template <template <typename...> typename TypeList_T, typename... SelectedTypes_
 struct gather_helper<TypeList_T<SelectedTypes_T...>> {
     template <typename... Ts>
     [[nodiscard]]
-    static auto operator()(std::tuple<Ts...>& tuple) -> std::tuple<SelectedTypes_T...>
+    constexpr static auto operator()(std::tuple<Ts...>& tuple)
+        -> std::tuple<SelectedTypes_T&...>
     {
-        return { std::get<std::remove_cvref_t<SelectedTypes_T>>(tuple)... };
+        return { std::get<std::remove_cvref_t<SelectedTypes_T>&>(tuple)... };
     }
 };
 
 template <typename Callable_T, typename... Ts>
-auto gather_parameters(std::tuple<Ts...>& tuple)
+constexpr auto gather_parameters(std::tuple<Ts...>& tuple)
 {
     using RequiredResourcesTuple_T = util::meta::arguments_of_t<Callable_T>;
 
@@ -148,7 +149,7 @@ auto gather_parameters(std::tuple<Ts...>& tuple)
 
 template <extensions::injection_c... Injections_T>
 template <core::app::builder_c Self_T, extensions::injection_c Injection_T>
-auto ResourceManager<Injections_T...>::inject_resource(
+constexpr auto ResourceManager<Injections_T...>::inject_resource(
     this Self_T&& self,
     Injection_T&& injection
 )
@@ -186,7 +187,7 @@ auto ResourceManager<Injections_T...>::inject_resource(
 
 template <extensions::injection_c... Injections_T>
 template <core::app::app_c App_T>
-auto ResourceManager<Injections_T...>::operator()(App_T&& app) &&
+constexpr auto ResourceManager<Injections_T...>::operator()(App_T&& app) &&
 {
     using ResourceManagerAddon = addons::ResourceManager<util::meta::invoke_result_of_t<
         std::remove_pointer_t<std::decay_t<Injections_T>>>...>;
