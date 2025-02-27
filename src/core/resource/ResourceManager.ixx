@@ -5,6 +5,10 @@ module;
 #include <type_traits>
 #include <utility>
 
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+  #include <cassert>
+#endif
+
 export module core.resource.ResourceManager;
 
 import utility.containers.StackedTuple;
@@ -35,7 +39,7 @@ public:
         requires(::util::meta::
                      type_list_contains_v<::util::TypeList<Resources_T...>, Resource_T>)
     [[nodiscard]]
-    auto get(this Self_T&&) -> std::
+    constexpr auto get(this Self_T&&) -> std::
         conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>;
 
 private:
@@ -60,8 +64,58 @@ template <core::resource::resource_c... Resources_T>
 template <typename Resource_T, typename Self_T>
     requires(::util::meta::
                  type_list_contains_v<::util::TypeList<Resources_T...>, Resource_T>)
-auto core::resource::ResourceManager<Resources_T...>::get(this Self_T&& self) -> std::
-    conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>
+constexpr auto core::resource::ResourceManager<Resources_T...>::get(this Self_T&& self)
+    -> std::
+        conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>
 {
     return self.m_resources->template get<Resource_T>();
 }
+
+module :private;
+
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+
+// TODO:
+// remove unnamed namespace when clang permits using the same definition in different
+// module fragments
+namespace {
+
+struct First {
+    int value{ 42 };
+};
+
+struct Second {
+    std::reference_wrapper<const int> ref;
+};
+
+[[nodiscard]]
+constexpr auto make_first() -> First
+{
+    return First{};
+}
+
+[[nodiscard]]
+constexpr auto make_second(const First& first) -> Second
+{
+    return Second{ .ref = first.value };
+}
+
+}   // namespace
+
+static_assert(
+    [] {
+        core::resource::ResourceManager<First, Second> resource_manager{ make_first,
+                                                                         make_second };
+        auto moved_resource_manager{ std::move(resource_manager) };
+
+        assert(
+            moved_resource_manager.get<First>().value
+            == moved_resource_manager.get<Second>().ref.get()
+        );
+
+        return true;
+    }(),
+    "move test failed"
+);
+
+#endif

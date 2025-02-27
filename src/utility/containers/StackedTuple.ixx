@@ -60,6 +60,7 @@ class StackedTuple {
 public:
     template <::decays_to_factory_c<Ts>... Factories_T>
     constexpr explicit StackedTuple(Factories_T&&... factories);
+    StackedTuple(const StackedTuple&) = delete;
 
     template <::util::meta::decayed_c T, typename Self_T>
         requires(::util::meta::type_list_contains_v<::util::TypeList<Ts...>, T>)
