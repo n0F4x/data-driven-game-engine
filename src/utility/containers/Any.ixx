@@ -16,6 +16,7 @@ import utility.meta.concepts.specialization_of;
 import utility.meta.type_traits.forward_like;
 import utility.memory.Allocator;
 import utility.memory.Deallocator;
+import utility.meta.reflection.hash;
 
 namespace util {
 
@@ -36,13 +37,15 @@ using Storage = std::variant<void*>;
 
 template <typename Allocator_T>
 struct Operations {
-    using CopyFunc = auto (*)(Allocator_T& allocator, const Storage&) -> Storage;
-    using MoveFunc = auto (*)(Storage&&) -> Storage;
-    using DropFunc = auto (*)(Allocator_T& allocator, Storage&&) -> void;
+    using CopyFunc       = auto (*)(Allocator_T& allocator, const Storage&) -> Storage;
+    using MoveFunc       = auto (*)(Storage&&) -> Storage;
+    using DropFunc       = auto (*)(Allocator_T& allocator, Storage&&) -> void;
+    using TypesMatchFunc = auto (*)(util::meta::TypeHash) -> bool;
 
-    CopyFunc copy;
-    MoveFunc move;
-    DropFunc drop;
+    CopyFunc       copy;
+    MoveFunc       move;
+    DropFunc       drop;
+    TypesMatchFunc types_match;
 };
 
 template <typename T>
@@ -57,16 +60,24 @@ struct Traits;
 template <large_c T, util::meta::decayed_c Allocator_T>
 struct Traits<T, Allocator_T> {
     template <typename... Args_T>
+    [[nodiscard]]
     constexpr static auto create(Allocator_T& allocator, Args_T&&... args) -> Storage;
+    [[nodiscard]]
     constexpr static auto copy(Allocator_T& allocator, const Storage& storage) -> Storage;
+    [[nodiscard]]
     constexpr static auto move(Storage&& storage) noexcept -> Storage;
-    constexpr static auto drop(Allocator_T& allocator, Storage&& storage) noexcept;
+    constexpr static auto drop(Allocator_T& allocator, Storage&& storage) noexcept
+        -> void;
+
+    [[nodiscard]]
+    constexpr static auto types_match(util::meta::TypeHash type_hash) -> bool;
     template <typename Storage_T>
         requires std::same_as<std::remove_cvref_t<Storage_T>, Storage>
+    [[nodiscard]]
     constexpr static auto get(Storage_T&& storage) noexcept
         -> util::meta::forward_like_t<T, Storage_T>;
 
-    constexpr static Operations<Allocator_T> s_operations{ copy, move, drop };
+    constexpr static Operations<Allocator_T> s_operations{ copy, move, drop, types_match };
 };
 
 namespace util {
@@ -154,10 +165,17 @@ constexpr auto Traits<T, Allocator_T>::move(Storage&& storage) noexcept -> Stora
 template <large_c T, util::meta::decayed_c Allocator_T>
 constexpr auto
     Traits<T, Allocator_T>::drop(Allocator_T& allocator, Storage&& storage) noexcept
+    -> void
 {
     if (void* const handle{ *std::get_if<void*>(&storage) }; handle != nullptr) {
         allocator.deallocate(static_cast<T*>(handle));
     }
+}
+
+template <large_c T, util::meta::decayed_c Allocator_T>
+constexpr auto Traits<T, Allocator_T>::types_match(util::meta::TypeHash type_hash) -> bool
+{
+    return type_hash == ::util::meta::hash_v<T>;
 }
 
 template <large_c T, util::meta::decayed_c Allocator_T>
@@ -166,7 +184,7 @@ template <typename Storage_T>
 constexpr auto Traits<T, Allocator_T>::get(Storage_T&& storage) noexcept
     -> util::meta::forward_like_t<T, Storage_T>
 {
-    auto* result{ static_cast<T*>(*std::get_if<void*>(&storage)) };
+    const auto result{ static_cast<T*>(*std::get_if<void*>(&storage)) };
     return static_cast<util::meta::forward_like_t<T, Storage_T>>(*result);
 }
 
@@ -271,7 +289,7 @@ template <::util::meta::decayed_c T, typename Self_T>
 constexpr auto util::BasicAny<Allocator_T>::get(this Self_T&& self) noexcept
     -> meta::forward_like_t<T, Self_T>
 {
-    // TODO: assert that types match
+    assert(self.m_operations->types_match(util::meta::hash_v<T>));
     return Traits<T, Allocator>::get(std::forward_like<Self_T>(self.m_storage));
 }
 

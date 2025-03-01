@@ -38,7 +38,7 @@ concept component_c = !std::is_const_v<T> && util::meta::nothrow_movable_c<T>;
 template <typename T>
 concept decays_to_component_c = component_c<std::decay_t<T>>;
 
-using ComponentID = util::meta::hash_type;
+using ComponentID = util::meta::TypeHash;
 
 template <typename Component_T>
 struct component_id {
@@ -49,7 +49,7 @@ struct component_id {
 template <typename Component_T>
 constexpr ComponentID component_id_v = component_id<Component_T>::value;
 
-using ArchetypeID = util::meta::hash_type;
+using ArchetypeID = util::meta::TypeHash;
 
 template <typename... Components_T>
     requires(util::meta::

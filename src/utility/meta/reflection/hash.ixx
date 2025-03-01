@@ -8,7 +8,7 @@ namespace util::meta {
 
 // TODO: use proper reflection
 
-export using hash_type = entt::id_type;
+export using TypeHash = entt::id_type;
 
 export template <typename T>
 constexpr bool hash_v = entt::type_hash<T>::value();
