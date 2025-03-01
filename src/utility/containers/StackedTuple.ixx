@@ -82,15 +82,17 @@ template <template <typename...> typename TypeList_T, typename... SelectedTypes_
 struct gather_dependencies_helper<TypeList_T<SelectedTypes_T...>> {
     template <typename... Ts>
     [[nodiscard]]
-    constexpr static auto operator()(std::tuple<Ts&...>& tuple)
-        -> std::tuple<std::remove_cvref_t<SelectedTypes_T>&...>
+    constexpr static auto operator()(std::tuple<Ts...>& tuple)
+        -> std::tuple<SelectedTypes_T...>
     {
-        return { std::get<std::remove_cvref_t<SelectedTypes_T>&>(tuple)... };
+        return { std::forward_like<SelectedTypes_T>(
+            std::get<std::decay_t<SelectedTypes_T>&>(tuple)
+        )... };
     }
 };
 
 template <typename Callable_T, typename... Ts>
-constexpr auto gather_dependencies(std::tuple<Ts&...>& stack)
+constexpr auto gather_dependencies(std::tuple<Ts...>& stack)
 {
     using RequiredResourcesTuple_T = util::meta::arguments_of_t<Callable_T>;
 

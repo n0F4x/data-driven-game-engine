@@ -133,9 +133,11 @@ struct gather_helper<TypeList_T<SelectedTypes_T...>> {
     template <typename... Ts>
     [[nodiscard]]
     constexpr static auto operator()(std::tuple<Ts...>& tuple)
-        -> std::tuple<SelectedTypes_T&...>
+        -> std::tuple<SelectedTypes_T...>
     {
-        return { std::get<std::remove_cvref_t<SelectedTypes_T>&>(tuple)... };
+        return { std::forward_like<SelectedTypes_T>(
+            std::get<std::decay_t<SelectedTypes_T>>(tuple)
+        )... };
     }
 };
 
