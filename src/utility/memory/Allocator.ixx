@@ -4,6 +4,10 @@ module;
 
 export module utility.memory.Allocator;
 
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+import utility.meta.concepts.allocator;
+#endif
+
 namespace util {
 
 export class Allocator {
@@ -29,3 +33,9 @@ constexpr auto util::Allocator::deallocate(T* const pointer, const size_t n) -> 
 {
     std::allocator<T>{}.deallocate(pointer, n);
 }
+
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+
+static_assert(util::meta::generic_allocator_c<util::Allocator>);
+
+#endif

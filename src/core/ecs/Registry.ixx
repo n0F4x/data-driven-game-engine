@@ -82,15 +82,13 @@ public:
                            std::forward<Archetype_T>(archetype) }
     {}
 
-    // TODO: assignment
-
     constexpr auto erase(const ID id) -> bool
     {
         return m_erase_func(*this, id);
     }
 
 private:
-    using EraseFunc = bool (*)(Base&, ID);
+    using EraseFunc = bool (*)(ErasedArchetype&, ID);
 
     EraseFunc m_erase_func;
 
@@ -98,8 +96,8 @@ private:
     [[nodiscard]]
     constexpr static auto make_erase_func() -> EraseFunc
     {
-        return +[](Base& base, const ID id) {
-            return util::any_cast<std::remove_cvref_t<Archetype_T>&>(base)
+        return +[](ErasedArchetype& self, const ID id) {
+            return self.get<std::remove_cvref_t<Archetype_T>&>()
                 .component_containers.erase(id)
                 .has_value();
         };
@@ -139,9 +137,9 @@ auto core::ecs::Registry::create(Components_T&&... components) -> ID
 
     constexpr static ArchetypeID archetype_id{ archetype_id_v<Archetype> };
 
-    Archetype& archetype{ util::any_cast<Archetype&>(
-        m_archetypes.try_emplace(archetype_id, std::in_place_type<Archetype>).first->second
-    ) };
+    Archetype& archetype = m_archetypes
+                               .try_emplace(archetype_id, std::in_place_type<Archetype>)
+                               .first->second.template get<Archetype>();
 
     const ID id_within_archetype =
         archetype.component_containers.emplace(std::forward<Components_T>(components)...);
@@ -173,6 +171,12 @@ auto core::ecs::Registry::destroy(const ID entity_id) -> bool
 }
 
 module :private;
+
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+
+static_assert(std::copyable<core::ecs::ErasedArchetype>);
+
+#endif
 
 #ifdef ENGINE_ENABLE_TESTS
 
