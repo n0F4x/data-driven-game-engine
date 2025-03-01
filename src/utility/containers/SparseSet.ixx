@@ -72,13 +72,13 @@ template <typename... Args>
 constexpr auto util::SparseSet<Key_T, T, version_bits_T>::emplace(Args&&... args) -> Key
 {
     m_values.emplace_back(std::forward<Args>(args)...);
-    ScopeGuard value_guard{ util::make_scope_guard([this] noexcept {
+    ScopeGuard _{ util::make_scope_guard([this] noexcept {
         m_values.pop_back();
     }) };
     const Index index{ static_cast<Index>(m_values.size() - 1) };
 
     m_ids.emplace_back(index);
-    ScopeGuard id_guard{ util::make_scope_guard([this] noexcept { m_ids.pop_back(); }) };
+    ScopeGuard _{ util::make_scope_guard([this] noexcept { m_ids.pop_back(); }) };
 
     if (oldest_dead_id == invalid_index) {
         const Index   new_id{ static_cast<Index>(m_pointers.size()) };

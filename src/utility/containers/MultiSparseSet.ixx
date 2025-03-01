@@ -99,7 +99,7 @@ constexpr auto util::MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T>::e
 
     const Index index{ static_cast<Index>(std::get<0>(m_value_containers).size() - 1) };
     m_ids.emplace_back(index);
-    ScopeGuard id_guard{ util::make_scope_guard([this] noexcept { m_ids.pop_back(); }) };
+    ScopeGuard _{ util::make_scope_guard([this] noexcept { m_ids.pop_back(); }) };
 
     if (oldest_dead_id == invalid_index) {
         const Index   new_id{ static_cast<Index>(m_pointers.size()) };

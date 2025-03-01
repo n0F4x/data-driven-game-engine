@@ -143,7 +143,7 @@ auto core::ecs::Registry::create(Components_T&&... components) -> ID
 
     const ID id_within_archetype =
         archetype.component_containers.emplace(std::forward<Components_T>(components)...);
-    ::util::ScopeGuard component_guard{
+    ::util::ScopeGuard _{
         ::util::make_scope_guard([&archetype, id_within_archetype] noexcept {
             archetype.component_containers.erase(id_within_archetype);
         })
