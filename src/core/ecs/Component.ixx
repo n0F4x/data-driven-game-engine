@@ -34,6 +34,27 @@ constexpr component_tag_t<Component_T> component_tag{};
 export template <component_c Component_T>
 using ComponentContainer = std::vector<Component_T>;
 
+export class ErasedComponentContainer;
+
+struct ErasedComponentContainerOperations {
+    using EraseFunc = auto (*)(ErasedComponentContainer&, Index) -> bool;
+    using EmptyFunc = auto (*)(const ErasedComponentContainer&) -> bool;
+
+    EraseFunc erase;
+    EmptyFunc empty;
+};
+
+template <component_c>
+struct ErasedComponentContainerTraits {
+    [[nodiscard]]
+    constexpr static auto erase(ErasedComponentContainer&, Index) -> bool;
+
+    [[nodiscard]]
+    constexpr static auto empty(const ErasedComponentContainer&) -> bool;
+
+    constexpr static ErasedComponentContainerOperations s_operations{ erase, empty };
+};
+
 export class ErasedComponentContainer : public ::util::Any {
 public:
     template <component_c Component_T>
@@ -45,68 +66,56 @@ public:
     constexpr auto erase(Index index) -> bool;
 
 private:
-    using EraseFunc = auto (*)(ErasedComponentContainer&, Index) -> bool;
-    using EmptyFunc = auto (*)(const ErasedComponentContainer&) -> bool;
-
-    EraseFunc m_erase_func;
-    EmptyFunc m_empty_func;
-
-    template <component_c Component_T>
-    [[nodiscard]]
-    constexpr static auto make_erase_func() -> EraseFunc;
-
-    template <component_c Component_T>
-    [[nodiscard]]
-    constexpr static auto make_empty_func() -> EmptyFunc;
+    const ErasedComponentContainerOperations* m_operations;
 };
 
 }   // namespace core::ecs
 
 template <core::ecs::component_c Component_T>
+constexpr auto core::ecs::ErasedComponentContainerTraits<Component_T>::erase(
+    ErasedComponentContainer& erased_component_container,
+    const Index               index
+) -> bool
+{
+    ComponentContainer<Component_T>& component_container{
+        erased_component_container.get<ComponentContainer<Component_T>>()
+    };
+
+    if (component_container.size() >= index.underlying()) {
+        return false;
+    }
+
+    component_container[index.underlying()] = std::move(component_container.back());
+    component_container.pop_back();
+
+    return true;
+}
+
+template <core::ecs::component_c Component_T>
+constexpr auto core::ecs::ErasedComponentContainerTraits<Component_T>::empty(
+    const ErasedComponentContainer& erased_component_container
+) -> bool
+{
+    const ComponentContainer<Component_T>& component_container{
+        erased_component_container.get<ComponentContainer<Component_T>>()
+    };
+
+    return component_container.empty();
+}
+
+template <core::ecs::component_c Component_T>
 constexpr core::ecs::ErasedComponentContainer::
     ErasedComponentContainer(component_tag_t<Component_T>)
     : util::Any{ std::in_place_type<std::vector<Component_T>> },
-      m_erase_func{ make_erase_func<Component_T>() },
-      m_empty_func{ make_empty_func<Component_T>() }
+      m_operations{ &ErasedComponentContainerTraits<Component_T>::s_operations }
 {}
 
 constexpr auto core::ecs::ErasedComponentContainer::empty() const noexcept -> bool
 {
-    return m_empty_func(*this);
+    return m_operations->empty(*this);
 }
 
 constexpr auto core::ecs::ErasedComponentContainer::erase(const Index index) -> bool
 {
-    return m_erase_func(*this, index);
-}
-
-template <core::ecs::component_c Component_T>
-constexpr auto core::ecs::ErasedComponentContainer::make_erase_func() -> EraseFunc
-{
-    return +[](ErasedComponentContainer& erased_component_container, const Index index) {
-        ComponentContainer<Component_T>& component_container{
-            erased_component_container.get<ComponentContainer<Component_T>>()
-        };
-
-        if (component_container.size() >= index.underlying()) {
-            return false;
-        }
-
-        component_container[index.underlying()] = std::move(component_container.back());
-        component_container.pop_back();
-
-        return true;
-    };
-}
-
-template <core::ecs::component_c Component_T>
-constexpr auto core::ecs::ErasedComponentContainer::make_empty_func() -> EmptyFunc
-{
-    return +[](const ErasedComponentContainer& erased_component_container) {
-        const ComponentContainer<Component_T>& component_container{
-            erased_component_container.get<ComponentContainer<Component_T>>()
-        };
-
-        return component_container.empty();
-    };
+    return m_operations->erase(*this, index);
 }

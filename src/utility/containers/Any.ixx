@@ -121,7 +121,6 @@ public:
     constexpr auto operator=(const BasicAny&) -> BasicAny&;
     constexpr auto operator=(BasicAny&&) noexcept -> BasicAny&;
 
-    // TODO: let get be a friend function
     template <::util::meta::decayed_c T, typename Self_T>
     constexpr auto get(this Self_T&&) noexcept -> ::util::meta::forward_like_t<T, Self_T>;
 
@@ -290,7 +289,8 @@ template <::util::meta::decayed_c T, typename Self_T>
 constexpr auto util::BasicAny<Allocator_T>::get(this Self_T&& self) noexcept
     -> meta::forward_like_t<T, Self_T>
 {
-    assert(self.m_operations->types_match(util::meta::hash_v<T>));
+    assert(self.util::template BasicAny<Allocator_T>::m_operations
+               ->types_match(util::meta::hash_v<T>));
     return Traits<T, Allocator>::get(std::forward_like<Self_T>(self.m_storage));
 }
 
