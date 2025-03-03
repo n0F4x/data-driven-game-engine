@@ -11,6 +11,6 @@ namespace util::meta {
 export using TypeHash = entt::id_type;
 
 export template <typename T>
-constexpr bool hash_v = entt::type_hash<T>::value();
+constexpr TypeHash hash_v = entt::type_hash<T>::value();
 
 }   // namespace util::meta

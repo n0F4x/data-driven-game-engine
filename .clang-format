@@ -107,28 +107,30 @@ IncludeCategories:
     Priority: 6
   - Regex: '^<tsl/'
     Priority: 7
-  - Regex: '^<plf_.+\.h>'
+  - Regex: '^<frozen/'
     Priority: 8
-  - Regex: '^<spdlog/'
+  - Regex: '^<plf_.+\.h>'
     Priority: 9
-  - Regex: '^<vulkan/'
+  - Regex: '^<spdlog/'
     Priority: 10
-  - Regex: '<vk_mem_alloc\.h>'
+  - Regex: '^<vulkan/'
     Priority: 11
-  - Regex: '<VkBootstrap\.h>'
+  - Regex: '<vk_mem_alloc\.h>'
     Priority: 12
-  - Regex: '^<glm/'
+  - Regex: '<VkBootstrap\.h>'
     Priority: 13
-  - Regex: '^<glfw/'
+  - Regex: '^<glm/'
     Priority: 14
-  - Regex: '^<SFML/'
+  - Regex: '^<glfw/'
     Priority: 15
-  - Regex: '^<stb_.+\.h>'
+  - Regex: '^<SFML/'
     Priority: 16
-  - Regex: '^<ktx*\.h>'
+  - Regex: '^<stb_.+\.h>'
     Priority: 17
-  - Regex: '^<entt/'
+  - Regex: '^<ktx*\.h>'
     Priority: 18
+  - Regex: '^<entt/'
+    Priority: 19
   - Regex: '^<.*\..*'
     Priority: 998
   - Regex: '^<.*'
@@ -188,7 +190,7 @@ ReferenceAlignment: Pointer
 ReflowComments: true
 RemoveBracesLLVM: false
 RemoveParentheses: MultipleParentheses
-RemoveSemicolon: true
+RemoveSemicolon: false
 RequiresClausePosition: OwnLine
 RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Always

@@ -8,4 +8,5 @@ export import utility.all_same;
 export import utility.hashing;
 export import utility.ScopeGuard;
 export import utility.Size;
+export import utility.Strong;
 export import utility.tuple;

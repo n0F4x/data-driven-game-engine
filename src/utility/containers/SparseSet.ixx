@@ -1,200 +1,298 @@
 module;
 
+#include <bitset>
 #include <cassert>
-#include <optional>
-#include <utility>
+#include <concepts>
+#include <limits>
+#include <ranges>
+#include <type_traits>
 #include <vector>
 
 export module utility.containers.SparseSet;
 
-import utility.containers.sparse_set.key_c;
-import utility.containers.sparse_set.SparseSetBase;
-import utility.containers.sparse_set.value_c;
-
-import utility.meta.type_traits.forward_like;
-import utility.containers.OptionalRef;
+import utility.meta.uint_at_least;
 import utility.ScopeGuard;
 
-namespace util {
-
-export template <
-    sparse_set::key_c   Key_T,
-    sparse_set::value_c T,
-    uint8_t             version_bits_T = sizeof(Key_T) * 2>
-    requires(sizeof(Key_T) * 8 > version_bits_T)
-class SparseSet : sparse_set::SparseSetBase<Key_T, version_bits_T> {
-    using Base = sparse_set::SparseSetBase<Key_T, version_bits_T>;
-
+template <typename Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
+          && (sizeof(Key_T) * 8 > version_bit_size_T)
+class SparseSetTraits {
 public:
     using Key = Key_T;
+    constexpr static uint8_t key_bit_size{ sizeof(Key) * 8 };
 
-    template <typename... Args>
-    constexpr auto emplace(Args&&... args) -> Key;
+    constexpr static uint8_t version_bit_size{ version_bit_size_T };
+    constexpr static uint8_t first_version_bit{};
+    using Version = util::meta::uint_at_least_t<version_bit_size>;
+    constexpr static Key version_mask{ [] {
+        std::bitset<key_bit_size> mask{};
+        for (const auto i : std::views::iota(
+                 first_version_bit,
+                 static_cast<uint8_t>(first_version_bit + version_bit_size)
+             ))
+        {
+            mask.set(key_bit_size - i - 1);
+        }
+        return static_cast<Key>(mask.to_ullong());
+    }() };
 
-    constexpr auto erase(Key key) -> std::optional<T>;
+    constexpr static uint8_t index_bit_size{ key_bit_size - version_bit_size };
+    constexpr static uint8_t first_index_bit{ version_bit_size_T };
+    using Index = util::meta::uint_at_least_t<index_bit_size>;
+    constexpr static Key index_mask{ [] {
+        std::bitset<key_bit_size> mask{};
+        for (const auto i : std::views::iota(
+                 first_index_bit, static_cast<uint8_t>(first_index_bit + index_bit_size)
+             ))
+        {
+            mask.set(key_bit_size - i - 1);
+        }
+        return static_cast<Key>(mask.to_ullong());
+    }() };
+    constexpr static Index invalid_index{ (std::numeric_limits<Key>::max() & index_mask)
+                                          >> (key_bit_size - first_index_bit
+                                              - index_bit_size) };
 
-    template <typename Self>
+    using Pointer = Key;
+
+    using ID = Index;
+    constexpr static ID invalid_id{ invalid_index };
+
     [[nodiscard]]
-    constexpr auto get(this Self&&, Key key) -> meta::forward_like_t<T, Self>;
+    constexpr static auto index_from_key(const Key key) noexcept -> Index
+    {
+        return static_cast<Index>(
+            (key & index_mask) >> (key_bit_size - first_index_bit - index_bit_size)
+        );
+    }
 
     [[nodiscard]]
-    constexpr auto find(Key key) -> OptionalRef<T>;
+    constexpr static auto version_from_key(const Key key) noexcept -> Version
+    {
+        return static_cast<Version>(
+            (key & version_mask) >> (key_bit_size - first_version_bit - version_bit_size)
+        );
+    }
+
     [[nodiscard]]
-    constexpr auto find(Key key) const -> OptionalRef<const T>;
+    constexpr static auto make_key(const Index index, const Version version) noexcept
+        -> Key
+    {
+        return ((Key{ index } << (key_bit_size - first_index_bit - index_bit_size))
+                & index_mask)
+             + ((Key{ version } << (key_bit_size - first_version_bit - version_bit_size))
+                & version_mask);
+    }
+
+    [[nodiscard]]
+    constexpr static auto id_from_pointer(const Pointer pointer) noexcept -> ID
+    {
+        static_assert(std::is_same_v<Pointer, Key>);
+        static_assert(std::is_same_v<ID, Index>);
+        return index_from_key(pointer);
+    }
+
+    [[nodiscard]]
+    constexpr static auto version_from_pointer(const Pointer pointer) noexcept -> Version
+    {
+        static_assert(std::is_same_v<Pointer, Key>);
+        return version_from_key(pointer);
+    }
+
+    [[nodiscard]]
+    constexpr static auto make_pointer(const ID id, const Version version) noexcept
+        -> Pointer
+    {
+        static_assert(std::is_same_v<Pointer, Key>);
+        static_assert(std::is_same_v<ID, Index>);
+        return make_key(id, version);
+    }
+};
+
+template <typename Key_T, uint8_t version_bit_size_T = sizeof(Key_T) * 2>
+    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
+class SparseSet : SparseSetTraits<Key_T, version_bit_size_T> {
+    using Base = SparseSetTraits<Key_T, version_bit_size_T>;
+
+public:
+    using Key = typename Base::Key;
+    using ID  = typename Base::ID;
+
+    constexpr static uint8_t version_bit_size{ Base::version_bit_size };
+
+    constexpr auto emplace() -> std::pair<Key, ID>;
+
+    constexpr auto erase(Key key) -> std::optional<ID>;
+
+    [[nodiscard]]
+    constexpr auto get(Key key) const -> ID;
+
+    [[nodiscard]]
+    constexpr auto find(Key key) const noexcept -> std::optional<ID>;
+
+    [[nodiscard]]
+    constexpr auto contains(Key key) const noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto empty() const noexcept -> bool;
 
 private:
     using Index   = typename Base::Index;
     using Pointer = typename Base::Pointer;
     using Version = typename Base::Version;
 
+    using Base::invalid_id;
     using Base::invalid_index;
 
-    using Base::id_from_key;
+    using Base::index_from_key;
     using Base::make_key;
     using Base::version_from_key;
 
-    using Base::index_from_pointer;
+    using Base::id_from_pointer;
     using Base::make_pointer;
     using Base::version_from_pointer;
 
     std::vector<Pointer> m_pointers;
-    std::vector<T>       m_values;
-    std::vector<Index>   m_ids;
-    Index                oldest_dead_id{ invalid_index };
-    Index                youngest_dead_id{ invalid_index };
+    std::vector<Index>   m_indices;
+    Index                m_oldest_dead_index{ invalid_index };
+    Index                m_youngest_dead_index{ invalid_index };
 };
 
+template <typename Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace() -> std::pair<Key, ID>
+{
+    const ID id{ static_cast<ID>(m_indices.size()) };
+
+    m_indices.push_back(static_cast<Index>(m_pointers.size()));
+    util::ScopeGuard _{ [this] noexcept { m_indices.pop_back(); } };
+
+    if (m_oldest_dead_index == invalid_index) {
+        const Index   index{ static_cast<Index>(m_pointers.size()) };
+        const Version version{};
+        m_pointers.push_back(make_pointer(id, version));
+        return std::make_pair(make_key(index, version), id);
+    }
+
+    const Pointer old_pointer{ m_pointers[m_oldest_dead_index] };
+    const Index   index{ m_oldest_dead_index };
+    const Version version{ version_from_pointer(old_pointer) };
+    m_oldest_dead_index = id_from_pointer(old_pointer);
+    if (m_youngest_dead_index == index) {
+        m_youngest_dead_index = invalid_index;
+    }
+    m_pointers[index] = make_pointer(id, version);
+    return std::make_pair(make_key(index, version), id);
+}
+
+template <typename Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::erase(const Key key)
+    -> std::optional<ID>
+{
+    const Index index{ index_from_key(key) };
+    if (index >= m_pointers.size()) {
+        return std::nullopt;
+    }
+
+    const Pointer pointer{ m_pointers[index] };
+    const ID      id{ id_from_pointer(pointer) };
+    const Version version{ version_from_pointer(pointer) };
+    if (id == invalid_id || version_from_key(key) != version) {
+        return std::nullopt;
+    }
+
+    const Index moved_index = m_indices[id] = m_indices.back();
+    m_indices.pop_back();
+    m_pointers[moved_index] = pointer;
+
+    if (m_youngest_dead_index != invalid_index) {
+        m_pointers[m_youngest_dead_index] =
+            make_pointer(index, version_from_pointer(m_pointers[m_youngest_dead_index]));
+    }
+    m_youngest_dead_index = index;
+
+    if (m_oldest_dead_index == invalid_index) {
+        m_oldest_dead_index = index;
+    }
+
+    m_pointers[index] = make_pointer(invalid_index, static_cast<Version>(version + 1));
+
+    return id;
+}
+
+template <typename Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::get(const Key key) const -> ID
+{
+    const Index index{ index_from_key(key) };
+    assert(index < m_pointers.size() && "invalid key");
+
+    const ID id{ id_from_pointer(m_pointers[index]) };
+    assert(id != invalid_id && "invalid key");
+
+    assert(
+        version_from_key(key) == version_from_pointer(m_pointers[index]) && "invalid key"
+    );
+
+    return id;
+}
+
+template <typename Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::find(const Key key) const noexcept
+    -> std::optional<ID>
+{
+    const Index index{ index_from_key(key) };
+    if (index >= m_pointers.size()) {
+        return std::nullopt;
+    }
+
+    const Pointer pointer{ m_pointers[index] };
+    const ID      id{ id_from_pointer(pointer) };
+    const Version version{ version_from_pointer(pointer) };
+    if (id == invalid_id || version_from_key(key) != version) {
+        return std::nullopt;
+    }
+
+    return id;
+}
+
+template <typename Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::contains(const Key key) const noexcept
+    -> bool
+{
+    return find(key).has_value();
+}
+
+template <typename Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::empty() const noexcept -> bool
+{
+    return m_indices.empty();
+}
+
+namespace util {
+
+export template <typename Key_T, uint8_t version_bit_size_T = sizeof(Key_T) * 2>
+using SparseSet = ::SparseSet<Key_T, version_bit_size_T>;
+
 }   // namespace util
-
-template <util::sparse_set::key_c Key_T, util::sparse_set::value_c T, uint8_t version_bits_T>
-    requires(sizeof(Key_T) * 8 > version_bits_T)
-template <typename... Args>
-constexpr auto util::SparseSet<Key_T, T, version_bits_T>::emplace(Args&&... args) -> Key
-{
-    m_values.emplace_back(std::forward<Args>(args)...);
-    ScopeGuard _{ util::make_scope_guard([this] noexcept {
-        m_values.pop_back();
-    }) };
-    const Index index{ static_cast<Index>(m_values.size() - 1) };
-
-    m_ids.emplace_back(index);
-    ScopeGuard _{ util::make_scope_guard([this] noexcept { m_ids.pop_back(); }) };
-
-    if (oldest_dead_id == invalid_index) {
-        const Index   new_id{ static_cast<Index>(m_pointers.size()) };
-        const Version new_version{};
-        m_pointers.push_back(make_pointer(index, new_version));
-        return make_key(new_id, new_version);
-    }
-
-    const Pointer old_pointer{ m_pointers[oldest_dead_id] };
-    const Index   new_id{ oldest_dead_id };
-    const Version new_version{ version_from_pointer(old_pointer) };
-    oldest_dead_id = index_from_pointer(old_pointer);
-    if (youngest_dead_id == new_id) {
-        youngest_dead_id = invalid_index;
-    }
-    m_pointers[new_id] = make_pointer(index, new_version);
-    return make_key(new_id, new_version);
-}
-
-template <util::sparse_set::key_c Key_T, util::sparse_set::value_c T, uint8_t version_bits_T>
-    requires(sizeof(Key_T) * 8 > version_bits_T)
-constexpr auto util::SparseSet<Key_T, T, version_bits_T>::erase(const Key key)
-    -> std::optional<T>
-{
-    const Index id{ id_from_key(key) };
-    if (id >= m_pointers.size()) {
-        return std::nullopt;
-    }
-
-    const Pointer pointer{ m_pointers[id] };
-    const Index   index{ index_from_pointer(pointer) };
-    const Version version{ version_from_pointer(pointer) };
-    if (index == invalid_index || version_from_key(key) != version) {
-        return std::nullopt;
-    }
-
-    T value{ std::move(m_values[index]) };
-
-    m_values[index] = std::move(m_values.back());
-    m_values.pop_back();
-    const Index moved_id = m_ids[index] = std::move(m_ids.back());
-    m_ids.pop_back();
-    m_pointers[moved_id] = pointer;
-
-    if (oldest_dead_id == invalid_index) {
-        oldest_dead_id = id;
-    }
-    if (youngest_dead_id != invalid_index) {
-        m_pointers[youngest_dead_id] =
-            make_pointer(id, version_from_pointer(m_pointers[youngest_dead_id]));
-    }
-    youngest_dead_id = id;
-    m_pointers[id]   = make_pointer(invalid_index, static_cast<Version>(version + 1));
-
-    return std::move(value);
-}
-
-template <util::sparse_set::key_c Key_T, util::sparse_set::value_c T, uint8_t version_bits_T>
-    requires(sizeof(Key_T) * 8 > version_bits_T)
-template <typename Self>
-constexpr auto
-    util::SparseSet<Key_T, T, version_bits_T>::get(this Self&& self, const Key key)
-        -> meta::forward_like_t<T, Self>
-{
-    const Index id{ id_from_key(key) };
-    const Key   pointer{ self.m_pointers[id] };
-
-    assert(id < self.m_pointers.size());
-    assert(version_from_key(key) == version_from_pointer(pointer));
-
-    return std::forward_like<Self>(self.m_values[index_from_pointer(pointer)]);
-}
-
-template <util::sparse_set::key_c Key_T, util::sparse_set::value_c T, uint8_t version_bits_T>
-    requires(sizeof(Key_T) * 8 > version_bits_T)
-constexpr auto util::SparseSet<Key_T, T, version_bits_T>::find(const Key key)
-    -> OptionalRef<T>
-{
-    const Index id{ id_from_key(key) };
-    if (id >= m_pointers.size()) {
-        return std::nullopt;
-    }
-
-    const Pointer pointer{ m_pointers[id] };
-    const Index   index{ index_from_pointer(pointer) };
-    const Version version{ version_from_pointer(pointer) };
-    if (version_from_key(key) != version) {
-        return std::nullopt;
-    }
-
-    return OptionalRef<T>{ m_values[index] };
-}
-
-template <util::sparse_set::key_c Key_T, util::sparse_set::value_c T, uint8_t version_bits_T>
-    requires(sizeof(Key_T) * 8 > version_bits_T)
-constexpr auto util::SparseSet<Key_T, T, version_bits_T>::find(const Key key) const
-    -> OptionalRef<const T>
-{
-    return const_cast<SparseSet&>(*this).find(key);
-}
 
 module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
-using Key   = uint32_t;
-using Value = int;
-constexpr Value value{ 8 };
-constexpr Key   missing_key{ std::numeric_limits<Key>::max() };
+using Key = uint32_t;
+constexpr Key missing_key{ std::numeric_limits<Key>::max() };
 
 static_assert(
     [] {
-        util::SparseSet<Key, Value> sparse_set;
-        const Key                   key{ sparse_set.emplace(value) };
+        util::SparseSet<Key> sparse_set;
+        const auto [key, id]{ sparse_set.emplace() };
 
-        assert(sparse_set.get(key) == value);
+        assert(sparse_set.get(key) == id);
 
         return true;
     }(),
@@ -203,31 +301,31 @@ static_assert(
 
 static_assert(
     [] {
-        util::SparseSet<Key, Value> sparse_set;
-        const Key                   key{ sparse_set.emplace(value) };
+        util::SparseSet<Key> sparse_set;
+        const auto [key, id]{ sparse_set.emplace() };
 
-        assert(*sparse_set.find(key) == value);
+        assert(sparse_set.find(key).value() == id);
 
         return true;
     }(),
-    "find contained value test failed"
+    "find contained test failed"
 );
 
 static_assert(
     [] {
-        util::SparseSet<Key, Value> sparse_set;
+        const util::SparseSet<Key> sparse_set;
 
         assert(!sparse_set.find(missing_key).has_value());
 
         return true;
     }(),
-    "find missing value test failed"
+    "find missing test failed"
 );
 
 static_assert(
     [] {
-        util::SparseSet<Key, Value> sparse_set;
-        const Key                   key{ sparse_set.emplace(value) };
+        util::SparseSet<Key> sparse_set;
+        const auto [key, _]{ sparse_set.emplace() };
 
         assert(sparse_set.erase(key));
         assert(!sparse_set.find(key).has_value());
@@ -239,7 +337,7 @@ static_assert(
 
 static_assert(
     [] {
-        util::SparseSet<Key, Value> sparse_set;
+        util::SparseSet<Key> sparse_set;
 
         assert(!sparse_set.erase(missing_key));
 
@@ -250,12 +348,13 @@ static_assert(
 
 static_assert(
     [] {
-        util::SparseSet<Key, Value> sparse_set;
-        const Key                   old_key{ sparse_set.emplace(value) };
+        util::SparseSet<Key> sparse_set;
+        const auto [old_key, _]{ sparse_set.emplace() };
         sparse_set.erase(old_key);
-        sparse_set.emplace(value);
+        const auto [new_key, _]{ sparse_set.emplace() };
 
         assert(!sparse_set.find(old_key).has_value());
+        assert(sparse_set.contains(new_key));
 
         return true;
     }(),

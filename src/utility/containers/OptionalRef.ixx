@@ -40,10 +40,14 @@ export template <typename T>
 class OptionalRef {
 public:
     OptionalRef() = default;
-    constexpr explicit(false) OptionalRef(std::nullopt_t);
-    constexpr explicit(false) OptionalRef(OptionalRef<std::remove_const_t<T>> other)
+    constexpr explicit(false) OptionalRef(std::nullopt_t) noexcept;
+    constexpr explicit(false
+    ) OptionalRef(OptionalRef<std::remove_const_t<T>> other) noexcept
         requires(std::is_const_v<T>);
-    constexpr explicit OptionalRef(T& ref);
+    constexpr explicit OptionalRef(T& ref) noexcept;
+    constexpr explicit(false) OptionalRef(
+        const std::optional<std::reference_wrapper<T>>& optional_ref_wrapper
+    ) noexcept;
 
     [[nodiscard]]
     constexpr auto operator->() const -> T*;
@@ -51,10 +55,10 @@ public:
     constexpr auto operator*() const -> T&;
 
     [[nodiscard]]
-    constexpr auto has_value() const -> bool;
+    constexpr auto has_value() const noexcept -> bool;
 
     [[nodiscard]]
-    constexpr auto value_or(T& other) const -> T&;
+    constexpr auto value_or(T& other) const noexcept -> T&;
 
     template <and_then_func_c<T> F>
     constexpr auto and_then(F&& func) const -> std::invoke_result_t<F, T>;
@@ -70,18 +74,29 @@ private:
 }   // namespace util
 
 template <typename T>
-constexpr util::OptionalRef<T>::OptionalRef(std::nullopt_t) : OptionalRef{}
+constexpr util::OptionalRef<T>::OptionalRef(std::nullopt_t) noexcept : OptionalRef{}
 {}
 
 template <typename T>
-constexpr util::OptionalRef<T>::OptionalRef(OptionalRef<std::remove_const_t<T>> other)
+constexpr util::OptionalRef<T>::OptionalRef(
+    OptionalRef<std::remove_const_t<T>> other
+) noexcept
     requires(std::is_const_v<T>)
     : m_handle{ other.transform([](T& value) { return std::addressof(value); }
       ).value_or(nullptr) }
 {}
 
 template <typename T>
-constexpr util::OptionalRef<T>::OptionalRef(T& ref) : m_handle{ std::addressof(ref) }
+constexpr util::OptionalRef<T>::OptionalRef(T& ref) noexcept
+    : m_handle{ std::addressof(ref) }
+{}
+
+template <typename T>
+constexpr util::OptionalRef<T>::OptionalRef(
+    const std::optional<std::reference_wrapper<T>>& optional_ref_wrapper
+) noexcept
+    : m_handle{ optional_ref_wrapper.transform([](T& ref) { return std::addressof(ref); }
+      ).value_or(nullptr) }
 {}
 
 template <typename T>
@@ -99,13 +114,13 @@ constexpr auto util::OptionalRef<T>::operator*() const -> T&
 }
 
 template <typename T>
-constexpr auto util::OptionalRef<T>::has_value() const -> bool
+constexpr auto util::OptionalRef<T>::has_value() const noexcept -> bool
 {
     return m_handle != nullptr;
 }
 
 template <typename T>
-constexpr auto util::OptionalRef<T>::value_or(T& other) const -> T&
+constexpr auto util::OptionalRef<T>::value_or(T& other) const noexcept -> T&
 {
     if (has_value()) {
         return *m_handle;

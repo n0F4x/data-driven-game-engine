@@ -49,10 +49,10 @@ struct Operations {
 };
 
 template <typename T>
-concept small_c = false;
+concept small_c = storable_c<T> && false;
 
 template <typename T>
-concept large_c = true;
+concept large_c = storable_c<T> && true;
 
 template <typename T, util::meta::decayed_c Allocator_T>
 struct Traits;
@@ -121,6 +121,7 @@ public:
     constexpr auto operator=(const BasicAny&) -> BasicAny&;
     constexpr auto operator=(BasicAny&&) noexcept -> BasicAny&;
 
+    // TODO: let get be a friend function
     template <::util::meta::decayed_c T, typename Self_T>
     constexpr auto get(this Self_T&&) noexcept -> ::util::meta::forward_like_t<T, Self_T>;
 
@@ -336,6 +337,7 @@ static_assert(
     [] {
         util::Any any{ std::in_place_type<Value>, value.value() };
         assert(any.get<Value>() == value);
+
         return true;
     }(),
     "in_place construct test failed"
@@ -347,6 +349,7 @@ static_assert(
                              std::in_place_type<Value>,
                              value.value() };
         assert(any.get<Value>() == value);
+
         return true;
     }(),
     "in_place construct with allocator test failed"
@@ -356,6 +359,7 @@ static_assert(
     [] {
         const util::Any any{ value };
         assert(any.get<Value>() == value);
+
         return true;
     }(),
     "forwarding construct test failed"
@@ -365,6 +369,7 @@ static_assert(
     [] {
         const util::Any any{ util::Any::Allocator{}, value };
         assert(any.get<Value>() == value);
+
         return true;
     }(),
     "forwarding construct with allocator test failed"
@@ -373,8 +378,10 @@ static_assert(
 static_assert(
     [] {
         const util::Any any{ value };
+
         const util::Any copy{ any };
         assert(any.get<Value>() == copy.get<Value>());
+
         return true;
     }(),
     "copy test failed"
@@ -382,9 +389,11 @@ static_assert(
 
 static_assert(
     [] {
-        util::Any       any{ value };
+        util::Any any{ value };
+
         const util::Any moved_to{ std::move(any) };
         assert(moved_to.get<Value>() == value);
+
         return true;
     }(),
     "move test failed"
@@ -394,8 +403,10 @@ static_assert(
     [] {
         const util::Any any{ value };
         util::Any       copy{ other_value };
+
         copy = any;
         assert(copy.get<Value>() == any.get<Value>());
+
         return true;
     }(),
     "copy assignment test failed"
@@ -403,10 +414,15 @@ static_assert(
 
 static_assert(
     [] {
-        util::Any any{ value };
+        util::Any moved_from{ value };
         util::Any moved_to{ other_value };
-        moved_to = std::move(any);
+
+        moved_to = std::move(moved_from);
         assert(moved_to.get<Value>() == value);
+
+        moved_from = std::move(moved_to);
+        assert(moved_from.get<Value>() == value);
+
         return true;
     }(),
     "move assignment test failed"
@@ -415,6 +431,7 @@ static_assert(
 static_assert(
     [] {
         util::Any any{ std::in_place_type<Value>, value };
+
         [[maybe_unused]]
         decltype(auto) result = any.get<Value>();
 
@@ -429,6 +446,7 @@ static_assert(
 static_assert(
     [] {
         const util::Any any{ std::in_place_type<Value>, value };
+
         [[maybe_unused]]
         decltype(auto) result = any.get<Value>();
 
@@ -443,12 +461,13 @@ static_assert(
 static_assert(
     [] {
         util::Any any{ std::in_place_type<Value>, value };
-        [[maybe_unused]]
-        const auto     result            = std::move(any).get<Value>();
-        decltype(auto) result_after_move = std::move(any).get<Value>();
 
-        static_assert(std::is_same_v<decltype(result_after_move), Value&&>);
+        [[maybe_unused]]
+        const auto result = std::move(any).get<Value>();
         assert(result == value);
+
+        decltype(auto) result_after_move = std::move(any).get<Value>();
+        static_assert(std::is_same_v<decltype(result_after_move), Value&&>);
         assert(result_after_move == Value{});
 
         return true;
@@ -459,6 +478,7 @@ static_assert(
 static_assert(
     [] {
         const util::Any any{ std::in_place_type<Value>, value };
+
         [[maybe_unused]]
         decltype(auto) result = std::move(any).get<Value>();
 

@@ -3,5 +3,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}
         FILES
         ecs.cppm
+        Archetype.ixx
+        Component.ixx
+        Entity.ixx
         Registry.ixx
 )

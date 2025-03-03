@@ -12,5 +12,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         hashing.ixx
         ScopeGuard.ixx
         Size.ixx
+        Strong.ixx
         TypeList.ixx
 )
