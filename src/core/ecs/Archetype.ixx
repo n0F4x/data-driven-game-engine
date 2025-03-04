@@ -16,9 +16,9 @@ import utility.TypeList;
 import core.ecs.Entity;
 import core.ecs.Component;
 
-struct archetype_id_tag {};
+struct archetype_id_tag_t {};
 
-export using ArchetypeID = ::util::Strong<util::meta::TypeHash, archetype_id_tag>;
+export using ArchetypeID = ::util::Strong<util::meta::TypeHash, archetype_id_tag_t>;
 
 template <core::ecs::component_c Component_T>
 struct component_hash {
@@ -62,7 +62,7 @@ public:
 private:
     std::vector<core::ecs::ComponentID> m_component_id_set;
     util::SparseSet<
-        core::ecs::Key::Underlying,
+        core::ecs::Key,
         (sizeof(core::ecs::Key::Underlying) - sizeof(core::ecs::Index::Underlying)) * 8>
         m_sparse_index_set;
 };
@@ -102,23 +102,23 @@ constexpr auto Archetype::emplace() -> std::pair<core::ecs::Key, core::ecs::Inde
 constexpr auto Archetype::erase(const core::ecs::Key key)
     -> std::optional<core::ecs::Index>
 {
-    return m_sparse_index_set.erase(key.underlying()).transform(core::ecs::make_index);
+    return m_sparse_index_set.erase(key).transform(core::ecs::make_index);
 }
 
 constexpr auto Archetype::get(const core::ecs::Key key) const -> core::ecs::Index
 {
-    return core::ecs::Index{ m_sparse_index_set.get(key.underlying()) };
+    return core::ecs::Index{ m_sparse_index_set.get(key) };
 }
 
 constexpr auto Archetype::find(const core::ecs::Key key) const noexcept
     -> std::optional<core::ecs::Index>
 {
-    return m_sparse_index_set.find(key.underlying()).transform(core::ecs::make_index);
+    return m_sparse_index_set.find(key).transform(core::ecs::make_index);
 }
 
 constexpr auto Archetype::contains(const core::ecs::Key key) const noexcept -> bool
 {
-    return m_sparse_index_set.contains(key.underlying());
+    return m_sparse_index_set.contains(key);
 }
 
 constexpr auto Archetype::empty() const noexcept -> bool

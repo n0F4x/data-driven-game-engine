@@ -18,9 +18,9 @@ namespace core::ecs {
 export template <typename T>
 concept component_c = !std::is_const_v<T> && util::meta::nothrow_movable_c<T>;
 
-struct component_id_tag {};
+struct component_id_tag_t {};
 
-export using ComponentID = ::util::Strong<util::meta::TypeHash, component_id_tag>;
+export using ComponentID = ::util::Strong<util::meta::TypeHash, component_id_tag_t>;
 
 export template <component_c Component_T>
 constexpr ComponentID component_id_v{ util::meta::hash_v<Component_T> };

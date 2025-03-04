@@ -11,25 +11,27 @@ export module utility.containers.SlotMultiMap;
 import utility.containers.SparseSet;
 
 import utility.meta.concepts.nothrow_movable;
+import utility.meta.concepts.specialization_of;
 import utility.meta.type_traits.forward_like;
 import utility.ScopeGuard;
+import utility.Strong;
 
 namespace util {
 
 export template <
     typename Key_T,
     typename TypeList_T,
-    uint8_t version_bits_T = sizeof(Key_T) * 2>
-class MultiSparseSet;
+    uint8_t version_bit_size_T = sizeof(Key_T) * 2>
+class SlotMultiMap;
 
 export template <
-    typename Key_T,
+    ::util::meta::specialization_of_c<util::Strong> Key_T,
     template <typename...> typename TypeList_T,
-    meta::nothrow_movable_c... Ts,
-    uint8_t version_bits_T>
-    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
-          && (sizeof(Key_T) * 8 > version_bits_T)
-class MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T> {
+    ::util::meta::nothrow_movable_c... Ts,
+    uint8_t version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+class SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T> {
 public:
     using Key = Key_T;
 
@@ -50,22 +52,22 @@ public:
     constexpr auto find(Key key) const -> std::optional<std::tuple<const Ts&...>>;
 
 private:
-    SparseSet<Key, version_bits_T> m_sparse_set;
-    std::tuple<std::vector<Ts>...> m_value_containers;
+    SparseSet<Key, version_bit_size_T> m_sparse_set;
+    std::tuple<std::vector<Ts>...>     m_value_containers;
 };
 
 }   // namespace util
 
 template <
-    typename Key_T,
+    ::util::meta::specialization_of_c<util::Strong> Key_T,
     template <typename...> typename TypeList_T,
-    util::meta::nothrow_movable_c... Ts,
-    uint8_t version_bits_T>
-    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
-          && (sizeof(Key_T) * 8 > version_bits_T)
+    ::util::meta::nothrow_movable_c... Ts,
+    uint8_t version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
              template <typename... Us>
                  requires(std::is_constructible_v<Ts, Us> && ...)
-constexpr auto util::MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T>::emplace(
+constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::emplace(
     Us&&... values
 ) -> Key
 {
@@ -80,13 +82,13 @@ constexpr auto util::MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T>::e
 }
 
 template <
-    typename Key_T,
+    ::util::meta::specialization_of_c<util::Strong> Key_T,
     template <typename...> typename TypeList_T,
-    util::meta::nothrow_movable_c... Ts,
-    uint8_t version_bits_T>
-    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
-          && (sizeof(Key_T) * 8 > version_bits_T)
-constexpr auto util::MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T>::erase(
+    ::util::meta::nothrow_movable_c... Ts,
+    uint8_t version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::erase(
     const Key key
 ) -> std::optional<std::tuple<Ts...>>
 {
@@ -106,14 +108,14 @@ constexpr auto util::MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T>::e
 }
 
 template <
-    typename Key_T,
+    ::util::meta::specialization_of_c<util::Strong> Key_T,
     template <typename...> typename TypeList_T,
-    util::meta::nothrow_movable_c... Ts,
-    uint8_t version_bits_T>
-    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
-          && (sizeof(Key_T) * 8 > version_bits_T)
+    ::util::meta::nothrow_movable_c... Ts,
+    uint8_t version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
 template <typename Self_T>
-constexpr auto util::MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T>::get(
+constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::get(
     this Self_T&& self,
     const Key     key
 ) -> std::tuple<meta::forward_like_t<Ts, Self_T>...>
@@ -128,13 +130,13 @@ constexpr auto util::MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T>::g
 }
 
 template <
-    typename Key_T,
+    ::util::meta::specialization_of_c<util::Strong> Key_T,
     template <typename...> typename TypeList_T,
-    util::meta::nothrow_movable_c... Ts,
-    uint8_t version_bits_T>
-    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
-          && (sizeof(Key_T) * 8 > version_bits_T)
-constexpr auto util::MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T>::find(
+    ::util::meta::nothrow_movable_c... Ts,
+    uint8_t version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::find(
     const Key key
 ) -> std::optional<std::tuple<Ts&...>>
 {
@@ -148,24 +150,29 @@ constexpr auto util::MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T>::f
 }
 
 template <
-    typename Key_T,
+    ::util::meta::specialization_of_c<util::Strong> Key_T,
     template <typename...> typename TypeList_T,
-    util::meta::nothrow_movable_c... Ts,
-    uint8_t version_bits_T>
-    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
-          && (sizeof(Key_T) * 8 > version_bits_T)
-constexpr auto util::MultiSparseSet<Key_T, TypeList_T<Ts...>, version_bits_T>::find(
+    ::util::meta::nothrow_movable_c... Ts,
+    uint8_t version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::find(
     const Key key
 ) const -> std::optional<std::tuple<const Ts&...>>
 {
-    return const_cast<MultiSparseSet&>(*this).find(key);
+    return const_cast<SlotMultiMap&>(*this).find(key);
 }
 
 module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
-using Key = uint32_t;
+// TODO: remove unnamed namespace when Clang allows it
+namespace {
+struct key_tag_t {};
+}   // namespace
+
+using Key = util::Strong<uint32_t, key_tag_t>;
 
 struct Dummy {
     double value{};
@@ -179,15 +186,15 @@ constexpr Key                           missing_key{ std::numeric_limits<Key>::m
 constexpr std::tuple<int, float, Dummy> values{ 32, 0.7f, Dummy{ 9 } };
 
 template <>
-class util::MultiSparseSet<Key, std::tuple<>>;
+class util::SlotMultiMap<Key, std::tuple<>>;
 
 static_assert(
     [] {
-        util::MultiSparseSet<Key, Values> multi_sparse_set;
-        const Key                         key{ multi_sparse_set.emplace(
+        util::SlotMultiMap<Key, Values> multi_sparse_set;
+        const Key                       key{ multi_sparse_set.emplace(
             std::get<0>(values), std::get<1>(values), std::get<2>(values)
         ) };
-        auto                              result = multi_sparse_set.get(key);
+        auto                            result = multi_sparse_set.get(key);
 
         static_assert(std::is_same_v<decltype(result), std::tuple<int&, float&, Dummy&>>);
         assert(result == values);
@@ -199,11 +206,11 @@ static_assert(
 
 static_assert(
     [] {
-        util::MultiSparseSet<Key, Values> multi_sparse_set;
-        const Key                         key{ multi_sparse_set.emplace(
+        util::SlotMultiMap<Key, Values> multi_sparse_set;
+        const Key                       key{ multi_sparse_set.emplace(
             std::get<0>(values), std::get<1>(values), std::get<2>(values)
         ) };
-        auto result = std::as_const(multi_sparse_set).get(key);
+        auto                            result = std::as_const(multi_sparse_set).get(key);
 
         static_assert(std::is_same_v<
                       decltype(result),
@@ -217,11 +224,11 @@ static_assert(
 
 static_assert(
     [] {
-        util::MultiSparseSet<Key, Values> multi_sparse_set;
-        const Key                         key{ multi_sparse_set.emplace(
+        util::SlotMultiMap<Key, Values> multi_sparse_set;
+        const Key                       key{ multi_sparse_set.emplace(
             std::get<0>(values), std::get<1>(values), std::get<2>(values)
         ) };
-        auto                              result = std::move(multi_sparse_set).get(key);
+        auto                            result = std::move(multi_sparse_set).get(key);
 
         static_assert(std::is_same_v<decltype(result), std::tuple<int&&, float&&, Dummy&&>>);
         assert(result == values);
@@ -233,8 +240,8 @@ static_assert(
 
 static_assert(
     [] {
-        util::MultiSparseSet<Key, Values> multi_sparse_set;
-        const Key                         key{ multi_sparse_set.emplace(
+        util::SlotMultiMap<Key, Values> multi_sparse_set;
+        const Key                       key{ multi_sparse_set.emplace(
             std::get<0>(values), std::get<1>(values), std::get<2>(values)
         ) };
         auto result = std::move(std::as_const(multi_sparse_set)).get(key);
@@ -251,8 +258,8 @@ static_assert(
 
 static_assert(
     [] {
-        util::MultiSparseSet<Key, Values> multi_sparse_set;
-        const Key                         key = multi_sparse_set.emplace(
+        util::SlotMultiMap<Key, Values> multi_sparse_set;
+        const Key                       key = multi_sparse_set.emplace(
             std::get<0>(values), std::get<1>(values), std::get<2>(values)
         );
         auto result = multi_sparse_set.find(key);
@@ -269,8 +276,8 @@ static_assert(
 
 static_assert(
     [] {
-        util::MultiSparseSet<Key, Values> multi_sparse_set;
-        const Key                         key = multi_sparse_set.emplace(
+        util::SlotMultiMap<Key, Values> multi_sparse_set;
+        const Key                       key = multi_sparse_set.emplace(
             std::get<0>(values), std::get<1>(values), std::get<2>(values)
         );
         auto result = std::as_const(multi_sparse_set).find(key);
@@ -287,7 +294,7 @@ static_assert(
 
 static_assert(
     [] {
-        util::MultiSparseSet<Key, Values> multi_sparse_set;
+        util::SlotMultiMap<Key, Values> multi_sparse_set;
 
         assert(!multi_sparse_set.find(missing_key).has_value());
 
@@ -298,11 +305,11 @@ static_assert(
 
 static_assert(
     [] {
-        util::MultiSparseSet<Key, Values> multi_sparse_set;
-        const Key                         key{ multi_sparse_set.emplace(
+        util::SlotMultiMap<Key, Values> multi_sparse_set;
+        const Key                       key{ multi_sparse_set.emplace(
             std::get<0>(values), std::get<1>(values), std::get<2>(values)
         ) };
-        const std::optional<Values>       erased_values = multi_sparse_set.erase(key);
+        const std::optional<Values>     erased_values = multi_sparse_set.erase(key);
 
         assert(erased_values.value() == values);
         assert(!multi_sparse_set.find(key).has_value());

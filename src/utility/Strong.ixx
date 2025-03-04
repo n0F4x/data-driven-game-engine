@@ -40,6 +40,17 @@ private:
 
 }   // namespace util
 
+export template <typename T, typename Tag_T>
+struct std::hash<util::Strong<T, Tag_T>> {
+    template <typename Strong_T>
+        requires std::same_as<std::remove_cvref_t<Strong_T>, util::Strong<T, Tag_T>>
+    [[nodiscard]]
+    auto operator()(Strong_T&& strong) const noexcept -> size_t
+    {
+        return std::hash<T>{}(strong.underlying());
+    }
+};
+
 template <typename T, typename Tag_T>
 template <typename... Args_T>
 constexpr util::Strong<T, Tag_T>::Strong(
