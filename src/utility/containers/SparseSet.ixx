@@ -156,6 +156,9 @@ private:
     std::vector<Index>   m_indices;
     Index                m_oldest_dead_index{ invalid_index };
     Index                m_youngest_dead_index{ invalid_index };
+
+    [[nodiscard]]
+    constexpr auto emplace_pointer(ID id);
 };
 
 template <typename Key_T, uint8_t version_bit_size_T>
@@ -164,24 +167,10 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace() -> std::pair<Key,
 {
     const ID id{ static_cast<ID>(m_indices.size()) };
 
-    m_indices.push_back(static_cast<Index>(m_pointers.size()));
-    util::ScopeGuard _{ [this] noexcept { m_indices.pop_back(); } };
+    const auto [index, version, scope_guard] = emplace_pointer(id);
 
-    if (m_oldest_dead_index == invalid_index) {
-        const Index   index{ static_cast<Index>(m_pointers.size()) };
-        const Version version{};
-        m_pointers.push_back(make_pointer(id, version));
-        return std::make_pair(make_key(index, version), id);
-    }
+    m_indices.push_back(index);
 
-    const Pointer old_pointer{ m_pointers[m_oldest_dead_index] };
-    const Index   index{ m_oldest_dead_index };
-    const Version version{ version_from_pointer(old_pointer) };
-    m_oldest_dead_index = id_from_pointer(old_pointer);
-    if (m_youngest_dead_index == index) {
-        m_youngest_dead_index = invalid_index;
-    }
-    m_pointers[index] = make_pointer(id, version);
     return std::make_pair(make_key(index, version), id);
 }
 
@@ -204,7 +193,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::erase(const Key key)
 
     const Index moved_index = m_indices[id] = m_indices.back();
     m_indices.pop_back();
-    m_pointers[moved_index] = pointer;
+    m_pointers[moved_index] = make_pointer(id, version_from_pointer(m_pointers[moved_index]));
 
     if (m_youngest_dead_index != invalid_index) {
         m_pointers[m_youngest_dead_index] =
@@ -271,6 +260,48 @@ template <typename Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::empty() const noexcept -> bool
 {
     return m_indices.empty();
+}
+
+template <typename Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<Key_T> && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id)
+{
+    struct PointersPopBackFunctor {
+        SparseSet* capture{};
+
+        auto operator()() noexcept
+        {
+            if (capture != nullptr) {
+                capture->m_pointers.pop_back();
+            }
+        }
+    };
+
+    if (m_oldest_dead_index == invalid_index) {
+        const Index   index{ static_cast<Index>(m_pointers.size()) };
+        const Version version{};
+
+        m_pointers.push_back(make_pointer(id, version));
+
+        return std::make_tuple(
+            index, version, util::ScopeGuard{ PointersPopBackFunctor{ this } }
+        );
+    }
+
+    const Pointer old_pointer{ m_pointers[m_oldest_dead_index] };
+    const Index   index{ m_oldest_dead_index };
+    const Version version{ version_from_pointer(old_pointer) };
+
+    m_oldest_dead_index = id_from_pointer(old_pointer);
+    if (m_youngest_dead_index == index) {
+        m_youngest_dead_index = invalid_index;
+    }
+
+    m_pointers[index] = make_pointer(id, version);
+
+    return std::make_tuple(
+        index, version, util::ScopeGuard{ PointersPopBackFunctor{} }
+    );
 }
 
 namespace util {
@@ -359,6 +390,22 @@ static_assert(
         return true;
     }(),
     "version test failed"
+);
+
+static_assert(
+    [] {
+        util::SparseSet<Key> sparse_set;
+        const auto [first_key, _]{ sparse_set.emplace() };
+        const auto [second_key, _]{ sparse_set.emplace() };
+        sparse_set.erase(second_key);
+        const auto [third_key, _]{ sparse_set.emplace() };
+        sparse_set.erase(first_key);
+
+        assert(sparse_set.contains(third_key));
+
+        return true;
+    }(),
+    "complex erase test failed"
 );
 
 #endif
