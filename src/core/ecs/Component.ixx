@@ -8,7 +8,7 @@ export module core.ecs.Component;
 
 import utility.containers.Any;
 import utility.meta.concepts.nothrow_movable;
-import utility.meta.reflection.hash;
+import utility.meta.reflection.type_hash;
 import utility.Strong;
 
 import core.ecs.Entity;

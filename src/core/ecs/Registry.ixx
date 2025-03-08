@@ -7,7 +7,7 @@ module;
 #include <unordered_map>
 #include <utility>
 
-#ifdef ENGINE_ENABLE_TESTS
+#ifdef ENGINE_ENABLE_RUNTIME_TESTS
   #include <catch2/catch_test_macros.hpp>
 #endif
 
@@ -18,7 +18,7 @@ import utility.containers.SlotMultiMap;
 import utility.containers.SlotMap;
 import utility.meta.concepts.nothrow_movable;
 import utility.meta.concepts.specialization_of;
-import utility.meta.reflection.hash;
+import utility.meta.reflection.type_hash;
 import utility.meta.type_traits.all_different;
 import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.type_list.type_list_is_sorted;
@@ -297,7 +297,7 @@ auto core::ecs::Registry::component(
 
 module :private;
 
-#ifdef ENGINE_ENABLE_TESTS
+#ifdef ENGINE_ENABLE_RUNTIME_TESTS
 
 TEST_CASE("core::ecs::Registry")
 {

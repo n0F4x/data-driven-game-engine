@@ -3,5 +3,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}
         FILES
         reflection.cppm
-        hash.ixx
+        type_hash.ixx
+        type_id.ixx
 )

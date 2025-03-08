@@ -39,7 +39,7 @@ endif ()
 
 if (engine_test)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
-            ENGINE_ENABLE_TESTS
+            ENGINE_ENABLE_RUNTIME_TESTS
             ENGINE_ENABLE_STATIC_TESTS
     )
 

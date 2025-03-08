@@ -8,7 +8,7 @@ export module core.ecs.Archetype;
 
 import utility.containers.Any;
 import utility.containers.SparseSet;
-import utility.meta.reflection.hash;
+import utility.meta.reflection.type_hash;
 import utility.meta.type_traits.type_list.type_list_sort;
 import utility.Strong;
 import utility.TypeList;

@@ -84,7 +84,9 @@ auto Scheduler<TaskBuilders_T...>::run(
     std::apply(
         [resources = std::ref(resources),
          &registry]<typename TaskBuilder_T>(TaskBuilder_T&& task_builder) {
-            std::forward<TaskBuilder_T>(task_builder).build(resources.get(), registry)();
+            std::invoke(
+                std::forward<TaskBuilder_T>(task_builder).build(resources.get(), registry)
+            );
         },
         std::move(m_task_builders)
     );
