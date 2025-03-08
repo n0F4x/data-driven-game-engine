@@ -26,28 +26,8 @@ import utility.memory.Allocator;
 import utility.memory.Deallocator;
 import utility.meta.reflection.type_id;
 
-namespace util {
-
-export template <
-    size_t                            size_T      = 3 * sizeof(void*),
-    size_t                            alignment_T = sizeof(void*),
-    ::util::meta::generic_allocator_c Allocator_T = Allocator>
-class BasicAny;
-
-}   // namespace util
-
 template <typename T>
 concept storable_c = util::meta::decayed_c<T> && std::copyable<T>;
-
-template <typename>
-struct is_specialization_of_any : std::false_type {};
-
-template <size_t size_T, size_t alignment_T, typename Allocator_T>
-struct is_specialization_of_any<util::BasicAny<size_T, alignment_T, Allocator_T>>
-    : std::true_type {};
-
-template <typename T>
-concept specialization_of_any_c = is_specialization_of_any<T>::value;
 
 template <size_t size_T, size_t alignment_T>
 struct small_buffer_t {
@@ -151,8 +131,8 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
 namespace util {
 
 export template <
-    size_t                            size_T,
-    size_t                            alignment_T,
+    size_t                            size_T      = 3 * sizeof(void*),
+    size_t                            alignment_T = sizeof(void*),
     ::util::meta::generic_allocator_c Allocator_T = Allocator>
 class BasicAny {
 public:
@@ -737,10 +717,10 @@ static_assert(
 
 TEST_CASE("util::Any")
 {
-    SECTION("in_place construct test failed")
+    SECTION("in_place construct")
     {
         util::Any any{ std::in_place_type<Value>, value.value() };
-        assert(any.get<Value>() == value);
+        REQUIRE(any.get<Value>() == value);
     }
 
     SECTION("in_place construct with allocator")
@@ -748,19 +728,19 @@ TEST_CASE("util::Any")
         const util::Any any{ util::Any::Allocator{},
                              std::in_place_type<Value>,
                              value.value() };
-        assert(any.get<Value>() == value);
+        REQUIRE(any.get<Value>() == value);
     }
 
     SECTION("forwarding construct")
     {
         const util::Any any{ value };
-        assert(any.get<Value>() == value);
+        REQUIRE(any.get<Value>() == value);
     }
 
-    SECTION("forwarding construct with allocator test failed")
+    SECTION("forwarding construct with allocator")
     {
         const util::Any any{ util::Any::Allocator{}, value };
-        assert(any.get<Value>() == value);
+        REQUIRE(any.get<Value>() == value);
     }
 
     SECTION("copy construct")
@@ -768,7 +748,7 @@ TEST_CASE("util::Any")
         const util::Any any{ value };
 
         const util::Any copy{ any };
-        assert(any.get<Value>() == copy.get<Value>());
+        REQUIRE(any.get<Value>() == copy.get<Value>());
     }
 
     SECTION("move construct")
@@ -776,7 +756,7 @@ TEST_CASE("util::Any")
         util::Any any{ value };
 
         const util::Any moved_to{ std::move(any) };
-        assert(moved_to.get<Value>() == value);
+        REQUIRE(moved_to.get<Value>() == value);
     }
 
     SECTION("copy assignment")
@@ -785,7 +765,7 @@ TEST_CASE("util::Any")
         util::Any       copy{ other_value };
 
         copy = any;
-        assert(copy.get<Value>() == any.get<Value>());
+        REQUIRE(copy.get<Value>() == any.get<Value>());
     }
 
     SECTION("move assignment")
@@ -794,10 +774,10 @@ TEST_CASE("util::Any")
         util::Any moved_to{ other_value };
 
         moved_to = std::move(moved_from);
-        assert(moved_to.get<Value>() == value);
+        REQUIRE(moved_to.get<Value>() == value);
 
         moved_from = std::move(moved_to);
-        assert(moved_from.get<Value>() == value);
+        REQUIRE(moved_from.get<Value>() == value);
     }
 
     SECTION("get &")
@@ -807,7 +787,7 @@ TEST_CASE("util::Any")
         [[maybe_unused]]
         decltype(auto) result = any.get<Value>();
 
-        static_assert(std::is_same_v<decltype(result), Value&>);
+        STATIC_REQUIRE(std::is_same_v<decltype(result), Value&>);
         assert(result == value);
     }
 
@@ -818,8 +798,8 @@ TEST_CASE("util::Any")
         [[maybe_unused]]
         decltype(auto) result = any.get<Value>();
 
-        static_assert(std::is_same_v<decltype(result), const Value&>);
-        assert(result == value);
+        STATIC_REQUIRE(std::is_same_v<decltype(result), const Value&>);
+        REQUIRE(result == value);
     }
 
     SECTION("get &&")
@@ -828,11 +808,11 @@ TEST_CASE("util::Any")
 
         [[maybe_unused]]
         const auto result = std::move(any).get<Value>();
-        assert(result == value);
+        REQUIRE(result == value);
 
         decltype(auto) result_after_move = std::move(any).get<Value>();
-        static_assert(std::is_same_v<decltype(result_after_move), Value&&>);
-        assert(result_after_move == Value{});
+        STATIC_REQUIRE(std::is_same_v<decltype(result_after_move), Value&&>);
+        REQUIRE(result_after_move == Value{});
     }
 
     SECTION("get const&&")
@@ -842,8 +822,8 @@ TEST_CASE("util::Any")
         [[maybe_unused]]
         decltype(auto) result = std::move(any).get<Value>();
 
-        static_assert(std::is_same_v<decltype(result), const Value&&>);
-        assert(result == value);
+        STATIC_REQUIRE(std::is_same_v<decltype(result), const Value&&>);
+        REQUIRE(result == value);
     }
 
     SECTION("large to small")
