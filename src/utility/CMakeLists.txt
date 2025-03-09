@@ -14,4 +14,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         Size.ixx
         Strong.ixx
         TypeList.ixx
+        ValueSequence.ixx
 )

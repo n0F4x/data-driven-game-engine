@@ -25,6 +25,7 @@ struct is_specialization_of_strong<util::Strong<T, tag_T>> : std::true_type {};
 
 template <typename T>
 concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
+
 }   // namespace
 
 template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T = sizeof(Key_T) * 2>

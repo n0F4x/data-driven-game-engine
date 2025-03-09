@@ -6,5 +6,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         Archetype.ixx
         Component.ixx
         Entity.ixx
+        fwd.ixx
         Registry.ixx
+        RegistryTag.ixx
+        specialization_of_registry_c.ixx
 )
