@@ -8,15 +8,9 @@ import utility.Strong;
 
 namespace core::ecs {
 
-struct id_tag_t {};
-
-struct key_tag_t {};
-
-struct index_tag_t {};
-
-export using ID    = ::util::Strong<uint64_t, id_tag_t>;
-export using Key   = ::util::Strong<uint64_t, key_tag_t>;
-export using Index = ::util::Strong<uint32_t, index_tag_t>;
+export using ID    = ::util::Strong<uint64_t>;
+export using Key   = ::util::Strong<uint64_t>;
+export using Index = ::util::Strong<uint32_t>;
 
 export [[nodiscard]]
 auto make_id(ID::Underlying value) noexcept -> ID;

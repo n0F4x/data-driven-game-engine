@@ -8,7 +8,7 @@ export module core.ecs.Component;
 
 import utility.containers.Any;
 import utility.meta.concepts.nothrow_movable;
-import utility.meta.reflection.type_hash;
+import utility.meta.reflection.type_id;
 import utility.Strong;
 
 import core.ecs.Entity;
@@ -18,12 +18,14 @@ namespace core::ecs {
 export template <typename T>
 concept component_c = !std::is_const_v<T> && util::meta::nothrow_movable_c<T>;
 
-struct component_id_tag_t {};
+export using ComponentID = ::util::Strong<uint32_t>;
 
-export using ComponentID = ::util::Strong<util::meta::TypeHash, component_id_tag_t>;
+using ComponentIDGenerator = ::util::meta::type_id_generator_t<>;
 
 export template <component_c Component_T>
-constexpr ComponentID component_id_v{ util::meta::hash_v<Component_T> };
+constexpr ComponentID component_id_v{
+    ComponentIDGenerator::id_v<Component_T, ComponentID::Underlying>
+};
 
 export template <component_c>
 struct component_tag_t {};

@@ -18,7 +18,6 @@ import utility.containers.SlotMultiMap;
 import utility.containers.SlotMap;
 import utility.meta.concepts.nothrow_movable;
 import utility.meta.concepts.specialization_of;
-import utility.meta.reflection.type_hash;
 import utility.meta.type_traits.all_different;
 import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.type_list.type_list_is_sorted;

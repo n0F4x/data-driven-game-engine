@@ -16,11 +16,23 @@ import utility.containers.OptionalRef;
 import utility.ScopeGuard;
 import utility.Strong;
 
+namespace {   // TODO: remove this namespace when Clang allows it
+
+template <typename>
+struct is_specialization_of_strong : std::false_type {};
+
+template <typename T, auto tag_T>
+struct is_specialization_of_strong<util::Strong<T, tag_T>> : std::true_type {};
+
+template <typename T>
+concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
+}   // namespace
+
 namespace util {
 
 export template <
-    ::util::meta::specialization_of_c<util::Strong> Key_T,
-    ::util::meta::nothrow_movable_c                 T,
+    ::specialization_of_strong_c    Key_T,
+    ::util::meta::nothrow_movable_c T,
     uint8_t version_bit_size_T = sizeof(typename Key_T::Underlying) * 2>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
@@ -51,9 +63,9 @@ private:
 }   // namespace util
 
 template <
-    util::meta::specialization_of_c<util::Strong> Key_T,
-    util::meta::nothrow_movable_c                 T,
-    uint8_t                                       version_bit_size_T>
+    specialization_of_strong_c    Key_T,
+    util::meta::nothrow_movable_c T,
+    uint8_t                       version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 template <typename... Args>
@@ -66,9 +78,9 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::emplace(Args&&... ar
 }
 
 template <
-    util::meta::specialization_of_c<util::Strong> Key_T,
-    util::meta::nothrow_movable_c                 T,
-    uint8_t                                       version_bit_size_T>
+    specialization_of_strong_c    Key_T,
+    util::meta::nothrow_movable_c T,
+    uint8_t                       version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
@@ -85,9 +97,9 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
 }
 
 template <
-    util::meta::specialization_of_c<util::Strong> Key_T,
-    util::meta::nothrow_movable_c                 T,
-    uint8_t                                       version_bit_size_T>
+    specialization_of_strong_c    Key_T,
+    util::meta::nothrow_movable_c T,
+    uint8_t                       version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 template <typename Self>
@@ -102,9 +114,9 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::get(
 }
 
 template <
-    util::meta::specialization_of_c<util::Strong> Key_T,
-    util::meta::nothrow_movable_c                 T,
-    uint8_t                                       version_bit_size_T>
+    specialization_of_strong_c    Key_T,
+    util::meta::nothrow_movable_c T,
+    uint8_t                       version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key)
@@ -116,9 +128,9 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key)
 }
 
 template <
-    util::meta::specialization_of_c<util::Strong> Key_T,
-    util::meta::nothrow_movable_c                 T,
-    uint8_t                                       version_bit_size_T>
+    specialization_of_strong_c    Key_T,
+    util::meta::nothrow_movable_c T,
+    uint8_t                       version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key) const
@@ -131,12 +143,7 @@ module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
-// TODO: remove unnamed namespace when Clang allows it
-namespace {
-struct key_tag_t {};
-}   // namespace
-
-using Key   = util::Strong<uint32_t, key_tag_t>;
+using Key   = util::Strong<uint32_t>;
 using Value = int;
 constexpr Value value{ 8 };
 constexpr Key   missing_key{ std::numeric_limits<Key>::max() };

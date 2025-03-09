@@ -15,9 +15,19 @@ import utility.meta.concepts.specialization_of;
 import utility.ScopeGuard;
 import utility.Strong;
 
-template <
-    util::meta::specialization_of_c<util::Strong> Key_T,
-    uint8_t                                       version_bit_size_T = sizeof(Key_T) * 2>
+namespace {   // TODO: remove this namespace when Clang allows it
+
+template <typename>
+struct is_specialization_of_strong : std::false_type {};
+
+template <typename T, auto tag_T>
+struct is_specialization_of_strong<util::Strong<T, tag_T>> : std::true_type {};
+
+template <typename T>
+concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
+}   // namespace
+
+template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T = sizeof(Key_T) * 2>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 class SparseSetTraits {
@@ -129,9 +139,7 @@ public:
  * stable.
  * This data structure is also called a slot map.
  */
-template <
-    util::meta::specialization_of_c<util::Strong> Key_T,
-    uint8_t                                       version_bit_size_T = sizeof(Key_T) * 2>
+template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T = sizeof(Key_T) * 2>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 class SparseSet : SparseSetTraits<Key_T, version_bit_size_T> {
@@ -184,7 +192,7 @@ private:
     constexpr auto emplace_pointer(ID id);
 };
 
-template <util::meta::specialization_of_c<util::Strong> Key_T, uint8_t version_bit_size_T>
+template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace() -> std::pair<Key, ID>
@@ -198,7 +206,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace() -> std::pair<Key,
     return std::make_pair(make_key(index, version), id);
 }
 
-template <util::meta::specialization_of_c<util::Strong> Key_T, uint8_t version_bit_size_T>
+template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto SparseSet<Key_T, version_bit_size_T>::erase(const Key key)
@@ -236,7 +244,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::erase(const Key key)
     return id;
 }
 
-template <util::meta::specialization_of_c<util::Strong> Key_T, uint8_t version_bit_size_T>
+template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto SparseSet<Key_T, version_bit_size_T>::get(const Key key) const -> ID
@@ -254,7 +262,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::get(const Key key) const ->
     return id;
 }
 
-template <util::meta::specialization_of_c<util::Strong> Key_T, uint8_t version_bit_size_T>
+template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto SparseSet<Key_T, version_bit_size_T>::find(const Key key) const noexcept
@@ -275,7 +283,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::find(const Key key) const n
     return id;
 }
 
-template <util::meta::specialization_of_c<util::Strong> Key_T, uint8_t version_bit_size_T>
+template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto SparseSet<Key_T, version_bit_size_T>::contains(const Key key) const noexcept
@@ -284,7 +292,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::contains(const Key key) con
     return find(key).has_value();
 }
 
-template <util::meta::specialization_of_c<util::Strong> Key_T, uint8_t version_bit_size_T>
+template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto SparseSet<Key_T, version_bit_size_T>::empty() const noexcept -> bool
@@ -292,7 +300,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::empty() const noexcept -> b
     return m_indices.empty();
 }
 
-template <util::meta::specialization_of_c<util::Strong> Key_T, uint8_t version_bit_size_T>
+template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id)
@@ -336,8 +344,8 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id
 namespace util {
 
 export template <
-    util::meta::specialization_of_c<util::Strong> Key_T,
-    uint8_t                                       version_bit_size_T = sizeof(Key_T) * 2>
+    specialization_of_strong_c Key_T,
+    uint8_t                    version_bit_size_T = sizeof(Key_T) * 2>
     requires std::unsigned_integral<typename Key_T::Underlying>
               && (!std::is_const_v<Key_T>)
 using SparseSet = ::SparseSet<Key_T, version_bit_size_T>;
@@ -348,12 +356,7 @@ module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
-// TODO: remove unnamed namespace when Clang allows it
-namespace {
-struct key_tag_t {};
-}   // namespace
-
-using Key = util::Strong<uint32_t, key_tag_t>;
+using Key = util::Strong<uint32_t>;
 constexpr Key missing_key{ std::numeric_limits<Key>::max() };
 
 static_assert(

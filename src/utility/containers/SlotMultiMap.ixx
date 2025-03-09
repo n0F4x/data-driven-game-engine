@@ -16,6 +16,18 @@ import utility.meta.type_traits.forward_like;
 import utility.ScopeGuard;
 import utility.Strong;
 
+namespace {   // TODO: remove this namespace when Clang allows it
+
+template <typename>
+struct is_specialization_of_strong : std::false_type {};
+
+template <typename T, auto tag_T>
+struct is_specialization_of_strong<util::Strong<T, tag_T>> : std::true_type {};
+
+template <typename T>
+concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
+}   // namespace
+
 namespace util {
 
 export template <
@@ -25,7 +37,7 @@ export template <
 class SlotMultiMap;
 
 export template <
-    ::util::meta::specialization_of_c<util::Strong> Key_T,
+    ::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -59,7 +71,7 @@ private:
 }   // namespace util
 
 template <
-    ::util::meta::specialization_of_c<util::Strong> Key_T,
+    ::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -82,7 +94,7 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    ::util::meta::specialization_of_c<util::Strong> Key_T,
+    ::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -108,7 +120,7 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    ::util::meta::specialization_of_c<util::Strong> Key_T,
+    ::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -130,7 +142,7 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    ::util::meta::specialization_of_c<util::Strong> Key_T,
+    ::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -150,7 +162,7 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    ::util::meta::specialization_of_c<util::Strong> Key_T,
+    ::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -167,12 +179,7 @@ module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
-// TODO: remove unnamed namespace when Clang allows it
-namespace {
-struct key_tag_t {};
-}   // namespace
-
-using Key = util::Strong<uint32_t, key_tag_t>;
+using Key = util::Strong<uint32_t>;
 
 struct Dummy {
     double value{};

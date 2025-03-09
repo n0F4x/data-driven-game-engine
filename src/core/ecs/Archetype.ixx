@@ -8,7 +8,7 @@ export module core.ecs.Archetype;
 
 import utility.containers.Any;
 import utility.containers.SparseSet;
-import utility.meta.reflection.type_hash;
+import utility.meta.reflection.type_id;
 import utility.meta.type_traits.type_list.type_list_sort;
 import utility.Strong;
 import utility.TypeList;
@@ -16,13 +16,13 @@ import utility.TypeList;
 import core.ecs.Entity;
 import core.ecs.Component;
 
-struct archetype_id_tag_t {};
+export using ArchetypeID = util::Strong<uint32_t>;
 
-export using ArchetypeID = ::util::Strong<util::meta::TypeHash, archetype_id_tag_t>;
+using ArchetypeIDGenerator = util::meta::type_id_generator_t<>;
 
 template <core::ecs::component_c Component_T>
 struct component_hash {
-    constexpr static size_t value{ core::ecs::component_id_v<Component_T>.underlying() };
+    constexpr static auto value{ core::ecs::component_id_v<Component_T>.underlying() };
 };
 
 template <core::ecs::component_c... Components_T>
@@ -31,7 +31,8 @@ using sorted_component_list_t =
 
 template <core::ecs::component_c... Components_T>
 constexpr ArchetypeID archetype_id_v{
-    util::meta::hash_v<sorted_component_list_t<Components_T...>>
+    ArchetypeIDGenerator::
+        id_v<sorted_component_list_t<Components_T...>, ArchetypeID::Underlying>
 };
 
 class Archetype {
