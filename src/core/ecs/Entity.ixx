@@ -11,7 +11,7 @@ import :RegistryTag;
 namespace core::ecs {
 
 export template <typename Registry_T>
-using ID = ::util::Strong<uint64_t, RegistryTag<Registry_T>{}>;
+using ID = ::util::Strong<uint64_t, void, RegistryTag<Registry_T>{}>;
 
 }   // namespace core::ecs
 

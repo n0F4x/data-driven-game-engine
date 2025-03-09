@@ -22,14 +22,25 @@ concept component_c = !std::is_const_v<T> && util::meta::nothrow_movable_c<T>;
 
 }   // namespace core::ecs
 
+struct ComponentIDGenerator;
+
 using ComponentID = ::util::Strong<uint_least32_t>;
 
-template <core::ecs::specialization_of_registry_c Registry_T>
-using ComponentIDGenerator = ::util::meta::type_id_generator_t<RegistryTag<Registry_T>{}>;
+struct ComponentIDGenerator {
+    template <core::ecs::specialization_of_registry_c Registry_T>
+    using Generator = ::util::meta::type_id_generator_t<RegistryTag<Registry_T>{}>;
+
+    template <
+        core::ecs::specialization_of_registry_c Registry_T,
+        core::ecs::component_c                  Component_T>
+    constexpr static ComponentID id_v{
+        Generator<Registry_T>::template id_v<Component_T, ComponentID::Underlying>
+    };
+};
 
 template <core::ecs::specialization_of_registry_c Registry_T, core::ecs::component_c Component_T>
 constexpr ComponentID component_id_v{
-    ComponentIDGenerator<Registry_T>::template id_v<Component_T, ComponentID::Underlying>
+    ComponentIDGenerator::id_v<Registry_T, Component_T>
 };
 
 template <core::ecs::component_c>

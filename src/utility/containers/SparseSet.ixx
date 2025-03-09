@@ -20,8 +20,8 @@ namespace {   // TODO: remove this namespace when Clang allows it
 template <typename>
 struct is_specialization_of_strong : std::false_type {};
 
-template <typename T, auto tag_T>
-struct is_specialization_of_strong<util::Strong<T, tag_T>> : std::true_type {};
+template <typename T, typename OnlyFriend_T, auto tag_T>
+struct is_specialization_of_strong<util::Strong<T, OnlyFriend_T, tag_T>> : std::true_type {};
 
 template <typename T>
 concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
