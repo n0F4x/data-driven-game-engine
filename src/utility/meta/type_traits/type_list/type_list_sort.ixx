@@ -5,10 +5,8 @@ module;
 
 export module utility.meta.type_traits.type_list.type_list_sort;
 
-import utility.meta.concepts.type_list.type_list_c;
-import utility.meta.concepts.type_list.all_of_type_list_c;
-
-namespace util::meta {
+import utility.meta.concepts.type_list.type_list;
+import utility.meta.concepts.type_list.all_of_type_list;
 
 template <template <typename> typename Hash_T>
 struct hash_has_valid_member_value {
@@ -19,15 +17,14 @@ struct hash_has_valid_member_value {
     };
 };
 
-export template <type_list_c TypeList_T, template <typename> typename Hash_T>
-    requires all_of_type_list_c<TypeList_T, hash_has_valid_member_value<Hash_T>::template type>
-struct type_list_sort;
+template <typename TypeList_T, template <typename> typename Hash_T>
+struct type_list_sort_impl;
 
 template <
     template <typename...> typename TypeList_T,
     typename... Ts,
     template <typename> typename Hash_T>
-struct type_list_sort<TypeList_T<Ts...>, Hash_T> {
+struct type_list_sort_impl<TypeList_T<Ts...>, Hash_T> {
     template <std::array<size_t, sizeof...(Ts)>, typename>
     struct helper;
 
@@ -53,6 +50,16 @@ struct type_list_sort<TypeList_T<Ts...>, Hash_T> {
         std::make_index_sequence<sizeof...(Ts)>>::type;
 };
 
+namespace util::meta {
+
+export template <type_list_c TypeList_T, template <typename> typename Hash_T>
+    requires all_of_type_list_c<
+        TypeList_T,
+        ::hash_has_valid_member_value<Hash_T>::template type>
+struct type_list_sort {
+    using type = typename ::type_list_sort_impl<TypeList_T, Hash_T>::type;
+};
+
 export template <type_list_c TypeList_T, template <typename> typename Hash_T>
     requires all_of_type_list_c<TypeList_T, hash_has_valid_member_value<Hash_T>::template type>
 using type_list_sort_t = typename type_list_sort<TypeList_T, Hash_T>::type;
@@ -61,8 +68,11 @@ using type_list_sort_t = typename type_list_sort<TypeList_T, Hash_T>::type;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
+// TODO: remove unnamed namespace when Clang allows it
+namespace {
 template <typename...>
 struct TypeList {};
+}   // namespace
 
 template <size_t int_T>
 using Int = std::integral_constant<size_t, int_T>;

@@ -11,4 +11,4 @@ export import utility.meta.concepts.nothrow_convertible_to;
 export import utility.meta.concepts.nothrow_movable;
 export import utility.meta.concepts.nothrow_move_constructible;
 export import utility.meta.concepts.specialization_of;
-export import utility.meta.concepts.tuple_like_c;
+export import utility.meta.concepts.tuple_like;

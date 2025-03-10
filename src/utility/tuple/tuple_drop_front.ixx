@@ -4,7 +4,7 @@ module;
 
 export module utility.tuple.tuple_drop_front;
 
-import utility.meta.type_traits.integer_sequence.offset_integer_sequence;
+import utility.meta.type_traits.integer_sequence.integer_sequence_offset;
 import utility.tuple.tuple_select;
 
 namespace util {

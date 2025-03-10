@@ -2,7 +2,7 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.concepts.functional.member_function_pointer_c;
+export module utility.meta.concepts.functional.member_function_pointer;
 
 namespace util::meta {
 

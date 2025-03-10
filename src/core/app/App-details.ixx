@@ -5,7 +5,7 @@ module;
 
 export module core.app.App:details;
 
-import utility.meta.type_traits.integer_sequence.offset_integer_sequence;
+import utility.meta.type_traits.integer_sequence.integer_sequence_offset;
 import utility.meta.type_traits.type_list.type_list_drop_front;
 
 import :addon_c;

@@ -4,7 +4,7 @@ module;
 
 export module utility.tuple.generate_tuple_from;
 
-import utility.meta.concepts.integer_sequence_c;
+import utility.meta.concepts.integer_sequence.integer_sequence;
 import utility.meta.concepts.type_list;
 import utility.meta.type_traits.integer_sequence.integer_sequence_size;
 import utility.meta.type_traits.type_list.type_list_size;

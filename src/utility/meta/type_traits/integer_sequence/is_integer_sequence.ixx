@@ -10,10 +10,24 @@ namespace util::meta {
 export template <typename>
 struct is_integer_sequence : std::false_type {};
 
-template <template <typename, size_t...> typename T, std::integral Integer_T, size_t... Indices_V>
-struct is_integer_sequence<T<Integer_T, Indices_V...>> : std::true_type {};
+template <
+    std::integral Integer_T,
+    template <typename, Integer_T...> typename IntegerSequence_T,
+    Integer_T... integers_T>
+struct is_integer_sequence<IntegerSequence_T<Integer_T, integers_T...>> : std::true_type {
+};
 
 export template <typename T>
 constexpr bool is_integer_sequence_v = is_integer_sequence<T>::value;
 
 }   // namespace util::meta
+
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+
+template <typename, int...>
+struct IntegerSequence {};
+
+static_assert(util::meta::is_integer_sequence_v<IntegerSequence<int>>);
+static_assert(util::meta::is_integer_sequence_v<IntegerSequence<int, 1, 0>>);
+
+#endif

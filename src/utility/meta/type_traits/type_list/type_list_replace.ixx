@@ -4,7 +4,7 @@ module;
 
 export module utility.meta.type_traits.type_list.type_list_replace;
 
-import utility.meta.concepts.type_list.type_list_c;
+import utility.meta.concepts.type_list.type_list;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 import utility.TypeList;

@@ -4,7 +4,7 @@ module;
 
 export module utility.meta.type_traits.type_list.type_list_is_sorted;
 
-import utility.meta.concepts.type_list.type_list_c;
+import utility.meta.concepts.type_list.type_list;
 import utility.meta.type_traits.type_list.type_list_sort;
 
 namespace util::meta {

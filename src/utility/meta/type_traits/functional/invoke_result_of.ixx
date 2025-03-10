@@ -1,8 +1,8 @@
 export module utility.meta.type_traits.functional.invoke_result_of;
 
-import utility.meta.concepts.functional.function_c;
-import utility.meta.concepts.functional.functor_c;
-import utility.meta.concepts.functional.member_function_pointer_c;
+import utility.meta.concepts.functional.function;
+import utility.meta.concepts.functional.functor;
+import utility.meta.concepts.functional.member_function_pointer;
 import utility.meta.type_traits.functional.signature;
 
 namespace util::meta {

@@ -1,4 +1,4 @@
-export module utility.meta.concepts.type_list.type_list_c;
+export module utility.meta.concepts.type_list.type_list;
 
 import utility.meta.type_traits.type_list.is_type_list;
 

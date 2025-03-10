@@ -1,6 +1,6 @@
 export module utility.meta.type_traits.type_list.type_list_chunk_sub;
 
-import utility.meta.concepts.type_list.all_of_type_list_c;
+import utility.meta.concepts.type_list.all_of_type_list;
 
 import utility.meta.type_traits.type_list.type_list_transform;
 import utility.meta.type_traits.type_list.type_list_disjoin;

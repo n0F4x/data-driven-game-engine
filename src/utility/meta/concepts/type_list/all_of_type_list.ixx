@@ -3,7 +3,7 @@ module;
 #include <tuple>
 #include <type_traits>
 
-export module utility.meta.concepts.type_list.all_of_type_list_c;
+export module utility.meta.concepts.type_list.all_of_type_list;
 
 namespace util::meta {
 

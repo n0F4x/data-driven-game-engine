@@ -7,7 +7,7 @@ module;
 // Tuple-like concept                              //
 // Reference: https://stackoverflow.com/a/78465321 //
 /////////////////////////////////////////////////////
-export module utility.meta.concepts.tuple_like_c;
+export module utility.meta.concepts.tuple_like;
 
 namespace util::meta {
 // NOLINTBEGIN(readability-identifier-naming)

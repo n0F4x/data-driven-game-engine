@@ -11,7 +11,7 @@ export module core.app.Builder:details;
 
 import :fwd;
 
-import utility.meta.type_traits.integer_sequence.offset_integer_sequence;
+import utility.meta.type_traits.integer_sequence.integer_sequence_offset;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.type_list.type_list_drop_front;
 import utility.meta.type_traits.type_list.type_list_replace;

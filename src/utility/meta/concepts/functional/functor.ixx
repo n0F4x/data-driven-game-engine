@@ -2,7 +2,7 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.concepts.functional.functor_c;
+export module utility.meta.concepts.functional.functor;
 
 namespace util::meta {
 

@@ -125,8 +125,9 @@ auto core::ecs::Registry<tag_T>::create(Components_T&&... components) -> ID<Regi
         m_archetypes
             .try_emplace(
                 archetype_id,
-                util::ValueSequence<component_id_v<std::decay_t<Components_T>>.underlying(
-                )...>{}
+                util::ValueSequence<
+                    ComponentID::Underlying,
+                    component_id_v<std::decay_t<Components_T>>.underlying()...>{}
             )
             .first->second;
 

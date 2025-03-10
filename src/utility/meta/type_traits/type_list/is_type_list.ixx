@@ -16,3 +16,13 @@ export template <typename T>
 constexpr bool is_type_list_v = is_type_list<T>::value;
 
 }   // namespace util::meta
+
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+
+template <typename...>
+struct TypeList {};
+
+static_assert(util::meta::is_type_list_v<TypeList<>>);
+static_assert(util::meta::is_type_list_v<TypeList<int, float>>);
+
+#endif

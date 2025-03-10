@@ -1,6 +1,5 @@
 module;
 
-#include <cassert>
 #include <optional>
 #include <span>
 #include <vector>
@@ -9,8 +8,8 @@ export module core.ecs:Archetype;
 
 import utility.containers.Any;
 import utility.containers.SparseSet;
+import utility.meta.type_traits.integer_sequence.integer_sequence_sort;
 import utility.meta.reflection.type_id;
-import utility.meta.type_traits.type_list.type_list_sort;
 import utility.Strong;
 import utility.TypeList;
 import utility.ValueSequence;
@@ -20,27 +19,25 @@ import :Component;
 import :RegistryTag;
 import :specialization_of_registry_c;
 
-using ArchetypeID = util::Strong<uint_least32_t>;
+// TODO
+// don't use explicit template parameters once Clang name mangling bug is fixed
+// probably this one (https://github.com/llvm/llvm-project/issues/118137)
+using ArchetypeID = util::Strong<uint_least32_t, void, [] {}>;
 
-template <typename ComponentIDConstant>
-struct component_hash {
-    constexpr static size_t value{ ComponentIDConstant::value };
-};
-
-template <ComponentID::Underlying... component_ids>   // TODO: sort an index_sequence
-using sorted_component_list_t = util::meta::type_list_sort_t<
-    util::TypeList<std::integral_constant<ComponentID::Underlying, component_ids>...>,
-    component_hash>;
+template <ComponentID::Underlying... component_ids>
+using sorted_component_id_sequence_t = util::meta::
+    integer_sequence_sort_t<util::ValueSequence<ComponentID::Underlying, component_ids...>>;
 
 template <core::ecs::component_c... Components_T>
 constexpr ArchetypeID archetype_id_v{
-    util::meta::id_v<sorted_component_list_t<component_id_v<Components_T>.underlying()...>>
+    util::meta::
+        id_v<sorted_component_id_sequence_t<component_id_v<Components_T>.underlying()...>>
 };
 
 class Archetype {
 public:
     template <ComponentID::Underlying... component_ids>
-    constexpr explicit Archetype(util::ValueSequence<component_ids...>);
+    constexpr explicit Archetype(util::ValueSequence<ComponentID::Underlying, component_ids...>);
 
     [[nodiscard]]
     constexpr auto component_set() const -> std::span<const ComponentID>;
@@ -74,15 +71,15 @@ template <ComponentID::Underlying... component_ids>
 [[nodiscard]]
 constexpr auto make_component_id_set() -> std::span<const ComponentID>
 {
-    using SortedComponentList = sorted_component_list_t<component_ids...>;
+    using SortedComponentIDSequence = sorted_component_id_sequence_t<component_ids...>;
 
     constexpr static std::array<ComponentID, sizeof...(component_ids)> component_id_set =
         [] {
             std::array<ComponentID, sizeof...(component_ids)> result;
 
-            SortedComponentList::enumerate(
-                [&result]<size_t index_T, typename ComponentIDConstant> {
-                    result[index_T] = ComponentID{ ComponentIDConstant::value };
+            SortedComponentIDSequence::enumerate(
+                [&result]<size_t index_T, ComponentID::Underlying value_T> {
+                    result[index_T] = ComponentID{ value_T };
                 }
             );
 
@@ -96,7 +93,8 @@ constexpr auto make_component_id_set() -> std::span<const ComponentID>
 }
 
 template <ComponentID::Underlying... component_ids>
-constexpr Archetype::Archetype(const util::ValueSequence<component_ids...>)
+constexpr Archetype::
+    Archetype(const util::ValueSequence<ComponentID::Underlying, component_ids...>)
     : m_component_id_set{ make_component_id_set<component_ids...>() }
 {}
 
