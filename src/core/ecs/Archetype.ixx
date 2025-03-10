@@ -1,5 +1,6 @@
 module;
 
+#include <cassert>
 #include <optional>
 #include <span>
 #include <vector>
@@ -19,9 +20,7 @@ import :Component;
 import :RegistryTag;
 import :specialization_of_registry_c;
 
-struct ArchetypeIDGenerator;
-
-using ArchetypeID = util::Strong<uint_least32_t, ArchetypeIDGenerator>;
+using ArchetypeID = util::Strong<uint_least32_t>;
 
 template <typename ComponentIDConstant>
 struct component_hash {
@@ -33,23 +32,9 @@ using sorted_component_list_t = util::meta::type_list_sort_t<
     util::TypeList<std::integral_constant<ComponentID::Underlying, component_ids>...>,
     component_hash>;
 
-struct ArchetypeIDGenerator {
-    template <core::ecs::specialization_of_registry_c Registry_T>
-    using Generator = util::meta::type_id_generator_t<RegistryTag<Registry_T>{}>;
-
-    template <
-        core::ecs::specialization_of_registry_c Registry_T,
-        core::ecs::component_c... Components_T>
-    constexpr static ArchetypeID id_v{ Generator<Registry_T>::template id_v<
-        sorted_component_list_t<component_id_v<Registry_T, Components_T>.underlying()...>,
-        ArchetypeID::Underlying> };
-};
-
-template <
-    core::ecs::specialization_of_registry_c Registry_T,
-    core::ecs::component_c... Components_T>
+template <core::ecs::component_c... Components_T>
 constexpr ArchetypeID archetype_id_v{
-    ArchetypeIDGenerator::id_v<Registry_T, Components_T...>
+    util::meta::id_v<sorted_component_list_t<component_id_v<Components_T>.underlying()...>>
 };
 
 class Archetype {
@@ -87,7 +72,7 @@ private:
 
 template <ComponentID::Underlying... component_ids>
 [[nodiscard]]
-consteval auto make_component_id_set() -> std::span<const ComponentID>
+constexpr auto make_component_id_set() -> std::span<const ComponentID>
 {
     using SortedComponentList = sorted_component_list_t<component_ids...>;
 
@@ -103,6 +88,9 @@ consteval auto make_component_id_set() -> std::span<const ComponentID>
 
             return result;
         }();
+
+    static_assert(component_id_set[0].underlying() != 0);
+    static_assert(component_id_set[1].underlying() != 0);
 
     return component_id_set;
 }

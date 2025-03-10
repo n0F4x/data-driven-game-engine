@@ -118,15 +118,15 @@ template <decays_to_component_c... Components_T>
 auto core::ecs::Registry<tag_T>::create(Components_T&&... components) -> ID<Registry>
 {
     constexpr static ArchetypeID archetype_id{
-        archetype_id_v<Registry, std::decay_t<Components_T>...>
+        archetype_id_v<std::decay_t<Components_T>...>
     };
 
     Archetype& archetype =
         m_archetypes
             .try_emplace(
                 archetype_id,
-                util::ValueSequence<
-                    component_id_v<Registry, std::decay_t<Components_T>>.underlying()...>{}
+                util::ValueSequence<component_id_v<std::decay_t<Components_T>>.underlying(
+                )...>{}
             )
             .first->second;
 
@@ -211,7 +211,7 @@ auto core::ecs::Registry<tag_T>::component_container(
 ) -> util::meta::forward_like_t<ComponentContainer<Component_T>, Self_T>
 {
     const auto component_containers_iter{
-        self.m_component_tables.find(component_id_v<Registry, Component_T>)
+        self.m_component_tables.find(component_id_v<Component_T>)
     };
     assert(component_containers_iter != self.m_component_tables.cend());
 
@@ -254,7 +254,7 @@ auto core::ecs::Registry<tag_T>::emplace_component(
 {
     using ComponentContainer = ComponentContainer<std::decay_t<Component_T>>;
 
-    constexpr static ComponentID component_id{ component_id_v<Registry, Component_T> };
+    constexpr static ComponentID component_id{ component_id_v<Component_T> };
 
     ComponentContainer& component_vector =
         m_component_tables[component_id]
