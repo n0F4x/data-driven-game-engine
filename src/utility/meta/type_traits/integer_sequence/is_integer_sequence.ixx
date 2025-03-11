@@ -24,10 +24,10 @@ constexpr bool is_integer_sequence_v = is_integer_sequence<T>::value;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
-template <typename, int...>
-struct IntegerSequence {};
+template <typename T, T...>
+struct ValueSequence {};
 
-static_assert(util::meta::is_integer_sequence_v<IntegerSequence<int>>);
-static_assert(util::meta::is_integer_sequence_v<IntegerSequence<int, 1, 0>>);
+static_assert(util::meta::is_integer_sequence_v<ValueSequence<int>>);
+static_assert(util::meta::is_integer_sequence_v<ValueSequence<int, 1, 0>>);
 
 #endif

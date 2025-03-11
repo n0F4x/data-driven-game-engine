@@ -14,7 +14,7 @@ class ConanApplication(ConanFile):
         self.requires("gsl-lite/0.42.0")
         self.requires("plf_colony/7.39")
         self.requires("tsl-ordered-map/1.1.0")
-        self.requires("spdlog/1.15.0")
+        self.requires("spdlog/1.15.1")
         self.requires("glfw/3.4")
         self.requires("vulkan-headers/1.3.296.0")
         self.requires("glm/1.0.1")

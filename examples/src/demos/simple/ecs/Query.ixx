@@ -12,7 +12,7 @@ export module ecs:Query;
 
 import :Registry;
 
-import utility.meta.concepts.type_list.type_list_c;
+import utility.meta.concepts.type_list.type_list;
 import utility.meta.concepts.specialization_of;
 
 import utility.meta.type_traits.type_list.type_list_at;

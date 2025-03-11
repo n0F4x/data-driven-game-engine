@@ -7,8 +7,8 @@ export module ecs:system_c;
 import :Query;
 import :Res;
 
-import utility.meta.concepts.functional.callable_c;
-import utility.meta.concepts.type_list.all_of_type_list_c;
+import utility.meta.concepts.functional.callable;
+import utility.meta.concepts.type_list.all_of_type_list;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.is_specialization_of;
 

@@ -1,4 +1,4 @@
-module core.ecs:RegistryTag;
+export module core.ecs:RegistryTag;
 
 import :specialization_of_registry_c;
 

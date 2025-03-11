@@ -1,6 +1,7 @@
 module;
 
 #include <concepts>
+#include <cstdint>
 
 export module utility.memory.Deallocator;
 
