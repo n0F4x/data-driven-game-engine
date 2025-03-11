@@ -34,10 +34,4 @@ target_sources(base PUBLIC
         init.ixx
         Renderer.ixx
 )
-target_link_libraries(base PRIVATE ${PROJECT_NAME})
-
-
-# Third-party dependencies
-target_link_libraries(base PRIVATE VulkanHppModule)
-target_link_libraries(base PRIVATE vk-bootstrap::vk-bootstrap)
-target_link_libraries(base PRIVATE glm::glm)
+target_link_libraries(base PUBLIC ${PROJECT_NAME})

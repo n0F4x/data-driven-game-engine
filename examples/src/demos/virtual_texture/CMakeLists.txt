@@ -38,12 +38,5 @@ target_sources(virtual_texture PRIVATE
         VirtualTextureInfo.ixx
 )
 target_link_libraries(virtual_texture PRIVATE base)
-target_link_libraries(virtual_texture PRIVATE ${PROJECT_NAME})
 
 add_subdirectory(shaders)
-
-# Third-party dependencies
-target_link_libraries(virtual_texture PRIVATE VulkanHppModule)
-target_link_libraries(virtual_texture PRIVATE GPUOpen::VulkanMemoryAllocator)
-target_link_libraries(virtual_texture PRIVATE vk-bootstrap::vk-bootstrap)
-target_link_libraries(virtual_texture PRIVATE glm::glm)

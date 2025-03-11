@@ -32,10 +32,5 @@ target_sources(gltf PRIVATE
         init.ixx
         DemoApp.ixx
 )
-target_link_libraries(gltf PRIVATE base)
-target_link_libraries(gltf PRIVATE ${PROJECT_NAME})
 
-# Third-party dependencies
-target_link_libraries(gltf PRIVATE VulkanHppModule)
-target_link_libraries(gltf PRIVATE GPUOpen::VulkanMemoryAllocator)
-target_link_libraries(gltf PRIVATE vk-bootstrap::vk-bootstrap)
+target_link_libraries(gltf PRIVATE base)

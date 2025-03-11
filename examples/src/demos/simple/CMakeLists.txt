@@ -39,5 +39,3 @@ fetchcontent_declare(SFML
 )
 fetchcontent_makeavailable(SFML)
 target_link_libraries(simple PRIVATE SFML::Graphics)
-
-target_link_libraries(simple PRIVATE EnTT::EnTT)
