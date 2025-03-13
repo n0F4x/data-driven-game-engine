@@ -20,6 +20,7 @@ import utility.meta.type_traits.type_list.type_list_chunk_sub;
 import utility.meta.type_traits.type_list.type_list_concat;
 import utility.meta.type_traits.type_list.type_list_disjoin;
 import utility.meta.type_traits.type_list.type_list_filter;
+import utility.meta.type_traits.type_list.type_list_front;
 import utility.meta.type_traits.type_list.type_list_join;
 import utility.meta.type_traits.type_list.type_list_size;
 import utility.meta.type_traits.type_list.type_list_to;
@@ -28,7 +29,6 @@ import utility.meta.type_traits.type_list.type_list_unique;
 import utility.meta.type_traits.add_wrapper;
 import utility.meta.type_traits.is_specialization_of;
 import utility.meta.type_traits.remove_wrapper_if;
-import utility.meta.type_traits.underlying;
 
 import utility.containers.OptionalRef;
 import utility.tuple;
@@ -206,7 +206,8 @@ class Query<Filters_T...>::Iterator {
     template <typename T>
         requires(is_specialization_of_Optional<T>::value)
     struct convert_to_proper_reference<T> {
-        using type = util::OptionalRef<util::meta::underlying_t<T>>;
+        static_assert(util::meta::type_list_size_v<T> == 1);
+        using type = util::OptionalRef<util::meta::type_list_front_t<T>>;
     };
 
     using Value = util::meta::type_list_to_t<
@@ -261,12 +262,13 @@ template <ecs::queryable_c... Filters_T>
 auto ecs::Query<Filters_T...>::Iterator::operator*() const -> Value
 {
     return util::generate_tuple_from<ExtendedComponents>(
-        [entity = *m_iterator, this]<typename Component>() -> decltype(auto) {
-            if constexpr (is_component<Component>::value) {
-                return m_query.m_view.template get<Component>(entity);
+        [entity = *m_iterator, this]<typename Component_T>() -> decltype(auto) {
+            if constexpr (is_component<Component_T>::value) {
+                return m_query.m_view.template get<Component_T>(entity);
             }
-            else if constexpr (is_specialization_of_Optional<Component>::value) {
-                using RealComp   = util::meta::underlying_t<Component>;
+            else if constexpr (is_specialization_of_Optional<Component_T>::value) {
+                static_assert(util::meta::type_list_size_v<Component_T> == 1);
+                using RealComp   = util::meta::type_list_front_t<Component_T>;
                 using ReturnType = util::OptionalRef<RealComp>;
 
                 if (auto& storage{

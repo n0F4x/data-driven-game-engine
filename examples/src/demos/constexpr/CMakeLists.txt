@@ -7,6 +7,7 @@ target_compile_options(constexpr PRIVATE
         -Wconversion
         -Werror
         -Wno-missing-field-initializers
+        -v
 )
 
 target_sources(constexpr PRIVATE

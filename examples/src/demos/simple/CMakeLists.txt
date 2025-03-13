@@ -34,7 +34,7 @@ target_link_libraries(simple PRIVATE ${PROJECT_NAME})
 
 fetchcontent_declare(SFML
         GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 3.0.0
+        GIT_TAG 817c2ad2b11f109005f6509389de0d49622afd57 # 3.0.0 doesn't compile
         SYSTEM
 )
 fetchcontent_makeavailable(SFML)

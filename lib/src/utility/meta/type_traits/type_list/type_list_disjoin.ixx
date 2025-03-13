@@ -5,7 +5,7 @@ namespace util::meta {
 export template <typename TypeList_T>
 struct type_list_disjoin;
 
-template <template <typename> typename TypeList_T, typename... Ts>
+template <template <typename...> typename TypeList_T, typename... Ts>
 struct type_list_disjoin<TypeList_T<Ts...>> {
     using type = TypeList_T<TypeList_T<Ts>...>;
 };
