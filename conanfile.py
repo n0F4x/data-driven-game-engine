@@ -2,13 +2,13 @@ from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMake
 
 
-class ConanApplication(ConanFile):
-    package_type = "application"
+class DataDrivenGameEngineRecipe(ConanFile):
+    name = "data-driven_game_engine"
+
+    # Binary configuration
+    package_type = "library"
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain"
-
-    def layout(self):
-        cmake_layout(self)
 
     def requirements(self):
         self.requires("gsl-lite/0.42.0")
@@ -24,7 +24,13 @@ class ConanApplication(ConanFile):
 
         self.requires("catch2/3.8.0", test=True)
 
+    def layout(self):
+        cmake_layout(self)
+
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+
+    def package_info(self):
+        self.cpp_info.libs = ["engine"]

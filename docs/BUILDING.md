@@ -41,7 +41,8 @@ tools.cmake.cmaketoolchain:generator=Ninja
 tools.cmake.cmaketoolchain:extra_variables={'engine_debug': 'ON'}
 
 [buildenv]
-PATH+=(path)C:\dev\msys64\clang64\bin
+CC=C:\dev\MSYS2\clang64\bin\clang.exe
+CXX=C:\dev\MSYS2\clang64\bin\clang++.exe
 ```
 
 ## Vulkan
