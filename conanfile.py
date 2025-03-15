@@ -4,11 +4,13 @@ from conan.tools.cmake import cmake_layout, CMake
 
 class DataDrivenGameEngineRecipe(ConanFile):
     name = "data-driven_game_engine"
+    package_type = "library"
+    generators = "CMakeDeps", "CMakeToolchain"
 
     # Binary configuration
-    package_type = "library"
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain"
+    options = {"shared": [True, False], "fPIC": [True, False]}
+    default_options = {"shared": False, "fPIC": True}
 
     def requirements(self):
         self.requires("gsl-lite/0.42.0")
