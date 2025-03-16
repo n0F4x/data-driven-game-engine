@@ -12,8 +12,8 @@ export template <integer_sequence_c IntegerSequence_T>
 struct integer_sequence_size;
 
 template <
+    template <typename T, T...> typename IntegerSequence_T,
     typename Integer_T,
-    template <typename, Integer_T...> typename IntegerSequence_T,
     Integer_T... integers_T>
 struct integer_sequence_size<IntegerSequence_T<Integer_T, integers_T...>> {
     constexpr static size_t value = sizeof...(integers_T);

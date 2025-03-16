@@ -24,15 +24,15 @@ template <
     template <typename...> typename TypeList_T,
     typename... Ts,
     template <typename...> typename Tuple_T,
-    size_t... Indices_V>
+    size_t... indices_T>
 struct generate_tuple_from_helper<
     TypeList_T<Ts...>,
     Tuple_T,
-    std::index_sequence<Indices_V...>> {
+    std::index_sequence<indices_T...>> {
     template <typename Generator_T>
     static auto operator()(Generator_T&& generator)
     {
-        return make_tuple<Tuple_T>(generator.template operator()<Ts...[Indices_V]>()...);
+        return make_tuple<Tuple_T>(generator.template operator()<Ts...[indices_T]>()...);
     }
 };
 
@@ -53,20 +53,20 @@ auto generate_tuple_from(Generator_T&& generator)
 }
 
 template <
-    template <typename, size_t...> typename IntegerSequence_T,
+    template <typename T, T...> typename IntegerSequence_T,
     typename Integer_T,
-    size_t... Integers_T,
+    Integer_T... integers_T,
     template <typename...> typename Tuple_T,
-    size_t... Indices_V>
+    size_t... indices_T>
 struct generate_tuple_from_helper<
-    IntegerSequence_T<Integer_T, Integers_T...>,
+    IntegerSequence_T<Integer_T, integers_T...>,
     Tuple_T,
-    std::index_sequence<Indices_V...>> {
+    std::index_sequence<indices_T...>> {
     template <typename Generator_T>
     static auto operator()(Generator_T&& generator)
     {
         return make_tuple<Tuple_T>(generator.template operator(
-        )<Integers_T...[Indices_V]>()...);
+        )<integers_T...[indices_T]>()...);
     }
 };
 

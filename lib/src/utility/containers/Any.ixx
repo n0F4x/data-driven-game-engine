@@ -260,7 +260,7 @@ constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::get(
         const void*,
         void*>;
 
-    auto* buffer_ptr{ std::get_if<SmallBuffer>(&storage) };
+    auto* const buffer_ptr{ std::get_if<SmallBuffer>(&storage) };
     assert(buffer_ptr != nullptr);
     return std::forward_like<Storage_T>(
         *static_cast<TPtr>(static_cast<VoidPtr>(buffer_ptr->data.data()))
@@ -361,7 +361,7 @@ constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::get(
     using TPtr = std::
         conditional_t<std::is_const_v<std::remove_reference_t<Storage_T>>, const T*, T*>;
 
-    auto* handle_ptr{ std::get_if<void*>(&storage) };
+    auto* const handle_ptr{ std::get_if<void*>(&storage) };
     assert(handle_ptr != nullptr);
     return std::forward_like<Storage_T>(*static_cast<TPtr>(*handle_ptr));
 }

@@ -4,6 +4,7 @@ module;
 #include <functional>
 #include <future>
 #include <mutex>
+#include <thread>
 
 #include <vulkan/vulkan.hpp>
 

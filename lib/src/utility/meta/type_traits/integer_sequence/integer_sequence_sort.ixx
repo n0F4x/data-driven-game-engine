@@ -12,8 +12,8 @@ template <typename IntegerSequence_T, typename IndexSequence_T>
 struct integer_sequence_sort_impl;
 
 template <
+    template <typename T, T...> typename IntegerSequence_T,
     typename Integer_T,
-    template <typename, Integer_T...> typename IntegerSequence_T,
     Integer_T... integers_T,
     size_t... indices_T>
 struct integer_sequence_sort_impl<

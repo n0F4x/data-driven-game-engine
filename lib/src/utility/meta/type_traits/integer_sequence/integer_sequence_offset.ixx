@@ -13,8 +13,8 @@ export template <integer_sequence_c IntegerSequence_T, intmax_t offset_T>
 struct integer_sequence_offset;
 
 template <
+    template <typename T, T...> typename IntegerSequence_T,
     typename Integer_T,
-    template <typename, Integer_T...> typename IntegerSequence_T,
     Integer_T... ints_T,
     intmax_t offset_T>
 struct integer_sequence_offset<IntegerSequence_T<Integer_T, ints_T...>, offset_T> {
