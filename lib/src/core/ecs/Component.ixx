@@ -84,7 +84,7 @@ constexpr auto ErasedComponentContainerTraits<Registry_T, Component_T>::erase(
         erased_component_container.template get<ComponentContainer<Component_T>>()
     };
 
-    if (component_container.size() >= index.underlying()) {
+    if (index.underlying() >= component_container.size()) {
         return false;
     }
 

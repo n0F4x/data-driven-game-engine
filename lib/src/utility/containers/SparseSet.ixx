@@ -21,7 +21,8 @@ template <typename>
 struct is_specialization_of_strong : std::false_type {};
 
 template <typename T, typename OnlyFriend_T, auto tag_T>
-struct is_specialization_of_strong<util::Strong<T, OnlyFriend_T, tag_T>> : std::true_type {};
+struct is_specialization_of_strong<util::Strong<T, OnlyFriend_T, tag_T>>
+    : std::true_type {};
 
 template <typename T>
 concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
@@ -359,6 +360,29 @@ module :private;
 
 using Key = util::Strong<uint32_t>;
 constexpr Key missing_key{ std::numeric_limits<Key>::max() };
+
+static_assert(
+    [] {
+        util::SparseSet<Key> sparse_set;
+        const auto [key, id]{ sparse_set.emplace() };
+
+        assert(sparse_set.contains(key));
+
+        return true;
+    }(),
+    "contains test failed"
+);
+
+static_assert(
+    [] {
+        const util::SparseSet<Key> sparse_set;
+
+        assert(!sparse_set.contains(missing_key));
+
+        return true;
+    }(),
+    "contains missing test failed"
+);
 
 static_assert(
     [] {

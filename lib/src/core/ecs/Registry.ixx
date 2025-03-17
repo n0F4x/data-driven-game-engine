@@ -2,10 +2,13 @@ module;
 
 #include <any>
 #include <cassert>
+#include <optional>
 #include <set>
 #include <span>
 #include <unordered_map>
 #include <utility>
+
+#include "utility/contracts.hpp"
 
 export module core.ecs:Registry;
 
@@ -45,20 +48,30 @@ namespace core::ecs {
 export template <auto tag_T = [] {}>
 class Registry {
 public:
+    constexpr static ID<Registry> null_id{
+        std::numeric_limits<typename ID<Registry>::Underlying>::max()
+    };
+
     template <::decays_to_component_c... Components_T>
         requires(sizeof...(Components_T) > 0, util::meta::all_different_v<std::decay_t<Components_T>...>)
     auto create(Components_T&&... components) -> ID<Registry>;
 
     template <component_c... Components_T, typename Self_T>
+        requires(util::meta::all_different_v<Components_T...>)
     [[nodiscard]]
     auto get(this Self_T&&, ID<Registry> id)
         -> std::tuple<::util::meta::forward_like_t<Components_T, Self_T>...>;
+
+    template <component_c Component_T, typename Self_T>
+    [[nodiscard]]
+    auto get_single(this Self_T&&, ID<Registry> id)
+        -> ::util::meta::forward_like_t<Component_T, Self_T>;
 
     auto destroy(ID<Registry> id) -> bool;
 
 private:
     std::unordered_map<
-        ComponentID,
+        ::ComponentID,
         std::unordered_map<::ArchetypeID, ::ErasedComponentContainer<Registry>>>
                                                     m_component_tables;
     std::unordered_map<::ArchetypeID, ::Archetype>  m_archetypes;
@@ -69,26 +82,13 @@ private:
     auto entity(this Self_T&&, ID<Registry> id)
         -> ::util::meta::forward_like_t<::Entity<Registry>, Self_T>;
 
-    template <typename Self_T>
     [[nodiscard]]
-    auto archetype(this Self_T&&, ::ArchetypeID archetype_id)
-        -> ::util::meta::forward_like_t<::Archetype, Self_T>;
-
-    [[nodiscard]]
-    auto index(::ArchetypeID archetype_id, ::Key key) -> ::Index;
+    auto get_index(::ArchetypeID archetype_id, ::Key key) const -> ::Index;
 
     template <component_c Component_T, typename Self_T>
     [[nodiscard]]
     auto component_container(this Self_T&& self, ::ArchetypeID archetype_id)
         -> ::util::meta::forward_like_t<::ComponentContainer<Component_T>, Self_T>;
-
-    template <typename Self_T>
-    [[nodiscard]]
-    auto erased_component_container(
-        this Self_T&& self,
-        ArchetypeID   archetype_id,
-        ComponentID   component_id
-    ) -> ::util::meta::forward_like_t<::ErasedComponentContainer<Registry>, Self_T>;
 
     template <typename Component_T, typename... Args_T>
     [[nodiscard]]
@@ -98,10 +98,10 @@ private:
         Args_T&&... args
     ) -> ::Index;
 
-    auto erase_components(
-        ::ArchetypeID      archetype_id,
-        const ::Archetype& archetype,
-        ::Index            index
+    auto remove_components(
+        ::ArchetypeID                archetype_id,
+        std::span<const ComponentID> component_id_set,
+        ::Index                      index
     ) -> void;
 
     template <component_c Component_T, typename Self_T>
@@ -148,17 +148,32 @@ auto core::ecs::Registry<tag_T>::create(Components_T&&... components) -> ID<Regi
 
 template <auto tag_T>
 template <core::ecs::component_c... Components_T, typename Self_T>
+    requires(util::meta::all_different_v<Components_T...>)
 auto core::ecs::Registry<tag_T>::get(this Self_T&& self, const ID<Registry> id)
     -> std::tuple<util::meta::forward_like_t<Components_T, Self_T>...>
 {
     const auto [archetype_id, key]{ self.entity(id) };
 
-    const ::Index index{ self.index(archetype_id, key) };
+    const ::Index index{ self.get_index(archetype_id, key) };
 
     return std::forward_as_tuple(
         std::forward_like<Self_T>(
             self.template component<Components_T>(archetype_id, index)
         )...
+    );
+}
+
+template <auto tag_T>
+template <core::ecs::component_c Component_T, typename Self_T>
+auto core::ecs::Registry<tag_T>::get_single(this Self_T&& self, const ID<Registry> id)
+    -> util::meta::forward_like_t<Component_T, Self_T>
+{
+    const auto [archetype_id, key]{ self.entity(id) };
+
+    const ::Index index{ self.get_index(archetype_id, key) };
+
+    return std::forward_like<Self_T>(
+        self.template component<Component_T>(archetype_id, index)
     );
 }
 
@@ -169,14 +184,17 @@ auto core::ecs::Registry<tag_T>::destroy(const ID<Registry> id) -> bool
         .transform([this](const ::Entity<Registry> entity) {
             const auto [archetype_id, key]{ entity };
 
-            Archetype& archetype{ this->archetype(archetype_id) };
+            const auto arhetypes_iter{ m_archetypes.find(archetype_id) };
+            assert(arhetypes_iter != m_archetypes.cend());
 
-            const Index index = *archetype.erase(key);
+            const Index index = *arhetypes_iter->second.erase(key);
 
-            erase_components(archetype_id, archetype, index);
+            remove_components(archetype_id, arhetypes_iter->second.component_set(), index);
 
-            if (archetype.empty()) {
-                m_archetypes.erase(m_archetypes.find(archetype_id));
+            if (arhetypes_iter->second.empty()) {
+                [[maybe_unused]]
+                const auto extracted_archetype_node = m_archetypes.extract(arhetypes_iter);
+                assert(!extracted_archetype_node.empty());
             }
 
             return true;
@@ -189,19 +207,8 @@ template <typename Self_T>
 auto core::ecs::Registry<tag_T>::entity(this Self_T&& self, const ID<Registry> id)
     -> util::meta::forward_like_t<::Entity<Registry>, Self_T>
 {
+    PRECOND(self.m_entities.contains(id));
     return std::forward_like<Self_T>(self.m_entities.get(id));
-}
-
-template <auto tag_T>
-template <typename Self_T>
-auto core::ecs::Registry<tag_T>::archetype(
-    this Self_T&&     self,
-    const ArchetypeID archetype_id
-) -> util::meta::forward_like_t<Archetype, Self_T>
-{
-    const auto arhetype_iter{ self.m_archetypes.find(archetype_id) };
-    assert(arhetype_iter != self.m_archetypes.cend());
-    return std::forward_like<Self_T>(arhetype_iter->second);
 }
 
 template <auto tag_T>
@@ -214,35 +221,16 @@ auto core::ecs::Registry<tag_T>::component_container(
     const auto component_containers_iter{
         self.m_component_tables.find(component_id_v<Component_T>)
     };
-    assert(component_containers_iter != self.m_component_tables.cend());
+    PRECOND(component_containers_iter != self.m_component_tables.cend());
 
     const auto component_container_iter{
         component_containers_iter->second.find(archetype_id)
     };
-    assert(component_container_iter != component_containers_iter->second.cend());
+    PRECOND(component_container_iter != component_containers_iter->second.cend());
 
     return std::forward_like<Self_T>(
         component_container_iter->second.template get<ComponentContainer<Component_T>>()
     );
-}
-
-template <auto tag_T>
-template <typename Self_T>
-auto core::ecs::Registry<tag_T>::erased_component_container(
-    this Self_T&&     self,
-    const ArchetypeID archetype_id,
-    const ComponentID component_id
-) -> util::meta::forward_like_t<ErasedComponentContainer<Registry>, Self_T>
-{
-    const auto components_container_iter{ self.m_component_tables.find(component_id) };
-    assert(components_container_iter != self.m_component_tables.cend());
-
-    const auto component_container_iter{
-        components_container_iter->second.find(archetype_id)
-    };
-    assert(component_container_iter != components_container_iter->second.cend());
-
-    return std::forward_like<Self_T>(component_container_iter->second);
 }
 
 template <auto tag_T>
@@ -269,38 +257,51 @@ auto core::ecs::Registry<tag_T>::emplace_component(
 }
 
 template <auto tag_T>
-auto core::ecs::Registry<tag_T>::index(const ArchetypeID archetype_id, const Key key)
-    -> Index
+auto core::ecs::Registry<tag_T>::get_index(
+    const ArchetypeID archetype_id,
+    const Key         key
+) const -> Index
 {
-    return archetype(archetype_id).get(key);
+    const auto arhetypes_iter{ m_archetypes.find(archetype_id) };
+    assert(arhetypes_iter != m_archetypes.cend());
+    return arhetypes_iter->second.get(key);
 }
 
 template <auto tag_T>
-auto core::ecs::Registry<tag_T>::erase_components(
-    const ArchetypeID archetype_id,
-    const Archetype&  archetype,
-    const Index       index
+auto core::ecs::Registry<tag_T>::remove_components(
+    const ArchetypeID                  archetype_id,
+    const std::span<const ComponentID> component_id_set,
+    const Index                        index
 ) -> void
 {
-    for (const ComponentID component_id : archetype.component_set()) {
-        ErasedComponentContainer<Registry>& component_container{
-            erased_component_container(archetype_id, component_id)
+    for (const ComponentID component_id : component_id_set) {
+        const auto component_tables_container_iter{
+            m_component_tables.find(component_id)
         };
+        PRECOND(component_tables_container_iter != m_component_tables.cend());
 
-        component_container.erase(index);
+        const auto component_containers_iter{
+            component_tables_container_iter->second.find(archetype_id)
+        };
+        PRECOND(
+            component_containers_iter != component_tables_container_iter->second.cend()
+        );
 
-        if (component_container.empty()) {
-            const auto component_table_iter{ m_component_tables.find(component_id) };
-            assert(component_table_iter != m_component_tables.cend());
+        [[maybe_unused]]
+        const bool could_erase_component = component_containers_iter->second.erase(index);
+        PRECOND(could_erase_component);
 
-            const auto component_container_iter{
-                component_table_iter->second.find(archetype_id)
-            };
-            assert(component_container_iter != component_table_iter->second.cend());
-            component_table_iter->second.erase(component_container_iter);
+        if (component_containers_iter->second.empty()) {
+            [[maybe_unused]]
+            const auto component_container_node =
+                component_tables_container_iter->second.extract(component_containers_iter);
+            assert(!component_container_node.empty());
 
-            if (component_table_iter->second.empty()) {
-                m_component_tables.erase(component_table_iter);
+            if (component_tables_container_iter->second.empty()) {
+                [[maybe_unused]]
+                const auto component_table_node =
+                    m_component_tables.extract(component_tables_container_iter);
+                assert(!component_table_node.empty());
             }
         }
     }

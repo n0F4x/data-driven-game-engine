@@ -22,7 +22,8 @@ template <typename>
 struct is_specialization_of_strong : std::false_type {};
 
 template <typename T, typename OnlyFriend_T, auto tag_T>
-struct is_specialization_of_strong<util::Strong<T, OnlyFriend_T, tag_T>> : std::true_type {};
+struct is_specialization_of_strong<util::Strong<T, OnlyFriend_T, tag_T>>
+    : std::true_type {};
 
 template <typename T>
 concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
@@ -37,7 +38,7 @@ export template <
     uint8_t version_bit_size_T = sizeof(Key_T) * 2>
 class SlotMultiMap;
 
-export template <
+template <
     ::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,

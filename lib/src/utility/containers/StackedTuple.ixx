@@ -142,6 +142,8 @@ module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
+namespace {
+
 struct First {
     int value{ 42 };
 };
@@ -174,6 +176,8 @@ struct MakeSecondFunctor {
         return Second{ .ref = first.value };
     }
 };
+
+}   // namespace
 
 static_assert(
     [] {

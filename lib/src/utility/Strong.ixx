@@ -84,7 +84,12 @@ struct std::hash<util::Strong<T, OnlyFriend_T, tag_T>> {
         requires std::
             same_as<std::remove_cvref_t<Strong_T>, util::Strong<T, OnlyFriend_T, tag_T>>
         [[nodiscard]]
-        auto operator()(Strong_T&& strong) const noexcept -> size_t
+        auto operator()(Strong_T&& strong
+        ) const noexcept(requires(std::hash<T> underlying_hasher, T underlying) {
+            underlying_hasher(
+                static_cast<util::meta::forward_like_t<T, Strong_T>>(underlying)
+            );
+        }) -> size_t
     {
         return std::hash<T>{}(strong.underlying());
     }

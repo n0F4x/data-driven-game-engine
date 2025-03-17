@@ -49,14 +49,17 @@ public:
 
     constexpr auto erase(Key key) -> std::optional<Value>;
 
-    template <typename Self>
+    template <typename Self_T>
     [[nodiscard]]
-    constexpr auto get(this Self&&, Key key) -> meta::forward_like_t<Value, Self>;
+    constexpr auto get(this Self_T&&, Key key) -> meta::forward_like_t<Value, Self_T>;
 
     [[nodiscard]]
-    constexpr auto find(Key key) -> OptionalRef<Value>;
+    constexpr auto find(Key key) noexcept -> OptionalRef<Value>;
     [[nodiscard]]
-    constexpr auto find(Key key) const -> OptionalRef<const Value>;
+    constexpr auto find(Key key) const noexcept -> OptionalRef<const Value>;
+
+    [[nodiscard]]
+    constexpr auto contains(Key key) const noexcept -> bool;
 
 private:
     SparseSet<Key, version_bit_size_T> m_sparse_set;
@@ -122,7 +125,7 @@ template <
     uint8_t                       version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key)
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key) noexcept
     -> OptionalRef<Value>
 {
     return m_sparse_set.find(key).transform([this](const auto index) {
@@ -136,10 +139,24 @@ template <
     uint8_t                       version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key) const
-    -> OptionalRef<const Value>
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(
+    const Key key
+) const noexcept -> OptionalRef<const Value>
 {
     return const_cast<SlotMap&>(*this).find(key);
+}
+
+template <
+    specialization_of_strong_c      Key_T,
+    ::util::meta::nothrow_movable_c T,
+    uint8_t                         version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::contains(
+    const Key key
+) const noexcept -> bool
+{
+    return m_sparse_set.contains(key);
 }
 
 module :private;
@@ -153,10 +170,33 @@ constexpr Key   missing_key{ std::numeric_limits<Key>::max() };
 
 static_assert(
     [] {
-        util::SlotMap<Key, Value> sparse_set;
-        const Key                 key{ sparse_set.emplace(value) };
+        util::SlotMap<Key, Value> slot_map;
+        const Key                 key{ slot_map.emplace() };
 
-        assert(sparse_set.get(key) == value);
+        assert(slot_map.contains(key));
+
+        return true;
+    }(),
+    "contains test failed"
+);
+
+static_assert(
+    [] {
+        const util::SlotMap<Key, Value> slot_map;
+
+        assert(!slot_map.contains(missing_key));
+
+        return true;
+    }(),
+    "contains missing test failed"
+);
+
+static_assert(
+    [] {
+        util::SlotMap<Key, Value> slot_map;
+        const Key                 key{ slot_map.emplace(value) };
+
+        assert(slot_map.get(key) == value);
 
         return true;
     }(),
@@ -165,10 +205,10 @@ static_assert(
 
 static_assert(
     [] {
-        util::SlotMap<Key, Value> sparse_set;
-        const Key                 key{ sparse_set.emplace(value) };
+        util::SlotMap<Key, Value> slot_map;
+        const Key                 key{ slot_map.emplace(value) };
 
-        assert(*sparse_set.find(key) == value);
+        assert(*slot_map.find(key) == value);
 
         return true;
     }(),
@@ -177,9 +217,9 @@ static_assert(
 
 static_assert(
     [] {
-        util::SlotMap<Key, Value> sparse_set;
+        util::SlotMap<Key, Value> slot_map;
 
-        assert(!sparse_set.find(missing_key).has_value());
+        assert(!slot_map.find(missing_key).has_value());
 
         return true;
     }(),
@@ -188,11 +228,11 @@ static_assert(
 
 static_assert(
     [] {
-        util::SlotMap<Key, Value> sparse_set;
-        const Key                 key{ sparse_set.emplace(value) };
+        util::SlotMap<Key, Value> slot_map;
+        const Key                 key{ slot_map.emplace(value) };
 
-        assert(sparse_set.erase(key));
-        assert(!sparse_set.find(key).has_value());
+        assert(slot_map.erase(key));
+        assert(!slot_map.find(key).has_value());
 
         return true;
     }(),
@@ -201,9 +241,9 @@ static_assert(
 
 static_assert(
     [] {
-        util::SlotMap<Key, Value> sparse_set;
+        util::SlotMap<Key, Value> slot_map;
 
-        assert(!sparse_set.erase(missing_key));
+        assert(!slot_map.erase(missing_key));
 
         return true;
     }(),
@@ -212,12 +252,12 @@ static_assert(
 
 static_assert(
     [] {
-        util::SlotMap<Key, Value> sparse_set;
-        const Key                 old_key{ sparse_set.emplace(value) };
-        sparse_set.erase(old_key);
-        sparse_set.emplace(value);
+        util::SlotMap<Key, Value> slot_map;
+        const Key                 old_key{ slot_map.emplace(value) };
+        slot_map.erase(old_key);
+        slot_map.emplace(value);
 
-        assert(!sparse_set.find(old_key).has_value());
+        assert(!slot_map.find(old_key).has_value());
 
         return true;
     }(),

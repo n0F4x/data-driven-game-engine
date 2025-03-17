@@ -3,9 +3,6 @@ add_library(${PROJECT_NAME})
 set(ENGINE_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 
-option(engine_debug "Turn on debug mode for library" OFF)
-
-
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_26)
 
 # We only support Clang of now
@@ -31,11 +28,14 @@ if (engine_debug)
     )
 endif ()
 
+if (engine_test)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+            ENGINE_ENABLE_UNIT_TESTS
+    )
+endif ()
+
 
 include(cmake/dependencies.cmake)
 
 
 add_subdirectory(src)
-
-
-unset(engine_debug CACHE)
