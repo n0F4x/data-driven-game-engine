@@ -1,13 +1,22 @@
+module;
+
+#include <type_traits>
+
 export module utility.meta.type_traits.underlying;
+
+template <typename>
+struct helper;
+
+template <template <typename> typename Wrapper_T, typename T>
+struct helper<Wrapper_T<T>> {
+    using type = T;
+};
 
 namespace util::meta {
 
-export template <typename>
-struct underlying;
-
-template <template <typename> typename Wrapper_T, typename T>
-struct underlying<Wrapper_T<T>> {
-    using type = T;
+export template <typename T>
+struct underlying {
+    using type = typename ::helper<std::remove_reference_t<T>>::type;
 };
 
 export template <typename T>

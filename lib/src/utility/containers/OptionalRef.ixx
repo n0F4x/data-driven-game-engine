@@ -144,7 +144,9 @@ template <transform_func_c<T> F>
 constexpr auto util::OptionalRef<T>::transform(F&& func) const -> transform_result_t<F, T>
 {
     if (has_value()) {
-        return { std::invoke(std::forward<F>(func), static_cast<T&>(*m_handle)) };
+        return transform_result_t<F, T>{
+            std::invoke(std::forward<F>(func), static_cast<T&>(*m_handle))
+        };
     }
     return std::nullopt;
 }

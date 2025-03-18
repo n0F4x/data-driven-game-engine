@@ -5,7 +5,11 @@
 #include "utility/contracts.hpp"
 
 import core.ecs;
+import utility.containers.OptionalRef;
 import utility.meta.type_traits.forward_like;
+import utility.meta.type_traits.underlying;
+import utility.tuple.tuple_all_of;
+import utility.tuple.tuple_any_of;
 import utility.TypeList;
 
 using namespace std::literals;
@@ -143,6 +147,161 @@ TEST_CASE("core::ecs::Registry")
 
             static_assert(!requires {
                 static_cast<Registry_T>(registry).template get_single<int, float>(id);
+            });
+        }
+    });
+
+    value_categorized_registries.for_each([&registry]<typename Registry_T> {
+        const std::string section_name{ "find - "s
+                                        + entt::type_name<Registry_T>::value() };
+
+        SECTION(section_name.c_str())
+        {
+            constexpr static int   integer{ 1 };
+            constexpr static float floating{ 2 };
+
+            const auto id = registry.create(integer, floating);
+
+            decltype(auto) empty{ static_cast<Registry_T>(registry).template find<>(id) };
+            static_assert(std::is_same_v<decltype(empty), std::tuple<>>);
+
+            decltype(auto) optional_integer_tuple{
+                static_cast<Registry_T>(registry).template find<int>(id)
+            };
+            static_assert(std::is_same_v<
+                          decltype(optional_integer_tuple),
+                          std::tuple<util::OptionalRef<std::remove_reference_t<
+                              util::meta::forward_like_t<int, Registry_T>>>>>);
+            REQUIRE(
+                util::tuple_all_of(
+                    optional_integer_tuple,
+                    []<typename Optional_T>(Optional_T&& optional) static {
+                        return optional.has_value();
+                    }
+                )
+            );
+            REQUIRE((
+                *std::get<util::OptionalRef<std::remove_reference_t<
+                    util::meta::forward_like_t<int, Registry_T>>>>(optional_integer_tuple)
+                == integer
+            ));
+
+            decltype(auto) optional_floating_tuple{
+                static_cast<Registry_T>(registry).template find<float>(id)
+            };
+            static_assert(std::is_same_v<
+                          decltype(optional_floating_tuple),
+                          std::tuple<util::OptionalRef<std::remove_reference_t<
+                              util::meta::forward_like_t<float, Registry_T>>>>>);
+            REQUIRE(
+                util::tuple_all_of(
+                    optional_floating_tuple,
+                    []<typename Optional_T>(Optional_T&& optional) static {
+                        return optional.has_value();
+                    }
+                )
+            );
+            REQUIRE(
+                (*std::get<util::OptionalRef<std::remove_reference_t<
+                     util::meta::forward_like_t<float, Registry_T>>>>(
+                     optional_floating_tuple
+                 )
+                 == floating)
+            );
+
+            decltype(auto) optional_combined_tuple{
+                static_cast<Registry_T>(registry).template find<int, float>(id)
+            };
+            static_assert(std::is_same_v<
+                          decltype(optional_combined_tuple),
+                          std::tuple<
+                              util::OptionalRef<std::remove_reference_t<
+                                  util::meta::forward_like_t<int, Registry_T>>>,
+                              util::OptionalRef<std::remove_reference_t<
+                                  util::meta::forward_like_t<float, Registry_T>>>>>);
+            REQUIRE(
+                util::tuple_all_of(
+                    optional_combined_tuple,
+                    []<typename Optional_T>(Optional_T&& optional) static {
+                        return optional.has_value();
+                    }
+                )
+            );
+            REQUIRE(
+                util::tuple_all_of(
+                    optional_combined_tuple,
+                    []<typename T>(T&& value) static {
+                        if constexpr (std::is_same_v<std::remove_cvref_t<T>, int>) {
+                            return value == integer;
+                        }
+                        else if constexpr (std::is_same_v<std::remove_cvref_t<T>, float>)
+                        {
+                            return value == floating;
+                        }
+                    },
+                    []<typename Optional_T>(Optional_T&& optional) static {
+                        return *optional;
+                    }
+                )
+            );
+
+            decltype(auto) optional_shuffled_tuple{
+                static_cast<Registry_T>(registry).template find<float, int>(id)
+            };
+            static_assert(std::is_same_v<
+                          decltype(optional_shuffled_tuple),
+                          std::tuple<
+                              util::OptionalRef<std::remove_reference_t<
+                                  util::meta::forward_like_t<float, Registry_T>>>,
+                              util::OptionalRef<std::remove_reference_t<
+                                  util::meta::forward_like_t<int, Registry_T>>>>>);
+            REQUIRE(
+                util::tuple_all_of(
+                    optional_shuffled_tuple,
+                    []<typename Optional_T>(Optional_T&& optional) static {
+                        return optional.has_value();
+                    }
+                )
+            );
+            REQUIRE(
+                util::tuple_all_of(
+                    optional_shuffled_tuple,
+                    []<typename T>(T&& value) static {
+                        if constexpr (std::is_same_v<std::remove_cvref_t<T>, int>) {
+                            return value == integer;
+                        }
+                        else if constexpr (std::is_same_v<std::remove_cvref_t<T>, float>)
+                        {
+                            return value == floating;
+                        }
+                    },
+                    []<typename Optional_T>(Optional_T&& optional) static {
+                        return *optional;
+                    }
+                )
+            );
+
+            REQUIRE_FALSE(
+                util::tuple_any_of(
+                    static_cast<Registry_T>(registry).template find<int>(Registry::null_id
+                    ),
+                    []<typename Optional_T>(Optional_T&& optional) static {
+                        return optional.has_value();
+                    }
+                )
+            );
+
+            REQUIRE_FALSE(
+                util::tuple_any_of(
+                    static_cast<Registry_T>(registry).template find<double>(id),
+                    []<typename Optional_T>(Optional_T&& optional) static {
+                        return optional.has_value();
+                    }
+                )
+            );
+
+            static_assert(!requires {
+                static_cast<Registry_T>(registry).template find<int, float, int>(id);
             });
         }
     });

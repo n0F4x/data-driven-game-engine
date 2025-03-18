@@ -74,6 +74,12 @@ public:
     template <component_c... Components_T, typename Self_T>
         requires(util::meta::all_different_v<Components_T...>)
     [[nodiscard]]
+    auto find(this Self_T&&, ID<Registry> id) noexcept -> std::tuple<::util::OptionalRef<
+        std::remove_reference_t<::util::meta::forward_like_t<Components_T, Self_T>>>...>;
+
+    template <component_c... Components_T, typename Self_T>
+        requires(util::meta::all_different_v<Components_T...>)
+    [[nodiscard]]
     auto find_all(this Self_T&&, ID<Registry> id) noexcept
         -> std::optional<std::tuple<::util::meta::forward_like_t<Components_T, Self_T>...>>;
 
@@ -100,8 +106,14 @@ private:
 
     template <component_c Component_T, typename Self_T>
     [[nodiscard]]
-    auto component_container(this Self_T&& self, ::ArchetypeID archetype_id)
+    auto get_component_container(this Self_T&& self, ::ArchetypeID archetype_id)
         -> ::util::meta::forward_like_t<::ComponentContainer<Component_T>, Self_T>;
+
+    template <component_c Component_T, typename Self_T>
+    [[nodiscard]]
+    auto find_component_container(this Self_T&& self, ::ArchetypeID archetype_id)
+        -> ::util::OptionalRef<std::remove_reference_t<
+            ::util::meta::forward_like_t<::ComponentContainer<Component_T>, Self_T>>>;
 
     template <typename Component_T, typename... Args_T>
     [[nodiscard]]
@@ -121,6 +133,12 @@ private:
     [[nodiscard]]
     auto get_component(this Self_T&& self, ::ArchetypeID archetype_id, ::Index index)
         -> ::util::meta::forward_like_t<Component_T, Self_T>;
+
+    template <component_c Component_T, typename Self_T>
+    [[nodiscard]]
+    auto find_component(this Self_T&& self, ::ArchetypeID archetype_id, ::Index index)
+        -> ::util::OptionalRef<
+            std::remove_reference_t<::util::meta::forward_like_t<Component_T, Self_T>>>;
 };
 
 }   // namespace core::ecs
@@ -171,7 +189,9 @@ auto core::ecs::Registry<tag_T>::destroy(const ID<Registry> id) -> bool
 
             const Index index = *arhetypes_iter->second.erase(key);
 
-            remove_components(archetype_id, arhetypes_iter->second.component_id_set(), index);
+            remove_components(
+                archetype_id, arhetypes_iter->second.component_id_set(), index
+            );
 
             if (arhetypes_iter->second.empty()) {
                 [[maybe_unused]]
@@ -212,6 +232,33 @@ auto core::ecs::Registry<tag_T>::get_single(this Self_T&& self, const ID<Registr
 
     return std::forward_like<Self_T>(
         self.template get_component<Component_T>(archetype_id, index)
+    );
+}
+
+template <auto tag_T>
+template <core::ecs::component_c... Components_T, typename Self_T>
+    requires(util::meta::all_different_v<Components_T...>)
+auto core::ecs::Registry<tag_T>::find(this Self_T&& self, const ID<Registry> id) noexcept
+    -> std::tuple<util::OptionalRef<
+        std::remove_reference_t<util::meta::forward_like_t<Components_T, Self_T>>>...>
+{
+    const auto optional_entity = self.find_entity(id);
+    if (!optional_entity.has_value()) {
+        return std::tuple<util::OptionalRef<std::remove_reference_t<
+            util::meta::forward_like_t<Components_T, Self_T>>>...>{};
+    }
+
+    const auto [archetype_id, key]{ *optional_entity };
+
+    const auto arhetypes_iter{ self.m_archetypes.find(archetype_id) };
+    assert(arhetypes_iter != self.m_archetypes.cend());
+
+    const ::Archetype& archetype{ arhetypes_iter->second };
+
+    return std::forward_as_tuple(
+        std::forward_like<Self_T>(
+            self.template find_component<Components_T>(archetype_id, archetype.get(key))
+        )...
     );
 }
 
@@ -262,7 +309,7 @@ auto core::ecs::Registry<tag_T>::find_entity(this Self_T&& self, const ID<Regist
 
 template <auto tag_T>
 template <core::ecs::component_c Component_T, typename Self_T>
-auto core::ecs::Registry<tag_T>::component_container(
+auto core::ecs::Registry<tag_T>::get_component_container(
     this Self_T&& self,
     ArchetypeID   archetype_id
 ) -> util::meta::forward_like_t<ComponentContainer<Component_T>, Self_T>
@@ -280,6 +327,34 @@ auto core::ecs::Registry<tag_T>::component_container(
     return std::forward_like<Self_T>(
         component_container_iter->second.template get<ComponentContainer<Component_T>>()
     );
+}
+
+template <auto tag_T>
+template <core::ecs::component_c Component_T, typename Self_T>
+auto core::ecs::Registry<tag_T>::find_component_container(
+    this Self_T&&     self,
+    const ArchetypeID archetype_id
+)
+    -> util::OptionalRef<std::remove_reference_t<
+        util::meta::forward_like_t<ComponentContainer<Component_T>, Self_T>>>
+{
+    const auto component_containers_iter{
+        self.m_component_tables.find(component_id_v<Component_T>)
+    };
+    if (component_containers_iter == self.m_component_tables.cend()) {
+        return std::nullopt;
+    }
+
+    const auto component_container_iter{
+        component_containers_iter->second.find(archetype_id)
+    };
+    if (component_container_iter == component_containers_iter->second.cend()) {
+        return std::nullopt;
+    }
+
+    return ::util::OptionalRef{ std::forward_like<Self_T>(
+        component_container_iter->second.template get<ComponentContainer<Component_T>>()
+    ) };
 }
 
 template <auto tag_T>
@@ -365,7 +440,28 @@ auto core::ecs::Registry<tag_T>::get_component(
 ) -> util::meta::forward_like_t<Component_T, Self_T>
 {
     auto&& component_container{
-        self.template component_container<Component_T>(archetype_id)
+        self.template get_component_container<Component_T>(archetype_id)
     };
     return std::forward_like<Self_T>(component_container[index.underlying()]);
+}
+
+template <auto tag_T>
+template <core::ecs::component_c Component_T, typename Self_T>
+auto core::ecs::Registry<tag_T>::find_component(
+    this Self_T&&     self,
+    const ArchetypeID archetype_id,
+    const Index       index
+) -> util::
+    OptionalRef<std::remove_reference_t<util::meta::forward_like_t<Component_T, Self_T>>>
+{
+    return std::forward<Self_T>(self)
+        .template find_component_container<Component_T>(archetype_id)
+        .transform(
+            [index]<typename ComponentContainer_T>(
+                ComponentContainer_T&& component_container
+            ) -> decltype(auto) {
+                return std::forward<ComponentContainer_T>(component_container
+                )[index.underlying()];
+            }
+        );
 }
