@@ -16,7 +16,7 @@ auto tuple_drop_nth(Tuple_T&& tuple)
     constexpr static size_t size{ std::tuple_size_v<Tuple_T> };
     using First = std::make_index_sequence<N>;
     using Rest =
-        meta::offset_integer_sequence_t<std::make_index_sequence<size - N - 1>, N + 1>;
+        meta::integer_sequence_offset_t<std::make_index_sequence<size - N - 1>, N + 1>;
     using Indices = meta::integer_sequence_concat_t<First, Rest>;
     return tuple_select(std::forward<Tuple_T>(tuple), Indices{});
 }

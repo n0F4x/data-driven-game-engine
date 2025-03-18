@@ -7,6 +7,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         Component.ixx
         Entity.ixx
         fwd.ixx
+        Query.ixx
         Registry.ixx
         RegistryTag.ixx
         specialization_of_registry_c.ixx

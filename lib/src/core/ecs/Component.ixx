@@ -1,6 +1,5 @@
 module;
 
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -12,15 +11,7 @@ import utility.meta.reflection.type_id;
 import utility.Strong;
 
 import :Entity;
-import :specialization_of_registry_c;
-import :RegistryTag;
-
-namespace core::ecs {
-
-export template <typename T>
-concept component_c = !std::is_const_v<T> && util::meta::nothrow_movable_c<T>;
-
-}   // namespace core::ecs
+import :fwd;
 
 using ComponentID = ::util::Strong<uint_least32_t>;
 
@@ -36,52 +27,60 @@ constexpr component_tag_t<Component_T> component_tag{};
 template <core::ecs::component_c Component_T>
 using ComponentContainer = std::vector<Component_T>;
 
-template <core::ecs::specialization_of_registry_c Registry_T>
 class ErasedComponentContainer;
 
-template <core::ecs::specialization_of_registry_c Registry_T>
 struct ErasedComponentContainerOperations {
-    using EraseFunc = auto (*)(ErasedComponentContainer<Registry_T>&, Index) -> bool;
-    using EmptyFunc = auto (*)(const ErasedComponentContainer<Registry_T>&) -> bool;
+    using EraseFunc = auto (*)(ErasedComponentContainer&, Index) -> bool;
+    using EmptyFunc = auto (*)(const ErasedComponentContainer&) -> bool;
+    using SizeFunc  = auto (*)(const ErasedComponentContainer&) -> size_t;
 
     EraseFunc erase;
     EmptyFunc empty;
+    SizeFunc  size;
 };
 
-template <core::ecs::specialization_of_registry_c Registry_T, core::ecs::component_c>
+template <core::ecs::component_c>
 struct ErasedComponentContainerTraits {
     [[nodiscard]]
-    constexpr static auto erase(ErasedComponentContainer<Registry_T>&, Index) -> bool;
+    constexpr static auto erase(ErasedComponentContainer&, Index) -> bool;
 
     [[nodiscard]]
-    constexpr static auto empty(const ErasedComponentContainer<Registry_T>&) -> bool;
+    constexpr static auto empty(const ErasedComponentContainer&) -> bool;
+    [[nodiscard]]
+    constexpr static auto size(const ErasedComponentContainer&) -> size_t;
 
-    constexpr static ErasedComponentContainerOperations s_operations{ erase, empty };
+    constexpr static ErasedComponentContainerOperations s_operations{ erase, empty, size };
 };
 
-template <core::ecs::specialization_of_registry_c Registry_T>
-class ErasedComponentContainer : public ::util::Any {
+class ErasedComponentContainer
+    : public ::util::
+          BasicAny<sizeof(ComponentContainer<void*>), alignof(ComponentContainer<void*>)> {
+    using Base = util::
+        BasicAny<sizeof(ComponentContainer<void*>), alignof(ComponentContainer<void*>)>;
+
 public:
     template <core::ecs::component_c Component_T>
-    constexpr explicit ErasedComponentContainer(component_tag_t<Component_T>);
+    explicit ErasedComponentContainer(component_tag_t<Component_T>);
+
+    auto erase(Index index) -> bool;
 
     [[nodiscard]]
-    constexpr auto empty() const noexcept -> bool;
-
-    constexpr auto erase(Index index) -> bool;
+    auto empty() const noexcept -> bool;
+    [[nodiscard]]
+    auto size() const noexcept -> size_t;
 
 private:
-    const ErasedComponentContainerOperations<Registry_T>* m_operations;
+    const ErasedComponentContainerOperations* m_operations;
 };
 
-template <core::ecs::specialization_of_registry_c Registry_T, core::ecs::component_c Component_T>
-constexpr auto ErasedComponentContainerTraits<Registry_T, Component_T>::erase(
-    ErasedComponentContainer<Registry_T>& erased_component_container,
-    const Index                           index
+template <core::ecs::component_c Component_T>
+constexpr auto ErasedComponentContainerTraits<Component_T>::erase(
+    ErasedComponentContainer& erased_component_container,
+    const Index               index
 ) -> bool
 {
     ComponentContainer<Component_T>& component_container{
-        erased_component_container.template get<ComponentContainer<Component_T>>()
+        erased_component_container.get<ComponentContainer<Component_T>>()
     };
 
     if (index.underlying() >= component_container.size()) {
@@ -94,34 +93,47 @@ constexpr auto ErasedComponentContainerTraits<Registry_T, Component_T>::erase(
     return true;
 }
 
-template <core::ecs::specialization_of_registry_c Registry_T, core::ecs::component_c Component_T>
-constexpr auto ErasedComponentContainerTraits<Registry_T, Component_T>::empty(
-    const ErasedComponentContainer<Registry_T>& erased_component_container
+template <core::ecs::component_c Component_T>
+constexpr auto ErasedComponentContainerTraits<Component_T>::empty(
+    const ErasedComponentContainer& erased_component_container
 ) -> bool
 {
     const ComponentContainer<Component_T>& component_container{
-        erased_component_container.template get<ComponentContainer<Component_T>>()
+        erased_component_container.get<ComponentContainer<Component_T>>()
     };
 
     return component_container.empty();
 }
 
-template <core::ecs::specialization_of_registry_c Registry_T>
 template <core::ecs::component_c Component_T>
-constexpr ErasedComponentContainer<Registry_T>::
-    ErasedComponentContainer(component_tag_t<Component_T>)
-    : util::Any{ std::in_place_type<std::vector<Component_T>> },
-      m_operations{ &ErasedComponentContainerTraits<Registry_T, Component_T>::s_operations }
+constexpr auto ErasedComponentContainerTraits<Component_T>::size(
+    const ErasedComponentContainer& erased_component_container
+) -> size_t
+{
+    const ComponentContainer<Component_T>& component_container{
+        erased_component_container.get<ComponentContainer<Component_T>>()
+    };
+
+    return component_container.size();
+}
+
+template <core::ecs::component_c Component_T>
+ErasedComponentContainer::ErasedComponentContainer(component_tag_t<Component_T>)
+    : Base{ std::in_place_type<ComponentContainer<Component_T>> },
+      m_operations{ &ErasedComponentContainerTraits<Component_T>::s_operations }
 {}
 
-template <core::ecs::specialization_of_registry_c Registry_T>
-constexpr auto ErasedComponentContainer<Registry_T>::empty() const noexcept -> bool
+auto ErasedComponentContainer::erase(const Index index) -> bool
+{
+    return m_operations->erase(*this, index);
+}
+
+auto ErasedComponentContainer::empty() const noexcept -> bool
 {
     return m_operations->empty(*this);
 }
 
-template <core::ecs::specialization_of_registry_c Registry_T>
-constexpr auto ErasedComponentContainer<Registry_T>::erase(const Index index) -> bool
+auto ErasedComponentContainer::size() const noexcept -> size_t
 {
-    return m_operations->erase(*this, index);
+    return m_operations->size(*this);
 }

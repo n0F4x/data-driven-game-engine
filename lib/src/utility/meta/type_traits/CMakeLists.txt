@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         add_wrapper.ixx
         all_different.ixx
         all_same.ixx
+        const_like.ixx
         forward_like.ixx
         is_specialization_of.ixx
         remove_wrapper_if.ixx

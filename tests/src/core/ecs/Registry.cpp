@@ -29,6 +29,28 @@ TEST_CASE("core::ecs::Registry")
         static_assert(std::is_same_v<decltype(id), core::ecs::ID<Registry>>);
     }
 
+    SECTION("destroy")
+    {
+        const auto id = registry.create(int{}, float{});
+
+        const bool successfully_destroyed_contained = registry.destroy(id);
+        REQUIRE(successfully_destroyed_contained);
+
+        const bool successfully_destroyed_non_contained = registry.destroy(id);
+        REQUIRE_FALSE(successfully_destroyed_non_contained);
+    }
+
+    SECTION("no registry access with foreign id")
+    {
+        using OtherRegistry = core::ecs::Registry<>;
+        OtherRegistry other_registry;
+        const auto    id = other_registry.create(int{});
+
+        static_assert([]<typename ID_T>() static {
+            return !requires(ID_T other_id) { registry.destroy(other_id); };
+        }.operator()<decltype(id)>());
+    }
+
     value_categorized_registries.for_each([&registry]<typename Registry_T> {
         const std::string section_name{ "get - "s + entt::type_name<Registry_T>::value() };
 
@@ -463,31 +485,5 @@ TEST_CASE("core::ecs::Registry")
         static_assert([]<typename... Components_T>() static {
             return !requires { registry.contains_all<Components_T...>(id); };
         }.operator()<int, float, int>());
-    }
-
-    SECTION("destroy contained")
-    {
-        const auto id      = registry.create(int{}, float{});
-        const bool success = registry.destroy(id);
-
-        REQUIRE(success);
-    }
-
-    SECTION("destroy non-contained")
-    {
-        const bool success = registry.destroy(core::ecs::ID<Registry>{});
-
-        REQUIRE(!success);
-    }
-
-    SECTION("no registry access with foreign id")
-    {
-        using OtherRegistry = core::ecs::Registry<>;
-        OtherRegistry other_registry;
-        const auto    id = other_registry.create(int{});
-
-        static_assert([]<typename ID_T>() static {
-            return !requires(ID_T other_id) { registry.destroy(other_id); };
-        }.operator()<decltype(id)>());
     }
 }

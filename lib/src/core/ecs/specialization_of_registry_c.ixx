@@ -15,6 +15,7 @@ template <auto tag_T>
 struct is_specialization_of_registry<Registry<tag_T>> : std::true_type {};
 
 export template <typename T>
-concept specialization_of_registry_c = is_specialization_of_registry<T>::value;
+concept specialization_of_registry_c =
+    is_specialization_of_registry<std::remove_cvref_t<T>>::value;
 
 }   // namespace core::ecs

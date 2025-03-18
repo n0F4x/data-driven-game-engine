@@ -13,7 +13,7 @@ export template <typename Tuple_T>
 auto tuple_drop_front(Tuple_T&& tuple)
 {
     constexpr static size_t size{ std::tuple_size_v<Tuple_T> };
-    using Indices = meta::offset_integer_sequence_t<std::make_index_sequence<size - 1>, 1>;
+    using Indices = meta::integer_sequence_offset_t<std::make_index_sequence<size - 1>, 1>;
     return tuple_select(std::forward<Tuple_T>(tuple), Indices{});
 }
 

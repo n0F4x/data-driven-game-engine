@@ -2,6 +2,7 @@ module;
 
 #include <algorithm>
 #include <cassert>
+#include <map>
 #include <optional>
 #include <ranges>
 #include <set>
@@ -37,11 +38,12 @@ import :specialization_of_registry_c;
 template <typename T>
 concept decays_to_component_c = core::ecs::component_c<std::decay_t<T>>;
 
-template <core::ecs::specialization_of_registry_c Registry_T>
 struct Entity {
     ArchetypeID archetype_id;
     Key         key;
 };
+
+using ComponentTable = std::map<::ArchetypeID, ::ErasedComponentContainer>;
 
 namespace core::ecs {
 
@@ -94,22 +96,24 @@ public:
     auto contains_all(ID<Registry> id) const noexcept -> bool;
 
 private:
-    std::unordered_map<
-        ::ComponentID,
-        std::unordered_map<::ArchetypeID, ::ErasedComponentContainer<Registry>>>
-                                                    m_component_tables;
-    std::unordered_map<::ArchetypeID, ::Archetype>  m_archetypes;
-    util::SlotMap<ID<Registry>, ::Entity<Registry>> m_entities;
+    template <typename... Components_T>
+        requires(queryable_component_c<std::remove_const_t<Components_T>> && ...)
+             && (::util::meta::all_different_v<std::remove_const_t<Components_T>...>)
+    friend class Query;
+
+    std::unordered_map<::ComponentID, ComponentTable> m_component_tables;
+    std::unordered_map<::ArchetypeID, ::Archetype>    m_archetypes;
+    util::SlotMap<ID<Registry>, ::Entity>             m_entities;
 
     template <typename Self_T>
     [[nodiscard]]
     auto get_entity(this Self_T&&, ID<Registry> id)
-        -> ::util::meta::forward_like_t<::Entity<Registry>, Self_T>;
+        -> ::util::meta::forward_like_t<::Entity, Self_T>;
 
     template <typename Self_T>
     [[nodiscard]]
-    auto find_entity(this Self_T&&, ID<Registry> id) -> ::util::OptionalRef<
-        std::remove_reference_t<util::meta::forward_like_t<Entity<Registry>, Self_T>>>;
+    auto find_entity(this Self_T&&, ID<Registry> id) -> ::util::
+        OptionalRef<std::remove_reference_t<util::meta::forward_like_t<Entity, Self_T>>>;
 
     [[nodiscard]]
     auto get_index(::ArchetypeID archetype_id, ::Key key) const -> ::Index;
@@ -182,16 +186,16 @@ auto core::ecs::Registry<tag_T>::create(Components_T&&... components) -> ID<Regi
         std::forward<Components_T>(components)
     )...);
 
-    return ID<Registry>{ m_entities.emplace(
-        ::Entity<Registry>{ .archetype_id = archetype_id, .key = ::Key{ key } }
-    ) };
+    return ID<Registry>{
+        m_entities.emplace(::Entity{ .archetype_id = archetype_id, .key = ::Key{ key } })
+    };
 }
 
 template <auto tag_T>
 auto core::ecs::Registry<tag_T>::destroy(const ID<Registry> id) -> bool
 {
     return m_entities.erase(id)
-        .transform([this](const ::Entity<Registry> entity) {
+        .transform([this](const ::Entity entity) {
             const auto [archetype_id, key]{ entity };
 
             const auto arhetypes_iter{ m_archetypes.find(archetype_id) };
@@ -328,7 +332,8 @@ auto core::ecs::Registry<tag_T>::find_single(
 template <auto tag_T>
 template <core::ecs::component_c... Components_T>
     requires(util::meta::all_different_v<Components_T...>)
-auto core::ecs::Registry<tag_T>::contains_all(const ID<Registry> id) const noexcept -> bool
+auto core::ecs::Registry<tag_T>::contains_all(const ID<Registry> id) const noexcept
+    -> bool
 {
     const auto optional_entity = find_entity(id);
     if (!optional_entity.has_value()) {
@@ -348,7 +353,7 @@ auto core::ecs::Registry<tag_T>::contains_all(const ID<Registry> id) const noexc
 template <auto tag_T>
 template <typename Self_T>
 auto core::ecs::Registry<tag_T>::get_entity(this Self_T&& self, const ID<Registry> id)
-    -> util::meta::forward_like_t<::Entity<Registry>, Self_T>
+    -> util::meta::forward_like_t<::Entity, Self_T>
 {
     return std::forward_like<Self_T>(self.m_entities.get(id));
 }
@@ -356,8 +361,8 @@ auto core::ecs::Registry<tag_T>::get_entity(this Self_T&& self, const ID<Registr
 template <auto tag_T>
 template <typename Self_T>
 auto core::ecs::Registry<tag_T>::find_entity(this Self_T&& self, const ID<Registry> id)
-    -> ::util::OptionalRef<
-        std::remove_reference_t<util::meta::forward_like_t<Entity<Registry>, Self_T>>>
+    -> ::util::
+        OptionalRef<std::remove_reference_t<util::meta::forward_like_t<Entity, Self_T>>>
 {
     return std::forward<Self_T>(self).m_entities.find(id);
 }
@@ -475,13 +480,6 @@ auto core::ecs::Registry<tag_T>::remove_components(
             const auto component_container_node =
                 component_tables_container_iter->second.extract(component_containers_iter);
             assert(!component_container_node.empty());
-
-            if (component_tables_container_iter->second.empty()) {
-                [[maybe_unused]]
-                const auto component_table_node =
-                    m_component_tables.extract(component_tables_container_iter);
-                assert(!component_table_node.empty());
-            }
         }
     }
 }
