@@ -92,9 +92,6 @@ constexpr auto make_component_id_set() -> std::span<const ComponentID>
             return result;
         }();
 
-    static_assert(component_id_set[0].underlying() != 0);
-    static_assert(component_id_set[1].underlying() != 0);
-
     return component_id_set;
 }
 

@@ -479,4 +479,15 @@ TEST_CASE("core::ecs::Registry")
 
         REQUIRE(!success);
     }
+
+    SECTION("no registry access with foreign id")
+    {
+        using OtherRegistry = core::ecs::Registry<>;
+        OtherRegistry other_registry;
+        const auto    id = other_registry.create(int{});
+
+        static_assert([]<typename ID_T>() static {
+            return !requires(ID_T other_id) { registry.destroy(other_id); };
+        }.operator()<decltype(id)>());
+    }
 }
