@@ -43,9 +43,9 @@ auto my_system(
         std::println("{}", position);
     }
 
-    entities.each([](const Position,
-                     util::OptionalRef<Renderable>,
-                     util::OptionalRef<const Collider>) {});
+    entities.each(+[](const Position,
+                      util::OptionalRef<Renderable>,
+                      util::OptionalRef<const Collider>) {});
 
     window->create(sf::VideoMode::getDesktopMode(), "Simple Window");
 

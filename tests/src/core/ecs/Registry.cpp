@@ -44,8 +44,8 @@ TEST_CASE("core::ecs::Registry")
                           decltype(integer_tuple),
                           std::tuple<util::meta::forward_like_t<int, Registry_T>>>);
             REQUIRE(
-                std::get<util::meta::forward_like_t<int, Registry_T>>(integer_tuple)
-                == integer
+                (std::get<util::meta::forward_like_t<int, Registry_T>>(integer_tuple)
+                 == integer)
             );
 
             decltype(auto
@@ -54,8 +54,8 @@ TEST_CASE("core::ecs::Registry")
                           decltype(floating_tuple),
                           std::tuple<util::meta::forward_like_t<float, Registry_T>>>);
             REQUIRE(
-                std::get<util::meta::forward_like_t<float, Registry_T>>(floating_tuple)
-                == floating
+                (std::get<util::meta::forward_like_t<float, Registry_T>>(floating_tuple)
+                 == floating)
             );
 
             decltype(auto) combined_tuple{
@@ -143,6 +143,93 @@ TEST_CASE("core::ecs::Registry")
 
             static_assert(!requires {
                 static_cast<Registry_T>(registry).template get_single<int, float>(id);
+            });
+        }
+    });
+
+    value_categorized_registries.for_each([&registry]<typename Registry_T> {
+        const std::string section_name{ "find_all - "s
+                                        + entt::type_name<Registry_T>::value() };
+
+        SECTION(section_name.c_str())
+        {
+            constexpr static int   integer{ 1 };
+            constexpr static float floating{ 2 };
+
+            const auto id = registry.create(integer, floating);
+
+            decltype(auto
+            ) empty{ static_cast<Registry_T>(registry).template find_all<>(id) };
+            static_assert(std::is_same_v<decltype(empty), std::optional<std::tuple<>>>);
+
+            decltype(auto) optional_integer_tuple{
+                static_cast<Registry_T>(registry).template find_all<int>(id)
+            };
+            static_assert(std::is_same_v<
+                          decltype(optional_integer_tuple),
+                          std::optional<
+                              std::tuple<util::meta::forward_like_t<int, Registry_T>>>>);
+            REQUIRE(optional_integer_tuple.has_value());
+            REQUIRE(
+                (std::get<util::meta::forward_like_t<int, Registry_T>>(
+                     optional_integer_tuple.value()
+                 )
+                 == integer)
+            );
+
+            decltype(auto) optional_floating_tuple{
+                static_cast<Registry_T>(registry).template find_all<float>(id)
+            };
+            static_assert(std::is_same_v<
+                          decltype(optional_floating_tuple),
+                          std::optional<
+                              std::tuple<util::meta::forward_like_t<float, Registry_T>>>>);
+            REQUIRE(optional_floating_tuple.has_value());
+            REQUIRE(
+                (std::get<util::meta::forward_like_t<float, Registry_T>>(
+                     optional_floating_tuple.value()
+                 )
+                 == floating)
+            );
+
+            decltype(auto) optional_combined_tuple{
+                static_cast<Registry_T>(registry).template find_all<int, float>(id)
+            };
+            static_assert(std::is_same_v<
+                          decltype(optional_combined_tuple),
+                          std::optional<std::tuple<
+                              util::meta::forward_like_t<int, Registry_T>,
+                              util::meta::forward_like_t<float, Registry_T>>>>);
+            REQUIRE(optional_combined_tuple.has_value());
+            REQUIRE(optional_combined_tuple.value() == std::make_tuple(integer, floating));
+
+            decltype(auto) optional_shuffled_tuple{
+                static_cast<Registry_T>(registry).template find_all<float, int>(id)
+            };
+            static_assert(std::is_same_v<
+                          decltype(optional_shuffled_tuple),
+                          std::optional<std::tuple<
+                              util::meta::forward_like_t<float, Registry_T>,
+                              util::meta::forward_like_t<int, Registry_T>>>>);
+            REQUIRE(optional_shuffled_tuple.has_value());
+            REQUIRE(optional_shuffled_tuple.value() == std::make_tuple(floating, integer));
+
+            REQUIRE_FALSE(
+                static_cast<Registry_T>(registry)
+                    .template find_all<int>(Registry::null_id)
+                    .has_value()
+            );
+
+            REQUIRE_FALSE(
+                static_cast<Registry_T>(registry).template find_all<double>(id).has_value()
+            );
+
+            REQUIRE_FALSE((static_cast<Registry_T>(registry)
+                               .template find_all<int, float, double>(id)
+                               .has_value()));
+
+            static_assert(!requires {
+                static_cast<Registry_T>(registry).template find_all<int, float, int>(id);
             });
         }
     });

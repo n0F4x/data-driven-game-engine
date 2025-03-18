@@ -1,12 +1,17 @@
 module;
 
 #include <bitset>
-#include <cassert>
 #include <concepts>
 #include <limits>
 #include <ranges>
 #include <type_traits>
 #include <vector>
+
+#include <utility/contracts.hpp>
+
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+  #include <cassert>
+#endif
 
 export module utility.containers.SparseSet;
 
@@ -252,12 +257,12 @@ template <specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::get(const Key key) const -> ID
 {
     const Index index{ index_from_key(key) };
-    assert(index < m_pointers.size() && "invalid key");
+    PRECOND(index < m_pointers.size() && "invalid key");
 
     const ID id{ id_from_pointer(m_pointers[index]) };
-    assert(id != invalid_id && "invalid key");
+    PRECOND(id != invalid_id && "invalid key");
 
-    assert(
+    PRECOND(
         version_from_key(key) == version_from_pointer(m_pointers[index]) && "invalid key"
     );
 

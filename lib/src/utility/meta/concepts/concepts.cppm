@@ -1,6 +1,8 @@
 export module utility.meta.concepts;
 
 export import utility.meta.concepts.functional;
+export import utility.meta.concepts.integer_sequence;
+export import utility.meta.concepts.ranges;
 export import utility.meta.concepts.type_list;
 
 export import utility.meta.concepts.allocator;

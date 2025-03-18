@@ -1,5 +1,6 @@
 module;
 
+#include <algorithm>
 #include <optional>
 #include <span>
 #include <vector>
@@ -8,6 +9,7 @@ export module core.ecs:Archetype;
 
 import utility.containers.Any;
 import utility.containers.SparseSet;
+import utility.meta.concepts.ranges.input_range_of;
 import utility.meta.type_traits.integer_sequence.integer_sequence_sort;
 import utility.meta.reflection.type_id;
 import utility.Strong;
@@ -40,7 +42,11 @@ public:
     constexpr explicit Archetype(util::ValueSequence<ComponentID::Underlying, component_ids...>);
 
     [[nodiscard]]
-    constexpr auto component_set() const -> std::span<const ComponentID>;
+    constexpr auto component_id_set() const -> std::span<const ComponentID>;
+
+    template <core::ecs::component_c... Components_T>
+    [[nodiscard]]
+    constexpr auto contains_components() const noexcept -> bool;
 
     constexpr auto emplace() -> std::pair<Key, Index>;
 
@@ -63,7 +69,7 @@ private:
         util::SparseSet<Key, (sizeof(Key::Underlying) - sizeof(Index::Underlying)) * 8>;
     static_assert(sizeof(Index::Underlying) == sizeof(SparseSet::ID));
 
-    std::span<const ComponentID> m_component_id_set;
+    std::span<const ComponentID> m_sorted_component_id_set;
     SparseSet                    m_sparse_index_set;
 };
 
@@ -95,12 +101,25 @@ constexpr auto make_component_id_set() -> std::span<const ComponentID>
 template <ComponentID::Underlying... component_ids>
 constexpr Archetype::
     Archetype(const util::ValueSequence<ComponentID::Underlying, component_ids...>)
-    : m_component_id_set{ make_component_id_set<component_ids...>() }
+    : m_sorted_component_id_set{ make_component_id_set<component_ids...>() }
 {}
 
-constexpr auto Archetype::component_set() const -> std::span<const ComponentID>
+template <core::ecs::component_c... Components_T>
+constexpr auto Archetype::contains_components() const noexcept -> bool
 {
-    return m_component_id_set;
+    return std::ranges::includes(
+        m_sorted_component_id_set,
+        ::sorted_component_id_sequence_t<(::component_id_v<Components_T>.underlying()
+        )...>::realize(),
+        {},
+        {},
+        [](const auto value) { return ComponentID{ value }; }
+    );
+}
+
+constexpr auto Archetype::component_id_set() const -> std::span<const ComponentID>
+{
+    return m_sorted_component_id_set;
 }
 
 constexpr auto Archetype::emplace() -> std::pair<Key, Index>
