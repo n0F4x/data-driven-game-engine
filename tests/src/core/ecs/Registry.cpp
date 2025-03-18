@@ -393,6 +393,59 @@ TEST_CASE("core::ecs::Registry")
         }
     });
 
+    value_categorized_registries.for_each([&registry]<typename Registry_T> {
+        const std::string section_name{ "find_single - "s
+                                        + entt::type_name<Registry_T>::value() };
+        SECTION(section_name.c_str())
+        {
+            constexpr static int   integer{ 1 };
+            constexpr static float floating{ 2 };
+
+            const auto id = registry.create(integer, floating);
+
+            decltype(auto) integer_result{
+                static_cast<Registry_T>(registry).template find_single<int>(id)
+            };
+            static_assert(std::is_same_v<
+                          decltype(integer_result),
+                          util::OptionalRef<std::remove_reference_t<
+                              util::meta::forward_like_t<int, Registry_T>>>>);
+            REQUIRE(integer_result.has_value());
+            REQUIRE(integer_result.has_value());
+            REQUIRE(*integer_result == integer);
+
+            decltype(auto) floating_result{
+                static_cast<Registry_T>(registry).template find_single<float>(id)
+            };
+            static_assert(std::is_same_v<
+                          decltype(floating_result),
+                          util::OptionalRef<std::remove_reference_t<
+                              util::meta::forward_like_t<float, Registry_T>>>>);
+            REQUIRE(floating_result.has_value());
+            REQUIRE(*floating_result == floating);
+
+            REQUIRE_FALSE(
+                static_cast<Registry_T>(registry)
+                    .template find_single<int>(Registry::null_id)
+                    .has_value()
+            );
+
+            REQUIRE_FALSE(
+                static_cast<Registry_T>(registry)
+                    .template find_single<double>(id)
+                    .has_value()
+            );
+
+            static_assert(!requires {
+                static_cast<Registry_T>(registry).template find_single<>(id);
+            });
+
+            static_assert(!requires {
+                static_cast<Registry_T>(registry).template find_single<int, float>(id);
+            });
+        }
+    });
+
     SECTION("destroy contained")
     {
         const auto id      = registry.create(int{}, float{});
