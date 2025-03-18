@@ -446,6 +446,25 @@ TEST_CASE("core::ecs::Registry")
         }
     });
 
+    SECTION("contains_all")
+    {
+        const auto id = registry.create(int{}, float{});
+
+        REQUIRE(registry.contains_all<>(id));
+        REQUIRE(registry.contains_all<int>(id));
+        REQUIRE(registry.contains_all<float>(id));
+        REQUIRE(registry.contains_all<int, float>(id));
+        REQUIRE(registry.contains_all<float, int>(id));
+
+        REQUIRE_FALSE(registry.contains_all<float, int, double>(id));
+        REQUIRE_FALSE(registry.contains_all<double>(id));
+        REQUIRE_FALSE(registry.contains_all<>(Registry::null_id));
+
+        static_assert([]<typename... Components_T>() static {
+            return !requires { registry.contains_all<Components_T...>(id); };
+        }.operator()<int, float, int>());
+    }
+
     SECTION("destroy contained")
     {
         const auto id      = registry.create(int{}, float{});

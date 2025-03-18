@@ -88,6 +88,11 @@ public:
     auto find_single(this Self_T&&, ID<Registry> id) noexcept -> ::util::OptionalRef<
         std::remove_reference_t<::util::meta::forward_like_t<Component_T, Self_T>>>;
 
+    template <component_c... Components_T>
+        requires(util::meta::all_different_v<Components_T...>)
+    [[nodiscard]]
+    auto contains_all(ID<Registry> id) const noexcept -> bool;
+
 private:
     std::unordered_map<
         ::ComponentID,
@@ -318,6 +323,26 @@ auto core::ecs::Registry<tag_T>::find_single(
     return std::forward_like<Self_T>(
         self.template find_component<Component_T>(archetype_id, archetype.get(key))
     );
+}
+
+template <auto tag_T>
+template <core::ecs::component_c... Components_T>
+    requires(util::meta::all_different_v<Components_T...>)
+auto core::ecs::Registry<tag_T>::contains_all(const ID<Registry> id) const noexcept -> bool
+{
+    const auto optional_entity = find_entity(id);
+    if (!optional_entity.has_value()) {
+        return false;
+    }
+
+    const auto [archetype_id, key]{ *optional_entity };
+
+    const auto arhetypes_iter{ m_archetypes.find(archetype_id) };
+    assert(arhetypes_iter != m_archetypes.cend());
+
+    const ::Archetype& archetype{ arhetypes_iter->second };
+
+    return archetype.contains_components<Components_T...>();
 }
 
 template <auto tag_T>
