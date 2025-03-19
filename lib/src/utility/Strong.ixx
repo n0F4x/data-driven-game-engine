@@ -1,6 +1,7 @@
 module;
 
 #include <concepts>
+#include <type_traits>
 #include <utility>
 
 export module utility.Strong;
@@ -75,6 +76,16 @@ private:
         U&& value
     ) noexcept(std::is_nothrow_constructible_v<T, U>);
 };
+
+export template <typename>
+struct is_specialization_of_strong : std::false_type {};
+
+template <typename T, typename OnlyFriend_T, auto tag_T>
+struct is_specialization_of_strong<util::Strong<T, OnlyFriend_T, tag_T>>
+    : std::true_type {};
+
+export template <typename T>
+concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
 
 }   // namespace util
 

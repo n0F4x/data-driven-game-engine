@@ -10,31 +10,12 @@ export module core.ecs:Archetype;
 import utility.containers.Any;
 import utility.containers.SparseSet;
 import utility.meta.concepts.ranges.input_range_of;
-import utility.meta.type_traits.integer_sequence.integer_sequence_sort;
-import utility.meta.reflection.type_id;
-import utility.Strong;
-import utility.TypeList;
 import utility.ValueSequence;
 
-import :Entity;
-import :Component;
-import :RegistryTag;
-import :specialization_of_registry_c;
-
-// TODO
-// don't use explicit template parameters once Clang name mangling bug is fixed
-// probably this one (https://github.com/llvm/llvm-project/issues/118137)
-using ArchetypeID = util::Strong<uint_least32_t, void, [] {}>;
-
-template <ComponentID::Underlying... component_ids>
-using sorted_component_id_sequence_t = util::meta::
-    integer_sequence_sort_t<util::ValueSequence<ComponentID::Underlying, component_ids...>>;
-
-template <core::ecs::component_c... Components_T>
-constexpr ArchetypeID archetype_id_v{
-    util::meta::
-        id_v<sorted_component_id_sequence_t<component_id_v<Components_T>.underlying()...>>
-};
+import :ComponentID;
+import :RecordIndex;
+import :RecordID;
+import :sorted_component_id_sequence;
 
 class Archetype {
 public:
@@ -48,26 +29,27 @@ public:
     [[nodiscard]]
     constexpr auto contains_components() const noexcept -> bool;
 
-    constexpr auto emplace() -> std::pair<Key, Index>;
+    constexpr auto emplace() -> std::pair<RecordID, RecordIndex>;
 
-    constexpr auto erase(Key key) -> std::optional<Index>;
-
-    [[nodiscard]]
-    constexpr auto get(Key key) const -> Index;
+    constexpr auto erase(RecordID record_id) -> std::optional<RecordIndex>;
 
     [[nodiscard]]
-    constexpr auto find(Key key) const noexcept -> std::optional<Index>;
+    constexpr auto get(RecordID record_id) const -> RecordIndex;
 
     [[nodiscard]]
-    constexpr auto contains(Key key) const noexcept -> bool;
+    constexpr auto find(RecordID record_id) const noexcept -> std::optional<RecordIndex>;
+
+    [[nodiscard]]
+    constexpr auto contains(RecordID record_id) const noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto empty() const noexcept -> bool;
 
 private:
-    using SparseSet =
-        util::SparseSet<Key, (sizeof(Key::Underlying) - sizeof(Index::Underlying)) * 8>;
-    static_assert(sizeof(Index::Underlying) == sizeof(SparseSet::ID));
+    using SparseSet = util::SparseSet<
+        RecordID,
+        (sizeof(RecordID::Underlying) - sizeof(RecordIndex::Underlying)) * 8>;
+    static_assert(sizeof(RecordIndex::Underlying) == sizeof(SparseSet::ID));
 
     std::span<const ComponentID> m_sorted_component_id_set;
     SparseSet                    m_sparse_index_set;
@@ -106,8 +88,8 @@ constexpr auto Archetype::contains_components() const noexcept -> bool
 {
     return std::ranges::includes(
         m_sorted_component_id_set,
-        ::sorted_component_id_sequence_t<(::component_id_v<Components_T>.underlying()
-        )...>::realize(),
+        ::sorted_component_id_sequence_t<(::component_id<Components_T>.underlying())...>::
+            realize(),
         {},
         {},
         [](const auto value) { return ComponentID{ value }; }
@@ -119,34 +101,35 @@ constexpr auto Archetype::component_id_set() const -> std::span<const ComponentI
     return m_sorted_component_id_set;
 }
 
-constexpr auto Archetype::emplace() -> std::pair<Key, Index>
+constexpr auto Archetype::emplace() -> std::pair<RecordID, RecordIndex>
 {
-    const auto [key, index] = m_sparse_index_set.emplace();
-    return std::make_pair(Key{ key }, Index{ index });
+    const auto [record_id, record_index] = m_sparse_index_set.emplace();
+    return std::make_pair(RecordID{ record_id }, RecordIndex{ record_index });
 }
 
-constexpr auto Archetype::erase(const Key key) -> std::optional<Index>
+constexpr auto Archetype::erase(const RecordID record_id) -> std::optional<RecordIndex>
 {
-    return m_sparse_index_set.erase(key).transform([](const auto index) {
-        return Index{ index };
+    return m_sparse_index_set.erase(record_id).transform([](const auto record_index) {
+        return RecordIndex{ record_index };
     });
 }
 
-constexpr auto Archetype::get(const Key key) const -> Index
+constexpr auto Archetype::get(const RecordID record_id) const -> RecordIndex
 {
-    return Index{ m_sparse_index_set.get(key) };
+    return RecordIndex{ m_sparse_index_set.get(record_id) };
 }
 
-constexpr auto Archetype::find(const Key key) const noexcept -> std::optional<Index>
+constexpr auto Archetype::find(const RecordID record_id) const noexcept
+    -> std::optional<RecordIndex>
 {
-    return m_sparse_index_set.find(key).transform([](const auto index) {
-        return Index{ index };
+    return m_sparse_index_set.find(record_id).transform([](const auto record_index) {
+        return RecordIndex{ record_index };
     });
 }
 
-constexpr auto Archetype::contains(const Key key) const noexcept -> bool
+constexpr auto Archetype::contains(const RecordID record_id) const noexcept -> bool
 {
-    return m_sparse_index_set.contains(key);
+    return m_sparse_index_set.contains(record_id);
 }
 
 constexpr auto Archetype::empty() const noexcept -> bool

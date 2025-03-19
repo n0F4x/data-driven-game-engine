@@ -14,9 +14,9 @@ import utility.meta.type_traits.all_different;
 import utility.meta.type_traits.integer_sequence.integer_sequence_offset;
 import utility.ValueSequence;
 
-import :Component;
-import :fwd;
-import :Registry;
+import :ComponentContainer;
+import :ComponentTable;
+import :queryable_component_c;
 import :specialization_of_registry_c;
 
 namespace core::ecs {
@@ -133,6 +133,6 @@ auto core::ecs::Query<Components_T...>::create_component_table_refs(Registry_T& 
     -> std::array<std::reference_wrapper<::ComponentTable>, sizeof...(Components_T)>
 {
     return std::array<std::reference_wrapper<::ComponentTable>, sizeof...(Components_T)>{
-        registry.m_component_tables[::component_id_v<Components_T>]...
+        registry.m_component_tables[component_id<Components_T>]...
     };
 }

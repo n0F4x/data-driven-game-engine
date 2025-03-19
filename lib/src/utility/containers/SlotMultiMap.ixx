@@ -16,20 +16,6 @@ import utility.meta.type_traits.forward_like;
 import utility.ScopeGuard;
 import utility.Strong;
 
-namespace {   // TODO: remove this namespace when Clang allows it
-
-template <typename>
-struct is_specialization_of_strong : std::false_type {};
-
-template <typename T, typename OnlyFriend_T, auto tag_T>
-struct is_specialization_of_strong<util::Strong<T, OnlyFriend_T, tag_T>>
-    : std::true_type {};
-
-template <typename T>
-concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
-
-}   // namespace
-
 namespace util {
 
 export template <
@@ -39,7 +25,7 @@ export template <
 class SlotMultiMap;
 
 template <
-    ::specialization_of_strong_c Key_T,
+    specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -73,7 +59,7 @@ private:
 }   // namespace util
 
 template <
-    ::specialization_of_strong_c Key_T,
+    util::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -96,7 +82,7 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    ::specialization_of_strong_c Key_T,
+    util::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -122,7 +108,7 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    ::specialization_of_strong_c Key_T,
+    util::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -144,7 +130,7 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    ::specialization_of_strong_c Key_T,
+    util::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
@@ -164,7 +150,7 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    ::specialization_of_strong_c Key_T,
+    util::specialization_of_strong_c Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>

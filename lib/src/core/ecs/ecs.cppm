@@ -1,10 +1,21 @@
 export module core.ecs;
 
 export import :Archetype;
-export import :Component;
-export import :Entity;
-export import :fwd;
+export import :ArchetypeID;
+export import :component_c;
+export import :ComponentContainer;
+export import :ComponentID;
+export import :ComponentTable;
+export import :ComponentTag;
+export import :ErasedComponentContainer;
+export import :ID;
 export import :Query;
+export import :Query.fwd;
+export import :queryable_component_c;
+export import :RecordID;
+export import :RecordIndex;
 export import :Registry;
-import :RegistryTag;
+export import :Registry.fwd;
+export import :RegistryTag;
+export import :sorted_component_id_sequence;
 export import :specialization_of_registry_c;

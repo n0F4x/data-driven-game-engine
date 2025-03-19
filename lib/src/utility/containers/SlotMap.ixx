@@ -17,24 +17,10 @@ import utility.containers.OptionalRef;
 import utility.ScopeGuard;
 import utility.Strong;
 
-namespace {   // TODO: remove this namespace when Clang allows it
-
-template <typename>
-struct is_specialization_of_strong : std::false_type {};
-
-template <typename T, typename OnlyFriend_T, auto tag_T>
-struct is_specialization_of_strong<util::Strong<T, OnlyFriend_T, tag_T>>
-    : std::true_type {};
-
-template <typename T>
-concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
-
-}   // namespace
-
 namespace util {
 
 export template <
-    ::specialization_of_strong_c    Key_T,
+    specialization_of_strong_c      Key_T,
     ::util::meta::nothrow_movable_c T,
     uint8_t version_bit_size_T = sizeof(typename Key_T::Underlying) * 2>
     requires std::unsigned_integral<typename Key_T::Underlying>
@@ -69,9 +55,9 @@ private:
 }   // namespace util
 
 template <
-    specialization_of_strong_c    Key_T,
-    util::meta::nothrow_movable_c T,
-    uint8_t                       version_bit_size_T>
+    util::specialization_of_strong_c Key_T,
+    util::meta::nothrow_movable_c    T,
+    uint8_t                          version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 template <typename... Args>
@@ -84,9 +70,9 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::emplace(Args&&... ar
 }
 
 template <
-    specialization_of_strong_c    Key_T,
-    util::meta::nothrow_movable_c T,
-    uint8_t                       version_bit_size_T>
+    util::specialization_of_strong_c Key_T,
+    util::meta::nothrow_movable_c    T,
+    uint8_t                          version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
@@ -103,9 +89,9 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
 }
 
 template <
-    specialization_of_strong_c    Key_T,
-    util::meta::nothrow_movable_c T,
-    uint8_t                       version_bit_size_T>
+    util::specialization_of_strong_c Key_T,
+    util::meta::nothrow_movable_c    T,
+    uint8_t                          version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 template <typename Self>
@@ -120,9 +106,9 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::get(
 }
 
 template <
-    specialization_of_strong_c    Key_T,
-    util::meta::nothrow_movable_c T,
-    uint8_t                       version_bit_size_T>
+    util::specialization_of_strong_c Key_T,
+    util::meta::nothrow_movable_c    T,
+    uint8_t                          version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key) noexcept
@@ -134,9 +120,9 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key) 
 }
 
 template <
-    specialization_of_strong_c    Key_T,
-    util::meta::nothrow_movable_c T,
-    uint8_t                       version_bit_size_T>
+    util::specialization_of_strong_c Key_T,
+    util::meta::nothrow_movable_c    T,
+    uint8_t                          version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(
@@ -147,9 +133,9 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(
 }
 
 template <
-    specialization_of_strong_c      Key_T,
-    ::util::meta::nothrow_movable_c T,
-    uint8_t                         version_bit_size_T>
+    util::specialization_of_strong_c Key_T,
+    ::util::meta::nothrow_movable_c  T,
+    uint8_t                          version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::contains(
