@@ -16,7 +16,4 @@ export import :queryable_component_c;
 export import :RecordID;
 export import :RecordIndex;
 export import :Registry;
-export import :Registry.fwd;
-export import :RegistryTag;
 export import :sorted_component_id_sequence;
-export import :specialization_of_registry_c;

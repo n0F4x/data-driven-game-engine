@@ -18,7 +18,7 @@ import :ArchetypeContainer;
 import :ComponentContainer;
 import :ComponentTable;
 import :queryable_component_c;
-import :specialization_of_registry_c;
+import :Registry;
 
 namespace core::ecs {
 
@@ -27,9 +27,7 @@ export template <typename... Components_T>
          && (::util::meta::all_different_v<std::remove_const_t<Components_T>...>)
 class Query {
 public:
-    template <specialization_of_registry_c Registry_T>
-        requires(::util::meta::decayed_c<Registry_T>)
-    explicit Query(Registry_T& registry);
+    explicit Query(Registry& registry);
 
     template <std::invocable<Components_T&...> F>
     auto each(F func) -> void
@@ -40,10 +38,8 @@ private:
                                                  m_component_table_refs;
     std::reference_wrapper<::ArchetypeContainer> m_archetypes;
 
-    template <specialization_of_registry_c Registry_T>
-        requires(::util::meta::decayed_c<Registry_T>)
     [[nodiscard]]
-    auto create_component_table_refs(Registry_T& registry)
+    auto create_component_table_refs(Registry& registry)
         -> std::array<std::reference_wrapper<::ComponentTable>, sizeof...(Components_T)>;
 };
 
@@ -51,10 +47,8 @@ private:
 
 template <typename... Components_T>
     requires(core::ecs::queryable_component_c<std::remove_const_t<Components_T>> && ...)
-         && (::util::meta::all_different_v<std::remove_const_t<Components_T>...>)
-            template <core::ecs::specialization_of_registry_c Registry_T>
-                requires(::util::meta::decayed_c<Registry_T>)
-core::ecs::Query<Components_T...>::Query(Registry_T& registry)
+             && (::util::meta::all_different_v<std::remove_const_t<Components_T>...>)
+core::ecs::Query<Components_T...>::Query(Registry& registry)
     : m_component_table_refs{ create_component_table_refs(registry) },
       m_archetypes{ registry.m_archetypes }
 {}
@@ -130,9 +124,7 @@ template <typename... Components_T>
 template <typename... Components_T>
     requires(core::ecs::queryable_component_c<std::remove_const_t<Components_T>> && ...)
          && (::util::meta::all_different_v<std::remove_const_t<Components_T>...>)
-            template <core::ecs::specialization_of_registry_c Registry_T>
-                requires(::util::meta::decayed_c<Registry_T>)
-auto core::ecs::Query<Components_T...>::create_component_table_refs(Registry_T& registry)
+auto core::ecs::Query<Components_T...>::create_component_table_refs(Registry& registry)
     -> std::array<std::reference_wrapper<::ComponentTable>, sizeof...(Components_T)>
 {
     return std::array<std::reference_wrapper<::ComponentTable>, sizeof...(Components_T)>{

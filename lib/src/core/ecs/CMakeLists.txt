@@ -18,9 +18,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         queryable_component_c.ixx
         RecordID.ixx
         RecordIndex.ixx
-        Registry-fwd.ixx
         Registry.ixx
-        RegistryTag.ixx
         sorted_component_id_sequence.ixx
-        specialization_of_registry_c.ixx
 )

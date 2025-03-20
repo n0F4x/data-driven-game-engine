@@ -1,13 +1,10 @@
-#include <map> // TODO: remove when clang allows it
-
 #include <catch2/catch_test_macros.hpp>
 
 import core.ecs;
 
 TEST_CASE("core::ecs::Query")
 {
-    using Registry = core::ecs::Registry<>;
-    Registry registry;
+    core::ecs::Registry registry;
 
     SECTION("construct from registry")
     {
@@ -17,7 +14,7 @@ TEST_CASE("core::ecs::Query")
     SECTION("type requirements")
     {
         static_assert([]<typename... Ts>() {
-            return !requires(Registry dummy_registry) {
+            return !requires(core::ecs::Registry dummy_registry) {
                 core::ecs::Query<Ts...>{ dummy_registry };
             };
         }.operator()<int, int>());
@@ -25,7 +22,7 @@ TEST_CASE("core::ecs::Query")
         struct Empty {};
 
         static_assert([]<typename... Ts>() {
-            return !requires(Registry dummy_registry) {
+            return !requires(core::ecs::Registry dummy_registry) {
                 core::ecs::Query<Ts...>{ dummy_registry };
             };
         }.operator()<Empty>());

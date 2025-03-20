@@ -16,17 +16,20 @@ using namespace std::literals;
 
 TEST_CASE("core::ecs::Registry")
 {
-    using Registry = core::ecs::Registry<>;
-    Registry registry;
+    core::ecs::Registry registry;
 
-    const util::TypeList<Registry&, const Registry&, Registry&&, const Registry&&>
+    constexpr static util::TypeList<
+        core::ecs::Registry&,
+        const core::ecs::Registry&,
+        core::ecs::Registry&&,
+        const core::ecs::Registry&&>
         value_categorized_registries{};
 
     SECTION("create")
     {
         decltype(auto) id = registry.create(int{}, float{});
 
-        static_assert(std::is_same_v<decltype(id), core::ecs::ID<Registry>>);
+        static_assert(std::is_same_v<decltype(id), core::ecs::ID>);
     }
 
     SECTION("destroy")
@@ -38,17 +41,6 @@ TEST_CASE("core::ecs::Registry")
 
         const bool successfully_destroyed_non_contained = registry.destroy(id);
         REQUIRE_FALSE(successfully_destroyed_non_contained);
-    }
-
-    SECTION("no registry access with foreign id")
-    {
-        using OtherRegistry = core::ecs::Registry<>;
-        OtherRegistry other_registry;
-        const auto    id = other_registry.create(int{});
-
-        static_assert([]<typename ID_T>() static {
-            return !requires(ID_T other_id) { registry.destroy(other_id); };
-        }.operator()<decltype(id)>());
     }
 
     value_categorized_registries.for_each([&registry]<typename Registry_T> {
@@ -105,7 +97,9 @@ TEST_CASE("core::ecs::Registry")
             REQUIRE(shuffled_tuple == std::make_tuple(floating, integer));
 
             REQUIRE_THROWS_AS(
-                static_cast<Registry_T>(registry).template get<int>(Registry::null_id),
+                static_cast<Registry_T>(registry).template get<int>(
+                    core::ecs::Registry::null_id
+                ),
                 util::PreconditionViolation
             );
 
@@ -153,7 +147,7 @@ TEST_CASE("core::ecs::Registry")
 
             REQUIRE_THROWS_AS(
                 static_cast<Registry_T>(registry).template get_single<int>(
-                    Registry::null_id
+                    core::ecs::Registry::null_id
                 ),
                 util::PreconditionViolation
             );
@@ -305,7 +299,8 @@ TEST_CASE("core::ecs::Registry")
 
             REQUIRE_FALSE(
                 util::tuple_any_of(
-                    static_cast<Registry_T>(registry).template find<int>(Registry::null_id
+                    static_cast<Registry_T>(registry).template find<int>(
+                        core::ecs::Registry::null_id
                     ),
                     []<typename Optional_T>(Optional_T&& optional) static {
                         return optional.has_value();
@@ -397,7 +392,7 @@ TEST_CASE("core::ecs::Registry")
 
             REQUIRE_FALSE(
                 static_cast<Registry_T>(registry)
-                    .template find_all<int>(Registry::null_id)
+                    .template find_all<int>(core::ecs::Registry::null_id)
                     .has_value()
             );
 
@@ -448,7 +443,7 @@ TEST_CASE("core::ecs::Registry")
 
             REQUIRE_FALSE(
                 static_cast<Registry_T>(registry)
-                    .template find_single<int>(Registry::null_id)
+                    .template find_single<int>(core::ecs::Registry::null_id)
                     .has_value()
             );
 
@@ -480,7 +475,7 @@ TEST_CASE("core::ecs::Registry")
 
         REQUIRE_FALSE(registry.contains_all<float, int, double>(id));
         REQUIRE_FALSE(registry.contains_all<double>(id));
-        REQUIRE_FALSE(registry.contains_all<>(Registry::null_id));
+        REQUIRE_FALSE(registry.contains_all<>(core::ecs::Registry::null_id));
 
         static_assert([]<typename... Components_T>() static {
             return !requires { registry.contains_all<Components_T...>(id); };

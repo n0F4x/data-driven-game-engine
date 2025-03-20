@@ -32,11 +32,10 @@ public:
     [[nodiscard]]
     constexpr auto contains_components() const noexcept -> bool;
 
-    template <core::ecs::specialization_of_id_c ID_T>
-    constexpr auto emplace(ID_T id) -> std::pair<RecordID, RecordIndex>;
+    constexpr auto emplace(core::ecs::ID id) -> std::pair<RecordID, RecordIndex>;
 
     constexpr auto erase(RecordID record_id)
-        -> std::optional<std::pair<UnderlyingID, RecordIndex>>;
+        -> std::optional<std::pair<core::ecs::ID, RecordIndex>>;
 
     [[nodiscard]]
     constexpr auto get(RecordID record_id) const -> RecordIndex;
@@ -51,12 +50,12 @@ public:
     constexpr auto empty() const noexcept -> bool;
 
     [[nodiscard]]
-    constexpr auto ids() const noexcept -> std::span<const UnderlyingID>;
+    constexpr auto ids() const noexcept -> std::span<const core::ecs::ID>;
 
 private:
     using SlotMap = util::SlotMap<
         RecordID,
-        UnderlyingID,
+        core::ecs::ID,
         (sizeof(RecordID::Underlying) - sizeof(RecordIndex::Underlying)) * 8>;
     static_assert(sizeof(RecordIndex::Underlying) == sizeof(SlotMap::Index));
 
@@ -110,15 +109,15 @@ constexpr auto Archetype::contains_components() const noexcept -> bool
     );
 }
 
-template <core::ecs::specialization_of_id_c ID_T>
-constexpr auto Archetype::emplace(const ID_T id) -> std::pair<RecordID, RecordIndex>
+constexpr auto Archetype::emplace(const core::ecs::ID id)
+    -> std::pair<RecordID, RecordIndex>
 {
     const auto [record_id, record_index] = m_ids.emplace(id.underlying());
     return std::make_pair(RecordID{ record_id }, RecordIndex{ record_index });
 }
 
 constexpr auto Archetype::erase(const RecordID record_id)
-    -> std::optional<std::pair<UnderlyingID, RecordIndex>>
+    -> std::optional<std::pair<core::ecs::ID, RecordIndex>>
 {
     return m_ids.erase(record_id).transform([](const auto id_and_record_index) static {
         return std::tuple{ std::get<0>(id_and_record_index),
@@ -149,7 +148,7 @@ constexpr auto Archetype::empty() const noexcept -> bool
     return m_ids.empty();
 }
 
-constexpr auto Archetype::ids() const noexcept -> std::span<const UnderlyingID>
+constexpr auto Archetype::ids() const noexcept -> std::span<const core::ecs::ID>
 {
     return m_ids.values();
 }
