@@ -3,8 +3,11 @@ module;
 #include <cassert>
 #include <functional>
 #include <optional>
+#include <span>
 #include <utility>
 #include <vector>
+
+#include "utility/lifetime_bound.hpp"
 
 export module utility.containers.SlotMap;
 
@@ -26,33 +29,57 @@ export template <
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 class SlotMap {
+    using SparseSet = SparseSet<Key_T, version_bit_size_T>;
+
 public:
     using Key   = Key_T;
+    using Index = typename SparseSet::ID;
     using Value = T;
 
-    template <typename... Args>
-    constexpr auto emplace(Args&&... args) -> Key;
+    [[nodiscard]]
+    constexpr auto next_key() const noexcept -> Key;
 
-    constexpr auto erase(Key key) -> std::optional<Value>;
+    template <typename... Args>
+    constexpr auto emplace(Args&&... args) -> std::pair<Key, Index>;
+    constexpr auto erase(Key key) -> std::optional<std::pair<Value, Index>>;
 
     template <typename Self_T>
     [[nodiscard]]
     constexpr auto get(this Self_T&&, Key key) -> meta::forward_like_t<Value, Self_T>;
-
     [[nodiscard]]
     constexpr auto find(Key key) noexcept -> OptionalRef<Value>;
     [[nodiscard]]
     constexpr auto find(Key key) const noexcept -> OptionalRef<const Value>;
-
     [[nodiscard]]
     constexpr auto contains(Key key) const noexcept -> bool;
+    [[nodiscard]]
+    constexpr auto empty() const noexcept -> bool;
+    [[nodiscard]]
+    constexpr auto values() const noexcept [[lifetime_bound]] -> std::span<const Value>;
+
+    [[nodiscard]]
+    constexpr auto get_index(Key key) const -> Index;
+    [[nodiscard]]
+    constexpr auto find_index(Key key) const noexcept -> std::optional<Index>;
 
 private:
-    SparseSet<Key, version_bit_size_T> m_sparse_set;
-    std::vector<T>                     m_values;
+    SparseSet      m_sparse_set;
+    std::vector<T> m_values;
 };
 
 }   // namespace util
+
+template <
+    util::specialization_of_strong_c Key_T,
+    ::util::meta::nothrow_movable_c  T,
+    uint8_t                          version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::next_key() const noexcept
+    -> Key
+{
+    return m_sparse_set.next_key();
+}
 
 template <
     util::specialization_of_strong_c Key_T,
@@ -61,12 +88,13 @@ template <
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 template <typename... Args>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::emplace(Args&&... args) -> Key
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::emplace(Args&&... args)
+    -> std::pair<Key, Index>
 {
     m_values.emplace_back(std::forward<Args>(args)...);
     ScopeGuard _{ [this] noexcept { m_values.pop_back(); } };
 
-    return m_sparse_set.emplace().first;
+    return m_sparse_set.emplace();
 }
 
 template <
@@ -76,15 +104,15 @@ template <
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
-    -> std::optional<Value>
+    -> std::optional<std::pair<Value, Index>>
 {
     return m_sparse_set.erase(key).transform([this](const auto index) {
-        Value value{ std::move(m_values[index]) };
+        std::tuple result{ std::move(m_values[index]), index };
 
         m_values[index] = std::move(m_values.back());
         m_values.pop_back();
 
-        return value;
+        return result;
     });
 }
 
@@ -145,6 +173,55 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::contains(
     return m_sparse_set.contains(key);
 }
 
+template <
+    util::specialization_of_strong_c Key_T,
+    ::util::meta::nothrow_movable_c  T,
+    uint8_t                          version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::empty() const noexcept -> bool
+{
+    assert(m_sparse_set.empty() == m_values.empty());
+    return m_sparse_set.empty();
+}
+
+template <
+    util::specialization_of_strong_c Key_T,
+    ::util::meta::nothrow_movable_c  T,
+    uint8_t                          version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::values() const noexcept
+    -> std::span<const Value>
+{
+    return m_values;
+}
+
+template <
+    util::specialization_of_strong_c Key_T,
+    ::util::meta::nothrow_movable_c  T,
+    uint8_t                          version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::get_index(const Key key) const
+    -> Index
+{
+    return m_sparse_set.get(key);
+}
+
+template <
+    util::specialization_of_strong_c Key_T,
+    ::util::meta::nothrow_movable_c  T,
+    uint8_t                          version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find_index(
+    const Key key
+) const noexcept -> std::optional<Index>
+{
+    return m_sparse_set.find(key);
+}
+
 module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
@@ -157,7 +234,21 @@ constexpr Key   missing_key{ std::numeric_limits<Key>::max() };
 static_assert(
     [] {
         util::SlotMap<Key, Value> slot_map;
-        const Key                 key{ slot_map.emplace() };
+
+        const auto key{ slot_map.next_key() };
+        const auto actual_key{ slot_map.emplace().first };
+
+        assert(key == actual_key);
+
+        return true;
+    }(),
+    "emplace test failed"
+);
+
+static_assert(
+    [] {
+        util::SlotMap<Key, Value> slot_map;
+        const auto                key{ slot_map.emplace().first };
 
         assert(slot_map.contains(key));
 
@@ -180,7 +271,7 @@ static_assert(
 static_assert(
     [] {
         util::SlotMap<Key, Value> slot_map;
-        const Key                 key{ slot_map.emplace(value) };
+        const Key                 key{ slot_map.emplace(value).first };
 
         assert(slot_map.get(key) == value);
 
@@ -192,7 +283,7 @@ static_assert(
 static_assert(
     [] {
         util::SlotMap<Key, Value> slot_map;
-        const Key                 key{ slot_map.emplace(value) };
+        const Key                 key{ slot_map.emplace(value).first };
 
         assert(*slot_map.find(key) == value);
 
@@ -215,10 +306,15 @@ static_assert(
 static_assert(
     [] {
         util::SlotMap<Key, Value> slot_map;
-        const Key                 key{ slot_map.emplace(value) };
 
+        assert(slot_map.empty());
+
+        const Key                 key{ slot_map.emplace(value).first };
+
+        assert(!slot_map.empty());
         assert(slot_map.erase(key));
         assert(!slot_map.find(key).has_value());
+        assert(slot_map.empty());
 
         return true;
     }(),
@@ -239,7 +335,7 @@ static_assert(
 static_assert(
     [] {
         util::SlotMap<Key, Value> slot_map;
-        const Key                 old_key{ slot_map.emplace(value) };
+        const Key                 old_key{ slot_map.emplace(value).first };
         slot_map.erase(old_key);
         slot_map.emplace(value);
 

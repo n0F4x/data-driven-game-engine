@@ -148,19 +148,20 @@ public:
 
     constexpr static uint8_t version_bit_size{ Base::version_bit_size };
 
-    constexpr auto emplace() -> std::pair<Key, ID>;
+    [[nodiscard]]
+    constexpr auto next_key() const noexcept -> Key;
+    [[nodiscard]]
+    constexpr auto next_id() const noexcept -> ID;
 
+    constexpr auto emplace() -> std::pair<Key, ID>;
     constexpr auto erase(Key key) -> std::optional<ID>;
 
     [[nodiscard]]
     constexpr auto get(Key key) const -> ID;
-
     [[nodiscard]]
     constexpr auto find(Key key) const noexcept -> std::optional<ID>;
-
     [[nodiscard]]
     constexpr auto contains(Key key) const noexcept -> bool;
-
     [[nodiscard]]
     constexpr auto empty() const noexcept -> bool;
 
@@ -186,15 +187,36 @@ private:
     Index                m_youngest_dead_index{ invalid_index };
 
     [[nodiscard]]
+    constexpr auto next_index() const noexcept -> Index;
+    [[nodiscard]]
+    constexpr auto next_pointer() const noexcept -> Pointer;
+
+    [[nodiscard]]
     constexpr auto emplace_pointer(ID id);
 };
 
 template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::next_key() const noexcept -> Key
+{
+    return make_key(next_index(), version_from_pointer(next_pointer()));
+}
+
+template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::next_id() const noexcept -> ID
+{
+    return static_cast<ID>(m_indices.size());
+}
+
+template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
 constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace() -> std::pair<Key, ID>
 {
-    const ID id{ static_cast<ID>(m_indices.size()) };
+    const ID id{ next_id() };
 
     const auto [index, version, scope_guard] = emplace_pointer(id);
 
@@ -300,6 +322,35 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::empty() const noexcept -> b
 template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
     requires std::unsigned_integral<typename Key_T::Underlying>
           && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::next_index() const noexcept -> Index
+{
+    if (m_oldest_dead_index == invalid_index) {
+        return static_cast<Index>(m_pointers.size());
+    }
+
+    return m_oldest_dead_index;
+}
+
+template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
+constexpr auto SparseSet<Key_T, version_bit_size_T>::next_pointer() const noexcept
+    -> Pointer
+{
+    if (m_oldest_dead_index == invalid_index) {
+        const Version version{};
+        return make_pointer(next_id(), version);
+    }
+
+    const Pointer oldest_pointer{ m_pointers[m_oldest_dead_index] };
+    const Version version{ version_from_pointer(oldest_pointer) };
+
+    return make_pointer(next_id(), version);
+}
+
+template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
+    requires std::unsigned_integral<typename Key_T::Underlying>
+          && (!std::is_const_v<Key_T>)
 constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id)
 {
     struct PointersPopBackFunctor {
@@ -324,11 +375,11 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id
         );
     }
 
-    const Pointer old_pointer{ m_pointers[m_oldest_dead_index] };
+    const Pointer oldest_pointer{ m_pointers[m_oldest_dead_index] };
     const Index   index{ m_oldest_dead_index };
-    const Version version{ version_from_pointer(old_pointer) };
+    const Version version{ version_from_pointer(oldest_pointer) };
 
-    m_oldest_dead_index = id_from_pointer(old_pointer);
+    m_oldest_dead_index = id_from_pointer(oldest_pointer);
     if (m_youngest_dead_index == index) {
         m_youngest_dead_index = invalid_index;
     }
@@ -355,6 +406,20 @@ module :private;
 
 using Key = util::Strong<uint32_t>;
 constexpr Key missing_key{ std::numeric_limits<Key>::max() };
+
+static_assert(
+    [] {
+        util::SparseSet<Key> sparse_set;
+
+        const std::tuple key_and_id{ sparse_set.next_key(), sparse_set.next_id() };
+        const std::tuple actual_key_and_id{ sparse_set.emplace() };
+
+        assert(key_and_id == actual_key_and_id);
+
+        return true;
+    }(),
+    "emplace test failed"
+);
 
 static_assert(
     [] {
@@ -417,10 +482,15 @@ static_assert(
 static_assert(
     [] {
         util::SparseSet<Key> sparse_set;
+
+        assert(sparse_set.empty());
+
         const auto [key, _]{ sparse_set.emplace() };
 
+        assert(!sparse_set.empty());
         assert(sparse_set.erase(key));
         assert(!sparse_set.find(key).has_value());
+        assert(sparse_set.empty());
 
         return true;
     }(),

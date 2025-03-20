@@ -1,3 +1,5 @@
+#include <map> // TODO: remove when clang allows it
+
 #include <catch2/catch_test_macros.hpp>
 
 import core.ecs;

@@ -1,11 +1,11 @@
 module;
 
-#include <algorithm>
+#include <array>
 #include <concepts>
+#include <functional>
 #include <ranges>
 #include <tuple>
 #include <type_traits>
-#include <vector>
 
 export module core.ecs:Query;
 
@@ -14,6 +14,7 @@ import utility.meta.type_traits.all_different;
 import utility.meta.type_traits.integer_sequence.integer_sequence_offset;
 import utility.ValueSequence;
 
+import :ArchetypeContainer;
 import :ComponentContainer;
 import :ComponentTable;
 import :queryable_component_c;
@@ -36,7 +37,8 @@ public:
 
 private:
     std::array<std::reference_wrapper<::ComponentTable>, sizeof...(Components_T)>
-        m_component_table_refs;
+                                                 m_component_table_refs;
+    std::reference_wrapper<::ArchetypeContainer> m_archetypes;
 
     template <specialization_of_registry_c Registry_T>
         requires(::util::meta::decayed_c<Registry_T>)
@@ -53,7 +55,8 @@ template <typename... Components_T>
             template <core::ecs::specialization_of_registry_c Registry_T>
                 requires(::util::meta::decayed_c<Registry_T>)
 core::ecs::Query<Components_T...>::Query(Registry_T& registry)
-    : m_component_table_refs{ create_component_table_refs(registry) }
+    : m_component_table_refs{ create_component_table_refs(registry) },
+      m_archetypes{ registry.m_archetypes }
 {}
 
 template <typename... Components_T>

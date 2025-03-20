@@ -18,6 +18,7 @@ export template <typename T, typename OnlyFriend_T = void, auto tag_T = [] {}>
 class Strong {
 public:
     using Underlying = T;
+    constexpr static auto tag{ tag_T };
 
     Strong()
         requires std::is_void_v<OnlyFriend_T> && std::default_initializable<T>
@@ -35,7 +36,7 @@ public:
     constexpr explicit Strong(U&& value) noexcept(std::is_nothrow_constructible_v<T, U>)
         requires std::is_void_v<OnlyFriend_T>;
 
-    constexpr auto operator<=>(const Strong&) const = default;
+    auto operator<=>(const Strong&) const = default;
 
     template <typename Self_T>
     constexpr auto underlying(this Self_T&&) noexcept

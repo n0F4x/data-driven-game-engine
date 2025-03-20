@@ -4,6 +4,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         ecs.cppm
         Archetype.ixx
+        ArchetypeContainer.ixx
         ArchetypeID.ixx
         component_c.ixx
         ComponentContainer.ixx

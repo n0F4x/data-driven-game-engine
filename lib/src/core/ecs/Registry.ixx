@@ -31,6 +31,7 @@ import utility.ScopeGuard;
 import utility.TypeList;
 
 import :Archetype;
+import :ArchetypeContainer;
 import :ArchetypeID;
 import :component_c;
 import :ComponentContainer;
@@ -41,7 +42,7 @@ import :ErasedComponentContainer;
 import :Query.fwd;
 import :RecordIndex;
 import :RecordID;
-export import :ID;
+import :ID;
 
 struct Entity {
     ArchetypeID archetype_id;
@@ -104,10 +105,9 @@ private:
              && (::util::meta::all_different_v<std::remove_const_t<Components_T>...>)
     friend class Query;
 
-    std::unordered_map<::ComponentID, ComponentTable>  m_component_tables;
-    std::map<::ArchetypeID, std::vector<ID<Registry>>> m_entity_table;
-    std::unordered_map<::ArchetypeID, ::Archetype>     m_archetypes;
-    util::SlotMap<ID<Registry>, ::Entity>              m_entities;
+    std::unordered_map<::ComponentID, ::ComponentTable> m_component_tables;
+    ::ArchetypeContainer                                m_archetypes;
+    util::SlotMap<ID<Registry>, ::Entity>               m_entities;
 
     template <typename Self_T>
     [[nodiscard]]
@@ -174,6 +174,8 @@ template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0, util::meta::all_different_v<std::decay_t<Components_T>...>)
 auto core::ecs::Registry<tag_T>::create(Components_T&&... components) -> ID<Registry>
 {
+    ID<Registry> id{ m_entities.next_key() };
+
     constexpr static ArchetypeID archetype_id{
         ::archetype_id<std::decay_t<Components_T>...>
     };
@@ -188,7 +190,7 @@ auto core::ecs::Registry<tag_T>::create(Components_T&&... components) -> ID<Regi
             )
             .first->second;
 
-    const auto [record_id, record_index] = archetype.emplace();
+    const auto [record_id, record_index] = archetype.emplace(id);
 
     [record_index]<std::same_as<RecordIndex>... Indices_T>(
         const Indices_T... record_indices
@@ -198,22 +200,34 @@ auto core::ecs::Registry<tag_T>::create(Components_T&&... components) -> ID<Regi
         std::forward<Components_T>(components)
     )...);
 
-    return ID<Registry>{ m_entities.emplace(
-        ::Entity{ .archetype_id = archetype_id, .record_id = ::RecordID{ record_id } }
-    ) };
+    [[maybe_unused]]
+    const auto actual_id = m_entities
+                               .emplace(
+                                   ::Entity{ .archetype_id = archetype_id,
+                                             .record_id    = ::RecordID{ record_id } }
+                               )
+                               .first;
+    assert(id == actual_id);
+
+    return id;
 }
 
 template <auto tag_T>
 auto core::ecs::Registry<tag_T>::destroy(const ID<Registry> id) -> bool
 {
     return m_entities.erase(id)
-        .transform([this](const ::Entity entity) {
+        .transform([](const auto entity_and_index) {
+            return std::get<Entity>(entity_and_index);
+        })
+        .transform([this, id](const ::Entity entity) {
             const auto [archetype_id, record_id]{ entity };
 
             const auto arhetypes_iter{ m_archetypes.find(archetype_id) };
             assert(arhetypes_iter != m_archetypes.cend());
 
-            const RecordIndex record_index = *arhetypes_iter->second.erase(record_id);
+            const auto id_and_record_index = *arhetypes_iter->second.erase(record_id);
+            assert(std::get<UnderlyingID>(id_and_record_index) == id.underlying());
+            const RecordIndex record_index{ std::get<RecordIndex>(id_and_record_index) };
 
             remove_components(
                 archetype_id, arhetypes_iter->second.component_id_set(), record_index

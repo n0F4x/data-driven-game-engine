@@ -1,6 +1,7 @@
 export module core.ecs;
 
 export import :Archetype;
+import :ArchetypeContainer;
 export import :ArchetypeID;
 export import :component_c;
 export import :ComponentContainer;
