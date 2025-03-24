@@ -9,5 +9,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         tuple_drop_back.ixx
         tuple_drop_front.ixx
         tuple_drop_nth.ixx
+        tuple_for_each.ixx
         tuple_select.ixx
+        tuple_transform.ixx
 )

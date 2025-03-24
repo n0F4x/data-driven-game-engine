@@ -10,7 +10,7 @@ import :ComponentID;
 import :sorted_component_id_sequence;
 
 // TODO: remove explicit []{} tag when Clang allows it
-using ArchetypeID = util::Strong<uint_least32_t, []{}>;
+using ArchetypeID = util::Strong<uint_least32_t, [] {}>;
 
 template <core::ecs::component_c... Components_T>
 constexpr ArchetypeID archetype_id{

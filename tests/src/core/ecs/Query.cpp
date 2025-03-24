@@ -104,4 +104,89 @@ TEST_CASE("core::ecs::Query")
             }
         }
     }
+
+    SECTION("each (with id)")
+    {
+        registry.create(int{}, float{});
+
+        const auto make_visitor = [&registry]<core::ecs::component_c... Components_T>(
+                                      size_t& visit_count
+                                  ) {
+            return [&registry,
+                    &visit_count](const core::ecs::ID id, Components_T&... components) {
+                ++visit_count;
+                const auto found_components = registry.find_all<Components_T...>(id);
+                REQUIRE(found_components.has_value());
+                REQUIRE(found_components == std::make_tuple(components...));
+            };
+        };
+
+        SECTION("single archetype")
+        {
+            {
+                core::ecs::Query<int, float> query{ registry };
+
+                size_t visit_count{};
+                query.each(make_visitor.operator()<int, float>(visit_count));
+                query.each(+[](core::ecs::ID, int&, float&) {});
+
+                REQUIRE(visit_count == 1);
+            }
+
+            {
+                core::ecs::Query<int> query{ registry };
+
+                size_t visit_count{};
+                query.each(make_visitor.operator()<int>(visit_count));
+                query.each(+[](core::ecs::ID, int&) {});
+
+                REQUIRE(visit_count == 1);
+            }
+
+            registry.create(int{}, float{});
+
+            {
+                core::ecs::Query<int, float> query{ registry };
+
+                size_t visit_count{};
+                query.each(make_visitor.operator()<int, float>(visit_count));
+
+                REQUIRE(visit_count == 2);
+            }
+        }
+
+        SECTION("multiple archetypes")
+        {
+            registry.create(int{}, float{}, long{});
+
+            {
+                core::ecs::Query<int, float> query{ registry };
+
+                size_t visit_count{};
+                query.each(make_visitor.operator()<int, float>(visit_count));
+
+                REQUIRE(visit_count == 2);
+            }
+
+            {
+                core::ecs::Query<int, float, long> query{ registry };
+
+                size_t visit_count{};
+                query.each(make_visitor.operator()<int, float, long>(visit_count));
+
+                REQUIRE(visit_count == 1);
+            }
+
+            registry.create(int{}, float{}, long{});
+
+            {
+                core::ecs::Query<int, float, long> query{ registry };
+
+                size_t visit_count{};
+                query.each(make_visitor.operator()<int, float, long>(visit_count));
+
+                REQUIRE(visit_count == 2);
+            }
+        }
+    }
 }

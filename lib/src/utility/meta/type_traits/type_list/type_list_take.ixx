@@ -17,7 +17,7 @@ struct type_list_take<TypeList_T<Ts...>, 0> {
 };
 
 template <template <typename...> typename TypeList_T, typename T, typename... Ts, size_t N>
-    requires(sizeof...(Ts) >= N && N != 0)
+    requires(N != 0)
 struct type_list_take<TypeList_T<T, Ts...>, N>
     : type_list_push_front<typename type_list_take<TypeList_T<Ts...>, N - 1>::type, T> {};
 

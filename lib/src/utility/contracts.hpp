@@ -9,10 +9,8 @@ namespace util {
 class PreconditionViolation : public std::logic_error {
 public:
     // TODO: use <stacktrace> library
-    PreconditionViolation(
-        const std::source_location& location,
-        std::string_view            precondition
-    );
+    explicit PreconditionViolation(const std::source_location& location);
+    PreconditionViolation(const std::source_location& location, std::string_view message);
 };
 
 }   // namespace util
@@ -20,11 +18,11 @@ public:
 #ifndef ENGINE_ENABLE_UNIT_TESTS
   #include <cassert>
 
-  #define PRECOND(...) assert(__VA_ARGS__)
+  #define PRECOND(condition, ...) assert(condition __VA_OPT__(&&) __VA_ARGS__)
 #else
-  #define PRECOND(...)                                                        \
-      if (!(__VA_ARGS__)) {                                                   \
-          throw util::PreconditionViolation{ std::source_location::current(), \
-                                             #__VA_ARGS__ };                  \
+  #define PRECOND(condition, ...)                                              \
+      if (!(condition)) {                                                      \
+          throw util::PreconditionViolation{ std::source_location::current()   \
+                                                 __VA_OPT__(, ) __VA_ARGS__ }; \
       }
 #endif

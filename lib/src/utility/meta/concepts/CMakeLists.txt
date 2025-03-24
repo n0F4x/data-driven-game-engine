@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         concepts.cppm
         allocator.ixx
         decayed.ixx
+        decays_to.ixx
         nothrow_assignable_from.ixx
         nothrow_constructible_from.ixx
         nothrow_convertible_to.ixx

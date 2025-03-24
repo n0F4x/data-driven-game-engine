@@ -7,6 +7,7 @@ export import utility.meta.concepts.type_list;
 
 export import utility.meta.concepts.allocator;
 export import utility.meta.concepts.decayed;
+export import utility.meta.concepts.decays_to;
 export import utility.meta.concepts.nothrow_assignable_from;
 export import utility.meta.concepts.nothrow_constructible_from;
 export import utility.meta.concepts.nothrow_convertible_to;

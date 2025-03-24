@@ -1,6 +1,7 @@
 export module utility.meta.type_traits.type_list;
 
 export import utility.meta.type_traits.type_list.is_type_list;
+export import utility.meta.type_traits.type_list.type_list_all_same;
 export import utility.meta.type_traits.type_list.type_list_at;
 export import utility.meta.type_traits.type_list.type_list_chunk_sub;
 export import utility.meta.type_traits.type_list.type_list_concat;

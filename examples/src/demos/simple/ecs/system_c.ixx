@@ -8,7 +8,7 @@ import :Query;
 import :Res;
 
 import utility.meta.concepts.functional.callable;
-import utility.meta.concepts.type_list.all_of_type_list;
+import utility.meta.concepts.type_list.type_list_all;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.is_specialization_of;
 
