@@ -12,7 +12,7 @@ module;
 export module core.resource.ResourceManager;
 
 import utility.containers.StackedTuple;
-import utility.meta.type_traits.all_different;
+import utility.meta.concepts.all_different;
 import utility.meta.concepts.decayed;
 import utility.meta.type_traits.functional.invoke_result_of;
 import utility.meta.type_traits.type_list.type_list_contains;
@@ -29,7 +29,7 @@ export template <typename T>
 concept resource_c = ::util::meta::decayed_c<T>;
 
 export template <resource_c... Resources_T>
-    requires(util::meta::all_different_v<Resources_T...>)
+    requires util::meta::all_different_c<Resources_T...>
 class ResourceManager {
 public:
     template <::decays_to_factory_c<Resources_T>... Factories_T>
@@ -49,7 +49,7 @@ private:
 }   // namespace core::resource
 
 template <core::resource::resource_c... Resources_T>
-    requires(util::meta::all_different_v<Resources_T...>)
+    requires util::meta::all_different_c<Resources_T...>
 template <decays_to_factory_c<Resources_T>... Factories_T>
 constexpr core::resource::ResourceManager<Resources_T...>::ResourceManager(
     Factories_T&&... factories
@@ -60,7 +60,7 @@ constexpr core::resource::ResourceManager<Resources_T...>::ResourceManager(
 {}
 
 template <core::resource::resource_c... Resources_T>
-    requires(util::meta::all_different_v<Resources_T...>)
+    requires util::meta::all_different_c<Resources_T...>
 template <typename Resource_T, typename Self_T>
     requires(::util::meta::
                  type_list_contains_v<::util::TypeList<Resources_T...>, Resource_T>)

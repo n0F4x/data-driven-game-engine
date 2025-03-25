@@ -25,6 +25,10 @@ struct TypeList {
     constexpr static auto
         fold_left_first_enumerate(IndexedTransform_T transform, Operation_T operation)
         requires(sizeof...(Ts) > 0);
+
+    template <typename F>
+    [[nodiscard]]
+    constexpr static auto apply(F func);
 };
 
 }   // namespace util
@@ -98,4 +102,11 @@ constexpr auto util::TypeList<Ts...>::fold_left_first_enumerate(
             ));
         }
     }.template operator()<1>(transform.template operator()<0, Ts...[0]>());
+}
+
+template <typename... Ts>
+template <typename F>
+constexpr auto util::TypeList<Ts...>::apply(F func)
+{
+    return func.template operator()<Ts...>();
 }

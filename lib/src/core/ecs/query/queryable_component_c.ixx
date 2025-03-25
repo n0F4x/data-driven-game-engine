@@ -2,7 +2,7 @@ module;
 
 #include <type_traits>
 
-export module core.ecs:queryable_component_c;
+export module core.ecs:query.queryable_component_c;
 
 import :component_c;
 

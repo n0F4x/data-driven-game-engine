@@ -18,9 +18,9 @@ import utility.containers.Any;
 import utility.containers.OptionalRef;
 import utility.containers.SlotMultiMap;
 import utility.containers.SlotMap;
+import utility.meta.concepts.all_different;
 import utility.meta.concepts.nothrow_movable;
 import utility.meta.concepts.specialization_of;
-import utility.meta.type_traits.all_different;
 import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.type_list.type_list_is_sorted;
 import utility.meta.type_traits.type_list.type_list_sort;
@@ -39,7 +39,7 @@ import :ComponentID;
 import :ComponentTable;
 import :ComponentTag;
 import :ErasedComponentContainer;
-import :Query.fwd;
+import :query.Query.fwd;
 import :RecordIndex;
 import :RecordID;
 import :ID;
@@ -60,13 +60,14 @@ public:
     };
 
     template <::decays_to_component_c... Components_T>
-        requires(sizeof...(Components_T) > 0, util::meta::all_different_v<std::decay_t<Components_T>...>)
+        requires(sizeof...(Components_T) > 0)
+             && util::meta::all_different_c<std::decay_t<Components_T>...>
     auto create(Components_T&&... components) -> core::ecs::ID;
 
     auto destroy(core::ecs::ID id) -> bool;
 
     template <component_c... Components_T, typename Self_T>
-        requires(util::meta::all_different_v<Components_T...>)
+        requires util::meta::all_different_c<Components_T...>
     [[nodiscard]]
     auto get(this Self_T&&, core::ecs::ID id)
         -> std::tuple<::util::meta::forward_like_t<Components_T, Self_T>...>;
@@ -77,13 +78,13 @@ public:
         -> ::util::meta::forward_like_t<Component_T, Self_T>;
 
     template <component_c... Components_T, typename Self_T>
-        requires(util::meta::all_different_v<Components_T...>)
+        requires util::meta::all_different_c<Components_T...>
     [[nodiscard]]
     auto find(this Self_T&&, core::ecs::ID id) noexcept -> std::tuple<::util::OptionalRef<
         std::remove_reference_t<::util::meta::forward_like_t<Components_T, Self_T>>>...>;
 
     template <component_c... Components_T, typename Self_T>
-        requires(util::meta::all_different_v<Components_T...>)
+        requires util::meta::all_different_c<Components_T...>
     [[nodiscard]]
     auto find_all(this Self_T&&, core::ecs::ID id) noexcept
         -> std::optional<std::tuple<::util::meta::forward_like_t<Components_T, Self_T>...>>;
@@ -94,14 +95,13 @@ public:
         std::remove_reference_t<::util::meta::forward_like_t<Component_T, Self_T>>>;
 
     template <component_c... Components_T>
-        requires(util::meta::all_different_v<Components_T...>)
+        requires util::meta::all_different_c<Components_T...>
     [[nodiscard]]
     auto contains_all(core::ecs::ID id) const noexcept -> bool;
 
 private:
-    template <typename... Components_T>
-        requires(queryable_component_c<std::remove_const_t<Components_T>> && ...)
-             && (::util::meta::all_different_v<std::remove_const_t<Components_T>...>)
+    template <query_parameter_c... Parameters_T>
+        requires ::query_parameter_components_are_all_different_c<Parameters_T...>
     friend class Query;
 
     std::unordered_map<::ComponentID, ::ComponentTable> m_component_tables;
@@ -169,7 +169,8 @@ private:
 }   // namespace core::ecs
 
 template <decays_to_component_c... Components_T>
-    requires(sizeof...(Components_T) > 0, util::meta::all_different_v<std::decay_t<Components_T>...>)
+    requires(sizeof...(Components_T) > 0)
+         && util::meta::all_different_c<std::decay_t<Components_T>...>
 auto core::ecs::Registry::create(Components_T&&... components) -> core::ecs::ID
 {
     core::ecs::ID id{ m_entities.next_key() };
@@ -242,7 +243,7 @@ auto core::ecs::Registry::destroy(const core::ecs::ID id) -> bool
 }
 
 template <core::ecs::component_c... Components_T, typename Self_T>
-    requires(util::meta::all_different_v<Components_T...>)
+    requires util::meta::all_different_c<Components_T...>
 auto core::ecs::Registry::get(this Self_T&& self, const core::ecs::ID id)
     -> std::tuple<util::meta::forward_like_t<Components_T, Self_T>...>
 {
@@ -271,7 +272,7 @@ auto core::ecs::Registry::get_single(this Self_T&& self, const core::ecs::ID id)
 }
 
 template <core::ecs::component_c... Components_T, typename Self_T>
-    requires(util::meta::all_different_v<Components_T...>)
+    requires util::meta::all_different_c<Components_T...>
 auto core::ecs::Registry::find(this Self_T&& self, const core::ecs::ID id) noexcept
     -> std::tuple<util::OptionalRef<
         std::remove_reference_t<util::meta::forward_like_t<Components_T, Self_T>>>...>
@@ -297,7 +298,7 @@ auto core::ecs::Registry::find(this Self_T&& self, const core::ecs::ID id) noexc
 }
 
 template <core::ecs::component_c... Components_T, typename Self_T>
-    requires(util::meta::all_different_v<Components_T...>)
+    requires util::meta::all_different_c<Components_T...>
 auto core::ecs::Registry::find_all(this Self_T&& self, const core::ecs::ID id) noexcept
     -> std::optional<std::tuple<util::meta::forward_like_t<Components_T, Self_T>...>>
 {
@@ -348,7 +349,7 @@ auto core::ecs::Registry::find_single(
 }
 
 template <core::ecs::component_c... Components_T>
-    requires(util::meta::all_different_v<Components_T...>)
+    requires util::meta::all_different_c<Components_T...>
 auto core::ecs::Registry::contains_all(const core::ecs::ID id) const noexcept -> bool
 {
     const auto optional_entity = find_entity(id);

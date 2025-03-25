@@ -8,6 +8,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${ENGINE_SRC_DIR}
         FILES
         concepts.cppm
+        all_different.ixx
         allocator.ixx
         decayed.ixx
         decays_to.ixx

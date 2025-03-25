@@ -12,6 +12,7 @@ import utility.containers.SlotMap;
 import utility.meta.concepts.ranges.input_range_of;
 import utility.meta.concepts.specialization_of;
 import utility.ScopeGuard;
+import utility.TypeList;
 import utility.ValueSequence;
 
 import :ComponentID;
@@ -31,6 +32,10 @@ public:
     template <core::ecs::component_c... Components_T>
     [[nodiscard]]
     constexpr auto contains_components() const noexcept -> bool;
+
+    template <core::ecs::component_c... Components_T>
+    [[nodiscard]]
+    constexpr auto contains_none_of_components() const noexcept -> bool;
 
     constexpr auto emplace(core::ecs::ID id) -> std::pair<RecordID, RecordIndex>;
 
@@ -107,6 +112,15 @@ constexpr auto Archetype::contains_components() const noexcept -> bool
         {},
         [](const auto value) { return ComponentID{ value }; }
     );
+}
+
+template <core::ecs::component_c... Components_T>
+constexpr auto Archetype::contains_none_of_components() const noexcept -> bool
+{
+    return util::TypeList<Components_T...>::for_each([this]<typename Component_T> noexcept {
+        // TODO: write TypeList adaptor `none_of`
+        return std::ranges::none_of(m_sorted_component_id_set, component_id<Component_T>);
+    });
 }
 
 constexpr auto Archetype::emplace(const core::ecs::ID id)
