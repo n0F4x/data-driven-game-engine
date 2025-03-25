@@ -15,4 +15,3 @@ export import :query;
 export import :RecordID;
 export import :RecordIndex;
 export import :Registry;
-export import :sorted_component_id_sequence;

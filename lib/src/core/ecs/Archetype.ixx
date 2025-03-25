@@ -6,28 +6,24 @@ module;
 export module core.ecs:Archetype;
 
 import utility.meta.reflection.type_id;
+import utility.meta.type_traits.integer_sequence.integer_sequence_sort;
 import utility.TypeList;
+import utility.ValueSequence;
 
 import :component_c;
 import :ComponentID;
-import :sorted_component_id_sequence;
 
 template <core::ecs::component_c... Components_T>
 [[nodiscard]]
 constexpr auto make_component_id_set() -> std::span<const ComponentID>
 {
-    using SortedComponentIDSequence =
-        sorted_component_id_sequence_t<component_id<Components_T>.underlying()...>;
-
     constexpr static std::array<ComponentID, sizeof...(Components_T)> component_id_set =
         [] {
-            std::array<ComponentID, sizeof...(Components_T)> result;
+            std::array<ComponentID, sizeof...(Components_T)> result{
+                component_id<Components_T>...
+            };
 
-            SortedComponentIDSequence::enumerate(
-                [&result]<size_t index_T, ComponentID::Underlying value_T> {
-                    result[index_T] = ComponentID{ value_T };
-                }
-            );
+            std::ranges::sort(result);
 
             return result;
         }();
@@ -39,8 +35,9 @@ class Archetype {
 public:
     template <core::ecs::component_c... Components_T>
     consteval explicit Archetype(util::TypeList<Components_T...>)
-        : m_id{ util::meta::id_v<
-              sorted_component_id_sequence_t<component_id<Components_T>.underlying()...>> },
+        : m_id{ util::meta::id_v<util::meta::integer_sequence_sort_t<util::ValueSequence<
+              ComponentID::Underlying,
+              component_id<Components_T>.underlying()...>>> },
           m_sorted_component_ids{ make_component_id_set<Components_T...>() }
     {}
 
@@ -66,8 +63,7 @@ public:
     {
         return std::ranges::includes(
             m_sorted_component_ids,
-            ::sorted_component_id_sequence_t<(::component_id<Components_T>.underlying()
-            )...>::realize(),
+            make_component_id_set<Components_T...>(),
             {},
             {},
             [](const auto value) { return ComponentID{ value }; }

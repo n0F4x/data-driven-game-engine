@@ -19,5 +19,4 @@ target_sources(${PROJECT_NAME} PUBLIC
         RecordID.ixx
         RecordIndex.ixx
         Registry.ixx
-        sorted_component_id_sequence.ixx
 )
