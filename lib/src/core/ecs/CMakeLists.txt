@@ -8,6 +8,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         Archetype.ixx
         ArchetypeContainer.ixx
         ArchetypeID.ixx
+        ArchetypeInfo.ixx
         component_c.ixx
         ComponentContainer.ixx
         ComponentID.ixx

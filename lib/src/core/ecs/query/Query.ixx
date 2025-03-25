@@ -127,7 +127,7 @@ private:
         util::meta::type_list_size_v<QueriedComponents>>;
 
     [[nodiscard]]
-    auto matches_archetype(const Archetype& archetype) const -> bool;
+    auto matches_archetype(const ArchetypeInfo& archetype) const -> bool;
 };
 
 }   // namespace core::ecs
@@ -345,7 +345,7 @@ auto core::ecs::Query<Parameters_T...>::create_component_table_refs(Registry& re
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto core::ecs::Query<Parameters_T...>::matches_archetype(const Archetype& archetype) const
+auto core::ecs::Query<Parameters_T...>::matches_archetype(const ArchetypeInfo& archetype) const
     -> bool
 {
     return MustIncludeComponents::apply([&archetype]<typename... Ts> {
