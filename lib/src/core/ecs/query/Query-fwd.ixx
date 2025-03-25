@@ -20,8 +20,9 @@ struct ToRawComponent<T>
     : std::type_identity<std::remove_const_t<util::meta::underlying_t<T>>> {};
 
 template <typename... QueryParameters_T>
-concept query_parameter_components_are_all_different_c = util::meta::type_list_all_different_c<
-    util::meta::type_list_transform_t<std::tuple<QueryParameters_T...>, ToRawComponent>>;
+concept query_parameter_components_are_all_different_c =
+    util::meta::type_list_all_different_c<
+        util::meta::type_list_transform_t<std::tuple<QueryParameters_T...>, ToRawComponent>>;
 
 namespace core::ecs {
 

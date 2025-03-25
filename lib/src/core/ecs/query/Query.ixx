@@ -25,7 +25,7 @@ import utility.meta.type_traits.underlying;
 import utility.TypeList;
 import utility.ValueSequence;
 
-import :ArchetypeContainer;
+import :ArchetypeTable;
 import :ComponentContainer;
 import :ComponentTable;
 import :ID;
@@ -118,8 +118,8 @@ private:
     std::array<
         std::reference_wrapper<::ComponentTable>,
         util::meta::type_list_size_v<QueriedComponents>>
-                                                 m_component_table_refs;
-    std::reference_wrapper<::ArchetypeContainer> m_archetypes;
+                                             m_component_table_refs;
+    std::reference_wrapper<::ArchetypeTable> m_archetypes;
 
     [[nodiscard]]
     auto create_component_table_refs(Registry& registry) -> std::array<
@@ -127,7 +127,7 @@ private:
         util::meta::type_list_size_v<QueriedComponents>>;
 
     [[nodiscard]]
-    auto matches_archetype(const ArchetypeInfo& archetype) const -> bool;
+    auto matches_archetype(const Archetype& archetype) const -> bool;
 };
 
 }   // namespace core::ecs
@@ -236,7 +236,7 @@ auto core::ecs::Query<Parameters_T...>::each(F&& func) -> F
     if constexpr (util::meta::type_list_size_v<QueriedComponents> == 0) {
         std::ranges::for_each(
             m_archetypes.get() | std::views::values
-                | std::views::transform(&Archetype::ids) | std::views::join,
+                | std::views::transform(&LookupTable::ids) | std::views::join,
             func
         );
     }
@@ -293,19 +293,19 @@ auto core::ecs::Query<Parameters_T...>::each(F&& func) -> F
                         extra_iterators[extra_indices_T - 1]->second...
                     };
 
-                const Archetype& archetype{
+                const LookupTable& lookup_table{
                     m_archetypes.get().find(main_archetype_id)->second
                 };
 
                 assert(
                     (erased_component_containers[indices_T].get().size()
-                     == archetype.ids().size())
+                     == lookup_table.ids().size())
                     && ...
                 );
 
                 std::ranges::for_each(
                     std::views::zip(
-                        archetype.ids(),
+                        lookup_table.ids(),
                         erased_component_containers[indices_T]
                             .get()
                             .template get<ComponentContainer<
@@ -345,7 +345,7 @@ auto core::ecs::Query<Parameters_T...>::create_component_table_refs(Registry& re
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto core::ecs::Query<Parameters_T...>::matches_archetype(const ArchetypeInfo& archetype) const
+auto core::ecs::Query<Parameters_T...>::matches_archetype(const Archetype& archetype) const
     -> bool
 {
     return MustIncludeComponents::apply([&archetype]<typename... Ts> {

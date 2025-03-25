@@ -31,19 +31,19 @@ import utility.ScopeGuard;
 import utility.TypeList;
 
 import :Archetype;
-import :ArchetypeContainer;
 import :ArchetypeID;
-import :ArchetypeInfo;
+import :ArchetypeTable;
 import :component_c;
 import :ComponentContainer;
 import :ComponentID;
 import :ComponentTable;
 import :ComponentTag;
 import :ErasedComponentContainer;
+import :ID;
+import :LookupTable;
 import :query.Query.fwd;
 import :RecordIndex;
 import :RecordID;
-import :ID;
 
 struct Entity {
     ArchetypeID archetype_id;
@@ -106,7 +106,7 @@ private:
     friend class Query;
 
     std::unordered_map<::ComponentID, ::ComponentTable> m_component_tables;
-    ::ArchetypeContainer                                m_archetypes;
+    ::ArchetypeTable                                    m_archetypes;
     util::SlotMap<core::ecs::ID, ::Entity>              m_entities;
 
     template <typename Self_T>
@@ -175,9 +175,9 @@ auto core::ecs::Registry::create(Components_T&&... components) -> core::ecs::ID
 
     constexpr ArchetypeID archetype_id{ archetype_from<std::decay_t<Components_T>...>() };
 
-    Archetype& archetype = m_archetypes.try_emplace(archetype_id).first->second;
+    LookupTable& lookup_table = m_archetypes.try_emplace(archetype_id).first->second;
 
-    const auto [record_id, record_index] = archetype.emplace(id);
+    const auto [record_id, record_index] = lookup_table.emplace(id);
 
     [record_index]<std::same_as<RecordIndex>... Indices_T>(
         const Indices_T... record_indices
@@ -274,11 +274,11 @@ auto core::ecs::Registry::find(this Self_T&& self, const core::ecs::ID id) noexc
     const auto arhetypes_iter{ self.m_archetypes.find(archetype_id) };
     assert(arhetypes_iter != self.m_archetypes.cend());
 
-    const ::Archetype& archetype{ arhetypes_iter->second };
+    const ::LookupTable& lookup_table{ arhetypes_iter->second };
 
     return std::forward_as_tuple(
         std::forward_like<Self_T>(self.template find_component<Components_T>(
-            archetype_id, archetype.get(record_id)
+            archetype_id, lookup_table.get(record_id)
         ))...
     );
 }
@@ -298,14 +298,14 @@ auto core::ecs::Registry::find_all(this Self_T&& self, const core::ecs::ID id) n
     const auto arhetypes_iter{ self.m_archetypes.find(archetype_id) };
     assert(arhetypes_iter != self.m_archetypes.cend());
 
-    const ::Archetype& archetype{ arhetypes_iter->second };
+    const ::LookupTable& lookup_table{ arhetypes_iter->second };
     if (!archetype_id.get().template contains_components<Components_T...>()) {
         return std::nullopt;
     }
 
     return std::forward_as_tuple(
         std::forward_like<Self_T>(self.template get_component<Components_T>(
-            archetype_id, archetype.get(record_id)
+            archetype_id, lookup_table.get(record_id)
         ))...
     );
 }
@@ -327,11 +327,11 @@ auto core::ecs::Registry::find_single(
     const auto arhetypes_iter{ self.m_archetypes.find(archetype_id) };
     assert(arhetypes_iter != self.m_archetypes.cend());
 
-    const ::Archetype& archetype{ arhetypes_iter->second };
+    const ::LookupTable& lookup_table{ arhetypes_iter->second };
 
-    return std::forward_like<Self_T>(
-        self.template find_component<Component_T>(archetype_id, archetype.get(record_id))
-    );
+    return std::forward_like<Self_T>(self.template find_component<Component_T>(
+        archetype_id, lookup_table.get(record_id)
+    ));
 }
 
 template <core::ecs::component_c... Components_T>

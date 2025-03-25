@@ -6,12 +6,12 @@ export module core.ecs:ArchetypeID;
 
 import utility.Strong;
 
+import :Archetype;
 import :ComponentID;
-import :ArchetypeInfo;
 
 class ArchetypeID {
 public:
-    constexpr explicit ArchetypeID(const ArchetypeInfo& archetype)
+    constexpr explicit ArchetypeID(const Archetype& archetype)
         : m_archetype_ref{ archetype }
     {}
 
@@ -19,7 +19,7 @@ public:
     auto operator<=>(const ArchetypeID&) const        = default;
 
     [[nodiscard]]
-    constexpr auto get() const noexcept -> const ArchetypeInfo&
+    constexpr auto get() const noexcept -> const Archetype&
     {
         return m_archetype_ref;
     }
@@ -27,14 +27,14 @@ public:
 private:
     friend struct ArchetypeIDHashAdaptorClosure;
 
-    std::reference_wrapper<const ArchetypeInfo> m_archetype_ref;
+    std::reference_wrapper<const Archetype> m_archetype_ref;
 };
 
 struct ArchetypeIDHashAdaptorClosure {
     [[nodiscard]]
     constexpr static auto operator()(const ArchetypeID archetype_id) noexcept -> size_t
     {
-        return std::hash<ArchetypeInfo>{}(archetype_id.m_archetype_ref.get());
+        return std::hash<Archetype>{}(archetype_id.m_archetype_ref.get());
     }
 };
 

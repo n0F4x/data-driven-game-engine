@@ -5,10 +5,10 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${ENGINE_SRC_DIR}
         FILES
         ecs.cppm
-        Archetype.ixx
-        ArchetypeContainer.ixx
+        LookupTable.ixx
+        ArchetypeTable.ixx
         ArchetypeID.ixx
-        ArchetypeInfo.ixx
+        Archetype.ixx
         component_c.ixx
         ComponentContainer.ixx
         ComponentID.ixx
