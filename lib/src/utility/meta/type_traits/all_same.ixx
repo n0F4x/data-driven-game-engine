@@ -20,6 +20,6 @@ struct all_same<T, Ts...> {
 };
 
 export template <typename... Ts>
-constexpr bool all_same_v = all_same<Ts...>::value;
+constexpr inline bool all_same_v = all_same<Ts...>::value;
 
 }   // namespace util::meta

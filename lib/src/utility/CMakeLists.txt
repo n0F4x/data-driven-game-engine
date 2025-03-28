@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         utility.cppm
         all_same.ixx
         hashing.ixx
+        overloaded.ixx
         ScopeGuard.ixx
         Size.ixx
         Strong.ixx

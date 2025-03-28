@@ -2,7 +2,7 @@ export module core.ecs;
 
 export import :Archetype;
 export import :ArchetypeID;
-import :ArchetypeTable;
+export import :ArchetypeTable;
 export import :component_c;
 export import :ComponentContainer;
 export import :ComponentID;

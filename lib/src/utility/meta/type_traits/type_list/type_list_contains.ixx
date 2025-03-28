@@ -16,6 +16,6 @@ struct type_list_contains<TypeList_T<Ts...>, T>
     : std::disjunction<std::is_same<Ts, T>...> {};
 
 export template <typename TypeList_T, typename T>
-constexpr bool type_list_contains_v = type_list_contains<TypeList_T, T>::value;
+constexpr inline bool type_list_contains_v = type_list_contains<TypeList_T, T>::value;
 
 }   // namespace util::meta

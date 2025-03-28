@@ -4,7 +4,7 @@ module;
 
 export module core.ecs:ComponentID;
 
-import utility.meta.reflection.type_id;
+import utility.meta.reflection.hash;
 import utility.Strong;
 
 import :component_c;
@@ -12,4 +12,4 @@ import :component_c;
 using ComponentID = ::util::Strong<uint_least32_t>;
 
 template <core::ecs::component_c Component_T>
-constexpr ComponentID component_id{ util::meta::id_v<Component_T> };
+constexpr inline ComponentID component_id{ util::meta::hash<Component_T> };

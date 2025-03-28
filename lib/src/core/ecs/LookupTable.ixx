@@ -19,7 +19,6 @@ import :ComponentID;
 import :ID;
 import :RecordIndex;
 import :RecordID;
-import :sorted_component_id_sequence;
 
 class LookupTable {
 public:

@@ -1,11 +1,10 @@
-#include <entt/core/type_info.hpp>
-
 #include <catch2/catch_test_macros.hpp>
 
 #include "utility/contracts.hpp"
 
 import core.ecs;
 import utility.containers.OptionalRef;
+import utility.meta.reflection.name_of;
 import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.underlying;
 import utility.tuple.tuple_all_of;
@@ -44,7 +43,7 @@ TEST_CASE("core::ecs::Registry")
     }
 
     value_categorized_registries.for_each([&registry]<typename Registry_T> {
-        const std::string section_name{ "get - "s + entt::type_name<Registry_T>::value() };
+        const std::string section_name{ "get - "s + util::meta::name_of<Registry_T> };
 
         SECTION(section_name.c_str())
         {
@@ -121,7 +120,7 @@ TEST_CASE("core::ecs::Registry")
 
     value_categorized_registries.for_each([&registry]<typename Registry_T> {
         const std::string section_name{ "get_single - "s
-                                        + entt::type_name<Registry_T>::value() };
+                                        + util::meta::name_of<Registry_T> };
         SECTION(section_name.c_str())
         {
             constexpr static int   integer{ 1 };
@@ -168,8 +167,7 @@ TEST_CASE("core::ecs::Registry")
     });
 
     value_categorized_registries.for_each([&registry]<typename Registry_T> {
-        const std::string section_name{ "find - "s
-                                        + entt::type_name<Registry_T>::value() };
+        const std::string section_name{ "find - "s + util::meta::name_of<Registry_T> };
 
         SECTION(section_name.c_str())
         {
@@ -324,8 +322,7 @@ TEST_CASE("core::ecs::Registry")
     });
 
     value_categorized_registries.for_each([&registry]<typename Registry_T> {
-        const std::string section_name{ "find_all - "s
-                                        + entt::type_name<Registry_T>::value() };
+        const std::string section_name{ "find_all - "s + util::meta::name_of<Registry_T> };
 
         SECTION(section_name.c_str())
         {
@@ -412,7 +409,7 @@ TEST_CASE("core::ecs::Registry")
 
     value_categorized_registries.for_each([&registry]<typename Registry_T> {
         const std::string section_name{ "find_single - "s
-                                        + entt::type_name<Registry_T>::value() };
+                                        + util::meta::name_of<Registry_T> };
         SECTION(section_name.c_str())
         {
             constexpr static int   integer{ 1 };

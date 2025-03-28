@@ -4,25 +4,37 @@ module;
 
 export module core.ecs:query.query_parameter_tags;
 
-import utility.meta.concepts.specialization_of;
-
 import :component_c;
+import :query.query_parameter_tags.fwd;
 
-namespace core::ecs {
+namespace core::ecs::inline query_parameter_tags {
 
-export template <component_c>
-struct With;
+export template <component_c T>
+struct With<T> {};
 
-export template <component_c>
-struct Without;
+export template <typename T>
+    requires(!component_c<T>)
+struct With<T> {
+    static_assert(false, "invalid specialization");
+};
+
+export template <component_c T>
+struct Without<T> {};
+
+export template <typename T>
+    requires(!component_c<T>)
+struct Without<T> {
+    static_assert(false, "invalid specialization");
+};
 
 export template <typename T>
     requires component_c<std::remove_const_t<T>>
-struct Optional;
+struct Optional<T> {};
 
 export template <typename T>
-concept query_parameter_tag_c = util::meta::specialization_of_c<T, With>
-                             || util::meta::specialization_of_c<T, Without>
-                             || util::meta::specialization_of_c<T, Optional>;
+    requires(!component_c<std::remove_const_t<T>>)
+struct Optional<T> {
+    static_assert(false, "invalid specialization");
+};
 
-}   // namespace core::ecs
+}   // namespace core::ecs::inline query_parameter_tags

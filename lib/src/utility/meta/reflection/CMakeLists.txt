@@ -3,5 +3,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${ENGINE_SRC_DIR}
         FILES
         reflection.cppm
-        type_id.ixx
+        hash.ixx
+        name_of.ixx
 )

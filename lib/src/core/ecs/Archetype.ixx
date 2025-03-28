@@ -5,7 +5,7 @@ module;
 
 export module core.ecs:Archetype;
 
-import utility.meta.reflection.type_id;
+import utility.meta.reflection.hash;
 import utility.meta.type_traits.integer_sequence.integer_sequence_sort;
 import utility.TypeList;
 import utility.ValueSequence;
@@ -35,7 +35,7 @@ class Archetype {
 public:
     template <core::ecs::component_c... Components_T>
     consteval explicit Archetype(util::TypeList<Components_T...>)
-        : m_id{ util::meta::id_v<util::meta::integer_sequence_sort_t<util::ValueSequence<
+        : m_id{ util::meta::hash<util::meta::integer_sequence_sort_t<util::ValueSequence<
               ComponentID::Underlying,
               component_id<Components_T>.underlying()...>>> },
           m_sorted_component_ids{ make_component_id_set<Components_T...>() }
@@ -74,19 +74,17 @@ public:
     [[nodiscard]]
     constexpr auto contains_none_of_components() const noexcept -> bool
     {
-        return util::TypeList<Components_T...>::for_each(
-            [this]<typename Component_T> noexcept {
-                // TODO: write TypeList adaptor `none_of`
-                return std::ranges::
-                    none_of(m_sorted_component_ids, component_id<Component_T>);
-            }
+        return (
+            (!std::ranges::binary_search(m_sorted_component_ids, component_id<Components_T>)
+            )
+            && ...
         );
     }
 
 private:
     friend struct ArchetypeInfoHashAdaptorClosure;
 
-    util::meta::TypeID           m_id;
+    util::meta::TypeHash         m_id;
     std::span<const ComponentID> m_sorted_component_ids;
 };
 

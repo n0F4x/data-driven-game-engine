@@ -13,6 +13,6 @@ template <template <size_t...> typename T, size_t... indices_T>
 struct is_index_sequence<T<indices_T...>> : std::true_type {};
 
 export template <typename T>
-constexpr bool is_index_sequence_v = is_index_sequence<T>::value;
+constexpr inline bool is_index_sequence_v = is_index_sequence<T>::value;
 
 }   // namespace util::meta

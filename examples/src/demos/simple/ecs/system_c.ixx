@@ -27,7 +27,7 @@ struct is_valid_argument
 export template <typename SchedulableT>
 concept system_c =
     util::meta::callable_c<std::remove_pointer_t<std::decay_t<SchedulableT>>>
-    && util::meta::all_of_type_list_c<
+    && util::meta::type_list_all_c<
         util::meta::arguments_of_t<std::remove_pointer_t<std::decay_t<SchedulableT>>>,
         is_valid_argument>;
 

@@ -7,7 +7,6 @@ module;
 #include <ranges>
 #include <set>
 #include <span>
-#include <unordered_map>
 #include <utility>
 
 #include "utility/contracts.hpp"
@@ -41,7 +40,7 @@ import :ComponentTag;
 import :ErasedComponentContainer;
 import :ID;
 import :LookupTable;
-import :query.Query.fwd;
+import :query.QueryAdaptorClosure.fwd;
 import :RecordIndex;
 import :RecordID;
 
@@ -52,7 +51,7 @@ struct Entity {
 
 namespace core::ecs {
 
-// TODO: constexpr when std::unordered_map becomes constexpr
+// TODO: constexpr when containers becomes constexpr
 // TODO: remove emptied archetypes (this also means more exception guarantees upon create)
 export class Registry {
 public:
@@ -103,11 +102,11 @@ public:
 private:
     template <query_parameter_c... Parameters_T>
         requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-    friend class Query;
+    friend class QueryAdaptorClosure;
 
-    std::unordered_map<::ComponentID, ::ComponentTable> m_component_tables;
-    ::ArchetypeTable                                    m_archetypes;
-    util::SlotMap<core::ecs::ID, ::Entity>              m_entities;
+    std::map<::ComponentID, ::ComponentTable> m_component_tables;
+    ::ArchetypeTable                          m_archetypes;
+    util::SlotMap<core::ecs::ID, ::Entity>    m_entities;
 
     template <typename Self_T>
     [[nodiscard]]
@@ -474,6 +473,13 @@ auto core::ecs::Registry::remove_components(
             const auto component_container_node =
                 component_tables_container_iter->second.extract(component_containers_iter);
             assert(!component_container_node.empty());
+
+            if (component_tables_container_iter->second.empty()) {
+                [[maybe_unused]]
+                const auto component_table_node =
+                    m_component_tables.extract(component_tables_container_iter);
+                assert(!component_table_node.empty());
+            }
         }
     }
 }

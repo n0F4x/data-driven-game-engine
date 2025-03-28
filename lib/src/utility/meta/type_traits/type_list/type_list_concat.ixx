@@ -1,7 +1,3 @@
-module;
-
-#include <tuple>
-
 export module utility.meta.type_traits.type_list.type_list_concat;
 
 namespace util::meta {
@@ -9,20 +5,16 @@ namespace util::meta {
 export template <typename...>
 struct type_list_concat;
 
-template <
-    template <typename...> typename TypeList0_T,
-    typename... Ts0,
-    template <typename...> typename TypeList1_T,
-    typename... Ts1>
-struct type_list_concat<TypeList0_T<Ts0...>, TypeList1_T<Ts1...>> {
-    using type = std::tuple<Ts0..., Ts1...>;
+template <template <typename...> typename TypeList_T, typename... Ts0, typename... Ts1>
+struct type_list_concat<TypeList_T<Ts0...>, TypeList_T<Ts1...>> {
+    using type = TypeList_T<Ts0..., Ts1...>;
 };
 
-template <typename TypeList0_T, typename TypeList1_T, typename TypeList3_T, typename... TypeLists_T>
-struct type_list_concat<TypeList0_T, TypeList1_T, TypeList3_T, TypeLists_T...> {
+template <typename TypeList0_T, typename TypeList1_T, typename TypeList2_T, typename... TypeLists_T>
+struct type_list_concat<TypeList0_T, TypeList1_T, TypeList2_T, TypeLists_T...> {
     using type = typename type_list_concat<
         TypeList0_T,
-        typename type_list_concat<TypeList1_T, TypeList3_T, TypeLists_T...>::type>::type;
+        typename type_list_concat<TypeList1_T, TypeList2_T, TypeLists_T...>::type>::type;
 };
 
 export template <typename... TypeLists_T>

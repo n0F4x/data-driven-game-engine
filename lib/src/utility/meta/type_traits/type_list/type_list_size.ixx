@@ -15,7 +15,7 @@ struct type_list_size<TypeList_T<Ts...>> {
 };
 
 export template <typename TypeList_T>
-constexpr size_t type_list_size_v = type_list_size<TypeList_T>::value;
+constexpr inline size_t type_list_size_v = type_list_size<TypeList_T>::value;
 
 }   // namespace util::meta
 

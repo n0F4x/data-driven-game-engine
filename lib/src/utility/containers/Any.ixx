@@ -4,8 +4,11 @@ module;
 #include <cassert>
 #include <concepts>
 #include <memory>
+#include <string>
 #include <utility>
 #include <variant>
+
+#include "utility/contracts.hpp"
 
 export module utility.containers.Any;
 
@@ -15,8 +18,11 @@ import utility.meta.concepts.allocator;
 import utility.meta.concepts.decayed;
 import utility.meta.concepts.nothrow_movable;
 import utility.meta.concepts.specialization_of;
-import utility.meta.reflection.type_id;
+import utility.meta.reflection.hash;
+import utility.meta.reflection.name_of;
 import utility.meta.type_traits.forward_like;
+
+using namespace std::literals;
 
 template <typename T>
 concept storable_c = util::meta::decayed_c<T> && std::copyable<T>;
@@ -38,11 +44,13 @@ struct Operations {
     using MoveFunc       = auto (*)(Storage& out, Storage&& storage) -> void;
     using DropFunc       = auto (*)(Allocator_T& allocator, Storage&&) -> void;
     using TypesMatchFunc = auto (*)(size_t) -> bool;
+    using TypeNameFunc   = auto (*)() -> std::string_view;
 
     CopyFunc       copy;
     MoveFunc       move;
     DropFunc       drop;
     TypesMatchFunc types_match;
+    TypeNameFunc   type_name;
 };
 
 template <typename T, size_t size_T, size_t alignment_T>
@@ -70,19 +78,19 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
     constexpr static auto drop(Allocator_T& allocator, Storage&& storage) noexcept
         -> void;
 
-    [[nodiscard]]
-    constexpr static auto types_match(size_t type_id) -> bool;
     template <typename Storage_T>
         requires std::same_as<std::remove_cvref_t<Storage_T>, Storage>
     [[nodiscard]]
     constexpr static auto get(Storage_T&& storage) noexcept
         -> util::meta::forward_like_t<T, Storage_T>;
 
+    [[nodiscard]]
+    constexpr static auto types_match(size_t type_hash) -> bool;
+    [[nodiscard]]
+    constexpr static auto type_name() -> std::string_view;
+
     constexpr static Operations<size_T, alignment_T, Allocator_T> s_operations{
-        copy,
-        move,
-        drop,
-        types_match,
+        copy, move, drop, types_match, type_name,
     };
 
 private:
@@ -104,19 +112,19 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
     constexpr static auto drop(Allocator_T& allocator, Storage&& storage) noexcept
         -> void;
 
-    [[nodiscard]]
-    constexpr static auto types_match(size_t type_id) -> bool;
     template <typename Storage_T>
         requires std::same_as<std::remove_cvref_t<Storage_T>, Storage>
     [[nodiscard]]
     constexpr static auto get(Storage_T&& storage) noexcept
         -> util::meta::forward_like_t<T, Storage_T>;
 
+    [[nodiscard]]
+    constexpr static auto types_match(size_t type_hash) -> bool;
+    [[nodiscard]]
+    constexpr static auto type_name() -> std::string_view;
+
     constexpr static Operations<size_T, alignment_T, Allocator_T> s_operations{
-        copy,
-        move,
-        drop,
-        types_match,
+        copy, move, drop, types_match, type_name,
     };
 };
 
@@ -165,7 +173,7 @@ public:
     constexpr auto operator=(BasicAny&&) noexcept -> BasicAny&;
 
     template <::util::meta::decayed_c T, typename Self_T>
-    constexpr auto get(this Self_T&&) noexcept -> ::util::meta::forward_like_t<T, Self_T>;
+    constexpr auto get(this Self_T&&) -> ::util::meta::forward_like_t<T, Self_T>;
 
 private:
     using Storage = ::storage_t<size_T, alignment_T>;
@@ -238,10 +246,18 @@ constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::drop(
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
     requires small_c<T, size_T, alignment_T>
 constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::types_match(
-    const size_t type_id
+    const size_t type_hash
 ) -> bool
 {
-    return type_id == ::util::meta::id_v<T>;
+    return type_hash == ::util::meta::hash<T>;
+}
+
+template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
+    requires small_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::type_name()
+    -> std::string_view
+{
+    return util::meta::name_of<T>;
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
@@ -344,15 +360,6 @@ constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::drop(
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
     requires large_c<T, size_T, alignment_T>
-constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::types_match(
-    const size_t type_id
-) -> bool
-{
-    return type_id == util::meta::id_v<T>;
-}
-
-template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires large_c<T, size_T, alignment_T>
 template <typename Storage_T>
     requires std::same_as<std::remove_cvref_t<Storage_T>, storage_t<size_T, alignment_T>>
 constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::get(
@@ -367,14 +374,29 @@ constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::get(
     return std::forward_like<Storage_T>(*static_cast<TPtr>(*handle_ptr));
 }
 
+template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
+    requires large_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::types_match(
+    const size_t type_hash
+) -> bool
+{
+    return type_hash == util::meta::hash<T>;
+}
+
+template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
+    requires large_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::type_name()
+    -> std::string_view
+{
+    return util::meta::name_of<T>;
+}
+
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
 constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(const BasicAny& other)
     : m_allocator{ other.m_allocator },
       m_operations{ other.m_operations }
 {
-    assert(
-        other.m_operations != nullptr && "Don't use a 'moved-from' (or destroyed) Any!"
-    );
+    PRECOND(other.m_operations != nullptr, "Don't use a 'moved-from' (or destroyed) Any!");
     if (m_operations) {
         m_operations->copy(m_storage, m_allocator, other.m_storage);
     }
@@ -470,9 +492,7 @@ template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c A
 constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(BasicAny&& other
 ) noexcept -> BasicAny&
 {
-    assert(
-        other.m_operations != nullptr && "Don't use a 'moved-from' (or destroyed) Any!"
-    );
+    assert(other.m_operations != nullptr && "Don't use a 'moved-from' (or destroyed) Any!");
 
     if (&other == this) {
         return *this;
@@ -493,15 +513,18 @@ constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(Basic
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
 template <::util::meta::decayed_c T, typename Self_T>
-constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::get(
-    this Self_T&& self
-) noexcept -> meta::forward_like_t<T, Self_T>
+constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::get(this Self_T&& self)
+    -> meta::forward_like_t<T, Self_T>
 {
-    assert(
-        self.BasicAny::m_operations != nullptr
-        && "Don't use a 'moved-from' (or destroyed) Any!"
+    PRECOND(
+        self.BasicAny::m_operations != nullptr,
+        "Don't use a 'moved-from' (or destroyed) Any!"
     );
-    assert(self.BasicAny::m_operations->types_match(util::meta::id_v<T>));
+    PRECOND(
+        self.BasicAny::m_operations->types_match(util::meta::hash<T>),
+        // TODO: use constexpr std::format
+        "`Any` has type "s + self.BasicAny::m_operations->type_name() + ", but requested type is " + util::meta::name_of<T>
+    );
     return Traits<T, size_T, alignment_T, Allocator>::get(
         std::forward_like<Self_T>(self.m_storage)
     );

@@ -12,6 +12,7 @@ export import utility.meta.type_traits.type_list.type_list_drop_back;
 export import utility.meta.type_traits.type_list.type_list_drop_front;
 export import utility.meta.type_traits.type_list.type_list_filter;
 export import utility.meta.type_traits.type_list.type_list_front;
+export import utility.meta.type_traits.type_list.type_list_index_of;
 export import utility.meta.type_traits.type_list.type_list_join;
 export import utility.meta.type_traits.type_list.type_list_push_back;
 export import utility.meta.type_traits.type_list.type_list_push_front;

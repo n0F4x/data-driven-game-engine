@@ -13,7 +13,7 @@ template <template <typename...> typename TypeList_T, typename... Ts>
 struct is_type_list<TypeList_T<Ts...>> : std::true_type {};
 
 export template <typename T>
-constexpr bool is_type_list_v = is_type_list<T>::value;
+constexpr inline bool is_type_list_v = is_type_list<T>::value;
 
 }   // namespace util::meta
 

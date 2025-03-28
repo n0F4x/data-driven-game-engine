@@ -20,6 +20,6 @@ struct integer_sequence_size<IntegerSequence_T<Integer_T, integers_T...>> {
 };
 
 export template <integer_sequence_c IntegerSequence_T>
-constexpr size_t integer_sequence_size_v = integer_sequence_size<IntegerSequence_T>::value;
+constexpr inline size_t integer_sequence_size_v = integer_sequence_size<IntegerSequence_T>::value;
 
 }   // namespace util::meta

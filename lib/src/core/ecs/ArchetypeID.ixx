@@ -18,6 +18,11 @@ public:
     auto operator==(const ArchetypeID&) const -> bool = default;
     auto operator<=>(const ArchetypeID&) const        = default;
 
+    explicit(false) operator const Archetype&() const
+    {
+        return m_archetype_ref;
+    }
+
     [[nodiscard]]
     constexpr auto get() const noexcept -> const Archetype&
     {

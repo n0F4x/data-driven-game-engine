@@ -2,7 +2,7 @@ module;
 
 #include <unordered_map>
 
-module core.ecs:ArchetypeTable;
+export module core.ecs:ArchetypeTable;
 
 import :ArchetypeID;
 import :LookupTable;

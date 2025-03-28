@@ -9,19 +9,19 @@ export module utility.meta.concepts.tuple_like;
 namespace util::meta {
 
 template <class T>
-constexpr bool is_tuple_like_v = false;
+constexpr inline bool is_tuple_like_v = false;
 
 template <class... Elems>
-constexpr bool is_tuple_like_v<std::tuple<Elems...>> = true;
+constexpr inline bool is_tuple_like_v<std::tuple<Elems...>> = true;
 
 template <class T1, class T2>
-constexpr bool is_tuple_like_v<std::pair<T1, T2>> = true;
+constexpr inline bool is_tuple_like_v<std::pair<T1, T2>> = true;
 
 template <class T, size_t N>
-constexpr bool is_tuple_like_v<std::array<T, N>> = true;
+constexpr inline bool is_tuple_like_v<std::array<T, N>> = true;
 
 template <class Iterator_T, class Sentinel_T, std::ranges::subrange_kind subrange_kind_T>
-constexpr bool
+constexpr inline bool
     is_tuple_like_v<std::ranges::subrange<Iterator_T, Sentinel_T, subrange_kind_T>> = true;
 
 export template <class T>

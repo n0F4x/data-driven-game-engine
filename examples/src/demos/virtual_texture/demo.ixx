@@ -19,7 +19,7 @@ import demos.virtual_texture.DemoApp;
 
 namespace demo {
 
-export constexpr auto run =
+export constexpr inline auto run =
     []<core::app::has_addons_c<addons::ResourceManagerTag> App_T>(App_T&& app) -> void {
     app.resource_manager.template get<examples::base::DemoBase>().run(
         [demo_app = std::ref(app.resource_manager.template get<DemoApp>()

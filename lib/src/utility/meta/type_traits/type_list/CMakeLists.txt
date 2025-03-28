@@ -16,6 +16,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         type_list_is_sorted.ixx
         type_list_filter.ixx
         type_list_front.ixx
+        type_list_index_of.ixx
         type_list_join.ixx
         type_list_push_back.ixx
         type_list_push_front.ixx
