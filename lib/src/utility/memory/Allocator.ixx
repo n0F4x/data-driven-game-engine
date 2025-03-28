@@ -34,6 +34,8 @@ constexpr auto util::Allocator::deallocate(T* const pointer, const size_t n) -> 
     std::allocator<T>{}.deallocate(pointer, n);
 }
 
+module: private;
+
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
 static_assert(util::meta::generic_allocator_c<util::Allocator>);

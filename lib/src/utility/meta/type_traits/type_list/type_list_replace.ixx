@@ -31,6 +31,8 @@ using type_list_replace_t =
 
 }   // namespace util::meta
 
+module :private;
+
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
 static_assert(std::is_same_v<

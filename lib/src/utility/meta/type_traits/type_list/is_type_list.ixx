@@ -17,6 +17,8 @@ constexpr inline bool is_type_list_v = is_type_list<T>::value;
 
 }   // namespace util::meta
 
+module :private;
+
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
 template <typename...>

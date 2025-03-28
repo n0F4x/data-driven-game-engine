@@ -92,6 +92,8 @@ constexpr auto util::Strong<T, tag_T>::underlying(this Self_T&& self) noexcept
     return std::forward_like<Self_T>(self.m_value);
 }
 
+module :private;
+
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
 static_assert(!std::is_same_v<util::Strong<int>, util::Strong<int>>);

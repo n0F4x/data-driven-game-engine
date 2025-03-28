@@ -64,6 +64,8 @@ using type_list_sort_t = typename type_list_sort<TypeList_T, Hash_T>::type;
 
 }   // namespace util::meta
 
+module :private;
+
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
 // TODO: remove unnamed namespace when Clang allows it

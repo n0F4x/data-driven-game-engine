@@ -22,6 +22,8 @@ constexpr inline bool is_integer_sequence_v = is_integer_sequence<T>::value;
 
 }   // namespace util::meta
 
+module :private;
+
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
 template <typename T, T...>

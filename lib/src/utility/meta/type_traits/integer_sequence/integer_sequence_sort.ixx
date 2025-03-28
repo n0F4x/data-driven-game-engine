@@ -42,6 +42,8 @@ using integer_sequence_sort_t = typename integer_sequence_sort<IntegerSequence_T
 
 }   // namespace util::meta
 
+module :private;
+
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
 // TODO: remove unnamed namespace when Clang allows it
