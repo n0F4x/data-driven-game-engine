@@ -9,7 +9,9 @@ import utility.Strong;
 
 import :component_c;
 
-using ComponentID = ::util::Strong<uint_least32_t>;
+struct ComponentID : ::util::Strong<uint_least32_t, ComponentID> {
+    using Strong::Strong;
+};
 
 template <core::ecs::component_c Component_T>
 struct ComponentIDOfAdaptorClosure {

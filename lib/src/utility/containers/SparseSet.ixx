@@ -20,21 +20,24 @@ import utility.meta.concepts.specialization_of;
 import utility.ScopeGuard;
 import utility.Strong;
 
-template <
-    util::specialization_of_strong_c Key_T,
-    uint8_t                          version_bit_size_T = sizeof(Key_T) * 2>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+// TODO: remove this namespace
+namespace {
+template <typename T>
+concept key_c = std::unsigned_integral<T> && !std::is_const_v<T>
+             && !std::is_volatile_v<T>;
+}   // namespace
+
+template <key_c Key_T, uint8_t version_bit_size_T = sizeof(Key_T) * 2>
 class SparseSetTraits {
 public:
     using Key = Key_T;
-    constexpr static uint8_t key_bit_size{ sizeof(typename Key::Underlying) * 8 };
+    constexpr static uint8_t key_bit_size{ sizeof(Key) * 8 };
 
     constexpr static uint8_t version_bit_size{ version_bit_size_T };
     constexpr static uint8_t first_version_bit{};
     using Version = util::meta::uint_at_least_t<version_bit_size>;
-    constexpr static typename Key::Underlying version_mask{ [] {
-        std::bitset<key_bit_size>             mask{};
+    constexpr static Key version_mask{ [] {
+        std::bitset<key_bit_size> mask{};
         for (const auto i : std::views::iota(
                  first_version_bit,
                  static_cast<uint8_t>(first_version_bit + version_bit_size)
@@ -42,28 +45,27 @@ public:
         {
             mask.set(key_bit_size - i - 1);
         }
-        return static_cast<typename Key::Underlying>(mask.to_ullong());
+        return static_cast<Key>(mask.to_ullong());
     }() };
 
     constexpr static uint8_t index_bit_size{ key_bit_size - version_bit_size };
     constexpr static uint8_t first_index_bit{ version_bit_size_T };
     using Index = util::meta::uint_at_least_t<index_bit_size>;
-    constexpr static typename Key::Underlying index_mask{ [] {
-        std::bitset<key_bit_size>             mask{};
+    constexpr static Key index_mask{ [] {
+        std::bitset<key_bit_size> mask{};
         for (const auto i : std::views::iota(
                  first_index_bit, static_cast<uint8_t>(first_index_bit + index_bit_size)
              ))
         {
             mask.set(key_bit_size - i - 1);
         }
-        return static_cast<typename Key::Underlying>(mask.to_ullong());
+        return static_cast<Key>(mask.to_ullong());
     }() };
-    constexpr static Index invalid_index{
-        (std::numeric_limits<typename Key::Underlying>::max() & index_mask)
-        >> (key_bit_size - first_index_bit - index_bit_size)
-    };
+    constexpr static Index invalid_index{ (std::numeric_limits<Key>::max() & index_mask)
+                                          >> (key_bit_size - first_index_bit
+                                              - index_bit_size) };
 
-    using Pointer = typename Key::Underlying;
+    using Pointer = Key;
 
     using ID = Index;
     constexpr static ID invalid_id{ invalid_index };
@@ -72,8 +74,7 @@ public:
     constexpr static auto index_from_key(const Key key) noexcept -> Index
     {
         return static_cast<Index>(
-            (key.underlying() & index_mask)
-            >> (key_bit_size - first_index_bit - index_bit_size)
+            (key & index_mask) >> (key_bit_size - first_index_bit - index_bit_size)
         );
     }
 
@@ -81,8 +82,7 @@ public:
     constexpr static auto version_from_key(const Key key) noexcept -> Version
     {
         return static_cast<Version>(
-            (key.underlying() & version_mask)
-            >> (key_bit_size - first_version_bit - version_bit_size)
+            (key & version_mask) >> (key_bit_size - first_version_bit - version_bit_size)
         );
     }
 
@@ -90,10 +90,9 @@ public:
     constexpr static auto make_key(const Index index, const Version version) noexcept
         -> Key
     {
-        return Key{ ((typename Key::Underlying{ index }
-                      << (key_bit_size - first_index_bit - index_bit_size))
+        return Key{ ((Key{ index } << (key_bit_size - first_index_bit - index_bit_size))
                      & index_mask)
-                    + ((typename Key::Underlying{ version }
+                    + ((Key{ version }
                         << (key_bit_size - first_version_bit - version_bit_size))
                        & version_mask) };
     }
@@ -114,7 +113,7 @@ public:
     constexpr static auto make_pointer(const ID id, const Version version) noexcept
         -> Pointer
     {
-        return make_key(id, version).underlying();
+        return make_key(id, version);
     }
 };
 
@@ -134,11 +133,7 @@ public:
  * stable.
  * This data structure is also called a slot map.
  */
-template <
-    util::specialization_of_strong_c Key_T,
-    uint8_t                          version_bit_size_T = sizeof(Key_T) * 2>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T = sizeof(Key_T) * 2>
 class SparseSet : SparseSetTraits<Key_T, version_bit_size_T> {
     using Base = SparseSetTraits<Key_T, version_bit_size_T>;
 
@@ -195,25 +190,19 @@ private:
     constexpr auto emplace_pointer(ID id);
 };
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::next_key() const noexcept -> Key
 {
     return make_key(next_index(), version_from_pointer(next_pointer()));
 }
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::next_id() const noexcept -> ID
 {
     return static_cast<ID>(m_indices.size());
 }
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace() -> std::pair<Key, ID>
 {
     const ID id{ next_id() };
@@ -225,9 +214,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace() -> std::pair<Key,
     return std::make_pair(make_key(index, version), id);
 }
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::erase(const Key key)
     -> std::optional<ID>
 {
@@ -263,9 +250,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::erase(const Key key)
     return id;
 }
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::get(const Key key) const -> ID
 {
     const Index index{ index_from_key(key) };
@@ -281,9 +266,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::get(const Key key) const ->
     return id;
 }
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::find(const Key key) const noexcept
     -> std::optional<ID>
 {
@@ -302,26 +285,20 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::find(const Key key) const n
     return id;
 }
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::contains(const Key key) const noexcept
     -> bool
 {
     return find(key).has_value();
 }
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::empty() const noexcept -> bool
 {
     return m_indices.empty();
 }
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::next_index() const noexcept -> Index
 {
     if (m_oldest_dead_index == invalid_index) {
@@ -331,9 +308,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::next_index() const noexcept
     return m_oldest_dead_index;
 }
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::next_pointer() const noexcept
     -> Pointer
 {
@@ -348,9 +323,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::next_pointer() const noexce
     return make_pointer(next_id(), version);
 }
 
-template <util::specialization_of_strong_c Key_T, uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <key_c Key_T, uint8_t version_bit_size_T>
 constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id)
 {
     struct PointersPopBackFunctor {
@@ -391,11 +364,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id
 
 namespace util {
 
-export template <
-    specialization_of_strong_c Key_T,
-    uint8_t                    version_bit_size_T = sizeof(Key_T) * 2>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-              && (!std::is_const_v<Key_T>)
+export template <key_c Key_T, uint8_t version_bit_size_T = sizeof(Key_T) * 2>
 using SparseSet = ::SparseSet<Key_T, version_bit_size_T>;
 
 }   // namespace util
@@ -404,7 +373,8 @@ module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
-using Key = util::Strong<uint32_t>;
+using Key = uint32_t;
+
 constexpr Key missing_key{ std::numeric_limits<Key>::max() };
 
 static_assert(

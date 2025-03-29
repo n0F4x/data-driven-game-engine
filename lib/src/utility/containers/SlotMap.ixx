@@ -20,14 +20,18 @@ import utility.containers.OptionalRef;
 import utility.ScopeGuard;
 import utility.Strong;
 
+// TODO: remove this namespace
+namespace {
+template <typename T>
+concept key_c = requires { util::SparseSet<T>{}; };
+}   // namespace
+
 namespace util {
 
 export template <
-    specialization_of_strong_c      Key_T,
+    ::key_c                         Key_T,
     ::util::meta::nothrow_movable_c T,
-    uint8_t version_bit_size_T = sizeof(typename Key_T::Underlying) * 2>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+    uint8_t                         version_bit_size_T = sizeof(Key_T) * 2>
 class SlotMap {
     using SparseSet = SparseSet<Key_T, version_bit_size_T>;
 
@@ -39,8 +43,8 @@ public:
     [[nodiscard]]
     constexpr auto next_key() const noexcept -> Key;
 
-    template <typename... Args>
-    constexpr auto emplace(Args&&... args) -> std::pair<Key, Index>;
+    template <typename... Args_T>
+    constexpr auto emplace(Args_T&&... args) -> std::pair<Key, Index>;
     constexpr auto erase(Key key) -> std::optional<std::pair<Value, Index>>;
 
     template <typename Self_T>
@@ -69,40 +73,25 @@ private:
 
 }   // namespace util
 
-template <
-    util::specialization_of_strong_c Key_T,
-    ::util::meta::nothrow_movable_c  T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::next_key() const noexcept
     -> Key
 {
     return m_sparse_set.next_key();
 }
 
-template <
-    util::specialization_of_strong_c Key_T,
-    util::meta::nothrow_movable_c    T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
-template <typename... Args>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::emplace(Args&&... args)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+template <typename... Args_T>
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::emplace(Args_T&&... args)
     -> std::pair<Key, Index>
 {
-    m_values.emplace_back(std::forward<Args>(args)...);
+    m_values.emplace_back(std::forward<Args_T>(args)...);
     ScopeGuard _{ [this] noexcept { m_values.pop_back(); } };
 
     return m_sparse_set.emplace();
 }
 
-template <
-    util::specialization_of_strong_c Key_T,
-    util::meta::nothrow_movable_c    T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
     -> std::optional<std::pair<Value, Index>>
 {
@@ -116,29 +105,18 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
     });
 }
 
-template <
-    util::specialization_of_strong_c Key_T,
-    util::meta::nothrow_movable_c    T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 template <typename Self>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::get(
-    this Self&& self,
-    const Key   key
-) -> meta::forward_like_t<Value, Self>
+constexpr auto
+    util::SlotMap<Key_T, T, version_bit_size_T>::get(this Self&& self, const Key key)
+        -> meta::forward_like_t<Value, Self>
 {
     const auto index{ self.m_sparse_set.get(key) };
 
     return std::forward_like<Self>(self.m_values[index]);
 }
 
-template <
-    util::specialization_of_strong_c Key_T,
-    util::meta::nothrow_movable_c    T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key) noexcept
     -> OptionalRef<Value>
 {
@@ -147,12 +125,7 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key) 
     });
 }
 
-template <
-    util::specialization_of_strong_c Key_T,
-    util::meta::nothrow_movable_c    T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(
     const Key key
 ) const noexcept -> OptionalRef<const Value>
@@ -160,12 +133,7 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(
     return const_cast<SlotMap&>(*this).find(key);
 }
 
-template <
-    util::specialization_of_strong_c Key_T,
-    ::util::meta::nothrow_movable_c  T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::contains(
     const Key key
 ) const noexcept -> bool
@@ -173,48 +141,28 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::contains(
     return m_sparse_set.contains(key);
 }
 
-template <
-    util::specialization_of_strong_c Key_T,
-    ::util::meta::nothrow_movable_c  T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::empty() const noexcept -> bool
 {
     assert(m_sparse_set.empty() == m_values.empty());
     return m_sparse_set.empty();
 }
 
-template <
-    util::specialization_of_strong_c Key_T,
-    ::util::meta::nothrow_movable_c  T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::values() const noexcept
     -> std::span<const Value>
 {
     return m_values;
 }
 
-template <
-    util::specialization_of_strong_c Key_T,
-    ::util::meta::nothrow_movable_c  T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::get_index(const Key key) const
     -> Index
 {
     return m_sparse_set.get(key);
 }
 
-template <
-    util::specialization_of_strong_c Key_T,
-    ::util::meta::nothrow_movable_c  T,
-    uint8_t                          version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find_index(
     const Key key
 ) const noexcept -> std::optional<Index>
@@ -226,7 +174,7 @@ module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
-using Key   = util::Strong<uint32_t>;
+using Key   = uint32_t;
 using Value = int;
 constexpr Value value{ 8 };
 constexpr Key   missing_key{ std::numeric_limits<Key>::max() };
@@ -309,7 +257,7 @@ static_assert(
 
         assert(slot_map.empty());
 
-        const Key                 key{ slot_map.emplace(value).first };
+        const Key key{ slot_map.emplace(value).first };
 
         assert(!slot_map.empty());
         assert(slot_map.erase(key));

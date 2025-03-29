@@ -16,21 +16,25 @@ import utility.meta.type_traits.forward_like;
 import utility.ScopeGuard;
 import utility.Strong;
 
+// TODO: remove this namespace
+namespace {
+template <typename T>
+concept key_c = requires { util::SparseSet<T>{}; };
+}   // namespace
+
 namespace util {
 
 export template <
-    typename Key_T,
+    ::key_c Key_T,
     typename TypeList_T,
     uint8_t version_bit_size_T = sizeof(Key_T) * 2>
 class SlotMultiMap;
 
 template <
-    specialization_of_strong_c Key_T,
+    typename Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
 class SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T> {
 public:
     using Key = Key_T;
@@ -59,14 +63,12 @@ private:
 }   // namespace util
 
 template <
-    util::specialization_of_strong_c Key_T,
+    typename Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
-             template <typename... Us>
-                 requires(std::is_constructible_v<Ts, Us> && ...)
+template <typename... Us>
+    requires(std::is_constructible_v<Ts, Us> && ...)
 constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::emplace(
     Us&&... values
 ) -> Key
@@ -82,12 +84,10 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    util::specialization_of_strong_c Key_T,
+    typename Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::erase(
     const Key key
 ) -> std::optional<std::tuple<Ts...>>
@@ -108,12 +108,10 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    util::specialization_of_strong_c Key_T,
+    typename Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
 template <typename Self_T>
 constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::get(
     this Self_T&& self,
@@ -130,12 +128,10 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    util::specialization_of_strong_c Key_T,
+    typename Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::find(
     const Key key
 ) -> std::optional<std::tuple<Ts&...>>
@@ -150,12 +146,10 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 }
 
 template <
-    util::specialization_of_strong_c Key_T,
+    typename Key_T,
     template <typename...> typename TypeList_T,
     ::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
-    requires std::unsigned_integral<typename Key_T::Underlying>
-          && (!std::is_const_v<Key_T>)
 constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::find(
     const Key key
 ) const -> std::optional<std::tuple<const Ts&...>>
@@ -167,7 +161,7 @@ module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
-using Key = util::Strong<uint32_t>;
+using Key = uint32_t;
 
 struct Dummy {
     double value{};

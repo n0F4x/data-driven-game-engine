@@ -44,7 +44,7 @@ public:
 
 private:
     using SlotMap = util::SlotMap<
-        RecordID,
+        RecordID::Underlying,
         core::ecs::ID,
         (sizeof(RecordID::Underlying) - sizeof(RecordIndex::Underlying)) * 8>;
     static_assert(sizeof(RecordIndex::Underlying) == sizeof(SlotMap::Index));
@@ -55,35 +55,36 @@ private:
 constexpr auto LookupTable::emplace(const core::ecs::ID id)
     -> std::pair<RecordID, RecordIndex>
 {
-    const auto [record_id, record_index] = m_ids.emplace(id.underlying());
+    const auto [record_id, record_index] = m_ids.emplace(id);
     return std::make_pair(RecordID{ record_id }, RecordIndex{ record_index });
 }
 
 constexpr auto LookupTable::erase(const RecordID record_id)
     -> std::optional<std::pair<core::ecs::ID, RecordIndex>>
 {
-    return m_ids.erase(record_id).transform([](const auto id_and_record_index) static {
-        return std::tuple{ std::get<0>(id_and_record_index),
-                           RecordIndex{ std::get<1>(id_and_record_index) } };
-    });
+    return m_ids.erase(record_id.underlying())
+        .transform([](const auto id_and_record_index) static {
+            return std::tuple{ std::get<0>(id_and_record_index),
+                               RecordIndex{ std::get<1>(id_and_record_index) } };
+        });
 }
 
 constexpr auto LookupTable::get(const RecordID record_id) const -> RecordIndex
 {
-    return RecordIndex{ m_ids.get_index(record_id) };
+    return RecordIndex{ m_ids.get_index(record_id.underlying()) };
 }
 
 constexpr auto LookupTable::find(const RecordID record_id) const noexcept
     -> std::optional<RecordIndex>
 {
-    return m_ids.find_index(record_id).transform([](const auto record_index) {
+    return m_ids.find_index(record_id.underlying()).transform([](const auto record_index) {
         return RecordIndex{ record_index };
     });
 }
 
 constexpr auto LookupTable::contains(const RecordID record_id) const noexcept -> bool
 {
-    return m_ids.contains(record_id);
+    return m_ids.contains(record_id.underlying());
 }
 
 constexpr auto LookupTable::empty() const noexcept -> bool

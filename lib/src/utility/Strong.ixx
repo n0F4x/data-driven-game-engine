@@ -10,7 +10,7 @@ import utility.meta.type_traits.forward_like;
 
 namespace util {
 
-export template <typename T, auto tag_T = [] {}>
+export template <typename T, typename Tag_T>
 class Strong {
 public:
     using Underlying = T;
@@ -26,10 +26,11 @@ public:
     ) noexcept(std::is_nothrow_constructible_v<T, Args_T...>);
 
     template <typename U>
-        requires std::same_as<std::remove_cvref_t<U>, T>
+        requires std::constructible_from<T, U>
     constexpr explicit Strong(U&& value) noexcept(std::is_nothrow_constructible_v<T, U>);
 
-    auto operator<=>(const Strong&) const = default;
+    auto operator==(const Strong&) const -> bool = default;
+    auto operator<=>(const Strong&) const        = default;
 
     template <typename Self_T>
     constexpr auto underlying(this Self_T&&) noexcept
@@ -39,63 +40,43 @@ private:
     T m_value{};
 };
 
-export template <typename>
-struct is_specialization_of_strong : std::false_type {};
-
-template <typename T, auto tag_T>
-struct is_specialization_of_strong<util::Strong<T, tag_T>> : std::true_type {};
-
-export template <typename T>
-concept specialization_of_strong_c = is_specialization_of_strong<T>::value;
-
 }   // namespace util
 
-export template <typename T, auto tag_T>
-struct std::hash<util::Strong<T, tag_T>> {
+export template <typename T, typename Tag_T>
+    requires requires(T underlying) { std::hash<T>{}(underlying); }
+struct std::hash<util::Strong<T, Tag_T>> {
     template <typename Strong_T>
-        requires std::same_as<std::remove_cvref_t<Strong_T>, util::Strong<T, tag_T>>
+        requires std::same_as<std::remove_cvref_t<Strong_T>, util::Strong<T, Tag_T>>
     [[nodiscard]]
-    auto operator()(Strong_T&& strong
-    ) const noexcept(requires(std::hash<T> underlying_hasher, T underlying) {
-        underlying_hasher(
-            static_cast<util::meta::forward_like_t<T, Strong_T>>(underlying)
-        );
-    }) -> size_t
+    constexpr static auto operator()(Strong_T&& strong
+    ) noexcept(noexcept(std::hash<T>{}(strong.underlying()))) -> size_t
     {
         return std::hash<T>{}(strong.underlying());
     }
 };
 
-template <typename T, auto tag_T>
+template <typename T, typename Tag_T>
 template <typename... Args_T>
-constexpr util::Strong<T, tag_T>::Strong(
+constexpr util::Strong<T, Tag_T>::Strong(
     std::in_place_t,
     Args_T&&... args
 ) noexcept(std::is_nothrow_constructible_v<T, Args_T...>)
     : m_value(std::forward<Args_T>(args)...)
 {}
 
-template <typename T, auto tag_T>
+template <typename T, typename Tag_T>
 template <typename U>
-    requires std::same_as<std::remove_cvref_t<U>, T>
-constexpr util::Strong<T, tag_T>::Strong(
+    requires std::constructible_from<T, U>
+constexpr util::Strong<T, Tag_T>::Strong(
     U&& value
 ) noexcept(std::is_nothrow_constructible_v<T, U>)
     : m_value{ std::forward<U>(value) }
 {}
 
-template <typename T, auto tag_T>
+template <typename T, typename Tag_T>
 template <typename Self_T>
-constexpr auto util::Strong<T, tag_T>::underlying(this Self_T&& self) noexcept
+constexpr auto util::Strong<T, Tag_T>::underlying(this Self_T&& self) noexcept
     -> meta::forward_like_t<T, Self_T>
 {
     return std::forward_like<Self_T>(self.m_value);
 }
-
-module :private;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-static_assert(!std::is_same_v<util::Strong<int>, util::Strong<int>>);
-
-#endif

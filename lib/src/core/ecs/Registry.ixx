@@ -104,9 +104,9 @@ private:
         requires ::query_parameter_components_are_all_different_c<Parameters_T...>
     friend class QueryAdaptorClosure;
 
-    std::map<::ComponentID, ::ComponentTable> m_component_tables;
-    ::ArchetypeTable                          m_archetypes;
-    util::SlotMap<core::ecs::ID, ::Entity>    m_entities;
+    std::map<::ComponentID, ::ComponentTable>          m_component_tables;
+    ::ArchetypeTable                                   m_archetypes;
+    util::SlotMap<core::ecs::ID::Underlying, ::Entity> m_entities;
 
     template <typename Self_T>
     [[nodiscard]]
@@ -193,14 +193,14 @@ auto core::ecs::Registry::create(Components_T&&... components) -> core::ecs::ID
                                              .record_id    = ::RecordID{ record_id } }
                                )
                                .first;
-    assert(id == actual_id);
+    assert(id.underlying() == actual_id);
 
     return id;
 }
 
 auto core::ecs::Registry::destroy(const core::ecs::ID id) -> bool
 {
-    return m_entities.erase(id)
+    return m_entities.erase(id.underlying())
         .transform([](const auto entity_and_index) {
             return std::get<Entity>(entity_and_index);
         })
@@ -353,14 +353,14 @@ template <typename Self_T>
 auto core::ecs::Registry::get_entity(this Self_T&& self, const core::ecs::ID id)
     -> util::meta::forward_like_t<::Entity, Self_T>
 {
-    return std::forward_like<Self_T>(self.m_entities.get(id));
+    return std::forward_like<Self_T>(self.m_entities.get(id.underlying()));
 }
 
 template <typename Self_T>
 auto core::ecs::Registry::find_entity(this Self_T&& self, const core::ecs::ID id) -> ::
     util::OptionalRef<std::remove_reference_t<util::meta::forward_like_t<Entity, Self_T>>>
 {
-    return std::forward<Self_T>(self).m_entities.find(id);
+    return std::forward<Self_T>(self).m_entities.find(id.underlying());
 }
 
 template <core::ecs::component_c Component_T, typename Self_T>

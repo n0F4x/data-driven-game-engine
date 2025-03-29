@@ -9,6 +9,8 @@ import utility.Strong;
 
 namespace core::ecs {
 
-export using ID = ::util::Strong<uint64_t>;
+export struct ID : ::util::Strong<uint64_t, ID> {
+    using Strong::Strong;
+};
 
 }   // namespace core::ecs
