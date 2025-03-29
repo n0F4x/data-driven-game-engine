@@ -20,7 +20,7 @@ constexpr auto make_component_id_set() -> std::span<const ComponentID>
     constexpr static std::array<ComponentID, sizeof...(Components_T)> component_id_set =
         [] {
             std::array<ComponentID, sizeof...(Components_T)> result{
-                component_id<Components_T>...
+                component_id_of<Components_T>()...
             };
 
             std::ranges::sort(result);
@@ -37,7 +37,7 @@ public:
     consteval explicit Archetype(util::TypeList<Components_T...>)
         : m_id{ util::meta::hash<util::meta::integer_sequence_sort_t<util::ValueSequence<
               ComponentID::Underlying,
-              component_id<Components_T>.underlying()...>>> },
+              component_id_of<Components_T>().underlying()...>>> },
           m_sorted_component_ids{ make_component_id_set<Components_T...>() }
     {}
 
@@ -75,8 +75,8 @@ public:
     constexpr auto contains_none_of_components() const noexcept -> bool
     {
         return (
-            (!std::ranges::binary_search(m_sorted_component_ids, component_id<Components_T>)
-            )
+            (!std::ranges::
+                 binary_search(m_sorted_component_ids, component_id_of<Components_T>()))
             && ...
         );
     }
@@ -106,10 +106,14 @@ struct std::hash<Archetype> {
 };
 
 template <core::ecs::component_c... Components_T>
-[[nodiscard]]
-constexpr auto archetype_from() noexcept -> const Archetype&
-{
-    constexpr static Archetype archetype{ util::TypeList<Components_T...>{} };
+struct ArchetypeFromAdaptorClosure {
+    constexpr static Archetype value{ util::TypeList<Components_T...>{} };
 
-    return archetype;
-}
+    consteval static auto operator()() -> const Archetype&
+    {
+        return value;
+    }
+};
+
+template <core::ecs::component_c... Components_T>
+constexpr inline ArchetypeFromAdaptorClosure<Components_T...> archetype_from;

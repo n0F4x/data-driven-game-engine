@@ -35,20 +35,12 @@ private:
     std::reference_wrapper<const Archetype> m_archetype_ref;
 };
 
-struct ArchetypeIDHashAdaptorClosure {
-    [[nodiscard]]
-    constexpr static auto operator()(const ArchetypeID archetype_id) noexcept -> size_t
-    {
-        return std::hash<Archetype>{}(archetype_id.m_archetype_ref.get());
-    }
-};
-
 template <>
 struct std::hash<ArchetypeID> {
     [[nodiscard]]
     constexpr static auto operator()(const ArchetypeID archetype_id) noexcept
         -> std::size_t
     {
-        return ArchetypeIDHashAdaptorClosure::operator()(archetype_id);
+        return std::hash<Archetype>{}(archetype_id);
     }
 };

@@ -370,7 +370,7 @@ auto core::ecs::Registry::get_component_container(
 ) -> util::meta::forward_like_t<ComponentContainer<Component_T>, Self_T>
 {
     const auto component_containers_iter{
-        self.m_component_tables.find(component_id<Component_T>)
+        self.m_component_tables.find(component_id_of<Component_T>())
     };
     PRECOND(component_containers_iter != self.m_component_tables.cend());
 
@@ -393,7 +393,7 @@ auto core::ecs::Registry::find_component_container(
         util::meta::forward_like_t<ComponentContainer<Component_T>, Self_T>>>
 {
     const auto component_containers_iter{
-        self.m_component_tables.find(component_id<Component_T>)
+        self.m_component_tables.find(component_id_of<Component_T>())
     };
     if (component_containers_iter == self.m_component_tables.cend()) {
         return std::nullopt;
@@ -420,10 +420,8 @@ auto core::ecs::Registry::emplace_component(
 {
     using ComponentContainer = ComponentContainer<std::decay_t<Component_T>>;
 
-    constexpr static ComponentID component_id{ ::component_id<Component_T> };
-
     ComponentContainer& component_vector =
-        m_component_tables[component_id]
+        m_component_tables[::component_id_of<Component_T>()]
             .try_emplace(archetype_id, component_tag<Component_T>)
             .first->second.template get<ComponentContainer>();
 

@@ -165,7 +165,7 @@ auto core::ecs::QueryAdaptorClosure<Parameters_T...>::operator()(
         [&registry,
          &included_component_table_pointers]<size_t index_T, typename Component_T> {
             if (const auto iterator =
-                    registry.m_component_tables.find(component_id<Component_T>);
+                    registry.m_component_tables.find(component_id_of<Component_T>());
                 iterator != registry.m_component_tables.cend())
             {
                 included_component_table_pointers[index_T] =
