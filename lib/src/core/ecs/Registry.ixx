@@ -40,7 +40,7 @@ import :ComponentTag;
 import :ErasedComponentContainer;
 import :ID;
 import :LookupTable;
-import :query.QueryAdaptorClosure.fwd;
+import :query.QueryClosure.fwd;
 import :RecordIndex;
 import :RecordID;
 
@@ -102,7 +102,7 @@ public:
 private:
     template <query_parameter_c... Parameters_T>
         requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-    friend class QueryAdaptorClosure;
+    friend struct QueryClosure;
 
     std::map<::ComponentID, ::ComponentTable>          m_component_tables;
     ::ArchetypeTable                                   m_archetypes;

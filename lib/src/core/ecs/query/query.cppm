@@ -9,6 +9,6 @@ export import :query.query_parameter_tag_c;
 export import :query.query_parameter_tags;
 export import :query.query_parameter_tags.fwd;
 export import :query.queryable_component_c;
-export import :query.QueryAdaptorClosure;
-export import :query.QueryAdaptorClosure.fwd;
+export import :query.QueryClosure;
+export import :query.QueryClosure.fwd;
 export import :query.ToComponent;

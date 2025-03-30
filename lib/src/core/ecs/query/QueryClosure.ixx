@@ -8,7 +8,7 @@ module;
 #include <tuple>
 #include <type_traits>
 
-export module core.ecs:query.QueryAdaptorClosure;
+export module core.ecs:query.QueryClosure;
 
 import utility.containers.OptionalRef;
 import utility.meta.type_traits.type_list.type_list_at;
@@ -25,7 +25,7 @@ import :ID;
 import :query.component_query_parameter_c;
 import :query.OptionalView;
 import :query.queryable_component_c;
-import :query.QueryAdaptorClosure.fwd;
+import :query.QueryClosure.fwd;
 import :query.ToComponent;
 import :Registry;
 
@@ -103,7 +103,8 @@ namespace core::ecs {
 
 template <query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-class QueryAdaptorClosure {
+struct QueryClosure {
+private:
     using QueriedParameters =
         util::meta::type_list_filter_t<util::TypeList<Parameters_T...>, IsQueriedParameter>;
 
@@ -152,7 +153,7 @@ template <core::ecs::query_parameter_c... Parameters_T>
 template <::invocable_with_c<util::meta::type_list_transform_t<
     util::meta::type_list_filter_t<util::TypeList<Parameters_T...>, IsQueriedParameter>,
     ToFunctionParameter>> F>
-auto core::ecs::QueryAdaptorClosure<Parameters_T...>::operator()(
+auto core::ecs::QueryClosure<Parameters_T...>::operator()(
     Registry& registry,
     F&&       func
 ) -> F
@@ -287,7 +288,7 @@ auto core::ecs::QueryAdaptorClosure<Parameters_T...>::operator()(
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-constexpr auto core::ecs::QueryAdaptorClosure<Parameters_T...>::matches_archetype(
+constexpr auto core::ecs::QueryClosure<Parameters_T...>::matches_archetype(
     const Archetype& archetype
 ) -> bool
 {
@@ -302,7 +303,7 @@ constexpr auto core::ecs::QueryAdaptorClosure<Parameters_T...>::matches_archetyp
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <core::ecs::component_c Component_T>
-consteval auto core::ecs::QueryAdaptorClosure<Parameters_T...>::include_index_of()
+consteval auto core::ecs::QueryClosure<Parameters_T...>::include_index_of()
     -> size_t
 {
     return util::meta::type_list_index_of_v<IncludedComponents, Component_T>;

@@ -82,13 +82,13 @@ public:
     }
 
 private:
-    friend struct ArchetypeInfoHashAdaptorClosure;
+    friend struct ArchetypeInfoHashClosure;
 
     util::meta::TypeHash         m_id;
     std::span<const ComponentID> m_sorted_component_ids;
 };
 
-struct ArchetypeInfoHashAdaptorClosure {
+struct ArchetypeInfoHashClosure {
     [[nodiscard]]
     constexpr static auto operator()(const Archetype& archetype) noexcept -> size_t
     {
@@ -101,12 +101,12 @@ struct std::hash<Archetype> {
     [[nodiscard]]
     constexpr static auto operator()(const Archetype& archetype) noexcept -> std::size_t
     {
-        return ArchetypeInfoHashAdaptorClosure::operator()(archetype);
+        return ArchetypeInfoHashClosure::operator()(archetype);
     }
 };
 
 template <core::ecs::component_c... Components_T>
-struct ArchetypeFromAdaptorClosure {
+struct ArchetypeFromClosure {
     constexpr static Archetype value{ util::TypeList<Components_T...>{} };
 
     consteval static auto operator()() -> const Archetype&
@@ -116,4 +116,4 @@ struct ArchetypeFromAdaptorClosure {
 };
 
 template <core::ecs::component_c... Components_T>
-constexpr inline ArchetypeFromAdaptorClosure<Components_T...> archetype_from;
+constexpr inline ArchetypeFromClosure<Components_T...> archetype_from;

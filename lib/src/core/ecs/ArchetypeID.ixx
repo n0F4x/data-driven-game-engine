@@ -30,7 +30,7 @@ public:
     }
 
 private:
-    friend struct ArchetypeIDHashAdaptorClosure;
+    friend struct ArchetypeIDHashClosure;
 
     std::reference_wrapper<const Archetype> m_archetype_ref;
 };

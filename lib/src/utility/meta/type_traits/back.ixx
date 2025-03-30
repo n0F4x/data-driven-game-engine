@@ -8,9 +8,7 @@ namespace util::meta {
 
 export template <typename... Ts>
     requires(sizeof...(Ts) != 0)
-struct back {
-    using type = typename decltype((std::type_identity<Ts>{}, ...))::type;
-};
+struct back : std::type_identity<Ts...[sizeof...(Ts) - 1]> {};
 
 export template <typename... Ts>
     requires(sizeof...(Ts) != 0)

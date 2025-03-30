@@ -14,7 +14,7 @@ struct ComponentID : ::util::Strong<uint_least32_t, ComponentID> {
 };
 
 template <core::ecs::component_c Component_T>
-struct ComponentIDOfAdaptorClosure {
+struct ComponentIDOfClosure {
     constexpr static ComponentID value{ util::meta::hash<Component_T> };
 
     consteval static auto operator()() -> ComponentID
@@ -24,4 +24,4 @@ struct ComponentIDOfAdaptorClosure {
 };
 
 template <core::ecs::component_c Component_T>
-constexpr inline ComponentIDOfAdaptorClosure<Component_T> component_id_of;
+constexpr inline ComponentIDOfClosure<Component_T> component_id_of;

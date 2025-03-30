@@ -12,7 +12,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         query_parameter_tags.ixx
         query_parameter_tags-fwd.ixx
         queryable_component_c.ixx
-        QueryAdaptorClosure.ixx
-        QueryAdaptorClosure-fwd.ixx
+        QueryClosure.ixx
+        QueryClosure-fwd.ixx
         ToComponent.ixx
 )

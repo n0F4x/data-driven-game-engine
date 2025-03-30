@@ -10,14 +10,10 @@ export template <typename...>
 struct all_same;
 
 template <>
-struct all_same<> {
-    constexpr static bool value = true;
-};
+struct all_same<> : std::bool_constant<true> {};
 
 template <typename T, typename... Ts>
-struct all_same<T, Ts...> {
-    constexpr static bool value = std::conjunction_v<std::is_same<T, Ts>...>;
-};
+struct all_same<T, Ts...> : std::conjunction<std::is_same<T, Ts>...> {};
 
 export template <typename... Ts>
 constexpr inline bool all_same_v = all_same<Ts...>::value;
