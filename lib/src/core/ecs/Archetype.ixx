@@ -37,7 +37,7 @@ public:
     consteval explicit Archetype(util::TypeList<Components_T...>)
         : m_id{ util::meta::hash<util::meta::integer_sequence_sort_t<util::ValueSequence<
               ComponentID::Underlying,
-              component_id_of<Components_T>().underlying()...>>> },
+              component_id_of<Components_T>().underlying()...>>>() },
           m_sorted_component_ids{ make_component_id_set<Components_T...>() }
     {}
 

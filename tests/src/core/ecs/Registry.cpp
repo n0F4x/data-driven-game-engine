@@ -4,6 +4,7 @@
 
 import core.ecs;
 import utility.containers.OptionalRef;
+import utility.meta.algorithms.for_each;
 import utility.meta.reflection.name_of;
 import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.underlying;
@@ -17,12 +18,11 @@ TEST_CASE("core::ecs::Registry")
 {
     core::ecs::Registry registry;
 
-    constexpr static util::TypeList<
+    using RegistryValueCategories = util::TypeList<
         core::ecs::Registry&,
         const core::ecs::Registry&,
         core::ecs::Registry&&,
-        const core::ecs::Registry&&>
-        value_categorized_registries{};
+        const core::ecs::Registry&&>;
 
     SECTION("create")
     {
@@ -42,8 +42,8 @@ TEST_CASE("core::ecs::Registry")
         REQUIRE_FALSE(successfully_destroyed_non_contained);
     }
 
-    value_categorized_registries.for_each([&registry]<typename Registry_T> {
-        const std::string section_name{ "get - "s + util::meta::name_of<Registry_T> };
+    util::meta::for_each<RegistryValueCategories>([&registry]<typename Registry_T> {
+        const std::string section_name{ "get - "s + util::meta::name_of<Registry_T>() };
 
         SECTION(section_name.c_str())
         {
@@ -118,9 +118,9 @@ TEST_CASE("core::ecs::Registry")
         }
     });
 
-    value_categorized_registries.for_each([&registry]<typename Registry_T> {
+    util::meta::for_each<RegistryValueCategories>([&registry]<typename Registry_T> {
         const std::string section_name{ "get_single - "s
-                                        + util::meta::name_of<Registry_T> };
+                                        + util::meta::name_of<Registry_T>() };
         SECTION(section_name.c_str())
         {
             constexpr static int   integer{ 1 };
@@ -166,8 +166,8 @@ TEST_CASE("core::ecs::Registry")
         }
     });
 
-    value_categorized_registries.for_each([&registry]<typename Registry_T> {
-        const std::string section_name{ "find - "s + util::meta::name_of<Registry_T> };
+    util::meta::for_each<RegistryValueCategories>([&registry]<typename Registry_T> {
+        const std::string section_name{ "find - "s + util::meta::name_of<Registry_T>() };
 
         SECTION(section_name.c_str())
         {
@@ -321,8 +321,8 @@ TEST_CASE("core::ecs::Registry")
         }
     });
 
-    value_categorized_registries.for_each([&registry]<typename Registry_T> {
-        const std::string section_name{ "find_all - "s + util::meta::name_of<Registry_T> };
+    util::meta::for_each<RegistryValueCategories>([&registry]<typename Registry_T> {
+        const std::string section_name{ "find_all - "s + util::meta::name_of<Registry_T>() };
 
         SECTION(section_name.c_str())
         {
@@ -407,9 +407,9 @@ TEST_CASE("core::ecs::Registry")
         }
     });
 
-    value_categorized_registries.for_each([&registry]<typename Registry_T> {
+    util::meta::for_each<RegistryValueCategories>([&registry]<typename Registry_T> {
         const std::string section_name{ "find_single - "s
-                                        + util::meta::name_of<Registry_T> };
+                                        + util::meta::name_of<Registry_T>() };
         SECTION(section_name.c_str())
         {
             constexpr static int   integer{ 1 };

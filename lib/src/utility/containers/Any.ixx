@@ -43,7 +43,7 @@ struct Operations {
         -> void;
     using MoveFunc       = auto (*)(Storage& out, Storage&& storage) -> void;
     using DropFunc       = auto (*)(Allocator_T& allocator, Storage&&) -> void;
-    using TypesMatchFunc = auto (*)(size_t) -> bool;
+    using TypesMatchFunc = auto (*)(util::meta::TypeHash) -> bool;
     using TypeNameFunc   = auto (*)() -> std::string_view;
 
     CopyFunc       copy;
@@ -85,7 +85,7 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
         -> util::meta::forward_like_t<T, Storage_T>;
 
     [[nodiscard]]
-    constexpr static auto types_match(size_t type_hash) -> bool;
+    constexpr static auto types_match(util::meta::TypeHash type_hash) -> bool;
     [[nodiscard]]
     constexpr static auto type_name() -> std::string_view;
 
@@ -119,7 +119,7 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
         -> util::meta::forward_like_t<T, Storage_T>;
 
     [[nodiscard]]
-    constexpr static auto types_match(size_t type_hash) -> bool;
+    constexpr static auto types_match(util::meta::TypeHash type_hash) -> bool;
     [[nodiscard]]
     constexpr static auto type_name() -> std::string_view;
 
@@ -246,10 +246,10 @@ constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::drop(
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
     requires small_c<T, size_T, alignment_T>
 constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::types_match(
-    const size_t type_hash
+    const util::meta::TypeHash type_hash
 ) -> bool
 {
-    return type_hash == ::util::meta::hash<T>;
+    return type_hash == ::util::meta::hash<T>();
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
@@ -257,7 +257,7 @@ template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_all
 constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::type_name()
     -> std::string_view
 {
-    return util::meta::name_of<T>;
+    return util::meta::name_of<T>();
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
@@ -377,10 +377,10 @@ constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::get(
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
     requires large_c<T, size_T, alignment_T>
 constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::types_match(
-    const size_t type_hash
+    const util::meta::TypeHash type_hash
 ) -> bool
 {
-    return type_hash == util::meta::hash<T>;
+    return type_hash == util::meta::hash<T>();
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
@@ -388,7 +388,7 @@ template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_all
 constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::type_name()
     -> std::string_view
 {
-    return util::meta::name_of<T>;
+    return util::meta::name_of<T>();
 }
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
@@ -492,7 +492,9 @@ template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c A
 constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(BasicAny&& other
 ) noexcept -> BasicAny&
 {
-    assert(other.m_operations != nullptr && "Don't use a 'moved-from' (or destroyed) Any!");
+    assert(
+        other.m_operations != nullptr && "Don't use a 'moved-from' (or destroyed) Any!"
+    );
 
     if (&other == this) {
         return *this;
@@ -521,9 +523,10 @@ constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::get(this Self_T
         "Don't use a 'moved-from' (or destroyed) Any!"
     );
     PRECOND(
-        self.BasicAny::m_operations->types_match(util::meta::hash<T>),
+        self.BasicAny::m_operations->types_match(util::meta::hash<T>()),
         // TODO: use constexpr std::format
-        "`Any` has type "s + self.BasicAny::m_operations->type_name() + ", but requested type is " + util::meta::name_of<T>
+        "`Any` has type "s + self.BasicAny::m_operations->type_name()
+            + ", but requested type is " + util::meta::name_of<T>()
     );
     return Traits<T, size_T, alignment_T, Allocator>::get(
         std::forward_like<Self_T>(self.m_storage)

@@ -10,6 +10,9 @@ module;
 
 export module core.ecs:query.QueryClosure;
 
+import utility.meta.algorithms.apply;
+import utility.meta.algorithms.enumerate;
+import utility.meta.algorithms.fold_left_first;
 import utility.containers.OptionalRef;
 import utility.meta.type_traits.type_list.type_list_at;
 import utility.meta.type_traits.type_list.type_list_filter;
@@ -153,16 +156,14 @@ template <core::ecs::query_parameter_c... Parameters_T>
 template <::invocable_with_c<util::meta::type_list_transform_t<
     util::meta::type_list_filter_t<util::TypeList<Parameters_T...>, IsQueriedParameter>,
     ToFunctionParameter>> F>
-auto core::ecs::QueryClosure<Parameters_T...>::operator()(
-    Registry& registry,
-    F&&       func
-) -> F
+auto core::ecs::QueryClosure<Parameters_T...>::operator()(Registry& registry, F&& func)
+    -> F
     requires(util::meta::type_list_size_v<FunctionParameters> != 0)
 {
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>
         included_component_table_pointers{};
 
-    IncludedComponents::enumerate(
+    util::meta::enumerate<IncludedComponents>(
         [&registry,
          &included_component_table_pointers]<size_t index_T, typename Component_T> {
             if (const auto iterator =
@@ -175,7 +176,7 @@ auto core::ecs::QueryClosure<Parameters_T...>::operator()(
         }
     );
 
-    if (MustIncludeComponents::apply(
+    if (util::meta::apply<MustIncludeComponents>(
             [&included_component_table_pointers]<typename... Components_T> {
                 return (
                     (included_component_table_pointers[include_index_of<Components_T>()]
@@ -189,7 +190,7 @@ auto core::ecs::QueryClosure<Parameters_T...>::operator()(
     }
 
     ComponentTable& smallest_must_include_component_table =
-        MustIncludeComponents::fold_left_first(
+        util::meta::fold_left_first<MustIncludeComponents>(
             [&included_component_table_pointers]<typename Component_T> {
                 return std::ref(
                     *included_component_table_pointers[include_index_of<Component_T>()]
@@ -292,10 +293,10 @@ constexpr auto core::ecs::QueryClosure<Parameters_T...>::matches_archetype(
     const Archetype& archetype
 ) -> bool
 {
-    return MustIncludeComponents::apply([&archetype]<typename... Ts> {
+    return util::meta::apply<MustIncludeComponents>([&archetype]<typename... Ts> {
                return archetype.contains_components<Ts...>();
            })
-        && ExcludedComponents::apply([&archetype]<typename... Ts> {
+        && util::meta::apply<ExcludedComponents>([&archetype]<typename... Ts> {
                return archetype.contains_none_of_components<Ts...>();
            });
 }
@@ -303,8 +304,7 @@ constexpr auto core::ecs::QueryClosure<Parameters_T...>::matches_archetype(
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <core::ecs::component_c Component_T>
-consteval auto core::ecs::QueryClosure<Parameters_T...>::include_index_of()
-    -> size_t
+consteval auto core::ecs::QueryClosure<Parameters_T...>::include_index_of() -> size_t
 {
     return util::meta::type_list_index_of_v<IncludedComponents, Component_T>;
 }

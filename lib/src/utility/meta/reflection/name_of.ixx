@@ -9,6 +9,7 @@ namespace util::meta {
 // TODO: use reflection
 
 export template <typename T>
-constexpr inline std::string_view name_of{ entt::type_name<T>::value() };
+constexpr inline auto name_of =
+    [] static -> std::string_view { return entt::type_name<T>::value(); };
 
 }   // namespace util::meta
