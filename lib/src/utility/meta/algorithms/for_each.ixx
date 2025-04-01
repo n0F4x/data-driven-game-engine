@@ -21,10 +21,12 @@ struct ForEachClosure<IndexSequence_T> {
     template <typename F>
     constexpr static auto operator()(F&& func) -> F
     {
-        return apply<IndexSequence_T>([&func]<size_t... indices_T> -> F {
-            (func.template operator()<indices_T>(), ...);
-            return std::forward<F>(func);
-        });
+        return apply<IndexSequence_T>(
+            [func = std::forward<F>(func)]<size_t... indices_T> mutable -> F {
+                (func.template operator()<indices_T>(), ...);
+                return std::forward<F>(func);
+            }
+        );
     }
 };
 

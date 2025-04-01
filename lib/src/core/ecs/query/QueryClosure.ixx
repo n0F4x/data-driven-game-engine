@@ -11,10 +11,11 @@ module;
 export module core.ecs:query.QueryClosure;
 
 import utility.meta.algorithms.apply;
-import utility.meta.algorithms.enumerate;
+import utility.meta.algorithms.any_of;
 import utility.meta.algorithms.fold_left_first;
 import utility.containers.OptionalRef;
 import utility.meta.type_traits.type_list.type_list_at;
+import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.type_list.type_list_filter;
 import utility.meta.type_traits.type_list.type_list_index_of;
 import utility.meta.type_traits.type_list.type_list_transform;
@@ -163,31 +164,27 @@ auto core::ecs::QueryClosure<Parameters_T...>::operator()(Registry& registry, F&
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>
         included_component_table_pointers{};
 
-    util::meta::enumerate<IncludedComponents>(
-        [&registry,
-         &included_component_table_pointers]<size_t index_T, typename Component_T> {
-            if (const auto iterator =
-                    registry.m_component_tables.find(component_id_of<Component_T>());
-                iterator != registry.m_component_tables.cend())
-            {
-                included_component_table_pointers[index_T] =
-                    std::addressof(iterator->second);
-            }
-        }
-    );
-
-    if (util::meta::apply<MustIncludeComponents>(
-            [&included_component_table_pointers]<typename... Components_T> {
-                return (
-                    (included_component_table_pointers[include_index_of<Components_T>()]
-                     == nullptr)
-                    || ...
-                );
+    if (util::meta::any_of<
+            std::make_index_sequence<util::meta::type_list_size_v<IncludedComponents>>>(
+            [&registry, &included_component_table_pointers]<size_t index_T> {
+                if (const auto iterator = registry.m_component_tables.find(
+                        component_id_of<
+                            util::meta::type_list_at_t<IncludedComponents, index_T>>()
+                    );
+                    iterator != registry.m_component_tables.cend())
+                {
+                    included_component_table_pointers[index_T] =
+                        std::addressof(iterator->second);
+                    return false;
+                }
+                return util::meta::type_list_contains_v<
+                    MustIncludeComponents,
+                    util::meta::type_list_at_t<IncludedComponents, index_T>>;
             }
         ))
     {
         return std::forward<F>(func);
-    }
+    };
 
     ComponentTable& smallest_must_include_component_table =
         util::meta::fold_left_first<MustIncludeComponents>(
