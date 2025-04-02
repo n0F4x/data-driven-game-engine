@@ -14,6 +14,8 @@ import utility.meta.algorithms.apply;
 import utility.meta.algorithms.any_of;
 import utility.meta.algorithms.fold_left_first;
 import utility.containers.OptionalRef;
+import utility.meta.concepts.functional.callable;
+import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.type_list.type_list_at;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.type_list.type_list_filter;
@@ -88,22 +90,19 @@ struct ToFunctionParameter<T> : std::type_identity<T> {};
 
 template <core::ecs::query_parameter_c T>
     requires util::meta::specialization_of_c<T, core::ecs::Optional>
-struct ToFunctionParameter<T>
-    : std::type_identity<util::OptionalRef<util::meta::underlying_t<T>>> {};
+struct ToFunctionParameter<T> : std::type_identity<T> {};
 
 template <typename, typename>
 struct invocable_with_impl;
 
-template <typename F, template <typename...> typename TypeList_T, typename... ForEachParameters_T>
-struct invocable_with_impl<F, TypeList_T<ForEachParameters_T...>>
-    : std::bool_constant<std::invocable<F, ForEachParameters_T...>> {};
+template <typename F, template <typename...> typename TypeList_T, typename... FunctionParameters_T>
+struct invocable_with_impl<F, TypeList_T<FunctionParameters_T...>>
+    : std::bool_constant<std::invocable<F, FunctionParameters_T...>> {};
 
-template <typename F, typename ForEachParameterTypeList_T>
-concept invocable_with_c = invocable_with_impl<F, ForEachParameterTypeList_T>::value;
+template <typename F, typename FunctionParametersTypeList_T>
+concept invocable_with_c = invocable_with_impl<F, FunctionParametersTypeList_T>::value;
 
-namespace core::ecs {
-
-template <query_parameter_c... Parameters_T>
+template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 struct QueryClosure {
 private:
@@ -136,14 +135,13 @@ private:
 
 public:
     template <::invocable_with_c<FunctionParameters> F>
-    static auto operator()(Registry& registry, F&& func) -> F
-        requires(util::meta::type_list_size_v<FunctionParameters> != 0);
+    static auto operator()(core::ecs::Registry& registry, F&& func) -> F;
 
     [[nodiscard]]
     constexpr static auto matches_archetype(const Archetype& archetype) -> bool;
 
 private:
-    template <component_c Component_T>
+    template <core::ecs::component_c Component_T>
     [[nodiscard]]
     consteval static auto include_index_of() -> size_t;
 
@@ -165,7 +163,7 @@ private:
 
     template <typename F>
     static auto visit_archetype(
-        Registry& registry,
+        core::ecs::Registry& registry,
         std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                     included_component_table_pointers,
         ArchetypeID archetype_id,
@@ -178,7 +176,7 @@ private:
                  core::ecs::ID>)
     [[nodiscard]]
     static auto queried_type_view_from(
-        Registry& registry,
+        core::ecs::Registry& registry,
         std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                     included_component_table_pointers,
         ArchetypeID archetype_id
@@ -190,7 +188,7 @@ private:
                  core::ecs::Optional>)
     [[nodiscard]]
     static auto queried_type_view_from(
-        Registry& registry,
+        core::ecs::Registry& registry,
         std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                     included_component_table_pointers,
         ArchetypeID archetype_id
@@ -199,23 +197,20 @@ private:
     template <size_t queried_type_index_T>
     [[nodiscard]]
     static auto queried_type_view_from(
-        Registry& registry,
+        core::ecs::Registry& registry,
         std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                     included_component_table_pointers,
         ArchetypeID archetype_id
     ) -> ComponentContainer<util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>&;
 };
 
-}   // namespace core::ecs
-
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <::invocable_with_c<util::meta::type_list_transform_t<
     util::meta::type_list_filter_t<util::TypeList<Parameters_T...>, IsQueriedParameter>,
     ToFunctionParameter>> F>
-auto core::ecs::QueryClosure<Parameters_T...>::operator()(Registry& registry, F&& func)
+auto QueryClosure<Parameters_T...>::operator()(core::ecs::Registry& registry, F&& func)
     -> F
-    requires(util::meta::type_list_size_v<FunctionParameters> != 0)
 {
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>
         included_component_table_pointers{};
@@ -236,7 +231,7 @@ auto core::ecs::QueryClosure<Parameters_T...>::operator()(Registry& registry, F&
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-constexpr auto core::ecs::QueryClosure<Parameters_T...>::matches_archetype(
+constexpr auto QueryClosure<Parameters_T...>::matches_archetype(
     const Archetype& archetype
 ) -> bool
 {
@@ -251,14 +246,14 @@ constexpr auto core::ecs::QueryClosure<Parameters_T...>::matches_archetype(
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <core::ecs::component_c Component_T>
-consteval auto core::ecs::QueryClosure<Parameters_T...>::include_index_of() -> size_t
+consteval auto QueryClosure<Parameters_T...>::include_index_of() -> size_t
 {
     return util::meta::type_list_index_of_v<IncludedComponents, Component_T>;
 }
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto core::ecs::QueryClosure<Parameters_T...>::fill_included_component_tables(
+auto QueryClosure<Parameters_T...>::fill_included_component_tables(
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                          included_component_table_pointers,
     core::ecs::Registry& registry
@@ -291,7 +286,7 @@ auto core::ecs::QueryClosure<Parameters_T...>::fill_included_component_tables(
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto core::ecs::QueryClosure<Parameters_T...>::smallest_required_component_table_from(
+auto QueryClosure<Parameters_T...>::smallest_required_component_table_from(
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
         included_component_table_pointers
 ) -> ComponentTable&
@@ -314,7 +309,7 @@ auto core::ecs::QueryClosure<Parameters_T...>::smallest_required_component_table
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto core::ecs::QueryClosure<Parameters_T...>::matching_archetype_ids_from(
+auto QueryClosure<Parameters_T...>::matching_archetype_ids_from(
     ComponentTable& component_table
 )
 {
@@ -328,8 +323,8 @@ auto core::ecs::QueryClosure<Parameters_T...>::matching_archetype_ids_from(
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <typename F>
-auto core::ecs::QueryClosure<Parameters_T...>::visit_archetype(
-    Registry& registry,
+auto QueryClosure<Parameters_T...>::visit_archetype(
+    core::ecs::Registry& registry,
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                       included_component_table_pointers,
     const ArchetypeID archetype_id,
@@ -361,8 +356,8 @@ template <size_t queried_type_index_T>
                      ToQueriedType>,
                  queried_type_index_T>,
              core::ecs::ID>)
-auto core::ecs::QueryClosure<Parameters_T...>::queried_type_view_from(
-    Registry& registry,
+auto QueryClosure<Parameters_T...>::queried_type_view_from(
+    core::ecs::Registry& registry,
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&,
     const ArchetypeID archetype_id
 ) -> std::span<const core::ecs::ID>
@@ -379,8 +374,8 @@ template <size_t queried_type_index_T>
                      type_list_filter_t<util::TypeList<Parameters_T...>, IsQueriedParameter>,
                  queried_type_index_T>,
              core::ecs::Optional>)
-auto core::ecs::QueryClosure<Parameters_T...>::queried_type_view_from(
-    Registry&,
+auto QueryClosure<Parameters_T...>::queried_type_view_from(
+    core::ecs::Registry&,
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                       included_component_table_pointers,
     const ArchetypeID archetype_id
@@ -409,8 +404,8 @@ auto core::ecs::QueryClosure<Parameters_T...>::queried_type_view_from(
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <size_t queried_type_index_T>
-auto core::ecs::QueryClosure<Parameters_T...>::queried_type_view_from(
-    Registry&,
+auto QueryClosure<Parameters_T...>::queried_type_view_from(
+    core::ecs::Registry&,
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                       included_component_table_pointers,
     const ArchetypeID archetype_id

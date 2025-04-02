@@ -4,6 +4,8 @@ module;
 
 export module core.ecs:query.query_parameter_tags;
 
+import utility.containers.OptionalRef;
+
 import :component_c;
 import :query.query_parameter_tags.fwd;
 
@@ -29,7 +31,13 @@ struct Without<T> {
 
 export template <typename T>
     requires component_c<std::remove_const_t<T>>
-struct Optional<T> {};
+struct Optional<T> : util::OptionalRef<T> {
+    using util::OptionalRef<T>::OptionalRef;
+};
+
+// TODO: remove deduction guide with P2582
+template <typename T>
+Optional(T&&) -> Optional<std::remove_cvref_t<T>>;
 
 export template <typename T>
     requires(!component_c<std::remove_const_t<T>>)

@@ -6,8 +6,9 @@ module;
 
 export module core.ecs:query.OptionalView;
 
-import utility.containers.OptionalRef;
 import utility.Overloaded;
+
+import :query.query_parameter_tags;
 
 template <typename T>
 class OptionalView : std::ranges::view_interface<OptionalView<T>> {
@@ -44,28 +45,28 @@ template <typename T>
 class OptionalView<T>::Iterator {
 public:
     using iterator_concept = std::random_access_iterator_tag;
-    using value_type       = util::OptionalRef<T>;
+    using value_type       = core::ecs::Optional<T>;
     using difference_type  = typename std::span<T>::difference_type;
 
     Iterator() = default;
 
     [[nodiscard]]
-    constexpr auto operator*() const -> util::OptionalRef<T>
+    constexpr auto operator*() const -> core::ecs::Optional<T>
     {
         return m_optional_iterator
             .transform([](const typename std::span<T>::iterator iterator) {
-                return util::OptionalRef{ *iterator };
+                return core::ecs::Optional{ *iterator };
             })
             .value_or(std::nullopt);
     }
 
     [[nodiscard]]
     constexpr auto operator[](const difference_type difference) const
-        -> util::OptionalRef<T>
+        -> core::ecs::Optional<T>
     {
         return m_optional_iterator
             .transform([difference](const typename std::span<T>::iterator iterator) {
-                return util::OptionalRef{ *iterator[difference] };
+                return core::ecs::Optional{ *iterator[difference] };
             })
             .value_or(std::nullopt);
     }

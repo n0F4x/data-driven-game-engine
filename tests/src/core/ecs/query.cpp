@@ -232,6 +232,24 @@ TEST_CASE("core::ecs::query")
     {
         using namespace core::ecs::query_parameter_tags;
 
+        // Test that it compiles
+        core::ecs::query<
+            core::ecs::ID,
+            float,
+            const double,
+            Without<int8_t>,
+            With<int16_t>,
+            With<int32_t>,
+            Optional<uint8_t>,
+            Optional<const uint16_t>>(
+            registry,
+            [](core::ecs::ID,
+               float&,
+               const double&,
+               util::OptionalRef<uint8_t>,
+               util::OptionalRef<const uint16_t>) {}
+        );
+
         const auto test_query_parameters =
             [&registry]<typename... Ts, typename F = void(*)()>(
                 util::TypeList<Ts...>, F func = +[] {}
@@ -295,21 +313,31 @@ TEST_CASE("core::ecs::query")
                 [&visit_count] { ++visit_count; }
             );
 
-            core::ecs::query<
-                core::ecs::ID,
-                float,
-                const double,
-                Without<int8_t>,
-                With<int16_t>,
-                With<int32_t>,
-                Optional<uint8_t>,
-                Optional<const uint16_t>>(
+            REQUIRE(visit_count == 1);
+        }
+
+        SECTION("deducing parameters")
+        {
+            registry.create(float{}, double{}, int16_t{}, int32_t{}, uint8_t{});
+            registry.create(float{}, double{}, int8_t{}, int16_t{}, int32_t{}, uint8_t{});
+            registry.create(float{}, double{}, int16_t{}, uint8_t{});
+            registry.create(float{}, int16_t{}, int32_t{}, uint8_t{}, uint16_t{});
+
+            size_t visit_count{};
+
+            core::ecs::query(
                 registry,
-                [](core::ecs::ID,
-                   float&,
-                   const double&,
-                   util::OptionalRef<uint8_t>,
-                   util::OptionalRef<const uint16_t>) {}
+                [&visit_count](
+                    core::ecs::ID,                                              //
+                    float&,                                                     //
+                    const double&,                                              //
+                    Without<int8_t>,                                            //
+                    With<int16_t>,                                              //
+                    With<int32_t>,                                              //
+                    Optional<uint8_t>,                                          //
+                    Optional<const uint16_t>) {
+                    visit_count++;
+                }
             );
 
             REQUIRE(visit_count == 1);

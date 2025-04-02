@@ -102,7 +102,7 @@ public:
 private:
     template <query_parameter_c... Parameters_T>
         requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-    friend struct QueryClosure;
+    friend struct ::QueryClosure;
 
     std::map<::ComponentID, ::ComponentTable>          m_component_tables;
     ::ArchetypeTable                                   m_archetypes;
