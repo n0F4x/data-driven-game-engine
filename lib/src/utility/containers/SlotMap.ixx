@@ -46,6 +46,7 @@ public:
     template <typename... Args_T>
     constexpr auto emplace(Args_T&&... args) -> std::pair<Key, Index>;
     constexpr auto erase(Key key) -> std::optional<std::pair<Value, Index>>;
+    constexpr auto remove(Key key) -> std::pair<Value, Index>;
 
     template <typename Self_T>
     [[nodiscard]]
@@ -103,6 +104,20 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
 
         return result;
     });
+}
+
+template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::remove(const Key key)
+    -> std::pair<Value, Index>
+{
+    const Index index = m_sparse_set.remove(key);
+
+    std::tuple result{ std::move(m_values[index]), index };
+
+    m_values[index] = std::move(m_values.back());
+    m_values.pop_back();
+
+    return result;
 }
 
 template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>

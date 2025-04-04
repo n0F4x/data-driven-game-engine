@@ -9,6 +9,7 @@ export import :ComponentID;
 export import :ComponentTable;
 export import :ComponentTag;
 export import :ErasedComponentContainer;
+export import :ErasedComponentContainer.fwd;
 export import :ID;
 export import :LookupTable;
 export import :query;

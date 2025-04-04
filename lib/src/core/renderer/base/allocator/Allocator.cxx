@@ -1,6 +1,6 @@
 module;
 
-#include <gsl-lite/gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 #include "core/log/log.hpp"
 

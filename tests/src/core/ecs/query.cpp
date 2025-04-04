@@ -3,6 +3,7 @@
 // TODO: remove these includes
 #include <algorithm>
 #include <ranges>
+#include <unordered_map>
 
 import core.ecs;
 

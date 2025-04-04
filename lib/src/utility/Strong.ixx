@@ -8,10 +8,15 @@ export module utility.Strong;
 
 import utility.meta.type_traits.forward_like;
 
+struct StrongBase {
+    auto operator==(const StrongBase&) const -> bool = default;
+    auto operator<=>(const StrongBase&) const        = default;
+};
+
 namespace util {
 
 export template <typename T, typename Tag_T>
-class Strong {
+class Strong : public StrongBase {
 public:
     using Underlying = T;
 
@@ -42,16 +47,20 @@ private:
 
 }   // namespace util
 
-export template <typename T, typename Tag_T>
-    requires requires(T underlying) { std::hash<T>{}(underlying); }
-struct std::hash<util::Strong<T, Tag_T>> {
-    template <typename Strong_T>
-        requires std::same_as<std::remove_cvref_t<Strong_T>, util::Strong<T, Tag_T>>
+export template <std::derived_from<StrongBase> Strong_T>
+    requires requires(typename Strong_T::Underlying underlying) {
+        std::hash<decltype(underlying)>{}(underlying);
+    }
+struct std::hash<Strong_T> {
+    template <typename UStrong_T>
+        requires std::same_as<std::remove_cvref_t<UStrong_T>, Strong_T>
     [[nodiscard]]
-    constexpr static auto operator()(Strong_T&& strong
-    ) noexcept(noexcept(std::hash<T>{}(strong.underlying()))) -> size_t
+    constexpr static auto operator()(UStrong_T&& strong
+    ) noexcept(noexcept(std::hash<typename Strong_T::Underlying>{}(strong.underlying())))
+        -> size_t
     {
-        return std::hash<T>{}(strong.underlying());
+        return std::hash<std::decay_t<decltype(strong.underlying())>>{}(strong.underlying(
+        ));
     }
 };
 

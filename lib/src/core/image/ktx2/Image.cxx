@@ -5,7 +5,7 @@ module;
 #include <format>
 #include <span>
 
-#include <gsl-lite/gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 #include <ktx.h>
 

@@ -15,6 +15,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ComponentTable.ixx
         ComponentTag.ixx
         ErasedComponentContainer.ixx
+        ErasedComponentContainer-fwd.ixx
         ID.ixx
         RecordID.ixx
         RecordIndex.ixx

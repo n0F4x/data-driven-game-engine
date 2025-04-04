@@ -6,7 +6,7 @@ module;
 export module utility.meta.type_traits.type_list.type_list_sort;
 
 import utility.meta.concepts.type_list.type_list;
-import utility.meta.concepts.type_list.type_list_all;
+import utility.meta.concepts.type_list.type_list_all_of;
 
 template <template <typename> typename Hash_T>
 struct hash_has_valid_member_value {
@@ -53,13 +53,13 @@ struct type_list_sort_impl<TypeList_T<Ts...>, Hash_T> {
 namespace util::meta {
 
 export template <type_list_c TypeList_T, template <typename> typename Hash_T>
-    requires type_list_all_c<TypeList_T, ::hash_has_valid_member_value<Hash_T>::template type>
+    requires type_list_all_of_c<TypeList_T, ::hash_has_valid_member_value<Hash_T>::template type>
 struct type_list_sort {
     using type = typename ::type_list_sort_impl<TypeList_T, Hash_T>::type;
 };
 
 export template <type_list_c TypeList_T, template <typename> typename Hash_T>
-    requires type_list_all_c<TypeList_T, hash_has_valid_member_value<Hash_T>::template type>
+    requires type_list_all_of_c<TypeList_T, hash_has_valid_member_value<Hash_T>::template type>
 using type_list_sort_t = typename type_list_sort<TypeList_T, Hash_T>::type;
 
 }   // namespace util::meta

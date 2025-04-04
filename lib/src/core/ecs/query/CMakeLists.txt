@@ -8,9 +8,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         query.ixx
         query_parameter_c.ixx
         query_parameter_components_are_all_different_c.ixx
+        QueryParameterTagBase.ixx
         query_parameter_tag_c.ixx
         query_parameter_tags.ixx
-        query_parameter_tags-fwd.ixx
         queryable_component_c.ixx
         QueryClosure.ixx
         QueryClosure-fwd.ixx

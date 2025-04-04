@@ -8,4 +8,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         enumerate.ixx
         fold_left_first.ixx
         for_each.ixx
+        none_of.ixx
 )

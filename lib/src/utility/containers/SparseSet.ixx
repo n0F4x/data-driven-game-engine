@@ -150,6 +150,7 @@ public:
 
     constexpr auto emplace() -> std::pair<Key, ID>;
     constexpr auto erase(Key key) -> std::optional<ID>;
+    constexpr auto remove(Key key) -> ID;
 
     [[nodiscard]]
     constexpr auto get(Key key) const -> ID;
@@ -248,6 +249,14 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::erase(const Key key)
     m_pointers[index] = make_pointer(invalid_index, static_cast<Version>(version + 1));
 
     return id;
+}
+
+template <key_c Key_T, uint8_t version_bit_size_T>
+constexpr auto SparseSet<Key_T, version_bit_size_T>::remove(const Key key) -> ID
+{
+    const std::optional<ID> optional_id{ erase(key) };
+    PRECOND(optional_id.has_value(), "key must be contained");
+    return *optional_id;
 }
 
 template <key_c Key_T, uint8_t version_bit_size_T>

@@ -15,16 +15,22 @@ public:
         : m_archetype_ref{ archetype }
     {}
 
+    [[nodiscard]]
+    constexpr auto operator*() const -> const Archetype&
+    {
+        return m_archetype_ref.get();
+    }
+
+    constexpr auto operator->() const -> const Archetype*
+    {
+        return &m_archetype_ref.get();
+    }
+
     auto operator==(const ArchetypeID&) const -> bool = default;
     auto operator<=>(const ArchetypeID&) const        = default;
 
-    explicit(false) operator const Archetype&() const
-    {
-        return m_archetype_ref;
-    }
-
     [[nodiscard]]
-    constexpr auto get() const noexcept -> const Archetype&
+    constexpr auto get() const noexcept -> std::reference_wrapper<const Archetype>
     {
         return m_archetype_ref;
     }
@@ -41,6 +47,6 @@ struct std::hash<ArchetypeID> {
     constexpr static auto operator()(const ArchetypeID archetype_id) noexcept
         -> std::size_t
     {
-        return std::hash<Archetype>{}(archetype_id);
+        return std::hash<Archetype>{}(*archetype_id);
     }
 };

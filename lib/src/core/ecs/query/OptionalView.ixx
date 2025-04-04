@@ -155,4 +155,8 @@ private:
     std::optional<typename std::span<T>::iterator> m_optional_iterator;
 };
 
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+
 static_assert(std::ranges::input_range<OptionalView<int>>);
+
+#endif

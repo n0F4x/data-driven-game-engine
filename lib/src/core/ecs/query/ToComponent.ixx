@@ -9,7 +9,7 @@ import utility.meta.type_traits.underlying;
 
 import :query.component_query_parameter_c;
 import :query.queryable_component_c;
-import :query.query_parameter_tags.fwd;
+import :query.query_parameter_tags;
 
 template <component_query_parameter_c T>
 struct ToComponent;

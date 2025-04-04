@@ -7,6 +7,7 @@ module;
 export module core.ecs:query.query;
 
 import utility.meta.concepts.functional.callable;
+import utility.meta.concepts.type_list.type_list_none_of;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.type_list.type_list_index_of;
@@ -17,12 +18,16 @@ import :query.QueryClosure;
 import :Registry;
 
 template <typename F>
-concept deducable_query_function_c = util::meta::callable_c<F> && requires {
-    util::meta::type_list_to_t<
-        util::meta::
-            type_list_transform_t<util::meta::arguments_of_t<F>, std::remove_reference>,
-        QueryClosure>{};
-};
+concept deducable_query_function_c =
+    util::meta::callable_c<F>
+    && util::meta::
+        type_list_none_of_c<util::meta::arguments_of_t<F>, std::is_rvalue_reference>
+    && requires {
+           util::meta::type_list_to_t<
+               util::meta::
+                   type_list_transform_t<util::meta::arguments_of_t<F>, std::remove_reference>,
+               QueryClosure>{};
+       };
 
 namespace core::ecs {
 

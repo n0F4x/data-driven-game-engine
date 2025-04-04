@@ -231,9 +231,8 @@ auto QueryClosure<Parameters_T...>::operator()(core::ecs::Registry& registry, F&
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-constexpr auto QueryClosure<Parameters_T...>::matches_archetype(
-    const Archetype& archetype
-) -> bool
+constexpr auto QueryClosure<Parameters_T...>::matches_archetype(const Archetype& archetype)
+    -> bool
 {
     return util::meta::apply<RequiredComponents>([&archetype]<typename... Ts> {
                return archetype.contains_components<Ts...>();
@@ -317,7 +316,11 @@ auto QueryClosure<Parameters_T...>::matching_archetype_ids_from(
          | std::views::transform(
                &std::pair<const ArchetypeID, ErasedComponentContainer>::first
          )
-         | std::views::filter(matches_archetype);
+         | std::views::transform(&ArchetypeID::get)
+         | std::views::filter(matches_archetype)
+         | std::views::transform([](const Archetype& archetype) {
+               return ArchetypeID{ archetype };
+           });
 }
 
 template <core::ecs::query_parameter_c... Parameters_T>

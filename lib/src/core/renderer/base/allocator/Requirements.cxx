@@ -4,7 +4,7 @@ module;
 
 #include <VkBootstrap.h>
 
-#include <gsl-lite/gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 module core.renderer.base.allocator.Allocator;
 

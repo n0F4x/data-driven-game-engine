@@ -5,6 +5,6 @@ module;
 export module core.ecs:ComponentTable;
 
 import :ArchetypeID;
-import :ErasedComponentContainer;
+import :ErasedComponentContainer.fwd;
 
 using ComponentTable = std::unordered_map<ArchetypeID, ErasedComponentContainer>;

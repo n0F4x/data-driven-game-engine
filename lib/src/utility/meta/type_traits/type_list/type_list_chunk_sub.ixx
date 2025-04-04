@@ -1,6 +1,6 @@
 export module utility.meta.type_traits.type_list.type_list_chunk_sub;
 
-import utility.meta.concepts.type_list.type_list_all;
+import utility.meta.concepts.type_list.type_list_all_of;
 
 import utility.meta.type_traits.type_list.type_list_transform;
 import utility.meta.type_traits.type_list.type_list_disjoin;
@@ -25,7 +25,7 @@ struct transform_join_if_list_of_subtype_lists {
     };
 
     template <typename TypeList_T>
-        requires type_list_all_c<
+        requires type_list_all_of_c<
             TypeList_T,
             is_specialization_of_Wrapper<SubTypeList_T>::template trait>
     struct trait<TypeList_T>

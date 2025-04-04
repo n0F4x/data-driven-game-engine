@@ -322,7 +322,8 @@ TEST_CASE("core::ecs::Registry")
     });
 
     util::meta::for_each<RegistryValueCategories>([&registry]<typename Registry_T> {
-        const std::string section_name{ "find_all - "s + util::meta::name_of<Registry_T>() };
+        const std::string section_name{ "find_all - "s
+                                        + util::meta::name_of<Registry_T>() };
 
         SECTION(section_name.c_str())
         {
@@ -477,5 +478,31 @@ TEST_CASE("core::ecs::Registry")
         static_assert([]<typename... Components_T>() static {
             return !requires { registry.contains_all<Components_T...>(id); };
         }.operator()<int, float, int>());
+    }
+
+    SECTION("insert")
+    {
+        const auto id = registry.create(float{}, double{});
+
+        registry.insert(id, int8_t{}, int16_t{});
+        REQUIRE(registry.contains_all<float, double, int8_t, int16_t>(id));
+
+        REQUIRE_THROWS_AS(
+            registry.insert(id, int8_t{}, int16_t{}, int32_t{}, int64_t{}),
+            util::PreconditionViolation
+        );
+    }
+
+    SECTION("insert_or_replace")
+    {
+        const auto id = registry.create(float{}, double{});
+
+        registry.insert_or_replace(id, int8_t{}, int16_t{});
+        REQUIRE(registry.contains_all<float, double, int8_t, int16_t>(id));
+
+        registry.insert_or_replace(id, int8_t{}, int16_t{}, int32_t{}, int64_t{});
+        REQUIRE(   //
+            registry.contains_all<float, double, int8_t, int16_t, int32_t, int64_t>(id)
+        );
     }
 }

@@ -8,7 +8,7 @@ import :Query;
 import :Res;
 
 import utility.meta.concepts.functional.callable;
-import utility.meta.concepts.type_list.type_list_all;
+import utility.meta.concepts.type_list.type_list_all_of;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.is_specialization_of;
 
@@ -27,7 +27,7 @@ struct is_valid_argument
 export template <typename SchedulableT>
 concept system_c =
     util::meta::callable_c<std::remove_pointer_t<std::decay_t<SchedulableT>>>
-    && util::meta::type_list_all_c<
+    && util::meta::type_list_all_of_c<
         util::meta::arguments_of_t<std::remove_pointer_t<std::decay_t<SchedulableT>>>,
         is_valid_argument>;
 
