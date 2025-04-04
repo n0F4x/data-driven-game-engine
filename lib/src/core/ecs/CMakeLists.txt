@@ -13,6 +13,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ComponentContainer.ixx
         ComponentID.ixx
         ComponentTable.ixx
+        ComponentTableMap.ixx
         ComponentTag.ixx
         ErasedComponentContainer.ixx
         ErasedComponentContainer-fwd.ixx

@@ -491,6 +491,10 @@ TEST_CASE("core::ecs::Registry")
         REQUIRE(registry.contains_all<float, double, int8_t, int16_t>(id));
 
         REQUIRE_THROWS_AS(
+            registry.insert(core::ecs::Registry::null_id, float{}),
+            util::PreconditionViolation
+        );
+        REQUIRE_THROWS_AS(
             registry.insert(id, int8_t{}, int16_t{}, int32_t{}, int64_t{}),
             util::PreconditionViolation
         );
@@ -506,6 +510,35 @@ TEST_CASE("core::ecs::Registry")
         registry.insert_or_replace(id, int8_t{}, int16_t{}, int32_t{}, int64_t{});
         REQUIRE(   //
             registry.contains_all<float, double, int8_t, int16_t, int32_t, int64_t>(id)
+        );
+
+        REQUIRE_THROWS_AS(
+            registry.insert_or_replace(core::ecs::Registry::null_id, float{}),
+            util::PreconditionViolation
+        );
+    }
+
+    SECTION("remove")
+    {
+        const auto id =
+            registry.create(float{}, double{}, int8_t{}, int16_t{}, int32_t{}, int64_t{});
+
+        registry.remove<int32_t, int64_t>(id);
+        REQUIRE(registry.contains_all<float, double, int8_t, int16_t>(id));
+        REQUIRE_FALSE(registry.contains_all<int32_t>(id));
+        REQUIRE_FALSE(registry.contains_all<int64_t>(id));
+
+        REQUIRE_THROWS_AS(
+            registry.remove<float>(core::ecs::Registry::null_id),
+            util::PreconditionViolation
+        );
+        REQUIRE_THROWS_AS(
+            registry.remove<int32_t>(id),
+            util::PreconditionViolation
+        );
+        REQUIRE_THROWS_AS(
+            registry.remove<int64_t>(id),
+            util::PreconditionViolation
         );
     }
 }

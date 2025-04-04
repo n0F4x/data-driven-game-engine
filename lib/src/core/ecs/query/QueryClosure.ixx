@@ -235,7 +235,7 @@ constexpr auto QueryClosure<Parameters_T...>::matches_archetype(const Archetype&
     -> bool
 {
     return util::meta::apply<RequiredComponents>([&archetype]<typename... Ts> {
-               return archetype.contains_components<Ts...>();
+               return archetype.contains_all_of_components<Ts...>();
            })
         && util::meta::apply<ExcludedComponents>([&archetype]<typename... Ts> {
                return archetype.contains_none_of_components<Ts...>();

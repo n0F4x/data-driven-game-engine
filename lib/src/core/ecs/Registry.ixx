@@ -37,7 +37,7 @@ import :ArchetypeTable;
 import :component_c;
 import :ComponentContainer;
 import :ComponentID;
-import :ComponentTable;
+import :ComponentTableMap;
 import :ComponentTag;
 import :ErasedComponentContainer;
 import :ID;
@@ -111,13 +111,17 @@ public:
              && util::meta::all_different_c<std::decay_t<Components_T>...>
     auto insert_or_replace(core::ecs::ID id, Components_T&&... components) -> void;
 
+    template <component_c... Components_T>
+        requires util::meta::all_different_c<Components_T...>
+    auto remove(core::ecs::ID id) -> std::tuple<Components_T...>;
+
 private:
     template <query_parameter_c... Parameters_T>
         requires ::query_parameter_components_are_all_different_c<Parameters_T...>
     friend struct ::QueryClosure;
 
 
-    std::map<::ComponentID, ::ComponentTable>          m_component_tables;
+    ComponentTableMap                                  m_component_tables;
     ::ArchetypeTable                                   m_archetypes;
     util::SlotMap<core::ecs::ID::Underlying, ::Entity> m_entities;
 
@@ -129,8 +133,12 @@ private:
     auto insert_component(::ArchetypeID archetype_id, Component_T&& component)
         -> ::RecordIndex;
 
-    auto remove_components(::ArchetypeID archetype_id, ::RecordIndex record_index)
-        -> void;
+    template <util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
+    auto remove_components(
+        ComponentIDInputRange component_ids,
+        ::ArchetypeID         archetype_id,
+        ::RecordIndex         record_index
+    ) -> void;
 
     auto remove_component(
         ::ArchetypeID archetype_id,
@@ -139,21 +147,43 @@ private:
     ) -> void;
 
     auto remove_component(
-        ::ArchetypeID archetype_id,
-        ::RecordIndex record_index,
-        std::remove_reference_t<decltype(m_component_tables)>::iterator
-            component_tables_iterator
+        ::ArchetypeID               archetype_id,
+        ::RecordIndex               record_index,
+        ComponentTableMap::iterator component_tables_iterator
     ) -> void;
 
     auto remove_component(
-        ::RecordIndex record_index,
-        std::remove_reference_t<decltype(m_component_tables)>::iterator
-            component_tables_iterator,
-        std::remove_reference_t<decltype(m_component_tables)>::value_type::second_type::
-            iterator component_containers_iterator
+        ::RecordIndex                                        record_index,
+        ComponentTableMap::iterator                          component_tables_iterator,
+        ComponentTableMap::value_type::second_type::iterator component_containers_iterator
     ) -> void;
 
+    template <component_c... Components_T>
+        requires util::meta::all_different_c<Components_T...>
+    auto remove_components(::ArchetypeID archetype_id, ::RecordIndex record_index)
+        -> std::tuple<Components_T...>;
+
+    template <component_c Component_T>
+    auto remove_component(::ArchetypeID archetype_id, ::RecordIndex record_index)
+        -> Component_T;
+
+    template <component_c Component_T>
+    auto remove_component(
+        ::ArchetypeID               archetype_id,
+        ::RecordIndex               record_index,
+        ComponentTableMap::iterator component_tables_iterator
+    ) -> Component_T;
+
+    template <component_c Component_T>
+    auto remove_component(
+        ::RecordIndex                                        record_index,
+        ComponentTableMap::iterator                          component_tables_iterator,
+        ComponentTableMap::value_type::second_type::iterator component_containers_iterator
+    ) -> Component_T;
+
     template <decays_to_component_c... Components_T>
+        requires(sizeof...(Components_T) > 0)
+             && util::meta::all_different_c<std::decay_t<Components_T>...>
     auto replace_components(
         ArchetypeID archetype_id,
         RecordIndex record_index,
@@ -168,16 +198,20 @@ private:
     ) -> void;
 
     template <typename Predicate_T, decays_to_component_c... Components_T>
+        requires(sizeof...(Components_T) > 0)
+             && util::meta::all_different_c<std::decay_t<Components_T>...>
     auto insert_each_component_if(
         Predicate_T predicate,
         ArchetypeID archetype_id,
         Components_T&&... components
     ) -> void;
 
+    template <util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
     auto move_components(
-        ArchetypeID archetype_id,
-        RecordIndex record_index,
-        ArchetypeID new_archetype_id
+        ComponentIDInputRange component_ids,
+        ArchetypeID           archetype_id,
+        RecordIndex           record_index,
+        ArchetypeID           new_archetype_id
     ) -> void;
 
     auto move_component(
@@ -185,14 +219,14 @@ private:
         ArchetypeID archetype_id,
         RecordIndex record_index,
         ArchetypeID new_archetype_id
-    ) -> void;
+    ) -> RecordIndex;
 
     static auto move_component(
-        std::map<::ComponentID, ::ComponentTable>::iterator component_tables_iterator,
-        ArchetypeID                                         archetype_id,
-        RecordIndex                                         record_index,
-        ArchetypeID                                         new_archetype_id
-    ) -> void;
+        ComponentTableMap::iterator component_tables_iterator,
+        ArchetypeID                 archetype_id,
+        RecordIndex                 record_index,
+        ArchetypeID                 new_archetype_id
+    ) -> RecordIndex;
 
     template <component_c Component_T, typename Self_T>
     [[nodiscard]]
@@ -241,6 +275,8 @@ private:
 
 
     template <decays_to_component_c... Components_T>
+        requires(sizeof...(Components_T) > 0)
+             && util::meta::all_different_c<std::decay_t<Components_T>...>
     auto insert(
         ID          id,
         ArchetypeID archetype_id,
@@ -249,6 +285,8 @@ private:
     ) -> ArchetypeID;
 
     template <decays_to_component_c... Components_T>
+        requires(sizeof...(Components_T) > 0)
+             && util::meta::all_different_c<std::decay_t<Components_T>...>
     auto forced_insert_or_replace(
         ID                       id,
         ArchetypeID              archetype_id,
@@ -305,18 +343,21 @@ auto core::ecs::Registry::destroy(const core::ecs::ID id) -> bool
         .transform([this, id](const ::Entity entity) {
             const auto [archetype_id, record_id]{ entity };
 
-            const auto arhetypes_iter{ m_archetypes.find(archetype_id) };
-            assert(arhetypes_iter != m_archetypes.cend());
+            const auto archetypes_iterator{ m_archetypes.find(archetype_id) };
+            assert(archetypes_iterator != m_archetypes.cend());
 
-            const auto id_and_record_index = *arhetypes_iter->second.erase(record_id);
+            const auto id_and_record_index = *archetypes_iterator->second.erase(record_id);
             assert(std::get<ID>(id_and_record_index) == id);
             const RecordIndex record_index{ std::get<RecordIndex>(id_and_record_index) };
 
-            remove_components(archetype_id, record_index);
+            remove_components(
+                archetype_id->sorted_component_ids(), archetype_id, record_index
+            );
 
-            if (arhetypes_iter->second.empty()) {
+            if (archetypes_iterator->second.empty()) {
                 [[maybe_unused]]
-                const auto extracted_archetype_node = m_archetypes.extract(arhetypes_iter);
+                const auto extracted_archetype_node =
+                    m_archetypes.extract(archetypes_iterator);
                 assert(!extracted_archetype_node.empty());
             }
 
@@ -368,10 +409,10 @@ auto core::ecs::Registry::find(this Self_T&& self, const core::ecs::ID id) noexc
 
     const auto [archetype_id, record_id]{ *optional_entity };
 
-    const auto arhetypes_iter{ self.m_archetypes.find(archetype_id) };
-    assert(arhetypes_iter != self.m_archetypes.cend());
+    const auto archetypes_iterator{ self.m_archetypes.find(archetype_id) };
+    assert(archetypes_iterator != self.m_archetypes.cend());
 
-    const ::LookupTable& lookup_table{ arhetypes_iter->second };
+    const ::LookupTable& lookup_table{ archetypes_iterator->second };
 
     return std::forward_as_tuple(
         std::forward_like<Self_T>(self.template find_component<Components_T>(
@@ -392,11 +433,11 @@ auto core::ecs::Registry::find_all(this Self_T&& self, const core::ecs::ID id) n
 
     const auto [archetype_id, record_id]{ *optional_entity };
 
-    const auto arhetypes_iter{ self.m_archetypes.find(archetype_id) };
-    assert(arhetypes_iter != self.m_archetypes.cend());
+    const auto archetypes_iterator{ self.m_archetypes.find(archetype_id) };
+    assert(archetypes_iterator != self.m_archetypes.cend());
 
-    const ::LookupTable& lookup_table{ arhetypes_iter->second };
-    if (!archetype_id->template contains_components<Components_T...>()) {
+    const ::LookupTable& lookup_table{ archetypes_iterator->second };
+    if (!archetype_id->template contains_all_of_components<Components_T...>()) {
         return std::nullopt;
     }
 
@@ -421,10 +462,10 @@ auto core::ecs::Registry::find_single(
 
     const auto [archetype_id, record_id]{ *optional_entity };
 
-    const auto arhetypes_iter{ self.m_archetypes.find(archetype_id) };
-    assert(arhetypes_iter != self.m_archetypes.cend());
+    const auto archetypes_iterator{ self.m_archetypes.find(archetype_id) };
+    assert(archetypes_iterator != self.m_archetypes.cend());
 
-    const ::LookupTable& lookup_table{ arhetypes_iter->second };
+    const ::LookupTable& lookup_table{ archetypes_iterator->second };
 
     return std::forward_like<Self_T>(self.template find_component<Component_T>(
         archetype_id, lookup_table.get(record_id)
@@ -444,7 +485,7 @@ auto core::ecs::Registry::contains_all(const core::ecs::ID id) const noexcept ->
 
     assert(m_archetypes.contains(archetype_id));
 
-    return archetype_id->contains_components<Components_T...>();
+    return archetype_id->contains_all_of_components<Components_T...>();
 }
 
 template <::decays_to_component_c... Components_T>
@@ -469,12 +510,12 @@ auto core::ecs::Registry::insert_or_replace(
 {
     auto& [archetype_id, record_id]{ get_entity(id) };
 
-    const auto arhetypes_iter{ m_archetypes.find(archetype_id) };
-    assert(arhetypes_iter != m_archetypes.cend());
+    const auto archetypes_iterator{ m_archetypes.find(archetype_id) };
+    assert(archetypes_iterator != m_archetypes.cend());
 
-    const RecordIndex record_index{ arhetypes_iter->second.get(record_id) };
+    const RecordIndex record_index{ archetypes_iterator->second.get(record_id) };
 
-    if (archetype_id->contains_components<Components_T...>()) {
+    if (archetype_id->contains_all_of_components<Components_T...>()) {
         replace_components(
             archetype_id, record_index, std::forward<Components_T>(components)...
         );
@@ -484,11 +525,63 @@ auto core::ecs::Registry::insert_or_replace(
             id,
             archetype_id,
             record_id,
-            arhetypes_iter,
+            archetypes_iterator,
             record_index,
             std::forward<Components_T>(components)...
         );
     }
+}
+
+template <core::ecs::component_c... Components_T>
+    requires util::meta::all_different_c<Components_T...>
+auto core::ecs::Registry::remove(const core::ecs::ID id) -> std::tuple<Components_T...>
+{
+    auto& [archetype_id, record_id]{ get_entity(id) };
+
+    PRECOND(archetype_id->contains_all_of_components<Components_T...>());
+
+    const auto archetypes_iterator{ m_archetypes.find(archetype_id) };
+    assert(archetypes_iterator != m_archetypes.cend());
+
+    const RecordIndex record_index{ archetypes_iterator->second.get(record_id) };
+
+    const std::ranges::view auto new_component_ids{
+        archetype_id->sorted_component_ids()
+        | std::views::filter([](const ComponentID component_id) {
+              return !std::ranges::binary_search(
+                  component_id_set_from<Components_T...>(), component_id
+              );
+          })
+    };
+
+    const ArchetypeID new_archetype_id{ archetype_from(new_component_ids) };
+
+
+    m_archetypes[new_archetype_id].emplace(id);
+
+    move_components(new_component_ids, archetype_id, record_index, new_archetype_id);
+
+    std::tuple<Components_T...> result =
+        remove_components<Components_T...>(archetype_id, record_index);
+
+
+    [[maybe_unused]]
+    const std::optional optional_id_and_record_index_tuple =
+        archetypes_iterator->second.erase(record_id);
+    assert(optional_id_and_record_index_tuple.has_value());
+    assert(std::get<ID>(*optional_id_and_record_index_tuple) == id);
+
+    if (archetypes_iterator->second.empty()) {
+        [[maybe_unused]]
+        const auto extracted_archetype_node = m_archetypes.extract(archetypes_iterator);
+        assert(!extracted_archetype_node.empty());
+    }
+
+
+    archetype_id = new_archetype_id;
+
+
+    return result;
 }
 
 template <typename Self_T>
@@ -600,17 +693,19 @@ auto core::ecs::Registry::get_record_index(
     const RecordID    record_id
 ) const -> RecordIndex
 {
-    const auto arhetypes_iter{ m_archetypes.find(archetype_id) };
-    assert(arhetypes_iter != m_archetypes.cend());
-    return arhetypes_iter->second.get(record_id);
+    const auto archetypes_iterator{ m_archetypes.find(archetype_id) };
+    assert(archetypes_iterator != m_archetypes.cend());
+    return archetypes_iterator->second.get(record_id);
 }
 
+template <util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
 auto core::ecs::Registry::remove_components(
-    const ArchetypeID archetype_id,
-    const RecordIndex record_index
+    ComponentIDInputRange component_ids,
+    const ArchetypeID     archetype_id,
+    const RecordIndex     record_index
 ) -> void
 {
-    for (const ComponentID component_id : archetype_id->sorted_component_ids()) {
+    for (const ComponentID component_id : component_ids) {
         remove_component(archetype_id, record_index, component_id);
     }
 }
@@ -625,10 +720,9 @@ auto core::ecs::Registry::remove_component(
 }
 
 auto core::ecs::Registry::remove_component(
-    const ArchetypeID archetype_id,
-    const RecordIndex record_index,
-    const std::remove_reference_t<decltype(m_component_tables)>::iterator
-        component_tables_iterator
+    const ArchetypeID                 archetype_id,
+    const RecordIndex                 record_index,
+    const ComponentTableMap::iterator component_tables_iterator
 ) -> void
 {
     PRECOND(component_tables_iterator != m_component_tables.cend());
@@ -640,19 +734,14 @@ auto core::ecs::Registry::remove_component(
 }
 
 auto core::ecs::Registry::remove_component(
-    const RecordIndex record_index,
-    const std::remove_reference_t<decltype(m_component_tables)>::iterator
-        component_tables_iterator,
-    const std::remove_reference_t<decltype(m_component_tables)>::value_type::second_type::
-        iterator component_containers_iterator
+    const RecordIndex                 record_index,
+    const ComponentTableMap::iterator component_tables_iterator,
+    const ComponentTableMap::value_type::second_type::iterator component_containers_iterator
 ) -> void
 {
     PRECOND(component_containers_iterator != component_tables_iterator->second.cend());
 
-    [[maybe_unused]]
-    const bool could_erase_component =
-        component_containers_iterator->second.erase(record_index);
-    PRECOND(could_erase_component);
+    component_containers_iterator->second.remove(record_index);
 
     if (component_containers_iterator->second.empty()) {
         [[maybe_unused]]
@@ -667,6 +756,83 @@ auto core::ecs::Registry::remove_component(
             assert(!component_table_node.empty());
         }
     }
+}
+
+template <core::ecs::component_c... Components_T>
+    requires util::meta::all_different_c<Components_T...>
+auto core::ecs::Registry::remove_components(
+    ArchetypeID archetype_id,
+    RecordIndex record_index
+) -> std::tuple<Components_T...>
+{
+    return std::make_tuple(remove_component<Components_T>(archetype_id, record_index)...);
+}
+
+template <core::ecs::component_c Component_T>
+auto core::ecs::Registry::remove_component(
+    const ArchetypeID archetype_id,
+    const RecordIndex record_index
+) -> Component_T
+{
+    return remove_component<Component_T>(
+        archetype_id, record_index, m_component_tables.find(component_id_of<Component_T>())
+    );
+}
+
+template <core::ecs::component_c Component_T>
+auto core::ecs::Registry::remove_component(
+    const ArchetypeID                 archetype_id,
+    const RecordIndex                 record_index,
+    const ComponentTableMap::iterator component_tables_iterator
+) -> Component_T
+{
+    PRECOND(component_tables_iterator != m_component_tables.cend());
+    return remove_component<Component_T>(
+        record_index,
+        component_tables_iterator,
+        component_tables_iterator->second.find(archetype_id)
+    );
+}
+
+template <core::ecs::component_c Component_T>
+auto core::ecs::Registry::remove_component(
+    const RecordIndex                 record_index,
+    const ComponentTableMap::iterator component_tables_iterator,
+    const ComponentTable::iterator    component_containers_iterator
+) -> Component_T
+{
+    PRECOND(component_containers_iterator != component_tables_iterator->second.cend());
+
+
+    // TODO: use a proper ComponentContainer abstraction, not a std::vector
+    ComponentContainer<Component_T>& component_container{
+        component_containers_iterator->second.get<ComponentContainer<Component_T>>()
+    };
+
+    PRECOND(record_index.underlying() < component_container.size());
+
+    Component_T result{ std::move(component_container[record_index.underlying()]) };
+
+    component_container[record_index.underlying()] = std::move(component_container.back());
+    component_container.pop_back();
+
+
+    if (component_containers_iterator->second.empty()) {
+        [[maybe_unused]]
+        const auto component_container_node =
+            component_tables_iterator->second.extract(component_containers_iterator);
+        assert(!component_container_node.empty());
+
+        if (component_tables_iterator->second.empty()) {
+            [[maybe_unused]]
+            const auto component_table_node =
+                m_component_tables.extract(component_tables_iterator);
+            assert(!component_table_node.empty());
+        }
+    }
+
+
+    return result;
 }
 
 template <core::ecs::component_c Component_T, typename Self_T>
@@ -703,6 +869,8 @@ auto core::ecs::Registry::find_component(
 }
 
 template <decays_to_component_c... Components_T>
+    requires(sizeof...(Components_T) > 0)
+         && util::meta::all_different_c<std::decay_t<Components_T>...>
 auto core::ecs::Registry::insert(
     const ID          id,
     const ArchetypeID archetype_id,
@@ -712,10 +880,10 @@ auto core::ecs::Registry::insert(
 {
     PRECOND(archetype_id->contains_none_of_components<Components_T...>());
 
-    const auto arhetypes_iter{ m_archetypes.find(archetype_id) };
-    assert(arhetypes_iter != m_archetypes.end());
+    const auto archetypes_iterator{ m_archetypes.find(archetype_id) };
+    assert(archetypes_iterator != m_archetypes.end());
 
-    const RecordIndex record_index{ arhetypes_iter->second.get(record_id) };
+    const RecordIndex record_index{ archetypes_iterator->second.get(record_id) };
 
     const ArchetypeID new_archetype_id{
         archetype_from<Components_T...>(archetype_id->sorted_component_ids())
@@ -724,7 +892,9 @@ auto core::ecs::Registry::insert(
 
     m_archetypes[new_archetype_id].emplace(id);
 
-    move_components(archetype_id, record_index, new_archetype_id);
+    move_components(
+        archetype_id->sorted_component_ids(), archetype_id, record_index, new_archetype_id
+    );
 
     [record_index]<std::same_as<RecordIndex>... Indices_T>(
         const Indices_T... record_indices
@@ -735,13 +905,13 @@ auto core::ecs::Registry::insert(
 
     [[maybe_unused]]
     const std::optional optional_id_and_record_index_tuple =
-        arhetypes_iter->second.erase(record_id);
+        archetypes_iterator->second.erase(record_id);
     assert(optional_id_and_record_index_tuple.has_value());
     assert(std::get<ID>(*optional_id_and_record_index_tuple) == id);
 
-    if (arhetypes_iter->second.empty()) {
+    if (archetypes_iterator->second.empty()) {
         [[maybe_unused]]
-        const auto extracted_archetype_node = m_archetypes.extract(arhetypes_iter);
+        const auto extracted_archetype_node = m_archetypes.extract(archetypes_iterator);
         assert(!extracted_archetype_node.empty());
     }
 
@@ -749,6 +919,8 @@ auto core::ecs::Registry::insert(
 }
 
 template <decays_to_component_c... Components_T>
+    requires(sizeof...(Components_T) > 0)
+         && util::meta::all_different_c<std::decay_t<Components_T>...>
 auto core::ecs::Registry::forced_insert_or_replace(
     const ID                       id,
     const ArchetypeID              archetype_id,
@@ -765,11 +937,13 @@ auto core::ecs::Registry::forced_insert_or_replace(
 
     m_archetypes[new_archetype_id].emplace(id);
 
-    move_components(archetype_id, record_index, new_archetype_id);
+    move_components(
+        archetype_id->sorted_component_ids(), archetype_id, record_index, new_archetype_id
+    );
 
     insert_each_component_if(
         [archetype_id]<typename Component_T> {
-            return !archetype_id->contains_components<Component_T>();
+            return !archetype_id->contains_all_of_components<Component_T>();
         },
         new_archetype_id,
         std::forward<Components_T>(components)...
@@ -793,6 +967,8 @@ auto core::ecs::Registry::forced_insert_or_replace(
 }
 
 template <typename Predicate_T, decays_to_component_c... Components_T>
+    requires(sizeof...(Components_T) > 0)
+         && util::meta::all_different_c<std::decay_t<Components_T>...>
 auto core::ecs::Registry::insert_each_component_if(
     Predicate_T       predicate,
     const ArchetypeID archetype_id,
@@ -814,6 +990,8 @@ auto core::ecs::Registry::insert_each_component_if(
 }
 
 template <decays_to_component_c... Components_T>
+    requires(sizeof...(Components_T) > 0)
+         && util::meta::all_different_c<std::decay_t<Components_T>...>
 auto core::ecs::Registry::replace_components(
     const ArchetypeID archetype_id,
     const RecordIndex record_index,
@@ -835,13 +1013,15 @@ auto core::ecs::Registry::replace_component(
         std::forward<Component_T>(component);
 }
 
+template <util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
 auto core::ecs::Registry::move_components(
-    const ArchetypeID archetype_id,
-    const RecordIndex record_index,
-    const ArchetypeID new_archetype_id
+    ComponentIDInputRange component_ids,
+    const ArchetypeID     archetype_id,
+    const RecordIndex     record_index,
+    const ArchetypeID     new_archetype_id
 ) -> void
 {
-    for (const ComponentID component_id : archetype_id->sorted_component_ids()) {
+    for (const ComponentID component_id : component_ids) {
         move_component(component_id, archetype_id, record_index, new_archetype_id);
     }
 }
@@ -851,33 +1031,35 @@ auto core::ecs::Registry::move_component(
     const ArchetypeID archetype_id,
     const RecordIndex record_index,
     const ArchetypeID new_archetype_id
-) -> void
+) -> RecordIndex
 {
     const auto component_tables_iterator{ m_component_tables.find(component_id) };
-    assert(component_tables_iterator != m_component_tables.cend());
+    PRECOND(component_tables_iterator != m_component_tables.cend());
 
-    move_component(
+    return move_component(
         component_tables_iterator, archetype_id, record_index, new_archetype_id
     );
 }
 
 auto core::ecs::Registry::move_component(
-    const std::map<ComponentID, ComponentTable>::iterator component_tables_iterator,
-    const ArchetypeID                                     archetype_id,
-    const RecordIndex                                     record_index,
-    const ArchetypeID                                     new_archetype_id
-) -> void
+    const ComponentTableMap::iterator component_tables_iterator,
+    const ArchetypeID                 archetype_id,
+    const RecordIndex                 record_index,
+    const ArchetypeID                 new_archetype_id
+) -> RecordIndex
 {
     const auto component_containers_iterator{
         component_tables_iterator->second.find(archetype_id)
     };
-    assert(component_containers_iterator != component_tables_iterator->second.cend());
+    PRECOND(component_containers_iterator != component_tables_iterator->second.cend());
 
-    component_containers_iterator->second.move_out_to(
+    const RecordIndex new_record_index = component_containers_iterator->second.move_out_to(
         record_index, component_tables_iterator->second, new_archetype_id
     );
 
     if (component_containers_iterator->second.empty()) {
         component_tables_iterator->second.extract(component_containers_iterator);
     }
+
+    return new_record_index;
 }

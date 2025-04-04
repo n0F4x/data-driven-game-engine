@@ -7,6 +7,7 @@ export import :component_c;
 export import :ComponentContainer;
 export import :ComponentID;
 export import :ComponentTable;
+export import :ComponentTableMap;
 export import :ComponentTag;
 export import :ErasedComponentContainer;
 export import :ErasedComponentContainer.fwd;

@@ -104,7 +104,7 @@ public:
 
     template <core::ecs::component_c... Components_T>
     [[nodiscard]]
-    constexpr auto contains_components() const noexcept -> bool
+    constexpr auto contains_all_of_components() const noexcept -> bool
     {
         return std::ranges::includes(
             m_sorted_component_ids,
@@ -152,21 +152,17 @@ struct std::hash<Archetype> {
 };
 
 template <core::ecs::component_c... Components_T>
-struct ArchetypeFromClosure {
-    constexpr static auto operator()() -> const Archetype&
-    {
-        static const Archetype value{ util::TypeList<Components_T...>{} };
-        return value;
-    }
+constexpr auto archetype_from() -> const Archetype&
+{
+    static const Archetype value{ util::TypeList<Components_T...>{} };
+    return value;
+}
 
-    template <util::meta::input_range_of_c<ComponentID> SortedComponentIDRange_T>
-    constexpr static auto operator()(SortedComponentIDRange_T component_ids)
-        -> const Archetype&
-    {
-        static const Archetype value{ util::TypeList<Components_T...>{}, component_ids };
-        return value;
-    }
-};
-
-template <core::ecs::component_c... Components_T>
-constexpr inline ArchetypeFromClosure<Components_T...> archetype_from;
+template <
+    core::ecs::component_c... Components_T,
+    util::meta::input_range_of_c<ComponentID> SortedComponentIDRange_T>
+constexpr auto archetype_from(SortedComponentIDRange_T component_ids) -> const Archetype&
+{
+    static const Archetype value{ util::TypeList<Components_T...>{}, component_ids };
+    return value;
+}
