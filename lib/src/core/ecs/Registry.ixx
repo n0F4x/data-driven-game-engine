@@ -270,6 +270,7 @@ auto core::ecs::Registry::create(Components_T&&... components) -> core::ecs::ID
 
     const ArchetypeID archetype_id{ archetype_from<std::decay_t<Components_T>...>() };
 
+
     LookupTable& lookup_table = m_archetypes[archetype_id];
 
     const auto [record_id, record_index] = lookup_table.emplace(id);
@@ -290,6 +291,7 @@ auto core::ecs::Registry::create(Components_T&&... components) -> core::ecs::ID
                                )
                                .first;
     assert(id.underlying() == actual_id);
+
 
     return id;
 }
@@ -711,7 +713,9 @@ auto core::ecs::Registry::insert(
     PRECOND(archetype_id->contains_none_of_components<Components_T...>());
 
     const auto arhetypes_iter{ m_archetypes.find(archetype_id) };
-    assert(arhetypes_iter != m_archetypes.cend());
+    assert(arhetypes_iter != m_archetypes.end());
+
+    const RecordIndex record_index{ arhetypes_iter->second.get(record_id) };
 
     const ArchetypeID new_archetype_id{
         archetype_from<Components_T...>(archetype_id->sorted_component_ids())
@@ -720,9 +724,13 @@ auto core::ecs::Registry::insert(
 
     m_archetypes[new_archetype_id].emplace(id);
 
-    move_components(archetype_id, arhetypes_iter->second.get(record_id), new_archetype_id);
+    move_components(archetype_id, record_index, new_archetype_id);
 
-    (insert_component(new_archetype_id, std::forward<Components_T>(components)), ...);
+    [record_index]<std::same_as<RecordIndex>... Indices_T>(
+        const Indices_T... record_indices
+    ) {
+        assert((record_index == record_indices) && ...);
+    }(insert_component(new_archetype_id, std::forward<Components_T>(components))...);
 
 
     [[maybe_unused]]
