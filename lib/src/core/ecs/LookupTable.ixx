@@ -24,6 +24,7 @@ class LookupTable {
 public:
     constexpr auto emplace(core::ecs::ID id) -> std::pair<RecordID, RecordIndex>;
 
+    constexpr auto remove(RecordID record_id) -> std::pair<core::ecs::ID, RecordIndex>;
     constexpr auto erase(RecordID record_id)
         -> std::optional<std::pair<core::ecs::ID, RecordIndex>>;
 
@@ -57,6 +58,13 @@ constexpr auto LookupTable::emplace(const core::ecs::ID id)
 {
     const auto [record_id, record_index] = m_ids.emplace(id);
     return std::make_pair(RecordID{ record_id }, RecordIndex{ record_index });
+}
+
+constexpr auto LookupTable::remove(RecordID record_id)
+    -> std::pair<core::ecs::ID, RecordIndex>
+{
+    const auto [id, record_index] = m_ids.remove(record_id.underlying());
+    return std::make_pair(id, RecordIndex{ record_index });
 }
 
 constexpr auto LookupTable::erase(const RecordID record_id)
