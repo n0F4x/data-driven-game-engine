@@ -89,11 +89,9 @@ public:
         return std::ranges::equal(m_sorted_component_ids, other.m_sorted_component_ids);
     }
 
-    constexpr auto operator<(const Archetype& other) const noexcept
+    constexpr auto operator<=>(const Archetype& other) const noexcept
     {
-        return std::ranges::lexicographical_compare(
-            m_sorted_component_ids, other.m_sorted_component_ids
-        );
+        return m_sorted_component_ids <=> other.m_sorted_component_ids;
     }
 
     [[nodiscard]]

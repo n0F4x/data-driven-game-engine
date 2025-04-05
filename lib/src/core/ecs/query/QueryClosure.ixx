@@ -365,7 +365,7 @@ auto QueryClosure<Parameters_T...>::queried_type_view_from(
     const ArchetypeID archetype_id
 ) -> std::span<const core::ecs::ID>
 {
-    return registry.m_archetypes.find(archetype_id)->second.ids();
+    return registry.m_lookup_tables.find(archetype_id)->second.ids();
 }
 
 template <core::ecs::query_parameter_c... Parameters_T>

@@ -5,8 +5,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${ENGINE_SRC_DIR}
         FILES
         ecs.cppm
-        LookupTable.ixx
-        ArchetypeTable.ixx
         ArchetypeID.ixx
         Archetype.ixx
         component_c.ixx
@@ -18,6 +16,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         ErasedComponentContainer.ixx
         ErasedComponentContainer-fwd.ixx
         ID.ixx
+        LookupTable.ixx
+        LookupTableMap.ixx
         RecordID.ixx
         RecordIndex.ixx
         Registry.ixx
