@@ -1,5 +1,6 @@
 module;
 
+#include <optional>
 #include <unordered_map>
 
 #include "utility/contracts.hpp"
@@ -88,9 +89,9 @@ auto LookupTableMap::get_lookup_table(const ArchetypeID archetype_id) const
     return const_cast<LookupTableMap&>(*this).get_lookup_table(archetype_id);
 }
 
-auto LookupTableMap::get_iterator(const ArchetypeID archetype_id) -> Container::iterator
+auto LookupTableMap::get_iterator(const ArchetypeID archetype_id) -> Iterator
 {
-    Container::iterator result = m_map.find(archetype_id);
+    const Iterator result = m_map.find(archetype_id);
     PRECOND(result != m_map.cend());
     return result;
 }

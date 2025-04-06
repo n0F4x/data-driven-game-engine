@@ -100,13 +100,11 @@ public:
     auto contains_all(core::ecs::ID id) const noexcept -> bool;
 
     template <::decays_to_component_c... Components_T>
-        requires(sizeof...(Components_T) > 0)
-             && util::meta::all_different_c<std::decay_t<Components_T>...>
+        requires util::meta::all_different_c<std::decay_t<Components_T>...>
     auto insert(core::ecs::ID id, Components_T&&... components) -> void;
 
     template <::decays_to_component_c... Components_T>
-        requires(sizeof...(Components_T) > 0)
-             && util::meta::all_different_c<std::decay_t<Components_T>...>
+        requires util::meta::all_different_c<std::decay_t<Components_T>...>
     auto insert_or_replace(core::ecs::ID id, Components_T&&... components) -> void;
 
     template <component_c... Components_T>
@@ -163,6 +161,11 @@ private:
         RecordIndex              record_index,
         Components_T&&... components
     ) -> Entity;
+
+    template <component_c... Components_T>
+        requires(sizeof...(Components_T) > 0)
+             && util::meta::all_different_c<Components_T...>
+    auto remove(core::ecs::ID id, Entity& entity) -> std::tuple<Components_T...>;
 };
 
 }   // namespace core::ecs
@@ -337,47 +340,54 @@ auto core::ecs::Registry::contains_all(const core::ecs::ID id) const noexcept ->
 }
 
 template <::decays_to_component_c... Components_T>
-    requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
+    requires util::meta::all_different_c<std::decay_t<Components_T>...>
 auto core::ecs::Registry::insert(const core::ecs::ID id, Components_T&&... components)
     -> void
 {
-    auto& [archetype_id, record_id]{ get_entity(id) };
+    if constexpr (sizeof...(Components_T) > 0) {
+        auto& [archetype_id, record_id]{ get_entity(id) };
 
-    archetype_id =
-        insert(id, archetype_id, record_id, std::forward<Components_T>(components)...);
+        archetype_id = insert(
+            id, archetype_id, record_id, std::forward<Components_T>(components)...
+        );
+    }
 }
 
 template <::decays_to_component_c... Components_T>
-    requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
+    requires util::meta::all_different_c<std::decay_t<Components_T>...>
 auto core::ecs::Registry::insert_or_replace(
     const core::ecs::ID id,
     Components_T&&... components
 ) -> void
 {
-    auto& entity{ get_entity(id) };
+    if constexpr (sizeof...(Components_T) > 0) {
+        auto& entity{ get_entity(id) };
 
-    const auto lookup_tables_iterator{ m_lookup_tables.get_iterator(entity.archetype_id) };
+        const auto lookup_tables_iterator{
+            m_lookup_tables.get_iterator(entity.archetype_id)
+        };
 
-    const RecordIndex record_index{ lookup_tables_iterator->second.get(entity.record_id) };
+        const RecordIndex record_index{
+            lookup_tables_iterator->second.get(entity.record_id)
+        };
 
-    if (entity.archetype_id->contains_all_of_components<Components_T...>()) {
-        replace_components(
-            m_component_tables,
-            entity.archetype_id,
-            record_index,
-            std::forward<Components_T>(components)...
-        );
-    }
-    else {
-        entity = forced_insert_or_replace(
-            id,
-            entity,
-            lookup_tables_iterator,
-            record_index,
-            std::forward<Components_T>(components)...
-        );
+        if (entity.archetype_id->contains_all_of_components<Components_T...>()) {
+            replace_components(
+                m_component_tables,
+                entity.archetype_id,
+                record_index,
+                std::forward<Components_T>(components)...
+            );
+        }
+        else {
+            entity = forced_insert_or_replace(
+                id,
+                entity,
+                lookup_tables_iterator,
+                record_index,
+                std::forward<Components_T>(components)...
+            );
+        }
     }
 }
 
@@ -385,41 +395,111 @@ template <core::ecs::component_c... Components_T>
     requires util::meta::all_different_c<Components_T...>
 auto core::ecs::Registry::remove(const core::ecs::ID id) -> std::tuple<Components_T...>
 {
-    auto& [archetype_id, record_id]{ get_entity(id) };
-    PRECOND(archetype_id->contains_all_of_components<Components_T...>());
+    if constexpr (sizeof...(Components_T) == 0) {
+        return {};
+    }
+    else {
+        return remove<Components_T...>(id, get_entity(id));
+    }
+}
 
-    const std::ranges::view auto new_component_ids{
-        archetype_id->sorted_component_ids()
-        | std::views::filter([](const ComponentID component_id) {
-              return !std::ranges::binary_search(
-                  component_id_set_from<Components_T...>(), component_id
-              );
-          })
-    };
+template <core::ecs::component_c... Components_T>
+    requires util::meta::all_different_c<Components_T...>
+auto core::ecs::Registry::erase(const core::ecs::ID id)
+    -> std::tuple<std::optional<Components_T>...>
+{
+    if constexpr (sizeof...(Components_T) == 0) {
+        return {};
+    }
+    else {
+        return find_entity(id)
+            .transform(
+                [this,
+                 id](::Entity& entity) -> std::tuple<std::optional<Components_T>...> {
+                    const auto [archetype_id, record_id]{ entity };
 
-    const ArchetypeID new_archetype_id{ archetype_from(new_component_ids) };
+                    const std::ranges::view auto new_component_ids{
+                        archetype_id->sorted_component_ids()
+                        | std::views::filter([](const ComponentID component_id) {
+                              return !std::ranges::binary_search(
+                                  component_id_set_from<Components_T...>(), component_id
+                              );
+                          })
+                    };
+
+                    const ArchetypeID new_archetype_id{
+                        archetype_from(new_component_ids)
+                    };
+
+                    if (archetype_id == new_archetype_id) {
+                        return {};
+                    }
 
 
-    const auto [removed_id, record_index] =
-        m_lookup_tables.remove(archetype_id, record_id);
-    assert(removed_id == id);
+                    const auto [removed_id, record_index] =
+                        m_lookup_tables.remove(archetype_id, record_id);
+                    assert(removed_id == id);
 
-    m_lookup_tables.insert(id, new_archetype_id);
-
-
-    std::tuple<Components_T...> result = remove_components<Components_T...>(
-        m_component_tables, archetype_id, record_index
-    );
-
-    move_components(
-        m_component_tables, new_component_ids, archetype_id, record_index, new_archetype_id
-    );
+                    const RecordID new_record_id =
+                        std::get<RecordID>(m_lookup_tables.insert(id, new_archetype_id));
 
 
-    archetype_id = new_archetype_id;
+                    std::tuple<std::optional<Components_T>...> result = std::make_tuple(
+                        [this, archetype_id, record_index]<
+                            typename Component_T>(std::type_identity<Component_T>)
+                            -> std::optional<Component_T> {
+                            if (!archetype_id->contains_all_of_components<Component_T>())
+                            {
+                                return std::nullopt;
+                            }
+
+                            return m_component_tables.remove_component<Component_T>(
+                                archetype_id, record_index
+                            );
+                        }(std::type_identity<Components_T>{})...
+                    );
+
+                    move_components(
+                        m_component_tables,
+                        new_component_ids,
+                        archetype_id,
+                        record_index,
+                        new_archetype_id
+                    );
 
 
-    return result;
+                    entity = ::Entity{
+                        .archetype_id = new_archetype_id,
+                        .record_id    = new_record_id,
+                    };
+
+
+                    return result;
+                }
+            )
+            .value_or(std::tuple<std::optional<Components_T>...>{});
+    }
+}
+
+template <core::ecs::component_c... Components_T>
+    requires util::meta::all_different_c<Components_T...>
+auto core::ecs::Registry::erase_all(const core::ecs::ID id)
+    -> std::optional<std::tuple<Components_T...>>
+{
+    if constexpr (sizeof...(Components_T) == 0) {
+        return std::optional{ std::tuple<Components_T...>{} };
+    }
+    else {
+        return find_entity(id).and_then(
+            [this, id](::Entity& entity) -> std::optional<std::tuple<Components_T...>> {
+                if (!entity.archetype_id->contains_all_of_components<Components_T...>()) {
+                    return std::nullopt;
+                }
+
+                return remove<Components_T...>(id, entity);
+            }
+        );
+    }
 }
 
 template <typename Self_T>
@@ -526,4 +606,47 @@ auto core::ecs::Registry::forced_insert_or_replace(
 
 
     return Entity{ .archetype_id = new_archetype_id, .record_id = new_record_id };
+}
+
+template <core::ecs::component_c... Components_T>
+    requires(sizeof...(Components_T) > 0) && util::meta::all_different_c<Components_T...>
+auto core::ecs::Registry::remove(const core::ecs::ID id, Entity& entity)
+    -> std::tuple<Components_T...>
+{
+    const auto [archetype_id, record_id]{ entity };
+    PRECOND(archetype_id->contains_all_of_components<Components_T...>());
+
+    const std::ranges::view auto new_component_ids{
+        archetype_id->sorted_component_ids()
+        | std::views::filter([](const ComponentID component_id) {
+              return !std::ranges::binary_search(
+                  component_id_set_from<Components_T...>(), component_id
+              );
+          })
+    };
+
+    const ArchetypeID new_archetype_id{ archetype_from(new_component_ids) };
+
+
+    const auto [removed_id, record_index] =
+        m_lookup_tables.remove(archetype_id, record_id);
+    assert(removed_id == id);
+
+    const RecordID new_record_id =
+        std::get<RecordID>(m_lookup_tables.insert(id, new_archetype_id));
+
+
+    std::tuple<Components_T...> result = remove_components<Components_T...>(
+        m_component_tables, archetype_id, record_index
+    );
+
+    move_components(
+        m_component_tables, new_component_ids, archetype_id, record_index, new_archetype_id
+    );
+
+
+    entity = ::Entity{ .archetype_id = new_archetype_id, .record_id = new_record_id };
+
+
+    return result;
 }

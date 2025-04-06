@@ -548,6 +548,8 @@ TEST_CASE("core::ecs::Registry")
     {
         const auto id = registry.create(float{}, double{});
 
+        registry.insert(id);
+
         registry.insert(id, int8_t{}, int16_t{});
         REQUIRE(registry.contains_all<float, double, int8_t, int16_t>(id));
 
@@ -564,6 +566,8 @@ TEST_CASE("core::ecs::Registry")
     SECTION("insert_or_replace")
     {
         const auto id = registry.create(float{}, double{});
+
+        registry.insert_or_replace(id);
 
         registry.insert_or_replace(id, int8_t{}, int16_t{});
         REQUIRE(registry.contains_all<float, double, int8_t, int16_t>(id));
@@ -584,7 +588,11 @@ TEST_CASE("core::ecs::Registry")
         const auto id =
             registry.create(float{}, double{}, int8_t{}, int16_t{}, int32_t{}, int64_t{});
 
-        registry.remove<int32_t, int64_t>(id);
+        decltype(auto) result_0 = registry.remove(id);
+        static_assert(std::is_same_v<decltype(result_0), std::tuple<>>);
+
+        decltype(auto) result_1 = registry.remove<int32_t, int64_t>(id);
+        static_assert(std::is_same_v<decltype(result_1), std::tuple<int32_t, int64_t>>);
         REQUIRE(registry.contains_all<float, double, int8_t, int16_t>(id));
         REQUIRE_FALSE(registry.contains_all<int32_t>(id));
         REQUIRE_FALSE(registry.contains_all<int64_t>(id));
@@ -595,5 +603,57 @@ TEST_CASE("core::ecs::Registry")
         );
         REQUIRE_THROWS_AS(registry.remove<int32_t>(id), util::PreconditionViolation);
         REQUIRE_THROWS_AS(registry.remove<int64_t>(id), util::PreconditionViolation);
+    }
+
+    SECTION("erase")
+    {
+        const auto id =
+            registry.create(float{}, double{}, int8_t{}, int16_t{}, int32_t{}, int64_t{});
+
+        decltype(auto) result_0 = registry.erase(id);
+        static_assert(std::is_same_v<decltype(result_0), std::tuple<>>);
+
+        decltype(auto) result_1 = registry.erase<int64_t, uint64_t>(id);
+        static_assert(std::is_same_v<
+                      decltype(result_1),
+                      std::tuple<std::optional<int64_t>, std::optional<uint64_t>>>);
+        REQUIRE(std::get<std::optional<int64_t>>(result_1).has_value());
+        REQUIRE_FALSE(std::get<std::optional<uint64_t>>(result_1).has_value());
+        REQUIRE(registry.contains_all<float, double, int8_t, int16_t, int32_t>(id));
+        REQUIRE_FALSE(registry.contains_all<int64_t>(id));
+        REQUIRE_FALSE(registry.contains_all<uint64_t>(id));
+
+        REQUIRE_FALSE(
+            std::get<std::optional<float>>(
+                registry.erase<float>(core::ecs::Registry::null_id)
+            )
+                .has_value()
+        );
+        REQUIRE_FALSE(
+            std::get<std::optional<int64_t>>(registry.erase<int64_t>(id)).has_value()
+        );
+    }
+
+    SECTION("erase_all")
+    {
+        const auto id =
+            registry.create(float{}, double{}, int8_t{}, int16_t{}, int32_t{}, int64_t{});
+
+        decltype(auto) result_0 = registry.erase_all(id);
+        static_assert(std::is_same_v<decltype(result_0), std::optional<std::tuple<>>>);
+        REQUIRE(result_0.has_value());
+
+        decltype(auto) result_1 = registry.erase_all<int32_t, int64_t>(id);
+        static_assert(std::is_same_v<
+                      decltype(result_1),
+                      std::optional<std::tuple<int32_t, int64_t>>>);
+        REQUIRE(result_1.has_value());
+        REQUIRE(registry.contains_all<float, double, int8_t, int16_t>(id));
+        REQUIRE_FALSE(registry.contains_all<int32_t>(id));
+        REQUIRE_FALSE(registry.contains_all<int64_t>(id));
+
+        REQUIRE_FALSE(registry.erase_all<float>(core::ecs::Registry::null_id).has_value());
+        REQUIRE_FALSE(registry.erase_all<int32_t>(id).has_value());
+        REQUIRE_FALSE(registry.erase_all<int64_t>(id).has_value());
     }
 }
