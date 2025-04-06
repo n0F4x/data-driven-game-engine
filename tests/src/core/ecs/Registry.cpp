@@ -605,6 +605,25 @@ TEST_CASE("core::ecs::Registry")
         REQUIRE_THROWS_AS(registry.remove<int64_t>(id), util::PreconditionViolation);
     }
 
+    SECTION("remove_single")
+    {
+        const auto id =
+            registry.create(float{}, double{}, int8_t{}, int16_t{}, int32_t{}, int64_t{});
+
+        decltype(auto) result = registry.remove_single<int64_t>(id);
+        static_assert(std::is_same_v<decltype(result), int64_t>);
+        REQUIRE(registry.contains_all<float, double, int8_t, int16_t, int32_t>(id));
+        REQUIRE_FALSE(registry.contains_all<int64_t>(id));
+
+        REQUIRE_THROWS_AS(
+            registry.remove_single<float>(core::ecs::Registry::null_id),
+            util::PreconditionViolation
+        );
+        REQUIRE_THROWS_AS(
+            registry.remove_single<int64_t>(id), util::PreconditionViolation
+        );
+    }
+
     SECTION("erase")
     {
         const auto id =
@@ -655,5 +674,22 @@ TEST_CASE("core::ecs::Registry")
         REQUIRE_FALSE(registry.erase_all<float>(core::ecs::Registry::null_id).has_value());
         REQUIRE_FALSE(registry.erase_all<int32_t>(id).has_value());
         REQUIRE_FALSE(registry.erase_all<int64_t>(id).has_value());
+    }
+
+    SECTION("erase_single")
+    {
+        const auto id =
+            registry.create(float{}, double{}, int8_t{}, int16_t{}, int32_t{}, int64_t{});
+
+        decltype(auto) result = registry.erase_single<int64_t>(id);
+        static_assert(std::is_same_v<decltype(result), std::optional<int64_t>>);
+        REQUIRE(result.has_value());
+        REQUIRE(registry.contains_all<float, double, int8_t, int16_t, int32_t>(id));
+        REQUIRE_FALSE(registry.contains_all<int64_t>(id));
+
+        REQUIRE_FALSE(
+            registry.erase_single<float>(core::ecs::Registry::null_id).has_value()
+        );
+        REQUIRE_FALSE(registry.erase_single<int64_t>(id).has_value());
     }
 }

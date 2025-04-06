@@ -111,6 +111,9 @@ public:
         requires util::meta::all_different_c<Components_T...>
     auto remove(core::ecs::ID id) -> std::tuple<Components_T...>;
 
+    template <component_c Component_T>
+    auto remove_single(core::ecs::ID id) -> Component_T;
+
     template <component_c... Components_T>
         requires util::meta::all_different_c<Components_T...>
     auto erase(core::ecs::ID id) -> std::tuple<std::optional<Components_T>...>;
@@ -118,6 +121,9 @@ public:
     template <component_c... Components_T>
         requires util::meta::all_different_c<Components_T...>
     auto erase_all(core::ecs::ID id) -> std::optional<std::tuple<Components_T...>>;
+
+    template <component_c Component_T>
+    auto erase_single(core::ecs::ID id) -> std::optional<Component_T>;
 
 private:
     template <query_parameter_c... Parameters_T>
@@ -403,6 +409,12 @@ auto core::ecs::Registry::remove(const core::ecs::ID id) -> std::tuple<Component
     }
 }
 
+template <core::ecs::component_c Component_T>
+auto core::ecs::Registry::remove_single(const core::ecs::ID id) -> Component_T
+{
+    return std::get<0>(remove<Component_T>(id, get_entity(id)));
+}
+
 template <core::ecs::component_c... Components_T>
     requires util::meta::all_different_c<Components_T...>
 auto core::ecs::Registry::erase(const core::ecs::ID id)
@@ -500,6 +512,20 @@ auto core::ecs::Registry::erase_all(const core::ecs::ID id)
             }
         );
     }
+}
+
+template <core::ecs::component_c Component_T>
+auto core::ecs::Registry::erase_single(core::ecs::ID id) -> std::optional<Component_T>
+{
+    return find_entity(id).and_then(
+        [this, id](::Entity& entity) -> std::optional<Component_T> {
+            if (!entity.archetype_id->contains_all_of_components<Component_T>()) {
+                return std::nullopt;
+            }
+
+            return std::get<0>(remove<Component_T>(id, entity));
+        }
+    );
 }
 
 template <typename Self_T>
