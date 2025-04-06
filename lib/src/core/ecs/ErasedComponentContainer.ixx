@@ -15,23 +15,23 @@ import utility.meta.concepts.nothrow_movable;
 import :ArchetypeID;
 import :component_c;
 import :ComponentContainer;
-import :ComponentTable;
+import :ComponentTable.fwd;
 import :ComponentTag;
 import :RecordIndex;
 
 class ErasedComponentContainer;
 
 struct ErasedComponentContainerOperations {
-    using EraseFunc  = auto (*)(ErasedComponentContainer&, RecordIndex) -> bool;
     using RemoveFunc = auto (*)(ErasedComponentContainer&, RecordIndex) -> void;
+    using EraseFunc  = auto (*)(ErasedComponentContainer&, RecordIndex) -> bool;
     using EmptyFunc  = auto (*)(const ErasedComponentContainer&) -> bool;
     using SizeFunc   = auto (*)(const ErasedComponentContainer&) -> size_t;
     using MoveOutToFunc =
         auto (*)(ErasedComponentContainer&, RecordIndex, ComponentTable&, ArchetypeID)
             -> RecordIndex;
 
-    gsl::not_null_ic<EraseFunc>     erase;
     gsl::not_null_ic<RemoveFunc>    remove;
+    gsl::not_null_ic<EraseFunc>     erase;
     gsl::not_null_ic<EmptyFunc>     empty;
     gsl::not_null_ic<SizeFunc>      size;
     gsl::not_null_ic<MoveOutToFunc> move_out_to;
@@ -39,8 +39,8 @@ struct ErasedComponentContainerOperations {
 
 template <core::ecs::component_c Component_T>
 struct ErasedComponentContainerTraits {
-    constexpr static auto erase(ErasedComponentContainer&, RecordIndex) -> bool;
     constexpr static auto remove(ErasedComponentContainer&, RecordIndex) -> void;
+    constexpr static auto erase(ErasedComponentContainer&, RecordIndex) -> bool;
 
     [[nodiscard]]
     constexpr static auto empty(const ErasedComponentContainer&) -> bool;
@@ -52,14 +52,13 @@ struct ErasedComponentContainerTraits {
             -> RecordIndex;
 
     constexpr static ErasedComponentContainerOperations s_operations{
-        .erase       = erase,
         .remove      = remove,
+        .erase       = erase,
         .empty       = empty,
         .size        = size,
         .move_out_to = move_out_to,
     };
 
-private:
     constexpr static auto erase_impl(ErasedComponentContainer&, RecordIndex)
         -> std::optional<Component_T>;
     constexpr static auto remove_impl(ErasedComponentContainer&, RecordIndex)
@@ -76,8 +75,10 @@ public:
     template <core::ecs::component_c Component_T>
     constexpr explicit ErasedComponentContainer(ComponentTag<Component_T>);
 
-    constexpr auto erase(RecordIndex record_index) -> bool;
     constexpr auto remove(RecordIndex record_index) -> void;
+    template <core::ecs::component_c Component_T>
+    constexpr auto remove(RecordIndex record_index) -> Component_T;
+    constexpr auto erase(RecordIndex record_index) -> bool;
 
     [[nodiscard]]
     constexpr auto empty() const noexcept -> bool;
@@ -95,21 +96,21 @@ private:
 };
 
 template <core::ecs::component_c Component_T>
-constexpr auto ErasedComponentContainerTraits<Component_T>::erase(
-    ErasedComponentContainer& self,
-    const RecordIndex         record_index
-) -> bool
-{
-    return erase_impl(self, record_index).has_value();
-}
-
-template <core::ecs::component_c Component_T>
 constexpr auto ErasedComponentContainerTraits<Component_T>::remove(
     ErasedComponentContainer& self,
     const RecordIndex         record_index
 ) -> void
 {
     remove_impl(self, record_index);
+}
+
+template <core::ecs::component_c Component_T>
+constexpr auto ErasedComponentContainerTraits<Component_T>::erase(
+    ErasedComponentContainer& self,
+    const RecordIndex         record_index
+) -> bool
+{
+    return erase_impl(self, record_index).has_value();
 }
 
 template <core::ecs::component_c Component_T>
@@ -137,24 +138,12 @@ constexpr auto ErasedComponentContainerTraits<Component_T>::size(
 }
 
 template <core::ecs::component_c Component_T>
-constexpr auto ErasedComponentContainerTraits<Component_T>::move_out_to(
+constexpr auto ErasedComponentContainerTraits<Component_T>::remove_impl(
     ErasedComponentContainer& self,
-    const RecordIndex         record_index,
-    ComponentTable&           component_table,
-    const ArchetypeID         archetype_id
-) -> RecordIndex
+    const RecordIndex         record_index
+) -> Component_T
 {
-    PRECOND(archetype_id->contains_all_of_components<Component_T>());
-
-    ErasedComponentContainer& other{
-        component_table.try_emplace(archetype_id, component_tag<Component_T>).first->second
-    };
-
-    other
-        .get<ComponentContainer<Component_T>>()   //
-        .push_back(remove_impl(self, record_index));
-
-    return RecordIndex{ static_cast<RecordIndex::Underlying>(other.size() - 1uz) };
+    return self.get<ComponentContainer<Component_T>>().remove(record_index);
 }
 
 template <core::ecs::component_c Component_T>
@@ -163,42 +152,7 @@ constexpr auto ErasedComponentContainerTraits<Component_T>::erase_impl(
     const RecordIndex         record_index
 ) -> std::optional<Component_T>
 {
-    ComponentContainer<Component_T>& component_container{
-        self.get<ComponentContainer<Component_T>>()
-    };
-
-    if (record_index.underlying() >= component_container.size()) {
-        return std::nullopt;
-    }
-
-    std::optional<Component_T> result{
-        std::move(component_container[record_index.underlying()])
-    };
-
-    component_container[record_index.underlying()] = std::move(component_container.back());
-    component_container.pop_back();
-
-    return result;
-}
-
-template <core::ecs::component_c Component_T>
-constexpr auto ErasedComponentContainerTraits<Component_T>::remove_impl(
-    ErasedComponentContainer& self,
-    const RecordIndex         record_index
-) -> Component_T
-{
-    ComponentContainer<Component_T>& component_container{
-        self.get<ComponentContainer<Component_T>>()
-    };
-
-    PRECOND(record_index.underlying() < component_container.size());
-
-    Component_T result{ std::move(component_container[record_index.underlying()]) };
-
-    component_container[record_index.underlying()] = std::move(component_container.back());
-    component_container.pop_back();
-
-    return result;
+    return self.get<ComponentContainer<Component_T>>().erase(record_index);
 }
 
 template <core::ecs::component_c Component_T>
@@ -215,6 +169,13 @@ constexpr auto ErasedComponentContainer::erase(const RecordIndex record_index) -
 constexpr auto ErasedComponentContainer::remove(const RecordIndex record_index) -> void
 {
     return m_operations->remove.operator->()(*this, record_index);
+}
+
+template <core::ecs::component_c Component_T>
+constexpr auto ErasedComponentContainer::remove(const RecordIndex record_index)
+    -> Component_T
+{
+    return ErasedComponentContainerTraits<Component_T>::remove_impl(*this, record_index);
 }
 
 constexpr auto ErasedComponentContainer::empty() const noexcept -> bool

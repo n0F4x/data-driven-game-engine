@@ -9,6 +9,7 @@ import core.ecs;
 import utility.containers.OptionalRef;
 import utility.meta.algorithms.for_each;
 import utility.meta.reflection.name_of;
+import utility.meta.type_traits.const_like;
 import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.underlying;
 import utility.tuple.tuple_all_of;
@@ -64,20 +65,30 @@ TEST_CASE("core::ecs::Registry")
                 ) integer_tuple{ static_cast<Registry_T>(registry).template get<int>(id) };
                 static_assert(std::is_same_v<
                               decltype(integer_tuple),
-                              std::tuple<util::meta::forward_like_t<int, Registry_T>>>);
-                REQUIRE(
-                    (std::get<util::meta::forward_like_t<int, Registry_T>>(integer_tuple)
-                     == integer)
-                );
+                              std::tuple<util::meta::const_like_t<
+                                  int,
+                                  std::remove_reference_t<Registry_T>>&>>);
+                REQUIRE((
+                    std::get<util::meta::
+                                 const_like_t<int, std::remove_reference_t<Registry_T>>&>(
+                        integer_tuple
+                    )
+                    == integer
+                ));
 
                 decltype(auto) floating_tuple{
                     static_cast<Registry_T>(registry).template get<float>(id)
                 };
                 static_assert(std::is_same_v<
                               decltype(floating_tuple),
-                              std::tuple<util::meta::forward_like_t<float, Registry_T>>>);
+                              std::tuple<util::meta::const_like_t<
+                                  float,
+                                  std::remove_reference_t<Registry_T>>&>>);
                 REQUIRE((
-                    std::get<util::meta::forward_like_t<float, Registry_T>>(floating_tuple)
+                    std::get<util::meta::
+                                 const_like_t<float, std::remove_reference_t<Registry_T>>&>(
+                        floating_tuple
+                    )
                     == floating
                 ));
 
@@ -87,8 +98,11 @@ TEST_CASE("core::ecs::Registry")
                 static_assert(std::is_same_v<
                               decltype(combined_tuple),
                               std::tuple<
-                                  util::meta::forward_like_t<int, Registry_T>,
-                                  util::meta::forward_like_t<float, Registry_T>>>);
+                                  util::meta::
+                                      const_like_t<int, std::remove_reference_t<Registry_T>>&,
+                                  util::meta::const_like_t<
+                                      float,
+                                      std::remove_reference_t<Registry_T>>&>>);
                 REQUIRE(combined_tuple == std::make_tuple(integer, floating));
 
                 decltype(auto) shuffled_tuple{
@@ -97,8 +111,12 @@ TEST_CASE("core::ecs::Registry")
                 static_assert(std::is_same_v<
                               decltype(shuffled_tuple),
                               std::tuple<
-                                  util::meta::forward_like_t<float, Registry_T>,
-                                  util::meta::forward_like_t<int, Registry_T>>>);
+                                  util::meta::const_like_t<
+                                      float,
+                                      std::remove_reference_t<Registry_T>>&,
+                                  util::meta::const_like_t<
+                                      int,
+                                      std::remove_reference_t<Registry_T>>&>>);
                 REQUIRE(shuffled_tuple == std::make_tuple(floating, integer));
 
                 REQUIRE_THROWS_AS(
@@ -142,7 +160,8 @@ TEST_CASE("core::ecs::Registry")
                 };
                 static_assert(std::is_same_v<
                               decltype(integer_result),
-                              util::meta::forward_like_t<int, Registry_T>>);
+                              util::meta::
+                                  const_like_t<int, std::remove_reference_t<Registry_T>>&>);
                 REQUIRE(integer_result == integer);
 
                 decltype(auto) floating_result{
@@ -150,7 +169,8 @@ TEST_CASE("core::ecs::Registry")
                 };
                 static_assert(std::is_same_v<
                               decltype(floating_result),
-                              util::meta::forward_like_t<float, Registry_T>>);
+                              util::meta::
+                                  const_like_t<float, std::remove_reference_t<Registry_T>>&>);
                 REQUIRE(floating_result == floating);
 
                 REQUIRE_THROWS_AS(
@@ -196,8 +216,9 @@ TEST_CASE("core::ecs::Registry")
                 };
                 static_assert(std::is_same_v<
                               decltype(optional_integer_tuple),
-                              std::tuple<util::OptionalRef<std::remove_reference_t<
-                                  util::meta::forward_like_t<int, Registry_T>>>>>);
+                              std::tuple<util::OptionalRef<util::meta::const_like_t<
+                                  int,
+                                  std::remove_reference_t<Registry_T>>>>>);
                 REQUIRE(
                     util::tuple_all_of(
                         optional_integer_tuple,
@@ -206,21 +227,22 @@ TEST_CASE("core::ecs::Registry")
                         }
                     )
                 );
-                REQUIRE(
-                    (*std::get<util::OptionalRef<std::remove_reference_t<
-                         util::meta::forward_like_t<int, Registry_T>>>>(
-                         optional_integer_tuple
-                     )
-                     == integer)
-                );
+                REQUIRE((
+                    *std::get<util::OptionalRef<
+                        util::meta::const_like_t<int, std::remove_reference_t<Registry_T>>>>(
+                        optional_integer_tuple
+                    )
+                    == integer
+                ));
 
                 decltype(auto) optional_floating_tuple{
                     static_cast<Registry_T>(registry).template find<float>(id)
                 };
                 static_assert(std::is_same_v<
                               decltype(optional_floating_tuple),
-                              std::tuple<util::OptionalRef<std::remove_reference_t<
-                                  util::meta::forward_like_t<float, Registry_T>>>>>);
+                              std::tuple<util::OptionalRef<util::meta::const_like_t<
+                                  float,
+                                  std::remove_reference_t<Registry_T>>>>>);
                 REQUIRE(
                     util::tuple_all_of(
                         optional_floating_tuple,
@@ -230,8 +252,9 @@ TEST_CASE("core::ecs::Registry")
                     )
                 );
                 REQUIRE(
-                    (*std::get<util::OptionalRef<std::remove_reference_t<
-                         util::meta::forward_like_t<float, Registry_T>>>>(
+                    (*std::get<util::OptionalRef<
+                         util::meta::
+                             const_like_t<float, std::remove_reference_t<Registry_T>>>>(
                          optional_floating_tuple
                      )
                      == floating)
@@ -243,10 +266,12 @@ TEST_CASE("core::ecs::Registry")
                 static_assert(std::is_same_v<
                               decltype(optional_combined_tuple),
                               std::tuple<
-                                  util::OptionalRef<std::remove_reference_t<
-                                      util::meta::forward_like_t<int, Registry_T>>>,
-                                  util::OptionalRef<std::remove_reference_t<
-                                      util::meta::forward_like_t<float, Registry_T>>>>>);
+                                  util::OptionalRef<util::meta::const_like_t<
+                                      int,
+                                      std::remove_reference_t<Registry_T>>>,
+                                  util::OptionalRef<util::meta::const_like_t<
+                                      float,
+                                      std::remove_reference_t<Registry_T>>>>>);
                 REQUIRE(
                     util::tuple_all_of(
                         optional_combined_tuple,
@@ -279,10 +304,12 @@ TEST_CASE("core::ecs::Registry")
                 static_assert(std::is_same_v<
                               decltype(optional_shuffled_tuple),
                               std::tuple<
-                                  util::OptionalRef<std::remove_reference_t<
-                                      util::meta::forward_like_t<float, Registry_T>>>,
-                                  util::OptionalRef<std::remove_reference_t<
-                                      util::meta::forward_like_t<int, Registry_T>>>>>);
+                                  util::OptionalRef<util::meta::const_like_t<
+                                      float,
+                                      std::remove_reference_t<Registry_T>>>,
+                                  util::OptionalRef<util::meta::const_like_t<
+                                      int,
+                                      std::remove_reference_t<Registry_T>>>>>);
                 REQUIRE(
                     util::tuple_all_of(
                         optional_shuffled_tuple,
@@ -356,30 +383,34 @@ TEST_CASE("core::ecs::Registry")
                 };
                 static_assert(std::is_same_v<
                               decltype(optional_integer_tuple),
-                              std::optional<std::tuple<
-                                  util::meta::forward_like_t<int, Registry_T>>>>);
+                              std::optional<std::tuple<util::meta::const_like_t<
+                                  int,
+                                  std::remove_reference_t<Registry_T>>&>>>);
                 REQUIRE(optional_integer_tuple.has_value());
-                REQUIRE(
-                    (std::get<util::meta::forward_like_t<int, Registry_T>>(
-                         optional_integer_tuple.value()
-                     )
-                     == integer)
-                );
+                REQUIRE((
+                    std::get<util::meta::
+                                 const_like_t<int, std::remove_reference_t<Registry_T>>&>(
+                        optional_integer_tuple.value()
+                    )
+                    == integer
+                ));
 
                 decltype(auto) optional_floating_tuple{
                     static_cast<Registry_T>(registry).template find_all<float>(id)
                 };
                 static_assert(std::is_same_v<
                               decltype(optional_floating_tuple),
-                              std::optional<std::tuple<
-                                  util::meta::forward_like_t<float, Registry_T>>>>);
+                              std::optional<std::tuple<util::meta::const_like_t<
+                                  float,
+                                  std::remove_reference_t<Registry_T>>&>>>);
                 REQUIRE(optional_floating_tuple.has_value());
-                REQUIRE(
-                    (std::get<util::meta::forward_like_t<float, Registry_T>>(
-                         optional_floating_tuple.value()
-                     )
-                     == floating)
-                );
+                REQUIRE((
+                    std::get<util::meta::
+                                 const_like_t<float, std::remove_reference_t<Registry_T>>&>(
+                        optional_floating_tuple.value()
+                    )
+                    == floating
+                ));
 
                 decltype(auto) optional_combined_tuple{
                     static_cast<Registry_T>(registry).template find_all<int, float>(id)
@@ -387,8 +418,11 @@ TEST_CASE("core::ecs::Registry")
                 static_assert(std::is_same_v<
                               decltype(optional_combined_tuple),
                               std::optional<std::tuple<
-                                  util::meta::forward_like_t<int, Registry_T>,
-                                  util::meta::forward_like_t<float, Registry_T>>>>);
+                                  util::meta::
+                                      const_like_t<int, std::remove_reference_t<Registry_T>>&,
+                                  util::meta::const_like_t<
+                                      float,
+                                      std::remove_reference_t<Registry_T>>&>>>);
                 REQUIRE(optional_combined_tuple.has_value());
                 REQUIRE(
                     optional_combined_tuple.value() == std::make_tuple(integer, floating)
@@ -400,8 +434,11 @@ TEST_CASE("core::ecs::Registry")
                 static_assert(std::is_same_v<
                               decltype(optional_shuffled_tuple),
                               std::optional<std::tuple<
-                                  util::meta::forward_like_t<float, Registry_T>,
-                                  util::meta::forward_like_t<int, Registry_T>>>>);
+                                  util::meta::
+                                      const_like_t<float, std::remove_reference_t<Registry_T>>&,
+                                  util::meta::const_like_t<
+                                      int,
+                                      std::remove_reference_t<Registry_T>>&>>>);
                 REQUIRE(optional_shuffled_tuple.has_value());
                 REQUIRE(
                     optional_shuffled_tuple.value() == std::make_tuple(floating, integer)
@@ -447,8 +484,9 @@ TEST_CASE("core::ecs::Registry")
                 };
                 static_assert(std::is_same_v<
                               decltype(integer_result),
-                              util::OptionalRef<std::remove_reference_t<
-                                  util::meta::forward_like_t<int, Registry_T>>>>);
+                              util::OptionalRef<util::meta::const_like_t<
+                                  int,
+                                  std::remove_reference_t<Registry_T>>>>);
                 REQUIRE(integer_result.has_value());
                 REQUIRE(integer_result.has_value());
                 REQUIRE(*integer_result == integer);
@@ -458,8 +496,9 @@ TEST_CASE("core::ecs::Registry")
                 };
                 static_assert(std::is_same_v<
                               decltype(floating_result),
-                              util::OptionalRef<std::remove_reference_t<
-                                  util::meta::forward_like_t<float, Registry_T>>>>);
+                              util::OptionalRef<util::meta::const_like_t<
+                                  float,
+                                  std::remove_reference_t<Registry_T>>>>);
                 REQUIRE(floating_result.has_value());
                 REQUIRE(*floating_result == floating);
 

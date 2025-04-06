@@ -146,7 +146,7 @@ private:
     consteval static auto include_index_of() -> size_t;
 
     [[nodiscard]]
-    static auto fill_included_component_tables(
+    static auto fill_included_component_table_pointers(
         std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                              included_component_table_pointers,
         core::ecs::Registry& registry
@@ -201,7 +201,9 @@ private:
         std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                     included_component_table_pointers,
         ArchetypeID archetype_id
-    ) -> ComponentContainer<util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>&;
+    ) ->
+        typename ComponentContainer<
+            util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>::Underlying&;
 };
 
 template <core::ecs::query_parameter_c... Parameters_T>
@@ -215,7 +217,10 @@ auto QueryClosure<Parameters_T...>::operator()(core::ecs::Registry& registry, F&
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>
         included_component_table_pointers{};
 
-    if (!fill_included_component_tables(included_component_table_pointers, registry)) {
+    if (!fill_included_component_table_pointers(
+            included_component_table_pointers, registry
+        ))
+    {
         return std::forward<F>(func);
     };
 
@@ -252,7 +257,7 @@ consteval auto QueryClosure<Parameters_T...>::include_index_of() -> size_t
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto QueryClosure<Parameters_T...>::fill_included_component_tables(
+auto QueryClosure<Parameters_T...>::fill_included_component_table_pointers(
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                          included_component_table_pointers,
     core::ecs::Registry& registry
@@ -261,14 +266,13 @@ auto QueryClosure<Parameters_T...>::fill_included_component_tables(
     if (util::meta::any_of<
             std::make_index_sequence<util::meta::type_list_size_v<IncludedComponents>>>(
             [&registry, &included_component_table_pointers]<size_t index_T> {
-                if (const auto iterator = registry.m_component_tables.find(
-                        component_id_of<
-                            util::meta::type_list_at_t<IncludedComponents, index_T>>()
-                    );
-                    iterator != registry.m_component_tables.cend())
+                if (const util::OptionalRef<ComponentTable> optional_component_table_ref =
+                        registry.m_component_tables.find_component_table<
+                            util::meta::type_list_at_t<IncludedComponents, index_T>>();
+                    optional_component_table_ref.has_value())
                 {
                     included_component_table_pointers[index_T] =
-                        std::addressof(iterator->second);
+                        std::addressof(*optional_component_table_ref);
                     return false;
                 }
                 return util::meta::type_list_contains_v<
@@ -312,7 +316,7 @@ auto QueryClosure<Parameters_T...>::matching_archetype_ids_from(
     ComponentTable& component_table
 )
 {
-    return component_table
+    return component_table.underlying()
          | std::views::transform(
                &std::pair<const ArchetypeID, ErasedComponentContainer>::first
          )
@@ -393,15 +397,16 @@ auto QueryClosure<Parameters_T...>::queried_type_view_from(
             util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>{};
     }
 
-    const auto component_table_iterator = component_table_ptr->find(archetype_id);
-    if (component_table_iterator == component_table_ptr->cend()) {
+    util::OptionalRef optional_component_container{
+        component_table_ptr->find_component_container<
+            util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>(archetype_id)
+    };
+    if (!optional_component_container.has_value()) {
         return OptionalView<
             util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>{};
     }
 
-    return OptionalView{ std::span{ component_table_iterator->second.get<
-        ComponentContainer<util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>>(
-    ) } };
+    return OptionalView{ std::span{ optional_component_container->underlying() } };
 }
 
 template <core::ecs::query_parameter_c... Parameters_T>
@@ -412,11 +417,15 @@ auto QueryClosure<Parameters_T...>::queried_type_view_from(
     std::array<ComponentTable*, util::meta::type_list_size_v<IncludedComponents>>&
                       included_component_table_pointers,
     const ArchetypeID archetype_id
-) -> ComponentContainer<util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>&
+) ->
+    typename ComponentContainer<
+        util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>::Underlying&
 {
     return included_component_table_pointers
         [include_index_of<util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>()]
-            ->find(archetype_id)
-            ->second.template get<ComponentContainer<
-                util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>>();
+            ->template get_component_container<
+                util::meta::type_list_at_t<QueriedTypes, queried_type_index_T>>(
+                archetype_id
+            )
+            .underlying();
 }

@@ -68,7 +68,7 @@ auto LookupTableMap::remove(const Iterator iterator, const RecordID record_id)
     std::pair<core::ecs::ID, RecordIndex> result = iterator->second.remove(record_id);
 
     if (iterator->second.empty()) {
-        m_map.extract(iterator);
+        m_map.erase(iterator);
     }
 
     return result;

@@ -17,6 +17,3 @@ concept component_c = !std::is_const_v<T> && util::meta::nothrow_movable_c<T>
                    && !std::same_as<T, ID> && !query_parameter_tag_c<T>;
 
 }   // namespace core::ecs
-
-template <typename T>
-concept decays_to_component_c = core::ecs::component_c<std::decay_t<T>>;

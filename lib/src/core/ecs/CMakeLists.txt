@@ -10,11 +10,14 @@ target_sources(${PROJECT_NAME} PUBLIC
         component_c.ixx
         ComponentContainer.ixx
         ComponentID.ixx
+        ComponentTable.extensions.ixx
         ComponentTable.ixx
+        ComponentTable-fwd.ixx
+        ComponentTableMap.extensions.ixx
         ComponentTableMap.ixx
         ComponentTag.ixx
+        decays_to_component_c.ixx
         ErasedComponentContainer.ixx
-        ErasedComponentContainer-fwd.ixx
         ID.ixx
         LookupTable.ixx
         LookupTableMap.ixx
