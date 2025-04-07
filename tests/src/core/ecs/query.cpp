@@ -317,6 +317,37 @@ TEST_CASE("core::ecs::query")
             REQUIRE(visit_count == 1);
         }
 
+        SECTION("no actually queried component, but id")
+        {
+            registry.create(float{}, int16_t{}, int32_t{});
+            registry.create(float{}, int8_t{}, int16_t{}, int32_t{});
+            registry.create(float{}, int16_t{});
+            registry.create(float{}, int16_t{}, int32_t{}, uint8_t{});
+
+            size_t visit_count{};
+
+            test_query_parameters(
+                util::
+                    TypeList<core::ecs::ID, Without<int8_t>, With<int16_t>, With<int32_t>>{},
+                [&visit_count] { ++visit_count; }
+            );
+
+            REQUIRE(visit_count == 2);
+
+            static_assert(requires {
+                !requires {
+                    core::ecs::query<core::ecs::ID, Without<int8_t>>(registry, [] {});
+                };
+            });
+        }
+
+        SECTION("no actually queried component nor id")
+        {
+            static_assert(requires {
+                !requires { core::ecs::query<Without<int8_t>>(registry, [] {}); };
+            });
+        }
+
         SECTION("deducing parameters")
         {
             registry.create(float{}, double{}, int16_t{}, int32_t{}, uint8_t{});

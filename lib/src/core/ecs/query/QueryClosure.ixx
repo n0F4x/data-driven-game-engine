@@ -109,6 +109,11 @@ private:
     using QueriedParameters =
         util::meta::type_list_filter_t<util::TypeList<Parameters_T...>, IsQueriedParameter>;
 
+    static_assert(
+        util::meta::type_list_size_v<QueriedParameters> != 0,
+        "query must have actually queried types"
+    );
+
     using QueriedTypes =
         util::meta::type_list_transform_t<QueriedParameters, ToQueriedType>;
 
