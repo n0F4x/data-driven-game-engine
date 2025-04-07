@@ -132,8 +132,11 @@ class Query {
     using WithoutComponents = util::meta::type_list_join_t<
         util::meta::
             type_list_filter_t<std::tuple<Filters_T...>, is_specialization_of_Without>>;
-    using WithComponents = util::meta::type_list_join_t<
-        util::meta::type_list_filter_t<std::tuple<Filters_T...>, is_specialization_of_With>>;
+    using WithComponents = util::meta::type_list_to_t<
+        util::meta::type_list_join_t<
+            util::meta::
+                type_list_filter_t<std::tuple<Filters_T...>, is_specialization_of_With>>,
+        std::tuple>;
     using OptionalComponents = util::meta::type_list_join_t<
         util::meta::
             type_list_filter_t<std::tuple<Filters_T...>, is_specialization_of_Optional>>;
