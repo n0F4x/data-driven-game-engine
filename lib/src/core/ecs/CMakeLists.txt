@@ -12,12 +12,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         ComponentID.ixx
         ComponentTable.extensions.ixx
         ComponentTable.ixx
-        ComponentTable-fwd.ixx
         ComponentTableMap.extensions.ixx
         ComponentTableMap.ixx
         ComponentTag.ixx
         decays_to_component_c.ixx
-        ErasedComponentContainer.ixx
+        ErasedComponentTable.extensions.ixx
+        ErasedComponentTable.ixx
         ID.ixx
         LookupTable.ixx
         LookupTableMap.ixx

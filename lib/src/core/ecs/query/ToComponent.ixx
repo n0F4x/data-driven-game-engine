@@ -16,20 +16,16 @@ struct ToComponent;
 
 template <component_query_parameter_c T>
     requires core::ecs::queryable_component_c<std::remove_const_t<T>>
-struct ToComponent<T> : std::type_identity<std::remove_const_t<T>> {};
+struct ToComponent<T> : std::type_identity<T> {};
 
 template <component_query_parameter_c T>
     requires util::meta::specialization_of_c<T, core::ecs::With>
-struct ToComponent<T>
-    : std::type_identity<std::remove_const_t<util::meta::underlying_t<T>>> {};
+struct ToComponent<T> : std::type_identity<util::meta::underlying_t<T>> {};
 
 template <component_query_parameter_c T>
     requires util::meta::specialization_of_c<T, core::ecs::Without>
-struct ToComponent<T>
-    : std::type_identity<std::remove_const_t<util::meta::underlying_t<T>>> {};
+struct ToComponent<T> : std::type_identity<util::meta::underlying_t<T>> {};
 
 template <component_query_parameter_c T>
     requires util::meta::specialization_of_c<T, core::ecs::Optional>
-struct ToComponent<T>
-    : std::type_identity<
-          std::remove_const_t<util::meta::underlying_t<std::remove_const_t<T>>>> {};
+struct ToComponent<T> : std::type_identity<util::meta::underlying_t<T>> {};

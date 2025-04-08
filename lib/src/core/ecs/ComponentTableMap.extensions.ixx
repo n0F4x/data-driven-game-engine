@@ -11,12 +11,12 @@ import utility.meta.algorithms.enumerate;
 import utility.meta.concepts.all_different;
 import utility.meta.concepts.decays_to;
 import utility.meta.concepts.ranges.input_range_of;
-import utility.meta.type_traits.const_like;
 import utility.all_same;
 
 import :ArchetypeID;
 import :component_c;
-import :ComponentTable.extensions;
+import :ComponentID;
+import :ErasedComponentTable.extensions;
 import :ComponentTableMap;
 import :decays_to_component_c;
 import :RecordIndex;
@@ -82,25 +82,38 @@ auto move_components(
     ArchetypeID           new_archetype_id
 ) -> void;
 
-template <
-    core::ecs::component_c                     Component_T,
-    util::meta::decays_to_c<ComponentTableMap> ComponentTableMap_T>
-auto get_component(
-    ComponentTableMap_T&& it,
-    ArchetypeID           archetype_id,
-    RecordIndex           record_index
-) -> util::meta::const_like_t<Component_T, std::remove_reference_t<ComponentTableMap_T>>&;
+template <core::ecs::component_c Component_T>
+auto find_component_table(ComponentTableMap& it)
+    -> util::OptionalRef<ComponentTable<Component_T>>;
+template <core::ecs::component_c Component_T>
+auto find_component_table(const ComponentTableMap& it)
+    -> util::OptionalRef<const ComponentTable<Component_T>>;
 
-template <
-    core::ecs::component_c                     Component_T,
-    util::meta::decays_to_c<ComponentTableMap> ComponentTableMap_T>
+template <core::ecs::component_c Component_T>
+auto get_component(
+    ComponentTableMap& it,
+    ArchetypeID        archetype_id,
+    RecordIndex        record_index
+) -> Component_T&;
+template <core::ecs::component_c Component_T>
+auto get_component(
+    const ComponentTableMap& it,
+    ArchetypeID              archetype_id,
+    RecordIndex              record_index
+) -> const Component_T&;
+
+template <core::ecs::component_c Component_T>
 auto find_component(
-    ComponentTableMap_T&& it,
-    ArchetypeID           archetype_id,
-    RecordIndex           record_index
-)
-    -> util::OptionalRef<
-        util::meta::const_like_t<Component_T, std::remove_reference_t<ComponentTableMap_T>>>;
+    ComponentTableMap& it,
+    ArchetypeID        archetype_id,
+    RecordIndex        record_index
+) -> util::OptionalRef<Component_T>;
+template <core::ecs::component_c Component_T>
+auto find_component(
+    const ComponentTableMap& it,
+    ArchetypeID              archetype_id,
+    RecordIndex              record_index
+) -> util::OptionalRef<const Component_T>;
 
 }   // namespace extensions
 
@@ -208,36 +221,71 @@ auto extensions::move_components(
     }
 }
 
-template <
-    core::ecs::component_c                     Component_T,
-    util::meta::decays_to_c<ComponentTableMap> ComponentTableMap_T>
+template <core::ecs::component_c Component_T>
+auto extensions::find_component_table(ComponentTableMap& it)
+    -> util::OptionalRef<ComponentTable<Component_T>>
+{
+    return it.find_component_table(component_id_of<Component_T>())
+        .transform([](ErasedComponentTable& erased_component_table) -> decltype(auto) {
+            return erased_component_table.get<ComponentTable<Component_T>>();
+        });
+}
+
+template <core::ecs::component_c Component_T>
+auto extensions::find_component_table(const ComponentTableMap& it)
+    -> util::OptionalRef<const ComponentTable<Component_T>>
+{
+    return find_component_table<Component_T>(const_cast<ComponentTableMap&>(it));
+}
+
+template <core::ecs::component_c Component_T>
 auto extensions::get_component(
-    ComponentTableMap_T&& it,
-    const ArchetypeID     archetype_id,
-    const RecordIndex     record_index
-) -> util::meta::const_like_t<Component_T, std::remove_reference_t<ComponentTableMap_T>>&
+    ComponentTableMap& it,
+    const ArchetypeID  archetype_id,
+    const RecordIndex  record_index
+) -> Component_T&
 {
     return get_component<Component_T>(
-        it.template get_component_table<Component_T>(), archetype_id, record_index
+        it.get_component_table(component_id_of<Component_T>()), archetype_id, record_index
     );
 }
 
-template <
-    core::ecs::component_c                     Component_T,
-    util::meta::decays_to_c<ComponentTableMap> ComponentTableMap_T>
-auto extensions::find_component(
-    ComponentTableMap_T&& it,
-    const ArchetypeID     archetype_id,
-    const RecordIndex     record_index
-)
-    -> util::OptionalRef<
-        util::meta::const_like_t<Component_T, std::remove_reference_t<ComponentTableMap_T>>>
+template <core::ecs::component_c Component_T>
+auto extensions::get_component(
+    const ComponentTableMap& it,
+    const ArchetypeID        archetype_id,
+    const RecordIndex        record_index
+) -> const Component_T&
 {
-    return it.template find_component_table<Component_T>().and_then(
-        [archetype_id, record_index](auto& component_table) {
+    return get_component<Component_T>(
+        const_cast<ComponentTableMap&>(it), archetype_id, record_index
+    );
+}
+
+template <core::ecs::component_c Component_T>
+auto extensions::find_component(
+    ComponentTableMap& it,
+    const ArchetypeID  archetype_id,
+    const RecordIndex  record_index
+) -> util::OptionalRef<Component_T>
+{
+    return it.find_component_table(component_id_of<Component_T>())
+        .and_then([archetype_id,
+                   record_index](ErasedComponentTable& erased_component_table) {
             return find_component<Component_T>(
-                component_table, archetype_id, record_index
+                erased_component_table, archetype_id, record_index
             );
-        }
+        });
+}
+
+template <core::ecs::component_c Component_T>
+auto extensions::find_component(
+    const ComponentTableMap& it,
+    const ArchetypeID        archetype_id,
+    const RecordIndex        record_index
+) -> util::OptionalRef<const Component_T>
+{
+    return find_component<Component_T>(
+        const_cast<ComponentTableMap&>(it), archetype_id, record_index
     );
 }

@@ -15,8 +15,11 @@ import :RecordIndex;
 
 template <core::ecs::component_c Component_T>
 class ComponentContainer {
-public:
     using Underlying = std::vector<Component_T>;
+
+public:
+    using Iterator      = typename Underlying::iterator;
+    using ConstIterator = typename Underlying::const_iterator;
 
     template <util::meta::decays_to_c<Component_T> UComponent_T>
     auto insert(UComponent_T&& component) -> RecordIndex;
@@ -35,9 +38,14 @@ public:
     auto size() const noexcept -> size_t;
 
     [[nodiscard]]
-    auto underlying() -> Underlying&;
+    auto begin() -> Iterator;
     [[nodiscard]]
-    auto underlying() const -> const Underlying&;
+    auto begin() const -> ConstIterator;
+
+    [[nodiscard]]
+    auto end() -> Iterator;
+    [[nodiscard]]
+    auto end() const -> ConstIterator;
 
 private:
     Underlying m_vector;
@@ -108,13 +116,25 @@ auto ComponentContainer<Component_T>::size() const noexcept -> size_t
 }
 
 template <core::ecs::component_c Component_T>
-auto ComponentContainer<Component_T>::underlying() -> Underlying&
+auto ComponentContainer<Component_T>::begin() -> Iterator
 {
-    return m_vector;
+    return m_vector.begin();
 }
 
 template <core::ecs::component_c Component_T>
-auto ComponentContainer<Component_T>::underlying() const -> const Underlying&
+auto ComponentContainer<Component_T>::begin() const -> ConstIterator
 {
-    return m_vector;
+    return m_vector.begin();
+}
+
+template <core::ecs::component_c Component_T>
+auto ComponentContainer<Component_T>::end() -> Iterator
+{
+    return m_vector.end();
+}
+
+template <core::ecs::component_c Component_T>
+auto ComponentContainer<Component_T>::end() const -> ConstIterator
+{
+    return m_vector.end();
 }

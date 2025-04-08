@@ -1,5 +1,13 @@
 add_executable(tests)
 
+target_compile_options(tests PRIVATE
+        -Wall
+        -Wextra
+        -pedantic-errors
+        -Wconversion
+        -Werror
+)
+
 target_compile_definitions(tests PRIVATE
         ENGINE_ENABLE_UNIT_TESTS
 )

@@ -1,11 +1,5 @@
-module;
-
-#include <type_traits>
-
 export module core.ecs:ComponentTable.extensions;
 
-import utility.meta.concepts.decays_to;
-import utility.meta.type_traits.const_like;
 import utility.containers.OptionalRef;
 
 import :ArchetypeID;
@@ -16,54 +10,83 @@ import :RecordIndex;
 
 inline namespace extensions {
 
-template <
-    core::ecs::component_c                  Component_T,
-    util::meta::decays_to_c<ComponentTable> ComponentTable_T>
+template <core::ecs::component_c Component_T>
 [[nodiscard]]
 auto get_component(
-    ComponentTable_T&& it,
-    ArchetypeID        archetype_id,
-    RecordIndex        record_index
-) -> util::meta::const_like_t<Component_T, std::remove_reference_t<ComponentTable_T>>&;
+    ComponentTable<Component_T>& it,
+    ArchetypeID                  archetype_id,
+    RecordIndex                  record_index
+) -> Component_T&;
 
-template <
-    core::ecs::component_c                  Component_T,
-    util::meta::decays_to_c<ComponentTable> ComponentTable_T>
+template <core::ecs::component_c Component_T>
+[[nodiscard]]
+auto get_component(
+    const ComponentTable<Component_T>& it,
+    ArchetypeID                        archetype_id,
+    RecordIndex                        record_index
+) -> const Component_T&;
+
+template <core::ecs::component_c Component_T>
 auto find_component(
-    ComponentTable_T&& it,
-    ArchetypeID        archetype_id,
-    RecordIndex        record_index
-)
-    -> util::OptionalRef<
-        util::meta::const_like_t<Component_T, std::remove_reference_t<ComponentTable_T>>>;
+    ComponentTable<Component_T>& it,
+    ArchetypeID                  archetype_id,
+    RecordIndex                  record_index
+) -> util::OptionalRef<Component_T>;
+
+template <core::ecs::component_c Component_T>
+auto find_component(
+    const ComponentTable<Component_T>& it,
+    ArchetypeID                        archetype_id,
+    RecordIndex                        record_index
+) -> util::OptionalRef<const Component_T>;
 
 }   // namespace extensions
 
-template <
-    core::ecs::component_c                  Component_T,
-    util::meta::decays_to_c<ComponentTable> ComponentTable_T>
+template <core::ecs::component_c Component_T>
 auto extensions::get_component(
-    ComponentTable_T&& it,
-    const ArchetypeID  archetype_id,
-    const RecordIndex  record_index
-) -> util::meta::const_like_t<Component_T, std::remove_reference_t<ComponentTable_T>>&
+    ComponentTable<Component_T>& it,
+    ArchetypeID                  archetype_id,
+    RecordIndex                  record_index
+) -> Component_T&
 {
-    return it.template get_component_container<Component_T>(archetype_id).get(record_index);
+    return it.get_component_container(archetype_id).get(record_index);
 }
 
-template <
-    core::ecs::component_c                  Component_T,
-    util::meta::decays_to_c<ComponentTable> ComponentTable_T>
-auto extensions::find_component(
-    ComponentTable_T&& it,
-    const ArchetypeID  archetype_id,
-    const RecordIndex  record_index
-)
-    -> util::OptionalRef<
-        util::meta::const_like_t<Component_T, std::remove_reference_t<ComponentTable_T>>>
+template <core::ecs::component_c Component_T>
+auto extensions::get_component(
+    const ComponentTable<Component_T>& it,
+    ArchetypeID                        archetype_id,
+    RecordIndex                        record_index
+) -> const Component_T&
 {
-    return it.template find_component_container<Component_T>(archetype_id)
-        .transform([record_index](auto& component_container) -> decltype(auto) {
-            return component_container.get(record_index);
-        });
+    return get_component(
+        const_cast<ComponentTable<Component_T>&>(it), archetype_id, record_index
+    );
+}
+
+template <core::ecs::component_c Component_T>
+auto extensions::find_component(
+    ComponentTable<Component_T>& it,
+    ArchetypeID                  archetype_id,
+    RecordIndex                  record_index
+) -> util::OptionalRef<Component_T>
+{
+    return it.find_component_container(archetype_id)
+        .transform(
+            [record_index](
+                ComponentContainer<Component_T>& component_container
+            ) -> decltype(auto) { return component_container.get(record_index); }
+        );
+}
+
+template <core::ecs::component_c Component_T>
+auto extensions::find_component(
+    const ComponentTable<Component_T>& it,
+    ArchetypeID                        archetype_id,
+    RecordIndex                        record_index
+) -> util::OptionalRef<const Component_T>
+{
+    return find_component(
+        const_cast<ComponentTable<Component_T>&>(it), archetype_id, record_index
+    );
 }

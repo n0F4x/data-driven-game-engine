@@ -45,11 +45,4 @@ struct ApplyClosure<TypeList_T> {
 export template <typename T>
 constexpr inline ApplyClosure<T> apply;
 
-/// whole -> whole ✅
-/// whole -> iterated ✅
-/// iterated -> iterated ✅
-/// iterated -> whole ❌ - we need a way to merge
-///
-/// apply<TypeList>(enumerate, any_of(pred))
-
 }   // namespace util::meta

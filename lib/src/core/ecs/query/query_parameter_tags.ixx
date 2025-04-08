@@ -25,6 +25,6 @@ struct Optional : ::QueryParameterTagBase, util::OptionalRef<T> {
 
 // TODO: remove deduction guide with P2582
 template <typename T>
-Optional(T&&) -> Optional<std::decay_t<T>>;
+Optional(T&) -> Optional<T>;
 
 }   // namespace core::ecs::inline query_parameter_tags

@@ -9,13 +9,15 @@ module;
 export module core.ecs:ComponentTableMap;
 
 import utility.containers.OptionalRef;
-import utility.meta.type_traits.const_like;
 
 import :ArchetypeID;
 import :component_c;
 import :ComponentID;
 import :ComponentTable;
+import :ComponentTag;
 import :decays_to_component_c;
+import :ErasedComponentTable;
+import :ErasedComponentTable.extensions;
 import :RecordIndex;
 
 class ComponentTableMap {
@@ -39,25 +41,27 @@ public:
         ArchetypeID new_archetype_id
     ) -> RecordIndex;
 
-    template <core::ecs::component_c Component_T, typename Self_T>
-    auto get_component_table(this Self_T&& self)
-        -> util::meta::const_like_t<ComponentTable, std::remove_reference_t<Self_T>>&;
+    auto get_component_table(ComponentID component_id) -> ErasedComponentTable&;
+    auto get_component_table(ComponentID component_id) const
+        -> const ErasedComponentTable&;
 
-    template <core::ecs::component_c Component_T, typename Self_T>
-    auto find_component_table(this Self_T&& self) -> util::OptionalRef<
-        util::meta::const_like_t<ComponentTable, std::remove_reference_t<Self_T>>>;
+    auto find_component_table(ComponentID component_id)
+        -> util::OptionalRef<ErasedComponentTable>;
+    auto find_component_table(ComponentID component_id) const
+        -> util::OptionalRef<const ErasedComponentTable>;
 
 private:
-    std::map<ComponentID, ComponentTable> m_map;
+    std::map<ComponentID, ErasedComponentTable> m_map;
 };
 
 template <decays_to_component_c Component_T>
 auto ComponentTableMap::insert(const ArchetypeID archetype_id, Component_T&& component)
     -> RecordIndex
 {
-    return m_map[::component_id_of<std::decay_t<Component_T>>()].insert(
-        archetype_id, std::forward<Component_T>(component)
-    );
+    return m_map
+        .try_emplace(component_id_of<std::decay_t<Component_T>>(), component_tag<std::decay_t<Component_T>>)
+        .first->second.template get<ComponentTable<std::decay_t<Component_T>>>()
+        .insert(archetype_id, std::forward<Component_T>(component));
 }
 
 auto ComponentTableMap::remove_component(
@@ -85,9 +89,8 @@ auto ComponentTableMap::remove_component(
     const auto iterator = m_map.find(component_id_of<Component_T>());
     PRECOND(iterator != m_map.cend());
 
-    Component_T result = iterator->second.template remove_component<Component_T>(
-        archetype_id, record_index
-    );
+    Component_T result =
+        ::remove_component<Component_T>(iterator->second, archetype_id, record_index);
 
     if (iterator->second.empty()) {
         m_map.erase(iterator);
@@ -116,26 +119,34 @@ auto ComponentTableMap::move_component(
     return result;
 }
 
-template <core::ecs::component_c Component_T, typename Self_T>
-auto ComponentTableMap::get_component_table(this Self_T&& self)
-    -> util::meta::const_like_t<ComponentTable, std::remove_reference_t<Self_T>>&
+auto ComponentTableMap::get_component_table(const ComponentID component_id)
+    -> ErasedComponentTable&
 {
-    const auto component_containers_iter{
-        self.m_map.find(component_id_of<Component_T>())
-    };
-    PRECOND(component_containers_iter != self.m_map.cend());
+    const auto component_containers_iter{ m_map.find(component_id) };
+    PRECOND(component_containers_iter != m_map.cend());
 
     return component_containers_iter->second;
 }
 
-template <core::ecs::component_c Component_T, typename Self_T>
-auto ComponentTableMap::find_component_table(this Self_T&& self) -> util::
-    OptionalRef<util::meta::const_like_t<ComponentTable, std::remove_reference_t<Self_T>>>
+auto ComponentTableMap::get_component_table(const ComponentID component_id) const
+    -> const ErasedComponentTable&
 {
-    const auto iterator{ self.m_map.find(component_id_of<Component_T>()) };
-    if (iterator == self.m_map.cend()) {
+    return const_cast<ComponentTableMap&>(*this).get_component_table(component_id);
+}
+
+auto ComponentTableMap::find_component_table(const ComponentID component_id)
+    -> util::OptionalRef<ErasedComponentTable>
+{
+    const auto iterator{ m_map.find(component_id) };
+    if (iterator == m_map.cend()) {
         return std::nullopt;
     }
 
     return iterator->second;
+}
+
+auto ComponentTableMap::find_component_table(const ComponentID component_id) const
+    -> util::OptionalRef<const ErasedComponentTable>
+{
+    return const_cast<ComponentTableMap&>(*this).find_component_table(component_id);
 }
