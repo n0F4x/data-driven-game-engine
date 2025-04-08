@@ -8,6 +8,7 @@ module;
 
 export module core.ecs:ComponentTableMap;
 
+import utility.containers.Any;
 import utility.containers.OptionalRef;
 
 import :ArchetypeID;
@@ -58,9 +59,11 @@ template <decays_to_component_c Component_T>
 auto ComponentTableMap::insert(const ArchetypeID archetype_id, Component_T&& component)
     -> RecordIndex
 {
-    return m_map
-        .try_emplace(component_id_of<std::decay_t<Component_T>>(), component_tag<std::decay_t<Component_T>>)
-        .first->second.template get<ComponentTable<std::decay_t<Component_T>>>()
+    return util::any_cast<ComponentTable<std::decay_t<Component_T>>>(
+               m_map
+                   .try_emplace(component_id_of<std::decay_t<Component_T>>(), component_tag<std::decay_t<Component_T>>)
+                   .first->second
+    )
         .insert(archetype_id, std::forward<Component_T>(component));
 }
 

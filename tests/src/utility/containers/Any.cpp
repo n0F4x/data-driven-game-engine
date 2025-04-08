@@ -43,7 +43,7 @@ TEST_CASE("util::Any")
     static_assert(
         [] {
             util::BasicAny<0> any{ std::in_place_type<Value>, value.value() };
-            assert(any.get<Value>() == value);
+            assert(any_cast<Value>(any) == value);
 
             return true;
         }(),
@@ -55,7 +55,7 @@ TEST_CASE("util::Any")
             const util::BasicAny<0> any{ util::BasicAny<0>::Allocator{},
                                          std::in_place_type<Value>,
                                          value.value() };
-            assert(any.get<Value>() == value);
+            assert(any_cast<Value>(any) == value);
 
             return true;
         }(),
@@ -65,7 +65,7 @@ TEST_CASE("util::Any")
     static_assert(
         [] {
             const util::BasicAny<0> any{ value };
-            assert(any.get<Value>() == value);
+            assert(any_cast<Value>(any) == value);
 
             return true;
         }(),
@@ -75,7 +75,7 @@ TEST_CASE("util::Any")
     static_assert(
         [] {
             const util::BasicAny<0> any{ util::BasicAny<0>::Allocator{}, value };
-            assert(any.get<Value>() == value);
+            assert(any_cast<Value>(any) == value);
 
             return true;
         }(),
@@ -87,7 +87,7 @@ TEST_CASE("util::Any")
             const util::BasicAny<0> any{ value };
 
             const util::BasicAny<0> copy{ any };
-            assert(any.get<Value>() == copy.get<Value>());
+            assert(any_cast<Value>(any) == any_cast<Value>(copy));
 
             return true;
         }(),
@@ -99,7 +99,7 @@ TEST_CASE("util::Any")
             util::BasicAny<0> any{ value };
 
             const util::BasicAny<0> moved_to{ std::move(any) };
-            assert(moved_to.get<Value>() == value);
+            assert(any_cast<Value>(moved_to) == value);
 
             return true;
         }(),
@@ -112,7 +112,7 @@ TEST_CASE("util::Any")
             util::BasicAny<0>       copy{ other_value };
 
             copy = any;
-            assert(copy.get<Value>() == any.get<Value>());
+            assert(any_cast<Value>(copy) == any_cast<Value>(any));
 
             return true;
         }(),
@@ -125,10 +125,10 @@ TEST_CASE("util::Any")
             util::BasicAny<0> moved_to{ other_value };
 
             moved_to = std::move(moved_from);
-            assert(moved_to.get<Value>() == value);
+            assert(any_cast<Value>(moved_to) == value);
 
             moved_from = std::move(moved_to);
-            assert(moved_from.get<Value>() == value);
+            assert(any_cast<Value>(moved_from) == value);
 
             return true;
         }(),
@@ -140,7 +140,7 @@ TEST_CASE("util::Any")
             util::BasicAny<0> any{ std::in_place_type<Value>, value };
 
             [[maybe_unused]]
-            decltype(auto) result = any.get<Value>();
+            decltype(auto) result = any_cast<Value>(any);
 
             static_assert(std::is_same_v<decltype(result), Value&>);
             assert(result == value);
@@ -155,7 +155,7 @@ TEST_CASE("util::Any")
             const util::BasicAny<0> any{ std::in_place_type<Value>, value };
 
             [[maybe_unused]]
-            decltype(auto) result = any.get<Value>();
+            decltype(auto) result = any_cast<Value>(any);
 
             static_assert(std::is_same_v<decltype(result), const Value&>);
             assert(result == value);
@@ -170,10 +170,10 @@ TEST_CASE("util::Any")
             util::BasicAny<0> any{ std::in_place_type<Value>, value };
 
             [[maybe_unused]]
-            const auto result = std::move(any).get<Value>();
+            const auto result = any_cast<Value>(std::move(any));
             assert(result == value);
 
-            decltype(auto) result_after_move = std::move(any).get<Value>();
+            decltype(auto) result_after_move = any_cast<Value>(std::move(any));
             static_assert(std::is_same_v<decltype(result_after_move), Value&&>);
             assert(result_after_move == Value{});
 
@@ -187,7 +187,7 @@ TEST_CASE("util::Any")
             const util::BasicAny<0> any{ std::in_place_type<Value>, value };
 
             [[maybe_unused]]
-            decltype(auto) result = std::move(any).get<Value>();
+            decltype(auto) result = any_cast<Value>(std::move(any));
 
             static_assert(std::is_same_v<decltype(result), const Value&&>);
             assert(result == value);
@@ -200,7 +200,7 @@ TEST_CASE("util::Any")
     SECTION("in_place construct")
     {
         util::Any any{ std::in_place_type<Value>, value.value() };
-        REQUIRE(any.get<Value>() == value);
+        REQUIRE(any_cast<Value>(any) == value);
     }
 
     SECTION("in_place construct with allocator")
@@ -208,19 +208,19 @@ TEST_CASE("util::Any")
         const util::Any any{ util::Any::Allocator{},
                              std::in_place_type<Value>,
                              value.value() };
-        REQUIRE(any.get<Value>() == value);
+        REQUIRE(any_cast<Value>(any) == value);
     }
 
     SECTION("forwarding construct")
     {
         const util::Any any{ value };
-        REQUIRE(any.get<Value>() == value);
+        REQUIRE(any_cast<Value>(any) == value);
     }
 
     SECTION("forwarding construct with allocator")
     {
         const util::Any any{ util::Any::Allocator{}, value };
-        REQUIRE(any.get<Value>() == value);
+        REQUIRE(any_cast<Value>(any) == value);
     }
 
     SECTION("copy construct")
@@ -228,7 +228,7 @@ TEST_CASE("util::Any")
         const util::Any any{ value };
 
         const util::Any copy{ any };
-        REQUIRE(any.get<Value>() == copy.get<Value>());
+        REQUIRE(any_cast<Value>(any) == any_cast<Value>(copy));
     }
 
     SECTION("move construct")
@@ -236,7 +236,7 @@ TEST_CASE("util::Any")
         util::Any any{ value };
 
         const util::Any moved_to{ std::move(any) };
-        REQUIRE(moved_to.get<Value>() == value);
+        REQUIRE(any_cast<Value>(moved_to) == value);
     }
 
     SECTION("copy assignment")
@@ -245,7 +245,7 @@ TEST_CASE("util::Any")
         util::Any       copy{ other_value };
 
         copy = any;
-        REQUIRE(copy.get<Value>() == any.get<Value>());
+        REQUIRE(any_cast<Value>(copy) == any_cast<Value>(any));
     }
 
     SECTION("move assignment")
@@ -254,10 +254,10 @@ TEST_CASE("util::Any")
         util::Any moved_to{ other_value };
 
         moved_to = std::move(moved_from);
-        REQUIRE(moved_to.get<Value>() == value);
+        REQUIRE(any_cast<Value>(moved_to) == value);
 
         moved_from = std::move(moved_to);
-        REQUIRE(moved_from.get<Value>() == value);
+        REQUIRE(any_cast<Value>(moved_from) == value);
     }
 
     SECTION("get &")
@@ -265,7 +265,7 @@ TEST_CASE("util::Any")
         util::Any any{ std::in_place_type<Value>, value };
 
         [[maybe_unused]]
-        decltype(auto) result = any.get<Value>();
+        decltype(auto) result = any_cast<Value>(any);
 
         STATIC_REQUIRE(std::is_same_v<decltype(result), Value&>);
         assert(result == value);
@@ -276,7 +276,7 @@ TEST_CASE("util::Any")
         const util::Any any{ std::in_place_type<Value>, value };
 
         [[maybe_unused]]
-        decltype(auto) result = any.get<Value>();
+        decltype(auto) result = any_cast<Value>(any);
 
         STATIC_REQUIRE(std::is_same_v<decltype(result), const Value&>);
         REQUIRE(result == value);
@@ -287,10 +287,10 @@ TEST_CASE("util::Any")
         util::Any any{ std::in_place_type<Value>, value };
 
         [[maybe_unused]]
-        const auto result = std::move(any).get<Value>();
+        const auto result = any_cast<Value>(std::move(any));
         REQUIRE(result == value);
 
-        decltype(auto) result_after_move = std::move(any).get<Value>();
+        decltype(auto) result_after_move = any_cast<Value>(std::move(any));
         STATIC_REQUIRE(std::is_same_v<decltype(result_after_move), Value&&>);
         REQUIRE(result_after_move == Value{});
     }
@@ -300,7 +300,7 @@ TEST_CASE("util::Any")
         const util::Any any{ std::in_place_type<Value>, value };
 
         [[maybe_unused]]
-        decltype(auto) result = std::move(any).get<Value>();
+        decltype(auto) result = any_cast<Value>(std::move(any));
 
         STATIC_REQUIRE(std::is_same_v<decltype(result), const Value&&>);
         REQUIRE(result == value);

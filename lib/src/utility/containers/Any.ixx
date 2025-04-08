@@ -81,7 +81,7 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
     template <typename Storage_T>
         requires std::same_as<std::remove_cvref_t<Storage_T>, Storage>
     [[nodiscard]]
-    constexpr static auto get(Storage_T&& storage) noexcept
+    constexpr static auto any_cast(Storage_T&& storage) noexcept
         -> util::meta::forward_like_t<T, Storage_T>;
 
     [[nodiscard]]
@@ -115,7 +115,7 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
     template <typename Storage_T>
         requires std::same_as<std::remove_cvref_t<Storage_T>, Storage>
     [[nodiscard]]
-    constexpr static auto get(Storage_T&& storage) noexcept
+    constexpr static auto any_cast(Storage_T&& storage) noexcept
         -> util::meta::forward_like_t<T, Storage_T>;
 
     [[nodiscard]]
@@ -128,15 +128,23 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
     };
 };
 
+class AnyBase {};
+
 namespace util {
+
+export template <::util::meta::decayed_c T, typename Any_T>
+    requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
+constexpr auto any_cast(Any_T&&) -> ::util::meta::forward_like_t<T, Any_T>;
 
 export template <
     size_t                            size_T      = 3 * sizeof(void*),
     size_t                            alignment_T = sizeof(void*),
     ::util::meta::generic_allocator_c Allocator_T = Allocator>
-class BasicAny {
+class BasicAny : public AnyBase {
 public:
-    using Allocator = Allocator_T;
+    constexpr static size_t size      = size_T;
+    constexpr static size_t alignment = alignment_T;
+    using Allocator                   = Allocator_T;
 
     constexpr BasicAny(const BasicAny&);
     constexpr BasicAny(BasicAny&&) noexcept;
@@ -172,8 +180,9 @@ public:
     constexpr auto operator=(const BasicAny&) -> BasicAny&;
     constexpr auto operator=(BasicAny&&) noexcept -> BasicAny&;
 
-    template <::util::meta::decayed_c T, typename Self_T>
-    constexpr auto get(this Self_T&&) -> ::util::meta::forward_like_t<T, Self_T>;
+    template <::util::meta::decayed_c T, typename Any_T>
+        requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
+    constexpr friend auto any_cast(Any_T&&) -> ::util::meta::forward_like_t<T, Any_T>;
 
 private:
     using Storage = ::storage_t<size_T, alignment_T>;
@@ -266,7 +275,7 @@ template <typename Storage_T>
     requires std::same_as<
         std::remove_cvref_t<Storage_T>,
         std::variant<small_buffer_t<size_T, alignment_T>, void*>>
-constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::get(
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
     Storage_T&& storage
 ) noexcept -> util::meta::forward_like_t<T, Storage_T>
 {
@@ -362,7 +371,7 @@ template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_all
     requires large_c<T, size_T, alignment_T>
 template <typename Storage_T>
     requires std::same_as<std::remove_cvref_t<Storage_T>, storage_t<size_T, alignment_T>>
-constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::get(
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
     Storage_T&& storage
 ) noexcept -> util::meta::forward_like_t<T, Storage_T>
 {
@@ -389,6 +398,27 @@ constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::type_name()
     -> std::string_view
 {
     return util::meta::name_of<T>();
+}
+
+template <::util::meta::decayed_c T, typename Any_T>
+    requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
+constexpr auto util::any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
+{
+    PRECOND(
+        any.BasicAny::m_operations != nullptr,
+        "Don't use a 'moved-from' (or destroyed) Any!"
+    );
+    PRECOND(
+        any.BasicAny::m_operations->types_match(util::meta::hash<T>()),
+        // TODO: use constexpr std::format
+        "`Any` has type "s + any.BasicAny::m_operations->type_name()
+            + ", but requested type is " + util::meta::name_of<T>()
+    );
+    return Traits<
+        T,
+        std::remove_cvref_t<Any_T>::BasicAny::size,
+        std::remove_cvref_t<Any_T>::BasicAny::alignment,
+        Allocator>::any_cast(std::forward_like<Any_T>(any.BasicAny::m_storage));
 }
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
@@ -511,26 +541,6 @@ constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(Basic
     other.reset();
 
     return *this;
-}
-
-template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
-template <::util::meta::decayed_c T, typename Self_T>
-constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::get(this Self_T&& self)
-    -> meta::forward_like_t<T, Self_T>
-{
-    PRECOND(
-        self.BasicAny::m_operations != nullptr,
-        "Don't use a 'moved-from' (or destroyed) Any!"
-    );
-    PRECOND(
-        self.BasicAny::m_operations->types_match(util::meta::hash<T>()),
-        // TODO: use constexpr std::format
-        "`Any` has type "s + self.BasicAny::m_operations->type_name()
-            + ", but requested type is " + util::meta::name_of<T>()
-    );
-    return Traits<T, size_T, alignment_T, Allocator>::get(
-        std::forward_like<Self_T>(self.m_storage)
-    );
 }
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>

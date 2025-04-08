@@ -77,7 +77,9 @@ constexpr auto ErasedComponentTableTraits<Component_T>::remove_component(
     const RecordIndex     record_index
 ) -> void
 {
-    self.get<ComponentTable<Component_T>>().remove_component(archetype_id, record_index);
+    util::any_cast<ComponentTable<Component_T>>(self).remove_component(
+        archetype_id, record_index
+    );
 }
 
 template <core::ecs::component_c Component_T>
@@ -88,7 +90,7 @@ constexpr auto ErasedComponentTableTraits<Component_T>::move_component(
     const ArchetypeID     new_archetype_id
 ) -> RecordIndex
 {
-    return self.get<ComponentTable<Component_T>>().move_component(
+    return util::any_cast<ComponentTable<Component_T>>(self).move_component(
         archetype_id, record_index, new_archetype_id
     );
 }
@@ -98,7 +100,7 @@ constexpr auto ErasedComponentTableTraits<Component_T>::empty(
     const ErasedComponentTable& self
 ) noexcept -> bool
 {
-    return self.get<ComponentTable<Component_T>>().empty();
+    return util::any_cast<ComponentTable<Component_T>>(self).empty();
 }
 
 template <core::ecs::component_c Component_T>

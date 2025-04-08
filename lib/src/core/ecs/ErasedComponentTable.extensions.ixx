@@ -4,6 +4,7 @@ module;
 
 export module core.ecs:ErasedComponentTable.extensions;
 
+import utility.containers.Any;
 import utility.containers.OptionalRef;
 
 import :ArchetypeID;
@@ -65,7 +66,7 @@ auto extensions::insert(
     Component_T&&         component
 ) -> RecordIndex
 {
-    return it.get<ComponentTable<Component_T>>().insert(
+    return util::any_cast<ComponentTable<Component_T>>(it).insert(
         archetype_id, std::forward<Component_T>(component)
     );
 }
@@ -77,7 +78,7 @@ auto extensions::remove_component(
     RecordIndex           record_index
 ) -> Component_T
 {
-    return it.get<ComponentTable<Component_T>>().remove_component(
+    return util::any_cast<ComponentTable<Component_T>>(it).remove_component(
         archetype_id, record_index
     );
 }
@@ -90,7 +91,7 @@ auto extensions::get_component(
 ) -> Component_T&
 {
     return get_component(
-        it.get<ComponentTable<Component_T>>(), archetype_id, record_index
+        util::any_cast<ComponentTable<Component_T>>(it), archetype_id, record_index
     );
 }
 
@@ -114,7 +115,7 @@ auto extensions::find_component(
 ) -> util::OptionalRef<Component_T>
 {
     return find_component(
-        it.get<ComponentTable<Component_T>>(), archetype_id, record_index
+        util::any_cast<ComponentTable<Component_T>>(it), archetype_id, record_index
     );
 }
 

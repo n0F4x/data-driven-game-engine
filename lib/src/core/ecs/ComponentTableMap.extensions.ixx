@@ -7,6 +7,7 @@ module;
 
 export module core.ecs:ComponentTableMap.extensions;
 
+import utility.containers.Any;
 import utility.meta.algorithms.enumerate;
 import utility.meta.concepts.all_different;
 import utility.meta.concepts.decays_to;
@@ -227,7 +228,7 @@ auto extensions::find_component_table(ComponentTableMap& it)
 {
     return it.find_component_table(component_id_of<Component_T>())
         .transform([](ErasedComponentTable& erased_component_table) -> decltype(auto) {
-            return erased_component_table.get<ComponentTable<Component_T>>();
+            return util::any_cast<ComponentTable<Component_T>>(erased_component_table);
         });
 }
 
