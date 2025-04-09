@@ -1,7 +1,8 @@
 module;
 
-#include <tuple>
-#include <type_traits>
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+  #include <tuple>
+#endif
 
 export module utility.meta.type_traits.type_list.type_list_index_of;
 

@@ -1,6 +1,7 @@
 module;
 
 #include <optional>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -49,6 +50,31 @@ public:
 
 private:
     Underlying m_vector;
+};
+
+template <core::ecs::component_c Component_T>
+    requires(std::is_empty_v<Component_T>)
+class ComponentContainer<Component_T> {
+public:
+    template <util::meta::decays_to_c<Component_T> UComponent_T>
+    auto insert(UComponent_T&& component) -> RecordIndex;
+
+    auto remove(RecordIndex record_index) -> Component_T;
+    auto erase(RecordIndex record_index) -> std::optional<Component_T>;
+
+    [[nodiscard]]
+    auto get(RecordIndex record_index) -> Component_T&;
+    [[nodiscard]]
+    auto get(RecordIndex record_index) const -> const Component_T&;
+
+    [[nodiscard]]
+    auto empty() const noexcept -> bool;
+    [[nodiscard]]
+    auto size() const noexcept -> size_t;
+
+private:
+    std::optional<Component_T> m_optional;
+    size_t                     m_size{};
 };
 
 template <core::ecs::component_c Component_T>
@@ -137,4 +163,71 @@ template <core::ecs::component_c Component_T>
 auto ComponentContainer<Component_T>::end() const -> ConstIterator
 {
     return m_vector.end();
+}
+
+template <core::ecs::component_c Component_T>
+    requires(std::is_empty_v<Component_T>)
+template <util::meta::decays_to_c<Component_T> UComponent_T>
+auto ComponentContainer<Component_T>::insert(UComponent_T&& component) -> RecordIndex
+{
+    if (!m_optional.has_value()) {
+        m_optional.emplace(std::forward<UComponent_T>(component));
+    }
+    return RecordIndex{ static_cast<RecordIndex::Underlying>(m_size++) };
+}
+
+template <core::ecs::component_c Component_T>
+    requires(std::is_empty_v<Component_T>)
+auto ComponentContainer<Component_T>::remove(const RecordIndex record_index) -> Component_T
+{
+    PRECOND(record_index.underlying() < m_size);
+
+    --m_size;
+
+    return *m_optional;
+}
+
+template <core::ecs::component_c Component_T>
+    requires(std::is_empty_v<Component_T>)
+auto ComponentContainer<Component_T>::erase(const RecordIndex record_index)
+    -> std::optional<Component_T>
+{
+    if (record_index.underlying() >= m_size) {
+        return std::nullopt;
+    }
+
+    --m_size;
+
+    return *m_optional;
+}
+
+template <core::ecs::component_c Component_T>
+    requires(std::is_empty_v<Component_T>)
+auto ComponentContainer<Component_T>::get(const RecordIndex record_index) -> Component_T&
+{
+    PRECOND(record_index.underlying() < m_size);
+
+    return *m_optional;
+}
+
+template <core::ecs::component_c Component_T>
+    requires(std::is_empty_v<Component_T>)
+auto ComponentContainer<Component_T>::get(const RecordIndex record_index) const
+    -> const Component_T&
+{
+    return const_cast<ComponentContainer&>(*this).get(record_index);
+}
+
+template <core::ecs::component_c Component_T>
+    requires(std::is_empty_v<Component_T>)
+auto ComponentContainer<Component_T>::empty() const noexcept -> bool
+{
+    return m_size == 0;
+}
+
+template <core::ecs::component_c Component_T>
+    requires(std::is_empty_v<Component_T>)
+auto ComponentContainer<Component_T>::size() const noexcept -> size_t
+{
+    return m_size;
 }
