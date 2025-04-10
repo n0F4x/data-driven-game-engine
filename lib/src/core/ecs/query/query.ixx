@@ -31,9 +31,6 @@ concept deducable_query_function_c =
 
 namespace core::ecs {
 
-export template <query_parameter_c... Parameters_T>
-using Query = QueryClosure<Parameters_T...>;
-
 export template <query_parameter_c... Parameters_T, typename F>
     requires(sizeof...(Parameters_T) != 0)
 auto query(Registry& registry, F&& func) -> F;
@@ -47,7 +44,7 @@ template <core::ecs::query_parameter_c... Parameters_T, typename F>
     requires(sizeof...(Parameters_T) != 0)
 auto core::ecs::query(Registry& registry, F&& func) -> F
 {
-    constexpr static Query<Parameters_T...> query_closure;
+    constexpr static QueryClosure<Parameters_T...> query_closure;
     return query_closure(registry, std::forward<F>(func));
 }
 

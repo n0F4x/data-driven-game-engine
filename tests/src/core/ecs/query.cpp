@@ -16,6 +16,18 @@ import utility.TypeList;
 
 namespace {
 
+struct Empty {
+    struct Tag {};
+
+    constexpr explicit Empty(Tag) {}
+};
+
+struct Empty2 {
+    struct Tag {};
+
+    constexpr explicit Empty2(Tag) {}
+};
+
 template <core::ecs::query_parameter_c T>
 struct IsQueried {
     constexpr static bool value = core::ecs::queryable_component_c<std::remove_const_t<T>>
@@ -45,11 +57,24 @@ TEST_CASE("core::ecs::query")
 {
     core::ecs::Registry registry;
 
+    SECTION("empty component")
+    {
+        registry.create(Empty{ Empty::Tag{} });
+
+        int visit_count{};
+
+        core::ecs::query<Empty, core::ecs::Optional<Empty2>>(
+            registry, [&](Empty, util::OptionalRef<Empty2>) { ++visit_count; }
+        );
+
+        REQUIRE(visit_count == 1);
+    }
+
     SECTION("each (without id)")
     {
         SECTION("empty registry")
         {
-            core::ecs::query<int>(registry, [&](int&) {});
+            core::ecs::query<int>(registry, [](int&) {});
         }
 
         registry.create(int{}, float{});
