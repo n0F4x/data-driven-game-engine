@@ -11,6 +11,8 @@ module;
 
 export module core.gltf.Model;
 
+import utility.containers.OptionalRef;
+
 import core.gltf.Image;
 import core.gltf.Material;
 import core.gltf.Mesh;
@@ -110,7 +112,7 @@ public:
     auto mesh_index() const noexcept -> std::optional<size_t>;
     [[nodiscard]]
     auto mesh(const Model& model) const
-        -> std::optional<std::reference_wrapper<const Mesh>>;
+        -> util::OptionalRef<const Mesh>;
 
 private:
     friend Loader;

@@ -1,7 +1,6 @@
 module;
 
 #include <future>
-#include <optional>
 #include <vector>
 
 #include <glm/ext/matrix_float4x4.hpp>
@@ -9,6 +8,8 @@ module;
 export module core.renderer.scene.Scene;
 
 import vulkan_hpp;
+
+import utility.containers.OptionalRef;
 
 import core.cache.Cache;
 import core.cache.Handle;
@@ -91,8 +92,8 @@ public:
     ) const -> std::packaged_task<Scene(vk::CommandBuffer)>;
 
 private:
-    std::optional<std::reference_wrapper<cache::Cache>> m_cache;
-    std::vector<cache::Handle<const gltf::Model>>       m_models;
+    util::OptionalRef<cache::Cache>               m_cache;
+    std::vector<cache::Handle<const gltf::Model>> m_models;
 };
 
 }   // namespace core::renderer

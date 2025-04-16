@@ -1,5 +1,6 @@
 module;
 
+#include <functional>
 #include <optional>
 
 #include <glm/gtc/quaternion.hpp>
@@ -60,11 +61,10 @@ auto Node::mesh_index() const noexcept -> std::optional<size_t>
     return m_mesh_index;
 }
 
-auto Node::mesh(const Model& model
-) const -> std::optional<std::reference_wrapper<const Mesh>>
+auto Node::mesh(const Model& model) const -> util::OptionalRef<const Mesh>
 {
     return m_mesh_index.transform([&](const size_t index) {
-        return model.meshes().at(index);
+        return std::cref(model.meshes().at(index));
     });
 }
 

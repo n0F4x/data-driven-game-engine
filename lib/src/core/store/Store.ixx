@@ -1,7 +1,6 @@
 module;
 
 #include <functional>
-#include <memory>
 #include <optional>
 #include <typeindex>
 
@@ -10,6 +9,7 @@ module;
 export module core.store.Store;
 
 import utility.containers.Any;
+import utility.containers.OptionalRef;
 
 export import core.store.storable_c;
 
@@ -36,10 +36,10 @@ public:
 
     template <typename T>
     [[nodiscard]]
-    auto find() noexcept -> std::optional<std::reference_wrapper<T>>;
+    auto find() noexcept -> util::OptionalRef<T>;
     template <typename T>
     [[nodiscard]]
-    auto find() const noexcept -> std::optional<std::reference_wrapper<const T>>;
+    auto find() const noexcept -> util::OptionalRef<const T>;
 
     template <typename T>
     [[nodiscard]]
@@ -75,7 +75,7 @@ auto core::store::Store::emplace(Args_T&&... args) -> T&
 }
 
 template <typename T>
-auto core::store::Store::find() noexcept -> std::optional<std::reference_wrapper<T>>
+auto core::store::Store::find() noexcept -> util::OptionalRef<T>
 {
     auto iter{ m_map.find(typeid(T)) };
     if (iter == m_map.cend()) {
@@ -87,7 +87,7 @@ auto core::store::Store::find() noexcept -> std::optional<std::reference_wrapper
 
 template <typename T>
 auto core::store::Store::find() const noexcept
-    -> std::optional<std::reference_wrapper<const T>>
+    -> util::OptionalRef<const T>
 {
     const auto iter{ m_map.find(typeid(T)) };
     if (iter == m_map.cend()) {
