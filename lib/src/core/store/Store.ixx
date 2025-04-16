@@ -7,9 +7,9 @@ module;
 
 #include <tsl/ordered_map.h>
 
-#include <entt/core/any.hpp>
-
 export module core.store.Store;
+
+import utility.containers.Any;
 
 export import core.store.storable_c;
 
@@ -31,8 +31,8 @@ public:
     ///-----------///
     ///  Methods  ///
     ///-----------///
-    template <storable_c T>
-    auto emplace(auto&&... args) -> T&;
+    template <storable_c T, typename... Args_T>
+    auto emplace(Args_T&&... args) -> T&;
 
     template <typename T>
     [[nodiscard]]
@@ -56,23 +56,22 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    tsl::ordered_map<std::type_index, std::unique_ptr<entt::any>> m_map;
+    tsl::ordered_map<std::type_index, util::BasicAny<0>> m_map;
 };
 
 }   // namespace core::store
 
-template <core::store::storable_c T>
-auto core::store::Store::emplace(auto&&... args) -> T&
+template <core::store::storable_c T, typename... Args_T>
+auto core::store::Store::emplace(Args_T&&... args) -> T&
 {
-    return entt::any_cast<T&>(*m_map
-                                   .try_emplace(
-                                       typeid(T),
-                                       std::make_unique<entt::any>(
-                                           std::in_place_type<T>,
-                                           std::forward<decltype(args)>(args)...
-                                       )
-                                   )
-                                   .first.value());
+    return util::any_cast<T>(
+        m_map
+            .try_emplace(
+                typeid(T), std::in_place_type<T>, std::forward<Args_T>(args)...
+
+            )
+            .first.value()
+    );
 }
 
 template <typename T>
@@ -83,7 +82,7 @@ auto core::store::Store::find() noexcept -> std::optional<std::reference_wrapper
         return std::nullopt;
     }
 
-    return entt::any_cast<T&>(*iter.value());
+    return util::any_cast<T>(iter.value());
 }
 
 template <typename T>
@@ -95,19 +94,19 @@ auto core::store::Store::find() const noexcept
         return std::nullopt;
     }
 
-    return entt::any_cast<const T&>(*iter.value());
+    return util::any_cast<T>(iter.value());
 }
 
 template <typename T>
 auto core::store::Store::at() -> T&
 {
-    return entt::any_cast<T&>(*m_map.at(typeid(T)));
+    return util::any_cast<T>(m_map.at(typeid(T)));
 }
 
 template <typename T>
 auto core::store::Store::at() const -> const T&
 {
-    return entt::any_cast<const T&>(*m_map.at(typeid(T)));
+    return util::any_cast<T>(m_map.at(typeid(T)));
 }
 
 template <typename T>

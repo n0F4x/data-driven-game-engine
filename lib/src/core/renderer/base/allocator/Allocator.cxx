@@ -2,15 +2,16 @@ module;
 
 #include <gsl/gsl-lite.hpp>
 
-#include "core/log/log.hpp"
-
 #include <vulkan/vulkan.hpp>
 
 #include <vk_mem_alloc.h>
 
 #include <VkBootstrap.h>
 
+#include "core/log/log.hpp"
+
 module core.renderer.base.allocator.Allocator;
+
 import core.renderer.base.resources.Allocation;
 import core.renderer.base.resources.Buffer;
 import core.renderer.base.resources.Image;
@@ -139,7 +140,8 @@ static auto get_vulkan_functions() -> VmaVulkanFunctions
 static auto create_allocator(
     const core::renderer::base::Instance& instance,
     const core::renderer::base::Device&   device
-) -> gsl_lite::not_null_ic<std::unique_ptr<VmaAllocator_T, decltype(&::vmaDestroyAllocator)>>
+) -> gsl_lite::
+    not_null_ic<std::unique_ptr<VmaAllocator_T, decltype(&::vmaDestroyAllocator)>>
 {
     const VmaVulkanFunctions     vulkan_functions{ ::get_vulkan_functions() };
     const VmaAllocatorCreateInfo create_info{

@@ -132,7 +132,7 @@ class AnyBase {};
 
 namespace util {
 
-export template <::util::meta::decayed_c T, typename Any_T>
+export template <::storable_c T, typename Any_T>
     requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
 constexpr auto any_cast(Any_T&&) -> ::util::meta::forward_like_t<T, Any_T>;
 
@@ -180,7 +180,7 @@ public:
     constexpr auto operator=(const BasicAny&) -> BasicAny&;
     constexpr auto operator=(BasicAny&&) noexcept -> BasicAny&;
 
-    template <::util::meta::decayed_c T, typename Any_T>
+    template <::storable_c T, typename Any_T>
         requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
     constexpr friend auto any_cast(Any_T&&) -> ::util::meta::forward_like_t<T, Any_T>;
 
@@ -400,7 +400,7 @@ constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::type_name()
     return util::meta::name_of<T>();
 }
 
-template <::util::meta::decayed_c T, typename Any_T>
+template <storable_c T, typename Any_T>
     requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
 constexpr auto util::any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
 {
