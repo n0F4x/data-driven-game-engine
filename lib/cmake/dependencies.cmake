@@ -13,10 +13,6 @@ find_package(gsl-lite CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE gsl_CONFIG_DEFAULTS_VERSION=1)
 target_link_libraries(${PROJECT_NAME} PRIVATE gsl::gsl-lite)
 
-# plf_colony
-find_package(plf_colony CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE plf_colony::plf_colony)
-
 # tsl-ordered_map
 find_package(tsl-ordered-map CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE tsl::ordered_map)

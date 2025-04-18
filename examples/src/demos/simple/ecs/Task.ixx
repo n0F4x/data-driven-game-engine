@@ -45,8 +45,7 @@ auto collect_params_of(
     ecs::Registry&                                   registry
 )
 {
-    using ParamsTuple =
-        util::meta::arguments_of_t<std::remove_pointer_t<std::decay_t<System_T>>>;
+    using ParamsTuple = util::meta::arguments_of_t<System_T>;
 
     return util::generate_tuple_from<ParamsTuple>([&resources,
                                                    &registry]<typename Param_T>() {
@@ -84,8 +83,7 @@ ecs::Task::Task(
               system,
               std::apply(
                   []<typename... ParamBuilders_T>(ParamBuilders_T&&... param_builders)
-                      -> util::meta::arguments_of_t<
-                          std::remove_pointer_t<std::decay_t<System_T>>> {
+                      -> util::meta::arguments_of_t<System_T> {
                       return std::make_tuple(
                           std::invoke(std::forward<ParamBuilders_T>(param_builders))...
                       );

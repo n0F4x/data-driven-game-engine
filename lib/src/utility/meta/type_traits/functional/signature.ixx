@@ -5,7 +5,6 @@ module;
 export module utility.meta.type_traits.functional.signature;
 
 namespace util::meta {
-// NOLINTBEGIN(readability-identifier-naming)
 
 export template <typename>
 struct signature;
@@ -28,5 +27,4 @@ struct signature<Result (Class::*)(Args...) const> {
     using result_t    = Result;
 };
 
-// NOLINTEND(readability-identifier-naming)
 }   // namespace util::meta

@@ -1,4 +1,5 @@
 add_subdirectory(constexpr)
 add_subdirectory(gltf)
 add_subdirectory(simple)
+add_subdirectory(snake)
 add_subdirectory(virtual_texture)

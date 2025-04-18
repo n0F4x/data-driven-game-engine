@@ -1,13 +1,12 @@
 {
     "version": "0.5",
     "requires": [
-        "zstd/1.5.5#b87dc3b185caa4b122979ac4ae8ef7e8%1699046809.017",
+        "zstd/1.5.5#8400bcba21d1b495dca55edf3f065246%1744114239.76",
         "vulkan-headers/1.3.296.0#d3016741798609ba9dfa100c7a80ad5b%1730049313.734",
         "tsl-ordered-map/1.1.0#8ddec55fa369456ef4319f42bcb9af49%1694770345.954",
         "stb/cci.20240531#ede183dce303916dab0c1b835df3926a%1720366012.336",
         "spdlog/1.15.1#92e99f07f134481bce4b70c1a41060e7%1738512735.307",
-        "plf_colony/7.39#53328f3a318cd4cd495bb3f2b70be32e%1702190240.66",
-        "opengl/system#4df6fecde4084386beded3ed0e56e4ea%1709801735.507",
+        "opengl/system#7c02ea6ef926fd04844af53622a30541%1730805494.23",
         "ktx/4.3.2#5cdb5ff71d0bcca8f3f243946454c448%1716133493.851",
         "gsl-lite/0.42.0#1a0c9f187d3435370fd9752437abb768%1730720255.818",
         "glm/1.0.1#94392c53a527f7d830119b84fe80c754%1713951421.775",
@@ -17,7 +16,7 @@
         "catch2/3.8.0#2c87b60d2c85f3c8509bb209f37cbf67%1736250254.537"
     ],
     "build_requires": [
-        "cmake/3.30.5#540068cc37f1d21b42b729c82d6bcb29%1728562547.207"
+        "cmake/3.31.6#ed0e6c1d49bd564ce6fed1a19653b86d%1740594968.467"
     ],
     "python_requires": [],
     "config_requires": []

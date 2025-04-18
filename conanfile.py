@@ -14,7 +14,6 @@ class DataDrivenGameEngineRecipe(ConanFile):
 
     def requirements(self):
         self.requires("gsl-lite/0.42.0")
-        self.requires("plf_colony/7.39")
         self.requires("tsl-ordered-map/1.1.0")
         self.requires("spdlog/1.15.1")
         self.requires("glfw/3.4")

@@ -1,6 +1,6 @@
 module;
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 #include <vk_mem_alloc.h>
 

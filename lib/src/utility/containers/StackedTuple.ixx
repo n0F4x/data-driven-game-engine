@@ -15,7 +15,7 @@ export module utility.containers.StackedTuple;
 import utility.meta.concepts.decayed;
 import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.functional.invoke_result_of;
+import utility.meta.type_traits.functional.result_of;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.TypeList;
 
@@ -27,7 +27,7 @@ struct Leaf {
 template <typename T, typename Resource_T>
 concept decays_to_factory_c = std::constructible_from<
     Resource_T,
-    util::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<T>>>>;
+    util::meta::result_of_t<std::remove_pointer_t<std::decay_t<T>>>>;
 
 template <typename... Ts>
 struct Impl;

@@ -1,6 +1,6 @@
 module;
 
-#include <gsl/gsl-lite.hpp>
+#include <functional>
 
 export module core.ecs:ErasedComponentTable;
 
@@ -15,16 +15,16 @@ import :RecordIndex;
 class ErasedComponentTable;
 
 struct ErasedComponentTableOperations {
-    using RemoveComponentFunc = auto (*)(ErasedComponentTable&, ArchetypeID, RecordIndex)
+    using RemoveComponentFunc = auto (&)(ErasedComponentTable&, ArchetypeID, RecordIndex)
         -> void;
     using MoveComponentFunc =
-        auto (*)(ErasedComponentTable&, ArchetypeID, RecordIndex, ArchetypeID)
+        auto (&)(ErasedComponentTable&, ArchetypeID, RecordIndex, ArchetypeID)
             -> RecordIndex;
-    using EmptyFunc = auto (*)(const ErasedComponentTable&) -> bool;
+    using EmptyFunc = auto (&)(const ErasedComponentTable&) -> bool;
 
-    gsl::not_null_ic<RemoveComponentFunc> remove_component;
-    gsl::not_null_ic<MoveComponentFunc>   move_component;
-    gsl::not_null_ic<EmptyFunc>           empty;
+    RemoveComponentFunc remove_component;
+    MoveComponentFunc   move_component;
+    EmptyFunc           empty;
 };
 
 template <core::ecs::component_c Component_T>
@@ -67,7 +67,7 @@ public:
     auto empty() const noexcept -> bool;
 
 private:
-    gsl::not_null<const ErasedComponentTableOperations*> m_operations;
+    std::reference_wrapper<const ErasedComponentTableOperations> m_operations;
 };
 
 template <core::ecs::component_c Component_T>
@@ -106,7 +106,7 @@ constexpr auto ErasedComponentTableTraits<Component_T>::empty(
 template <core::ecs::component_c Component_T>
 constexpr ErasedComponentTable::ErasedComponentTable(ComponentTag<Component_T>)
     : Base{ std::in_place_type<ComponentTable<Component_T>> },
-      m_operations{ &ErasedComponentTableTraits<Component_T>::s_operations }
+      m_operations{ ErasedComponentTableTraits<Component_T>::s_operations }
 {}
 
 auto ErasedComponentTable::remove_component(
@@ -114,7 +114,7 @@ auto ErasedComponentTable::remove_component(
     const RecordIndex record_index
 ) -> void
 {
-    m_operations->remove_component.operator->()(*this, archetype_id, record_index);
+    m_operations.get().remove_component(*this, archetype_id, record_index);
 }
 
 auto ErasedComponentTable::move_component(
@@ -123,12 +123,12 @@ auto ErasedComponentTable::move_component(
     const ArchetypeID new_archetype_id
 ) -> RecordIndex
 {
-    return m_operations->move_component.operator->()(
+    return m_operations.get().move_component(
         *this, archetype_id, record_index, new_archetype_id
     );
 }
 
 auto ErasedComponentTable::empty() const noexcept -> bool
 {
-    return m_operations->empty.operator->()(*this);
+    return m_operations.get().empty(*this);
 }

@@ -7,7 +7,7 @@ export module ecs:system_c;
 import :Query;
 import :Res;
 
-import utility.meta.concepts.functional.callable;
+import utility.meta.concepts.functional.unambiguously_invocable;
 import utility.meta.concepts.type_list.type_list_all_of;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.is_specialization_of;
@@ -26,9 +26,9 @@ struct is_valid_argument
 
 export template <typename SchedulableT>
 concept system_c =
-    util::meta::callable_c<std::remove_pointer_t<std::decay_t<SchedulableT>>>
+    util::meta::unambiguously_invocable_c<SchedulableT>
     && util::meta::type_list_all_of_c<
-        util::meta::arguments_of_t<std::remove_pointer_t<std::decay_t<SchedulableT>>>,
+        util::meta::arguments_of_t<SchedulableT>,
         is_valid_argument>;
 
 }   // namespace ecs

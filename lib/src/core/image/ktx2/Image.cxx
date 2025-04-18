@@ -5,7 +5,7 @@ module;
 #include <format>
 #include <span>
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 #include <ktx.h>
 
@@ -52,7 +52,7 @@ auto core::image::ktx2::Image::load_from(const std::filesystem::path& filepath) 
 
     ::transcode(texture);
 
-    return Image{ gsl::make_not_null(texture) };
+    return Image{ gsl_lite::make_not_null(texture) };
 }
 
 auto core::image::ktx2::Image::load_from(const std::span<const std::byte> data) -> Image
@@ -74,7 +74,7 @@ auto core::image::ktx2::Image::load_from(const std::span<const std::byte> data) 
 
     ::transcode(texture);
 
-    return Image{ gsl::make_not_null(texture) };
+    return Image{ gsl_lite::make_not_null(texture) };
 }
 
 auto core::image::ktx2::Image::data() const noexcept -> std::span<const std::byte>

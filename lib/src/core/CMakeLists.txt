@@ -8,6 +8,7 @@ add_subdirectory(image)
 add_subdirectory(log)
 add_subdirectory(renderer)
 add_subdirectory(resource)
+add_subdirectory(scheduler)
 add_subdirectory(store)
 add_subdirectory(window)
 

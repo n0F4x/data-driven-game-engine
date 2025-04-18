@@ -6,7 +6,7 @@ module;
 
 export module core.ecs:query.query;
 
-import utility.meta.concepts.functional.callable;
+import utility.meta.concepts.functional.unambiguously_invocable;
 import utility.meta.concepts.type_list.type_list_none_of;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.type_list.type_list_contains;
@@ -19,7 +19,7 @@ import :Registry;
 
 template <typename F>
 concept deducable_query_function_c =
-    util::meta::callable_c<F>
+    util::meta::unambiguously_invocable_c<F>
     && util::meta::
         type_list_none_of_c<util::meta::arguments_of_t<F>, std::is_rvalue_reference>
     && requires {

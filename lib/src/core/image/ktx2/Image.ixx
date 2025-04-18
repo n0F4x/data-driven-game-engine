@@ -3,7 +3,7 @@ module;
 #include <filesystem>
 #include <span>
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 
 

@@ -82,7 +82,6 @@ public:
     template <typename Self_T, typename App_T>
         requires core::app::app_c<App_T>
     constexpr auto build(this Self_T&& self, App_T&& app)
-
     {
         if constexpr (class DummyAddon{}; requires(core::app::App<DummyAddon> dummy_app) {
                           core::app::app_c<

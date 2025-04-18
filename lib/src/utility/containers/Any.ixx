@@ -39,12 +39,12 @@ template <size_t size_T, size_t alignment_T, typename Allocator_T>
 struct Operations {
     using Storage = storage_t<size_T, alignment_T>;
 
-    using CopyFunc = auto (*)(Storage& out, Allocator_T& allocator, const Storage& storage)
+    using CopyFunc = auto (&)(Storage& out, Allocator_T& allocator, const Storage& storage)
         -> void;
-    using MoveFunc       = auto (*)(Storage& out, Storage&& storage) -> void;
-    using DropFunc       = auto (*)(Allocator_T& allocator, Storage&&) -> void;
-    using TypesMatchFunc = auto (*)(util::meta::TypeHash) -> bool;
-    using TypeNameFunc   = auto (*)() -> std::string_view;
+    using MoveFunc       = auto (&)(Storage& out, Storage&& storage) -> void;
+    using DropFunc       = auto (&)(Allocator_T& allocator, Storage&&) -> void;
+    using TypesMatchFunc = auto (&)(util::meta::TypeHash) -> bool;
+    using TypeNameFunc   = auto (&)() -> std::string_view;
 
     CopyFunc       copy;
     MoveFunc       move;
@@ -90,7 +90,11 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
     constexpr static auto type_name() -> std::string_view;
 
     constexpr static Operations<size_T, alignment_T, Allocator_T> s_operations{
-        copy, move, drop, types_match, type_name,
+        .copy        = copy,
+        .move        = move,
+        .drop        = drop,
+        .types_match = types_match,
+        .type_name   = type_name,
     };
 
 private:
@@ -124,7 +128,11 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
     constexpr static auto type_name() -> std::string_view;
 
     constexpr static Operations<size_T, alignment_T, Allocator_T> s_operations{
-        copy, move, drop, types_match, type_name,
+        .copy        = copy,
+        .move        = move,
+        .drop        = drop,
+        .types_match = types_match,
+        .type_name   = type_name,
     };
 };
 

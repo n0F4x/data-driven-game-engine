@@ -4,6 +4,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         functional.cppm
         arguments_of.ixx
-        invoke_result_of.ixx
+        result_of.ixx
         signature.ixx
 )

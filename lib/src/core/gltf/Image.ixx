@@ -2,7 +2,7 @@ module;
 
 #include <memory>
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl-lite/gsl-lite.hpp>
 
 export module core.gltf.Image;
 

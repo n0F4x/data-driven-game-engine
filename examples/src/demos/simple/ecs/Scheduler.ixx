@@ -30,7 +30,7 @@ struct SchedulerAddon;
 
 template <typename System_T>
 using task_builder_for = util::meta::type_list_to_t<
-    util::meta::arguments_of_t<std::remove_pointer_t<std::decay_t<System_T>>>,
+    util::meta::arguments_of_t<System_T>,
     ecs::TaskBuilder>;
 
 template <util::meta::specialization_of_c<ecs::TaskBuilder>... TaskBuilders_T>

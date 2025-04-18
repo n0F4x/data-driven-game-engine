@@ -13,7 +13,7 @@ import core.app.Builder;
 import core.store.Store;
 
 import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.functional.invoke_result_of;
+import utility.meta.type_traits.functional.result_of;
 import utility.meta.type_traits.type_list.type_list_drop_back;
 import utility.meta.type_traits.back;
 import utility.tuple;
@@ -27,7 +27,7 @@ concept resource_c = addons::resource_c<Resource_T>;
 
 export template <typename Injection_T>
 concept injection_c = resource_c<
-    util::meta::invoke_result_of_t<std::remove_pointer_t<std::decay_t<Injection_T>>>>;
+    util::meta::result_of_t<std::remove_pointer_t<std::decay_t<Injection_T>>>>;
 
 template <extensions::injection_c... Injections_T>
 class BasicResourceManager;
@@ -190,7 +190,7 @@ constexpr auto extensions::BasicResourceManager<Injections_T...>::operator()(App
 ) &&
 {
     using BasicResourceManagerAddon =
-        addons::ResourceManager<util::meta::invoke_result_of_t<
+        addons::ResourceManager<util::meta::result_of_t<
             std::remove_pointer_t<std::decay_t<Injections_T>>>...>;
 
     static_assert(!core::app::has_addons_c<App_T, BasicResourceManagerAddon>);
