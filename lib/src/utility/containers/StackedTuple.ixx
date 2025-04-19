@@ -8,18 +8,21 @@ module;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
   #include <cassert>
+  #include <memory>
 #endif
 
 export module utility.containers.StackedTuple;
 
 import utility.meta.concepts.decayed;
+import utility.meta.concepts.integer_sequence.index_sequence;
 import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.result_of;
-import utility.meta.type_traits.type_list.type_list_contains;
+import utility.meta.type_traits.type_list.type_list_at;
+import utility.meta.type_traits.type_list.type_list_index_of;
 import utility.TypeList;
 
-template <typename T>
+template <size_t, typename T>
 struct Leaf {
     T value;
 };
@@ -29,22 +32,28 @@ concept decays_to_factory_c = std::constructible_from<
     Resource_T,
     util::meta::result_of_t<std::remove_pointer_t<std::decay_t<T>>>>;
 
-template <typename... Ts>
+template <util::meta::index_sequence_c, typename... Ts>
 struct Impl;
 
-template <>
-struct Impl<> {
+template <template <typename, size_t...> typename IntegerSequence_T>
+struct Impl<IntegerSequence_T<size_t>> {
     constexpr explicit Impl(std::tuple<>);
 };
 
-template <typename T>
-struct Impl<T> : Leaf<T> {
+template <template <typename, size_t...> typename IntegerSequence_T, size_t I, typename T>
+struct Impl<IntegerSequence_T<size_t, I>, T> : Leaf<I, T> {
     template <typename... Stacked_T, typename Factory_T>
     constexpr Impl(std::tuple<Stacked_T&...>&& stack, Factory_T&& factory);
 };
 
-template <typename T, typename... Ts>
-struct Impl<T, Ts...> : Leaf<T>, Impl<Ts...> {
+template <
+    template <typename, size_t...> typename IntegerSequence_T,
+    size_t I,
+    size_t... Is,
+    typename T,
+    typename... Ts>
+struct Impl<IntegerSequence_T<size_t, I, Is...>, T, Ts...>
+    : Leaf<I, T>, Impl<IntegerSequence_T<size_t, Is...>, Ts...> {
     template <typename... Stacked_T, typename Factory_T, typename... Factories_T>
     constexpr Impl(
         std::tuple<Stacked_T&...>&& stack,
@@ -62,18 +71,24 @@ public:
     constexpr explicit StackedTuple(Factories_T&&... factories);
     StackedTuple(const StackedTuple&) = delete;
 
+    template <size_t index_T, typename Self_T>
+    [[nodiscard]]
+    constexpr auto get(this Self_T&&) noexcept -> ::util::meta::
+        forward_like_t<util::meta::type_list_at_t<util::TypeList<Ts...>, index_T>, Self_T>;
+
     template <::util::meta::decayed_c T, typename Self_T>
-        requires(::util::meta::type_list_contains_v<::util::TypeList<Ts...>, T>)
     [[nodiscard]]
     constexpr auto get(this Self_T&&) noexcept -> ::util::meta::forward_like_t<T, Self_T>;
 
 private:
-    Impl<Ts...> m_impl;
+    Impl<std::make_index_sequence<sizeof...(Ts)>, Ts...> m_impl;
 };
 
 }   // namespace util
 
-constexpr Impl<>::Impl(std::tuple<>) {}
+template <template <typename, size_t...> typename IntegerSequence_T>
+constexpr Impl<IntegerSequence_T<size_t>>::Impl(std::tuple<>)
+{}
 
 template <typename>
 struct gather_dependencies_helper;
@@ -99,28 +114,38 @@ constexpr auto gather_dependencies(std::tuple<Ts...>& stack)
     return gather_dependencies_helper<RequiredResourcesTuple_T>::operator()(stack);
 }
 
-template <typename T>
+template <template <typename, size_t...> typename IntegerSequence_T, size_t I, typename T>
 template <typename... Stacked_T, typename Factory_T>
-constexpr Impl<T>::Impl(std::tuple<Stacked_T&...>&& stack, Factory_T&& factory)
-    : Leaf<T>{ std::apply(
+constexpr Impl<IntegerSequence_T<size_t, I>, T>::Impl(
+    std::tuple<Stacked_T&...>&& stack,
+    Factory_T&&                 factory
+)
+    : Leaf<I, T>{ std::apply(
           std::forward<Factory_T>(factory),
           gather_dependencies<std::remove_pointer_t<std::decay_t<Factory_T>>>(stack)
       ) }
 {}
 
-template <typename T, typename... Ts>
+template <
+    template <typename, size_t...> typename IntegerSequence_T,
+    size_t I,
+    size_t... Is,
+    typename T,
+    typename... Ts>
 template <typename... Stacked_T, typename Factory_T, typename... Factories_T>
-constexpr Impl<T, Ts...>::Impl(
+constexpr Impl<IntegerSequence_T<size_t, I, Is...>, T, Ts...>::Impl(
     std::tuple<Stacked_T&...>&& stack,
     Factory_T&&                 factory,
     Factories_T&&... factories
 )
-    : Leaf<T>{ std::apply(
+    : Leaf<I, T>{ std::apply(
           std::forward<Factory_T>(factory),
           gather_dependencies<std::remove_pointer_t<std::decay_t<Factory_T>>>(stack)
       ) },
-      Impl<Ts...>{ std::tuple_cat(std::move(stack), std::tuple<T&>{ Leaf<T>::value }),
-                   std::forward<Factories_T>(factories)... }
+      Impl<IntegerSequence_T<size_t, Is...>, Ts...>{
+          std::tuple_cat(std::move(stack), std::tuple<T&>{ Leaf<I, T>::value }),
+          std::forward<Factories_T>(factories)...
+      }
 {}
 
 template <::util::meta::decayed_c... Ts>
@@ -130,12 +155,23 @@ constexpr util::StackedTuple<Ts...>::StackedTuple(Factories_T&&... factories)
 {}
 
 template <::util::meta::decayed_c... Ts>
+template <size_t index_T, typename Self_T>
+constexpr auto util::StackedTuple<Ts...>::get(this Self_T&& self) noexcept
+    -> meta::forward_like_t<meta::type_list_at_t<TypeList<Ts...>, index_T>, Self_T>
+{
+    return std::forward_like<Self_T>(
+        self.m_impl.Leaf<index_T, meta::type_list_at_t<TypeList<Ts...>, index_T>>::value
+    );
+}
+
+template <::util::meta::decayed_c... Ts>
 template <::util::meta::decayed_c T, typename Self_T>
-    requires(::util::meta::type_list_contains_v<::util::TypeList<Ts...>, T>)
 constexpr auto util::StackedTuple<Ts...>::get(this Self_T&& self) noexcept
     -> meta::forward_like_t<T, Self_T>
 {
-    return std::forward_like<Self_T>(self.m_impl.Leaf<T>::value);
+    return std::forward_like<Self_T>(
+        self.m_impl.Leaf<meta::type_list_index_of_v<util::TypeList<Ts...>, T>, T>::value
+    );
 }
 
 module :private;
@@ -219,6 +255,38 @@ static_assert(
         return true;
     }(),
     "inject with functor test failed"
+);
+
+static_assert(
+    [] {
+        std::vector<int> order;
+        order.reserve(3);
+
+        struct OrderWriter {
+            std::reference_wrapper<std::vector<int>> order;
+            int                                      number;
+
+            constexpr ~OrderWriter()
+            {
+                order.get().push_back(number);
+            }
+        };
+
+        auto stacked_tuple =
+            std::make_unique<util::StackedTuple<OrderWriter, OrderWriter, OrderWriter>>(
+                [&order] { return OrderWriter{ .order = order, .number = 0 }; },
+                [&order] { return OrderWriter{ .order = order, .number = 1 }; },
+                [&order] { return OrderWriter{ .order = order, .number = 2 }; }
+            );
+
+        stacked_tuple.reset();
+
+        const std::vector expected{ 2, 1, 0 };
+        assert(order == expected);
+
+        return true;
+    }(),
+    "destruction order test failed"
 );
 
 #endif
