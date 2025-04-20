@@ -1,5 +1,7 @@
 add_executable(snake)
+
 target_compile_features(snake PRIVATE cxx_std_26)
+
 target_compile_options(snake PRIVATE
         -Wall
         -Wextra

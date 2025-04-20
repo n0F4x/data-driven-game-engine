@@ -8,8 +8,6 @@ import :ComponentContainer;
 import :ComponentTable;
 import :RecordIndex;
 
-inline namespace extensions {
-
 template <core::ecs::component_c Component_T>
 [[nodiscard]]
 auto get_component(
@@ -40,10 +38,8 @@ auto find_component(
     RecordIndex                        record_index
 ) -> util::OptionalRef<const Component_T>;
 
-}   // namespace extensions
-
 template <core::ecs::component_c Component_T>
-auto extensions::get_component(
+auto get_component(
     ComponentTable<Component_T>& it,
     ArchetypeID                  archetype_id,
     RecordIndex                  record_index
@@ -53,7 +49,7 @@ auto extensions::get_component(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::get_component(
+auto get_component(
     const ComponentTable<Component_T>& it,
     ArchetypeID                        archetype_id,
     RecordIndex                        record_index
@@ -65,7 +61,7 @@ auto extensions::get_component(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::find_component(
+auto find_component(
     ComponentTable<Component_T>& it,
     ArchetypeID                  archetype_id,
     RecordIndex                  record_index
@@ -80,7 +76,7 @@ auto extensions::find_component(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::find_component(
+auto find_component(
     const ComponentTable<Component_T>& it,
     ArchetypeID                        archetype_id,
     RecordIndex                        record_index

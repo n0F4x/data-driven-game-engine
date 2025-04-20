@@ -1,21 +1,17 @@
-#include <print>
-
-#include <SFML/Graphics.hpp>
-
-import core.app;
+import core;
 import addons;
 import extensions;
 import utility;
 
-import ecs;
+import demo.Window;
+
+using namespace extensions::scheduler::dependency_providers::tags;
+using namespace core::ecs::query_parameter_tags;
 
 using Position = float;
-using Velocity = double;
 using Health   = int;
 
 struct EnemyTag {};
-
-struct MageTag {};
 
 struct Renderable {
     int hi{};
@@ -25,50 +21,45 @@ struct Collider {
     int hi{};
 };
 
-auto my_system(
-    const ecs::Res<sf::RenderWindow> window,
-    const ecs::Query<
-        const Position,
-        ecs::Without<Health, const Velocity>,
-        ecs::With<EnemyTag, const MageTag>,
-        ecs::Optional<Renderable, const Collider>> entities
-) -> void
-{
-    for (auto [position, opt_renderable, opt_collider] : entities) {
-        static_assert(std::same_as<decltype(opt_renderable), util::OptionalRef<Renderable>>);
-        static_assert(std::same_as<
-                      decltype(opt_collider),
-                      util::OptionalRef<const Collider>>);
+constexpr static auto initialize = [](const Res<Window> window) { window->open(); };
 
-        std::println("{}", position);
-    }
+constexpr static auto update_0 = [](const ecs::Query<
+                                     const Position,
+                                     Without<Health>,
+                                     With<EnemyTag>,
+                                     Optional<Renderable>,
+                                     Optional<const Collider>> entities) -> void {
+    entities.for_each([](const Position,
+                         util::OptionalRef<Renderable>,
+                         util::OptionalRef<const Collider>) {});
+};
 
-    entities.each(+[](const Position,
-                      util::OptionalRef<Renderable>,
-                      util::OptionalRef<const Collider>) {});
+constexpr static auto update_1 = [](const Res<Window> window) { window->close(); };
 
-    window->create(sf::VideoMode::getDesktopMode(), "Simple Window");
+constexpr static auto game_is_running = [](const Res<const Window> window) -> bool {
+    return window->is_open();
+};
 
-    while (window->isOpen()) {
-        while (const std::optional event = window->pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                window->close();
-            }
-        }
-
-        window->clear();
-        window->display();
-    }
-}
+constexpr static auto run_game_loop = core::scheduler::loop_until(
+    core::scheduler::group(update_0, update_1),
+    game_is_running
+);
 
 auto main() -> int
 {
+    namespace dependency_providers = extensions::scheduler::dependency_providers;
+
     core::app::create()
         .extend_with(extensions::ResourceManager{})
-        .use_resource(sf::RenderWindow{})
+        .use_resource(Window{})
         .extend_with(extensions::AddonManager{})
-        .use_addon(ecs::RegistryAddon{})
-        .use_addon(ecs::SchedulerAddon{ ecs::Scheduler{}.schedule(::my_system) })
-        .extend_with(extensions::Runnable{})
-        .run(ecs::schedule_runner);
+        .use_addon(addons::ECS{})
+        .extend_with(
+            extensions::TaskRunner{ dependency_providers::ECS{},
+                                    dependency_providers::ResourceManager{} }
+        )
+        .run(
+            core::scheduler::start_as(initialize)   //
+                .then(run_game_loop)
+        );
 }

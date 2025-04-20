@@ -23,7 +23,7 @@ constexpr static auto run_game_loop = core::scheduler::loop_until(
 
 auto main() -> int
 {
-    using namespace extensions::scheduler;
+    namespace dependency_providers = extensions::scheduler::dependency_providers;
 
     core::app::create()
         .extend_with(extensions::ResourceManager{})

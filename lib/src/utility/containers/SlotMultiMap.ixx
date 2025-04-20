@@ -161,6 +161,9 @@ module :private;
 
 #ifdef ENGINE_ENABLE_STATIC_TESTS
 
+// TODO: remove unnamed namespace with better Clang
+namespace {
+
 using Key = uint32_t;
 
 struct Dummy {
@@ -173,6 +176,8 @@ using Values = std::tuple<int, float, Dummy>;
 
 constexpr Key                           missing_key{ std::numeric_limits<Key>::max() };
 constexpr std::tuple<int, float, Dummy> values{ 32, 0.7f, Dummy{ 9 } };
+
+}   // namespace
 
 template <>
 class util::SlotMultiMap<Key, std::tuple<>>;

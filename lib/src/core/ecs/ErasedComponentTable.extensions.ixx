@@ -14,8 +14,6 @@ import :decays_to_component_c;
 import :ErasedComponentTable;
 import :RecordIndex;
 
-inline namespace extensions {
-
 template <decays_to_component_c Component_T>
 auto insert(ErasedComponentTable& it, ArchetypeID archetype_id, Component_T&& component)
     -> RecordIndex;
@@ -57,10 +55,8 @@ auto find_component(
     RecordIndex                 record_index
 ) -> util::OptionalRef<const Component_T>;
 
-}   // namespace extensions
-
 template <decays_to_component_c Component_T>
-auto extensions::insert(
+auto insert(
     ErasedComponentTable& it,
     const ArchetypeID     archetype_id,
     Component_T&&         component
@@ -72,7 +68,7 @@ auto extensions::insert(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::remove_component(
+auto remove_component(
     ErasedComponentTable& it,
     ArchetypeID           archetype_id,
     RecordIndex           record_index
@@ -84,7 +80,7 @@ auto extensions::remove_component(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::get_component(
+auto get_component(
     ErasedComponentTable& it,
     const ArchetypeID     archetype_id,
     const RecordIndex     record_index
@@ -96,7 +92,7 @@ auto extensions::get_component(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::get_component(
+auto get_component(
     const ErasedComponentTable& it,
     const ArchetypeID           archetype_id,
     const RecordIndex           record_index
@@ -108,7 +104,7 @@ auto extensions::get_component(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::find_component(
+auto find_component(
     ErasedComponentTable& it,
     const ArchetypeID     archetype_id,
     const RecordIndex     record_index
@@ -120,7 +116,7 @@ auto extensions::find_component(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::find_component(
+auto find_component(
     const ErasedComponentTable& it,
     const ArchetypeID           archetype_id,
     const RecordIndex           record_index

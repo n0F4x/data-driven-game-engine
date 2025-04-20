@@ -221,7 +221,7 @@ auto core::ecs::Registry::destroy(const core::ecs::ID id) -> bool
                 m_lookup_tables.remove(archetype_id, record_id);
             assert(removed_id == id);
 
-            remove_components(
+            ::remove_components(
                 m_component_tables,
                 archetype_id->sorted_component_ids(),
                 archetype_id,
@@ -241,7 +241,7 @@ auto core::ecs::Registry::get(this Self_T&& self, const core::ecs::ID id) -> std
     const auto [archetype_id, record_id]{ self.get_entity(id) };
 
     return std::forward_as_tuple(
-        get_component<Components_T>(
+        ::get_component<Components_T>(
             self.m_component_tables,
             archetype_id,
             self.m_lookup_tables.get_record_index(archetype_id, record_id)
@@ -255,7 +255,7 @@ auto core::ecs::Registry::get_single(this Self_T&& self, const core::ecs::ID id)
 {
     const auto [archetype_id, record_id]{ self.get_entity(id) };
 
-    return get_component<Component_T>(
+    return ::get_component<Component_T>(
         self.m_component_tables,
         archetype_id,
         self.m_lookup_tables.get_record_index(archetype_id, record_id)
@@ -278,7 +278,7 @@ auto core::ecs::Registry::find(this Self_T&& self, const core::ecs::ID id) noexc
     const LookupTable& lookup_table{ self.m_lookup_tables.get_lookup_table(archetype_id) };
 
     return std::forward_as_tuple(
-        find_component<Components_T>(
+        ::find_component<Components_T>(
             self.m_component_tables, archetype_id, lookup_table.get(record_id)
         )...
     );
@@ -305,7 +305,7 @@ auto core::ecs::Registry::find_all(this Self_T&& self, const core::ecs::ID id) n
     };
 
     return std::forward_as_tuple(
-        get_component<Components_T>(
+        ::get_component<Components_T>(
             self.m_component_tables, archetype_id, lookup_table.get(record_id)
         )...
     );
@@ -323,7 +323,7 @@ auto core::ecs::Registry::find_single(this Self_T&& self, const core::ecs::ID id
 
     const auto [archetype_id, record_id]{ *optional_entity };
 
-    return find_component<Component_T>(
+    return ::find_component<Component_T>(
         self.m_component_tables,
         archetype_id,
         self.m_lookup_tables.get_record_index(archetype_id, record_id)
@@ -569,7 +569,7 @@ auto core::ecs::Registry::insert(
     m_lookup_tables.insert(id, new_archetype_id);
 
 
-    move_components(
+    ::move_components(
         m_component_tables,
         archetype_id->sorted_component_ids(),
         archetype_id,
@@ -614,7 +614,7 @@ auto core::ecs::Registry::forced_insert_or_replace(
         m_lookup_tables.insert(id, new_archetype_id);
 
 
-    move_components(
+    ::move_components(
         m_component_tables,
         archetype_id->sorted_component_ids(),
         archetype_id,
@@ -663,7 +663,7 @@ auto core::ecs::Registry::remove(const core::ecs::ID id, Entity& entity)
         std::get<RecordID>(m_lookup_tables.insert(id, new_archetype_id));
 
 
-    std::tuple<Components_T...> result = remove_components<Components_T...>(
+    std::tuple<Components_T...> result = ::remove_components<Components_T...>(
         m_component_tables, archetype_id, record_index
     );
 

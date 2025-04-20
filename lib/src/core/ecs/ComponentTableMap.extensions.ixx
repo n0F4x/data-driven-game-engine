@@ -22,8 +22,6 @@ import :ComponentTableMap;
 import :decays_to_component_c;
 import :RecordIndex;
 
-inline namespace extensions {
-
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
          && util::meta::all_different_c<std::decay_t<Components_T>...>
@@ -116,12 +114,10 @@ auto find_component(
     RecordIndex              record_index
 ) -> util::OptionalRef<const Component_T>;
 
-}   // namespace extensions
-
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
          && util::meta::all_different_c<std::decay_t<Components_T>...>
-auto extensions::insert(
+auto insert(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
     Components_T&&... components
@@ -134,7 +130,7 @@ auto extensions::insert(
 }
 
 template <util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
-auto extensions::remove_components(
+auto remove_components(
     ComponentTableMap&    it,
     ComponentIDInputRange component_ids,
     const ArchetypeID     archetype_id,
@@ -148,7 +144,7 @@ auto extensions::remove_components(
 
 template <core::ecs::component_c... Components_T>
     requires util::meta::all_different_c<Components_T...>
-auto extensions::remove_components(
+auto remove_components(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
     const RecordIndex  record_index
@@ -161,7 +157,7 @@ auto extensions::remove_components(
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
          && util::meta::all_different_c<std::decay_t<Components_T>...>
-auto extensions::replace_components(
+auto replace_components(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
     const RecordIndex  record_index,
@@ -175,7 +171,7 @@ auto extensions::replace_components(
 }
 
 template <decays_to_component_c Component_T>
-auto extensions::replace_component(
+auto replace_component(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
     const RecordIndex  record_index,
@@ -189,7 +185,7 @@ auto extensions::replace_component(
 template <typename Predicate_T, decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
          && util::meta::all_different_c<std::decay_t<Components_T>...>
-auto extensions::insert_each_component_if(
+auto insert_each_component_if(
     ComponentTableMap& it,
     Predicate_T        predicate,
     const ArchetypeID  archetype_id,
@@ -209,7 +205,7 @@ auto extensions::insert_each_component_if(
 }
 
 template <util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
-auto extensions::move_components(
+auto move_components(
     ComponentTableMap&    it,
     ComponentIDInputRange component_ids,
     const ArchetypeID     archetype_id,
@@ -223,7 +219,7 @@ auto extensions::move_components(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::find_component_table(ComponentTableMap& it)
+auto find_component_table(ComponentTableMap& it)
     -> util::OptionalRef<ComponentTable<Component_T>>
 {
     return it.find_component_table(component_id_of<Component_T>())
@@ -233,14 +229,14 @@ auto extensions::find_component_table(ComponentTableMap& it)
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::find_component_table(const ComponentTableMap& it)
+auto find_component_table(const ComponentTableMap& it)
     -> util::OptionalRef<const ComponentTable<Component_T>>
 {
     return find_component_table<Component_T>(const_cast<ComponentTableMap&>(it));
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::get_component(
+auto get_component(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
     const RecordIndex  record_index
@@ -252,7 +248,7 @@ auto extensions::get_component(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::get_component(
+auto get_component(
     const ComponentTableMap& it,
     const ArchetypeID        archetype_id,
     const RecordIndex        record_index
@@ -264,7 +260,7 @@ auto extensions::get_component(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::find_component(
+auto find_component(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
     const RecordIndex  record_index
@@ -280,7 +276,7 @@ auto extensions::find_component(
 }
 
 template <core::ecs::component_c Component_T>
-auto extensions::find_component(
+auto find_component(
     const ComponentTableMap& it,
     const ArchetypeID        archetype_id,
     const RecordIndex        record_index
