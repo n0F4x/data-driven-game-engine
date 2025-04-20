@@ -9,7 +9,7 @@ import :SchedulerAddon;
 
 import addons.ResourceManager;
 
-import core.app.App;
+import core.app.has_addons_c;
 
 namespace ecs {
 

@@ -21,7 +21,7 @@ import utility.TypeList;
 template <typename T, typename Resource_T>
 concept decays_to_factory_c = std::constructible_from<
     Resource_T,
-    util::meta::result_of_t<std::remove_pointer_t<std::decay_t<T>>>>;
+    util::meta::result_of_t<T>>;
 
 namespace core::resource {
 

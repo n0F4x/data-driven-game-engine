@@ -3,12 +3,17 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${ENGINE_SRC_DIR}
         FILES
         app.cppm
+        addon_c.ixx
         App.ixx
-        App-details.ixx
-        App-fwd.ixx
-        App-addon_c.ixx
+        app_c.ixx
         Builder.ixx
-        Builder-extension_c.ixx
-        Builder-details.ixx
-        Builder-fwd.ixx
+        builder_c.ixx
+        create.ixx
+        decays_to_addon_c.ixx
+        decays_to_app_c.ixx
+        decays_to_builder_c.ixx
+        decays_to_extension_c.ixx
+        extended_with_c.ixx
+        extension_c.ixx
+        has_addons_c.ixx
 )

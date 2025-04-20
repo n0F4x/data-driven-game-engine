@@ -8,8 +8,10 @@ module;
 
 export module extensions.ResourceManager;
 
-import core.app.App;
 import core.app.Builder;
+import core.app.decays_to_app_c;
+import core.app.decays_to_builder_c;
+import core.app.has_addons_c;
 import core.store.Store;
 
 import utility.meta.type_traits.functional.arguments_of;
@@ -22,12 +24,14 @@ import addons.ResourceManager;
 
 namespace extensions {
 
-export template <typename Resource_T>
-concept resource_c = addons::resource_c<Resource_T>;
+export template <typename T>
+concept resource_c = addons::resource_c<T>;
 
-export template <typename Injection_T>
-concept injection_c = resource_c<
-    util::meta::result_of_t<std::remove_pointer_t<std::decay_t<Injection_T>>>>;
+export template <typename T>
+concept injection_c = resource_c<util::meta::result_of_t<T>>;
+
+export template <typename T>
+concept decays_to_injection_c = injection_c<std::decay_t<T>>;
 
 template <extensions::injection_c... Injections_T>
 class BasicResourceManager;
@@ -43,10 +47,8 @@ using old_resource_manager_t =
     util::meta::type_list_drop_back_t<extensions::BasicResourceManager<Injections_T...>>;
 
 template <extensions::injection_c... Injections_T>
-class extensions::BasicResourceManager {
+class extensions::BasicResourceManager : public ResourceManagerTag {
 public:
-    using ExtensionTag = ResourceManagerTag;
-
     constexpr BasicResourceManager() = default;
 
     template <typename OldBasicResourceManager, typename... Args>
@@ -59,16 +61,17 @@ public:
         Args&&... args
     );
 
-    template <core::app::builder_c Self_T, typename Resource_T>
+    template <core::app::decays_to_builder_c Self_T, typename Resource_T>
         requires extensions::resource_c<std::remove_cvref_t<Resource_T>>
     constexpr auto use_resource(this Self_T&&, Resource_T&& resource);
 
-    template <core::app::builder_c Self_T, extensions::injection_c Injection_T>
+    template <
+        core::app::decays_to_builder_c    Self_T,
+        extensions::decays_to_injection_c Injection_T>
     constexpr auto inject_resource(this Self_T&&, Injection_T&& injection);
 
-protected:
-    template <core::app::app_c App_T>
-    constexpr auto operator()(App_T&& app) &&;
+    template <core::app::decays_to_app_c App_T>
+    constexpr auto build(App_T&& app) &&;
 
 private:
     template <extensions::injection_c...>
@@ -97,7 +100,7 @@ constexpr extensions::BasicResourceManager<Injections_T...>::BasicResourceManage
 {}
 
 template <extensions::injection_c... Injections_T>
-template <core::app::builder_c Self_T, typename Resource_T>
+template <core::app::decays_to_builder_c Self_T, typename Resource_T>
     requires extensions::resource_c<std::remove_cvref_t<Resource_T>>
 constexpr auto extensions::BasicResourceManager<Injections_T...>::use_resource(
     this Self_T&& self,
@@ -145,7 +148,7 @@ constexpr auto gather_parameters(std::tuple<Ts...>& tuple)
 }
 
 template <extensions::injection_c... Injections_T>
-template <core::app::builder_c Self_T, extensions::injection_c Injection_T>
+template <core::app::decays_to_builder_c Self_T, extensions::decays_to_injection_c Injection_T>
 constexpr auto extensions::BasicResourceManager<Injections_T...>::inject_resource(
     this Self_T&& self,
     Injection_T&& injection
@@ -169,7 +172,8 @@ constexpr auto extensions::BasicResourceManager<Injections_T...>::inject_resourc
         );
     }
 
-    return std::forward<Self_T>(self).template swap_extension<BasicResourceManager>(
+    return core::app::swap_extension<BasicResourceManager>(
+        std::forward<Self_T>(self),
         [&]<typename BasicResourceManager_T>
             requires(std::is_same_v<
                      std::remove_cvref_t<BasicResourceManager_T>,
@@ -181,25 +185,24 @@ constexpr auto extensions::BasicResourceManager<Injections_T...>::inject_resourc
                 std::forward<Injection_T>(injection)
             };
         }
-    );
+        );
 }
 
 template <extensions::injection_c... Injections_T>
-template <core::app::app_c App_T>
-constexpr auto extensions::BasicResourceManager<Injections_T...>::operator()(App_T&& app
-) &&
+template <core::app::decays_to_app_c App_T>
+constexpr auto extensions::BasicResourceManager<Injections_T...>::build(App_T&& app) &&
 {
     using BasicResourceManagerAddon =
-        addons::ResourceManager<util::meta::result_of_t<
-            std::remove_pointer_t<std::decay_t<Injections_T>>>...>;
+        addons::ResourceManager<util::meta::result_of_t<Injections_T>...>;
 
     static_assert(!core::app::has_addons_c<App_T, BasicResourceManagerAddon>);
 
     return [this, &app]<size_t... Is>(std::index_sequence<Is...>) {
         return std::forward<App_T>(app)
-            .template add_on<BasicResourceManagerAddon>(
-                std::in_place, std::move(std::get<Is>(m_injections))...
+            .add_on(
+                BasicResourceManagerAddon{ std::in_place,
+                                           std::move(std::get<Is>(m_injections))... }
             )
-            .template add_on<addons::ResourceManagerTag>();
+            .add_on(addons::ResourceManagerTag{});
     }(std::make_index_sequence<sizeof...(Injections_T)>{});
 }

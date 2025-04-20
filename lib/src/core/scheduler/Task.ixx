@@ -61,7 +61,7 @@ template <typename Task_T>
 class Task<Task_T> : public TaskInterface<Task_T> {
 public:
     template <typename UTask_T>
-        requires std::constructible_from<Task_T, UTask_T>
+        requires std::constructible_from<Task_T, UTask_T&&>
     constexpr explicit Task(UTask_T&& task);
 
 protected:
@@ -94,7 +94,7 @@ constexpr core::scheduler::Task<Task_T>::Task(Task_T task) : m_task{ task }
 template <typename Task_T>
     requires util::meta::unambiguous_functor_c<Task_T>
 template <typename UTask_T>
-    requires std::constructible_from<Task_T, UTask_T>
+    requires std::constructible_from<Task_T, UTask_T&&>
 constexpr core::scheduler::Task<Task_T>::Task(UTask_T&& task)
     : m_task{ std::forward<UTask_T>(task) }
 {}

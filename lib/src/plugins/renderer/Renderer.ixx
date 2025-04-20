@@ -10,7 +10,7 @@ export module plugins.renderer.RendererPlugin;
 
 import vulkan_hpp;
 
-import core.app.Builder;
+import core.app.extended_with_c;
 
 import core.gfx.resources.Image;
 import core.gfx.resources.VirtualImage;
@@ -46,12 +46,9 @@ class RendererPlugin {
 public:
     RendererPlugin();
 
-    ///-------------///
-    ///  Operators  ///
-    ///-------------///
-    template <
-        core::app::extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
-            Builder_T>
+    template <core::app::
+                  extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
+                      Builder_T>
     auto operator()(Builder_T&& builder);
 
     template <typename Self>
@@ -163,8 +160,9 @@ auto to_device_dependency(const plugins::renderer::Requirement& requirement)
 }
 
 template <extensions::injection_c SurfacePlugin_T>
-template <core::app::extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
-              Builder_T>
+template <
+    core::app::extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
+        Builder_T>
 auto plugins::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T&& builder)
 {
     return std::forward<Builder_T>(builder)
@@ -192,7 +190,7 @@ auto plugins::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T&& 
                             const core::renderer::base::Device&   device) {
             return core::renderer::base::Allocator{ instance, device };
         })
-        .transform([]<typename B_T>(B_T&& b) -> B_T {
+        .transform([]<typename B_T>(B_T&& b) {
             ENGINE_LOG_TRACE("Added Renderer plugin group");
             return std::forward<B_T>(b);
         });

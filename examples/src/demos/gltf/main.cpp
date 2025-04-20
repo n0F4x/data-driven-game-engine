@@ -52,10 +52,10 @@ try {
 
     core::config::logging::set_level(core::config::logging::eTrace);
 
-    core::app::Builder{}
-        .extend_with<extensions::Functional>()
-        .extend_with<extensions::ResourceManager>()
-        .extend_with<extensions::Runnable>()
+    core::app::create()
+        .extend_with(extensions::Functional{})
+        .extend_with(extensions::ResourceManager{})
+        .extend_with(extensions::Runnable{})
         .inject_resource(::cache_plugin)
         .use_resource(core::window::Window(util::Size2i{ 1'280, 720 }, "My window"))
         .transform(plugins::Renderer{}.require(::require_vulkan_version(1, 1)))

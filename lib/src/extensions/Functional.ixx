@@ -4,7 +4,7 @@ module;
 
 export module extensions.Functional;
 
-import core.app.Builder;
+import core.app.decays_to_builder_c;
 
 namespace extensions {
 
@@ -17,14 +17,14 @@ concept modifier_c = requires {
 
 export class Functional {
 public:
-    template <core::app::builder_c Self_T, modifier_c<Self_T> Modifier_T>
+    template <core::app::decays_to_builder_c Self_T, modifier_c<Self_T> Modifier_T>
     constexpr auto transform(this Self_T&&, Modifier_T&& modifier)
         -> std::invoke_result_t<Modifier_T, Self_T&&>;
 };
 
 }   // namespace extensions
 
-template <core::app::builder_c Self_T, extensions::modifier_c<Self_T> Modifier_T>
+template <core::app::decays_to_builder_c Self_T, extensions::modifier_c<Self_T> Modifier_T>
 constexpr auto extensions::Functional::transform(this Self_T&& self, Modifier_T&& modifier)
     -> std::invoke_result_t<Modifier_T, Self_T&&>
 {

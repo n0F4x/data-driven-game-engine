@@ -28,9 +28,8 @@ struct Leaf {
 };
 
 template <typename T, typename Resource_T>
-concept decays_to_factory_c = std::constructible_from<
-    Resource_T,
-    util::meta::result_of_t<std::remove_pointer_t<std::decay_t<T>>>>;
+concept decays_to_factory_c =
+    std::constructible_from<Resource_T, util::meta::result_of_t<std::decay_t<T>>>;
 
 template <util::meta::index_sequence_c, typename... Ts>
 struct Impl;
@@ -122,7 +121,7 @@ constexpr Impl<IntegerSequence_T<size_t, I>, T>::Impl(
 )
     : Leaf<I, T>{ std::apply(
           std::forward<Factory_T>(factory),
-          gather_dependencies<std::remove_pointer_t<std::decay_t<Factory_T>>>(stack)
+          gather_dependencies<std::decay_t<Factory_T>>(stack)
       ) }
 {}
 

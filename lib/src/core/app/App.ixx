@@ -1,60 +1,58 @@
 module;
 
 #include <concepts>
-#include <utility>
+#include <type_traits>
 
 export module core.app.App;
 
-import :details;
-import :addon_c;
+import utility.meta.type_traits.forward_like;
+import utility.meta.type_traits.type_list.type_list_contains;
+import utility.TypeList;
+
+import core.app.addon_c;
+import core.app.decays_to_addon_c;
 
 namespace core::app {
 
 export template <addon_c... Addons_T>
-class App : public AppBase<Addons_T..., RootAddon> {
+class App : public Addons_T... {
 public:
-    constexpr App() = default;
+    App()
+        requires(sizeof...(Addons_T) == 0)
+    = default;
 
-    template <typename OldApp_T, typename... Args_T>
-        requires std::same_as<std::remove_cvref_t<OldApp_T>, old_app_t<Addons_T...>>
-    constexpr explicit App(OldApp_T&& old_app, std::in_place_t, Args_T&&... args);
+    template <typename Self_T, decays_to_addon_c Addon_T>
+        requires(!util::meta::type_list_contains_v<util::TypeList<Addons_T...>, Addon_T>)
+    [[nodiscard]]
+    constexpr auto add_on(this Self_T&&, Addon_T&& addon)
+        -> App<Addons_T..., std::remove_cvref_t<Addon_T>>;
 
-    template <addon_c NewAddon_T, typename Self_T, typename... Args_T>
-    constexpr auto add_on(this Self_T&& self, Args_T&&... args)
-        -> App<NewAddon_T, Addons_T...>;
+private:
+    template <addon_c...>
+    friend class App;
+
+    template <typename... UAddons_T>
+        requires(std::constructible_from<Addons_T, UAddons_T&&> && ...)
+    constexpr explicit App(UAddons_T&&... addons);
 };
-
-export template <typename App_T>
-concept app_c = std::derived_from<std::remove_cvref_t<App_T>, AppBase<RootAddon>>;
-
-export template <typename Addon_T>
-concept addon_c = ::addon_c<Addon_T>;
-
-export template <typename App_T, typename... Addons_T>
-concept has_addons_c = app_c<App_T>
-                    && (std::derived_from<std::remove_cvref_t<App_T>, Addons_T> && ...);
 
 }   // namespace core::app
 
-template <addon_c... Addons_T>
-template <typename OldApp_T, typename... Args_T>
-    requires std::same_as<std::remove_cvref_t<OldApp_T>, old_app_t<Addons_T...>>
-constexpr core::app::App<Addons_T...>::App(
-    OldApp_T&& old_app,
-    std::in_place_t,
-    Args_T&&... args
-)
-    : AppBase<Addons_T..., RootAddon>{ std::forward<OldApp_T>(old_app),
-                                       std::in_place,
-                                       std::forward<Args_T>(args)... }
-{}
-
-template <addon_c... Addons_T>
-template <addon_c NewAddon_T, typename Self_T, typename... Args_T>
-constexpr auto core::app::App<Addons_T...>::add_on(this Self_T&& self, Args_T&&... args)
-    -> App<NewAddon_T, Addons_T...>
+template <core::app::addon_c... Addons_T>
+template <typename Self_T, core::app::decays_to_addon_c Addon_T>
+    requires(!util::meta::type_list_contains_v<util::TypeList<Addons_T...>, Addon_T>)
+constexpr auto core::app::App<Addons_T...>::add_on(this Self_T&& self, Addon_T&& addon)
+    -> App<Addons_T..., std::remove_cvref_t<Addon_T>>
 {
-    return App<NewAddon_T, Addons_T...>{ std::forward<Self_T>(self),
-                                         std::in_place,
-                                         std::forward<Args_T>(args)... };
+    return App<Addons_T..., std::remove_cvref_t<Addon_T>>{
+        static_cast<util::meta::forward_like_t<Addons_T, Self_T>>(self)...,
+        std::forward<Addon_T>(addon)
+    };
 }
+
+template <core::app::addon_c... Addons_T>
+template <typename... UAddons_T>
+    requires(std::constructible_from<Addons_T, UAddons_T&&> && ...)
+constexpr core::app::App<Addons_T...>::App(UAddons_T&&... addons)
+    : Addons_T{ std::forward<UAddons_T>(addons) }...
+{}

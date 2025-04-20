@@ -63,12 +63,12 @@ auto my_system(
 
 auto main() -> int
 {
-    core::app::Builder{}
-        .extend_with<extensions::ResourceManager>()
+    core::app::create()
+        .extend_with(extensions::ResourceManager{})
         .use_resource(sf::RenderWindow{})
-        .extend_with<extensions::AddonManager>()
-        .use_addon<ecs::RegistryAddon>()
-        .use_addon(ecs::Scheduler{}.schedule(::my_system))
-        .extend_with<extensions::Runnable>()
+        .extend_with(extensions::AddonManager{})
+        .use_addon(ecs::RegistryAddon{})
+        .use_addon(ecs::SchedulerAddon{ ecs::Scheduler{}.schedule(::my_system) })
+        .extend_with(extensions::Runnable{})
         .run(ecs::schedule_runner);
 }

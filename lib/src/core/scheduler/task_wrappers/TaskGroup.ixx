@@ -19,7 +19,7 @@ export template <task_c... Tasks_T>
 class TaskGroup : public TaskWrapperBase {
 public:
     template <typename... UTasks_T>
-        requires(std::constructible_from<Tasks_T, UTasks_T> && ...)
+        requires(std::constructible_from<Tasks_T, UTasks_T&&> && ...)
     constexpr explicit TaskGroup(UTasks_T&&... tasks);
 
 private:
@@ -30,7 +30,7 @@ private:
 
 template <core::scheduler::task_c... Tasks_T>
 template <typename... UTasks_T>
-    requires(std::constructible_from<Tasks_T, UTasks_T> && ...)
+    requires(std::constructible_from<Tasks_T, UTasks_T&&> && ...)
 constexpr core::scheduler::TaskGroup<Tasks_T...>::TaskGroup(UTasks_T&&... tasks)
     : m_tasks{ std::forward<UTasks_T>(tasks)... }
 {}

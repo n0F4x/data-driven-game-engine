@@ -6,7 +6,7 @@ export module extensions.Scheduler;
 
 import utility.meta.concepts.specialization_of;
 
-import core.app.Builder;
+import core.app.builder_c;
 
 import core.scheduler.task_wrappers.Schedule;
 

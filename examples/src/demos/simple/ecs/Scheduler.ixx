@@ -8,7 +8,6 @@ module;
 export module ecs:Scheduler;
 
 import :Registry;
-import :SchedulerAddonTag;
 import :system_c;
 import :TaskBuilder;
 
@@ -23,22 +22,15 @@ namespace ecs {
 
 export using Scheduler = ::Scheduler<>;
 
-export template <util::meta::specialization_of_c<::Scheduler> Scheduler_T>
-struct SchedulerAddon;
-
 }   // namespace ecs
 
 template <typename System_T>
-using task_builder_for = util::meta::type_list_to_t<
-    util::meta::arguments_of_t<System_T>,
-    ecs::TaskBuilder>;
+using task_builder_for =
+    util::meta::type_list_to_t<util::meta::arguments_of_t<System_T>, ecs::TaskBuilder>;
 
 template <util::meta::specialization_of_c<ecs::TaskBuilder>... TaskBuilders_T>
 class Scheduler {
 public:
-    using Addon    = ecs::SchedulerAddon<Scheduler>;
-    using AddonTag = ecs::SchedulerAddonTag;
-
     Scheduler()
         requires(sizeof...(TaskBuilders_T) == 0)
     = default;

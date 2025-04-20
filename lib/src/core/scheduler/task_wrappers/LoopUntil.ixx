@@ -17,8 +17,8 @@ export template <task_c Task_T, task_predicate_c Predicate_T>
 class LoopUntil : public TaskWrapperBase {
 public:
     template <typename UTask_T, typename UPredicate_T>
-        requires std::constructible_from<Task_T, UTask_T>
-              && std::constructible_from<Predicate_T, UPredicate_T>
+        requires std::constructible_from<Task_T, UTask_T&&>
+              && std::constructible_from<Predicate_T, UPredicate_T&&>
     constexpr explicit LoopUntil(UTask_T&& task, UPredicate_T&& predicate);
 
 private:
@@ -30,8 +30,8 @@ private:
 
 template <core::scheduler::task_c Task_T, core::scheduler::task_predicate_c Predicate_T>
 template <typename UTask_T, typename UPredicate_T>
-    requires std::constructible_from<Task_T, UTask_T>
-              && std::constructible_from<Predicate_T, UPredicate_T>
+    requires std::constructible_from<Task_T, UTask_T&&>
+              && std::constructible_from<Predicate_T, UPredicate_T&&>
 constexpr core::scheduler::LoopUntil<Task_T, Predicate_T>::LoopUntil(
     UTask_T&&      task,
     UPredicate_T&& predicate

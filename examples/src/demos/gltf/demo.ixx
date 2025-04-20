@@ -6,7 +6,7 @@ export module demos.gltf;
 
 import vulkan_hpp;
 
-import core.app.App;
+import core.app.has_addons_c;
 
 import core.gfx.Camera;
 

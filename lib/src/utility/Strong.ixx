@@ -31,7 +31,7 @@ public:
     ) noexcept(std::is_nothrow_constructible_v<T, Args_T...>);
 
     template <typename U>
-        requires std::constructible_from<T, U>
+        requires std::constructible_from<T, U&&>
     constexpr explicit Strong(U&& value) noexcept(std::is_nothrow_constructible_v<T, U>);
 
     auto operator==(const Strong&) const -> bool = default;
@@ -75,7 +75,7 @@ constexpr util::Strong<T, Tag_T>::Strong(
 
 template <typename T, typename Tag_T>
 template <typename U>
-    requires std::constructible_from<T, U>
+    requires std::constructible_from<T, U&&>
 constexpr util::Strong<T, Tag_T>::Strong(
     U&& value
 ) noexcept(std::is_nothrow_constructible_v<T, U>)

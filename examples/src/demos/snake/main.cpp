@@ -17,8 +17,8 @@ constexpr static auto run_game_loop = core::scheduler::loop_until(
 
 auto main() -> int
 {
-    core::app::Builder{}   //
-        .extend_with<extensions::ScheduleRunner>()
+    core::app::create()
+        .extend_with(extensions::ScheduleRunner{})
         .run(
             core::scheduler::start_as(initialize)   //
                 .then(run_game_loop)
