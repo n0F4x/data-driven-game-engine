@@ -67,10 +67,12 @@ constexpr auto extensions::TaskRunner<DependencyProviderBuilders_T...>::run(
     auto app{ std::forward<Self_T>(self).build() };
 
     core::scheduler::TaskRunner task_runner{ std::apply(
-        [&app](auto&&... dependency_provider_builders) {
-            return core::scheduler::TaskRunner{
-                std::invoke(dependency_provider_builders, app)...
-            };
+        [&app]<typename... XDependencyProviders_T>(
+            XDependencyProviders_T&&... dependency_provider_builders
+        ) {
+            return core::scheduler::TaskRunner{ std::invoke(
+                std::forward<XDependencyProviders_T>(dependency_provider_builders), app
+            )... };
         },
         std::forward_like<Self_T>(self.m_dependency_provider_builders)
     ) };

@@ -1,6 +1,3 @@
-#include <concepts>
-#include <type_traits>
-
 import core;
 import addons;
 import extensions;
@@ -8,29 +5,35 @@ import utility;
 
 import demo.Window;
 
-constexpr static auto initialize      = [] {};
-constexpr static auto update_0        = [] {};
-constexpr static auto update_1        = [] {};
-constexpr static auto game_is_running = [](const int v) -> bool { return v != 42; };
+using namespace extensions::scheduler::dependency_providers::tags;
+
+constexpr static auto initialize = [](const Res<Window> window) { window->open(); };
+
+constexpr static auto update_0 = [] {};
+constexpr static auto update_1 = [](const Res<Window> window) { window->close(); };
+
+constexpr static auto game_is_running = [](const Res<const Window> window) -> bool {
+    return window->is_open();
+};
 
 constexpr static auto run_game_loop = core::scheduler::loop_until(
     core::scheduler::group(update_0, update_1),
     game_is_running
 );
 
-struct IntProvider {
-    template <std::same_as<int>>
-    [[nodiscard]]
-    constexpr static auto provide() -> int
-    {
-        return 42;
-    }
-};
-
 auto main() -> int
 {
+    using namespace extensions::scheduler;
+
     core::app::create()
-        .extend_with(extensions::TaskRunner{ [](auto) { return IntProvider{}; } })
+        .extend_with(extensions::ResourceManager{})
+        .use_resource(Window{})
+        .extend_with(extensions::AddonManager{})
+        .use_addon(addons::ECS{})
+        .extend_with(
+            extensions::TaskRunner{ dependency_providers::ECS{},
+                                    dependency_providers::ResourceManager{} }
+        )
         .run(
             core::scheduler::start_as(initialize)   //
                 .then(run_game_loop)

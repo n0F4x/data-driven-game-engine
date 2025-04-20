@@ -3,5 +3,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${ENGINE_SRC_DIR}
         FILES
         resource.cppm
+        resource_c.ixx
         ResourceManager.ixx
 )

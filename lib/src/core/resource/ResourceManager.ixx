@@ -18,15 +18,13 @@ import utility.meta.type_traits.functional.result_of;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.TypeList;
 
+import core.resource.resource_c;
+
 template <typename T, typename Resource_T>
-concept decays_to_factory_c = std::constructible_from<
-    Resource_T,
-    util::meta::result_of_t<T>>;
+concept decays_to_factory_c =
+    std::constructible_from<Resource_T, util::meta::result_of_t<T>>;
 
 namespace core::resource {
-
-export template <typename T>
-concept resource_c = ::util::meta::decayed_c<T>;
 
 export template <resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>

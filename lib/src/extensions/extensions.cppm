@@ -1,5 +1,7 @@
 export module extensions;
 
+export import extensions.scheduler;
+
 export import extensions.AddonManager;
 export import extensions.Functional;
 export import extensions.ResourceManager;

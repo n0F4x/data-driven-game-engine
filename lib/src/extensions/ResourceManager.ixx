@@ -198,11 +198,9 @@ constexpr auto extensions::BasicResourceManager<Injections_T...>::build(App_T&& 
     static_assert(!core::app::has_addons_c<App_T, BasicResourceManagerAddon>);
 
     return [this, &app]<size_t... Is>(std::index_sequence<Is...>) {
-        return std::forward<App_T>(app)
-            .add_on(
-                BasicResourceManagerAddon{ std::in_place,
-                                           std::move(std::get<Is>(m_injections))... }
-            )
-            .add_on(addons::ResourceManagerTag{});
+        return std::forward<App_T>(app).add_on(
+            BasicResourceManagerAddon{ std::in_place,
+                                       std::move(std::get<Is>(m_injections))... }
+        );
     }(std::make_index_sequence<sizeof...(Injections_T)>{});
 }
