@@ -1,0 +1,77 @@
+module;
+
+#include <array>
+#include <type_traits>
+#include <vector>
+
+export module utility.meta.type_traits.integer_sequence.index_sequence_filter;
+
+import utility.meta.algorithms.fold_left_first;
+import utility.meta.type_traits.integer_sequence.integer_sequence_concat;
+
+template <typename IndexSequence_T, template <size_t> typename Predicate_T>
+struct index_sequence_filter_impl;
+
+template <
+    template <typename, size_t...> typename IndexSequence_T,
+    template <size_t> typename Predicate_T>
+struct index_sequence_filter_impl<IndexSequence_T<size_t>, Predicate_T> {
+    using type = IndexSequence_T<size_t>;
+};
+
+template <
+    template <typename, size_t...> typename IndexSequence_T,
+    size_t... indices_T,
+    template <size_t> typename Predicate_T>
+struct index_sequence_filter_impl<IndexSequence_T<size_t, indices_T...>, Predicate_T> {
+    using type = typename decltype(util::meta::fold_left_first<
+                                   IndexSequence_T<size_t, indices_T...>>(
+        []<size_t index_T> {
+            return std::conditional_t<
+                Predicate_T<index_T>::value,
+                std::type_identity<IndexSequence_T<size_t, index_T>>,
+                std::type_identity<IndexSequence_T<size_t>>>{};
+        },
+        []<typename Left_T,
+           typename Right_T>(std::type_identity<Left_T>, std::type_identity<Right_T>) {
+            return std::
+                type_identity<util::meta::integer_sequence_concat_t<Left_T, Right_T>>{};
+        }
+    ))::type;
+};
+
+namespace util::meta {
+
+template <typename IndexSequence_T, template <size_t> typename Predicate_T>
+struct index_sequence_filter {
+    using type = typename index_sequence_filter_impl<IndexSequence_T, Predicate_T>::type;
+};
+
+export template <typename IndexSequence_T, template <size_t> typename Predicate_T>
+using index_sequence_filter_t =
+    typename index_sequence_filter<IndexSequence_T, Predicate_T>::type;
+
+}   // namespace util::meta
+
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+
+// TODO: remove unnamed namespace when Clang allows it
+namespace {
+template <typename Integer, Integer...>
+struct IntegerSequence {};
+}   // namespace
+
+template <size_t I>
+struct Even {
+    constexpr static bool value = I % 2 == 0;
+};
+
+static_assert(std::is_same_v<
+              util::meta::index_sequence_filter_t<IntegerSequence<size_t>, Even>,
+              IntegerSequence<size_t>>);
+static_assert(std::is_same_v<
+              util::meta::
+                  index_sequence_filter_t<IntegerSequence<size_t, 0, 1, 2, 3, 4>, Even>,
+              IntegerSequence<size_t, 0, 2, 4>>);
+
+#endif

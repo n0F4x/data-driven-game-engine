@@ -8,7 +8,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         scheduler.cppm
         as_task.ixx
         group.ixx
+        invoke_with_right_dependency_providers.ixx
         loop_until.ixx
+        TaskRunner.ixx
         start_as.ixx
         Task.ixx
 )

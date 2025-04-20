@@ -7,4 +7,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         Schedule.ixx
         TaskGroup.ixx
         TaskWrapperBase.ixx
+        TaskWrapperInterface.ixx
 )

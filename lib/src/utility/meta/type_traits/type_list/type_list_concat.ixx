@@ -1,9 +1,20 @@
+module;
+
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+  #include <type_traits>
+#endif
+
 export module utility.meta.type_traits.type_list.type_list_concat;
 
 namespace util::meta {
 
 export template <typename...>
 struct type_list_concat;
+
+template <template <typename...> typename TypeList_T, typename... Ts>
+struct type_list_concat<TypeList_T<Ts...>> {
+    using type = TypeList_T<Ts...>;
+};
 
 template <template <typename...> typename TypeList_T, typename... Ts0, typename... Ts1>
 struct type_list_concat<TypeList_T<Ts0...>, TypeList_T<Ts1...>> {
@@ -18,7 +29,24 @@ struct type_list_concat<TypeList0_T, TypeList1_T, TypeList2_T, TypeLists_T...> {
 };
 
 export template <typename... TypeLists_T>
-    requires(sizeof...(TypeLists_T) >= 2)
+    requires(sizeof...(TypeLists_T) != 0)
 using type_list_concat_t = typename type_list_concat<TypeLists_T...>::type;
 
 }   // namespace util::meta
+
+module :private;
+
+#ifdef ENGINE_ENABLE_STATIC_TESTS
+
+namespace {
+template <typename...>
+struct TypeList {};
+}   // namespace
+
+static_assert(std::is_same_v<util::meta::type_list_concat_t<TypeList<int>>, TypeList<int>>);
+
+static_assert(std::is_same_v<
+              util::meta::type_list_concat_t<TypeList<int>, TypeList<float>>,
+              TypeList<int, float>>);
+
+#endif

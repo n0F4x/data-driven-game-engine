@@ -7,5 +7,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         Functional.ixx
         ResourceManager.ixx
         Runnable.ixx
-        ScheduleRunner.ixx
+        TaskRunner.ixx
 )

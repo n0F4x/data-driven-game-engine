@@ -1,5 +1,6 @@
 export module utility.meta.type_traits.integer_sequence;
 
+export import utility.meta.type_traits.integer_sequence.index_sequence_filter;
 export import utility.meta.type_traits.integer_sequence.integer_sequence_concat;
 export import utility.meta.type_traits.integer_sequence.integer_sequence_offset;
 export import utility.meta.type_traits.integer_sequence.integer_sequence_size;
