@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         Any.ixx
         SlotMultiMap.ixx
         OptionalRef.ixx
+        Ref.ixx
         SlotMap.ixx
         SparseSet.ixx
         StackedTuple.ixx

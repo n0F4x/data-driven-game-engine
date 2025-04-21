@@ -1,10 +1,9 @@
-add_subdirectory(ecs)
-add_subdirectory(events)
-add_subdirectory(resource)
-
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET CXX_MODULES
         BASE_DIRS ${ENGINE_SRC_DIR}
         FILES
-        dependency_providers.cppm
+        accessors.cppm
+        ecs.ixx
+        events.ixx
+        resource.ixx
 )

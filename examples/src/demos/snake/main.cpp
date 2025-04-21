@@ -5,7 +5,7 @@ import utility;
 
 import demo.Window;
 
-using namespace extensions::scheduler::dependency_providers::tags;
+using namespace extensions::scheduler::accessors::resource;
 
 constexpr static auto initialize = [](const Res<Window> window) { window->open(); };
 
@@ -28,11 +28,13 @@ auto main() -> int
     core::app::create()
         .extend_with(extensions::ResourceManager{})
         .use_resource(Window{})
+        .extend_with(extensions::EventManager{})
         .extend_with(extensions::AddonManager{})
         .use_addon(addons::ECS{})
         .extend_with(
-            extensions::TaskRunner{ dependency_providers::ECS{},
-                                    dependency_providers::ResourceManager{} }
+            extensions::TaskRunner{ dependency_providers::ResourceManager{},
+                                    dependency_providers::EventManager{},
+                                    dependency_providers::ECS{} }
         )
         .run(
             core::scheduler::start_as(initialize)   //

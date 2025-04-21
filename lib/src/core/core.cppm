@@ -4,6 +4,7 @@ export import core.app;
 export import core.cache;
 export import core.config;
 export import core.ecs;
+export import core.events;
 export import core.gfx;
 export import core.gltf;
 export import core.image;

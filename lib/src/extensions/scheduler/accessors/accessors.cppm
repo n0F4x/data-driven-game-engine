@@ -1,0 +1,5 @@
+export module extensions.scheduler.accessors;
+
+export import extensions.scheduler.accessors.ecs;
+export import extensions.scheduler.accessors.events;
+export import extensions.scheduler.accessors.resource;

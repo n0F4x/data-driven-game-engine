@@ -14,6 +14,7 @@ import core.app.decays_to_builder_c;
 import core.app.has_addons_c;
 import core.store.Store;
 
+import utility.meta.algorithms.apply;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.result_of;
 import utility.meta.type_traits.type_list.type_list_drop_back;
@@ -22,10 +23,12 @@ import utility.tuple;
 
 import addons.ResourceManager;
 
+import core.resource.resource_c;
+
 namespace extensions {
 
 export template <typename T>
-concept resource_c = addons::resource_c<T>;
+concept resource_c = core::resource::resource_c<T>;
 
 export template <typename T>
 concept injection_c = resource_c<util::meta::result_of_t<T>>;
@@ -71,6 +74,7 @@ public:
     constexpr auto inject_resource(this Self_T&&, Injection_T&& injection);
 
     template <core::app::decays_to_app_c App_T>
+    [[nodiscard]]
     constexpr auto build(App_T&& app) &&;
 
 private:
@@ -192,15 +196,17 @@ template <extensions::injection_c... Injections_T>
 template <core::app::decays_to_app_c App_T>
 constexpr auto extensions::BasicResourceManager<Injections_T...>::build(App_T&& app) &&
 {
-    using BasicResourceManagerAddon =
+    using ResourceManagerAddon =
         addons::ResourceManager<util::meta::result_of_t<Injections_T>...>;
 
-    static_assert(!core::app::has_addons_c<App_T, BasicResourceManagerAddon>);
+    static_assert(!core::app::has_addons_c<App_T, ResourceManagerAddon>);
 
-    return [this, &app]<size_t... Is>(std::index_sequence<Is...>) {
-        return std::forward<App_T>(app).add_on(
-            BasicResourceManagerAddon{ std::in_place,
-                                       std::move(std::get<Is>(m_injections))... }
-        );
-    }(std::make_index_sequence<sizeof...(Injections_T)>{});
+    return util::meta::apply<std::make_index_sequence<sizeof...(Injections_T)>>(
+        [this, &app]<size_t... Is> {
+            return std::forward<App_T>(app).add_on(
+                ResourceManagerAddon{ std::in_place,
+                                      std::move(std::get<Is>(m_injections))... }
+            );
+        }
+    );
 }

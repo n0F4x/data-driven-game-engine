@@ -1,3 +1,4 @@
+add_subdirectory(accessors)
 add_subdirectory(dependency_providers)
 
 target_sources(${PROJECT_NAME} PUBLIC

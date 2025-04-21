@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         extensions.cppm
         AddonManager.ixx
+        EventManager.ixx
         Functional.ixx
         ResourceManager.ixx
         Runnable.ixx

@@ -9,9 +9,6 @@ import core.resource.ResourceManager;
 
 namespace addons {
 
-export template <typename T>
-concept resource_c = ::core::resource::resource_c<T>;
-
 export struct ResourceManagerTag {};
 
 export template <typename... Resources_T>
@@ -19,7 +16,7 @@ struct ResourceManager : ResourceManagerTag {
     template <typename... Args>
     constexpr explicit ResourceManager(std::in_place_t, Args&&... args);
 
-    ::core::resource::ResourceManager<Resources_T...> resource_manager;
+    core::resource::ResourceManager<Resources_T...> resource_manager;
 };
 
 template <typename... Resources_T>
