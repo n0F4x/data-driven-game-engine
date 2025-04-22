@@ -6,7 +6,7 @@ export module extensions.scheduler.dependency_providers.resource.DependencyProvi
 
 import core.resource.ResourceManager;
 
-import extensions.scheduler.dependency_providers.resource.accessors;
+import extensions.scheduler.accessors.resource;
 
 import utility.meta.concepts.specialization_of;
 import utility.meta.type_traits.underlying;
@@ -19,7 +19,7 @@ class DependencyProvider {
 public:
     constexpr explicit DependencyProvider(ResourceManager_T& resource_manager);
 
-    template <util::meta::specialization_of_c<accessors::Res> ResourceTag_T>
+    template <util::meta::specialization_of_c<accessors::resource::Res> ResourceTag_T>
     [[nodiscard]]
     constexpr auto provide() const -> ResourceTag_T;
 
@@ -38,8 +38,8 @@ constexpr extensions::scheduler::dependency_providers::resource::
 {}
 
 template <util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
-template <util::meta::specialization_of_c<
-    extensions::scheduler::dependency_providers::resource::accessors::Res> ResourceTag_T>
+template <util::meta::specialization_of_c<extensions::scheduler::accessors::resource::Res>
+              ResourceTag_T>
 constexpr auto extensions::scheduler::dependency_providers::resource::
     DependencyProvider<ResourceManager_T>::provide() const -> ResourceTag_T
 {

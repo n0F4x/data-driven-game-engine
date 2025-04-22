@@ -5,7 +5,6 @@ import addons.EventManager;
 import core.app.has_addons_c;
 
 export import extensions.scheduler.dependency_providers.events.DependencyProvider;
-export import extensions.scheduler.dependency_providers.events.accessors;
 
 namespace extensions::scheduler::dependency_providers {
 

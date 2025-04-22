@@ -4,5 +4,4 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         ecs.cppm
         DependencyProvider.ixx
-        accessors.ixx
 )

@@ -8,7 +8,7 @@ export module extensions.scheduler.dependency_providers.events.DependencyProvide
 import core.events.EventManager;
 import core.events.EventQueue;
 
-import extensions.scheduler.dependency_providers.events.accessors;
+import extensions.scheduler.accessors.events;
 
 import utility.meta.concepts.specialization_of;
 import utility.meta.type_traits.underlying;
@@ -22,15 +22,15 @@ public:
 
     template <typename EventTag_T>
         requires std::
-            same_as<std::remove_const_t<EventTag_T>, accessors::ClearEventsCommand>
+            same_as<std::remove_const_t<EventTag_T>, accessors::events::ClearEventsCommand>
         [[nodiscard]]
         constexpr auto provide() const -> EventTag_T;
 
-    template <util::meta::specialization_of_c<accessors::EventRecorder> EventTag_T>
+    template <util::meta::specialization_of_c<accessors::events::EventRecorder> EventTag_T>
     [[nodiscard]]
     constexpr auto provide() const -> EventTag_T;
 
-    template <util::meta::specialization_of_c<accessors::EventReader> EventTag_T>
+    template <util::meta::specialization_of_c<accessors::events::EventReader> EventTag_T>
     [[nodiscard]]
     constexpr auto provide() const -> EventTag_T;
 
@@ -52,7 +52,7 @@ template <util::meta::specialization_of_c<core::events::EventManager> EventManag
 template <typename EventTag_T>
     requires std::same_as<
         std::remove_const_t<EventTag_T>,
-        extensions::scheduler::dependency_providers::events::accessors::ClearEventsCommand>
+        extensions::scheduler::accessors::events::ClearEventsCommand>
 constexpr auto extensions::scheduler::dependency_providers::events::
     DependencyProvider<EventManager_T>::provide() const -> EventTag_T
 {
@@ -62,8 +62,8 @@ constexpr auto extensions::scheduler::dependency_providers::events::
 }
 
 template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
-template <util::meta::specialization_of_c<extensions::scheduler::dependency_providers::
-                                              events::accessors::EventRecorder> EventTag_T>
+template <util::meta::specialization_of_c<
+    extensions::scheduler::accessors::events::EventRecorder> EventTag_T>
 constexpr auto extensions::scheduler::dependency_providers::events::
     DependencyProvider<EventManager_T>::provide() const -> EventTag_T
 {
@@ -74,8 +74,8 @@ constexpr auto extensions::scheduler::dependency_providers::events::
 }
 
 template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
-template <util::meta::specialization_of_c<extensions::scheduler::dependency_providers::
-                                              events::accessors::EventReader> EventTag_T>
+template <util::meta::specialization_of_c<
+    extensions::scheduler::accessors::events::EventReader> EventTag_T>
 constexpr auto extensions::scheduler::dependency_providers::events::
     DependencyProvider<EventManager_T>::provide() const -> EventTag_T
 {

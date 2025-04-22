@@ -5,7 +5,6 @@ import addons.ecs;
 import core.app.has_addons_c;
 
 export import extensions.scheduler.dependency_providers.ecs.DependencyProvider;
-export import extensions.scheduler.dependency_providers.ecs.accessors;
 
 namespace extensions::scheduler::dependency_providers {
 

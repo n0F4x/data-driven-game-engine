@@ -5,7 +5,6 @@ import addons.ResourceManager;
 import core.app.has_addons_c;
 
 export import extensions.scheduler.dependency_providers.resource.DependencyProvider;
-export import extensions.scheduler.dependency_providers.resource.accessors;
 
 namespace extensions::scheduler::dependency_providers {
 
