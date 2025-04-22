@@ -5,9 +5,7 @@ import utility;
 
 import demo.Window;
 
-using namespace extensions::scheduler::accessors::ecs;
-using namespace extensions::scheduler::accessors::events;
-using namespace extensions::scheduler::accessors::resources;
+using namespace extensions::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;
 
 struct WindowClosed {};
@@ -25,13 +23,15 @@ struct Collider {
     int hi{};
 };
 
-constexpr static auto initialize = [](const Res<Window> window) { window->open(); };
-
-constexpr static auto update_0 = [](const ClearEventsCommand clear_events) -> void {
-    clear_events();
+constexpr static auto initialize = [](const resources::Ref<Window> window) {
+    window->open();
 };
 
-constexpr static auto update_1 = [](const Query<
+constexpr static auto update_0 = [](const events::Processor events_processor) -> void {
+    events_processor.process_events();
+};
+
+constexpr static auto update_1 = [](const ecs::Query<
                                      const Position,
                                      Without<Health>,
                                      With<EnemyTag>,
@@ -43,12 +43,12 @@ constexpr static auto update_1 = [](const Query<
 };
 
 constexpr static auto update_2 =
-    [](const EventRecorder<WindowClosed> window_closed_event_recorder) {
+    [](const events::Recorder<WindowClosed> window_closed_event_recorder) {
         window_closed_event_recorder.record();
     };
 
 constexpr static auto game_is_running =
-    [](const EventReader<WindowClosed> window_closed_events) -> bool {
+    [](const events::Reader<WindowClosed> window_closed_events) -> bool {
     return window_closed_events.count() == 0;
 };
 
@@ -58,7 +58,9 @@ constexpr static auto run_game_loop = core::scheduler::loop_until(
     game_is_running
 );
 
-constexpr static auto shut_down = [](const Res<Window> window) { window->close(); };
+constexpr static auto shut_down = [](const resources::Ref<Window> window) {
+    window->close();
+};
 
 auto main() -> int
 {

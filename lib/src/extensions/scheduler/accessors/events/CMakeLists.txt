@@ -3,7 +3,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${ENGINE_SRC_DIR}
         FILES
         events.cppm
-        ClearEventsCommand.ixx
-        EventReader.ixx
-        EventRecorder.ixx
+        Processor.ixx
+        Reader.ixx
+        Recorder.ixx
 )

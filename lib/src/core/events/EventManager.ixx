@@ -44,7 +44,7 @@ public:
               && std::constructible_from<Event_T, Args_T&&...>
     auto record(std::in_place_type_t<Event_T>, Args_T&&... args) -> void;
 
-    auto clear_events() -> void;
+    auto process_events() -> void;
 
 private:
     constexpr static uint8_t buffer_size{ 2 };
@@ -104,7 +104,7 @@ auto core::events::EventManager<Events_T...>::record(
 }
 
 template <core::events::event_c... Events_T>
-auto core::events::EventManager<Events_T...>::clear_events() -> void
+auto core::events::EventManager<Events_T...>::process_events() -> void
 {
     util::meta::for_each<std::make_index_sequence<sizeof...(Events_T)>>(
         [this]<size_t index_T> {

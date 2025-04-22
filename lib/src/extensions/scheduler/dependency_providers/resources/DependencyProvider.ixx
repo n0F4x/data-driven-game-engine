@@ -19,7 +19,7 @@ class DependencyProvider {
 public:
     constexpr explicit DependencyProvider(ResourceManager_T& resource_manager);
 
-    template <util::meta::specialization_of_c<accessors::resources::Res> ResourceTag_T>
+    template <util::meta::specialization_of_c<accessors::resources::Ref> ResourceTag_T>
     [[nodiscard]]
     constexpr auto provide() const -> ResourceTag_T;
 
@@ -27,7 +27,7 @@ private:
     std::reference_wrapper<ResourceManager_T> m_resource_manager;
 };
 
-}   // namespace extensions::scheduler::dependency_providers::resource
+}   // namespace extensions::scheduler::dependency_providers::resources
 
 template <util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
 constexpr extensions::scheduler::dependency_providers::resources::
@@ -38,7 +38,7 @@ constexpr extensions::scheduler::dependency_providers::resources::
 {}
 
 template <util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
-template <util::meta::specialization_of_c<extensions::scheduler::accessors::resources::Res>
+template <util::meta::specialization_of_c<extensions::scheduler::accessors::resources::Ref>
               ResourceTag_T>
 constexpr auto extensions::scheduler::dependency_providers::resources::
     DependencyProvider<ResourceManager_T>::provide() const -> ResourceTag_T

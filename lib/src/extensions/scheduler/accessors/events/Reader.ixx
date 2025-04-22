@@ -3,7 +3,7 @@ module;
 #include <span>
 #include <type_traits>
 
-export module extensions.scheduler.accessors.events.EventReader;
+export module extensions.scheduler.accessors.events.Reader;
 
 import core.events.event_c;
 
@@ -11,7 +11,7 @@ namespace extensions::scheduler::accessors::events {
 
 export template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
-class EventReader {
+class Reader {
     using UnderlyingView = std::span<const Event_T>;
 
     using Iterator        = typename UnderlyingView::iterator;
@@ -22,7 +22,7 @@ class EventReader {
     // using ConstReverseIterator = typename UnderlyingView::const_reverse_iterator;
 
 public:
-    constexpr explicit EventReader(UnderlyingView events);
+    constexpr explicit Reader(UnderlyingView events);
 
     [[nodiscard]]
     constexpr auto count() const -> size_t;
@@ -51,14 +51,14 @@ private:
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
 constexpr extensions::scheduler::accessors::events::
-    EventReader<Event_T>::EventReader(std::span<const Event_T> events)
+    Reader<Event_T>::Reader(std::span<const Event_T> events)
     : m_events_view{ events }
 {}
 
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
 constexpr auto extensions::scheduler::accessors::events::
-    EventReader<Event_T>::count() const -> size_t
+    Reader<Event_T>::count() const -> size_t
 {
     return m_events_view.size();
 }
@@ -66,7 +66,7 @@ constexpr auto extensions::scheduler::accessors::events::
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
 constexpr auto extensions::scheduler::accessors::events::
-    EventReader<Event_T>::front() const -> Event_T&
+    Reader<Event_T>::front() const -> Event_T&
 {
     return m_events_view.front();
 }
@@ -74,7 +74,7 @@ constexpr auto extensions::scheduler::accessors::events::
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
 constexpr auto extensions::scheduler::accessors::events::
-    EventReader<Event_T>::back() const -> Event_T&
+    Reader<Event_T>::back() const -> Event_T&
 {
     return m_events_view.back();
 }
@@ -82,7 +82,7 @@ constexpr auto extensions::scheduler::accessors::events::
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
 constexpr auto extensions::scheduler::accessors::events::
-    EventReader<Event_T>::begin() const -> Iterator
+    Reader<Event_T>::begin() const -> Iterator
 {
     return m_events_view.begin();
 }
@@ -90,7 +90,7 @@ constexpr auto extensions::scheduler::accessors::events::
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
 constexpr auto extensions::scheduler::accessors::events::
-    EventReader<Event_T>::end() const -> Iterator
+    Reader<Event_T>::end() const -> Iterator
 {
     return m_events_view.end();
 }
@@ -98,7 +98,7 @@ constexpr auto extensions::scheduler::accessors::events::
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
 constexpr auto extensions::scheduler::accessors::events::
-    EventReader<Event_T>::rbegin() const -> Iterator
+    Reader<Event_T>::rbegin() const -> Iterator
 {
     return m_events_view.rbegin();
 }
@@ -106,7 +106,7 @@ constexpr auto extensions::scheduler::accessors::events::
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
 constexpr auto extensions::scheduler::accessors::events::
-    EventReader<Event_T>::rend() const -> Iterator
+    Reader<Event_T>::rend() const -> Iterator
 {
     return m_events_view.rend();
 }
