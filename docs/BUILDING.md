@@ -38,7 +38,7 @@ os=Windows
 
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
-tools.cmake.cmaketoolchain:extra_variables={'engine_debug': 'ON'}
+tools.cmake.cmaketoolchain:extra_variables={'engine_debug': 'ON', 'engine_test': 'ON', 'engine_examples': 'ON'}
 
 [buildenv]
 CC=C:\dev\MSYS2\clang64\bin\clang.exe
