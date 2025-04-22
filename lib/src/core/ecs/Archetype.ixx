@@ -89,10 +89,7 @@ public:
         return std::ranges::equal(m_sorted_component_ids, other.m_sorted_component_ids);
     }
 
-    constexpr auto operator<=>(const Archetype& other) const noexcept
-    {
-        return m_sorted_component_ids <=> other.m_sorted_component_ids;
-    }
+    auto operator<=>(const Archetype& other) const = default;
 
     [[nodiscard]]
     constexpr auto sorted_component_ids() const noexcept -> std::span<const ComponentID>
