@@ -246,7 +246,9 @@ auto QueryClosure<Parameters_T...>::operator()(core::ecs::Registry& registry, F&
              included_optional_component_table_refs
          )))
     {
-        visit_archetype(registry, included_optional_component_table_refs, archetype_id, func);
+        visit_archetype(
+            registry, included_optional_component_table_refs, archetype_id, func
+        );
     }
 
     return std::forward<F>(func);
@@ -273,7 +275,8 @@ auto QueryClosure<Parameters_T...>::fill_included_optional_component_table_refs(
 ) -> bool
 {
     if (util::meta::any_of<IncludedComponents>(
-            [&registry, &included_optional_component_table_refs]<typename Component_T> mutable {
+            [&registry,
+             &included_optional_component_table_refs]<typename Component_T> mutable {
                 OptionalComponentTableRef<Component_T>& optional_component_table_ref{
                     std::get<OptionalComponentTableRef<Component_T>>(
                         included_optional_component_table_refs

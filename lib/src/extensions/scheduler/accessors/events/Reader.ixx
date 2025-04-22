@@ -50,63 +50,64 @@ private:
 
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
-constexpr extensions::scheduler::accessors::events::
-    Reader<Event_T>::Reader(std::span<const Event_T> events)
+constexpr extensions::scheduler::accessors::events::Reader<Event_T>::Reader(
+    std::span<const Event_T> events
+)
     : m_events_view{ events }
 {}
 
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
-constexpr auto extensions::scheduler::accessors::events::
-    Reader<Event_T>::count() const -> size_t
+constexpr auto extensions::scheduler::accessors::events::Reader<Event_T>::count() const
+    -> size_t
 {
     return m_events_view.size();
 }
 
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
-constexpr auto extensions::scheduler::accessors::events::
-    Reader<Event_T>::front() const -> Event_T&
+constexpr auto extensions::scheduler::accessors::events::Reader<Event_T>::front() const
+    -> Event_T&
 {
     return m_events_view.front();
 }
 
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
-constexpr auto extensions::scheduler::accessors::events::
-    Reader<Event_T>::back() const -> Event_T&
+constexpr auto extensions::scheduler::accessors::events::Reader<Event_T>::back() const
+    -> Event_T&
 {
     return m_events_view.back();
 }
 
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
-constexpr auto extensions::scheduler::accessors::events::
-    Reader<Event_T>::begin() const -> Iterator
+constexpr auto extensions::scheduler::accessors::events::Reader<Event_T>::begin() const
+    -> Iterator
 {
     return m_events_view.begin();
 }
 
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
-constexpr auto extensions::scheduler::accessors::events::
-    Reader<Event_T>::end() const -> Iterator
+constexpr auto extensions::scheduler::accessors::events::Reader<Event_T>::end() const
+    -> Iterator
 {
     return m_events_view.end();
 }
 
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
-constexpr auto extensions::scheduler::accessors::events::
-    Reader<Event_T>::rbegin() const -> Iterator
+constexpr auto extensions::scheduler::accessors::events::Reader<Event_T>::rbegin() const
+    -> Iterator
 {
     return m_events_view.rbegin();
 }
 
 template <typename Event_T>
     requires core::events::event_c<std::remove_const_t<Event_T>>
-constexpr auto extensions::scheduler::accessors::events::
-    Reader<Event_T>::rend() const -> Iterator
+constexpr auto extensions::scheduler::accessors::events::Reader<Event_T>::rend() const
+    -> Iterator
 {
     return m_events_view.rend();
 }

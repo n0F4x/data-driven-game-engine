@@ -21,10 +21,9 @@ public:
     constexpr explicit DependencyProvider(EventManager_T& resource_manager);
 
     template <typename EventTag_T>
-        requires std::
-            same_as<std::remove_const_t<EventTag_T>, accessors::events::Processor>
-        [[nodiscard]]
-        constexpr auto provide() const -> EventTag_T;
+        requires std::same_as<std::remove_const_t<EventTag_T>, accessors::events::Processor>
+    [[nodiscard]]
+    constexpr auto provide() const -> EventTag_T;
 
     template <util::meta::specialization_of_c<accessors::events::Recorder> EventTag_T>
     [[nodiscard]]
@@ -74,8 +73,8 @@ constexpr auto extensions::scheduler::dependency_providers::events::
 }
 
 template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
-template <util::meta::specialization_of_c<
-    extensions::scheduler::accessors::events::Reader> EventTag_T>
+template <util::meta::specialization_of_c<extensions::scheduler::accessors::events::Reader>
+              EventTag_T>
 constexpr auto extensions::scheduler::dependency_providers::events::
     DependencyProvider<EventManager_T>::provide() const -> EventTag_T
 {

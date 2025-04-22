@@ -7,17 +7,21 @@ import demo.Window;
 
 using namespace extensions::scheduler::accessors;
 
-constexpr static auto initialize = [](const resources::Ref<Window> window) {
-    window->open();
-};
+constexpr static auto initialize =              //
+    [](const resources::Ref<Window> window) {   //
+        window->open();
+    };
 
 constexpr static auto update_0 = [] {};
-constexpr static auto update_1 = [](const resources::Ref<Window> window) {
-    window->close();
-};
+constexpr static auto update_1 =                //
+    [](const resources::Ref<Window> window) {   //
+        window->close();
+    };
 
-constexpr static auto game_is_running = [](const resources::Ref<const Window> window
-                                        ) -> bool { return window->is_open(); };
+constexpr static auto game_is_running =               //
+    [](const resources::Ref<const Window> window) {   //
+        return window->is_open();
+    };
 
 constexpr static auto run_game_loop = core::scheduler::loop_until(
     core::scheduler::group(update_0, update_1),
