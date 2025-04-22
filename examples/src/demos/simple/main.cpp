@@ -7,7 +7,7 @@ import demo.Window;
 
 using namespace extensions::scheduler::accessors::ecs;
 using namespace extensions::scheduler::accessors::events;
-using namespace extensions::scheduler::accessors::resource;
+using namespace extensions::scheduler::accessors::resources;
 using namespace core::ecs::query_parameter_tags;
 
 struct WindowClosed {};

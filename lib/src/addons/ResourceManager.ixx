@@ -4,8 +4,8 @@ module;
 
 export module addons.ResourceManager;
 
-import core.resource.resource_c;
-import core.resource.ResourceManager;
+import core.resources.resource_c;
+import core.resources.ResourceManager;
 
 namespace addons {
 

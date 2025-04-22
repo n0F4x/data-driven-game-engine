@@ -1,4 +1,4 @@
-export module core.resource.resource_c;
+export module core.resources.resource_c;
 
 import utility.meta.concepts.decayed;
 

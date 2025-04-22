@@ -5,7 +5,7 @@ import utility;
 
 import demo.Window;
 
-using namespace extensions::scheduler::accessors::resource;
+using namespace extensions::scheduler::accessors::resources;
 
 constexpr static auto initialize = [](const Res<Window> window) { window->open(); };
 

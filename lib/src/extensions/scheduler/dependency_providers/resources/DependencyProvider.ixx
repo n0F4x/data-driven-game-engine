@@ -2,16 +2,16 @@ module;
 
 #include <functional>
 
-export module extensions.scheduler.dependency_providers.resource.DependencyProvider;
+export module extensions.scheduler.dependency_providers.resources.DependencyProvider;
 
-import core.resource.ResourceManager;
+import core.resources.ResourceManager;
 
-import extensions.scheduler.accessors.resource;
+import extensions.scheduler.accessors.resources;
 
 import utility.meta.concepts.specialization_of;
 import utility.meta.type_traits.underlying;
 
-namespace extensions::scheduler::dependency_providers::resource {
+namespace extensions::scheduler::dependency_providers::resources {
 
 export template <
     util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
@@ -19,7 +19,7 @@ class DependencyProvider {
 public:
     constexpr explicit DependencyProvider(ResourceManager_T& resource_manager);
 
-    template <util::meta::specialization_of_c<accessors::resource::Res> ResourceTag_T>
+    template <util::meta::specialization_of_c<accessors::resources::Res> ResourceTag_T>
     [[nodiscard]]
     constexpr auto provide() const -> ResourceTag_T;
 
@@ -30,7 +30,7 @@ private:
 }   // namespace extensions::scheduler::dependency_providers::resource
 
 template <util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
-constexpr extensions::scheduler::dependency_providers::resource::
+constexpr extensions::scheduler::dependency_providers::resources::
     DependencyProvider<ResourceManager_T>::DependencyProvider(
         ResourceManager_T& resource_manager
     )
@@ -38,9 +38,9 @@ constexpr extensions::scheduler::dependency_providers::resource::
 {}
 
 template <util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
-template <util::meta::specialization_of_c<extensions::scheduler::accessors::resource::Res>
+template <util::meta::specialization_of_c<extensions::scheduler::accessors::resources::Res>
               ResourceTag_T>
-constexpr auto extensions::scheduler::dependency_providers::resource::
+constexpr auto extensions::scheduler::dependency_providers::resources::
     DependencyProvider<ResourceManager_T>::provide() const -> ResourceTag_T
 {
     return ResourceTag_T{

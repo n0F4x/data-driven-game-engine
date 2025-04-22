@@ -2,13 +2,13 @@ module;
 
 #include <type_traits>
 
-export module extensions.scheduler.accessors.resource;
+export module extensions.scheduler.accessors.resources;
 
-import core.resource.resource_c;
+import core.resources.resource_c;
 
 import utility.containers.Ref;
 
-namespace extensions::scheduler::accessors::resource {
+namespace extensions::scheduler::accessors::resources {
 
 export template <typename Resource_T>
     requires core::resource::resource_c<std::remove_const_t<Resource_T>>

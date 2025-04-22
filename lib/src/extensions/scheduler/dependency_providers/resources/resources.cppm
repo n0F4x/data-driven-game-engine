@@ -1,10 +1,10 @@
-export module extensions.scheduler.dependency_providers.resource;
+export module extensions.scheduler.dependency_providers.resources;
 
 import addons.ResourceManager;
 
 import core.app.has_addons_c;
 
-export import extensions.scheduler.dependency_providers.resource.DependencyProvider;
+export import extensions.scheduler.dependency_providers.resources.DependencyProvider;
 
 namespace extensions::scheduler::dependency_providers {
 
@@ -21,5 +21,5 @@ constexpr auto extensions::scheduler::dependency_providers::ResourceManager::ope
     core::app::has_addons_c<addons::ResourceManagerTag> auto& app
 )
 {
-    return resource::DependencyProvider{ app.resource_manager };
+    return resources::DependencyProvider{ app.resource_manager };
 }

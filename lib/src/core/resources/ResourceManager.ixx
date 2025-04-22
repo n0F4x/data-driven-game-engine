@@ -9,7 +9,7 @@ module;
   #include <cassert>
 #endif
 
-export module core.resource.ResourceManager;
+export module core.resources.ResourceManager;
 
 import utility.containers.StackedTuple;
 import utility.meta.concepts.all_different;
@@ -18,7 +18,7 @@ import utility.meta.type_traits.functional.result_of;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.TypeList;
 
-import core.resource.resource_c;
+import core.resources.resource_c;
 
 template <typename T, typename Resource_T>
 concept decays_to_factory_c =

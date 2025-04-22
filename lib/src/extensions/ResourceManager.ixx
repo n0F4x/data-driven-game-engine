@@ -23,7 +23,7 @@ import utility.tuple;
 
 import addons.ResourceManager;
 
-import core.resource.resource_c;
+import core.resources.resource_c;
 
 namespace extensions {
 

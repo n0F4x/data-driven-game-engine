@@ -6,5 +6,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         accessors.cppm
         ecs.ixx
-        resource.ixx
+        resources.ixx
 )
