@@ -11,7 +11,7 @@ template <
 struct integer_sequence_concat;
 
 template <
-    template <typename T, T...> typename IntegerSequence_T,
+    template <typename T_, T_...> typename IntegerSequence_T,
     typename Integer_T,
     Integer_T... left_ints_T,
     Integer_T... right_ints_T>

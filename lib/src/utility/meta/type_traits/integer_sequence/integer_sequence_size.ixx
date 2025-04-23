@@ -12,7 +12,7 @@ export template <integer_sequence_c IntegerSequence_T>
 struct integer_sequence_size;
 
 template <
-    template <typename T, T...> typename IntegerSequence_T,
+    template <typename T_, T_...> typename IntegerSequence_T,
     typename Integer_T,
     Integer_T... integers_T>
 struct integer_sequence_size<IntegerSequence_T<Integer_T, integers_T...>> {

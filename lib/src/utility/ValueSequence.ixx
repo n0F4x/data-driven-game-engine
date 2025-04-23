@@ -2,7 +2,6 @@ module;
 
 #include <array>
 #include <type_traits>
-#include <utility>
 
 export module utility.ValueSequence;
 

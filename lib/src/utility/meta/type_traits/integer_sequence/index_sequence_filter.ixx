@@ -7,20 +7,21 @@ module;
 export module utility.meta.type_traits.integer_sequence.index_sequence_filter;
 
 import utility.meta.algorithms.fold_left_first;
+import utility.meta.concepts.integer_sequence.index_sequence;
 import utility.meta.type_traits.integer_sequence.integer_sequence_concat;
 
 template <typename IndexSequence_T, template <size_t> typename Predicate_T>
 struct index_sequence_filter_impl;
 
 template <
-    template <typename, size_t...> typename IndexSequence_T,
+    template <typename T_, T_...> typename IndexSequence_T,
     template <size_t> typename Predicate_T>
 struct index_sequence_filter_impl<IndexSequence_T<size_t>, Predicate_T> {
     using type = IndexSequence_T<size_t>;
 };
 
 template <
-    template <typename, size_t...> typename IndexSequence_T,
+    template <typename T_, T_...> typename IndexSequence_T,
     size_t... indices_T,
     template <size_t> typename Predicate_T>
 struct index_sequence_filter_impl<IndexSequence_T<size_t, indices_T...>, Predicate_T> {
@@ -42,12 +43,12 @@ struct index_sequence_filter_impl<IndexSequence_T<size_t, indices_T...>, Predica
 
 namespace util::meta {
 
-template <typename IndexSequence_T, template <size_t> typename Predicate_T>
+template <index_sequence_c IndexSequence_T, template <size_t> typename Predicate_T>
 struct index_sequence_filter {
     using type = typename index_sequence_filter_impl<IndexSequence_T, Predicate_T>::type;
 };
 
-export template <typename IndexSequence_T, template <size_t> typename Predicate_T>
+export template <index_sequence_c IndexSequence_T, template <size_t> typename Predicate_T>
 using index_sequence_filter_t =
     typename index_sequence_filter<IndexSequence_T, Predicate_T>::type;
 

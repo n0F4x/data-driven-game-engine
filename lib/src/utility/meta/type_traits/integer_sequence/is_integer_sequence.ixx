@@ -11,7 +11,7 @@ export template <typename>
 struct is_integer_sequence : std::false_type {};
 
 template <
-    template <typename T, T...> typename IntegerSequence_T,
+    template <typename T_, T_...> typename IntegerSequence_T,
     std::integral Integer_T,
     Integer_T... integers_T>
 struct is_integer_sequence<IntegerSequence_T<Integer_T, integers_T...>> : std::true_type {

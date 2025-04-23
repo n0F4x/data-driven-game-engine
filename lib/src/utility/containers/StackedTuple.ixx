@@ -34,19 +34,19 @@ concept decays_to_factory_c =
 template <util::meta::index_sequence_c, typename... Ts>
 struct Impl;
 
-template <template <typename, size_t...> typename IntegerSequence_T>
+template <template <typename T_, T_...> typename IntegerSequence_T>
 struct Impl<IntegerSequence_T<size_t>> {
     constexpr explicit Impl(std::tuple<>);
 };
 
-template <template <typename, size_t...> typename IntegerSequence_T, size_t I, typename T>
+template <template <typename T_, T_...> typename IntegerSequence_T, size_t I, typename T>
 struct Impl<IntegerSequence_T<size_t, I>, T> : Leaf<I, T> {
     template <typename... Stacked_T, typename Factory_T>
     constexpr Impl(std::tuple<Stacked_T&...>&& stack, Factory_T&& factory);
 };
 
 template <
-    template <typename, size_t...> typename IntegerSequence_T,
+    template <typename T_, T_...> typename IntegerSequence_T,
     size_t I,
     size_t... Is,
     typename T,
@@ -85,7 +85,7 @@ private:
 
 }   // namespace util
 
-template <template <typename, size_t...> typename IntegerSequence_T>
+template <template <typename T_, T_...> typename IntegerSequence_T>
 constexpr Impl<IntegerSequence_T<size_t>>::Impl(std::tuple<>)
 {}
 
@@ -113,7 +113,7 @@ constexpr auto gather_dependencies(std::tuple<Ts...>& stack)
     return gather_dependencies_helper<RequiredResourcesTuple_T>::operator()(stack);
 }
 
-template <template <typename, size_t...> typename IntegerSequence_T, size_t I, typename T>
+template <template <typename T_, T_...> typename IntegerSequence_T, size_t I, typename T>
 template <typename... Stacked_T, typename Factory_T>
 constexpr Impl<IntegerSequence_T<size_t, I>, T>::Impl(
     std::tuple<Stacked_T&...>&& stack,
@@ -126,7 +126,7 @@ constexpr Impl<IntegerSequence_T<size_t, I>, T>::Impl(
 {}
 
 template <
-    template <typename, size_t...> typename IntegerSequence_T,
+    template <typename T_, T_...> typename IntegerSequence_T,
     size_t I,
     size_t... Is,
     typename T,

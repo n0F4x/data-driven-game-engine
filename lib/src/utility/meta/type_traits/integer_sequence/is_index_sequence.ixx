@@ -9,7 +9,7 @@ namespace util::meta {
 export template <typename>
 struct is_index_sequence : std::false_type {};
 
-template <template <typename T, T...> typename IntegerSequence_T, size_t... indices_T>
+template <template <typename T_, T_...> typename IntegerSequence_T, size_t... indices_T>
 struct is_index_sequence<IntegerSequence_T<size_t, indices_T...>> : std::true_type {};
 
 export template <typename T>
