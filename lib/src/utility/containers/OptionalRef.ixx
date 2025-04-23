@@ -203,9 +203,7 @@ static_assert(
             return other_value;
         }) };
 
-        assert(optional.value() == other_value);
-
-        return true;
+        return optional.value() == other_value;
     }(),
     "transform to optional with value test failed"
 );
@@ -218,9 +216,7 @@ static_assert(
             return other_value;
         }) };
 
-        assert(!optional.has_value());
-
-        return true;
+        return !optional.has_value();
     }(),
     "transform to optional without value test failed"
 );
@@ -246,9 +242,7 @@ static_assert(
             return {};
         }) };
 
-        assert(expected.value() == value);
-
-        return true;
+        return expected.value() == value;
     }(),
     "or_else with value test failed"
 );
@@ -261,9 +255,7 @@ static_assert(
             return std::unexpected<float>{ error };
         }) };
 
-        assert(expected.error() == error);
-
-        return true;
+        return expected.error() == error;
     }(),
     "or_else without value test failed"
 );

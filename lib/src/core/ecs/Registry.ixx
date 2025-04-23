@@ -215,6 +215,8 @@ auto core::ecs::Registry::destroy(const core::ecs::ID id) -> bool
             return std::get<Entity>(entity_and_index);
         })
         .transform([this, id](const ::Entity entity) {
+            std::ignore = id;
+
             const auto [archetype_id, record_id]{ entity };
 
             const auto [removed_id, record_index] =

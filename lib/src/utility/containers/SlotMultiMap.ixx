@@ -191,9 +191,8 @@ static_assert(
         auto                            result = multi_sparse_set.get(key);
 
         static_assert(std::is_same_v<decltype(result), std::tuple<int&, float&, Dummy&>>);
-        assert(result == values);
 
-        return true;
+        return result == values;
     }(),
     "get & test failed"
 );
@@ -209,9 +208,8 @@ static_assert(
         static_assert(std::is_same_v<
                       decltype(result),
                       std::tuple<const int&, const float&, const Dummy&>>);
-        assert(result == values);
 
-        return true;
+        return result == values;
     }(),
     "get const& test failed"
 );
@@ -225,9 +223,8 @@ static_assert(
         auto                            result = std::move(multi_sparse_set).get(key);
 
         static_assert(std::is_same_v<decltype(result), std::tuple<int&&, float&&, Dummy&&>>);
-        assert(result == values);
 
-        return true;
+        return result == values;
     }(),
     "get && test failed"
 );
@@ -243,9 +240,8 @@ static_assert(
         static_assert(std::is_same_v<
                       decltype(result),
                       std::tuple<const int&&, const float&&, const Dummy&&>>);
-        assert(result == values);
 
-        return true;
+        return result == values;
     }(),
     "get const&& test failed"
 );
@@ -261,9 +257,8 @@ static_assert(
         static_assert(std::is_same_v<
                       decltype(result),
                       std::optional<std::tuple<int&, float&, Dummy&>>>);
-        assert(result.value() == values);
 
-        return true;
+        return result.value() == values;
     }(),
     "find contained value test failed"
 );
@@ -279,9 +274,8 @@ static_assert(
         static_assert(std::is_same_v<
                       decltype(result),
                       std::optional<std::tuple<const int&, const float&, const Dummy&>>>);
-        assert(result.value() == values);
 
-        return true;
+        return result.value() == values;
     }(),
     "find const contained value test failed"
 );
@@ -290,9 +284,7 @@ static_assert(
     [] {
         util::SlotMultiMap<Key, Values> multi_sparse_set;
 
-        assert(!multi_sparse_set.find(missing_key).has_value());
-
-        return true;
+        return !multi_sparse_set.find(missing_key).has_value();
     }(),
     "find missing value test failed"
 );
@@ -305,10 +297,7 @@ static_assert(
         ) };
         const std::optional<Values>     erased_values = multi_sparse_set.erase(key);
 
-        assert(erased_values.value() == values);
-        assert(!multi_sparse_set.find(key).has_value());
-
-        return true;
+        return erased_values.value() == values && !multi_sparse_set.find(key).has_value();
     }(),
     "erase contained value test failed"
 );

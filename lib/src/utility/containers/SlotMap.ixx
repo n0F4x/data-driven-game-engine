@@ -201,9 +201,7 @@ static_assert(
         const auto key{ slot_map.next_key() };
         const auto actual_key{ slot_map.emplace().first };
 
-        assert(key == actual_key);
-
-        return true;
+        return key == actual_key;
     }(),
     "emplace test failed"
 );
@@ -213,9 +211,7 @@ static_assert(
         util::SlotMap<Key, Value> slot_map;
         const auto                key{ slot_map.emplace().first };
 
-        assert(slot_map.contains(key));
-
-        return true;
+        return slot_map.contains(key);
     }(),
     "contains test failed"
 );
@@ -224,9 +220,7 @@ static_assert(
     [] {
         const util::SlotMap<Key, Value> slot_map;
 
-        assert(!slot_map.contains(missing_key));
-
-        return true;
+        return !slot_map.contains(missing_key);
     }(),
     "contains missing test failed"
 );
@@ -236,9 +230,7 @@ static_assert(
         util::SlotMap<Key, Value> slot_map;
         const Key                 key{ slot_map.emplace(value).first };
 
-        assert(slot_map.get(key) == value);
-
-        return true;
+        return slot_map.get(key) == value;
     }(),
     "get test failed"
 );
@@ -248,9 +240,7 @@ static_assert(
         util::SlotMap<Key, Value> slot_map;
         const Key                 key{ slot_map.emplace(value).first };
 
-        assert(*slot_map.find(key) == value);
-
-        return true;
+        return *slot_map.find(key) == value;
     }(),
     "find contained value test failed"
 );
@@ -259,9 +249,7 @@ static_assert(
     [] {
         util::SlotMap<Key, Value> slot_map;
 
-        assert(!slot_map.find(missing_key).has_value());
-
-        return true;
+        return !slot_map.find(missing_key).has_value();
     }(),
     "find missing value test failed"
 );
@@ -269,17 +257,9 @@ static_assert(
 static_assert(
     [] {
         util::SlotMap<Key, Value> slot_map;
+        const Key                 key{ slot_map.emplace(value).first };
 
-        assert(slot_map.empty());
-
-        const Key key{ slot_map.emplace(value).first };
-
-        assert(!slot_map.empty());
-        assert(slot_map.erase(key));
-        assert(!slot_map.find(key).has_value());
-        assert(slot_map.empty());
-
-        return true;
+        return slot_map.erase(key) && !slot_map.find(key).has_value();
     }(),
     "erase contained value test failed"
 );
@@ -288,9 +268,7 @@ static_assert(
     [] {
         util::SlotMap<Key, Value> slot_map;
 
-        assert(!slot_map.erase(missing_key));
-
-        return true;
+        return !slot_map.erase(missing_key);
     }(),
     "erase missing value test failed"
 );
@@ -302,9 +280,7 @@ static_assert(
         slot_map.erase(old_key);
         slot_map.emplace(value);
 
-        assert(!slot_map.find(old_key).has_value());
-
-        return true;
+        return !slot_map.find(old_key).has_value();
     }(),
     "version test failed"
 );

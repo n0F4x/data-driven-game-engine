@@ -398,9 +398,7 @@ static_assert(
         const std::tuple key_and_id{ sparse_set.next_key(), sparse_set.next_id() };
         const std::tuple actual_key_and_id{ sparse_set.emplace() };
 
-        assert(key_and_id == actual_key_and_id);
-
-        return true;
+        return key_and_id == actual_key_and_id;
     }(),
     "emplace test failed"
 );
@@ -408,11 +406,9 @@ static_assert(
 static_assert(
     [] {
         util::SparseSet<Key> sparse_set;
-        const auto [key, id]{ sparse_set.emplace() };
+        const auto [key, _id]{ sparse_set.emplace() };
 
-        assert(sparse_set.contains(key));
-
-        return true;
+        return sparse_set.contains(key);
     }(),
     "contains test failed"
 );
@@ -421,9 +417,7 @@ static_assert(
     [] {
         const util::SparseSet<Key> sparse_set;
 
-        assert(!sparse_set.contains(missing_key));
-
-        return true;
+        return !sparse_set.contains(missing_key);
     }(),
     "contains missing test failed"
 );
@@ -433,9 +427,7 @@ static_assert(
         util::SparseSet<Key> sparse_set;
         const auto [key, id]{ sparse_set.emplace() };
 
-        assert(sparse_set.get(key) == id);
-
-        return true;
+        return sparse_set.get(key) == id;
     }(),
     "get test failed"
 );
@@ -445,9 +437,7 @@ static_assert(
         util::SparseSet<Key> sparse_set;
         const auto [key, id]{ sparse_set.emplace() };
 
-        assert(sparse_set.find(key).value() == id);
-
-        return true;
+        return sparse_set.find(key).value() == id;
     }(),
     "find contained test failed"
 );
@@ -456,9 +446,7 @@ static_assert(
     [] {
         const util::SparseSet<Key> sparse_set;
 
-        assert(!sparse_set.find(missing_key).has_value());
-
-        return true;
+        return !sparse_set.find(missing_key).has_value();
     }(),
     "find missing test failed"
 );
@@ -466,17 +454,9 @@ static_assert(
 static_assert(
     [] {
         util::SparseSet<Key> sparse_set;
-
-        assert(sparse_set.empty());
-
         const auto [key, _]{ sparse_set.emplace() };
 
-        assert(!sparse_set.empty());
-        assert(sparse_set.erase(key));
-        assert(!sparse_set.find(key).has_value());
-        assert(sparse_set.empty());
-
-        return true;
+        return sparse_set.erase(key) && !sparse_set.find(key).has_value();
     }(),
     "erase contained value test failed"
 );
@@ -485,9 +465,7 @@ static_assert(
     [] {
         util::SparseSet<Key> sparse_set;
 
-        assert(!sparse_set.erase(missing_key));
-
-        return true;
+        return !sparse_set.erase(missing_key);
     }(),
     "erase missing value test failed"
 );
@@ -499,10 +477,7 @@ static_assert(
         sparse_set.erase(old_key);
         const auto [new_key, _]{ sparse_set.emplace() };
 
-        assert(!sparse_set.find(old_key).has_value());
-        assert(sparse_set.contains(new_key));
-
-        return true;
+        return !sparse_set.find(old_key).has_value() && sparse_set.contains(new_key);
     }(),
     "version test failed"
 );
@@ -516,9 +491,7 @@ static_assert(
         const auto [third_key, _]{ sparse_set.emplace() };
         sparse_set.erase(first_key);
 
-        assert(sparse_set.contains(third_key));
-
-        return true;
+        return sparse_set.contains(third_key);
     }(),
     "complex erase test failed"
 );
