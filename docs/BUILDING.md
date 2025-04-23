@@ -37,12 +37,9 @@ compiler.cppstd=26
 os=Windows
 
 [conf]
+tools.build:compiler_executables={"c": "C:/dev/MSYS2/clang64/bin/clang.exe", "cpp": "C:/dev/MSYS2/clang64/bin/clang++.exe"}
 tools.cmake.cmaketoolchain:generator=Ninja
 tools.cmake.cmaketoolchain:extra_variables={'engine_debug': 'ON', 'engine_test': 'ON', 'engine_examples': 'ON'}
-
-[buildenv]
-CC=C:\dev\MSYS2\clang64\bin\clang.exe
-CXX=C:\dev\MSYS2\clang64\bin\clang++.exe
 ```
 
 ## Vulkan
