@@ -3,7 +3,7 @@ module;
 #include <functional>
 #include <utility>
 
-export module extensions.scheduler.accessors.ecs;
+export module extensions.scheduler.accessors.ecs.Query;
 
 import core.ecs;
 

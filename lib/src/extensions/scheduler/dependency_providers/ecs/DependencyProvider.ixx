@@ -16,6 +16,10 @@ export class DependencyProvider {
 public:
     explicit DependencyProvider(core::ecs::Registry& registry);
 
+    template <std::same_as<accessors::ecs::RegistryRef> Registry_T>
+    [[nodiscard]]
+    auto provide() const -> Registry_T;
+
     template <util::meta::specialization_of_c<accessors::ecs::Query> Query_T>
     [[nodiscard]]
     auto provide() const -> Query_T;
@@ -31,6 +35,13 @@ extensions::scheduler::dependency_providers::ecs::DependencyProvider::Dependency
 )
     : m_registry{ registry }
 {}
+
+template <std::same_as<extensions::scheduler::accessors::ecs::RegistryRef> Registry_T>
+auto extensions::scheduler::dependency_providers::ecs::DependencyProvider::provide() const
+    -> Registry_T
+{
+    return Registry_T{ m_registry };
+}
 
 template <
     util::meta::specialization_of_c<extensions::scheduler::accessors::ecs::Query> Query_T>

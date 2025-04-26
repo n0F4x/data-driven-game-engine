@@ -1,3 +1,5 @@
+#include <print>
+
 import core;
 import addons;
 import extensions;
@@ -23,9 +25,11 @@ struct Collider {
     int hi{};
 };
 
-constexpr static auto initialize =              //
-    [](const resources::Ref<Window> window) {   //
+constexpr static auto initialize =                                               //
+    [](const resources::Ref<Window> window, const ecs::RegistryRef registry) {   //
         window->open();
+
+        registry->create(Position{}, EnemyTag{}, Collider{ .hi = 42 });
     };
 
 constexpr static auto update_0 =                     //
@@ -43,7 +47,11 @@ constexpr static auto update_1 =   //
 {
     entities.for_each([](const Position,
                          util::OptionalRef<Renderable>,
-                         util::OptionalRef<const Collider>) {});
+                         const util::OptionalRef<const Collider> optional_collider) {
+        if (optional_collider.has_value()) {
+            std::println("Collider is {}", optional_collider->hi);
+        }
+    });
 };
 
 constexpr static auto update_2 =
