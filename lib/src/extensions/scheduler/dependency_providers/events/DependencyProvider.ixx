@@ -23,7 +23,7 @@ public:
     template <typename EventTag_T>
         requires std::same_as<std::remove_const_t<EventTag_T>, accessors::events::Processor>
     [[nodiscard]]
-    constexpr auto provide() const -> EventTag_T;
+    auto provide() const -> EventTag_T;
 
     template <util::meta::specialization_of_c<accessors::events::Recorder> EventTag_T>
     [[nodiscard]]
@@ -52,12 +52,10 @@ template <typename EventTag_T>
     requires std::same_as<
         std::remove_const_t<EventTag_T>,
         extensions::scheduler::accessors::events::Processor>
-constexpr auto extensions::scheduler::dependency_providers::events::
+auto extensions::scheduler::dependency_providers::events::
     DependencyProvider<EventManager_T>::provide() const -> EventTag_T
 {
-    return EventTag_T{ [event_manager_ref = m_event_manager_ref] {
-        event_manager_ref.get().process_events();
-    } };
+    return EventTag_T{ m_event_manager_ref.get() };
 }
 
 template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>

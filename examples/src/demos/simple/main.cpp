@@ -46,7 +46,7 @@ constexpr static auto update_1 =   //
         Optional<const Collider>> entities)   //
 {
     entities.for_each([](const Position,
-                         util::OptionalRef<Renderable>,
+                         const util::OptionalRef<Renderable>,
                          const util::OptionalRef<const Collider> optional_collider) {
         if (optional_collider.has_value()) {
             std::println("Collider is {}", optional_collider->hi);
