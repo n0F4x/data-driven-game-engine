@@ -2,7 +2,8 @@ module;
 
 #include <concepts>
 #include <functional>
-#include <vector>
+#include <type_traits>
+#include <utility>
 
 export module extensions.AddonManager;
 
@@ -13,46 +14,76 @@ import core.app.decays_to_builder_c;
 
 namespace extensions {
 
-template <typename Addon_T>
+template <typename T>
+concept addon_maker =
+    core::app::addon_c<std::invoke_result_t<std::add_rvalue_reference_t<T>>>;
+
+template <typename T>
+concept decays_to_addon_maker = addon_maker<std::decay_t<T>>;
+
+template <addon_maker AddonMaker_T>
 class AddonBuilder {
 public:
-    template <typename UAddon_T>
-        requires std::constructible_from<Addon_T, UAddon_T&&>
-    constexpr explicit AddonBuilder(UAddon_T&& addon);
+    template <typename UAddonMaker_T>
+        requires std::constructible_from<AddonMaker_T, UAddonMaker_T&&>
+    constexpr explicit AddonBuilder(UAddonMaker_T&& injection);
 
     template <core::app::decays_to_app_c App_T>
     constexpr auto build(App_T&& app) &&;
 
 private:
-    Addon_T m_addon;
+    AddonMaker_T m_injection;
 };
 
 export class AddonManager {
 public:
     template <core::app::decays_to_builder_c Self_T, core::app::decays_to_addon_c Addon_T>
     constexpr auto use_addon(this Self_T&&, Addon_T&& addon);
+
+    template <core::app::decays_to_builder_c Self_T, decays_to_addon_maker AddonMaker_T>
+    constexpr auto inject_addon(this Self_T&&, AddonMaker_T&& addon);
 };
+
+export constexpr inline AddonManager addon_manager;
 
 }   // namespace extensions
 
-template <typename Addon_T>
-template <typename UAddon_T>
-    requires std::constructible_from<Addon_T, UAddon_T&&>
-constexpr extensions::AddonBuilder<Addon_T>::AddonBuilder(UAddon_T&& addon)
-    : m_addon{ std::forward<UAddon_T>(addon) }
+template <extensions::addon_maker AddonMaker_T>
+template <typename UAddonMaker_T>
+    requires std::constructible_from<AddonMaker_T, UAddonMaker_T&&>
+constexpr extensions::AddonBuilder<AddonMaker_T>::AddonBuilder(UAddonMaker_T&& injection)
+    : m_injection{ std::forward<UAddonMaker_T>(injection) }
 {}
 
-template <typename Addon_T>
+template <extensions::addon_maker AddonMaker_T>
 template <core::app::decays_to_app_c App_T>
-constexpr auto extensions::AddonBuilder<Addon_T>::build(App_T&& app) &&
+constexpr auto extensions::AddonBuilder<AddonMaker_T>::build(App_T&& app) &&
 {
-    return std::forward<App_T>(app).add_on(std::move(m_addon));
+    return std::forward<App_T>(app).add_on(std::invoke(std::move(m_injection)));
 }
 
 template <core::app::decays_to_builder_c Self_T, core::app::decays_to_addon_c Addon_T>
 constexpr auto extensions::AddonManager::use_addon(this Self_T&& self, Addon_T&& addon)
 {
+    struct AddonMaker {
+        auto operator()()
+        {
+            return std::move(x_addon);
+        }
+
+        std::decay_t<Addon_T> x_addon;
+    };
+
     return std::forward<Self_T>(self).extend_with(
-        AddonBuilder<Addon_T>{ std::forward<Addon_T>(addon) }
+        AddonBuilder<AddonMaker>{ AddonMaker{ .x_addon = std::forward<Addon_T>(addon) } }
+    );
+}
+
+template <core::app::decays_to_builder_c Self_T, extensions::decays_to_addon_maker AddonMaker_T>
+constexpr auto
+    extensions::AddonManager::inject_addon(this Self_T&& self, AddonMaker_T&& addon)
+{
+    return std::forward<Self_T>(self).extend_with(
+        AddonBuilder<AddonMaker_T>{ std::forward<AddonMaker_T>(addon) }
     );
 }

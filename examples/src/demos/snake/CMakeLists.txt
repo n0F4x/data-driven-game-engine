@@ -1,5 +1,7 @@
 add_executable(snake)
 
+set(SNAKE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
 target_compile_features(snake PRIVATE cxx_std_26)
 
 target_compile_options(snake PRIVATE
@@ -11,12 +13,7 @@ target_compile_options(snake PRIVATE
         -Wno-missing-field-initializers
 )
 
-target_sources(snake PRIVATE
-        FILE_SET CXX_MODULES
-        BASE_DIRS ${CURRENT_SOURCE_DIR}
-        FILES
-        Window.ixx
-)
+add_subdirectory(window)
 
 target_sources(snake PRIVATE
         main.cpp
