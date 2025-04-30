@@ -41,8 +41,8 @@ constexpr static auto initialize =                                              
         registry->create(Position{}, EnemyTag{}, Collider{ .hi = 42 });
     };
 
-constexpr static auto update_0 =                     //
-    [](const events::Processor events_processor) {   //
+constexpr static auto update_0 =                      //
+    [](const events::Processor& events_processor) {   //
         events_processor.process_events();
     };
 
@@ -64,12 +64,12 @@ constexpr static auto update_1 =   //
 };
 
 constexpr static auto update_2 =
-    [](const events::Recorder<WindowClosed> window_closed_event_recorder) {
+    [](const events::Recorder<WindowClosed>& window_closed_event_recorder) {
         window_closed_event_recorder.record();
     };
 
 constexpr static auto game_is_running =
-    [](const events::Reader<WindowClosed> window_closed_event_reader) {
+    [](const events::Reader<WindowClosed>& window_closed_event_reader) {
         return window_closed_event_reader.read().size() == 0;
     };
 

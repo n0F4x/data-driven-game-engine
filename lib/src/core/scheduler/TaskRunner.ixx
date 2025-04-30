@@ -55,7 +55,7 @@ constexpr auto core::scheduler::TaskRunner<DependencyProviders_T...>::run(
 ) -> void
 {
     std::apply(
-        [&task](auto... dependency_providers) {
+        [&task](auto&... dependency_providers) {
             invoke_with_right_dependency_providers(
                 std::forward<Task_T>(task), dependency_providers...
             );

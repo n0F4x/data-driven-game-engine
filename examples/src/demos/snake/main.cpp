@@ -19,16 +19,14 @@ constexpr static auto initialize =                      //
     };
 
 constexpr static auto update_0 = [](const resources::Ref<window::Window> window,
-                                    const window::EventRecorder window_event_recorder) {
+                                    const window::EventRecorder& window_event_recorder,
+                                    const events::Processor&     event_processor) {
     window->record_events(window_event_recorder);
-};
-
-constexpr static auto update_1 = [](const events::Processor event_processor) {
     event_processor.process_events();
 };
 
-constexpr static auto update_2 =                        //
-    [](const events::Reader<window::events::CloseRequested> close_requested_event_reader,
+constexpr static auto update_1 =                        //
+    [](const events::Reader<window::events::CloseRequested>& close_requested_event_reader,
        const resources::Ref<window::Window>                 window) {   //
         if (close_requested_event_reader.read().size() > 0) {
             window->close();
@@ -45,7 +43,7 @@ constexpr static auto game_is_running =                       //
     };
 
 constexpr static auto run_game_loop = core::scheduler::loop_until(
-    core::scheduler::group(update_0, update_1, update_2),
+    core::scheduler::group(update_0, update_1),
     game_is_running
 );
 

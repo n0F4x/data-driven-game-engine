@@ -14,6 +14,7 @@ import utility.meta.concepts.functional.unambiguous_functor;
 import utility.meta.reflection.name_of;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.result_of;
+import utility.meta.type_traits.type_list.type_list_transform;
 
 import core.scheduler.concepts.provides_dependency_c;
 
@@ -27,8 +28,9 @@ class TaskBase {};
 template <typename Task_T>
 class TaskInterface : public TaskBase {
 public:
-    using Dependencies = util::meta::arguments_of_t<Task_T>;
-    using Result       = util::meta::result_of_t<Task_T>;
+    using Dependencies =
+        util::meta::type_list_transform_t<util::meta::arguments_of_t<Task_T>, std::decay>;
+    using Result = util::meta::result_of_t<Task_T>;
 
     template <typename Self_T, typename... DependencyProviders_T>
     constexpr auto
