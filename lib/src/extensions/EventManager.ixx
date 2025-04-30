@@ -41,9 +41,10 @@ constexpr auto extensions::BasicEventManager<Events_T...>::register_event(
     this Self_T&& self
 )
 {
-    return core::app::swap_extension<BasicEventManager>(self, [](BasicEventManager) {
-        return BasicEventManager<Events_T..., Event_T>{};
-    });
+    return core::app::swap_extension<BasicEventManager>(
+        std::forward<Self_T>(self),
+        [](BasicEventManager) { return BasicEventManager<Events_T..., Event_T>{}; }
+    );
 }
 
 template <core::events::event_c... Events_T>

@@ -16,8 +16,10 @@ import extensions.ResourceManager;
 
 namespace window {
 
-export constexpr inline auto make_plugin = [](const Settings& settings) {
-    return [settings]<core::app::decays_to_builder_c Builder_T>(Builder_T&& builder) {
+export constexpr inline auto make_plugin = [](Settings settings) {
+    return [settings = std::move(settings)]<core::app::decays_to_builder_c Builder_T>(
+               Builder_T&& builder
+           ) {
         constexpr static auto ensure_resource_manager = []<typename XBuilder_T>(
                                                             XBuilder_T&& x_builder
                                                         ) {

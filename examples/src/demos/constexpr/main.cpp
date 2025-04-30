@@ -1,7 +1,9 @@
 #include <functional>
 
 import core.app;
-import extensions;
+
+import extensions.ResourceManager;
+import extensions.Runnable;
 
 struct First {
     int value{ 42 };

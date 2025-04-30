@@ -1,9 +1,15 @@
-import core;
-import addons;
-import extensions;
-import utility;
+import addons.ecs;
+
+import core.app;
+import core.scheduler;
 
 import demo.window;
+
+import extensions.AddonManager;
+import extensions.Functional;
+import extensions.ResourceManager;
+import extensions.scheduler;
+import extensions.TaskRunner;
 
 using namespace extensions::scheduler::accessors;
 
@@ -27,6 +33,10 @@ constexpr static auto update_2 =                        //
         if (close_requested_event_reader.read().size() > 0) {
             window->close();
         }
+        else {
+            window->clear();
+            window->display();
+        }
     };
 
 constexpr static auto game_is_running =                       //
@@ -47,7 +57,7 @@ auto main() -> int
         .extend_with(extensions::functional)
         .transform(
             window::make_plugin(
-                window::Settings{ .width = 1'280, .height = 920, .title = "Snake" }
+                window::Settings{ .width = 1'280, .height = 720, .title = "Snake" }
             )
         )
         .extend_with(extensions::addon_manager)

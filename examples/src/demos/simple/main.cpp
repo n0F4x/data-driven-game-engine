@@ -1,11 +1,20 @@
 #include <print>
 
-import core;
-import addons;
-import extensions;
-import utility;
+import addons.ecs;
+
+import core.app;
+import core.ecs;
+import core.scheduler;
 
 import demo.Window;
+
+import extensions.AddonManager;
+import extensions.EventManager;
+import extensions.ResourceManager;
+import extensions.scheduler;
+import extensions.TaskRunner;
+
+import utility.containers.OptionalRef;
 
 using namespace extensions::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;

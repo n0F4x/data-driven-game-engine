@@ -1,6 +1,8 @@
 module;
 
-#include <iostream>
+#include <utility>
+
+#include <SFML/Graphics.hpp>
 
 export module demo.window.Window;
 
@@ -16,36 +18,52 @@ export using EventRecorder =
 
 export class Window {
 public:
-    constexpr explicit Window(const Settings&) {}
+    constexpr explicit Window(Settings settings) : m_settings{ std::move(settings) } {}
 
     auto open() -> void
     {
-        std::puts("Window is open");
-        m_is_open = true;
+        m_window.create(
+            sf::VideoMode(sf::Vector2u{ m_settings.width, m_settings.height }),
+            m_settings.title
+        );
     }
 
     [[nodiscard]]
     auto is_open() const -> bool
     {
-        return m_is_open;
+        return m_window.isOpen();
     }
 
     auto close() -> void
     {
-        std::puts("Window is closed");
-        m_is_open = false;
+        m_window.close();
     }
+
+    auto clear() -> void;
+    auto display() -> void;
 
     auto record_events(EventRecorder event_recorder);
 
 private:
-    bool m_is_open{};
+    Settings         m_settings;
+    sf::RenderWindow m_window;
 };
 
 }   // namespace window
 
+auto window::Window::clear() -> void
+{
+    m_window.clear();
+}
+
+auto window::Window::display() -> void
+{
+    m_window.display();
+}
+
 auto window::Window::record_events(const ::window::EventRecorder event_recorder)
 {
-    std::puts("Closed event recorded");
-    event_recorder.record();
+    m_window.handleEvents([&event_recorder](sf::Event::Closed) {
+        event_recorder.record();
+    });
 }
