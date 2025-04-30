@@ -63,8 +63,11 @@ auto main() -> int
         .extend_with(extensions::addon_manager)
         .inject_addon(addons::make_ecs)
         .extend_with(
-            extensions::TaskRunner{ dependency_providers::ResourceManager{},
-                                    dependency_providers::EventManager{} }
+            extensions::TaskRunner{
+                dependency_providers::ResourceManager{},
+                dependency_providers::EventManager{},
+                dependency_providers::ECS{},
+            }
         )
         .run(
             core::scheduler::start_as(initialize)   //

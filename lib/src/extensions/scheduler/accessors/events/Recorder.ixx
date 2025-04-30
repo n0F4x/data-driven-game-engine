@@ -7,37 +7,70 @@ export module extensions.scheduler.accessors.events.Recorder;
 
 import core.events.event_c;
 import core.events.BufferedEventQueue;
+import core.events.EventManager;
+
+import utility.meta.concepts.specialization_of;
+import utility.meta.type_traits.type_list.type_list_contains;
+import utility.meta.type_traits.type_list.type_list_index_of;
+import utility.TypeList;
 
 namespace extensions::scheduler::accessors::events {
 
-export template <core::events::event_c Event_T>
+export template <core::events::event_c... Events_T>
 class Recorder {
 public:
-    constexpr explicit Recorder(core::events::BufferedEventQueue<Event_T>& event_queue);
+    constexpr explicit Recorder(
+        util::meta::specialization_of_c<core::events::EventManager> auto& event_manager
+    );
 
     template <typename... Args_T>
-        requires std::constructible_from<Event_T, Args_T&&...>
+        requires(sizeof...(Events_T) == 1)
+             && std::constructible_from<Events_T...[0], Args_T&&...>
+    constexpr auto record(Args_T&&... args) const -> void;
+
+    template <typename Event_T, typename... Args_T>
+        requires(util::meta::type_list_contains_v<util::TypeList<Events_T...>, Event_T>)
+             && std::constructible_from<Event_T, Args_T&&...>
     constexpr auto record(Args_T&&... args) const -> void;
 
 private:
-    std::reference_wrapper<core::events::BufferedEventQueue<Event_T>> m_buffered_event_queue_ref;
+    std::tuple<std::reference_wrapper<core::events::BufferedEventQueue<Events_T>>...>
+        m_buffered_event_queue_refs;
 };
 
 }   // namespace extensions::scheduler::accessors::events
 
-template <core::events::event_c Event_T>
-constexpr extensions::scheduler::accessors::events::Recorder<Event_T>::Recorder(
-    core::events::BufferedEventQueue<Event_T>& event_queue
+template <core::events::event_c... Events_T>
+constexpr extensions::scheduler::accessors::events::Recorder<Events_T...>::Recorder(
+    util::meta::specialization_of_c<core::events::EventManager> auto& event_manager
 )
-    : m_buffered_event_queue_ref{ event_queue }
+    : m_buffered_event_queue_refs{ event_manager.template event_buffer<Events_T>()... }
 {}
 
-template <core::events::event_c Event_T>
+template <core::events::event_c... Events_T>
 template <typename... Args_T>
-    requires std::constructible_from<Event_T, Args_T&&...>
-constexpr auto extensions::scheduler::accessors::events::Recorder<Event_T>::record(
+    requires(sizeof...(Events_T) == 1)
+         && std::constructible_from<Events_T...[0], Args_T&&...>
+constexpr auto extensions::scheduler::accessors::events::Recorder<Events_T...>::record(
     Args_T&&... args
 ) const -> void
 {
-    m_buffered_event_queue_ref.get().emplace_back(std::forward<Args_T>(args)...);
+    std::get<0>(m_buffered_event_queue_refs)
+        .get()
+        .emplace_back(std::forward<Args_T>(args)...);
+}
+
+template <core::events::event_c... Events_T>
+template <typename Event_T, typename... Args_T>
+    requires(util::meta::type_list_contains_v<util::TypeList<Events_T...>, Event_T>)
+         && std::constructible_from<Event_T, Args_T&&...>
+constexpr auto extensions::scheduler::accessors::events::Recorder<Events_T...>::record(
+    Args_T&&... args
+) const -> void
+{
+    std::get<util::meta::type_list_index_of_v<util::TypeList<Events_T...>, Event_T>>(
+        m_buffered_event_queue_refs
+    )
+        .get()
+        .emplace_back(std::forward<Args_T>(args)...);
 }

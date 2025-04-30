@@ -64,9 +64,7 @@ template <util::meta::specialization_of_c<
 constexpr auto extensions::scheduler::dependency_providers::events::
     DependencyProvider<EventManager_T>::provide() const -> EventTag_T
 {
-    return EventTag_T{ m_event_manager_ref.get()
-                           .template event_buffer<util::meta::underlying_t<EventTag_T>>(
-                           ) };
+    return EventTag_T{ m_event_manager_ref.get() };
 }
 
 template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
