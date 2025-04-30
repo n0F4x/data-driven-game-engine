@@ -22,9 +22,9 @@ constexpr static auto update_1 = [](const events::Processor event_processor) {
 };
 
 constexpr static auto update_2 =                        //
-    [](const events::Reader<window::events::CloseRequested> close_requested_events,
+    [](const events::Reader<window::events::CloseRequested> close_requested_event_reader,
        const resources::Ref<window::Window>                 window) {   //
-        if (close_requested_events.count() > 0) {
+        if (close_requested_event_reader.read().size() > 0) {
             window->close();
         }
     };

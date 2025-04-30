@@ -6,7 +6,7 @@ module;
 export module extensions.scheduler.dependency_providers.events.DependencyProvider;
 
 import core.events.EventManager;
-import core.events.EventQueue;
+import core.events.BufferedEventQueue;
 
 import extensions.scheduler.accessors.events;
 
@@ -64,10 +64,9 @@ template <util::meta::specialization_of_c<
 constexpr auto extensions::scheduler::dependency_providers::events::
     DependencyProvider<EventManager_T>::provide() const -> EventTag_T
 {
-    return EventTag_T{
-        m_event_manager_ref.get()
-            .template recorder_queue_for<util::meta::underlying_t<EventTag_T>>()
-    };
+    return EventTag_T{ m_event_manager_ref.get()
+                           .template event_buffer<util::meta::underlying_t<EventTag_T>>(
+                           ) };
 }
 
 template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
@@ -76,8 +75,7 @@ template <util::meta::specialization_of_c<extensions::scheduler::accessors::even
 constexpr auto extensions::scheduler::dependency_providers::events::
     DependencyProvider<EventManager_T>::provide() const -> EventTag_T
 {
-    return EventTag_T{
-        m_event_manager_ref.get()
-            .template get<std::remove_const_t<util::meta::underlying_t<EventTag_T>>>()
-    };
+    return EventTag_T{ m_event_manager_ref.get()
+                           .template event_buffer<util::meta::underlying_t<EventTag_T>>(
+                           ) };
 }

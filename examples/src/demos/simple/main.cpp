@@ -60,8 +60,8 @@ constexpr static auto update_2 =
     };
 
 constexpr static auto game_is_running =
-    [](const events::Reader<WindowClosed> window_closed_events) {
-        return window_closed_events.count() == 0;
+    [](const events::Reader<WindowClosed> window_closed_event_reader) {
+        return window_closed_event_reader.read().size() == 0;
     };
 
 constexpr static auto run_game_loop = core::scheduler::loop_until(
