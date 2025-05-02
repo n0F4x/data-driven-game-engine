@@ -13,16 +13,10 @@ export module core.resources.ResourceManager;
 
 import utility.containers.StackedTuple;
 import utility.meta.concepts.all_different;
-import utility.meta.concepts.decayed;
-import utility.meta.type_traits.functional.result_of;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.TypeList;
 
 import core.resources.resource_c;
-
-template <typename T, typename Resource_T>
-concept decays_to_factory_c =
-    std::constructible_from<Resource_T, util::meta::result_of_t<T>>;
 
 namespace core::resource {
 
@@ -30,7 +24,8 @@ export template <resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
 class ResourceManager {
 public:
-    template <::decays_to_factory_c<Resources_T>... Factories_T>
+    template <typename... Factories_T>
+        // requires std::constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
     constexpr explicit ResourceManager(Factories_T&&... factories);
 
     template <typename Resource_T, typename Self_T>
@@ -48,7 +43,8 @@ private:
 
 template <core::resource::resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
-template <decays_to_factory_c<Resources_T>... Factories_T>
+template <typename... Factories_T>
+    // requires std::constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
 constexpr core::resource::ResourceManager<Resources_T...>::ResourceManager(
     Factories_T&&... factories
 )

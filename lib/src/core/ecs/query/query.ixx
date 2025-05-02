@@ -26,7 +26,7 @@ concept deducable_query_function_c =
            util::meta::type_list_to_t<
                util::meta::
                    type_list_transform_t<util::meta::arguments_of_t<F>, std::remove_reference>,
-               QueryClosure>{};
+               core::ecs::QueryClosure>{};
        };
 
 namespace core::ecs {
@@ -58,7 +58,7 @@ auto core::ecs::query(Registry& registry, F&& func) -> F
                 [&func]<typename... Args_T>(Args_T&&... args) {
                     using DecayedArgsTypeList = std::tuple<std::decay_t<Args_T>...>;
                     std::invoke(
-                        func,
+                        std::forward<F>(func),
                         [&args...]<
                             typename QueryParameter_T>(std::type_identity<QueryParameter_T>)
                             -> decltype(auto) {

@@ -12,6 +12,7 @@ import core.events.EventManager;
 import utility.meta.concepts.specialization_of;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.type_list.type_list_index_of;
+import utility.meta.type_traits.type_list.type_list_front;
 import utility.TypeList;
 
 namespace extensions::scheduler::accessors::events {
@@ -26,7 +27,9 @@ public:
 
     template <typename... Args_T>
         requires(sizeof...(Events_T) == 1)
-             && std::constructible_from<Events_T...[0], Args_T&&...>
+             && std::constructible_from<
+                    util::meta::type_list_front_t<util::TypeList<Events_T...>>,
+                    Args_T&&...>
     constexpr auto record(Args_T&&... args) const -> void;
 
     template <typename Event_T, typename... Args_T>
@@ -53,7 +56,10 @@ template <core::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)
 template <typename... Args_T>
     requires(sizeof...(Events_T) == 1)
-         && std::constructible_from<Events_T...[0], Args_T&&...>
+         // TODO: use `Events...[0]` - https://github.com/llvm/llvm-project/issues/138255
+         && std::constructible_from<
+                util::meta::type_list_front_t<util::TypeList<Events_T...>>,
+                Args_T&&...>
 constexpr auto extensions::scheduler::accessors::events::Recorder<Events_T...>::record(
     Args_T&&... args
 ) const -> void

@@ -1,15 +1,16 @@
 module;
 
+#include <filesystem>
 #include <format>
 #include <ranges>
 #include <span>
-
-#include "core/log/log.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
+
+#include "core/log/log.hpp"
 
 module core.gltf.Model;
 
@@ -50,13 +51,13 @@ static auto load_image(
                     "Got `std::monostate` while visiting fastgltf::DataSource, which is "
                     "an error in fastgltf."
                 );
-                return std::nullopt;
+                std::unreachable();
             },
             [](const auto&) -> std::optional<core::gltf::Image> {
                 assert(
                     false && "Got an unexpected glTF image data source. Can't load image."
                 );
-                return std::nullopt;
+                std::unreachable();
             },
             [&](const fastgltf::sources::BufferView& buffer_view) {
                 const auto& [buffer_index, byte_offset, _, _, _, _, _]{
@@ -290,7 +291,9 @@ auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optio
 {
     fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
-        ENGINE_LOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
+        ENGINE_LOG_ERROR(
+            "Failed to load glTF: {}", fastgltf::to_underlying(asset.error())
+        );
         return std::nullopt;
     }
 
@@ -304,7 +307,9 @@ auto Loader::load_from_file(
 {
     fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
-        ENGINE_LOG_ERROR("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
+        ENGINE_LOG_ERROR(
+            "Failed to load glTF: {}", fastgltf::to_underlying(asset.error())
+        );
         return std::nullopt;
     }
 

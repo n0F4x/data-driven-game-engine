@@ -26,9 +26,11 @@ struct arguments_of<F> {
     using type = typename signature<F>::arguments_t;
 };
 
-template <function_pointer_c F>
+template <typename F>
+    requires function_pointer_c<std::remove_reference_t<F>>
 struct arguments_of<F> {
-    using type = typename signature<std::remove_pointer_t<F>>::arguments_t;
+    using type =
+        typename signature<std::remove_pointer_t<std::remove_reference_t<F>>>::arguments_t;
 };
 
 template <function_reference_c F>
@@ -43,7 +45,8 @@ struct arguments_of<F> {
 
 template <unambiguous_functor_c F>
 struct arguments_of<F> {
-    using type = typename signature<decltype(&F::operator())>::arguments_t;
+    using type =
+        typename signature<decltype(&std::remove_cvref_t<F>::operator())>::arguments_t;
 };
 
 export template <typename F>

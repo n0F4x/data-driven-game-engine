@@ -2,7 +2,7 @@
 
 ## Toolchain
 
-The project is required to work with **Clang 19** and **libc++**.
+The project is required to work with **Clang 20** and **libc++**.
 
 Support for other setups is not a priority until a planned release.
 
@@ -31,7 +31,7 @@ Conan profile example:
 arch=x86_64
 build_type=Debug
 compiler=clang
-compiler.version=19
+compiler.version=20
 compiler.libcxx=libc++
 compiler.cppstd=26
 os=Windows

@@ -1,5 +1,7 @@
 module;
 
+#include <cstdint>
+
 #include <fastgltf/types.hpp>
 
 module core.gltf.Texture;

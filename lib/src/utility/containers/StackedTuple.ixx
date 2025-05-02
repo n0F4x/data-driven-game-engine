@@ -27,9 +27,8 @@ struct Leaf {
     T value;
 };
 
-template <typename T, typename Resource_T>
-concept decays_to_factory_c =
-    std::constructible_from<Resource_T, util::meta::result_of_t<std::decay_t<T>>>;
+template <typename Factory_T, typename T>
+concept factory_for_c = std::constructible_from<T, util::meta::result_of_t<Factory_T>>;
 
 template <util::meta::index_sequence_c, typename... Ts>
 struct Impl;
@@ -42,7 +41,7 @@ struct Impl<IntegerSequence_T<size_t>> {
 template <template <typename T_, T_...> typename IntegerSequence_T, size_t I, typename T>
 struct Impl<IntegerSequence_T<size_t, I>, T> : Leaf<I, T> {
     template <typename... Stacked_T, typename Factory_T>
-    constexpr Impl(std::tuple<Stacked_T&...>&& stack, Factory_T&& factory);
+    constexpr Impl(std::tuple<Stacked_T&...> stack, Factory_T&& factory);
 };
 
 template <
@@ -55,8 +54,8 @@ struct Impl<IntegerSequence_T<size_t, I, Is...>, T, Ts...>
     : Leaf<I, T>, Impl<IntegerSequence_T<size_t, Is...>, Ts...> {
     template <typename... Stacked_T, typename Factory_T, typename... Factories_T>
     constexpr Impl(
-        std::tuple<Stacked_T&...>&& stack,
-        Factory_T&&                 factory,
+        std::tuple<Stacked_T&...> stack,
+        Factory_T&&               factory,
         Factories_T&&... factories
     );
 };
@@ -66,7 +65,8 @@ namespace util {
 export template <::util::meta::decayed_c... Ts>
 class StackedTuple {
 public:
-    template <::decays_to_factory_c<Ts>... Factories_T>
+    template <typename... Factories_T>
+        requires(factory_for_c<Factories_T &&, Ts> && ...)
     constexpr explicit StackedTuple(Factories_T&&... factories);
     StackedTuple(const StackedTuple&) = delete;
 
@@ -116,12 +116,12 @@ constexpr auto gather_dependencies(std::tuple<Ts...>& stack)
 template <template <typename T_, T_...> typename IntegerSequence_T, size_t I, typename T>
 template <typename... Stacked_T, typename Factory_T>
 constexpr Impl<IntegerSequence_T<size_t, I>, T>::Impl(
-    std::tuple<Stacked_T&...>&& stack,
-    Factory_T&&                 factory
+    std::tuple<Stacked_T&...> stack,
+    Factory_T&&               factory
 )
     : Leaf<I, T>{ std::apply(
           std::forward<Factory_T>(factory),
-          gather_dependencies<std::decay_t<Factory_T>>(stack)
+          gather_dependencies<Factory_T>(stack)
       ) }
 {}
 
@@ -133,22 +133,23 @@ template <
     typename... Ts>
 template <typename... Stacked_T, typename Factory_T, typename... Factories_T>
 constexpr Impl<IntegerSequence_T<size_t, I, Is...>, T, Ts...>::Impl(
-    std::tuple<Stacked_T&...>&& stack,
-    Factory_T&&                 factory,
+    std::tuple<Stacked_T&...> stack,
+    Factory_T&&               factory,
     Factories_T&&... factories
 )
     : Leaf<I, T>{ std::apply(
           std::forward<Factory_T>(factory),
-          gather_dependencies<std::remove_pointer_t<std::decay_t<Factory_T>>>(stack)
+          gather_dependencies<Factory_T>(stack)
       ) },
       Impl<IntegerSequence_T<size_t, Is...>, Ts...>{
-          std::tuple_cat(std::move(stack), std::tuple<T&>{ Leaf<I, T>::value }),
+          std::tuple_cat(stack, std::tuple<T&>{ Leaf<I, T>::value }),
           std::forward<Factories_T>(factories)...
       }
 {}
 
 template <::util::meta::decayed_c... Ts>
-template <::decays_to_factory_c<Ts>... Factories_T>
+template <typename... Factories_T>
+    requires(factory_for_c<Factories_T &&, Ts> && ...)
 constexpr util::StackedTuple<Ts...>::StackedTuple(Factories_T&&... factories)
     : m_impl{ std::tuple<>{}, std::forward<Factories_T>(factories)... }
 {}

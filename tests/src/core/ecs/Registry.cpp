@@ -2,9 +2,6 @@
 
 #include "utility/contracts.hpp"
 
-// TODO: remove this include once it compiles without it
-#include <unordered_map>
-
 import core.ecs;
 import utility.containers.OptionalRef;
 import utility.meta.algorithms.apply;

@@ -2,12 +2,12 @@ module;
 
 #include <ranges>
 
-#include "core/log/log.hpp"
-
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
 
 #include <VkBootstrap.h>
+
+#include "core/log/log.hpp"
 
 module plugins.renderer.InstancePlugin;
 
@@ -159,7 +159,6 @@ auto InstancePlugin::operator()() const -> core::renderer::base::Instance
     }
     const vkb::SystemInfo& system_info{ system_info_result.value() };
 
-    // TODO: use std::bind_back
     if (!std::ranges::all_of(
             m_dependencies | std::views::filter([](const Dependency& dependency) {
                 return dependency.required_settings_are_available != nullptr;
@@ -178,7 +177,6 @@ auto InstancePlugin::operator()() const -> core::renderer::base::Instance
         core::config::vulkan::dispatcher().vkGetInstanceProcAddr
     };
 
-    // TODO: use std::bind_back
     for (const Dependency& dependency : m_dependencies) {
         if (dependency.enable_settings) {
             dependency.enable_settings(system_info, instance_builder);

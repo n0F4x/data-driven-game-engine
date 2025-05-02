@@ -124,6 +124,8 @@ struct ToComponentContainerRef {
 template <typename Component_T>
 using ComponentContainerRef = typename ToComponentContainerRef<Component_T>::type;
 
+namespace core::ecs {
+
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 struct QueryClosure {
@@ -224,13 +226,17 @@ private:
             typename ToComponent<QueriedParameter_T>::type>::type>;
 };
 
+}   // namespace core::ecs
+
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <::invocable_with_c<util::meta::type_list_transform_t<
     util::meta::type_list_filter_t<util::TypeList<Parameters_T...>, IsQueriedParameter>,
     ToFunctionParameter>> F>
-auto QueryClosure<Parameters_T...>::operator()(core::ecs::Registry& registry, F&& func)
-    -> F
+auto core::ecs::QueryClosure<Parameters_T...>::operator()(
+    core::ecs::Registry& registry,
+    F&&                  func
+) -> F
 {
     IncludedOptionalComponentTableRefs included_optional_component_table_refs{};
 
@@ -256,8 +262,9 @@ auto QueryClosure<Parameters_T...>::operator()(core::ecs::Registry& registry, F&
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-constexpr auto QueryClosure<Parameters_T...>::matches_archetype(const Archetype& archetype)
-    -> bool
+constexpr auto core::ecs::QueryClosure<Parameters_T...>::matches_archetype(
+    const Archetype& archetype
+) -> bool
 {
     return util::meta::apply<RequiredComponents>([&archetype]<typename... Ts> {
                return archetype.contains_all_of_components<std::remove_const_t<Ts>...>();
@@ -269,7 +276,7 @@ constexpr auto QueryClosure<Parameters_T...>::matches_archetype(const Archetype&
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto QueryClosure<Parameters_T...>::fill_included_optional_component_table_refs(
+auto core::ecs::QueryClosure<Parameters_T...>::fill_included_optional_component_table_refs(
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     core::ecs::Registry&                registry
 ) -> bool
@@ -301,9 +308,10 @@ auto QueryClosure<Parameters_T...>::fill_included_optional_component_table_refs(
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto QueryClosure<Parameters_T...>::smallest_required_component_table_archetype_ids_from(
-    IncludedOptionalComponentTableRefs& included_optional_component_table_refs
-) -> std::span<const ArchetypeID>
+auto core::ecs::QueryClosure<Parameters_T...>::
+    smallest_required_component_table_archetype_ids_from(
+        IncludedOptionalComponentTableRefs& included_optional_component_table_refs
+    ) -> std::span<const ArchetypeID>
 {
     return util::meta::fold_left_first<RequiredComponents>(
         [&included_optional_component_table_refs]<typename Component_T> {
@@ -323,7 +331,7 @@ auto QueryClosure<Parameters_T...>::smallest_required_component_table_archetype_
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto QueryClosure<Parameters_T...>::matching_archetype_ids_from(
+auto core::ecs::QueryClosure<Parameters_T...>::matching_archetype_ids_from(
     std::span<const ArchetypeID> archetype_ids
 )
 {
@@ -337,7 +345,7 @@ auto QueryClosure<Parameters_T...>::matching_archetype_ids_from(
 template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <typename F>
-auto QueryClosure<Parameters_T...>::visit_archetype(
+auto core::ecs::QueryClosure<Parameters_T...>::visit_archetype(
     core::ecs::Registry&                registry,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     const ArchetypeID                   archetype_id,
@@ -364,7 +372,7 @@ template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <typename QueriedParameter_T>
     requires(std::is_same_v<QueriedParameter_T, core::ecs::ID>)
-auto QueryClosure<Parameters_T...>::queried_type_view_from(
+auto core::ecs::QueryClosure<Parameters_T...>::queried_type_view_from(
     core::ecs::Registry& registry,
     IncludedOptionalComponentTableRefs&,
     const ArchetypeID archetype_id
@@ -377,7 +385,7 @@ template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <typename QueriedParameter_T>
     requires(util::meta::specialization_of_c<QueriedParameter_T, core::ecs::Optional>)
-auto QueryClosure<Parameters_T...>::queried_type_view_from(
+auto core::ecs::QueryClosure<Parameters_T...>::queried_type_view_from(
     core::ecs::Registry&,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     const ArchetypeID                   archetype_id
@@ -408,7 +416,7 @@ template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <typename QueriedParameter_T>
     requires core::ecs::queryable_component_c<std::remove_const_t<QueriedParameter_T>>
-auto QueryClosure<Parameters_T...>::queried_type_view_from(
+auto core::ecs::QueryClosure<Parameters_T...>::queried_type_view_from(
     core::ecs::Registry&,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     const ArchetypeID                   archetype_id

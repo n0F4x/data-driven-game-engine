@@ -2,7 +2,6 @@ module;
 
 #include <functional>
 #include <span>
-#include <vector>
 
 export module extensions.scheduler.accessors.events.Reader;
 
@@ -13,15 +12,6 @@ namespace extensions::scheduler::accessors::events {
 
 export template <core::events::event_c Event_T>
 class Reader {
-    using UnderlyingContainer = std::vector<Event_T>;
-
-    using Iterator        = typename UnderlyingContainer::iterator;
-    using ReverseIterator = typename UnderlyingContainer::reverse_iterator;
-
-    // TODO: p2278r4
-    // using ConstIterator        = typename UnderlyingContainer::const_iterator;
-    // using ConstReverseIterator = typename UnderlyingContainer::const_reverse_iterator;
-
 public:
     constexpr explicit Reader(
         const core::events::BufferedEventQueue<Event_T>& buffered_event_queue

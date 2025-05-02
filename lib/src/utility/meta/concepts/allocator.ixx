@@ -8,12 +8,9 @@ export module utility.meta.concepts.allocator;
 import utility.meta.concepts.decayed;
 import utility.meta.concepts.nothrow_movable;
 
-// TODO: remove unnamed namespace when Clang allows it
-namespace {
 struct Dummy {
     int dummy;
 };
-}   // namespace
 
 namespace util::meta {
 

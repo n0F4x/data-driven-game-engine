@@ -1,5 +1,8 @@
 module;
 
+#include <optional>
+#include <utility>
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include <fastgltf/types.hpp>

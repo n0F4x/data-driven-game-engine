@@ -1,10 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
 
-// TODO: remove these includes
-#include <algorithm>
-#include <ranges>
-#include <unordered_map>
-
 import core.ecs;
 
 import utility.containers.OptionalRef;

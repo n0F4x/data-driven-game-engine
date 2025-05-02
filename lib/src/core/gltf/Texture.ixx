@@ -1,5 +1,6 @@
 module;
 
+#include <cstdint>
 #include <optional>
 
 #include <fastgltf/types.hpp>
