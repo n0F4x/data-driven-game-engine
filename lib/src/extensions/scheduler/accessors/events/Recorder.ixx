@@ -17,6 +17,7 @@ import utility.TypeList;
 namespace extensions::scheduler::accessors::events {
 
 export template <core::events::event_c... Events_T>
+    requires(sizeof...(Events_T) != 0)
 class Recorder {
 public:
     constexpr explicit Recorder(
@@ -41,6 +42,7 @@ private:
 }   // namespace extensions::scheduler::accessors::events
 
 template <core::events::event_c... Events_T>
+    requires(sizeof...(Events_T) != 0)
 constexpr extensions::scheduler::accessors::events::Recorder<Events_T...>::Recorder(
     util::meta::specialization_of_c<core::events::EventManager> auto& event_manager
 )
@@ -48,6 +50,7 @@ constexpr extensions::scheduler::accessors::events::Recorder<Events_T...>::Recor
 {}
 
 template <core::events::event_c... Events_T>
+    requires(sizeof...(Events_T) != 0)
 template <typename... Args_T>
     requires(sizeof...(Events_T) == 1)
          && std::constructible_from<Events_T...[0], Args_T&&...>
@@ -61,6 +64,7 @@ constexpr auto extensions::scheduler::accessors::events::Recorder<Events_T...>::
 }
 
 template <core::events::event_c... Events_T>
+    requires(sizeof...(Events_T) != 0)
 template <typename Event_T, typename... Args_T>
     requires(util::meta::type_list_contains_v<util::TypeList<Events_T...>, Event_T>)
          && std::constructible_from<Event_T, Args_T&&...>

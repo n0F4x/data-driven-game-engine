@@ -11,6 +11,7 @@ add_subdirectory(renderer)
 add_subdirectory(resources)
 add_subdirectory(scheduler)
 add_subdirectory(store)
+add_subdirectory(time)
 add_subdirectory(window)
 
 target_sources(${PROJECT_NAME} PUBLIC

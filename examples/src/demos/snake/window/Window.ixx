@@ -1,5 +1,6 @@
 module;
 
+#include <string_view>
 #include <utility>
 
 #include <SFML/Graphics.hpp>
@@ -20,6 +21,8 @@ export class Window {
 public:
     constexpr explicit Window(Settings settings) : m_settings{ std::move(settings) } {}
 
+    auto set_title(std::string_view title) -> void;
+
     auto open() -> void;
     auto close() -> void;
 
@@ -37,6 +40,12 @@ private:
 };
 
 }   // namespace window
+
+auto window::Window::set_title(const std::string_view title) -> void
+{
+    m_settings.title = title;
+    m_window.setTitle(m_settings.title);
+}
 
 auto window::Window::open() -> void
 {

@@ -11,4 +11,5 @@ export import core.image;
 export import core.renderer;
 export import core.scheduler;
 export import core.store;
+export import core.time;
 export import core.window;

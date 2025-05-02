@@ -40,6 +40,10 @@ os=Windows
 tools.build:compiler_executables={"c": "C:/dev/MSYS2/clang64/bin/clang.exe", "cpp": "C:/dev/MSYS2/clang64/bin/clang++.exe"}
 tools.cmake.cmaketoolchain:generator=Ninja
 tools.cmake.cmaketoolchain:extra_variables={'engine_debug': 'ON', 'engine_test': 'ON', 'engine_examples': 'ON'}
+
+[buildenv]
+PATH+=(path)C:/path/to/cmake/bin
+PATH+=(path)C:/path/to/ninja/bin
 ```
 
 ## Vulkan
