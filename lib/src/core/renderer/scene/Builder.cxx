@@ -158,9 +158,9 @@ static auto create_global_descriptor_set(
         .descriptorSetCount = 1,
         .pSetLayouts        = &layout,
     };
-    auto descriptor_sets{
-        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
-    };
+    vk::UniqueDescriptorSet result{ std::move(
+        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info).front()
+    ) };
 
     const vk::DescriptorBufferInfo buffer_info{
         .buffer = global_buffer,
@@ -169,7 +169,7 @@ static auto create_global_descriptor_set(
     };
 
     const vk::WriteDescriptorSet write_descriptor_set{
-        .dstSet          = descriptor_sets.front().get(),
+        .dstSet          = result.get(),
         .dstBinding      = 0,
         .descriptorCount = 1,
         .descriptorType  = vk::DescriptorType::eUniformBuffer,
@@ -178,7 +178,7 @@ static auto create_global_descriptor_set(
 
     device.updateDescriptorSets(1, &write_descriptor_set, 0, nullptr);
 
-    return std::move(descriptor_sets.front());
+    return result;
 }
 
 namespace core::renderer {

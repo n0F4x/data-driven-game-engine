@@ -252,9 +252,9 @@ static auto create_base_descriptor_set(
         .descriptorSetCount = 1,
         .pSetLayouts        = &descriptor_set_layout,
     };
-    auto descriptor_sets{
-        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
-    };
+    vk::UniqueDescriptorSet result{ std::move(
+        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info).front()
+    ) };
 
     const vk::DescriptorBufferInfo vertex_buffer_info{
         .buffer = vertex_uniform.buffer(),
@@ -282,42 +282,42 @@ static auto create_base_descriptor_set(
 
     const std::array write_descriptor_sets{
         vk::WriteDescriptorSet{
-                               .dstSet          = descriptor_sets.front().get(),
+                               .dstSet          = result.get(),
                                .dstBinding      = 0,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                .pBufferInfo     = &vertex_buffer_info,
                                },
         vk::WriteDescriptorSet{
-                               .dstSet          = descriptor_sets.front().get(),
+                               .dstSet          = result.get(),
                                .dstBinding      = 1,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                .pBufferInfo     = &transform_buffer_info,
                                },
         vk::WriteDescriptorSet{
-                               .dstSet          = descriptor_sets.front().get(),
+                               .dstSet          = result.get(),
                                .dstBinding      = 2,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eSampler,
                                .pImageInfo      = &default_sampler_image_info,
                                },
         vk::WriteDescriptorSet{
-                               .dstSet          = descriptor_sets.front().get(),
+                               .dstSet          = result.get(),
                                .dstBinding      = 3,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                .pBufferInfo     = &texture_buffer_info,
                                },
         vk::WriteDescriptorSet{
-                               .dstSet          = descriptor_sets.front().get(),
+                               .dstSet          = result.get(),
                                .dstBinding      = 4,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                .pBufferInfo     = &default_material_buffer_info,
                                },
         vk::WriteDescriptorSet{
-                               .dstSet          = descriptor_sets.front().get(),
+                               .dstSet          = result.get(),
                                .dstBinding      = 5,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
@@ -329,7 +329,7 @@ static auto create_base_descriptor_set(
         write_descriptor_sets.size(), write_descriptor_sets.data(), 0, nullptr
     );
 
-    return std::move(descriptor_sets.front());
+    return result;
 }
 
 [[nodiscard]]
@@ -351,9 +351,9 @@ static auto create_image_descriptor_set(
         .descriptorSetCount = 1,
         .pSetLayouts        = &descriptor_set_layout,
     };
-    auto descriptor_sets{
-        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
-    };
+    vk::UniqueDescriptorSet result{ std::move(
+        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info).front()
+    ) };
 
     const std::vector image_infos{
         image_views | std::views::transform([](const vk::ImageView image_view) {
@@ -369,7 +369,7 @@ static auto create_image_descriptor_set(
         std::views::iota(0u, image_infos.size())
         | std::views::transform([&](const uint32_t index) {
               return vk::WriteDescriptorSet{
-                  .dstSet          = descriptor_sets.front().get(),
+                  .dstSet          = result.get(),
                   .dstBinding      = 0,
                   .dstArrayElement = index,
                   .descriptorCount = 1,
@@ -387,7 +387,7 @@ static auto create_image_descriptor_set(
         nullptr
     );
 
-    return std::move(descriptor_sets.front());
+    return result;
 }
 
 [[nodiscard]]
@@ -491,9 +491,9 @@ static auto create_sampler_descriptor_set(
         .descriptorSetCount = 1,
         .pSetLayouts        = &descriptor_set_layout,
     };
-    auto descriptor_sets{
-        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info)
-    };
+    vk::UniqueDescriptorSet result{ std::move(
+        device.allocateDescriptorSetsUnique(descriptor_set_allocate_info).front()
+    ) };
 
     const std::vector image_infos{
         samplers | std::views::transform([](const vk::UniqueSampler& sampler) {
@@ -508,7 +508,7 @@ static auto create_sampler_descriptor_set(
         std::views::iota(0u, image_infos.size())
         | std::views::transform([&](const uint32_t index) {
               return vk::WriteDescriptorSet{
-                  .dstSet          = descriptor_sets.front().get(),
+                  .dstSet          = result.get(),
                   .dstBinding      = 0,
                   .dstArrayElement = index,
                   .descriptorCount = 1,
@@ -526,7 +526,7 @@ static auto create_sampler_descriptor_set(
         nullptr
     );
 
-    return std::move(descriptor_sets.front());
+    return result;
 }
 
 [[nodiscard]]
@@ -815,14 +815,14 @@ auto core::gltf::RenderModel::create_loader(
                                           default_material](
                                              const std::span<ImageVariant> images,
                                              const gfx::Camera&            camera,
-                                             const uint32_t          transform_index,
-                                             std::optional<uint32_t> material_index
+                                             const uint32_t transform_index,
+                                             std::optional<uint32_t> optional_material_index
                                          ) mutable {
         const glm::mat4& transform{ transforms.at(transform_index) };
         const glm::vec3 position{ glm::vec4{ 1.f } * transform };
 
         std::ranges::for_each(
-            std::views::single(material_index
+            std::views::single(optional_material_index
                                    .transform([&materials](const uint32_t material_index) {
                                        return std::cref(materials.at(material_index));
                                    })

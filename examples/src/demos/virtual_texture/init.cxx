@@ -425,8 +425,8 @@ auto demo::init::create_debug_texture_descriptor_set(
         .pSetLayouts        = &descriptor_set_layout,
     };
 
-    std::vector<vk::UniqueDescriptorSet> descriptor_sets{
-        device.allocateDescriptorSetsUnique(allocate_info)
+    vk::UniqueDescriptorSet result{
+        std::move(device.allocateDescriptorSetsUnique(allocate_info).front())
     };
 
     const vk::DescriptorBufferInfo buffer_info{
@@ -442,13 +442,13 @@ auto demo::init::create_debug_texture_descriptor_set(
     };
 
     const std::array write_descriptor_sets{
-        vk::WriteDescriptorSet{.dstSet          = descriptor_sets.front().get(),
+        vk::WriteDescriptorSet{.dstSet          = result.get(),
                                .dstBinding      = 0,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                .pBufferInfo     = &buffer_info },
         vk::WriteDescriptorSet{
-                               .dstSet          = descriptor_sets.front().get(),
+                               .dstSet          = result.get(),
                                .dstBinding      = 1,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eCombinedImageSampler,
@@ -457,7 +457,7 @@ auto demo::init::create_debug_texture_descriptor_set(
 
     device.updateDescriptorSets(write_descriptor_sets, {});
 
-    return std::move(descriptor_sets.front());
+    return result;
 }
 
 auto demo::init::create_virtual_texture_descriptor_set(
@@ -476,8 +476,8 @@ auto demo::init::create_virtual_texture_descriptor_set(
         .pSetLayouts        = &descriptor_set_layout,
     };
 
-    std::vector<vk::UniqueDescriptorSet> descriptor_sets{
-        device.allocateDescriptorSetsUnique(allocate_info)
+    vk::UniqueDescriptorSet result{
+        std::move(device.allocateDescriptorSetsUnique(allocate_info).front())
     };
 
     const vk::DescriptorBufferInfo buffer_info{
@@ -502,23 +502,23 @@ auto demo::init::create_virtual_texture_descriptor_set(
     };
 
     const std::array write_descriptor_sets{
-        vk::WriteDescriptorSet{.dstSet          = descriptor_sets.front().get(),
+        vk::WriteDescriptorSet{.dstSet          = result.get(),
                                .dstBinding      = 0,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                .pBufferInfo     = &buffer_info                       },
         vk::WriteDescriptorSet{
-                               .dstSet          = descriptor_sets.front().get(),
+                               .dstSet          = result.get(),
                                .dstBinding      = 1,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eCombinedImageSampler,
                                .pImageInfo      = &image_info                        },
-        vk::WriteDescriptorSet{ .dstSet          = descriptor_sets.front().get(),
+        vk::WriteDescriptorSet{ .dstSet          = result.get(),
                                .dstBinding      = 2,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
                                .pBufferInfo     = &virtual_texture_info_buffer_info  },
-        vk::WriteDescriptorSet{ .dstSet          = descriptor_sets.front().get(),
+        vk::WriteDescriptorSet{ .dstSet          = result.get(),
                                .dstBinding      = 3,
                                .descriptorCount = 1,
                                .descriptorType  = vk::DescriptorType::eUniformBuffer,
@@ -527,5 +527,5 @@ auto demo::init::create_virtual_texture_descriptor_set(
 
     device.updateDescriptorSets(write_descriptor_sets, {});
 
-    return std::move(descriptor_sets.front());
+    return result;
 }
