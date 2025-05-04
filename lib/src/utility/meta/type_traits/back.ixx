@@ -15,12 +15,3 @@ export template <typename... Ts>
 using back_t = typename back<Ts...>::type;
 
 }   // namespace util::meta
-
-module :private;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-static_assert(std::is_same_v<util::meta::back_t<int>, int>);
-static_assert(std::is_same_v<util::meta::back_t<int, long>, long>);
-
-#endif

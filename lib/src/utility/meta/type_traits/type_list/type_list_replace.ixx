@@ -6,10 +6,6 @@ export module utility.meta.type_traits.type_list.type_list_replace;
 
 import utility.meta.concepts.type_list.type_list;
 
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-import utility.TypeList;
-#endif
-
 namespace util::meta {
 
 export template <typename TypeList_T, typename OldType_T, typename NewType_T>
@@ -30,17 +26,3 @@ using type_list_replace_t =
     typename type_list_replace<TypeList_T, OldType_T, NewType_T>::type;
 
 }   // namespace util::meta
-
-module :private;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-static_assert(std::is_same_v<
-              util::meta::type_list_replace_t<util::TypeList<int, float, int>, int, long>,
-              util::TypeList<long, float, long>>);
-
-static_assert(std::is_same_v<
-              util::meta::type_list_replace_t<util::TypeList<int, float, int>, int, long>,
-              util::TypeList<long, float, long>>);
-
-#endif

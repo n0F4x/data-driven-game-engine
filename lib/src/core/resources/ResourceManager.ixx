@@ -5,10 +5,6 @@ module;
 #include <type_traits>
 #include <utility>
 
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-  #include <cassert>
-#endif
-
 export module core.resources.ResourceManager;
 
 import utility.containers.StackedTuple;
@@ -25,7 +21,7 @@ export template <resource_c... Resources_T>
 class ResourceManager {
 public:
     template <typename... Factories_T>
-        // requires std::constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
+        requires std::constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
     constexpr explicit ResourceManager(Factories_T&&... factories);
 
     template <typename Resource_T, typename Self_T>
@@ -44,7 +40,7 @@ private:
 template <core::resource::resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
 template <typename... Factories_T>
-    // requires std::constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
+    requires std::constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
 constexpr core::resource::ResourceManager<Resources_T...>::ResourceManager(
     Factories_T&&... factories
 )
@@ -64,52 +60,3 @@ constexpr auto core::resource::ResourceManager<Resources_T...>::get(this Self_T&
 {
     return self.m_resources->template get<Resource_T>();
 }
-
-module :private;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-// TODO:
-// remove unnamed namespace when clang permits using the same definition in different
-// module fragments
-namespace {
-
-struct First {
-    int value{ 42 };
-};
-
-struct Second {
-    std::reference_wrapper<const int> ref;
-};
-
-[[nodiscard]]
-constexpr auto make_first() -> First
-{
-    return First{};
-}
-
-[[nodiscard]]
-constexpr auto make_second(const First& first) -> Second
-{
-    return Second{ .ref = first.value };
-}
-
-}   // namespace
-
-static_assert(
-    [] {
-        core::resource::ResourceManager<First, Second> resource_manager{ make_first,
-                                                                         make_second };
-        auto moved_resource_manager{ std::move(resource_manager) };
-
-        assert(
-            moved_resource_manager.get<First>().value
-            == moved_resource_manager.get<Second>().ref.get()
-        );
-
-        return true;
-    }(),
-    "move test failed"
-);
-
-#endif

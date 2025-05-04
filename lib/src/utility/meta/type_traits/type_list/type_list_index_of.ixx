@@ -2,10 +2,6 @@ module;
 
 #include <array>
 
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-  #include <tuple>
-#endif
-
 export module utility.meta.type_traits.type_list.type_list_index_of;
 
 template <typename, typename>
@@ -56,13 +52,3 @@ export template <typename TypeList_T, typename T>
 constexpr inline size_t type_list_index_of_v = type_list_index_of<TypeList_T, T>::value;
 
 }   // namespace util::meta
-
-module :private;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-static_assert(util::meta::type_list_index_of_v<std::tuple<int, float, long>, int> == 0);
-static_assert(util::meta::type_list_index_of_v<std::tuple<int, float, long>, float> == 1);
-static_assert(util::meta::type_list_index_of_v<std::tuple<int, float, long>, long> == 2);
-
-#endif

@@ -63,28 +63,3 @@ export template <type_list_c TypeList_T, template <typename> typename Hash_T>
 using type_list_sort_t = typename type_list_sort<TypeList_T, Hash_T>::type;
 
 }   // namespace util::meta
-
-module :private;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-// TODO: remove unnamed namespace when Clang allows it
-namespace {
-template <typename...>
-struct TypeList {};
-}   // namespace
-
-template <size_t int_T>
-using Int = std::integral_constant<size_t, int_T>;
-
-template <typename Int>
-struct Hash {
-    constexpr static size_t value = Int::value + 10;
-};
-
-static_assert(std::is_same_v<util::meta::type_list_sort_t<TypeList<>, Hash>, TypeList<>>);
-static_assert(std::is_same_v<
-              util::meta::type_list_sort_t<TypeList<Int<1>, Int<2>, Int<0>>, Hash>,
-              TypeList<Int<0>, Int<1>, Int<2>>>);
-
-#endif

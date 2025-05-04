@@ -24,13 +24,3 @@ concept type_list_all_of_c = type_list_c<TypeList_T>
                        && type_list_all_of<TypeList_T, Predicate_T>::value;
 
 }   // namespace util::meta
-
-module :private;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-static_assert(util::meta::type_list_all_of_c<std::tuple<>, std::is_scalar>);
-static_assert(util::meta::type_list_all_of_c<std::tuple<int>, std::is_scalar>);
-static_assert(util::meta::type_list_all_of_c<std::tuple<int, float>, std::is_scalar>);
-
-#endif

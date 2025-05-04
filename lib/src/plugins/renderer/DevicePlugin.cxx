@@ -58,7 +58,6 @@ auto DevicePlugin::operator()(
         static_cast<const vkb::Instance>(instance), surface.get()
     );
 
-    // TODO: use std::bind_back (with std::views::as_const)
     for (const Dependency& dependency : m_dependencies) {
         if (dependency.require_settings) {
             dependency.require_settings(physical_device_selector);
@@ -72,7 +71,6 @@ auto DevicePlugin::operator()(
     }
     vkb::PhysicalDevice& physical_device{ physical_device_result.value() };
 
-    // TODO: use std::bind_back (with std::views::as_const)
     for (const Dependency& dependency : m_dependencies) {
         if (dependency.enable_optional_settings) {
             dependency.enable_optional_settings(physical_device);

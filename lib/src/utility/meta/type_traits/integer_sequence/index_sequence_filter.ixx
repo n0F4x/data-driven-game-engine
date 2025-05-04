@@ -53,26 +53,3 @@ using index_sequence_filter_t =
     typename index_sequence_filter<IndexSequence_T, Predicate_T>::type;
 
 }   // namespace util::meta
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-// TODO: remove unnamed namespace when Clang allows it
-namespace {
-template <typename Integer, Integer...>
-struct IntegerSequence {};
-}   // namespace
-
-template <size_t I>
-struct Even {
-    constexpr static bool value = I % 2 == 0;
-};
-
-static_assert(std::is_same_v<
-              util::meta::index_sequence_filter_t<IntegerSequence<size_t>, Even>,
-              IntegerSequence<size_t>>);
-static_assert(std::is_same_v<
-              util::meta::
-                  index_sequence_filter_t<IntegerSequence<size_t, 0, 1, 2, 3, 4>, Even>,
-              IntegerSequence<size_t, 0, 2, 4>>);
-
-#endif

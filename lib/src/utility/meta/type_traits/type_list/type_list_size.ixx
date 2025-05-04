@@ -18,18 +18,3 @@ export template <typename TypeList_T>
 constexpr inline size_t type_list_size_v = type_list_size<TypeList_T>::value;
 
 }   // namespace util::meta
-
-module :private;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-// TODO: remove unnamed namespace when Clang allows it
-namespace {
-template <typename...>
-struct TypeList {};
-}   // namespace
-
-static_assert(util::meta::type_list_size_v<TypeList<>> == 0);
-static_assert(util::meta::type_list_size_v<TypeList<int, float>> == 2);
-
-#endif

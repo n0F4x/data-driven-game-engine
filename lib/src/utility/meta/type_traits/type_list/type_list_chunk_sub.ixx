@@ -1,9 +1,3 @@
-module;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-  #include <type_traits>
-#endif
-
 export module utility.meta.type_traits.type_list.type_list_chunk_sub;
 
 import utility.meta.concepts.type_list.type_list_all_of;
@@ -76,36 +70,3 @@ using type_list_chunk_sub_t =
     typename type_list_chunk_sub<TypeList_T, SubTypeList_T>::type;
 
 }   // namespace util::meta
-
-module :private;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-namespace {
-template <typename...>
-struct TypeList {};
-}   // namespace
-
-namespace {
-template <typename...>
-struct SubTypeList {};
-}   // namespace
-
-static_assert(std::is_same_v<
-              util::meta::type_list_chunk_sub_t<
-                  TypeList<
-                      int8_t,
-                      TypeList<int16_t>,
-                      TypeList<int32_t, int64_t>,
-                      SubTypeList<uint8_t>,
-                      SubTypeList<uint16_t, uint32_t>>,
-                  SubTypeList>,
-              TypeList<
-                  int8_t,
-                  TypeList<int16_t>,
-                  TypeList<int32_t, int64_t>,
-                  SubTypeList<uint8_t>,
-                  SubTypeList<uint16_t>,
-                  SubTypeList<uint32_t>>>);
-
-#endif

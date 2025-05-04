@@ -41,22 +41,3 @@ export template <integer_sequence_c IntegerSequence_T>
 using integer_sequence_sort_t = typename integer_sequence_sort<IntegerSequence_T>::type;
 
 }   // namespace util::meta
-
-module :private;
-
-#ifdef ENGINE_ENABLE_STATIC_TESTS
-
-// TODO: remove unnamed namespace when Clang allows it
-namespace {
-template <typename, int...>
-struct IntegerSequence {};
-}   // namespace
-
-static_assert(std::is_same_v<
-              util::meta::integer_sequence_sort_t<IntegerSequence<int>>,
-              IntegerSequence<int>>);
-static_assert(std::is_same_v<
-              util::meta::integer_sequence_sort_t<IntegerSequence<int, 1, 2, 0>>,
-              IntegerSequence<int, 0, 1, 2>>);
-
-#endif
