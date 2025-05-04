@@ -66,7 +66,7 @@ template <core::app::decays_to_builder_c Self_T, core::app::decays_to_addon_c Ad
 constexpr auto extensions::AddonManager::use_addon(this Self_T&& self, Addon_T&& addon)
 {
     struct AddonMaker {
-        auto operator()()
+        constexpr auto operator()() && -> std::decay_t<Addon_T>
         {
             return std::move(x_addon);
         }

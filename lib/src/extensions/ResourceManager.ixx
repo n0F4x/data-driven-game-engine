@@ -114,7 +114,7 @@ constexpr auto extensions::BasicResourceManager<Injections_T...>::use_resource(
     using Resource = std::remove_cvref_t<Resource_T>;
 
     struct Injection {
-        constexpr auto operator()() -> Resource
+        constexpr auto operator()() && -> Resource
         {
             return std::move(resource);
         }

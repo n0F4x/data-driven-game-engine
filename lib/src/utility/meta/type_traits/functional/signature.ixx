@@ -22,7 +22,67 @@ struct signature<Result (Class::*)(Args...)> {
 };
 
 export template <typename Result, typename Class, typename... Args>
+struct signature<Result (Class::*)(Args...) noexcept> {
+    using arguments_t = std::tuple<Args...>;
+    using result_t    = Result;
+};
+
+export template <typename Result, typename Class, typename... Args>
+struct signature<Result (Class::*)(Args...)&> {
+    using arguments_t = std::tuple<Args...>;
+    using result_t    = Result;
+};
+
+export template <typename Result, typename Class, typename... Args>
+struct signature<Result (Class::*)(Args...) & noexcept> {
+    using arguments_t = std::tuple<Args...>;
+    using result_t    = Result;
+};
+
+export template <typename Result, typename Class, typename... Args>
+struct signature<Result (Class::*)(Args...) &&> {
+    using arguments_t = std::tuple<Args...>;
+    using result_t    = Result;
+};
+
+export template <typename Result, typename Class, typename... Args>
+struct signature<Result (Class::*)(Args...) && noexcept> {
+    using arguments_t = std::tuple<Args...>;
+    using result_t    = Result;
+};
+
+export template <typename Result, typename Class, typename... Args>
 struct signature<Result (Class::*)(Args...) const> {
+    using arguments_t = std::tuple<Args...>;
+    using result_t    = Result;
+};
+
+export template <typename Result, typename Class, typename... Args>
+struct signature<Result (Class::*)(Args...) const noexcept> {
+    using arguments_t = std::tuple<Args...>;
+    using result_t    = Result;
+};
+
+export template <typename Result, typename Class, typename... Args>
+struct signature<Result (Class::*)(Args...) const&> {
+    using arguments_t = std::tuple<Args...>;
+    using result_t    = Result;
+};
+
+export template <typename Result, typename Class, typename... Args>
+struct signature<Result (Class::*)(Args...) const & noexcept> {
+    using arguments_t = std::tuple<Args...>;
+    using result_t    = Result;
+};
+
+export template <typename Result, typename Class, typename... Args>
+struct signature<Result (Class::*)(Args...) const&&> {
+    using arguments_t = std::tuple<Args...>;
+    using result_t    = Result;
+};
+
+export template <typename Result, typename Class, typename... Args>
+struct signature<Result (Class::*)(Args...) const && noexcept> {
     using arguments_t = std::tuple<Args...>;
     using result_t    = Result;
 };
