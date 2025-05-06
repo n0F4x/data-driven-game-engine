@@ -4,27 +4,39 @@ module;
 
 export module core.scheduler.loop_until;
 
-import core.scheduler.as_task;
-import core.scheduler.concepts.converts_to_task_c;
-import core.scheduler.concepts.converts_to_task_predicate_c;
-import core.scheduler.task_wrappers.LoopUntil;
+import core.scheduler.as_task_builder;
+import core.scheduler.concepts.converts_to_task_builder_c;
+import core.scheduler.concepts.converts_to_predicate_task_builder_c;
+import core.scheduler.task_builders.LoopUntilBuilder;
 
 namespace core::scheduler {
 
-export template <converts_to_task_c Task_T, converts_to_task_predicate_c Predicate_T>
+export template <
+    converts_to_task_builder_c           MainTaskBuilder_T,
+    converts_to_predicate_task_builder_c PredicateTaskBuilder_T>
 [[nodiscard]]
-constexpr auto loop_until(Task_T&& task, Predicate_T&& predicate)
-    -> LoopUntil<as_task_t<Task_T>, as_task_t<Predicate_T>>;
+constexpr auto loop_until(
+    MainTaskBuilder_T&&      main_task_builder,
+    PredicateTaskBuilder_T&& predicate_task_builder
+)
+    -> LoopUntil<
+        as_task_builder_t<MainTaskBuilder_T>,
+        as_task_builder_t<PredicateTaskBuilder_T>>;
 
 }   // namespace core::scheduler
 
 template <
-    core::scheduler::converts_to_task_c           Task_T,
-    core::scheduler::converts_to_task_predicate_c Predicate_T>
-constexpr auto core::scheduler::loop_until(Task_T&& task, Predicate_T&& predicate)
-    -> LoopUntil<as_task_t<Task_T>, as_task_t<Predicate_T>>
+    core::scheduler::converts_to_task_builder_c           MainTaskBuilder_T,
+    core::scheduler::converts_to_predicate_task_builder_c PredicateTaskBuilder_T>
+constexpr auto core::scheduler::loop_until(
+    MainTaskBuilder_T&&      main_task_builder,
+    PredicateTaskBuilder_T&& predicate_task_builder
+) -> LoopUntil<as_task_builder_t<MainTaskBuilder_T>, as_task_builder_t<PredicateTaskBuilder_T>>
 {
-    return LoopUntil<as_task_t<Task_T>, as_task_t<Predicate_T>>{
-        std::forward<Task_T>(task), std::forward<Predicate_T>(predicate)
+    return LoopUntil<
+        as_task_builder_t<MainTaskBuilder_T>,
+        as_task_builder_t<PredicateTaskBuilder_T>>{
+        std::forward<MainTaskBuilder_T>(main_task_builder),
+        std::forward<PredicateTaskBuilder_T>(predicate_task_builder)
     };
 }

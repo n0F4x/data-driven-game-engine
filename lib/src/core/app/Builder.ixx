@@ -160,7 +160,7 @@ template <core::app::extension_c... Extensions_T>
 template <typename Self_T>
 constexpr auto core::app::Builder<Extensions_T...>::build(this Self_T&& self)
 {
-    return [&self]<size_t index_T, typename App_T>(this auto func, App_T&& app) {
+    return [&self]<size_t index_T, typename App_T>(this auto&& func, App_T&& app) {
         if constexpr (index_T == sizeof...(Extensions_T)) {
             return std::forward<App_T>(app);
         }

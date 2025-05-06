@@ -25,7 +25,7 @@ struct FoldLeftFirstClosure<IndexSequence_T> {
     {
         return apply<IndexSequence_T>([&transform, &operation]<size_t... indices_T>() {
             return [&transform, &operation]<size_t index_T, typename Accumulated_T>(
-                       this auto self, Accumulated_T&& accumulated
+                       this auto&& self, Accumulated_T&& accumulated
                    ) {
                 if constexpr (index_T == sizeof...(indices_T)) {
                     return std::forward<Accumulated_T>(accumulated);

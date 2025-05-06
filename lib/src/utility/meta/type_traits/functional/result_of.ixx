@@ -14,7 +14,7 @@ import utility.meta.type_traits.functional.signature;
 
 namespace util::meta {
 
-template <unambiguously_invocable_c F>
+template <typename F>
 struct result_of;
 
 template <function_c F>

@@ -11,71 +11,76 @@ import utility.meta.concepts.specialization_of;
 
 import core.app.builder_c;
 
-import core.scheduler.concepts.decays_to_task_c;
-import core.scheduler.TaskRunner;
+import core.scheduler.build;
+import core.scheduler.concepts.decays_to_task_builder_c;
 
 namespace extensions {
 
-export template <typename... DependencyProviderBuilders_T>
+export template <typename... ArgumentProviderBuilders_T>
 class TaskRunner {
 public:
-    template <typename... UDependencyProviderBuilders_T>
+    template <typename... UArgumentProviderBuilders_T>
         requires(
-            std::constructible_from<
-                DependencyProviderBuilders_T,
-                UDependencyProviderBuilders_T &&>
+            std::constructible_from<ArgumentProviderBuilders_T, UArgumentProviderBuilders_T &&>
             && ...
         )
     constexpr explicit TaskRunner(
-        UDependencyProviderBuilders_T&&... dependency_provider_builders
+        UArgumentProviderBuilders_T&&... argument_provider_builders
     );
 
-    template <core::app::builder_c Self_T, core::scheduler::decays_to_task_c Task_T>
-    constexpr auto run(this Self_T&&, Task_T&& task) -> void;
+    template <
+        core::app::builder_c                      Self_T,
+        core::scheduler::decays_to_task_builder_c TaskBuilder_T>
+    constexpr auto run(this Self_T&&, TaskBuilder_T&& task_builder) -> void;
 
 private:
-    std::tuple<DependencyProviderBuilders_T...> m_dependency_provider_builders;
+    std::tuple<ArgumentProviderBuilders_T...> m_argument_provider_builders;
 };
 
-template <typename... DependencyProviderBuilders_T>
-TaskRunner(DependencyProviderBuilders_T&&...)
-    -> TaskRunner<std::remove_cvref_t<DependencyProviderBuilders_T>...>;
+template <typename... ArgumentProviderBuilders_T>
+TaskRunner(ArgumentProviderBuilders_T&&...)
+    -> TaskRunner<std::remove_cvref_t<ArgumentProviderBuilders_T>...>;
 
 }   // namespace extensions
 
-template <typename... DependencyProviderBuilders_T>
-template <typename... UDependencyProviderBuilders_T>
+template <typename... ArgumentProviderBuilders_T>
+template <typename... UArgumentProviderBuilders_T>
     requires(
-        std::constructible_from<DependencyProviderBuilders_T, UDependencyProviderBuilders_T &&>
+        std::constructible_from<ArgumentProviderBuilders_T, UArgumentProviderBuilders_T &&>
         && ...
     )
-constexpr extensions::TaskRunner<DependencyProviderBuilders_T...>::TaskRunner(
-    UDependencyProviderBuilders_T&&... dependency_provider_builders
+constexpr extensions::TaskRunner<ArgumentProviderBuilders_T...>::TaskRunner(
+    UArgumentProviderBuilders_T&&... argument_provider_builders
 )
-    : m_dependency_provider_builders{
-          std::forward<UDependencyProviderBuilders_T>(dependency_provider_builders)...
+    : m_argument_provider_builders{
+          std::forward<UArgumentProviderBuilders_T>(argument_provider_builders)...
       }
 {}
 
-template <typename... DependencyProviderBuilders_T>
-template <core::app::builder_c Self_T, core::scheduler::decays_to_task_c Task_T>
-constexpr auto extensions::TaskRunner<DependencyProviderBuilders_T...>::run(
-    this Self_T&& self,
-    Task_T&&      task
+template <typename... ArgumentProviderBuilders_T>
+template <core::app::builder_c Self_T, core::scheduler::decays_to_task_builder_c TaskBuilder_T>
+constexpr auto extensions::TaskRunner<ArgumentProviderBuilders_T...>::run(
+    this Self_T&&   self,
+    TaskBuilder_T&& task_builder
 ) -> void
 {
     auto app{ std::forward<Self_T>(self).build() };
 
-    core::scheduler::TaskRunner task_runner{ std::apply(
-        [&app]<typename... XDependencyProviders_T>(
-            XDependencyProviders_T&&... dependency_provider_builders
-        ) {
-            return core::scheduler::TaskRunner{ std::invoke(
-                std::forward<XDependencyProviders_T>(dependency_provider_builders), app
-            )... };
-        },
-        std::forward_like<Self_T>(self.m_dependency_provider_builders)
-    ) };
+    const auto build_task = [&self, &task_builder, &app] {
+        return std::apply(
+            [&task_builder, &app]<typename... XArgumentProviders_T>(
+                XArgumentProviders_T&&... argument_provider_builders
+            ) {
+                return core::scheduler::build(
+                    std::forward<TaskBuilder_T>(task_builder),
+                    std::invoke(
+                        std::forward<XArgumentProviders_T>(argument_provider_builders), app
+                    )...
+                );
+            },
+            std::forward_like<Self_T>(self.m_argument_provider_builders)
+        );
+    };
 
-    task_runner.run(std::forward<Task_T>(task));
+    std::invoke(build_task());
 }

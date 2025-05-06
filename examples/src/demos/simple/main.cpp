@@ -86,7 +86,7 @@ constexpr static auto shut_down =               //
 
 auto main() -> int
 {
-    namespace dependency_providers = extensions::scheduler::dependency_providers;
+    namespace argument_providers = extensions::scheduler::argument_providers;
 
     core::app::create()
         .extend_with(extensions::ResourceManager{})
@@ -96,9 +96,9 @@ auto main() -> int
         .extend_with(extensions::addon_manager)
         .use_addon(addons::ECS{})
         .extend_with(
-            extensions::TaskRunner{ dependency_providers::ResourceManager{},
-                                    dependency_providers::EventManager{},
-                                    dependency_providers::ECS{} }
+            extensions::TaskRunner{ argument_providers::ResourceManager{},
+                                    argument_providers::EventManager{},
+                                    argument_providers::ECS{} }
         )
         .run(
             core::scheduler::start_as(initialize)   //

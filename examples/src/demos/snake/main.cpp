@@ -71,7 +71,7 @@ constexpr static auto run_game_loop = core::scheduler::loop_until(
 
 auto main() -> int
 {
-    namespace dependency_providers = extensions::scheduler::dependency_providers;
+    namespace argument_providers = extensions::scheduler::argument_providers;
 
     core::app::create()
         .extend_with(extensions::functional)
@@ -84,9 +84,9 @@ auto main() -> int
         .inject_addon(addons::make_ecs)
         .extend_with(
             extensions::TaskRunner{
-                dependency_providers::ResourceManager{},
-                dependency_providers::EventManager{},
-                dependency_providers::ECS{},
+                argument_providers::ResourceManager{},
+                argument_providers::EventManager{},
+                argument_providers::ECS{},
             }
         )
         .use_resource(core::time::Time{})

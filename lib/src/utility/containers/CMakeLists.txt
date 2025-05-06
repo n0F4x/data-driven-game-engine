@@ -4,6 +4,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         containers.cppm
         Any.ixx
+        FunctionWrapper.ixx
         SlotMultiMap.ixx
         OptionalRef.ixx
         Ref.ixx

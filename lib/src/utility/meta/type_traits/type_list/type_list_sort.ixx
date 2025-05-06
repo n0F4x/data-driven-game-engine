@@ -53,7 +53,9 @@ struct type_list_sort_impl<TypeList_T<Ts...>, Hash_T> {
 namespace util::meta {
 
 export template <type_list_c TypeList_T, template <typename> typename Hash_T>
-    requires type_list_all_of_c<TypeList_T, ::hash_has_valid_member_value<Hash_T>::template type>
+    requires type_list_all_of_c<
+        TypeList_T,
+        ::hash_has_valid_member_value<Hash_T>::template type>
 struct type_list_sort {
     using type = typename ::type_list_sort_impl<TypeList_T, Hash_T>::type;
 };

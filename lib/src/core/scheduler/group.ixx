@@ -5,21 +5,24 @@ module;
 
 export module core.scheduler.group;
 
-import core.scheduler.as_task;
-import core.scheduler.concepts.converts_to_task_c;
-import core.scheduler.task_wrappers.TaskGroup;
+import core.scheduler.as_task_builder;
+import core.scheduler.concepts.converts_to_task_builder_c;
+import core.scheduler.task_builders.TaskGroupBuilder;
 
 namespace core::scheduler {
 
-export template <converts_to_task_c... Tasks_T>
+export template <converts_to_task_builder_c... TaskBuilders_T>
 [[nodiscard]]
-constexpr auto group(Tasks_T&&... tasks) -> TaskGroup<as_task_t<Tasks_T>...>;
+constexpr auto group(TaskBuilders_T&&... task_builders)
+    -> TaskGroup<as_task_builder_t<TaskBuilders_T>...>;
 
 }   // namespace core::scheduler
 
-template <core::scheduler::converts_to_task_c... Tasks_T>
-constexpr auto core::scheduler::group(Tasks_T&&... tasks)
-    -> TaskGroup<as_task_t<Tasks_T>...>
+template <core::scheduler::converts_to_task_builder_c... TaskBuilders_T>
+constexpr auto core::scheduler::group(TaskBuilders_T&&... task_builders)
+    -> TaskGroup<as_task_builder_t<TaskBuilders_T>...>
 {
-    return TaskGroup<as_task_t<Tasks_T>...>{ std::forward<Tasks_T>(tasks)... };
+    return TaskGroup<as_task_builder_t<TaskBuilders_T>...>{
+        std::forward<TaskBuilders_T>(task_builders)...
+    };
 }

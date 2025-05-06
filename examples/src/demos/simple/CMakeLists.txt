@@ -9,6 +9,7 @@ target_compile_options(simple PRIVATE
         -Wconversion
         -Werror
         -Wno-missing-field-initializers
+        -ftemplate-backtrace-limit=0
 )
 
 target_sources(simple PRIVATE

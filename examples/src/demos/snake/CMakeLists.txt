@@ -11,6 +11,7 @@ target_compile_options(snake PRIVATE
         -Wconversion
         -Werror
         -Wno-missing-field-initializers
+        -ftemplate-backtrace-limit=0
 )
 
 target_link_libraries(snake PRIVATE ${PROJECT_NAME})

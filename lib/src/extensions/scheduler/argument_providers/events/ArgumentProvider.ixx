@@ -1,0 +1,85 @@
+module;
+
+#include <concepts>
+#include <functional>
+#include <type_traits>
+
+export module extensions.scheduler.argument_providers.events.ArgumentProvider;
+
+import core.events.EventManager;
+import core.events.BufferedEventQueue;
+
+import extensions.scheduler.accessors.events;
+
+import utility.meta.concepts.decays_to;
+import utility.meta.concepts.specialization_of;
+import utility.meta.type_traits.underlying;
+
+namespace extensions::scheduler::argument_providers::events {
+
+export template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
+class ArgumentProvider {
+public:
+    constexpr explicit ArgumentProvider(EventManager_T& resource_manager);
+
+    template <util::meta::decays_to_c<accessors::events::Processor> Accessor_T>
+    [[nodiscard]]
+    auto provide() const -> accessors::events::Processor;
+
+    template <typename Accessor_T>
+        requires util::meta::
+            specialization_of_c<std::remove_cvref_t<Accessor_T>, accessors::events::Recorder>
+        [[nodiscard]]
+        constexpr auto provide() const -> std::remove_cvref_t<Accessor_T>;
+
+    template <typename Accessor_T>
+        requires util::meta::
+            specialization_of_c<std::remove_cvref_t<Accessor_T>, accessors::events::Reader>
+        [[nodiscard]]
+        constexpr auto provide() const -> std::remove_cvref_t<Accessor_T>;
+
+private:
+    std::reference_wrapper<EventManager_T> m_event_manager_ref;
+};
+
+}   // namespace extensions::scheduler::argument_providers::events
+
+template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
+constexpr extensions::scheduler::argument_providers::events::
+    ArgumentProvider<EventManager_T>::ArgumentProvider(EventManager_T& resource_manager)
+    : m_event_manager_ref{ resource_manager }
+{}
+
+template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
+template <util::meta::decays_to_c<extensions::scheduler::accessors::events::Processor>
+              Accessor_T>
+auto extensions::scheduler::argument_providers::events::ArgumentProvider<EventManager_T>::
+    provide() const -> extensions::scheduler::accessors::events::Processor
+{
+    return Accessor_T{ m_event_manager_ref.get() };
+}
+
+template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
+template <typename Accessor_T>
+    requires util::meta::specialization_of_c<
+        std::remove_cvref_t<Accessor_T>,
+        extensions::scheduler::accessors::events::Recorder>
+constexpr auto extensions::scheduler::argument_providers::events::
+    ArgumentProvider<EventManager_T>::provide() const -> std::remove_cvref_t<Accessor_T>
+{
+    return Accessor_T{ m_event_manager_ref.get() };
+}
+
+template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
+template <typename Accessor_T>
+    requires util::meta::specialization_of_c<
+        std::remove_cvref_t<Accessor_T>,
+        extensions::scheduler::accessors::events::Reader>
+constexpr auto extensions::scheduler::argument_providers::events::
+    ArgumentProvider<EventManager_T>::provide() const -> std::remove_cvref_t<Accessor_T>
+{
+    return Accessor_T{ m_event_manager_ref.get()
+                           .template event_buffer<
+                               util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>(
+                           ) };
+}

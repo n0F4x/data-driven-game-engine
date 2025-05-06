@@ -16,6 +16,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         Strong.ixx
         TypeList.ixx
         ValueSequence.ixx
+        wrap_ref.ixx
 )
 
 target_sources(${PROJECT_NAME} PRIVATE
