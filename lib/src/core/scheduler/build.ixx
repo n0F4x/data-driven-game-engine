@@ -37,18 +37,18 @@ using argument_provider_indices_for_task_builder_t = typename ArgumentProviderIn
     typename TaskBuilder_T::UniqueArguments,
     ArgumentProviders_T...>::type;
 
-// TODO: use this simpler form (related issue: https://youtrack.jetbrains.com/issue/CPP-44524)
+// TODO: use this simpler form
+//       - related issue: https://youtrack.jetbrains.com/issue/CPP-44524)
 // template <typename TaskBuilder_T, typename... ArgumentProviders_T>
 // using argument_provider_indices_for_task_builder_t =
-//     util::meta::integer_sequence_unique_t<decltype([] {
-//         return util::meta::apply<typename TaskBuilder_T::UniqueArguments>(
-//             []<typename... XUniqueArguments_T> {
-//                 return std::index_sequence<core::scheduler::provider_index_for_argument<
-//                     XUniqueArguments_T,
-//                     ArgumentProviders_T...>...>{};
-//             }
-//         );
-//     }())>;
+// util::meta::integer_sequence_unique_t<
+//     decltype(util::meta::apply<typename TaskBuilder_T::UniqueArguments>(   //
+//         []<typename... XUniqueArguments_T> {
+//             return std::index_sequence<core::scheduler::provider_index_for_argument<
+//                 XUniqueArguments_T,
+//                 ArgumentProviders_T...>...>{};
+//         }
+//     ))>;
 
 template <
     core::scheduler::decays_to_task_builder_c TaskBuilder_T,

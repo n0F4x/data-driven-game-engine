@@ -4,7 +4,7 @@ module;
 #include <tuple>
 #include <utility>
 
-export module core.scheduler.task_builders.TaskGroupBuilder;
+export module core.scheduler.task_builders.InParallelBuilder;
 
 import core.scheduler.build;
 import core.scheduler.concepts.task_builder_c;
@@ -18,7 +18,7 @@ import utility.meta.type_traits.type_list.type_list_unique;
 namespace core::scheduler {
 
 export template <task_builder_c... TaskBuilders_T>
-class TaskGroup : public TaskBuilderBase {
+class InParallelBuilder : public TaskBuilderBase {
 public:
     using Result          = void;
     using UniqueArguments = util::meta::type_list_unique_t<
@@ -26,7 +26,7 @@ public:
 
     template <typename... UTaskBuilders_T>
         requires(std::constructible_from<TaskBuilders_T, UTaskBuilders_T &&> && ...)
-    constexpr explicit TaskGroup(UTaskBuilders_T&&... task_builders);
+    constexpr explicit InParallelBuilder(UTaskBuilders_T&&... task_builders);
 
     template <typename Self_T, typename... ArgumentProviders_T>
     [[nodiscard]]
@@ -41,7 +41,7 @@ private:
 template <core::scheduler::task_builder_c... TaskBuilders_T>
 template <typename... UTaskBuilders_T>
     requires(std::constructible_from<TaskBuilders_T, UTaskBuilders_T &&> && ...)
-constexpr core::scheduler::TaskGroup<TaskBuilders_T...>::TaskGroup(
+constexpr core::scheduler::InParallelBuilder<TaskBuilders_T...>::InParallelBuilder(
     UTaskBuilders_T&&... task_builders
 )
     : m_task_builders{ std::forward<UTaskBuilders_T>(task_builders)... }
@@ -49,7 +49,7 @@ constexpr core::scheduler::TaskGroup<TaskBuilders_T...>::TaskGroup(
 
 template <core::scheduler::task_builder_c... TaskBuilders_T>
 template <typename Self_T, typename... ArgumentProviders_T>
-constexpr auto core::scheduler::TaskGroup<TaskBuilders_T...>::operator()(
+constexpr auto core::scheduler::InParallelBuilder<TaskBuilders_T...>::operator()(
     this Self_T&& self,
     ArgumentProviders_T&&... argument_providers
 )

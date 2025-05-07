@@ -4,4 +4,4 @@ export import core.scheduler.task_builders.LoopUntilBuilder;
 export import core.scheduler.task_builders.ScheduleBuilder;
 export import core.scheduler.task_builders.SimpleTaskBuilder;
 export import core.scheduler.task_builders.TaskBuilderBase;
-export import core.scheduler.task_builders.TaskGroupBuilder;
+export import core.scheduler.task_builders.InParallelBuilder;

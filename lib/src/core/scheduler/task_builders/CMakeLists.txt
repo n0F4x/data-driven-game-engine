@@ -7,5 +7,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         ScheduleBuilder.ixx
         SimpleTaskBuilder.ixx
         TaskBuilderBase.ixx
-        TaskGroupBuilder.ixx
+        InParallelBuilder.ixx
 )

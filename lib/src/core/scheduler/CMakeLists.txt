@@ -8,7 +8,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         scheduler.cppm
         as_task_builder.ixx
         build.ixx
-        group.ixx
+        in_parallel.ixx
         loop_until.ixx
         provider_index_for_argument.ixx
         start_as.ixx

@@ -65,7 +65,7 @@ constexpr static auto game_is_running =                       //
     };
 
 constexpr static auto run_game_loop = core::scheduler::loop_until(
-    core::scheduler::group(update_0, update_1),
+    core::scheduler::in_parallel(update_0, update_1),
     game_is_running
 );
 
