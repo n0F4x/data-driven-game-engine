@@ -9,6 +9,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         utility.cppm
         all_same.ixx
+        contracts.ixx
         hashing.ixx
         overloaded.ixx
         ScopeGuard.ixx
@@ -25,7 +26,7 @@ if (engine_test)
             TYPE HEADERS
             BASE_DIRS ${ENGINE_SRC_DIR}
             FILES
-            contracts.hpp
+            contracts_macros.hpp
     )
 else ()
     target_sources(${PROJECT_NAME} PRIVATE
@@ -33,7 +34,7 @@ else ()
             TYPE HEADERS
             BASE_DIRS ${ENGINE_SRC_DIR}
             FILES
-            contracts.hpp
+            contracts_macros.hpp
     )
 endif ()
 

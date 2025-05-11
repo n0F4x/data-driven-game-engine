@@ -7,10 +7,11 @@ module;
 #include <type_traits>
 #include <vector>
 
-#include "utility/contracts.hpp"
+#include "utility/contracts_macros.hpp"
 
 export module utility.containers.SparseSet;
 
+import utility.contracts;
 import utility.meta.uint_at_least;
 import utility.meta.concepts.specialization_of;
 import utility.ScopeGuard;

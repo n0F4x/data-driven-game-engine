@@ -5,10 +5,11 @@ module;
 #include <utility>
 #include <vector>
 
-#include "utility/contracts.hpp"
+#include "utility/contracts_macros.hpp"
 
 export module core.ecs:ComponentContainer;
 
+import utility.contracts;
 import utility.meta.concepts.decays_to;
 
 import :component_c;

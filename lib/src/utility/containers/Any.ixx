@@ -8,10 +8,11 @@ module;
 #include <utility>
 #include <variant>
 
-#include "utility/contracts.hpp"
+#include "utility/contracts_macros.hpp"
 
 export module utility.containers.Any;
 
+import utility.contracts;
 import utility.memory.Allocator;
 import utility.memory.Deallocator;
 import utility.meta.concepts.allocator;
@@ -490,7 +491,7 @@ constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
     : m_allocator{ std::move(other.m_allocator) },
       m_operations{ std::exchange(other.m_operations, nullptr) }
 {
-    assert(m_operations != nullptr && "Don't use a 'moved-from' (or destroyed) Any!");
+    PRECOND(m_operations != nullptr, "Don't use a 'moved-from' (or destroyed) Any!");
     if (m_operations) {
         m_operations->move(m_storage, std::move(other.m_storage));
     }
@@ -573,8 +574,8 @@ template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c A
 constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(BasicAny&& other
 ) noexcept -> BasicAny&
 {
-    assert(
-        other.m_operations != nullptr && "Don't use a 'moved-from' (or destroyed) Any!"
+    PRECOND(
+        other.m_operations != nullptr, "Don't use a 'moved-from' (or destroyed) Any!"
     );
 
     if (&other == this) {

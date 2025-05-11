@@ -6,6 +6,7 @@ export import utility.meta;
 export import utility.tuple;
 
 export import utility.all_same;
+export import utility.contracts;
 export import utility.hashing;
 export import utility.Overloaded;
 export import utility.ScopeGuard;

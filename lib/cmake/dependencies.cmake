@@ -17,6 +17,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE gsl::gsl-lite)
 find_package(tsl-ordered-map CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE tsl::ordered_map)
 
+# fmt
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
+
 # spdlog
 find_package(spdlog CONFIG REQUIRED)
 if (engine_debug)

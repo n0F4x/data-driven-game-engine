@@ -4,10 +4,11 @@ module;
 #include <ranges>
 #include <type_traits>
 
-#include <utility/contracts.hpp>
+#include "utility/contracts_macros.hpp"
 
 export module core.ecs:query.OptionalView;
 
+import utility.contracts;
 import utility.meta.type_traits.const_like;
 
 import :component_c;

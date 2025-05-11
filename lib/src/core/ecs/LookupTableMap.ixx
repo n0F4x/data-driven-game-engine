@@ -1,11 +1,12 @@
 module;
 
-#include <optional>
 #include <unordered_map>
 
-#include "utility/contracts.hpp"
+#include "utility/contracts_macros.hpp"
 
 export module core.ecs:LookupTableMap;
+
+import utility.contracts;
 
 import :ArchetypeID;
 import :ID;

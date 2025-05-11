@@ -1,9 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "utility/contracts.hpp"
+#include "utility/contracts_macros.hpp"
 
 import core.ecs;
 import utility.containers.OptionalRef;
+import utility.contracts;
 import utility.meta.algorithms.apply;
 import utility.meta.algorithms.enumerate;
 import utility.meta.algorithms.for_each;
@@ -659,7 +660,11 @@ TEST_CASE("core::ecs::Registry")
                     );
                     REQUIRE_THROWS_AS(
                         registry.insert(
-                            id, Comps...[2](3), Comps...[3](4), Comps...[4](5), Comps...[5](6)
+                            id,
+                            Comps...[2](3),
+                            Comps...[3](4),
+                            Comps...[4](5),
+                            Comps...[5](6)
                         ),
                         util::PreconditionViolation
                     );
