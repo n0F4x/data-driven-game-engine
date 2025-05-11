@@ -19,10 +19,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         wrap_ref.ixx
 )
 
-target_sources(${PROJECT_NAME} PRIVATE
-        contracts.cpp
-)
-
 if (engine_test)
     target_sources(${PROJECT_NAME} PUBLIC
             FILE_SET engine_inteface_headers
