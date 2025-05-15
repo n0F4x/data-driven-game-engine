@@ -1,35 +1,30 @@
-add_library(${PROJECT_NAME})
+project(engine_lib)
 
-set(ENGINE_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(${project_prefix}LOG_LEVEL ${project_prefix}LOG_LEVEL_INFO CACHE STRING "Set log level")
+set_property(CACHE ${project_prefix}LOG_LEVEL PROPERTY STRINGS
+        ${project_prefix}LOG_LEVEL_OFF
+        ${project_prefix}LOG_LEVEL_CRITICAL
+        ${project_prefix}LOG_LEVEL_ERROR
+        ${project_prefix}LOG_LEVEL_WARNING
+        ${project_prefix}LOG_LEVEL_INFO
+        ${project_prefix}LOG_LEVEL_DEBUG
+        ${project_prefix}LOG_LEVEL_TRACE
+)
+
+
+add_library(${PROJECT_NAME})
 
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_26)
 
-# We only support Clang of now
-# TODO: specify these settings outside of CMake
-target_compile_options(${PROJECT_NAME} PRIVATE
-        -Wall
-        -Wextra
-        -pedantic-errors
-        -Wconversion
-        -Werror
-        -Wno-missing-field-initializers
-        -fvisibility=hidden
-)
-
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         CHECK_LIFETIME_BOUND
+        ENGINE_LOG_LEVEL=${project_prefix}LOG_LEVEL
 )
 
-if (engine_debug)
+if (${project_prefix}ENABLE_TESTS)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
-            ENGINE_LOG_LEVEL=ENGINE_LOG_LEVEL_DEBUG
-    )
-endif ()
-
-if (engine_test)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
-            ENGINE_ENABLE_UNIT_TESTS
+            ${project_prefix}ENABLE_UNIT_TESTS
     )
 endif ()
 

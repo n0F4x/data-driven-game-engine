@@ -136,17 +136,10 @@ static auto
 
 namespace plugins::renderer {
 
-InstancePlugin::InstancePlugin()
-{
-#ifdef ENGINE_VULKAN_DEBUG
-    emplace_dependency(
-        Dependency{
-            .required_settings_are_available = ::required_debug_settings_are_available,
-            .enable_settings                 = ::enable_debug_settings,
-        }
-    );
-#endif
-}
+const InstancePlugin::Dependency InstancePlugin::debug_dependency{
+    .required_settings_are_available = ::required_debug_settings_are_available,
+    .enable_settings                 = ::enable_debug_settings,
+};
 
 auto InstancePlugin::operator()() const -> core::renderer::base::Instance
 {

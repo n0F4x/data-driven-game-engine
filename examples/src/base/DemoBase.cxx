@@ -65,7 +65,7 @@ auto examples::base::DemoBase::run(
     core::gfx::Camera camera;
     std::mutex        camera_mutex{};
 
-    std::atomic_uint16_t fps{};
+    std::atomic_uint32_t fps{};
 
     std::optional<std::future<void>>
         rendering{ render == nullptr
@@ -75,6 +75,8 @@ auto examples::base::DemoBase::run(
                                  std::chrono::high_resolution_clock::now()
                              };
                              while (running) {
+                                 using namespace std::chrono_literals;
+
                                  const std::chrono::time_point now{
                                      std::chrono::high_resolution_clock::now()
                                  };
@@ -82,7 +84,7 @@ auto examples::base::DemoBase::run(
                                      now - last_time
                                  };
                                  last_time = now;
-                                 fps = static_cast<uint16_t>(1.0 / delta_time.count());
+                                 fps       = static_cast<uint32_t>(1s / delta_time);
 
                                  camera_mutex.lock();
                                  const core::gfx::Camera render_camera{ camera };
@@ -95,7 +97,7 @@ auto examples::base::DemoBase::run(
 
     auto rendering_finished{ [&rendering] {
         return rendering
-            && rendering.value().wait_for(std::chrono::seconds{0})
+            && rendering.value().wait_for(std::chrono::seconds{ 0 })
                    == std::future_status::ready;
     } };
 

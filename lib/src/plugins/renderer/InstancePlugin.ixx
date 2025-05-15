@@ -18,7 +18,7 @@ public:
         std::function<void(const vkb::SystemInfo&, vkb::InstanceBuilder&)> enable_settings;
     };
 
-    InstancePlugin();
+    static const Dependency debug_dependency;
 
     auto operator()() const -> core::renderer::base::Instance;
 

@@ -5,7 +5,7 @@ add_subdirectory(tuple)
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET CXX_MODULES
-        BASE_DIRS ${ENGINE_SRC_DIR}
+        BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         utility.cppm
         all_same.ixx
@@ -20,11 +20,11 @@ target_sources(${PROJECT_NAME} PUBLIC
         wrap_ref.ixx
 )
 
-if (engine_test)
+if (${project_prefix}ENABLE_TESTS)
     target_sources(${PROJECT_NAME} PUBLIC
             FILE_SET engine_inteface_headers
             TYPE HEADERS
-            BASE_DIRS ${ENGINE_SRC_DIR}
+            BASE_DIRS ${PROJECT_SOURCE_DIR}/src
             FILES
             contracts_macros.hpp
     )
@@ -32,7 +32,7 @@ else ()
     target_sources(${PROJECT_NAME} PRIVATE
             FILE_SET engine_headers
             TYPE HEADERS
-            BASE_DIRS ${ENGINE_SRC_DIR}
+            BASE_DIRS ${PROJECT_SOURCE_DIR}/src
             FILES
             contracts_macros.hpp
     )
@@ -41,7 +41,7 @@ endif ()
 target_sources(${PROJECT_NAME} PRIVATE
         FILE_SET engine_headers
         TYPE HEADERS
-        BASE_DIRS ${ENGINE_SRC_DIR}
+        BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         lifetime_bound.hpp
 )

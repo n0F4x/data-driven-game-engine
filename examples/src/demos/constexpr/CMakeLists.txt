@@ -1,16 +1,9 @@
-add_executable(constexpr)
-target_compile_features(constexpr PRIVATE cxx_std_26)
-target_compile_options(constexpr PRIVATE
-        -Wall
-        -Wextra
-        -pedantic-errors
-        -Wconversion
-        -Werror
-        -Wno-missing-field-initializers
-)
+project(constexpr)
 
-target_sources(constexpr PRIVATE
+add_executable(${PROJECT_NAME})
+
+target_sources(${PROJECT_NAME} PRIVATE
         main.cpp
 )
 
-target_link_libraries(constexpr PRIVATE ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE engine_lib)

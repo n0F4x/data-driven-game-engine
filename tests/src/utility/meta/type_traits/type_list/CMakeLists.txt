@@ -1,4 +1,4 @@
-target_sources(tests PRIVATE
+target_sources(${PROJECT_NAME} PRIVATE
         is_type_list.cpp
         type_list_chunk_sub.cpp
         type_list_concat.cpp

@@ -1,0 +1,95 @@
+= Building
+
+== Toolchain
+
+The project is required to work with *Clang 20* and *libc++*.
+
+Support for other setups is not a priority until a planned release.
+
+== CMake
+
+External libraries used to be fetched with CMake's https://cmake.org/cmake/help/latest/module/FetchContent.html[FetchContent].
+This got too slow as the project grew, hence the move to a package manager.
+
+FetchContent is still used for libraries that don't have the proper versions in a remote.
+
+== Conan
+
+https://docs.conan.io/2/[Conan 2] is used as the project's primary dependency manager.
+
+You can install Conan using pip https://docs.conan.io/2/installation.html[tutorial].
+After this, you would probably want to set up a
+_Conan https://docs.conan.io/2/reference/config_files/profiles.html=profiles[profile]_ to use with this project.
+
+Conan fetches third-party dependencies from a remote (https://conan.io/center[Conan Center] is the default).
+However, some libraries require custom configuration / patches.
+Add the provided local third-party repository to Conan remotes. +
+Run `+conan remote add <name_of_my_local_remote> ./third-party+`
+
+Run `+conan install .+` to set up all the third-party dependencies (or `+conan install . -pr=custom_profile+`).
+This will create a _CMakeUserPresets.json_ file inside the working directory that can be used to build the project (with your IDE). +
+`+conan build . -pr=custom_profile+` not only installs the dependencies, but also builds the entire project.
+
+.Conan profile example
+[%collapsible%open]
+====
+----
+[settings]
+arch=x86_64
+build_type=Debug
+compiler=clang
+compiler.version=20
+compiler.libcxx=libc++
+compiler.cppstd=26
+os=Windows
+
+[options]
+data-driven_game_engine/*:log_level=debug
+data-driven_game_engine/*:enable_tests=True
+data-driven_game_engine/*:enable_examples=True
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
+
+[buildenv]
+PATH+=(path)C:/dev/MSYS2/clang64/bin
+PATH+=(path)C:/path/to/cmake/bin
+PATH+=(path)C:/path/to/ninja/bin
+
+[runenv]
+PATH+=(path)C:/dev/MSYS2/clang64/bin
+----
+====
+
+[NOTE]
+.Shared libraries might not be found when trying to run the program.
+====
+Conan generates a script for activating a virtual run environment to mitigate this problem. +
+This is located inside the build folder: _./build/Debug/generators/conanrun.bat_ +
+Its pair for deactivation: _./build/Debug/generators/deactivate_conanrun.bat_
+====
+
+.How to fix dynamic linking in CLion?
+[%collapsible]
+====
+CLion doesn't offer a real solution to this problem.
+There are 2 "hacks" though, that I can recommend.
+
+.   Edit each of your run configurations to read environment variables from _./build/Debug/generators/conanrun.bat_ (or its pair with the _.sh_ extension on Linux).
+.   A partial solution is to setup your toolchain inside *_Build, Execution, Deployment_*.
+    CLion uses the default toolchain when a CMake preset is configured.
+    (
+        This is likely due to a bug.
+        It will override your Conan defined one.
+    ) +
+    Each time you run an application, CLion will append your defined toolchain to its PATH.
+    Libraries like _libcxx_ and _asan_ will be found this way.
+====
+
+== Vulkan
+
+Generally, Vulkan development is heavy to setup without the https://www.lunarg.com/vulkan-sdk/[Vulkan SDK].
+Useful tools included in the SDK are the *_glslc_* shader compiler and the *Vulkan Validation Layers*
+
+glslc may be installed separately.
+The Vulkan Validation Layers are optional.

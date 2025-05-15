@@ -1,33 +1,14 @@
-add_executable(snake)
+project(snake)
 
-set(SNAKE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+add_executable(${PROJECT_NAME})
 
-target_compile_features(snake PRIVATE cxx_std_26)
+target_link_libraries(${PROJECT_NAME} PRIVATE engine_lib)
 
-target_compile_options(snake PRIVATE
-        -Wall
-        -Wextra
-        -pedantic-errors
-        -Wconversion
-        -Werror
-        -Wno-missing-field-initializers
-)
-
-target_link_libraries(snake PRIVATE ${PROJECT_NAME})
-
-include(FetchContent)
-fetchcontent_declare(SFML
-        GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 275cb53429d4d39e9e946d3e399ebc6113256b90 # Add missing <ostream> include in OutputSoundFile.cpp
-        GIT_SHALLOW ON
-        SYSTEM
-)
-
-fetchcontent_makeavailable(SFML)
-target_link_libraries(snake PRIVATE SFML::Graphics)
+find_package(SFML CONFIG REQUIRED COMPONENTS Graphics)
+target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
 
 add_subdirectory(window)
 
-target_sources(snake PRIVATE
+target_sources(${PROJECT_NAME} PRIVATE
         main.cpp
 )

@@ -16,8 +16,6 @@ import extensions.ResourceManager;
 import extensions.scheduler;
 import extensions.TaskRunner;
 
-using namespace std::chrono_literals;
-
 using namespace extensions::scheduler::accessors;
 
 constexpr static std::string_view title = "Snake";
@@ -46,6 +44,8 @@ constexpr static auto update_1 =   //
        const resources::Ref<window::Window>                  window,
        const resources::Ref<core::time::Time>                time) mutable   //
 {
+    using namespace std::chrono_literals;
+
     if (close_requested_event_reader.read().size() > 0) {
         window->close();
     }

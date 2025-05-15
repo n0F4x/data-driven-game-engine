@@ -24,7 +24,7 @@ if (DEFINED GLSLC)
         )
     endforeach ()
 
-    add_custom_target(virtual_texture_build_shaders DEPENDS ${SHADER_OUT_NAMES})
+    add_custom_target(${PROJECT_NAME}_build_shaders DEPENDS ${SHADER_OUT_NAMES})
 
-    add_dependencies(virtual_texture virtual_texture_build_shaders)
+    add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_build_shaders)
 endif ()

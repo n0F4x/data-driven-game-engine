@@ -1,18 +1,14 @@
-add_executable(tests)
+project(engine_tests)
 
-target_compile_options(tests PRIVATE
-        -Wall
-        -Wextra
-        -pedantic-errors
-        -Wconversion
-        -Werror
-)
+add_executable(${PROJECT_NAME})
 
-set(TESTS_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-
-target_link_libraries(tests PRIVATE ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE engine_lib)
 
 find_package(Catch2 CONFIG REQUIRED)
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(${PROJECT_NAME} PRIVATE Catch2::Catch2WithMain)
+
+include(CTest)
+include(Catch)
+catch_discover_tests(${PROJECT_NAME})
 
 add_subdirectory(src)

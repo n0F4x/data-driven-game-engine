@@ -1,12 +1,11 @@
-# TODO: use dependency providers instead of fetch_content
+# TODO: use Conan local_recipes_index instead of fetch_content
 
 include(FetchContent)
-set(BUILD_SHARED_LIBS OFF)
-
 
 if (DEFINED CMAKE_TOOLCHAIN_FILE)
     message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
 endif ()
+
 
 # gsl-lite
 find_package(gsl-lite CONFIG REQUIRED)
@@ -23,12 +22,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 
 # spdlog
 find_package(spdlog CONFIG REQUIRED)
-if (engine_debug)
-    set(spdlog_level SPDLOG_LEVEL_TRACE)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
-            SPDLOG_ACTIVE_LEVEL=${spdlog_level}
-    )
-endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # GLFW
@@ -40,7 +33,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # Vulkan
 find_package(VulkanHeaders CONFIG REQUIRED)
-
 get_target_property(VulkanHeaders_INCLUDE_DIRS Vulkan::Headers INTERFACE_INCLUDE_DIRECTORIES)
 add_library(VulkanHppModule)
 target_sources(VulkanHppModule PUBLIC
@@ -55,18 +47,14 @@ target_compile_definitions(VulkanHppModule PUBLIC
         VULKAN_HPP_NO_SETTERS
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
 )
-target_compile_features(VulkanHppModule PUBLIC cxx_std_26)
 target_link_libraries(VulkanHppModule PUBLIC Vulkan::Headers)
-
 target_link_libraries(${PROJECT_NAME} PUBLIC VulkanHppModule) # TODO: make this PRIVATE
-if (engine_debug)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE ENGINE_VULKAN_DEBUG)
-endif ()
 
 # Vulkan-Utility
 fetchcontent_declare(VulkanUtilityLibraries
         GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Utility-Libraries.git
         GIT_TAG v1.3.296
+        EXCLUDE_FROM_ALL
         SYSTEM
 )
 fetchcontent_makeavailable(VulkanUtilityLibraries)
@@ -76,6 +64,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::UtilityHeaders)
 fetchcontent_declare(VulkanMemoryAllocator
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
         GIT_TAG v3.1.0
+        EXCLUDE_FROM_ALL
         SYSTEM
 )
 fetchcontent_makeavailable(VulkanMemoryAllocator)
@@ -86,12 +75,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PUBLIC GPUOpen::VulkanMemoryAllocator) # TODO: make this PRIVATE
 
 # vk-bootstrap
-fetchcontent_declare(vk-bootstrap
-        GIT_REPOSITORY https://github.com/charles-lunarg/vk-bootstrap.git
-        GIT_TAG v1.3.296
-        SYSTEM
-)
-fetchcontent_makeavailable(vk-bootstrap)
+find_package(vk-bootstrap)
 target_link_libraries(${PROJECT_NAME} PUBLIC vk-bootstrap::vk-bootstrap) # TODO: make this PRIVATE
 
 # glm
@@ -113,11 +97,19 @@ target_link_libraries(${PROJECT_NAME} PRIVATE stb::stb)
 fetchcontent_declare(fastgltf
         GIT_REPOSITORY https://github.com/spnda/fastgltf.git
         GIT_TAG c462eaf7114f16a977afe84d0a4590b33091a33f # after v0.8.0
+        EXCLUDE_FROM_ALL
         SYSTEM
 )
 # TODO: enable modules
 set(FASTGLTF_COMPILE_AS_CPP20 ON)
 fetchcontent_makeavailable(fastgltf)
+target_compile_options(fastgltf PRIVATE
+        -Wno-deprecated-literal-operator
+        -Wno-sign-conversion
+        -Wno-implicit-int-conversion
+        -Wno-unused-parameter
+        -Wno-old-style-cast
+)
 target_link_libraries(${PROJECT_NAME} PRIVATE fastgltf::fastgltf)
 
 # EnTT
