@@ -6,6 +6,13 @@ The project is required to work with *Clang 20* and *libc++*.
 
 Support for other setups is not a priority until a planned release.
 
+.How to get Clang with libc++ on Windows?
+[%collapsible]
+====
+I recommend installing https://www.msys2.org/[MSYS2] and with the https://www.msys2.org/docs/environments/[clang64] environment. +
+https://packages.msys2.org/groups/mingw-w64-clang-x86_64-toolchain[Link] to package group
+====
+
 == CMake
 
 External libraries used to be fetched with CMake's https://cmake.org/cmake/help/latest/module/FetchContent.html[FetchContent].

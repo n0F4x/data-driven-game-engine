@@ -93,7 +93,7 @@ class DataDrivenGameEngineRecipe(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-        if self.options.enable_tests and not self.conf.get("tools.build:skip_test", default=False):
+        if self.options.get_safe("enable_tests") and not self.conf.get("tools.build:skip_test", default=False):
             self.run("tests", cwd="tests")
 
     def package_info(self):

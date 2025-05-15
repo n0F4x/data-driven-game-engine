@@ -1,15 +1,14 @@
+- rework ECS queries to support caching 
+- static job system
+- create a system for staging memory
 - use slang for shaders
 - use [Host image copy](https://docs.vulkan.org/samples/latest/samples/extensions/host_image_copy/README.html)
 - use _libjpeg-turbo_ intead of _stb_image_ 
 - provide a default texture source
 - change image formats before upload
 - rework renderer::Program to support multiple shader types
-- create a system for staging memory
 - build the vulkan validation layers
-- use proper assertions
-- separate logger for debug and actual use
 - let compute queue present according to https://gpuopen.com/learn/rdna-performance-guide/#presenting
 - separate project to multiple libs
-- static job system
 - support raytracing
 - use mesh shaders
