@@ -2,7 +2,7 @@ project(snake)
 
 add_executable(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE engine_lib)
+target_link_libraries(${PROJECT_NAME} PRIVATE engine::engine)
 
 find_package(SFML CONFIG REQUIRED COMPONENTS Graphics)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)

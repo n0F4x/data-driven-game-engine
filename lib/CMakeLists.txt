@@ -13,6 +13,7 @@ set_property(CACHE ${project_prefix}LOG_LEVEL PROPERTY STRINGS
 
 
 add_library(${PROJECT_NAME})
+add_library(engine::engine ALIAS ${PROJECT_NAME})
 
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_26)

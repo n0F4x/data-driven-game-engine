@@ -27,4 +27,4 @@ target_sources(${PROJECT_NAME} PUBLIC
         Renderer.ixx
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC engine_lib)
+target_link_libraries(${PROJECT_NAME} PUBLIC engine::engine)
