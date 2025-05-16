@@ -4,7 +4,8 @@ add_subdirectory(meta)
 add_subdirectory(tuple)
 
 target_sources(${PROJECT_NAME} PUBLIC
-        FILE_SET CXX_MODULES
+        FILE_SET public_cxx_modules
+        TYPE CXX_MODULES
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         utility.cppm
@@ -22,7 +23,7 @@ target_sources(${PROJECT_NAME} PUBLIC
 
 if (${project_prefix}ENABLE_TESTS)
     target_sources(${PROJECT_NAME} PUBLIC
-            FILE_SET engine_inteface_headers
+            FILE_SET public_headers
             TYPE HEADERS
             BASE_DIRS ${PROJECT_SOURCE_DIR}/src
             FILES
@@ -30,7 +31,7 @@ if (${project_prefix}ENABLE_TESTS)
     )
 else ()
     target_sources(${PROJECT_NAME} PRIVATE
-            FILE_SET engine_headers
+            FILE_SET private_headers
             TYPE HEADERS
             BASE_DIRS ${PROJECT_SOURCE_DIR}/src
             FILES
@@ -39,7 +40,7 @@ else ()
 endif ()
 
 target_sources(${PROJECT_NAME} PRIVATE
-        FILE_SET engine_headers
+        FILE_SET private_headers
         TYPE HEADERS
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES

@@ -17,7 +17,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 )
 
 target_sources(${PROJECT_NAME} PRIVATE
-        FILE_SET CXX_MODULES
+        FILE_SET private_cxx_modules
+        TYPE CXX_MODULES
         BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
         FILES
         Camera.ixx

@@ -36,7 +36,8 @@ find_package(VulkanHeaders CONFIG REQUIRED)
 get_target_property(VulkanHeaders_INCLUDE_DIRS Vulkan::Headers INTERFACE_INCLUDE_DIRECTORIES)
 add_library(VulkanHppModule)
 target_sources(VulkanHppModule PUBLIC
-        FILE_SET CXX_MODULES
+        FILE_SET public_cxx_modules
+        TYPE CXX_MODULES
         BASE_DIRS ${VulkanHeaders_INCLUDE_DIRS}
         FILES ${VulkanHeaders_INCLUDE_DIRS}/vulkan/vulkan.cppm
 )
