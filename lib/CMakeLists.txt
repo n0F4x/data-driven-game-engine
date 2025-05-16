@@ -1,4 +1,4 @@
-project(engine_lib)
+project(engine)
 
 set(${project_prefix}LOG_LEVEL ${project_prefix}LOG_LEVEL_INFO CACHE STRING "Set log level")
 set_property(CACHE ${project_prefix}LOG_LEVEL PROPERTY STRINGS

@@ -2,7 +2,7 @@ project(engine_tests)
 
 add_executable(${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE engine_lib)
+target_link_libraries(${PROJECT_NAME} PRIVATE engine)
 
 find_package(Catch2 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Catch2::Catch2WithMain)

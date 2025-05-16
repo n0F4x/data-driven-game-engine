@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(engine)
+project(master)
 
 set(project_prefix ENGINE_)
 

@@ -97,4 +97,4 @@ class DataDrivenGameEngineRecipe(ConanFile):
             self.run("tests", cwd="tests")
 
     def package_info(self):
-        self.cpp_info.libs = ["engine_lib"]
+        self.cpp_info.libs = ["engine"]
