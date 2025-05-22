@@ -1,7 +1,7 @@
 module;
 
-#include <span>
 #include <array>
+#include <span>
 
 export module core.image.jpeg.MimeType;
 
@@ -12,6 +12,14 @@ export struct MimeType {
     constexpr static auto magic() noexcept -> std::span<const std::byte, 3>;
 };
 
-}
+}   // namespace core::image::jpeg
 
-#include "MimeType.inl"
+constexpr auto core::image::jpeg::MimeType::magic() noexcept
+    -> std::span<const std::byte, 3>
+{
+    constexpr static std::array s_magic{ std::byte{ 0xFF },
+                                         std::byte{ 0xD8 },
+                                         std::byte{ 0xFF } };
+
+    return s_magic;
+}

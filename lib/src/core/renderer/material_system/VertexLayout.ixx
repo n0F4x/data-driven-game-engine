@@ -41,4 +41,12 @@ private:
 
 }   // namespace core::renderer
 
-#include "VertexLayout.inl"
+template <typename Self>
+auto core::renderer::VertexLayout::add_attribute(
+    this Self&&     self,
+    VertexAttribute attribute
+) -> Self
+{
+    self.m_attributes.push_back(attribute);
+    return std::forward<Self>(self);
+}

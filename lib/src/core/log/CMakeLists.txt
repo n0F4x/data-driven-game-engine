@@ -1,5 +1,5 @@
-target_sources(${PROJECT_NAME} PRIVATE
-        FILE_SET private_headers
+target_sources(${PROJECT_NAME} PUBLIC
+        FILE_SET public_headers
         TYPE HEADERS
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES

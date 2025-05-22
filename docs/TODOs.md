@@ -1,3 +1,6 @@
+- Don't expose spdlog
+- Don't expose fmt (requires constexpr `std::format`)
+- CMAKE_INTERPROCEDURAL_OPTIMIZATION
 - rework ECS queries to support caching 
 - static job system
 - create a system for staging memory

@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.30)
+
 project(engine)
 
 set(${project_prefix}LOG_LEVEL ${project_prefix}LOG_LEVEL_INFO CACHE STRING "Set log level")
@@ -34,3 +36,25 @@ include(cmake/dependencies.cmake)
 
 
 add_subdirectory(src)
+
+
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}Targets
+        FILE_SET public_headers FILE_SET public_cxx_modules
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+install(EXPORT ${PROJECT_NAME}Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)

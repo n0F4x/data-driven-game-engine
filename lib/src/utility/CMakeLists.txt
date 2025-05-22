@@ -21,28 +21,11 @@ target_sources(${PROJECT_NAME} PUBLIC
         wrap_ref.ixx
 )
 
-if (${project_prefix}ENABLE_TESTS)
-    target_sources(${PROJECT_NAME} PUBLIC
-            FILE_SET public_headers
-            TYPE HEADERS
-            BASE_DIRS ${PROJECT_SOURCE_DIR}/src
-            FILES
-            contracts_macros.hpp
-    )
-else ()
-    target_sources(${PROJECT_NAME} PRIVATE
-            FILE_SET private_headers
-            TYPE HEADERS
-            BASE_DIRS ${PROJECT_SOURCE_DIR}/src
-            FILES
-            contracts_macros.hpp
-    )
-endif ()
-
-target_sources(${PROJECT_NAME} PRIVATE
-        FILE_SET private_headers
+target_sources(${PROJECT_NAME} PUBLIC
+        FILE_SET public_headers
         TYPE HEADERS
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         lifetime_bound.hpp
+        contracts_macros.hpp
 )

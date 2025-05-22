@@ -52,11 +52,13 @@ os=Windows
 
 [options]
 data-driven_game_engine/*:log_level=debug
-data-driven_game_engine/*:enable_tests=True
-data-driven_game_engine/*:enable_examples=True
 
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
+user.data-driven_game_engine:dev=True
+user.data-driven_game_engine:enable_tests=True
+user.data-driven_game_engine:enable_examples=True
+
 
 [buildenv]
 PATH+=(path)C:/dev/MSYS2/clang64/bin
@@ -91,6 +93,13 @@ There are 2 "hacks" though, that I can recommend.
     ) +
     Each time you run an application, CLion will append your defined toolchain to its PATH.
     Libraries like _libcxx_ and _asan_ will be found this way.
+====
+
+.How to test the library as a package?
+[%collapsible]
+====
+Run the following command: `+conan export-pkg .+` +
+Read more https://docs.conan.io/2/tutorial/developing_packages/local_package_development_flow.html#conan-export-pkg[here].
 ====
 
 == Vulkan

@@ -1,4 +1,4 @@
-project(engine_tests)
+project(tests)
 
 add_executable(${PROJECT_NAME})
 

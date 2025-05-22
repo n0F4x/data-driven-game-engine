@@ -5,8 +5,6 @@ module;
 
 #include <gsl-lite/gsl-lite.hpp>
 
-
-
 #include <ktx.h>
 
 export module core.image.ktx2.Image;
