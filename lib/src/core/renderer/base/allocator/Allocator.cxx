@@ -8,7 +8,7 @@ module;
 
 #include <VkBootstrap.h>
 
-#include "core/log/log.hpp"
+#include "core/log/log_macros.hpp"
 
 module core.renderer.base.allocator.Allocator;
 

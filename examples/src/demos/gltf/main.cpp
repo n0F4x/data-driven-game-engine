@@ -50,8 +50,6 @@ try {
     };
     constexpr static float movement_speed{ 10 };
 
-    core::config::logging::set_level(core::config::logging::eTrace);
-
     core::app::create()
         .extend_with(extensions::Functional{})
         .extend_with(extensions::ResourceManager{})

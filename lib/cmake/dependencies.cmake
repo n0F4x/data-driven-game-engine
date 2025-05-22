@@ -18,7 +18,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 
 # spdlog
 find_package(spdlog CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
 # GLFW
 find_package(glfw3 CONFIG REQUIRED)

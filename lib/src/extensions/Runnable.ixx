@@ -2,11 +2,13 @@ module;
 
 #include <concepts>
 
-#include "core/log/log.hpp"
+#include "core/log/log_macros.hpp"
 
 export module extensions.Runnable;
 
 import core.app.decays_to_builder_c;
+
+import core.log;
 
 namespace extensions {
 

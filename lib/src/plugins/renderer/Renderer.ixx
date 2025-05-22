@@ -4,7 +4,7 @@ module;
 
 #include <VkBootstrap.h>
 
-#include "core/log/log.hpp"
+#include "core/log/log_macros.hpp"
 
 export module plugins.renderer.RendererPlugin;
 
@@ -14,6 +14,8 @@ import core.app.extended_with_c;
 
 import core.gfx.resources.Image;
 import core.gfx.resources.VirtualImage;
+
+import core.log;
 
 import core.renderer.base.instance.Instance;
 import core.renderer.base.device.Device;

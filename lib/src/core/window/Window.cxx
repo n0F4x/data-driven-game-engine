@@ -10,13 +10,15 @@ module;
 
 #include <GLFW/glfw3.h>
 
-#include "core/log/log.hpp"
+#include "core/log/log_macros.hpp"
 
 module core.window.Window;
 
-import utility.Size;
+import core.log;
 
 import core.config.vulkan;
+
+import utility.Size;
 
 static auto init_glfw() -> void
 {
@@ -38,7 +40,7 @@ static auto init_glfw() -> void
     }
 
     if (const int result{ std::atexit(glfwTerminate) }; result != 0) {
-        ENGINE_LOG_ERROR("std::atexit failed with error code {}", result);
+        ENGINE_LOG_ERROR(std::format("std::atexit failed with error code {}", result));
     }
 }
 

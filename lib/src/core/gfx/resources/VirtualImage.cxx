@@ -1,9 +1,8 @@
 module;
 
+#include <format>
 #include <numeric>
 #include <ranges>
-
-#include "core/log/log.hpp"
 
 #include <vulkan/utility/vk_format_utils.h>
 #include <vulkan/vulkan_format_traits.hpp>
@@ -15,12 +14,16 @@ module;
 
 #include <glm/vec3.hpp>
 
+#include "core/log/log_macros.hpp"
+
 module core.gfx.resources.VirtualImage;
 
 import core.image.Image;
 
 import core.gfx.resources.image_helpers;
 import core.gfx.resources.virtual_image_helpers;
+
+import core.log;
 
 import core.renderer.base.resources.Allocation;
 import core.renderer.base.resources.image_extensions;
@@ -43,11 +46,11 @@ static auto create_image(
 {
     if (!vkuFormatIsColor(static_cast<VkFormat>(source.format()))) {
         ENGINE_LOG_ERROR(
-            "Sparse image creation is only supported for color formats (given format was "
-            "`{}`)",
-            vk::to_string(source.format())
+            std::format(
+                "Sparse image creation is only supported for color formats (given " "form" "at " "was " "`{}`)",
+                vk::to_string(source.format())
+            )
         );
-        spdlog::shutdown();
         assert(false && "Sparse image creation is only supported for color formats");
     }
 
@@ -62,8 +65,10 @@ static auto create_image(
             .empty())
     {
         ENGINE_LOG_ERROR(
-            "Sparse image creation are not supported for given format `{}`",
-            vk::to_string(source.format())
+            std::format(
+                "Sparse image creation are not supported for given format `{}`",
+                vk::to_string(source.format())
+            )
         );
         assert(false && "Sparse image creation are not supported for given format");
     }
@@ -143,12 +148,14 @@ core::gfx::resources::VirtualImage::Loader::Loader(
         m_memory_requirements.size > sparse_address_space_size)
     {
         ENGINE_LOG_ERROR(
-            "Requested sparse image size ({}) "
-            "exceeds supported sparse address space size ({})",
-            m_memory_requirements.size,
-            sparse_address_space_size
+            std::format(
+                // clang-format off
+                "Requested sparse image size ({}) exceeds supported sparse address space size ({})",
+                // clang-format on
+                m_memory_requirements.size,
+                sparse_address_space_size
+            )
         );
-        spdlog::shutdown();
         assert(
             false
             && "Requested sparse image size exceeds supported sparse address space size"
@@ -157,7 +164,6 @@ core::gfx::resources::VirtualImage::Loader::Loader(
 
     if (source.mip_level_count() <= m_sparse_requirements.imageMipTailFirstLod) {
         ENGINE_LOG_ERROR("Image source has not enough mip levels for it to be virtual");
-        spdlog::shutdown();
         assert(false && "Image source has not enough mip levels for it to be virtual");
     }
 }

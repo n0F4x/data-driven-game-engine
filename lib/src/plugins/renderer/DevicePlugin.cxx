@@ -1,14 +1,20 @@
 module;
 
+#include <format>
+
 #include <VkBootstrap.h>
 
-#include "core/log/log.hpp"
+#include "core/log/log_macros.hpp"
 
 module plugins.renderer.DevicePlugin;
+
+import vulkan_hpp;
 
 import core.app.App;
 
 import core.config.vulkan;
+
+import core.log;
 
 import core.renderer.base.instance.Instance;
 import core.renderer.base.device.Device;
@@ -19,10 +25,12 @@ static auto log_setup(const vkb::Device& device) -> void
     const uint32_t instance_version{ device.instance_version };
 
     ENGINE_LOG_INFO(
-        "Created Vulkan Instance with version: {}.{}.{}",
-        vk::apiVersionMajor(instance_version),
-        vk::apiVersionMinor(instance_version),
-        vk::apiVersionPatch(instance_version)
+        std::format(
+            "Created Vulkan Instance with version: {}.{}.{}",
+            vk::apiVersionMajor(instance_version),
+            vk::apiVersionMinor(instance_version),
+            vk::apiVersionPatch(instance_version)
+        )
     );
 
     [[maybe_unused]]
@@ -31,11 +39,13 @@ static auto log_setup(const vkb::Device& device) -> void
     };
 
     ENGINE_LOG_INFO(
-        "Chose GPU({}) with Vulkan version: {}.{}.{}",
-        device.physical_device.name,
-        vk::apiVersionMajor(properties.apiVersion),
-        vk::apiVersionMinor(properties.apiVersion),
-        vk::apiVersionPatch(properties.apiVersion)
+        std::format(
+            "Chose GPU({}) with Vulkan version: {}.{}.{}",
+            device.physical_device.name,
+            vk::apiVersionMajor(properties.apiVersion),
+            vk::apiVersionMinor(properties.apiVersion),
+            vk::apiVersionPatch(properties.apiVersion)
+        )
     );
 
     std::string enabled_extensions{ "Enabled device extensions:" };

@@ -51,11 +51,14 @@ class DataDrivenGameEngineRecipe(ConanFile):
         if self.conf.get("tools.cmake.cmaketoolchain:generator") != "Ninja":
             raise ConanInvalidConfiguration("Ninja is required for CXX modules")
 
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.30 <4]")
+
     def requirements(self):
         self.requires("gsl-lite/0.42.0", transitive_headers=True)
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
-        self.requires("fmt/11.1.3")
-        self.requires("spdlog/1.15.1", transitive_headers=True)
+        self.requires("fmt/11.1.3", transitive_headers=True)
+        self.requires("spdlog/1.15.1")
         self.requires("glfw/3.4", transitive_headers=True)
         self.requires("vulkan-headers/1.3.296.0")
         self.requires("vulkan-memory-allocator/3.2.1", transitive_headers=True)
@@ -70,9 +73,6 @@ class DataDrivenGameEngineRecipe(ConanFile):
             self.test_requires("catch2/3.8.0")
         if self._enable_examples:
             self.requires("sfml/3.0.1")
-
-    def build_requirements(self):
-        self.tool_requires("cmake/[>=3.30 <4]")
 
     def layout(self):
         cmake_layout(self)

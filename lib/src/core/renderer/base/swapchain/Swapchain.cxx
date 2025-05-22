@@ -1,15 +1,19 @@
 module;
 
+#include <algorithm>
 #include <limits>
 #include <ranges>
 #include <set>
 #include <utility>
+#include <vector>
 
-#include "core/log/log.hpp"
+#include "core/log/log_macros.hpp"
 
 module core.renderer.base.swapchain.Swapchain;
 
 import vulkan_hpp;
+
+import core.log;
 
 namespace core::renderer::base {
 
@@ -137,12 +141,12 @@ auto Swapchain::choose_extent(
 
     return vk::Extent2D{
         .width = std::clamp(
-            static_cast<uint32_t>(framebuffer_size.width),
+            framebuffer_size.width,
             surface_capabilities.minImageExtent.width,
             surface_capabilities.maxImageExtent.width
         ),
         .height = std::clamp(
-            static_cast<uint32_t>(framebuffer_size.height),
+            framebuffer_size.height,
             surface_capabilities.minImageExtent.height,
             surface_capabilities.maxImageExtent.height
         ),

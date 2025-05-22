@@ -2,11 +2,12 @@ module;
 
 #include <algorithm>
 #include <filesystem>
+#include <format>
 #include <ranges>
 
 #include <fastgltf/types.hpp>
 
-#include "core/log/log.hpp"
+#include "core/log/log_macros.hpp"
 
 module core.gltf.ImageLoader;
 
@@ -16,6 +17,8 @@ import core.image.ktx2.Image;
 import core.image.ktx2.MimeType;
 import core.image.png.Image;
 import core.image.png.MimeType;
+
+import core.log;
 
 template <
     size_t N = std::
@@ -106,8 +109,10 @@ auto core::gltf::ImageLoader::load_from(
             );
         default: {
             ENGINE_LOG_WARNING(
-                "Unsupported mime type for loading images: {}",
-                std::to_underlying(mime_type)
+                std::format(
+                    "Unsupported mime type for loading images: {}",
+                    std::to_underlying(mime_type)
+                )
             );
             return std::nullopt;
         }

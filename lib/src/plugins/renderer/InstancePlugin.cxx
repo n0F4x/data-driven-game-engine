@@ -1,21 +1,23 @@
 module;
 
+#include <functional>
 #include <ranges>
+#include <sstream>
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
 
 #include <VkBootstrap.h>
 
-#include "core/log/log.hpp"
+#include "core/log/log_macros.hpp"
 
 module plugins.renderer.InstancePlugin;
 
 import vulkan_hpp;
 
 import core.app.App;
-
 import core.config.vulkan;
+import core.log;
 import core.renderer.base.instance.Instance;
 
 // ReSharper disable once CppEnforceFunctionDeclarationStyle
@@ -77,16 +79,16 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
 
     switch (static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(message_severity)) {
         case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:
-            spdlog::trace(message.str());
+            ENGINE_LOG_TRACE(message.str());
             break;
         case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:
-            spdlog::info(message.str());
+            ENGINE_LOG_INFO(message.str());
             break;
         case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:
-            spdlog::warn(message.str());
+            ENGINE_LOG_WARNING(message.str());
             break;
         case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:
-            spdlog::error(message.str());
+            ENGINE_LOG_ERROR(message.str());
             break;
         default: break;
     }

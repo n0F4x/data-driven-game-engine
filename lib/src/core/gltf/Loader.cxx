@@ -10,7 +10,7 @@ module;
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
 
-#include "core/log/log.hpp"
+#include "core/log/log_macros.hpp"
 
 module core.gltf.Model;
 
@@ -20,6 +20,8 @@ import core.gltf.Image;
 import core.gltf.ImageLoader;
 import core.gltf.Mesh;
 import core.gltf.Texture;
+
+import core.log;
 
 [[nodiscard]]
 static auto load_asset(const std::filesystem::path& filepath)
@@ -292,7 +294,7 @@ auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optio
     fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
         ENGINE_LOG_ERROR(
-            "Failed to load glTF: {}", fastgltf::to_underlying(asset.error())
+            std::format("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()))
         );
         return std::nullopt;
     }
@@ -308,7 +310,7 @@ auto Loader::load_from_file(
     fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
     if (asset.error() != fastgltf::Error::None) {
         ENGINE_LOG_ERROR(
-            "Failed to load glTF: {}", fastgltf::to_underlying(asset.error())
+            std::format("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()))
         );
         return std::nullopt;
     }

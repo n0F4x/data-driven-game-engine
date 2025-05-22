@@ -2,14 +2,16 @@ module;
 
 #include <algorithm>
 #include <expected>
-
-#include "core/log/log.hpp"
+#include <functional>
 
 #include <VkBootstrap.h>
+
+#include "core/log/log_macros.hpp"
 
 module plugins.renderer.SurfacePlugin;
 
 import core.app.App;
+import core.log;
 import core.renderer.base.instance.Instance;
 import core.window.Window;
 import plugins.renderer.InstancePlugin;

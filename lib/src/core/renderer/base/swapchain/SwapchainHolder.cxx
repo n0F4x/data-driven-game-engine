@@ -1,17 +1,20 @@
 module;
 
 #include <array>
+#include <format>
 #include <limits>
 #include <ranges>
-
-#include "core/log/log.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
 
 #include <VkBootstrap.h>
 
+#include "core/log/log_macros.hpp"
+
 module core.renderer.base.swapchain.SwapchainHolder;
+
+import core.log;
 
 namespace core::renderer::base {
 
@@ -61,35 +64,40 @@ auto SwapchainHolder::acquire_next_image(
 {
     return m_swapchain.transform(&Swapchain::get)
         .and_then(
-            [this,
-             semaphore,
-             fence](const vk::SwapchainKHR swapchain) -> std::optional<uint32_t> {
-                try {
-                    switch (const auto [result, image_index]{
-                        m_device.get()->acquireNextImageKHR(
-                            swapchain, std::numeric_limits<uint64_t>::max(), semaphore, fence
-                        ) };
-                            result)
-                    {
-                        case vk::Result::eSuccess:       [[fallthrough]];
-                        case vk::Result::eSuboptimalKHR: {
-                            m_image_index = image_index;
-                            return image_index;
+            [this, semaphore, fence](const vk::SwapchainKHR swapchain)
+                -> std::
+                    optional<uint32_t> {
+                        try {
+                            switch (const auto [result, image_index]{
+                                m_device.get()->acquireNextImageKHR(
+                                    swapchain,
+                                    std::numeric_limits<uint64_t>::max(),
+                                    semaphore,
+                                    fence
+                                ) };
+                                    result)
+                            {
+                                case vk::Result::eSuccess:       [[fallthrough]];
+                                case vk::Result::eSuboptimalKHR: {
+                                    m_image_index = image_index;
+                                    return image_index;
+                                }
+                                default: {
+                                    ENGINE_LOG_ERROR(
+                                        std::
+                                            format(
+                                                "vk::Device::acquireNextImage succeeded "
+                                                "with " "unexpected " "result: " "{}",
+                                                vk::to_string(result)
+                                            )
+                                    );
+                                }
+                            }
+                        } catch (const vk::OutOfDateKHRError&) {
+                            recreate_swapchain();
                         }
-                        default: {
-                            ENGINE_LOG_ERROR(
-                                "vk::Device::acquireNextImage succeeded with unexpected "
-                                "result: "
-                                "{}",
-                                vk::to_string(result)
-                            );
-                        }
+                        return std::nullopt;
                     }
-                } catch (const vk::OutOfDateKHRError&) {
-                    recreate_swapchain();
-                }
-                return std::nullopt;
-            }
         );
 }
 

@@ -20,9 +20,11 @@ add_library(engine::engine ALIAS ${PROJECT_NAME})
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_26)
 
+include(cmake/set_log_level.cmake)
+set_log_level(${PROJECT_NAME} ${project_prefix}LOG_LEVEL)
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         CHECK_LIFETIME_BOUND
-        ENGINE_LOG_LEVEL=${project_prefix}LOG_LEVEL
 )
 
 if (${project_prefix}ENABLE_TESTS)
