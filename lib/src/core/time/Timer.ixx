@@ -2,11 +2,11 @@ module;
 
 #include <chrono>
 
-export module core.time.Time;
+export module core.time.Timer;
 
 namespace core::time {
 
-export class Time {
+export class Timer {
 public:
     using Clock = std::chrono::steady_clock;
     using Delta = Clock::duration;
@@ -26,24 +26,24 @@ private:
 
 }   // namespace core::time
 
-auto core::time::Time::delta() const -> Delta
+auto core::time::Timer::delta() const -> Delta
 {
     return m_delta;
 }
 
-auto core::time::Time::current() const -> Clock::time_point
+auto core::time::Timer::current() const -> Clock::time_point
 {
     return m_current;
 }
 
-auto core::time::Time::update(const Clock::time_point current) -> void
+auto core::time::Timer::update(const Clock::time_point current) -> void
 {
     m_delta   = current - m_current;
     m_current = current;
 }
 
-auto core::time::Time::reset() -> void
+auto core::time::Timer::reset() -> void
 {
-    m_delta   = Delta{ 0 };
+    m_delta   = Delta{};
     m_current = Clock::now();
 }

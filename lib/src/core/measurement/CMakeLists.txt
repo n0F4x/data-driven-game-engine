@@ -3,7 +3,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         TYPE CXX_MODULES
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
-        time.cppm
-        FixedTimer.ixx
-        Timer.ixx
+        measurement.cppm
+        frames_per_second.ixx
+        refresh_rate.ixx
+        tick_rate.ixx
+        updates_per_second.ixx
 )

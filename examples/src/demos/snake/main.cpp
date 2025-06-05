@@ -5,6 +5,7 @@
 import addons.ecs;
 
 import core.app;
+import core.measurement;
 import core.scheduler;
 import core.time;
 
@@ -16,47 +17,51 @@ import extensions.ResourceManager;
 import extensions.scheduler;
 import extensions.TaskRunner;
 
+using namespace core::measurement::literals;
 using namespace extensions::scheduler::accessors;
 
 constexpr static std::string_view title = "Snake";
 
-constexpr static auto initialize =                    //
-    [](const resources::Ref<window::Window>   window,
-       const resources::Ref<core::time::Time> time)   //
+constexpr static auto initialize =                                   //
+    [](const resources::Ref<window::Window>                 window,
+       const resources::Ref<core::time::FixedTimer<60_ups>> timer)   //
 {
     window->open();
-    time->reset();
+    timer->reset();
 };
 
 constexpr static auto update_0 =   //
-    [](const resources::Ref<window::Window>   window,
-       const window::EventRecorder&           window_event_recorder,
-       const events::Processor&               event_processor,
-       const resources::Ref<core::time::Time> time)   //
+    [](const resources::Ref<window::Window>                 window,
+       const window::EventRecorder&                         window_event_recorder,
+       const events::Processor&                             event_processor,
+       const resources::Ref<core::time::FixedTimer<60_ups>> timer)   //
 {
-    time->update(core::time::Time::Clock::now());
+    timer->update();
     window->record_events(window_event_recorder);
     event_processor.process_events();
 };
 
-constexpr static auto update_1 =   //
-    [](const events::Reader<window::events::CloseRequested>& close_requested_event_reader,
-       const resources::Ref<window::Window>                  window,
-       const resources::Ref<core::time::Time>                time) mutable   //
+constexpr static auto update_1 =                                        //
+    [last_time = core::time::FixedTimer<60_ups>::Clock::time_point{}]   //
+    (const events::Reader<window::events::CloseRequested>& close_requested_event_reader,
+     const resources::Ref<window::Window>                  window,
+     const resources::Ref<core::time::FixedTimer<60_ups>>  timer) mutable   //
 {
-    using namespace std::chrono_literals;
-
     if (close_requested_event_reader.read().size() > 0) {
         window->close();
     }
-    else {
+    else if (timer->delta_ticks() >= 1) {
+        using namespace std::chrono_literals;
+
         window->clear();
         window->display();
+
+        const auto delta = timer->current() - last_time;
+        last_time        = timer->current();
+        const auto fps   = 1s / delta;
+
+        window->set_title(std::format("{} - {:2d} FPS", title, fps));
     }
-
-    const auto fps = 1s / time->delta();
-
-    window->set_title(std::format("{} - {:4d} FPS", title, fps));
 };
 
 constexpr static auto game_is_running =                       //
@@ -89,7 +94,7 @@ auto main() -> int
                 argument_providers::ECS{},
             }
         )
-        .use_resource(core::time::Time{})
+        .use_resource(core::time::FixedTimer<60_ups>{})
         .run(
             core::scheduler::start_as(initialize)   //
                 .then(run_game_loop)

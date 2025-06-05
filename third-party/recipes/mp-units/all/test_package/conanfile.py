@@ -5,12 +5,12 @@ from conan.tools.cmake import CMake, cmake_layout
 from conan.tools.build import can_run
 
 
-class ktxTestConan(ConanFile):
+class mp_unitsTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain"
 
     def requirements(self):
-        self.requires(self.tested_reference_str)
+        self.requires(self.tested_reference_str, options={"cxx_modules": True, "import_std": False})
 
     def build(self):
         cmake = CMake(self)
