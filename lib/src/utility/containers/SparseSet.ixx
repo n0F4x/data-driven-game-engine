@@ -17,12 +17,9 @@ import utility.meta.concepts.specialization_of;
 import utility.ScopeGuard;
 import utility.Strong;
 
-// TODO: remove this namespace
-namespace {
 template <typename T>
 concept key_c = std::unsigned_integral<T> && !std::is_const_v<T>
              && !std::is_volatile_v<T>;
-}   // namespace
 
 template <key_c Key_T, uint8_t version_bit_size_T = sizeof(Key_T) * 2>
 class SparseSetTraits {

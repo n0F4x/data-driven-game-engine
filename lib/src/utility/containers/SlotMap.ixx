@@ -20,11 +20,8 @@ import utility.containers.OptionalRef;
 import utility.ScopeGuard;
 import utility.Strong;
 
-// TODO: remove this namespace
-namespace {
 template <typename T>
 concept key_c = requires { util::SparseSet<T>{}; };
-}   // namespace
 
 namespace util {
 

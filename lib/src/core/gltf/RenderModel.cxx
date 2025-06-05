@@ -33,8 +33,6 @@ import core.renderer.resources.Buffer;
 import core.renderer.resources.RandomAccessBuffer;
 import core.renderer.resources.SeqWriteBuffer;
 
-namespace {
-
 struct ShaderVertex {
     glm::vec3 position;
     glm::vec3 normal;
@@ -72,8 +70,6 @@ struct ShaderOcclusionTextureInfo {
     uint32_t texCoord;
     float    strength;
 };
-
-}   // namespace
 
 struct ShaderMaterial {
     ShaderPbrMetallicRoughness pbrMetallicRoughness;

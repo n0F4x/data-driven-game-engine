@@ -20,35 +20,15 @@ constexpr auto
 
 }   // namespace core::scheduler
 
-template <typename, typename...>
-struct ArgumentProviderIndices;
-
-template <
-    template <typename...> typename ArgumentTypeList_T,
-    typename... Arguments_T,
-    typename... ArgumentProviders_T>
-struct ArgumentProviderIndices<ArgumentTypeList_T<Arguments_T...>, ArgumentProviders_T...> {
-    using type = util::meta::integer_sequence_unique_t<std::index_sequence<
-        core::scheduler::provider_index_for_argument<Arguments_T, ArgumentProviders_T...>...>>;
-};
-
 template <typename TaskBuilder_T, typename... ArgumentProviders_T>
-using argument_provider_indices_for_task_builder_t = typename ArgumentProviderIndices<
-    typename TaskBuilder_T::UniqueArguments,
-    ArgumentProviders_T...>::type;
-
-// TODO: use this simpler form
-//       - related issue: https://youtrack.jetbrains.com/issue/CPP-44524)
-// template <typename TaskBuilder_T, typename... ArgumentProviders_T>
-// using argument_provider_indices_for_task_builder_t =
-// util::meta::integer_sequence_unique_t<
-//     decltype(util::meta::apply<typename TaskBuilder_T::UniqueArguments>(   //
-//         []<typename... XUniqueArguments_T> {
-//             return std::index_sequence<core::scheduler::provider_index_for_argument<
-//                 XUniqueArguments_T,
-//                 ArgumentProviders_T...>...>{};
-//         }
-//     ))>;
+using argument_provider_indices_for_task_builder_t = util::meta::integer_sequence_unique_t<
+    decltype(util::meta::apply<typename TaskBuilder_T::UniqueArguments>(   //
+        []<typename... XUniqueArguments_T> {
+            return std::index_sequence<core::scheduler::provider_index_for_argument<
+                XUniqueArguments_T,
+                ArgumentProviders_T...>...>{};
+        }
+    ))>;
 
 template <
     core::scheduler::decays_to_task_builder_c TaskBuilder_T,

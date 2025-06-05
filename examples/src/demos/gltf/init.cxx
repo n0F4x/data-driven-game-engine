@@ -9,8 +9,6 @@ module demos.gltf.init;
 import core.renderer.base.device.Device;
 import core.renderer.resources.Image;
 
-namespace {
-
 [[nodiscard]]
 auto find_supported_format(
     const vk::PhysicalDevice          physical_device,
@@ -45,8 +43,6 @@ auto find_depth_format(const vk::PhysicalDevice physical_device) -> vk::Format
         vk::FormatFeatureFlagBits::eDepthStencilAttachment
     );
 }
-
-}   // namespace
 
 auto demo::init::create_render_pass(
     const vk::Format                    color_format,

@@ -56,7 +56,8 @@ template <core::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)
 template <typename... Args_T>
     requires(sizeof...(Events_T) == 1)
-         // TODO: use `Events...[0]` - https://github.com/llvm/llvm-project/issues/138255
+         // TODO: use `Events_T...[0]` -
+         // https://github.com/llvm/llvm-project/issues/138255
          && std::constructible_from<
                 util::meta::type_list_front_t<util::TypeList<Events_T...>>,
                 Args_T&&...>

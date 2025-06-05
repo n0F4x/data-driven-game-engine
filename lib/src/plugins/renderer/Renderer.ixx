@@ -48,9 +48,9 @@ class RendererPlugin {
 public:
     RendererPlugin();
 
-    template <core::app::
-                  extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
-                      Builder_T>
+    template <
+        core::app::extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
+            Builder_T>
     auto operator()(Builder_T&& builder);
 
     template <typename Self>
@@ -162,9 +162,8 @@ auto to_device_dependency(const plugins::renderer::Requirement& requirement)
 }
 
 template <extensions::injection_c SurfacePlugin_T>
-template <
-    core::app::extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
-        Builder_T>
+template <core::app::extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
+              Builder_T>
 auto plugins::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T&& builder)
 {
     return std::forward<Builder_T>(builder)
