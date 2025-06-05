@@ -59,7 +59,7 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
         self.requires("fmt/11.1.3", transitive_headers=True)
         self.requires("spdlog/1.15.1")
-        self.requires("mp-units/2.5.0", transitive_headers=True, options={"cxx_modules": False, "import_std": False})
+        self.requires("mp-units/2.4.0", transitive_headers=True, options={"cxx_modules": False, "import_std": False})
         self.requires("glfw/3.4", transitive_headers=True)
         self.requires("vulkan-headers/1.3.296.0")
         self.requires("vulkan-memory-allocator/3.2.1", transitive_headers=True)
