@@ -79,14 +79,14 @@ auto main() -> int
     namespace argument_providers = extensions::scheduler::argument_providers;
 
     core::app::create()
-        .extend_with(extensions::functional)
+        .extend_with(extensions::Functional{})
         .transform(
             window::make_plugin(
                 window::Settings{ .width = 1'280, .height = 720, .title{ title } }
             )
         )
-        .extend_with(extensions::addon_manager)
-        .inject_addon(addons::make_ecs)
+        .extend_with(extensions::AddonManager{})
+        .use_addon(addons::ECS{})
         .extend_with(
             extensions::TaskRunner{
                 argument_providers::resource_provider,

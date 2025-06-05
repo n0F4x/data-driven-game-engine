@@ -93,7 +93,7 @@ auto main() -> int
         .use_resource(Window{})
         .extend_with(extensions::EventManager{})
         .register_event<WindowClosed>()
-        .extend_with(extensions::addon_manager)
+        .extend_with(extensions::AddonManager{})
         .use_addon(addons::ECS{})
         .extend_with(
             extensions::TaskRunner{ argument_providers::resource_provider,

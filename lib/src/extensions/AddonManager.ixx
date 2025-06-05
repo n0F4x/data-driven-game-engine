@@ -44,8 +44,6 @@ public:
     constexpr auto inject_addon(this Self_T&&, AddonMaker_T&& addon);
 };
 
-export constexpr inline AddonManager addon_manager;
-
 }   // namespace extensions
 
 template <extensions::addon_maker AddonMaker_T>
