@@ -44,14 +44,12 @@ constexpr static auto process_events =   //
     event_processor.process_events();
 };
 
-constexpr static auto update_window =
-    [](const events::Reader<window::events::CloseRequested>& close_requested_event_reader,
-       const Res<window::Window>                             window)   //
-{
-    if (close_requested_event_reader.read().size() > 0) {
-        window->close();
+constexpr static auto update_window = core::scheduler::run_if(
+    [](const Res<window::Window> window) { window->close(); },
+    [](const events::Reader<window::events::CloseRequested>& closed_event_reader) {
+        return closed_event_reader.read().size() > 0;
     }
-};
+);
 
 constexpr static auto draw =   //
     [last_time = std::chrono::steady_clock::time_point{}](

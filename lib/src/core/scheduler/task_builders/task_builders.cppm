@@ -1,5 +1,6 @@
 export module core.scheduler.task_builders;
 
+export import core.scheduler.task_builders.ConditionalTaskBuilder;
 export import core.scheduler.task_builders.LoopUntilBuilder;
 export import core.scheduler.task_builders.RepeatedTaskBuilder;
 export import core.scheduler.task_builders.ScheduleBuilder;

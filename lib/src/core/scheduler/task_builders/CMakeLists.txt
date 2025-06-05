@@ -4,6 +4,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         task_builders.cppm
+        ConditionalTaskBuilder.ixx
         LoopUntilBuilder.ixx
         RepeatedTaskBuilder.ixx
         ScheduleBuilder.ixx

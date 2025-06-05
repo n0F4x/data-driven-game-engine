@@ -13,5 +13,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         loop_until.ixx
         provider_index_for_argument.ixx
         repeat.ixx
+        run_if.ixx
         start_as.ixx
 )
