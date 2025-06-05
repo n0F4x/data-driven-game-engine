@@ -9,5 +9,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         decays_to_task_builder_c.ixx
         predicate_task_builder_c.ixx
         provides_c.ixx
+        repetition_specifier_task_builder.ixx
         task_builder_c.ixx
 )

@@ -19,7 +19,7 @@ constexpr auto loop_until(
     MainTaskBuilder_T&&      main_task_builder,
     PredicateTaskBuilder_T&& predicate_task_builder
 )
-    -> LoopUntil<
+    -> LoopUntilBuilder<
         as_task_builder_t<MainTaskBuilder_T>,
         as_task_builder_t<PredicateTaskBuilder_T>>;
 
@@ -31,9 +31,9 @@ template <
 constexpr auto core::scheduler::loop_until(
     MainTaskBuilder_T&&      main_task_builder,
     PredicateTaskBuilder_T&& predicate_task_builder
-) -> LoopUntil<as_task_builder_t<MainTaskBuilder_T>, as_task_builder_t<PredicateTaskBuilder_T>>
+) -> LoopUntilBuilder<as_task_builder_t<MainTaskBuilder_T>, as_task_builder_t<PredicateTaskBuilder_T>>
 {
-    return LoopUntil<
+    return LoopUntilBuilder<
         as_task_builder_t<MainTaskBuilder_T>,
         as_task_builder_t<PredicateTaskBuilder_T>>{
         std::forward<MainTaskBuilder_T>(main_task_builder),

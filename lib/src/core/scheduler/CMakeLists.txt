@@ -12,5 +12,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         in_parallel.ixx
         loop_until.ixx
         provider_index_for_argument.ixx
+        repeat.ixx
         start_as.ixx
 )

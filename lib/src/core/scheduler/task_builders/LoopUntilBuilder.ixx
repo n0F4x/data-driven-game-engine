@@ -19,7 +19,7 @@ namespace core::scheduler {
 export template <
     task_builder_c           MainTaskBuilder_T,
     predicate_task_builder_c PredicateTaskBuilder_T>
-class LoopUntil : public TaskBuilderBase {
+class LoopUntilBuilder : public TaskBuilderBase {
 public:
     using Result          = void;
     using UniqueArguments = util::meta::type_list_unique_t<util::meta::type_list_concat_t<
@@ -29,7 +29,7 @@ public:
     template <typename UMainTaskBuilder_T, typename UPredicateTaskBuilder_T>
         requires std::constructible_from<MainTaskBuilder_T, UMainTaskBuilder_T&&>
               && std::constructible_from<PredicateTaskBuilder_T, UPredicateTaskBuilder_T&&>
-    constexpr explicit LoopUntil(
+    constexpr explicit LoopUntilBuilder(
         UMainTaskBuilder_T&&      main_task_builder,
         UPredicateTaskBuilder_T&& predicate_task_builder
     );
@@ -50,7 +50,7 @@ template <
 template <typename UMainTaskBuilder_T, typename UPredicateTaskBuilder_T>
     requires std::constructible_from<MainTaskBuilder_T, UMainTaskBuilder_T&&>
               && std::constructible_from<PredicateTaskBuilder_T, UPredicateTaskBuilder_T&&>
-constexpr core::scheduler::LoopUntil<MainTaskBuilder_T, PredicateTaskBuilder_T>::LoopUntil(
+constexpr core::scheduler::LoopUntilBuilder<MainTaskBuilder_T, PredicateTaskBuilder_T>::LoopUntilBuilder(
     UMainTaskBuilder_T&&      main_task_builder,
     UPredicateTaskBuilder_T&& predicate_task_builder
 )
@@ -64,7 +64,7 @@ template <
     core::scheduler::task_builder_c           MainTaskBuilder_T,
     core::scheduler::predicate_task_builder_c PredicateTaskBuilder_T>
 template <typename Self_T, typename... ArgumentProviders_T>
-constexpr auto core::scheduler::LoopUntil<MainTaskBuilder_T, PredicateTaskBuilder_T>::
+constexpr auto core::scheduler::LoopUntilBuilder<MainTaskBuilder_T, PredicateTaskBuilder_T>::
     operator()(this Self_T&& self, ArgumentProviders_T... argument_providers)
 {
     return [main_task = build(self.m_main_task_builder, argument_providers...),

@@ -5,6 +5,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         task_builders.cppm
         LoopUntilBuilder.ixx
+        RepeatedTaskBuilder.ixx
         ScheduleBuilder.ixx
         SimpleTaskBuilder.ixx
         TaskBuilderBase.ixx
