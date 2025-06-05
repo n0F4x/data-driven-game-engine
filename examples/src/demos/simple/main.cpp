@@ -96,9 +96,9 @@ auto main() -> int
         .extend_with(extensions::addon_manager)
         .use_addon(addons::ECS{})
         .extend_with(
-            extensions::TaskRunner{ argument_providers::ResourceManager{},
-                                    argument_providers::EventManager{},
-                                    argument_providers::ECS{} }
+            extensions::TaskRunner{ argument_providers::resource_provider,
+                                    argument_providers::event_provider,
+                                    argument_providers::ecs }
         )
         .run(
             core::scheduler::start_as(initialize)   //

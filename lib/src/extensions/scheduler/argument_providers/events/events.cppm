@@ -4,21 +4,23 @@ import addons.EventManager;
 
 import core.app.has_addons_c;
 
-export import extensions.scheduler.argument_providers.events.ArgumentProvider;
+export import extensions.scheduler.argument_providers.events.EventProvider;
 
 namespace extensions::scheduler::argument_providers {
 
-export struct EventManager {
+export struct EventProviderClosure {
     [[nodiscard]]
     constexpr static auto
         operator()(core::app::has_addons_c<addons::EventManagerTag> auto&);
 };
 
+export constexpr EventProviderClosure event_provider;
+
 }   // namespace extensions::scheduler::argument_providers
 
-constexpr auto extensions::scheduler::argument_providers::EventManager::operator()(
+constexpr auto extensions::scheduler::argument_providers::EventProviderClosure::operator()(
     core::app::has_addons_c<addons::EventManagerTag> auto& app
 )
 {
-    return events::ArgumentProvider{ app.event_manager };
+    return EventProvider{ app.event_manager };
 }

@@ -4,21 +4,23 @@ import addons.ecs;
 
 import core.app.has_addons_c;
 
-export import extensions.scheduler.argument_providers.ecs.ArgumentProvider;
+export import extensions.scheduler.argument_providers.ecs.ECSProvider;
 
 namespace extensions::scheduler::argument_providers {
 
-export struct ECS {
+export struct ECSProviderClosure {
     [[nodiscard]]
     constexpr static auto operator()(core::app::has_addons_c<addons::ECS> auto&)
-        -> ecs::ArgumentProvider;
+        -> ECSProvider;
 };
+
+export constexpr ECSProviderClosure ecs;
 
 }   // namespace extensions::scheduler::argument_providers
 
-constexpr auto extensions::scheduler::argument_providers::ECS::operator()(
+constexpr auto extensions::scheduler::argument_providers::ECSProviderClosure::operator()(
     core::app::has_addons_c<addons::ECS> auto& app
-) -> ecs::ArgumentProvider
+) -> ECSProvider
 {
-    return ecs::ArgumentProvider{ app.registry };
+    return ECSProvider{ app.registry };
 }

@@ -3,7 +3,7 @@ module;
 #include <functional>
 #include <type_traits>
 
-export module extensions.scheduler.argument_providers.resources.ArgumentProvider;
+export module extensions.scheduler.argument_providers.resources.ResourceProvider;
 
 import core.resources.ResourceManager;
 
@@ -16,9 +16,9 @@ namespace extensions::scheduler::argument_providers::resources {
 
 export template <
     util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
-class ArgumentProvider {
+class ResourceProvider {
 public:
-    constexpr explicit ArgumentProvider(ResourceManager_T& resource_manager);
+    constexpr explicit ResourceProvider(ResourceManager_T& resource_manager);
 
     template <typename Accessor_T>
         requires util::meta::
@@ -34,7 +34,7 @@ private:
 
 template <util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
 constexpr extensions::scheduler::argument_providers::resources::
-    ArgumentProvider<ResourceManager_T>::ArgumentProvider(
+    ResourceProvider<ResourceManager_T>::ResourceProvider(
         ResourceManager_T& resource_manager
     )
     : m_resource_manager{ resource_manager }
@@ -46,7 +46,7 @@ template <typename Accessor_T>
         std::remove_cvref_t<Accessor_T>,
         extensions::scheduler::accessors::resources::Ref>
 constexpr auto extensions::scheduler::argument_providers::resources::
-    ArgumentProvider<ResourceManager_T>::provide() const
+    ResourceProvider<ResourceManager_T>::provide() const
     -> std::remove_cvref_t<Accessor_T>
 {
     return std::remove_cvref_t<Accessor_T>{

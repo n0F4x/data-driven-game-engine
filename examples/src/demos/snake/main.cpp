@@ -89,9 +89,9 @@ auto main() -> int
         .inject_addon(addons::make_ecs)
         .extend_with(
             extensions::TaskRunner{
-                argument_providers::ResourceManager{},
-                argument_providers::EventManager{},
-                argument_providers::ECS{},
+                argument_providers::resource_provider,
+                argument_providers::event_provider,
+                argument_providers::ecs,
             }
         )
         .use_resource(core::time::FixedTimer<60_ups>{})
