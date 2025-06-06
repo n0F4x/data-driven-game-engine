@@ -83,7 +83,7 @@ constexpr static auto game_is_running =            //
     };
 
 constexpr static auto run_game_loop = core::scheduler::loop_until(
-    core::scheduler::in_parallel(process_events, update_window, fixed_draw),
+    core::scheduler::group(process_events, update_window, fixed_draw),
     game_is_running
 );
 
