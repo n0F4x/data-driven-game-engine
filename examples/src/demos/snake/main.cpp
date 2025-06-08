@@ -12,6 +12,7 @@ import core.time;
 import demo.window;
 
 import extensions.AddonManager;
+import extensions.EventManager;
 import extensions.Functional;
 import extensions.ResourceManager;
 import extensions.scheduler;
@@ -90,6 +91,8 @@ auto main() -> int
     namespace argument_providers = extensions::scheduler::argument_providers;
 
     core::app::create()
+        .extend_with(extensions::ResourceManager{})
+        .extend_with(extensions::EventManager{})
         .extend_with(extensions::Functional{})
         .transform(
             window::make_plugin(

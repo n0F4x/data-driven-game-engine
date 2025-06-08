@@ -18,8 +18,10 @@ import utility.TypeList;
 
 namespace extensions {
 
+export struct EventManagerTag {};
+
 export template <core::events::event_c... Events_T>
-class BasicEventManager {
+class BasicEventManager : public EventManagerTag {
 public:
     template <core::events::event_c Event_T, core::app::decays_to_builder_c Self_T>
         requires(!util::meta::type_list_contains_v<util::TypeList<Events_T...>, Event_T>)
