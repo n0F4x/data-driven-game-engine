@@ -20,13 +20,18 @@ export template <resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
 class ResourceManager {
 public:
+    template <resource_c Resource_T>
+    constexpr static std::bool_constant<
+        util::meta::type_list_contains_v<util::TypeList<Resources_T...>, Resource_T>>
+        contains;
+
     template <typename... Factories_T>
-        requires std::constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
-    constexpr explicit ResourceManager(Factories_T&&... factories);
+        requires std::
+            constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
+        constexpr explicit ResourceManager(Factories_T&&... factories);
 
     template <typename Resource_T, typename Self_T>
-        requires(::util::meta::
-                     type_list_contains_v<::util::TypeList<Resources_T...>, Resource_T>)
+        requires(contains<Resource_T>())
     [[nodiscard]]
     constexpr auto get(this Self_T&&) -> std::
         conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>;
@@ -52,8 +57,7 @@ constexpr core::resource::ResourceManager<Resources_T...>::ResourceManager(
 template <core::resource::resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
 template <typename Resource_T, typename Self_T>
-    requires(::util::meta::
-                 type_list_contains_v<::util::TypeList<Resources_T...>, Resource_T>)
+    requires(contains<Resource_T>())
 constexpr auto core::resource::ResourceManager<Resources_T...>::get(this Self_T&& self)
     -> std::
         conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>

@@ -39,12 +39,12 @@ constexpr static auto process_events =   //
        const events::Processor&                  event_processor,
        const Res<core::time::FixedTimer<60_ups>> timer)   //
 {
-    timer->update();
     window->record_events(window_event_recorder);
+    timer->update();
     event_processor.process_events();
 };
 
-constexpr static auto update_window = core::scheduler::run_if(
+constexpr static auto handle_window_events = core::scheduler::run_if(
     [](const Res<window::Window> window) { window->close(); },
     [](const events::Reader<window::events::CloseRequested>& closed_event_reader) {
         return closed_event_reader.read().size() > 0;
@@ -69,21 +69,19 @@ constexpr static auto draw =   //
     window->set_title(std::format("{} - {:2d} FPS", title, fps));
 };
 
-constexpr static auto fixed_draw =
-    core::scheduler::repeat( //
-        draw, //
-        [](const Res<core::time::FixedTimer<60_ups>> timer) {
-            return timer->delta_ticks();
-        }
-    );
-
 constexpr static auto game_is_running =            //
     [](const Res<const window::Window> window) {   //
         return window->is_open();
     };
 
 constexpr static auto run_game_loop = core::scheduler::loop_until(
-    core::scheduler::group(process_events, update_window, fixed_draw),
+    core::scheduler::start_as(process_events)
+        .then(
+            core::scheduler::group(
+                handle_window_events,   //
+                core::scheduler::at_fixed_rate<60_ups>(draw)
+            )
+        ),
     game_is_running
 );
 

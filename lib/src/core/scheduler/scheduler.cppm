@@ -1,6 +1,7 @@
 export module core.scheduler;
 
 export import core.scheduler.as_task_builder;
+export import core.scheduler.at_fixed_rate;
 export import core.scheduler.build;
 export import core.scheduler.concepts;
 export import core.scheduler.group;

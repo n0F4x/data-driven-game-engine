@@ -8,6 +8,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         scheduler.cppm
         as_task_builder.ixx
+        at_fixed_rate.ixx
         build.ixx
         group.ixx
         in_parallel.ixx

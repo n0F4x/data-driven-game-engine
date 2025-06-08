@@ -1,4 +1,5 @@
 #include <print>
+#include <string>
 
 import addons.ecs;
 
@@ -31,22 +32,22 @@ struct Renderable {
 };
 
 struct Collider {
-    int hi{};
+    std::string message{};
 };
 
 constexpr static auto initialize =                                               //
     [](const resources::Ref<Window> window, const ecs::RegistryRef registry) {   //
         window->open();
 
-        registry->create(Position{}, EnemyTag{}, Collider{ .hi = 42 });
+        registry->create(Position{}, EnemyTag{}, Collider{ .message = "Hi! 👋" });
     };
 
-constexpr static auto update_0 =                      //
+constexpr static auto process_events =                //
     [](const events::Processor& events_processor) {   //
         events_processor.process_events();
     };
 
-constexpr static auto update_1 =   //
+constexpr static auto update_world =   //
     [](const ecs::Query<
         const Position,
         Without<Health>,
@@ -58,12 +59,12 @@ constexpr static auto update_1 =   //
                          const util::OptionalRef<Renderable>,
                          const util::OptionalRef<const Collider> optional_collider) {
         if (optional_collider.has_value()) {
-            std::println("Collider is {}", optional_collider->hi);
+            std::println("Collider says \"{}\"", optional_collider->message);
         }
     });
 };
 
-constexpr static auto update_2 =
+constexpr static auto record_window_events =
     [](const events::Recorder<WindowClosed>& window_closed_event_recorder) {
         window_closed_event_recorder.record();
     };
@@ -74,8 +75,13 @@ constexpr static auto game_is_running =
     };
 
 constexpr static auto run_game_loop = core::scheduler::loop_until(
-    core::scheduler::start_as(update_0)   //
-        .then(core::scheduler::group(update_1, update_2)),
+    core::scheduler::start_as(
+        core::scheduler::group(
+            update_world,   //
+            record_window_events
+        )
+    )
+        .then(process_events),
     game_is_running
 );
 
