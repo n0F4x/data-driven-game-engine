@@ -150,12 +150,13 @@ private:
     template <decays_to_component_c... Components_T>
         requires(sizeof...(Components_T) > 0)
              && util::meta::all_different_c<std::decay_t<Components_T>...>
+    [[nodiscard]]
     auto insert(
         ID          id,
         ArchetypeID archetype_id,
         RecordID    record_id,
         Components_T&&... components
-    ) -> ArchetypeID;
+    ) -> Entity;
 
     template <decays_to_component_c... Components_T>
         requires(sizeof...(Components_T) > 0)
@@ -353,10 +354,13 @@ auto core::ecs::Registry::insert(const core::ecs::ID id, Components_T&&... compo
     -> void
 {
     if constexpr (sizeof...(Components_T) > 0) {
-        auto& [archetype_id, record_id]{ get_entity(id) };
+        auto& entity{ get_entity(id) };
 
-        archetype_id = insert(
-            id, archetype_id, record_id, std::forward<Components_T>(components)...
+        entity = insert(
+            id,
+            entity.archetype_id,
+            entity.record_id,
+            std::forward<Components_T>(components)...
         );
     }
 }
@@ -554,7 +558,7 @@ auto core::ecs::Registry::insert(
     const ArchetypeID archetype_id,
     const RecordID    record_id,
     Components_T&&... components
-) -> ArchetypeID
+) -> Entity
 {
     PRECOND(archetype_id->contains_none_of_components<Components_T...>());
 
@@ -563,11 +567,14 @@ auto core::ecs::Registry::insert(
     };
 
 
-    const auto [removed_id, record_index] =
-        m_lookup_tables.remove(archetype_id, record_id);
+    const auto [removed_id, record_index]{
+        m_lookup_tables.remove(archetype_id, record_id)
+    };
     assert(removed_id == id);
 
-    m_lookup_tables.insert(id, new_archetype_id);
+    const auto [new_record_id, new_record_index]{
+        m_lookup_tables.insert(id, new_archetype_id)
+    };
 
 
     ::move_components(
@@ -582,10 +589,9 @@ auto core::ecs::Registry::insert(
     const RecordIndex component_record_index = ::insert(
         m_component_tables, archetype_id, std::forward<Components_T>(components)...
     );
-    assert(component_record_index == record_index);
+    assert(component_record_index == new_record_index);
 
-
-    return new_archetype_id;
+    return Entity{ .archetype_id = new_archetype_id, .record_id = new_record_id };
 }
 
 template <decays_to_component_c... Components_T>

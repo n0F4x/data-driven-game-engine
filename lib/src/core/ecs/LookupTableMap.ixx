@@ -20,6 +20,7 @@ class LookupTableMap {
 public:
     using Iterator = Container::iterator;
 
+    [[nodiscard]]
     auto insert(core::ecs::ID id, ArchetypeID archetype_id)
         -> std::pair<RecordID, RecordIndex>;
 

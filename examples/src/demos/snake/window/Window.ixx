@@ -26,7 +26,8 @@ public:
     auto open() -> void;
     auto close() -> void;
 
-    auto clear() -> void;
+    auto clear(sf::Color clear_color = sf::Color::Black) -> void;
+    auto draw(const sf::Drawable& drawable) -> void;
     auto display() -> void;
 
     auto record_events(EventRecorder event_recorder);
@@ -44,14 +45,14 @@ private:
 auto window::Window::set_title(const std::string_view title) -> void
 {
     m_settings.title = title;
-    m_window.setTitle(m_settings.title);
+    m_window.setTitle(std::string{ m_settings.title });
 }
 
 auto window::Window::open() -> void
 {
     m_window.create(
         sf::VideoMode(sf::Vector2u{ m_settings.width, m_settings.height }),
-        m_settings.title
+        std::string{ m_settings.title }
     );
 }
 
@@ -60,9 +61,14 @@ auto window::Window::close() -> void
     m_window.close();
 }
 
-auto window::Window::clear() -> void
+auto window::Window::clear(sf::Color clear_color) -> void
 {
-    m_window.clear();
+    m_window.clear(clear_color);
+}
+
+auto window::Window::draw(const sf::Drawable& drawable) -> void
+{
+    m_window.draw(drawable);
 }
 
 auto window::Window::display() -> void
