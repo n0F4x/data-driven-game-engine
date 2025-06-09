@@ -1,7 +1,7 @@
 export module game;
 
 export import game.Cell;
-export import game.Charge;
+export import game.color_snake;
 export import game.draw;
 export import game.Position;
 export import game.setup;

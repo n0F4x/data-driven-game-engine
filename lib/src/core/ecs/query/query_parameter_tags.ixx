@@ -1,5 +1,6 @@
 module;
 
+#include <optional>
 #include <type_traits>
 
 export module core.ecs:query.query_parameter_tags;
@@ -21,6 +22,7 @@ export template <typename T>
     requires component_c<std::remove_const_t<T>>
 struct Optional : ::QueryParameterTagBase, util::OptionalRef<T> {
     using util::OptionalRef<T>::OptionalRef;
+    using util::OptionalRef<T>::operator std::optional<std::remove_const_t<T>>;
 };
 
 // TODO: remove deduction guide with P2582

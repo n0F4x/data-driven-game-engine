@@ -5,7 +5,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         FILES
         game.cppm
         Cell.ixx
-        Charge.ixx
+        color_snake.ixx
         Direction.ixx
         draw.ixx
         Position.ixx

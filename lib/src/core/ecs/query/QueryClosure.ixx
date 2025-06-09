@@ -193,7 +193,7 @@ private:
         core::ecs::Registry&                registry,
         IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
         ArchetypeID                         archetype_id,
-        F                                   func
+        F&&                                 func
     ) -> void;
 
     template <typename QueriedParameter_T>
@@ -349,7 +349,7 @@ auto core::ecs::QueryClosure<Parameters_T...>::visit_archetype(
     core::ecs::Registry&                registry,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     const ArchetypeID                   archetype_id,
-    F                                   func
+    F&&                                 func
 ) -> void
 {
     // TODO: Optional ranges produce a view that always checks availability

@@ -14,13 +14,13 @@ import core.ecs;
 import extensions.scheduler.accessors.ecs.RegistryRef;
 
 import game.Cell;
-import game.Charge;
 import game.Direction;
 import game.Position;
 import game.Snake;
 import game.SnakeHead;
 
 using namespace extensions::scheduler::accessors;
+using namespace core::ecs::query_parameter_tags;
 
 namespace game {
 
@@ -116,10 +116,10 @@ auto game::setup_snake(const Settings& settings, core::ecs::Registry& registry) 
         registry,
         [&registry,
          snake_position,
-         snake_direction](const core::ecs::ID id, Cell, const Position position) {
+         snake_direction](const core::ecs::ID id, With<Cell>, const Position position) {
             if (position == snake_position) {
                 registry.insert(
-                    id, Snake{}, Charge{ 1u }, SnakeHead{ .direction = snake_direction }
+                    id, Snake{ .charge = 1 }, SnakeHead{ .direction = snake_direction }
                 );
             }
         }

@@ -151,12 +151,7 @@ private:
         requires(sizeof...(Components_T) > 0)
              && util::meta::all_different_c<std::decay_t<Components_T>...>
     [[nodiscard]]
-    auto insert(
-        ID          id,
-        ArchetypeID archetype_id,
-        RecordID    record_id,
-        Components_T&&... components
-    ) -> Entity;
+    auto insert(ID id, Entity entity, Components_T&&... components) -> Entity;
 
     template <decays_to_component_c... Components_T>
         requires(sizeof...(Components_T) > 0)
@@ -356,12 +351,7 @@ auto core::ecs::Registry::insert(const core::ecs::ID id, Components_T&&... compo
     if constexpr (sizeof...(Components_T) > 0) {
         auto& entity{ get_entity(id) };
 
-        entity = insert(
-            id,
-            entity.archetype_id,
-            entity.record_id,
-            std::forward<Components_T>(components)...
-        );
+        entity = insert(id, entity, std::forward<Components_T>(components)...);
     }
 }
 
@@ -554,21 +544,20 @@ template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
          && util::meta::all_different_c<std::decay_t<Components_T>...>
 auto core::ecs::Registry::insert(
-    const ID          id,
-    const ArchetypeID archetype_id,
-    const RecordID    record_id,
+    const ID     id,
+    const Entity entity,
     Components_T&&... components
 ) -> Entity
 {
-    PRECOND(archetype_id->contains_none_of_components<Components_T...>());
+    PRECOND(entity.archetype_id->contains_none_of_components<Components_T...>());
 
     const ArchetypeID new_archetype_id{
-        archetype_from<Components_T...>(archetype_id->sorted_component_ids())
+        archetype_from<Components_T...>(entity.archetype_id->sorted_component_ids())
     };
 
 
     const auto [removed_id, record_index]{
-        m_lookup_tables.remove(archetype_id, record_id)
+        m_lookup_tables.remove(entity.archetype_id, entity.record_id)
     };
     assert(removed_id == id);
 
@@ -579,15 +568,15 @@ auto core::ecs::Registry::insert(
 
     ::move_components(
         m_component_tables,
-        archetype_id->sorted_component_ids(),
-        archetype_id,
+        entity.archetype_id->sorted_component_ids(),
+        entity.archetype_id,
         record_index,
         new_archetype_id
     );
 
     [[maybe_unused]]
     const RecordIndex component_record_index = ::insert(
-        m_component_tables, archetype_id, std::forward<Components_T>(components)...
+        m_component_tables, new_archetype_id, std::forward<Components_T>(components)...
     );
     assert(component_record_index == new_record_index);
 

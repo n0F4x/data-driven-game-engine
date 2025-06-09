@@ -49,6 +49,9 @@ public:
         const std::optional<std::reference_wrapper<T>>& optional_ref_wrapper
     ) noexcept;
 
+    constexpr explicit(false) operator std::optional<std::remove_const_t<T>>(
+    ) noexcept(noexcept(T{ std::declval<T&>() }));
+
     [[nodiscard]]
     constexpr auto operator->() const -> T*;
     [[nodiscard]]
@@ -102,6 +105,17 @@ constexpr util::OptionalRef<T>::OptionalRef(
     : m_handle{ optional_ref_wrapper.transform([](T& ref) { return std::addressof(ref); }
       ).value_or(nullptr) }
 {}
+
+template <typename T>
+    requires(!std::is_reference_v<T>)
+constexpr util::OptionalRef<T>::operator std::optional<std::remove_const_t<T>>(
+) noexcept(noexcept(T{ std::declval<T&>() }))
+{
+    if (has_value()) {
+        return std::optional<T>{ *m_handle };
+    }
+    return std::optional<T>{};
+}
 
 template <typename T>
     requires(!std::is_reference_v<T>)

@@ -20,7 +20,7 @@ namespace game {
 
 export constexpr inline auto draw =
     [](resources::Ref<window::Window>                   window,
-       ecs::Query<const sf::RectangleShape, With<Cell>> cells) {
+       ecs::Query<With<Cell>, const sf::RectangleShape> cells) {
         cells.for_each([window](const sf::RectangleShape& shape) { window->draw(shape); });
     };
 

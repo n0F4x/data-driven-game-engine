@@ -99,7 +99,7 @@ constexpr static auto game_is_running =            //
 
 constexpr static auto run_game_loop = core::scheduler::loop_until(
     core::scheduler::start_as(process_events)
-        .then(handle_window_events)
+        .then(core::scheduler::group(handle_window_events, game::color_snake))
         .then(core::scheduler::at_fixed_rate<60_ups>(clear_window))
         .then(core::scheduler::at_fixed_rate<60_ups>(game::draw))
         .then(core::scheduler::at_fixed_rate<60_ups>(display)),
