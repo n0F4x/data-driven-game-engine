@@ -8,7 +8,6 @@ target_sources(${PROJECT_NAME} PRIVATE
         close_window.ixx
         display.ixx
         display_rate.ixx
-        events.ixx
         initialize.ixx
         open_window.ixx
         plugin.ixx

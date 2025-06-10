@@ -10,7 +10,7 @@ namespace window {
 
 export inline constexpr auto open_window =      //
     [](const resources::Ref<Window> window) {   //
-        return window->open();
+        return window->isOpen();
     };
 
 }   // namespace window

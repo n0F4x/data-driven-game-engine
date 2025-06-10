@@ -1,6 +1,9 @@
 module;
 
+#include <string>
 #include <utility>
+
+#include <SFML/Window.hpp>
 
 export module snake.window.plugin;
 
@@ -9,7 +12,6 @@ import core.app.extended_with_c;
 import core.time.FixedTimer;
 
 import snake.window.display_rate;
-import snake.window.events;
 import snake.window.Settings;
 import snake.window.Window;
 
@@ -28,9 +30,12 @@ export constexpr inline auto make_plugin = [](Settings settings) {
 
         return std::forward<Builder_T>(builder)
             .use_resource(settings)
-            .use_resource(Window{ std::move(settings) })
+            .use_resource(
+                Window{ sf::VideoMode{ sf::Vector2u{ settings.width, settings.height } },
+                        std::string{ settings.title } }
+            )
             .use_resource(core::time::FixedTimer<display_rate>{})
-            .template register_event<events::CloseRequested>();
+            .template register_event<sf::Event>();
     };
 };
 

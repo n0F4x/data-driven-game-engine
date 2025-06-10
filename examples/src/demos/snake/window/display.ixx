@@ -28,7 +28,7 @@ export inline constexpr auto display =   //
     last_time = now;
     const auto fps{ 1s / delta };
 
-    window->set_title(std::format("{} - {:2d} FPS", settings->title, fps));
+    window->setTitle(std::format("{} - {:2d} FPS", settings->title, fps));
 };
 
 }   // namespace window

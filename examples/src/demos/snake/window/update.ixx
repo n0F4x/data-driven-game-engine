@@ -1,8 +1,15 @@
+module;
+
+#include <utility>
+
+#include <SFML/Window.hpp>
+
 export module snake.window.update;
 
 import core.scheduler;
 import core.time.FixedTimer;
 
+import extensions.scheduler.accessors.events.Recorder;
 import extensions.scheduler.accessors.resources;
 
 import snake.window.display_rate;
@@ -13,11 +20,13 @@ using namespace extensions::scheduler::accessors;
 namespace window {
 
 export inline constexpr auto update =
-    [](const resources::Ref<Window>                               window,
-       const window::EventRecorder&                               window_event_recorder,
+    [](const resources::Ref<Window> window,
+       const extensions::scheduler::accessors::events::Recorder<sf::Event>& event_recorder,
        const resources::Ref<core::time::FixedTimer<display_rate>> display_timer)   //
 {
-    window->record_events(window_event_recorder);
+    window->handleEvents([&event_recorder]<typename Event>(Event&& event) {
+        event_recorder.record(std::forward<Event>(event));
+    });
     display_timer->update();
 };
 

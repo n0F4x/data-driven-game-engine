@@ -78,14 +78,14 @@ auto game::setup_map(
     core::ecs::Registry&  registry
 ) -> void
 {
-    assert(settings.cell_width * settings.cells_per_row <= window.width());
-    assert(settings.cell_width * settings.cells_per_column <= window.height());
+    assert(settings.cell_width * settings.cells_per_row <= window.getSize().x);
+    assert(settings.cell_width * settings.cells_per_column <= window.getSize().y);
 
     const uint16_t starting_pixel_x{ static_cast<uint16_t>(
-        (window.width() - settings.cell_width * settings.cells_per_row) / 2
+        (window.getSize().x - settings.cell_width * settings.cells_per_row) / 2
     ) };
     const uint16_t starting_pixel_y{ static_cast<uint16_t>(
-        (window.height() - settings.cell_width * settings.cells_per_column) / 2
+        (window.getSize().y - settings.cell_width * settings.cells_per_column) / 2
     ) };
 
     // TODO: use std::views::cartesian_product

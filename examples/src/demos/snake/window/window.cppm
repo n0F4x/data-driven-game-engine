@@ -4,7 +4,6 @@ export import snake.window.clear_window;
 export import snake.window.close_window;
 export import snake.window.display;
 export import snake.window.display_rate;
-export import snake.window.events;
 export import snake.window.initialize;
 export import snake.window.open_window;
 export import snake.window.plugin;
