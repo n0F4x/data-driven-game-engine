@@ -185,7 +185,7 @@ PenaltyIndentedWhitespace: 0
 PenaltyReturnTypeOnItsOwnLine: 100
 PointerAlignment: Left
 QualifierAlignment: Custom
-QualifierOrder: [ 'constexpr', 'inline', 'static', 'volatile', 'const', 'type', 'restrict' ]
+QualifierOrder: [ 'inline', 'constexpr', 'static', 'volatile', 'const', 'type', 'restrict' ]
 RawStringFormats:
   - Language: Cpp
 ReferenceAlignment: Pointer

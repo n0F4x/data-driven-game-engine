@@ -38,6 +38,7 @@ public:
     );
 
     template <typename Self_T, typename... ArgumentProviders_T>
+    [[nodiscard]]
     constexpr auto operator()(this Self_T&&, ArgumentProviders_T... argument_providers);
 
 private:
@@ -80,7 +81,7 @@ constexpr auto core::scheduler::
     return [main_task = build(self.m_main_task_builder, argument_providers...),
             repetition_specifier_task = build(
                 self.m_repetition_specifier_task_builder, argument_providers...
-            )] mutable {
+            )] mutable -> Result {
         for (const auto _ :
              std::views::repeat(std::ignore, std::invoke(repetition_specifier_task)))
         {

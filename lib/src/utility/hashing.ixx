@@ -64,4 +64,4 @@ auto hash_range(std::ranges::sized_range auto&& range) -> size_t
     return hash_range<std::hash>(std::forward<decltype(range)>(range));
 }
 
-}   // namespace core
+}   // namespace util

@@ -4,8 +4,16 @@ target_sources(${PROJECT_NAME} PRIVATE
         BASE_DIRS ${PROJECT_SOURCE_DIR}
         FILES
         window.cppm
+        clear_window.ixx
+        close_window.ixx
+        display.ixx
+        display_rate.ixx
         events.ixx
-        Plugin.ixx
+        initialize.ixx
+        open_window.ixx
+        plugin.ixx
         Settings.ixx
+        update.ixx
         Window.ixx
+        window_should_close.ixx
 )

@@ -8,6 +8,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         function_pointer.ixx
         function_reference.ixx
         member_function_pointer.ixx
+        unambiguous_explicit_functor.ixx
         unambiguous_functor.ixx
+        unambiguous_implicit_functor.ixx
         unambiguously_invocable.ixx
 )

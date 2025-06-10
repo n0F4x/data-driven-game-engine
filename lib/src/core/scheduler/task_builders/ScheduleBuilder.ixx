@@ -89,7 +89,7 @@ constexpr auto core::scheduler::ScheduleBuilder<TaskBuilders_T...>::operator()(
         );
     };
 
-    return [tasks = build_tasks()] mutable {
+    return [tasks = build_tasks()] mutable -> Result {
         util::meta::for_each<std::make_index_sequence<sizeof...(TaskBuilders_T)>>(
             [&tasks]<size_t task_index_T> { std::invoke(std::get<task_index_T>(tasks)); }
         );

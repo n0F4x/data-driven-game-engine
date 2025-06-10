@@ -8,6 +8,7 @@ export import utility.tuple;
 export import utility.all_same;
 export import utility.contracts;
 export import utility.hashing;
+export import utility.not_fn;
 export import utility.Overloaded;
 export import utility.ScopeGuard;
 export import utility.Size;

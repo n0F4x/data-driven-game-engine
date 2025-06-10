@@ -31,10 +31,16 @@ concept deducable_query_function_c =
 
 namespace core::ecs {
 
+/**
+ * Do not directly alter the registry while querying!
+ */
 export template <query_parameter_c... Parameters_T, typename F>
     requires(sizeof...(Parameters_T) != 0)
 auto query(Registry& registry, F&& func) -> F;
 
+/**
+ * Do not directly alter the registry while querying!
+ */
 export template <deducable_query_function_c F>
 auto query(Registry& registry, F&& func) -> F;
 

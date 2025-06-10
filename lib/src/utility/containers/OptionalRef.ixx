@@ -1,11 +1,14 @@
 module;
 
-#include <cassert>
 #include <memory>
 #include <optional>
 #include <type_traits>
 
+#include "utility/contracts_macros.hpp"
+
 export module utility.containers.OptionalRef;
+
+import utility.contracts;
 
 namespace util {
 
@@ -121,7 +124,7 @@ template <typename T>
     requires(!std::is_reference_v<T>)
 constexpr auto util::OptionalRef<T>::operator->() const -> T*
 {
-    assert(m_handle != nullptr);
+    PRECOND(m_handle != nullptr);
     return m_handle;
 }
 
@@ -129,7 +132,7 @@ template <typename T>
     requires(!std::is_reference_v<T>)
 constexpr auto util::OptionalRef<T>::operator*() const -> T&
 {
-    assert(m_handle != nullptr);
+    PRECOND(m_handle != nullptr);
     return *m_handle;
 }
 

@@ -5,11 +5,18 @@ target_sources(${PROJECT_NAME} PRIVATE
         FILES
         game.cppm
         Cell.ixx
-        color_snake.ixx
+        color_cells.ixx
         Direction.ixx
         draw.ixx
+        game_is_running.ixx
+        game_tick_rate.ixx
+        GameOver.ixx
+        move_snake.ixx
+        plugin.ixx
         Position.ixx
-        setup.ixx
+        Settings.ixx
+        initialize.ixx
         Snake.ixx
         SnakeHead.ixx
+        update.ixx
 )

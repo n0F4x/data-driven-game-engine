@@ -2,6 +2,7 @@ module;
 
 #include <cstdint>
 #include <tuple>
+#include <type_traits>
 
 export module core.events.EventManager;
 
@@ -18,11 +19,16 @@ namespace core::events {
 export template <event_c... Events_T>
 class EventManager {
 public:
+    template <event_c Event_T>
+    constexpr static std::bool_constant<
+        util::meta::type_list_contains_v<util::TypeList<Events_T...>, Event_T>>
+        registered;
+
     template <event_c Event_T, typename Self_T>
-        requires util::meta::type_list_contains_v<util::TypeList<Events_T...>, Event_T>
     [[nodiscard]]
     auto event_buffer(this Self_T&)
-        -> util::meta::const_like_t<BufferedEventQueue<Event_T>, Self_T>&;
+        -> util::meta::const_like_t<BufferedEventQueue<Event_T>, Self_T>&   //
+        requires(registered<Event_T>());
 
     auto process_events() -> void;
 
@@ -34,10 +40,10 @@ private:
 
 template <core::events::event_c... Events_T>
 template <core::events::event_c Event_T, typename Self_T>
-    requires util::meta::type_list_contains_v<util::TypeList<Events_T...>, Event_T>
 auto core::events::EventManager<Events_T...>::event_buffer(this Self_T& self)
-    -> util::meta::const_like_t<BufferedEventQueue<Event_T>, Self_T>&
-{
+    -> util::meta::const_like_t<BufferedEventQueue<Event_T>, Self_T>&   //
+    requires(registered<Event_T>())                                     //
+{                                                                       //
     return std::get<BufferedEventQueue<Event_T>>(self.m_event_buffers);
 }
 

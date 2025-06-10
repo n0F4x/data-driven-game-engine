@@ -35,6 +35,7 @@ public:
     );
 
     template <typename Self_T, typename... ArgumentProviders_T>
+    [[nodiscard]]
     constexpr auto operator()(this Self_T&&, ArgumentProviders_T... argument_providers);
 
 private:
@@ -70,9 +71,10 @@ constexpr auto
     core::scheduler::ConditionalTaskBuilder<MainTaskBuilder_T, PredicateTaskBuilder_T>::
         operator()(this Self_T&& self, ArgumentProviders_T... argument_providers)
 {
-    return [main_task = build(self.m_main_task_builder, argument_providers...),
-            predicate_task =
-                build(self.m_predicate_task_builder, argument_providers...)] mutable {
+    return [main_task      = build(self.m_main_task_builder, argument_providers...),
+            predicate_task = build(
+                self.m_predicate_task_builder, argument_providers...
+            )] mutable -> Result {
         if (std::invoke(predicate_task)) {
             std::invoke(main_task);
         }

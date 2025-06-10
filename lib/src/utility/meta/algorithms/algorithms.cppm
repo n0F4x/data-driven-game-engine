@@ -1,5 +1,6 @@
 export module utility.meta.algorithms;
 
+export import utility.meta.algorithms.all_of;
 export import utility.meta.algorithms.any_of;
 export import utility.meta.algorithms.apply;
 export import utility.meta.algorithms.enumerate;

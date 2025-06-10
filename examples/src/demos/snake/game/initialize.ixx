@@ -7,15 +7,24 @@ module;
 
 #include <SFML/Graphics.hpp>
 
-export module game.setup;
+export module game.initialize;
 
 import core.ecs;
+import core.scheduler;
+import core.time.FixedTimer;
 
 import extensions.scheduler.accessors.ecs.RegistryRef;
+import extensions.scheduler.accessors.resources;
+
+import demo.window.Window;
 
 import game.Cell;
+import game.color_cells;
 import game.Direction;
+import game.game_tick_rate;
+import game.GameOver;
 import game.Position;
+import game.Settings;
 import game.Snake;
 import game.SnakeHead;
 
@@ -24,24 +33,28 @@ using namespace core::ecs::query_parameter_tags;
 
 namespace game {
 
-export struct Settings {
-    uint16_t window_width;
-    uint16_t window_height;
-    uint8_t  cells_per_row;
-    uint8_t  cells_per_column;
-    uint8_t  cell_width;
-};
-
-auto setup_map(const Settings& settings, core::ecs::Registry& registry) -> void;
+auto setup_map(
+    const window::Window& window,
+    const Settings&       settings,
+    core::ecs::Registry&  registry
+) -> void;
 
 auto setup_snake(const Settings& settings, core::ecs::Registry& registry) -> void;
 
-export inline constexpr auto make_setup = [](Settings settings) {
-    return [settings](const ecs::RegistryRef registry) {
-        setup_map(settings, registry.get());
-        setup_snake(settings, registry.get());
-    };
+inline constexpr auto setup =   //
+    [](const resources::Ref<const window::Window>                   window,
+       const resources::Ref<core::time::FixedTimer<game_tick_rate>> game_timer,
+       const ecs::RegistryRef                                       registry,
+       const resources::Ref<const Settings>                         settings)   //
+{
+    game_timer->reset();
+    setup_map(window.get(), settings.get(), registry.get());
+    setup_snake(settings.get(), registry.get());
 };
+
+export inline constexpr auto initialize =   //
+    core::scheduler::start_as(setup)        //
+        .then(color_cells);
 
 }   // namespace game
 
@@ -59,16 +72,20 @@ auto make_shape(const uint16_t position_x, const uint16_t position_y, const uint
     return result;
 }
 
-auto game::setup_map(const Settings& settings, core::ecs::Registry& registry) -> void
+auto game::setup_map(
+    const window::Window& window,
+    const Settings&       settings,
+    core::ecs::Registry&  registry
+) -> void
 {
-    assert(settings.cell_width * settings.cells_per_row <= settings.window_width);
-    assert(settings.cell_width * settings.cells_per_column <= settings.window_height);
+    assert(settings.cell_width * settings.cells_per_row <= window.width());
+    assert(settings.cell_width * settings.cells_per_column <= window.height());
 
     const uint16_t starting_pixel_x{ static_cast<uint16_t>(
-        (settings.window_width - settings.cell_width * settings.cells_per_row) / 2
+        (window.width() - settings.cell_width * settings.cells_per_row) / 2
     ) };
     const uint16_t starting_pixel_y{ static_cast<uint16_t>(
-        (settings.window_height - settings.cell_width * settings.cells_per_column) / 2
+        (window.height() - settings.cell_width * settings.cells_per_column) / 2
     ) };
 
     // TODO: use std::views::cartesian_product
@@ -112,16 +129,20 @@ auto game::setup_snake(const Settings& settings, core::ecs::Registry& registry) 
         return Direction::eLeft;
     }() };
 
+    std::optional<core::ecs::ID> snake_head_id;
     core::ecs::query(
         registry,
-        [&registry,
-         snake_position,
-         snake_direction](const core::ecs::ID id, With<Cell>, const Position position) {
+        [&snake_head_id,
+         snake_position](const core::ecs::ID id, With<Cell>, const Position position) {
             if (position == snake_position) {
-                registry.insert(
-                    id, Snake{ .charge = 1 }, SnakeHead{ .direction = snake_direction }
-                );
+                assert(!snake_head_id.has_value());
+                snake_head_id = id;
             }
         }
+    );
+    assert(snake_head_id.has_value());
+
+    registry.insert(
+        *snake_head_id, Snake{ .charge = 1 }, SnakeHead{ .direction = snake_direction }
     );
 }

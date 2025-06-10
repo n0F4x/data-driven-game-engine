@@ -7,6 +7,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         scheduler.cppm
+        all_of.ixx
         as_task_builder.ixx
         at_fixed_rate.ixx
         build.ixx

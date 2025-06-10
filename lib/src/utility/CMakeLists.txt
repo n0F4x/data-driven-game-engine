@@ -12,7 +12,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         all_same.ixx
         contracts.ixx
         hashing.ixx
-        overloaded.ixx
+        not_fn.ixx
+        Overloaded.ixx
         ScopeGuard.ixx
         Size.ixx
         Strong.ixx

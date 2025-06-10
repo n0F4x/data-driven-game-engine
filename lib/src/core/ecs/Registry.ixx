@@ -6,7 +6,6 @@ module;
 #include <map>
 #include <optional>
 #include <ranges>
-#include <set>
 #include <utility>
 
 #include "utility/contracts_macros.hpp"
@@ -549,11 +548,13 @@ auto core::ecs::Registry::insert(
     Components_T&&... components
 ) -> Entity
 {
-    PRECOND(entity.archetype_id->contains_none_of_components<Components_T...>());
+    PRECOND(
+        entity.archetype_id->contains_none_of_components<std::decay_t<Components_T>...>()
+    );
 
-    const ArchetypeID new_archetype_id{
-        archetype_from<Components_T...>(entity.archetype_id->sorted_component_ids())
-    };
+    const ArchetypeID new_archetype_id{ archetype_from<std::decay_t<Components_T>...>(
+        entity.archetype_id->sorted_component_ids()
+    ) };
 
 
     const auto [removed_id, record_index]{
@@ -639,7 +640,7 @@ auto core::ecs::Registry::remove(const core::ecs::ID id, Entity& entity)
     const auto [archetype_id, record_id]{ entity };
     PRECOND(archetype_id->contains_all_of_components<Components_T...>());
 
-    const std::ranges::view auto new_component_ids{
+    std::ranges::view auto new_component_id_set{
         archetype_id->sorted_component_ids()
         | std::views::filter([](const ComponentID component_id) {
               return !std::ranges::binary_search(
@@ -648,8 +649,7 @@ auto core::ecs::Registry::remove(const core::ecs::ID id, Entity& entity)
           })
     };
 
-    const ArchetypeID new_archetype_id{ archetype_from(new_component_ids) };
-
+    const ArchetypeID new_archetype_id{ archetype_from(new_component_id_set) };
 
     const auto [removed_id, record_index] =
         m_lookup_tables.remove(archetype_id, record_id);
@@ -664,7 +664,11 @@ auto core::ecs::Registry::remove(const core::ecs::ID id, Entity& entity)
     );
 
     move_components(
-        m_component_tables, new_component_ids, archetype_id, record_index, new_archetype_id
+        m_component_tables,
+        new_component_id_set,
+        archetype_id,
+        record_index,
+        new_archetype_id
     );
 
 

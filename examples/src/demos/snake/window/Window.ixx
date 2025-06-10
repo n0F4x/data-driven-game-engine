@@ -35,12 +35,19 @@ public:
     [[nodiscard]]
     auto is_open() const -> bool;
 
+    [[nodiscard]]
+    auto width() const -> uint16_t;
+    [[nodiscard]]
+    auto height() const -> uint16_t;
+
 private:
     Settings         m_settings;
     sf::RenderWindow m_window;
 };
 
 }   // namespace window
+
+module :private;
 
 auto window::Window::set_title(const std::string_view title) -> void
 {
@@ -86,4 +93,14 @@ auto window::Window::record_events(const ::window::EventRecorder event_recorder)
 auto window::Window::is_open() const -> bool
 {
     return m_window.isOpen();
+}
+
+auto window::Window::width() const -> uint16_t
+{
+    return m_settings.width;
+}
+
+auto window::Window::height() const -> uint16_t
+{
+    return m_settings.height;
 }

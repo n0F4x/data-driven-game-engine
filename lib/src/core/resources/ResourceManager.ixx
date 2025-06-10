@@ -31,10 +31,10 @@ public:
         constexpr explicit ResourceManager(Factories_T&&... factories);
 
     template <typename Resource_T, typename Self_T>
-        requires(contains<Resource_T>())
     [[nodiscard]]
     constexpr auto get(this Self_T&&) -> std::
-        conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>;
+        conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>
+        requires(contains<Resource_T>());
 
 private:
     std::unique_ptr<::util::StackedTuple<Resources_T...>> m_resources;
@@ -57,10 +57,10 @@ constexpr core::resource::ResourceManager<Resources_T...>::ResourceManager(
 template <core::resource::resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
 template <typename Resource_T, typename Self_T>
-    requires(contains<Resource_T>())
 constexpr auto core::resource::ResourceManager<Resources_T...>::get(this Self_T&& self)
     -> std::
         conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>
+    requires(contains<Resource_T>())
 {
     return self.m_resources->template get<Resource_T>();
 }

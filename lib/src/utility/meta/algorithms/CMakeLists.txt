@@ -4,6 +4,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         algorithms.cppm
+        all_of.ixx
         any_of.ixx
         apply.ixx
         enumerate.ixx

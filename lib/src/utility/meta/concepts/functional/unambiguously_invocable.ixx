@@ -9,6 +9,7 @@ import utility.meta.concepts.functional.function_pointer;
 import utility.meta.concepts.functional.function_reference;
 import utility.meta.concepts.functional.member_function_pointer;
 import utility.meta.concepts.functional.unambiguous_functor;
+import utility.meta.concepts.functional.unambiguous_explicit_functor;
 
 namespace util::meta {
 
