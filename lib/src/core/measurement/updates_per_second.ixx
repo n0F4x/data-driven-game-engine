@@ -25,7 +25,7 @@ export constexpr inline auto ups = updates_per_second;
 namespace literals {
 
 export [[nodiscard]]
-constexpr auto operator""_ups(unsigned long long int amount)
+constexpr auto operator""_ups(const unsigned long long int amount)
     -> mp_units::quantity<updates_per_second>
 {
     return amount * updates_per_second;
