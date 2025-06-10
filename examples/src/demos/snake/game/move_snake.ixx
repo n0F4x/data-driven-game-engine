@@ -5,7 +5,7 @@ module;
 #include <utility>
 #include <vector>
 
-export module game.move_snake;
+export module snake.game.move_snake;
 
 import core.ecs;
 
@@ -13,13 +13,13 @@ import extensions.scheduler.accessors.ecs.RegistryRef;
 import extensions.scheduler.accessors.events.Recorder;
 import extensions.scheduler.accessors.resources;
 
-import game.Cell;
-import game.Direction;
-import game.GameOver;
-import game.Position;
-import game.Settings;
-import game.Snake;
-import game.SnakeHead;
+import snake.game.Cell;
+import snake.game.Direction;
+import snake.game.GameOver;
+import snake.game.Position;
+import snake.game.Settings;
+import snake.game.Snake;
+import snake.game.SnakeHead;
 
 using namespace extensions::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;

@@ -2,7 +2,7 @@ module;
 
 #include <SFML/Graphics.hpp>
 
-export module game.draw;
+export module snake.game.draw;
 
 import core.ecs;
 import core.scheduler;
@@ -10,9 +10,8 @@ import core.scheduler;
 import extensions.scheduler.accessors.ecs.Query;
 import extensions.scheduler.accessors.resources;
 
-import demo.window.Window;
-
-import game.Cell;
+import snake.game.Cell;
+import snake.window.Window;
 
 using namespace extensions::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;

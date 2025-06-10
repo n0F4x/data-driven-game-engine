@@ -2,12 +2,12 @@ module;
 
 #include <chrono>
 
-export module demo.window.display;
+export module snake.window.display;
 
 import extensions.scheduler.accessors.resources;
 
-import demo.window.Settings;
-import demo.window.Window;
+import snake.window.Settings;
+import snake.window.Window;
 
 using namespace extensions::scheduler::accessors;
 

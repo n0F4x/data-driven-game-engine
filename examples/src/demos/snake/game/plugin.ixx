@@ -2,16 +2,16 @@ module;
 
 #include <utility>
 
-export module game.plugin;
+export module snake.game.plugin;
 
 import core.app;
 import core.time.FixedTimer;
 
 import extensions.EventManager;
 
-import game.game_tick_rate;
-import game.GameOver;
-import game.Settings;
+import snake.game.game_tick_rate;
+import snake.game.GameOver;
+import snake.game.Settings;
 
 namespace game {
 

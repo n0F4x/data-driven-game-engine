@@ -5,10 +5,10 @@ module;
 
 #include <SFML/Graphics.hpp>
 
-export module demo.window.Window;
+export module snake.window.Window;
 
-import demo.window.events;
-import demo.window.Settings;
+import snake.window.events;
+import snake.window.Settings;
 
 import extensions.scheduler.accessors.events.Recorder;
 

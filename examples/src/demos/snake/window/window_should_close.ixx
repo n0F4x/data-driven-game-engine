@@ -1,8 +1,8 @@
-export module demo.window.window_should_close;
+export module snake.window.window_should_close;
 
 import extensions.scheduler.accessors.events.Reader;
 
-import demo.window.events;
+import snake.window.events;
 
 using namespace extensions::scheduler::accessors;
 

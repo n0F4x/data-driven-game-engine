@@ -2,16 +2,16 @@ module;
 
 #include <utility>
 
-export module demo.window.plugin;
+export module snake.window.plugin;
 
 import core.app.decays_to_builder_c;
 import core.app.extended_with_c;
 import core.time.FixedTimer;
 
-import demo.window.display_rate;
-import demo.window.events;
-import demo.window.Settings;
-import demo.window.Window;
+import snake.window.display_rate;
+import snake.window.events;
+import snake.window.Settings;
+import snake.window.Window;
 
 import extensions.EventManager;
 import extensions.ResourceManager;

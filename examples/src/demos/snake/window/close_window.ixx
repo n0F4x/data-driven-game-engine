@@ -1,8 +1,8 @@
-export module demo.window.close_window;
+export module snake.window.close_window;
 
 import extensions.scheduler.accessors.resources;
 
-import demo.window.Window;
+import snake.window.Window;
 
 using namespace extensions::scheduler::accessors;
 

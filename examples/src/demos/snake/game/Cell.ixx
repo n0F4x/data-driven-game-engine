@@ -1,4 +1,4 @@
-export module game.Cell;
+export module snake.game.Cell;
 
 namespace game {
 

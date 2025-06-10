@@ -1,13 +1,13 @@
-export module game.update;
+export module snake.game.update;
 
 import core.scheduler;
 import core.time.FixedTimer;
 
 import extensions.scheduler.accessors.resources;
 
-import game.color_cells;
-import game.game_tick_rate;
-import game.move_snake;
+import snake.game.color_cells;
+import snake.game.game_tick_rate;
+import snake.game.move_snake;
 
 using namespace extensions::scheduler::accessors;
 

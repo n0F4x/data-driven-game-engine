@@ -1,8 +1,8 @@
-export module game.game_is_running;
+export module snake.game.game_is_running;
 
 import extensions.scheduler.accessors.events.Reader;
 
-import game.GameOver;
+import snake.game.GameOver;
 
 using namespace extensions::scheduler::accessors;
 

@@ -1,4 +1,4 @@
-export module game.game_tick_rate;
+export module snake.game.game_tick_rate;
 
 import core.measurement.updates_per_second;
 

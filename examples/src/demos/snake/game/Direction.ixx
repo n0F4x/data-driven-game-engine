@@ -1,4 +1,4 @@
-export module game.Direction;
+export module snake.game.Direction;
 
 namespace game {
 

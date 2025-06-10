@@ -17,8 +17,7 @@ import extensions.TaskRunner;
 
 import utility.not_fn;
 
-import demo.window;
-import game;
+import snake;
 
 using namespace extensions::scheduler::accessors;
 

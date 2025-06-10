@@ -2,11 +2,11 @@ module;
 
 #include <SFML/Graphics.hpp>
 
-export module demo.window.clear_window;
+export module snake.window.clear_window;
 
 import extensions.scheduler.accessors.resources;
 
-import demo.window.Window;
+import snake.window.Window;
 
 using namespace extensions::scheduler::accessors;
 

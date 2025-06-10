@@ -1,12 +1,12 @@
-export module demo.window.initialize;
+export module snake.window.initialize;
 
 import core.scheduler;
 import core.time.FixedTimer;
 
 import extensions.scheduler.accessors.resources;
 
-import demo.window.display_rate;
-import demo.window.open_window;
+import snake.window.display_rate;
+import snake.window.open_window;
 
 using namespace extensions::scheduler::accessors;
 

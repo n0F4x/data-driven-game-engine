@@ -1,6 +1,6 @@
-export module game.SnakeHead;
+export module snake.game.SnakeHead;
 
-import game.Direction;
+import snake.game.Direction;
 
 namespace game {
 

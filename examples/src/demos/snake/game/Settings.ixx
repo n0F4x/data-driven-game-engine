@@ -2,7 +2,7 @@ module;
 
 #include <cstdint>
 
-export module game.Settings;
+export module snake.game.Settings;
 
 namespace game {
 

@@ -1,4 +1,4 @@
-export module demo.window.display_rate;
+export module snake.window.display_rate;
 
 import core.measurement.updates_per_second;
 

@@ -3,7 +3,7 @@ module;
 #include <compare>
 #include <cstdint>
 
-export module game.Position;
+export module snake.game.Position;
 
 namespace game {
 

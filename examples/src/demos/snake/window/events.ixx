@@ -1,4 +1,4 @@
-export module demo.window.events;
+export module snake.window.events;
 
 namespace window::events {
 

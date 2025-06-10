@@ -7,7 +7,7 @@ module;
 
 #include <SFML/Graphics.hpp>
 
-export module game.initialize;
+export module snake.game.initialize;
 
 import core.ecs;
 import core.scheduler;
@@ -16,17 +16,17 @@ import core.time.FixedTimer;
 import extensions.scheduler.accessors.ecs.RegistryRef;
 import extensions.scheduler.accessors.resources;
 
-import demo.window.Window;
 
-import game.Cell;
-import game.color_cells;
-import game.Direction;
-import game.game_tick_rate;
-import game.GameOver;
-import game.Position;
-import game.Settings;
-import game.Snake;
-import game.SnakeHead;
+import snake.game.Cell;
+import snake.game.color_cells;
+import snake.game.Direction;
+import snake.game.game_tick_rate;
+import snake.game.GameOver;
+import snake.game.Position;
+import snake.game.Settings;
+import snake.game.Snake;
+import snake.game.SnakeHead;
+import snake.window.Window;
 
 using namespace extensions::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;

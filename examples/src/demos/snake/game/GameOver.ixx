@@ -1,4 +1,4 @@
-export module game.GameOver;
+export module snake.game.GameOver;
 
 namespace game {
 

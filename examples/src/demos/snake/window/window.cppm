@@ -1,14 +1,14 @@
-export module demo.window;
+export module snake.window;
 
-export import demo.window.clear_window;
-export import demo.window.close_window;
-export import demo.window.display;
-export import demo.window.display_rate;
-export import demo.window.events;
-export import demo.window.initialize;
-export import demo.window.open_window;
-export import demo.window.plugin;
-export import demo.window.Settings;
-export import demo.window.update;
-export import demo.window.Window;
-export import demo.window.window_should_close;
+export import snake.window.clear_window;
+export import snake.window.close_window;
+export import snake.window.display;
+export import snake.window.display_rate;
+export import snake.window.events;
+export import snake.window.initialize;
+export import snake.window.open_window;
+export import snake.window.plugin;
+export import snake.window.Settings;
+export import snake.window.update;
+export import snake.window.Window;
+export import snake.window.window_should_close;

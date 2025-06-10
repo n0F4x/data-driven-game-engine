@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <string>
 
-export module demo.window.Settings;
+export module snake.window.Settings;
 
 namespace window {
 

@@ -2,7 +2,7 @@ module;
 
 #include <cstdint>
 
-export module game.Snake;
+export module snake.game.Snake;
 
 import utility.Strong;
 
