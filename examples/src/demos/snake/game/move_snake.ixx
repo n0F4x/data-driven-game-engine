@@ -5,6 +5,8 @@ module;
 #include <utility>
 #include <vector>
 
+#include <SFML/Window/Keyboard.hpp>
+
 export module snake.game.move_snake;
 
 import core.ecs;
@@ -26,9 +28,7 @@ using namespace core::ecs::query_parameter_tags;
 
 namespace game {
 
-[[nodiscard]]
-auto next_position(const Settings& settings, Position position, Direction direction)
-    -> std::optional<Position>;
+auto correct_snake_direction(core::ecs::Registry& registry) -> void;
 
 auto move_snake_head(
     const events::Recorder<GameOver>& game_over_recorder,
@@ -43,55 +43,86 @@ export inline constexpr auto move_snake =
        const events::Recorder<GameOver>&    game_over_recorder,
        const ecs::RegistryRef               registry)   //
 {
+    correct_snake_direction(registry.get());
     move_snake_head(game_over_recorder, settings.get(), registry.get());
     decrease_charges(registry.get());
 };
 
 }   // namespace game
 
-auto game::next_position(
-    const Settings& settings,
-    const Position  position,
-    const Direction direction
-) -> std::optional<Position>
+[[nodiscard]]
+auto direction_mixed_with_user_input(game::Direction direction) -> game::Direction
+{
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
+        switch (direction) {
+            case game::Direction::eRight: direction = game::Direction::eUp; break;
+            case game::Direction::eDown:  direction = game::Direction::eRight; break;
+            case game::Direction::eLeft:  direction = game::Direction::eDown; break;
+            case game::Direction::eUp:    direction = game::Direction::eLeft; break;
+        }
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
+        switch (direction) {
+            case game::Direction::eRight: direction = game::Direction::eDown; break;
+            case game::Direction::eDown:  direction = game::Direction::eLeft; break;
+            case game::Direction::eLeft:  direction = game::Direction::eUp; break;
+            case game::Direction::eUp:    direction = game::Direction::eRight; break;
+        }
+    }
+    return direction;
+}
+
+auto game::correct_snake_direction(core::ecs::Registry& registry) -> void
+{
+    core::ecs::query(registry, [](SnakeHead& snake_head) {
+        snake_head.direction = direction_mixed_with_user_input(snake_head.direction);
+    });
+}
+
+[[nodiscard]]
+auto next_position(
+    const game::Settings& settings,
+    const game::Position  position,
+    const game::Direction direction
+) -> std::optional<game::Position>
 {
     switch (direction) {
-        case Direction::eRight: {
+        case game::Direction::eRight: {
             if (position.row == settings.cells_per_row - 1) {
                 return std::nullopt;
             }
 
-            return Position{
+            return game::Position{
                 .row    = static_cast<uint8_t>(position.row + 1),
                 .column = position.column,
             };
         }
-        case Direction::eDown: {
+        case game::Direction::eDown: {
             if (position.column == settings.cells_per_column - 1) {
                 return std::nullopt;
             }
 
-            return Position{
+            return game::Position{
                 .row    = position.row,
                 .column = static_cast<uint8_t>(position.column + 1),
             };
         }
-        case Direction::eLeft: {
+        case game::Direction::eLeft: {
             if (position.row == 0) {
                 return std::nullopt;
             }
 
-            return Position{
+            return game::Position{
                 .row    = static_cast<uint8_t>(position.row - 1),
                 .column = position.column,
             };
         }
-        case Direction::eUp: {
+        case game::Direction::eUp: {
             if (position.column == 0) {
                 return std::nullopt;
             }
 
-            return Position{
+            return game::Position{
                 .row    = position.row,
                 .column = static_cast<uint8_t>(position.column - 1),
             };
