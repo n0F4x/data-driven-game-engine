@@ -62,7 +62,10 @@ class DataDrivenGameEngineRecipe(ConanFile):
             )
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.30 <4]")
+        if self._dev:
+            self.tool_requires("cmake/[~3.30]")
+        else:
+            self.tool_requires("cmake/[>=3.30]")
 
     def requirements(self):
         self.requires("gsl-lite/0.42.0", transitive_headers=True)
