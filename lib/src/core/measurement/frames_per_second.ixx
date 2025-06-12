@@ -1,9 +1,6 @@
-module;
-
-#include <mp-units/framework.h>
-#include <mp-units/systems/si.h>
-
 export module core.measurement.frames_per_second;
+
+import mp_units;
 
 import core.measurement.refresh_rate;
 

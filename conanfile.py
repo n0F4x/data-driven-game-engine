@@ -51,6 +51,16 @@ class DataDrivenGameEngineRecipe(ConanFile):
         if self.conf.get("tools.cmake.cmaketoolchain:generator") != "Ninja":
             raise ConanInvalidConfiguration("Ninja is required for CXX modules")
 
+        if bool(self.conf.get(f"user.{self.name}:enable_tests", default=False)) and not self._dev:
+            raise ConanInvalidConfiguration(
+                f"'user.{self.name}:enable_tests' requires 'user.{self.name}:dev'"
+            )
+
+        if bool(self.conf.get(f"user.{self.name}:enable_examples", default=False)) and not self._dev:
+            raise ConanInvalidConfiguration(
+                f"'user.{self.name}:enable_examples' requires 'user.{self.name}:dev'"
+            )
+
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.30 <4]")
 
@@ -59,7 +69,11 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
         self.requires("fmt/11.1.3", transitive_headers=True)
         self.requires("spdlog/1.15.1")
-        self.requires("mp-units/2.4.0", transitive_headers=True, options={"cxx_modules": False, "import_std": False})
+        self.requires(
+            "mp-units/2.5.0@mpusz/testing",
+            transitive_headers=True,
+            options={"cxx_modules": True, "import_std": False}
+        )
         self.requires("glfw/3.4", transitive_headers=True)
         self.requires("vulkan-headers/1.3.296.0")
         self.requires("vulkan-memory-allocator/3.2.1", transitive_headers=True)

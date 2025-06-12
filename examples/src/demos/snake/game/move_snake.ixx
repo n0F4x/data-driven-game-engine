@@ -53,7 +53,9 @@ export inline constexpr auto move_snake =
 [[nodiscard]]
 auto direction_mixed_with_user_input(game::Direction direction) -> game::Direction
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)
+        || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+    {
         switch (direction) {
             case game::Direction::eRight: direction = game::Direction::eUp; break;
             case game::Direction::eDown:  direction = game::Direction::eRight; break;
@@ -61,7 +63,9 @@ auto direction_mixed_with_user_input(game::Direction direction) -> game::Directi
             case game::Direction::eUp:    direction = game::Direction::eLeft; break;
         }
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)
+        || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+    {
         switch (direction) {
             case game::Direction::eRight: direction = game::Direction::eDown; break;
             case game::Direction::eDown:  direction = game::Direction::eLeft; break;

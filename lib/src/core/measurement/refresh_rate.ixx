@@ -1,8 +1,6 @@
-module;
-
-#include <mp-units/framework.h>
-
 export module core.measurement.refresh_rate;
+
+import mp_units.core;
 
 import core.measurement.tick_rate;
 

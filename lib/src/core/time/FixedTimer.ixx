@@ -3,10 +3,9 @@ module;
 #include <chrono>
 #include <cmath>
 
-#include <mp-units/framework.h>
-#include <mp-units/systems/si.h>
-
 export module core.time.FixedTimer;
+
+import mp_units;
 
 import core.measurement.tick_rate;
 

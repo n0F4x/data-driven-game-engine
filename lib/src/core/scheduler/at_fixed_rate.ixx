@@ -2,9 +2,9 @@ module;
 
 #include <utility>
 
-#include <mp-units/framework.h>
-
 export module core.scheduler.at_fixed_rate;
+
+import mp_units.core;
 
 import core.measurement.tick_rate;
 

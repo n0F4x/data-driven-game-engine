@@ -31,11 +31,13 @@ _Conan https://docs.conan.io/2/reference/config_files/profiles.html=profiles[pro
 Conan fetches third-party dependencies from a remote (https://conan.io/center[Conan Center] is the default).
 However, some libraries require custom configuration / patches.
 Add the provided local third-party repository to Conan remotes. +
-Run `+conan remote add <name_of_my_local_remote> ./third-party+`
+Run `+conan remote add local ./third-party+`
+
+We use a pre-released version of https://mpusz.github.io/mp-units/latest/[mp-units], for which also run +
+`+conan remote add conan-mpusz https://mpusz.jfrog.io/artifactory/api/conan/conan-oss+`
 
 Run `+conan install .+` to set up all the third-party dependencies (or `+conan install . -pr=custom_profile+`).
-This will create a _CMakeUserPresets.json_ file inside the working directory that can be used to build the project (with your IDE). +
-`+conan build . -pr=custom_profile+` not only installs the dependencies, but also builds the entire project.
+This will create a _CMakeUserPresets.json_ file inside the working directory that can be used to build the project (with your IDE).
 
 .Conan profile example
 [%collapsible%open]
@@ -84,15 +86,15 @@ Its pair for deactivation: _./build/Debug/generators/deactivate_conanrun.bat_
 CLion doesn't offer a real solution to this problem.
 There are 2 "hacks" though, that I can recommend.
 
-.   Edit each of your run configurations to read environment variables from _./build/Debug/generators/conanrun.bat_ (or its pair with the _.sh_ extension on Linux).
-.   A partial solution is to setup your toolchain inside *_Build, Execution, Deployment_*.
+.   Setup your toolchain inside *_Build, Execution, Deployment_*.
     CLion uses the default toolchain when a CMake preset is configured.
     (
         This is likely due to a bug.
-        It will override your Conan defined one.
+        It will override your Conan defined toolchain.
     ) +
     Each time you run an application, CLion will append your defined toolchain to its PATH.
     Libraries like _libcxx_ and _asan_ will be found this way.
+.   Edit each of your run configurations to read environment variables from _./build/Debug/generators/conanrun.bat_ (or its pair with the _.sh_ extension on Linux).
 ====
 
 .How to test the library as a package?
@@ -105,7 +107,7 @@ Read more https://docs.conan.io/2/tutorial/developing_packages/local_package_dev
 == Vulkan
 
 Generally, Vulkan development is heavy to setup without the https://www.lunarg.com/vulkan-sdk/[Vulkan SDK].
-Useful tools included in the SDK are the *_glslc_* shader compiler and the *Vulkan Validation Layers*
+Useful tools included in the SDK are the *_glslc_* shader compiler and the *Vulkan Validation Layers*.
 
 glslc may be installed separately.
 The Vulkan Validation Layers are optional.

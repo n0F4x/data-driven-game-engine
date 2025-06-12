@@ -1,9 +1,6 @@
-module;
-
-#include <mp-units/framework.h>
-#include <mp-units/systems/si.h>
-
 export module core.measurement.tick_rate;
+
+import mp_units;
 
 namespace core::measurement {
 

@@ -1,8 +1,6 @@
-module;
-
-#include <mp-units/framework.h>
-
 export module snake.window.display_rate;
+
+import mp_units.core;
 
 import core.measurement.updates_per_second;
 
