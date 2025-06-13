@@ -21,7 +21,7 @@ class OptionalRef;
 template <typename F, typename T>
 concept and_then_func_c =
     !std::is_reference_v<T>
-    && std::constructible_from<std::invoke_result_t<F, T&>, std::nullopt_t>;
+    && std::constructible_from<std::invoke_result_t<F&&, T&>, std::nullopt_t>;
 
 template <typename F, typename T>
     requires(std::is_reference_v<T>)
@@ -31,10 +31,10 @@ using transform_result_t = std::conditional_t<
     std::optional<std::invoke_result_t<F, T>>>;
 
 template <typename F, typename T>
-concept transform_func_c = std::invocable<F, T&>;
+concept transform_func_c = std::invocable<F&&, T&>;
 
 template <typename F, typename T>
-concept or_else_func_c = std::constructible_from<std::invoke_result_t<F>, T&>;
+concept or_else_func_c = std::constructible_from<std::invoke_result_t<F&&>, T&>;
 
 namespace util {
 
@@ -67,11 +67,11 @@ public:
     constexpr auto value_or(T& other) const noexcept -> T&;
 
     template <and_then_func_c<T> F>
-    constexpr auto and_then(F&& func) const -> std::invoke_result_t<F, T&>;
+    constexpr auto and_then(F&& func) const -> std::invoke_result_t<F&&, T&>;
     template <transform_func_c<T> F>
-    constexpr auto transform(F&& func) const -> transform_result_t<F, T&>;
+    constexpr auto transform(F&& func) const -> transform_result_t<F&&, T&>;
     template <or_else_func_c<T> F>
-    constexpr auto or_else(F&& func) const -> std::invoke_result_t<F>;
+    constexpr auto or_else(F&& func) const -> std::invoke_result_t<F&&>;
 
 private:
     T* m_handle{};
@@ -157,7 +157,7 @@ template <typename T>
     requires(!std::is_reference_v<T>)
 template <and_then_func_c<T> F>
 constexpr auto util::OptionalRef<T>::and_then(F&& func) const
-    -> std::invoke_result_t<F, T&>
+    -> std::invoke_result_t<F&&, T&>
 {
     if (has_value()) {
         return std::invoke(std::forward<F>(func), static_cast<T&>(*m_handle));
@@ -169,7 +169,7 @@ template <typename T>
     requires(!std::is_reference_v<T>)
 template <transform_func_c<T> F>
 constexpr auto util::OptionalRef<T>::transform(F&& func) const
-    -> transform_result_t<F, T&>
+    -> transform_result_t<F&&, T&>
 {
     if (has_value()) {
         return transform_result_t<F, T&>{
@@ -182,7 +182,7 @@ constexpr auto util::OptionalRef<T>::transform(F&& func) const
 template <typename T>
     requires(!std::is_reference_v<T>)
 template <or_else_func_c<T> F>
-constexpr auto util::OptionalRef<T>::or_else(F&& func) const -> std::invoke_result_t<F>
+constexpr auto util::OptionalRef<T>::or_else(F&& func) const -> std::invoke_result_t<F&&>
 {
     if (!has_value()) {
         return std::invoke(std::forward<F>(func));

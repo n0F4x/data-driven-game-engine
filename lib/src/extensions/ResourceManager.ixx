@@ -52,7 +52,7 @@ using old_resource_manager_t =
 template <extensions::injection_c... Injections_T>
 class extensions::BasicResourceManager : public ResourceManagerTag {
 public:
-    constexpr BasicResourceManager() = default;
+    BasicResourceManager() = default;
 
     template <typename OldBasicResourceManager, typename... Args>
         requires std::same_as<

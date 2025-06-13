@@ -22,6 +22,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         type_list_push_back.ixx
         type_list_push_front.ixx
         type_list_replace.ixx
+        type_list_single.ixx
         type_list_size.ixx
         type_list_sort.ixx
         type_list_take.ixx

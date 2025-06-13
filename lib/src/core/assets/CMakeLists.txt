@@ -3,9 +3,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         TYPE CXX_MODULES
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
-        addons.cppm
-        Assets.ixx
-        ecs.ixx
-        EventManager.ixx
-        ResourceManager.ixx
+        assets.cppm
+        asset_c.ixx
+        AssetServer.ixx
+        loader_c.ixx
 )

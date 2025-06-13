@@ -6,6 +6,7 @@ import core.scheduler;
 import core.time;
 
 import extensions.AddonManager;
+import extensions.Assets;
 import extensions.EventManager;
 import extensions.Functional;
 import extensions.ResourceManager;
@@ -56,6 +57,7 @@ auto main() -> int
 
     core::app::create()
         .extend_with(extensions::ResourceManager{})
+        .extend_with(extensions::Assets{})
         .extend_with(extensions::EventManager{})
         .extend_with(extensions::Functional{})
         .extend_with(extensions::AddonManager{})

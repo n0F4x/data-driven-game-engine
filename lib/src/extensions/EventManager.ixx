@@ -11,8 +11,6 @@ import core.app.decays_to_app_c;
 import core.app.decays_to_builder_c;
 import core.events.event_c;
 
-import extensions.ResourceManager;
-
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.TypeList;
 
@@ -45,7 +43,7 @@ constexpr auto extensions::BasicEventManager<Events_T...>::register_event(
 {
     return core::app::swap_extension<BasicEventManager>(
         std::forward<Self_T>(self),
-        [](BasicEventManager) { return BasicEventManager<Events_T..., Event_T>{}; }
+        [](auto&&) { return BasicEventManager<Events_T..., Event_T>{}; }
     );
 }
 
