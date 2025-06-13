@@ -6,11 +6,11 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         extensions.cppm
-        AddonManager.ixx
+        Addons.ixx
         Assets.ixx
-        EventManager.ixx
+        Events.ixx
         Functional.ixx
-        ResourceManager.ixx
+        Resources.ixx
         Runnable.ixx
         TaskRunner.ixx
 )

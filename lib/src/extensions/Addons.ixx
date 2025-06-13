@@ -5,7 +5,7 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module extensions.AddonManager;
+export module extensions.Addons;
 
 import core.app.addon_c;
 import core.app.decays_to_addon_c;
@@ -35,7 +35,7 @@ private:
     AddonMaker_T m_injection;
 };
 
-export class AddonManager {
+export class Addons {
 public:
     template <core::app::decays_to_builder_c Self_T, core::app::decays_to_addon_c Addon_T>
     constexpr auto use_addon(this Self_T&&, Addon_T&& addon);
@@ -61,7 +61,7 @@ constexpr auto extensions::AddonBuilder<AddonMaker_T>::build(App_T&& app) &&
 }
 
 template <core::app::decays_to_builder_c Self_T, core::app::decays_to_addon_c Addon_T>
-constexpr auto extensions::AddonManager::use_addon(this Self_T&& self, Addon_T&& addon)
+constexpr auto extensions::Addons::use_addon(this Self_T&& self, Addon_T&& addon)
 {
     struct AddonMaker {
         constexpr auto operator()() && -> std::decay_t<Addon_T>
@@ -79,7 +79,7 @@ constexpr auto extensions::AddonManager::use_addon(this Self_T&& self, Addon_T&&
 
 template <core::app::decays_to_builder_c Self_T, extensions::decays_to_addon_maker AddonMaker_T>
 constexpr auto
-    extensions::AddonManager::inject_addon(this Self_T&& self, AddonMaker_T&& addon)
+    extensions::Addons::inject_addon(this Self_T&& self, AddonMaker_T&& addon)
 {
     return std::forward<Self_T>(self).extend_with(
         AddonBuilder<AddonMaker_T>{ std::forward<AddonMaker_T>(addon) }

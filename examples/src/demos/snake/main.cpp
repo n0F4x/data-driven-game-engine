@@ -5,11 +5,11 @@ import core.measurement;
 import core.scheduler;
 import core.time;
 
-import extensions.AddonManager;
+import extensions.Addons;
 import extensions.Assets;
-import extensions.EventManager;
+import extensions.Events;
 import extensions.Functional;
-import extensions.ResourceManager;
+import extensions.Resources;
 import extensions.scheduler;
 import extensions.TaskRunner;
 
@@ -56,11 +56,11 @@ auto main() -> int
     namespace argument_providers = extensions::scheduler::argument_providers;
 
     core::app::create()
-        .extend_with(extensions::ResourceManager{})
+        .extend_with(extensions::Resources{})
         .extend_with(extensions::Assets{})
-        .extend_with(extensions::EventManager{})
+        .extend_with(extensions::Events{})
         .extend_with(extensions::Functional{})
-        .extend_with(extensions::AddonManager{})
+        .extend_with(extensions::Addons{})
         .use_addon(addons::ECS{})
         .extend_with(
             extensions::TaskRunner{

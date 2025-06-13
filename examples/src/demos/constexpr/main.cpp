@@ -2,7 +2,7 @@
 
 import core.app;
 
-import extensions.ResourceManager;
+import extensions.Resources;
 import extensions.Runnable;
 
 struct First {
@@ -17,7 +17,7 @@ auto main() -> int
 {
     constexpr int result =
         core::app::create()
-            .extend_with(extensions::ResourceManager{})
+            .extend_with(extensions::Resources{})
             .use_resource(First{})
             .inject_resource([](const First& first) -> Second {
                 return Second{ .ref = first.value };

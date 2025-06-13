@@ -10,7 +10,7 @@ import core.app.has_addons_c;
 
 import core.gfx.Camera;
 
-import addons.ResourceManager;
+import addons.Resources;
 
 import examples.base.DemoBase;
 import examples.base.Renderer;
@@ -20,7 +20,7 @@ import demos.gltf.DemoApp;
 namespace demo {
 
 export constexpr auto run =
-    []<core::app::has_addons_c<addons::ResourceManagerTag> App_T>(App_T&& app) -> void {
+    []<core::app::has_addons_c<addons::ResourcesTag> App_T>(App_T&& app) -> void {
     app.resource_manager.template get<examples::base::DemoBase>().run(
         [demo_app = std::ref(app.resource_manager.template get<DemoApp>()
          )](examples::base::Renderer& renderer,

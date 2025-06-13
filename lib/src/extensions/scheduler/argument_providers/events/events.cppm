@@ -1,6 +1,6 @@
 export module extensions.scheduler.argument_providers.events;
 
-import addons.EventManager;
+import addons.Events;
 
 import core.app.has_addons_c;
 
@@ -11,7 +11,7 @@ namespace extensions::scheduler::argument_providers {
 export struct EventProviderClosure {
     [[nodiscard]]
     constexpr static auto
-        operator()(core::app::has_addons_c<addons::EventManagerTag> auto&);
+        operator()(core::app::has_addons_c<addons::EventsTag> auto&);
 };
 
 export constexpr EventProviderClosure event_provider;
@@ -19,7 +19,7 @@ export constexpr EventProviderClosure event_provider;
 }   // namespace extensions::scheduler::argument_providers
 
 constexpr auto extensions::scheduler::argument_providers::EventProviderClosure::operator()(
-    core::app::has_addons_c<addons::EventManagerTag> auto& app
+    core::app::has_addons_c<addons::EventsTag> auto& app
 )
 {
     return EventProvider{ app.event_manager };

@@ -9,9 +9,9 @@ import core.scheduler;
 
 import demo.Window;
 
-import extensions.AddonManager;
-import extensions.EventManager;
-import extensions.ResourceManager;
+import extensions.Addons;
+import extensions.Events;
+import extensions.Resources;
 import extensions.scheduler;
 import extensions.TaskRunner;
 
@@ -95,11 +95,11 @@ auto main() -> int
     namespace argument_providers = extensions::scheduler::argument_providers;
 
     core::app::create()
-        .extend_with(extensions::ResourceManager{})
+        .extend_with(extensions::Resources{})
         .use_resource(Window{})
-        .extend_with(extensions::EventManager{})
+        .extend_with(extensions::Events{})
         .register_event<WindowClosed>()
-        .extend_with(extensions::AddonManager{})
+        .extend_with(extensions::Addons{})
         .use_addon(addons::ECS{})
         .extend_with(
             extensions::TaskRunner{

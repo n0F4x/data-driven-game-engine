@@ -6,6 +6,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         addons.cppm
         Assets.ixx
         ecs.ixx
-        EventManager.ixx
-        ResourceManager.ixx
+        Events.ixx
+        Resources.ixx
 )

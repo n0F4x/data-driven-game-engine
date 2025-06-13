@@ -28,7 +28,7 @@ import plugins.renderer.DevicePlugin;
 import plugins.renderer.InstancePlugin;
 import plugins.renderer.SurfacePlugin;
 
-import extensions.ResourceManager;
+import extensions.Resources;
 import extensions.Functional;
 
 namespace plugins {
@@ -49,7 +49,7 @@ public:
     RendererPlugin();
 
     template <
-        core::app::extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
+        core::app::extended_with_c<extensions::ResourcesTag, extensions::Functional>
             Builder_T>
     auto operator()(Builder_T&& builder);
 
@@ -162,7 +162,7 @@ auto to_device_dependency(const plugins::renderer::Requirement& requirement)
 }
 
 template <extensions::injection_c SurfacePlugin_T>
-template <core::app::extended_with_c<extensions::ResourceManagerTag, extensions::Functional>
+template <core::app::extended_with_c<extensions::ResourcesTag, extensions::Functional>
               Builder_T>
 auto plugins::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T&& builder)
 {

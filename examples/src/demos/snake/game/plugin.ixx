@@ -7,7 +7,7 @@ export module snake.game.plugin;
 import core.app;
 import core.time.FixedTimer;
 
-import extensions.EventManager;
+import extensions.Events;
 
 import snake.game.game_tick_rate;
 import snake.game.GameOver;
@@ -20,7 +20,7 @@ export constexpr inline auto make_plugin = [](Settings settings) {
                Builder_T&& builder
            )   //
     {
-        static_assert(core::app::extended_with_c<Builder_T, extensions::EventManagerTag>);
+        static_assert(core::app::extended_with_c<Builder_T, extensions::EventsTag>);
 
         return std::forward<Builder_T>(builder)
             .use_resource(settings)

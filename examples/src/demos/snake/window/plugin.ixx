@@ -15,8 +15,8 @@ import snake.window.display_rate;
 import snake.window.Settings;
 import snake.window.Window;
 
-import extensions.EventManager;
-import extensions.ResourceManager;
+import extensions.Events;
+import extensions.Resources;
 
 namespace window {
 
@@ -25,8 +25,8 @@ export constexpr inline auto make_plugin = [](Settings settings) {
                Builder_T&& builder
            ) {
         static_assert(core::app::
-                          extended_with_c<Builder_T, extensions::ResourceManagerTag>);
-        static_assert(core::app::extended_with_c<Builder_T, extensions::EventManagerTag>);
+                          extended_with_c<Builder_T, extensions::ResourcesTag>);
+        static_assert(core::app::extended_with_c<Builder_T, extensions::EventsTag>);
 
         return std::forward<Builder_T>(builder)
             .use_resource(settings)
