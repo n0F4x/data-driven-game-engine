@@ -1,4 +1,4 @@
-export module addons.ecs;
+export module addons.ECS;
 
 import core.ecs;
 

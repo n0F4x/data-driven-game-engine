@@ -44,6 +44,8 @@ public:
     constexpr auto inject_addon(this Self_T&&, AddonMaker_T&& addon);
 };
 
+export inline constexpr Addons addons;
+
 }   // namespace extensions
 
 template <extensions::addon_maker AddonMaker_T>
@@ -78,8 +80,7 @@ constexpr auto extensions::Addons::use_addon(this Self_T&& self, Addon_T&& addon
 }
 
 template <core::app::decays_to_builder_c Self_T, extensions::decays_to_addon_maker AddonMaker_T>
-constexpr auto
-    extensions::Addons::inject_addon(this Self_T&& self, AddonMaker_T&& addon)
+constexpr auto extensions::Addons::inject_addon(this Self_T&& self, AddonMaker_T&& addon)
 {
     return std::forward<Self_T>(self).extend_with(
         AddonBuilder<AddonMaker_T>{ std::forward<AddonMaker_T>(addon) }

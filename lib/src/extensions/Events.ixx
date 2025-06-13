@@ -32,6 +32,8 @@ public:
 
 export using Events = BasicEvents<>;
 
+export inline constexpr Events events;
+
 }   // namespace extensions
 
 template <core::events::event_c... Events_T>

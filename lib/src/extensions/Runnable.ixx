@@ -31,6 +31,8 @@ public:
         invoke_result_t<Runner_T&&, decltype(std::forward<Self_T>(self).build()), Args_T&&...>;
 };
 
+export inline constexpr Runnable runnable;
+
 }   // namespace extensions
 
 template <

@@ -47,6 +47,8 @@ private:
 
 export using Assets = BasicAssets<>;
 
+export inline constexpr Assets assets;
+
 }   // namespace extensions
 
 template <core::assets::loader_c... Loaders_T>

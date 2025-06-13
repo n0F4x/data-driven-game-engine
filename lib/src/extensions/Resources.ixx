@@ -36,21 +36,17 @@ concept injection_c = resource_c<util::meta::result_of_t<T>>;
 export template <typename T>
 concept decays_to_injection_c = injection_c<std::decay_t<T>>;
 
-template <extensions::injection_c... Injections_T>
-class BasicResources;
-
-export using Resources = BasicResources<>;
-
 export struct ResourcesTag {};
 
-}   // namespace extensions
+template <extensions::injection_c... Injections_T>
+class BasicResources;
 
 template <typename... Injections_T>
 using old_resources_t =
     util::meta::type_list_drop_back_t<extensions::BasicResources<Injections_T...>>;
 
 template <extensions::injection_c... Injections_T>
-class extensions::BasicResources : public ResourcesTag {
+class BasicResources : public ResourcesTag {
 public:
     BasicResources() = default;
 
@@ -84,11 +80,17 @@ private:
     std::tuple<std::decay_t<Injections_T>...> m_injections;
 };
 
+export using Resources = BasicResources<>;
+
+export inline constexpr Resources resources;
+
+}   // namespace extensions
+
 template <extensions::injection_c... Injections_T>
 template <typename OldBasicResources_T, typename... Args>
     requires std::same_as<
         std::remove_cvref_t<OldBasicResources_T>,
-        old_resources_t<Injections_T...>>
+        extensions::old_resources_t<Injections_T...>>
 constexpr extensions::BasicResources<Injections_T...>::BasicResources(
     OldBasicResources_T&& old_resources,
     std::in_place_t,
@@ -179,9 +181,7 @@ constexpr auto extensions::BasicResources<Injections_T...>::inject_resource(
     return core::app::swap_extension<BasicResources>(
         std::forward<Self_T>(self),
         [&]<typename BasicResources_T>
-            requires(std::is_same_v<
-                     std::remove_cvref_t<BasicResources_T>,
-                     BasicResources>)
+            requires(std::is_same_v<std::remove_cvref_t<BasicResources_T>, BasicResources>)
         (BasicResources_T&& resources) {
             return BasicResources<Injections_T..., std::decay_t<Injection_T>>{
                 std::forward<BasicResources_T>(resources),
@@ -196,16 +196,14 @@ template <extensions::injection_c... Injections_T>
 template <core::app::decays_to_app_c App_T>
 constexpr auto extensions::BasicResources<Injections_T...>::build(App_T&& app) &&
 {
-    using ResourcesAddon =
-        addons::Resources<util::meta::result_of_t<Injections_T>...>;
+    using ResourcesAddon = addons::Resources<util::meta::result_of_t<Injections_T>...>;
 
     static_assert(!core::app::has_addons_c<App_T, ResourcesAddon>);
 
     return util::meta::apply<std::make_index_sequence<sizeof...(Injections_T)>>(
         [this, &app]<size_t... Is> {
             return std::forward<App_T>(app).add_on(
-                ResourcesAddon{ std::in_place,
-                                      std::move(std::get<Is>(m_injections))... }
+                ResourcesAddon{ std::in_place, std::move(std::get<Is>(m_injections))... }
             );
         }
     );

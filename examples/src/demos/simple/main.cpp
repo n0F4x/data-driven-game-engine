@@ -1,7 +1,7 @@
 #include <print>
 #include <string>
 
-import addons.ecs;
+import addons.ECS;
 
 import core.app;
 import core.ecs;
@@ -95,11 +95,11 @@ auto main() -> int
     namespace argument_providers = extensions::scheduler::argument_providers;
 
     core::app::create()
-        .extend_with(extensions::Resources{})
+        .extend_with(extensions::resources)
         .use_resource(Window{})
-        .extend_with(extensions::Events{})
+        .extend_with(extensions::events)
         .register_event<WindowClosed>()
-        .extend_with(extensions::Addons{})
+        .extend_with(extensions::addons)
         .use_addon(addons::ECS{})
         .extend_with(
             extensions::TaskRunner{

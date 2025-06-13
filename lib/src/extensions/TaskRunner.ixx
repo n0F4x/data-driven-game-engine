@@ -19,6 +19,8 @@ namespace extensions {
 export template <typename... ArgumentProviderBuilders_T>
 class TaskRunner {
 public:
+    TaskRunner() = default;
+
     template <typename... UArgumentProviderBuilders_T>
         requires(
             std::constructible_from<ArgumentProviderBuilders_T, UArgumentProviderBuilders_T &&>
@@ -40,6 +42,8 @@ private:
 template <typename... ArgumentProviderBuilders_T>
 TaskRunner(ArgumentProviderBuilders_T&&...)
     -> TaskRunner<std::remove_cvref_t<ArgumentProviderBuilders_T>...>;
+
+export inline constexpr TaskRunner<> task_runner;
 
 }   // namespace extensions
 

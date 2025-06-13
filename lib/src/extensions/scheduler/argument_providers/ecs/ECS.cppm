@@ -1,6 +1,6 @@
 export module extensions.scheduler.argument_providers.ecs;
 
-import addons.ecs;
+import addons.ECS;
 
 import core.app.has_addons_c;
 

@@ -1,4 +1,4 @@
-import addons.ecs;
+import addons.ECS;
 
 import core.app;
 import core.measurement;
@@ -56,11 +56,11 @@ auto main() -> int
     namespace argument_providers = extensions::scheduler::argument_providers;
 
     core::app::create()
-        .extend_with(extensions::Resources{})
-        .extend_with(extensions::Assets{})
-        .extend_with(extensions::Events{})
-        .extend_with(extensions::Functional{})
-        .extend_with(extensions::Addons{})
+        .extend_with(extensions::resources)
+        .extend_with(extensions::assets)
+        .extend_with(extensions::events)
+        .extend_with(extensions::functional)
+        .extend_with(extensions::addons)
         .use_addon(addons::ECS{})
         .extend_with(
             extensions::TaskRunner{

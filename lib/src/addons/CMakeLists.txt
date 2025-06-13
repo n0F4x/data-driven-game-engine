@@ -5,7 +5,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         addons.cppm
         Assets.ixx
-        ecs.ixx
+        ECS.ixx
         Events.ixx
         Resources.ixx
 )
