@@ -8,6 +8,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         extensions.cppm
         Addons.ixx
         Assets.ixx
+        ECS.ixx
         Events.ixx
         Functional.ixx
         Resources.ixx

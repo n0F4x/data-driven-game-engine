@@ -9,7 +9,7 @@ import core.scheduler;
 
 import demo.Window;
 
-import extensions.Addons;
+import extensions.ECS;
 import extensions.Events;
 import extensions.Resources;
 import extensions.scheduler;
@@ -99,8 +99,7 @@ auto main() -> int
         .use_resource(Window{})
         .extend_with(extensions::events)
         .register_event<WindowClosed>()
-        .extend_with(extensions::addons)
-        .use_addon(addons::ECS{})
+        .extend_with(extensions::ecs)
         .extend_with(
             extensions::TaskRunner{
                 argument_providers::resource_provider,

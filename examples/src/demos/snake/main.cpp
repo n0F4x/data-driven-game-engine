@@ -5,8 +5,8 @@ import core.measurement;
 import core.scheduler;
 import core.time;
 
-import extensions.Addons;
 import extensions.Assets;
+import extensions.ECS;
 import extensions.Events;
 import extensions.Functional;
 import extensions.Resources;
@@ -60,8 +60,7 @@ auto main() -> int
         .extend_with(extensions::assets)
         .extend_with(extensions::events)
         .extend_with(extensions::functional)
-        .extend_with(extensions::addons)
-        .use_addon(addons::ECS{})
+        .extend_with(extensions::ecs)
         .extend_with(
             extensions::TaskRunner{
                 argument_providers::resource_provider,

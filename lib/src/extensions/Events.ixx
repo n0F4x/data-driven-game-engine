@@ -4,12 +4,12 @@ module;
 
 export module extensions.Events;
 
-import addons.Events;
-
 import core.app.Builder;
 import core.app.decays_to_app_c;
 import core.app.decays_to_builder_c;
-import core.events.event_c;
+import core.events;
+
+import addons.Events;
 
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.TypeList;

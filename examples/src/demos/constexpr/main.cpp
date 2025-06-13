@@ -17,12 +17,12 @@ auto main() -> int
 {
     constexpr int result =
         core::app::create()
-            .extend_with(extensions::Resources{})
+            .extend_with(extensions::resources)
             .use_resource(First{})
             .inject_resource([](const First& first) -> Second {
                 return Second{ .ref = first.value };
             })
-            .extend_with(extensions::Runnable{})
+            .extend_with(extensions::runnable)
             .run([](auto app) {
                 return app.resource_manager.template get<Second>().ref.get();
             });
