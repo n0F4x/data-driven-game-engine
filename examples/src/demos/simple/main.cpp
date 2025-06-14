@@ -102,13 +102,7 @@ auto main() -> int
         .plug_in(plugins::events)
         .register_event<WindowClosed>()
         .plug_in(plugins::ecs)
-        .plug_in(
-            plugins::Scheduler{
-                argument_providers::resource_provider,
-                argument_providers::event_provider,
-                argument_providers::ecs,
-            }
-        )
+        .plug_in(plugins::scheduler)
         .run(
             core::scheduler::start_as(initialize)   //
                 .then(run_game_loop)

@@ -63,13 +63,7 @@ auto main() -> int
         .plug_in(plugins::events)
         .plug_in(plugins::functional)
         .plug_in(plugins::ecs)
-        .plug_in(
-            plugins::Scheduler{
-                argument_providers::resource_provider,
-                argument_providers::event_provider,
-                argument_providers::ecs,
-            }
-        )
+        .plug_in(plugins::scheduler)
         .transform(window::setup)
         .transform(game::setup)
         .run(

@@ -45,6 +45,8 @@ constexpr auto swap_addon(App_T&& app, Transform_T&& transform_addon)
 export template <addon_c... Addons_T>
 class App : public Addons_T... {
 public:
+    using Addons = util::TypeList<Addons_T...>;
+
     App()
         requires(sizeof...(Addons_T) == 0)
     = default;
