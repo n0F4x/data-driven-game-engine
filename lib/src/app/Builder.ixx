@@ -21,17 +21,17 @@ import app.decays_to_plugin_c;
 import app.plugin_c;
 
 template <typename Transform_T, typename Builder_T, typename OldPlugin_T>
-concept valid_swap_transform_c =
+concept valid_swap_plugin_transform_c =
     requires {
         util::meta::type_list_contains_v<std::remove_cvref_t<Builder_T>, OldPlugin_T>;
     }
     && app::plugin_c<std::invoke_result_t<
-        Transform_T,
+        Transform_T&&,
         util::meta::forward_like_t<OldPlugin_T, Builder_T>>>
     && (!util::meta::type_list_contains_v<
         std::remove_cvref_t<Builder_T>,
         std::invoke_result_t<
-            Transform_T,
+            Transform_T&&,
             util::meta::forward_like_t<OldPlugin_T, Builder_T>>>);
 
 namespace app {
@@ -42,15 +42,15 @@ class Builder;
 export template <
     typename OldPlugin_T,
     typename Builder_T,
-    valid_swap_transform_c<Builder_T, OldPlugin_T> Transform_T>
+    valid_swap_plugin_transform_c<Builder_T, OldPlugin_T> Transform_T>
     requires util::meta::specialization_of_c<std::remove_cvref_t<Builder_T>, Builder>
 [[nodiscard]]
-constexpr auto swap_plugin(Builder_T&& builder, Transform_T transform_plugin)
+constexpr auto swap_plugin(Builder_T&& builder, Transform_T&& transform_plugin)
     -> util::meta::type_list_replace_t<
         std::remove_cvref_t<Builder_T>,
         OldPlugin_T,
         std::invoke_result_t<
-            Transform_T,
+            Transform_T&&,
             util::meta::forward_like_t<OldPlugin_T, Builder_T>>>;
 
 export template <plugin_c... Plugins_T>
@@ -61,8 +61,7 @@ public:
     = default;
 
     template <typename Self_T, decays_to_plugin_c Plugin_T>
-        requires(!util::meta::
-                     type_list_contains_v<util::TypeList<Plugins_T...>, Plugin_T>)
+        requires(!util::meta::type_list_contains_v<util::TypeList<Plugins_T...>, Plugin_T>)
     [[nodiscard]]
     constexpr auto plug_in(this Self_T&&, Plugin_T&& plugin)
         -> Builder<Plugins_T..., std::remove_cvref_t<Plugin_T>>;
@@ -71,22 +70,22 @@ public:
     [[nodiscard]]
     constexpr auto build(this Self_T&&);
 
+private:
     template <
         typename OldPlugin_T,
         typename Builder_T,
-        valid_swap_transform_c<Builder_T, OldPlugin_T> Transform_T>
+        valid_swap_plugin_transform_c<Builder_T, OldPlugin_T> Transform_T>
         requires util::meta::
             specialization_of_c<std::remove_cvref_t<Builder_T>, ::app::Builder>
         friend constexpr auto
-        swap_plugin(Builder_T&& builder, Transform_T transform_plugin)
+        swap_plugin(Builder_T&& builder, Transform_T&& transform_plugin)
             -> util::meta::type_list_replace_t<
                 std::remove_cvref_t<Builder_T>,
                 OldPlugin_T,
                 std::invoke_result_t<
-                    Transform_T,
+                    Transform_T&&,
                     util::meta::forward_like_t<OldPlugin_T, Builder_T>>>;
 
-private:
     template <plugin_c...>
     friend class Builder;
 
@@ -100,23 +99,19 @@ private:
 template <
     typename OldPlugin_T,
     typename Builder_T,
-    valid_swap_transform_c<Builder_T, OldPlugin_T> Transform_T>
-    requires util::meta::
-        specialization_of_c<std::remove_cvref_t<Builder_T>, app::Builder>
-    constexpr auto
-    app::swap_plugin(Builder_T&& builder, Transform_T transform_plugin)
-        -> util::meta::type_list_replace_t<
-            std::remove_cvref_t<Builder_T>,
-            OldPlugin_T,
-            std::invoke_result_t<
-                Transform_T,
-                util::meta::forward_like_t<OldPlugin_T, Builder_T>>>
+    valid_swap_plugin_transform_c<Builder_T, OldPlugin_T> Transform_T>
+    requires util::meta::specialization_of_c<std::remove_cvref_t<Builder_T>, app::Builder>
+constexpr auto app::swap_plugin(Builder_T&& builder, Transform_T&& transform_plugin)
+    -> util::meta::type_list_replace_t<
+        std::remove_cvref_t<Builder_T>,
+        OldPlugin_T,
+        std::invoke_result_t<Transform_T&&, util::meta::forward_like_t<OldPlugin_T, Builder_T>>>
 {
     using Result = util::meta::type_list_replace_t<
         std::remove_cvref_t<Builder_T>,
         OldPlugin_T,
         std::invoke_result_t<
-            Transform_T,
+            Transform_T&&,
             util::meta::forward_like_t<OldPlugin_T, Builder_T>>>;
 
     return util::meta::apply<std::remove_cvref_t<Builder_T>>(
@@ -124,7 +119,7 @@ template <
             return Result{ [&builder, &transform_plugin] {
                 if constexpr (std::is_same_v<Plugins_T, OldPlugin_T>) {
                     return std::invoke(
-                        transform_plugin,
+                        std::forward<Transform_T>(transform_plugin),
                         static_cast<util::meta::forward_like_t<Plugins_T, Builder_T>>(
                             builder
                         )
@@ -143,12 +138,9 @@ template <
 
 template <app::plugin_c... Plugins_T>
 template <typename Self_T, app::decays_to_plugin_c Plugin_T>
-    requires(!util::meta::
-                 type_list_contains_v<util::TypeList<Plugins_T...>, Plugin_T>)
-constexpr auto app::Builder<Plugins_T...>::plug_in(
-    this Self_T&& self,
-    Plugin_T&& plugin
-) -> Builder<Plugins_T..., std::remove_cvref_t<Plugin_T>>
+    requires(!util::meta::type_list_contains_v<util::TypeList<Plugins_T...>, Plugin_T>)
+constexpr auto app::Builder<Plugins_T...>::plug_in(this Self_T&& self, Plugin_T&& plugin)
+    -> Builder<Plugins_T..., std::remove_cvref_t<Plugin_T>>
 {
     return Builder<Plugins_T..., std::remove_cvref_t<Plugin_T>>{
         static_cast<util::meta::forward_like_t<Plugins_T, Self_T>>(self)...,
@@ -166,16 +158,17 @@ constexpr auto app::Builder<Plugins_T...>::build(this Self_T&& self)
         }
         else if constexpr (requires {
                                {
-                                   static_cast<util::meta::forward_like_t<
-                                       Plugins_T...[index_T],
-                                       Self_T>>(self)
+                                   static_cast<
+                                       util::meta::
+                                           forward_like_t<Plugins_T...[index_T], Self_T>>(
+                                       self
+                                   )
                                        .build(std::forward<App_T>(app))
                                } -> app_c;
                            })
         {
             return func.template operator()<index_T + 1>(
-                static_cast<util::meta::forward_like_t<Plugins_T...[index_T], Self_T>>(
-                    self
+                static_cast<util::meta::forward_like_t<Plugins_T...[index_T], Self_T>>(self
                 )
                     .build(std::forward<App_T>(app))
             );
