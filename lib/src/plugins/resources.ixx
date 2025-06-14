@@ -8,11 +8,11 @@ module;
 
 export module plugins.resources;
 
-import app.Builder;
-import app.decays_to_app_c;
-import app.decays_to_builder_c;
-import app.has_addons_c;
-import core.store.Store;
+import addons.Resources;
+
+import app;
+
+import core.resources;
 
 import utility.meta.algorithms.apply;
 import utility.meta.type_traits.functional.arguments_of;
@@ -20,10 +20,6 @@ import utility.meta.type_traits.functional.result_of;
 import utility.meta.type_traits.type_list.type_list_drop_back;
 import utility.meta.type_traits.back;
 import utility.tuple;
-
-import addons.Resources;
-
-import core.resources.resource_c;
 
 namespace plugins {
 
@@ -64,9 +60,7 @@ public:
         requires plugins::resource_c<std::remove_cvref_t<Resource_T>>
     constexpr auto use_resource(this Self_T&&, Resource_T&& resource);
 
-    template <
-        app::decays_to_builder_c    Self_T,
-        plugins::decays_to_injection_c Injection_T>
+    template <app::decays_to_builder_c Self_T, plugins::decays_to_injection_c Injection_T>
     constexpr auto inject_resource(this Self_T&&, Injection_T&& injection);
 
     template <app::decays_to_app_c App_T>
@@ -203,7 +197,11 @@ constexpr auto plugins::BasicResources<Injections_T...>::build(App_T&& app) &&
     return util::meta::apply<std::make_index_sequence<sizeof...(Injections_T)>>(
         [this, &app]<size_t... Is> {
             return std::forward<App_T>(app).add_on(
-                ResourcesAddon{ std::in_place, std::move(std::get<Is>(m_injections))... }
+                ResourcesAddon{
+                    .resource_manager = core::resources::ResourceManager{ std::move(
+                        std::get<Is>(m_injections)
+                    )... },
+                }
             );
         }
     );

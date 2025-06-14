@@ -10,6 +10,7 @@ export module core.resources.ResourceManager;
 import utility.containers.StackedTuple;
 import utility.meta.concepts.all_different;
 import utility.meta.type_traits.type_list.type_list_contains;
+import utility.meta.type_traits.functional.result_of;
 import utility.TypeList;
 
 import core.resources.resource_c;
@@ -40,7 +41,14 @@ private:
     std::unique_ptr<::util::StackedTuple<Resources_T...>> m_resources;
 };
 
-}   // namespace core::resource
+template <typename... Factories_T>
+    requires std::constructible_from<
+        util::StackedTuple<util::meta::result_of_t<Factories_T>...>,
+        Factories_T&&...>
+ResourceManager(Factories_T&&...)
+    -> ResourceManager<util::meta::result_of_t<Factories_T>...>;
+
+}   // namespace core::resources
 
 template <core::resources::resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
