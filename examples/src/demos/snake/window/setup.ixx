@@ -21,12 +21,15 @@ import plugins.resources;
 
 namespace window {
 
-export constexpr inline auto make_plugin = [](Settings settings) {
-    return [settings = std::move(settings)]<app::decays_to_builder_c Builder_T>(
-               Builder_T&& builder
-           ) {
-        static_assert(app::
-                          has_plugins_c<Builder_T, plugins::ResourcesTag>);
+inline constexpr Settings settings{
+    .width  = 1'280,
+    .height = 720,
+    .title{ "Snake" },
+};
+
+export inline constexpr auto setup =
+    []<app::decays_to_builder_c Builder_T>(Builder_T&& builder) {
+        static_assert(app::has_plugins_c<Builder_T, plugins::ResourcesTag>);
         static_assert(app::has_plugins_c<Builder_T, plugins::EventsTag>);
 
         return std::forward<Builder_T>(builder)
@@ -38,6 +41,5 @@ export constexpr inline auto make_plugin = [](Settings settings) {
             .insert_resource(core::time::FixedTimer<display_rate>{})
             .template register_event<sf::Event>();
     };
-};
 
 }   // namespace window

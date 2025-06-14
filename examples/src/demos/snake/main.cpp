@@ -70,24 +70,8 @@ auto main() -> int
                 argument_providers::ecs,
             }
         )
-        .transform(
-            window::make_plugin(
-                window::Settings{
-                    .width  = 1'280,
-                    .height = 720,
-                    .title{ "Snake" },
-                }
-            )
-        )
-        .transform(
-            game::make_plugin(
-                game::Settings{
-                    .cells_per_row    = 20,
-                    .cells_per_column = 20,
-                    .cell_width       = 32,
-                }
-            )
-        )
+        .transform(window::setup)
+        .transform(game::setup)
         .run(
             core::scheduler::start_as(initialize)   //
                 .then(run_game_loop)

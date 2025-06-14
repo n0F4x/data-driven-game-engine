@@ -10,8 +10,8 @@ target_sources(${PROJECT_NAME} PRIVATE
         display_rate.ixx
         initialize.ixx
         open_window.ixx
-        plugin.ixx
         Settings.ixx
+        setup.ixx
         update.ixx
         Window.ixx
         window_should_close.ixx

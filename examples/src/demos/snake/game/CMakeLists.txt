@@ -12,9 +12,9 @@ target_sources(${PROJECT_NAME} PRIVATE
         game_tick_rate.ixx
         GameOver.ixx
         move_snake.ixx
-        plugin.ixx
         Position.ixx
         Settings.ixx
+        setup.ixx
         initialize.ixx
         Snake.ixx
         SnakeHead.ixx
