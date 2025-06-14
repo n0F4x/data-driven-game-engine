@@ -1,6 +1,6 @@
 module;
 
-export module extensions.renderer.SurfacePlugin;
+export module extensions.renderer.SurfaceInjection;
 
 import vulkan_hpp;
 
@@ -8,11 +8,11 @@ import core.renderer.base.instance.Instance;
 
 import core.window.Window;
 
-import extensions.renderer.InstancePlugin;
+import extensions.renderer.InstanceInjection;
 
 namespace extensions::renderer {
 
-export class SurfacePlugin {
+export class SurfaceInjection {
 public:
     [[nodiscard]]
     auto operator()(
@@ -20,7 +20,7 @@ public:
         const core::renderer::base::Instance& instance
     ) const -> vk::UniqueSurfaceKHR;
 
-    static auto setup(InstancePlugin& instance_plugin) -> void;
+    static auto setup(InstanceInjection& instance_injection) -> void;
 };
 
 }   // namespace extensions::renderer

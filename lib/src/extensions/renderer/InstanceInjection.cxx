@@ -11,7 +11,7 @@ module;
 
 #include "core/log/log_macros.hpp"
 
-module extensions.renderer.InstancePlugin;
+module extensions.renderer.InstanceInjection;
 
 import vulkan_hpp;
 
@@ -138,12 +138,12 @@ static auto
 
 namespace extensions::renderer {
 
-const InstancePlugin::Dependency InstancePlugin::debug_dependency{
+const InstanceInjection::Dependency InstanceInjection::debug_dependency{
     .required_settings_are_available = ::required_debug_settings_are_available,
     .enable_settings                 = ::enable_debug_settings,
 };
 
-auto InstancePlugin::operator()() const -> core::renderer::base::Instance
+auto InstanceInjection::operator()() const -> core::renderer::base::Instance
 {
     core::config::vulkan::init();
 
@@ -164,7 +164,7 @@ auto InstancePlugin::operator()() const -> core::renderer::base::Instance
         ))
     {
         throw std::runtime_error{
-            "InstancePlugin: not all required instance settings are available"
+            "InstanceInjection: not all required instance settings are available"
         };
     }
 

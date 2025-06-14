@@ -5,7 +5,7 @@ module;
 
 #include <VkBootstrap.h>
 
-export module extensions.renderer.DevicePlugin;
+export module extensions.renderer.DeviceInjection;
 
 import vulkan_hpp;
 
@@ -14,7 +14,7 @@ import core.renderer.base.device.Device;
 
 namespace extensions::renderer {
 
-export class DevicePlugin {
+export class DeviceInjection {
 public:
     struct Dependency {
         std::function<void(vkb::PhysicalDeviceSelector&)> require_settings;
@@ -36,7 +36,7 @@ private:
 }   // namespace extensions::renderer
 
 template <typename Self>
-auto extensions::renderer::DevicePlugin::emplace_dependency(
+auto extensions::renderer::DeviceInjection::emplace_dependency(
     this Self&& self,
     Dependency  dependency
 ) -> Self

@@ -1,6 +1,6 @@
 export module extensions.renderer;
 
-export import extensions.renderer.DevicePlugin;
-export import extensions.renderer.InstancePlugin;
-export import extensions.renderer.RendererPlugin;
-export import extensions.renderer.SurfacePlugin;
+export import extensions.renderer.DeviceInjection;
+export import extensions.renderer.InstanceInjection;
+export import extensions.renderer.setup;
+export import extensions.renderer.SurfaceInjection;

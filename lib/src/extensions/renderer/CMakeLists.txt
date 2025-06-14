@@ -1,7 +1,7 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        DevicePlugin.cxx
-        InstancePlugin.cxx
-        SurfacePlugin.cxx
+        DeviceInjection.cxx
+        InstanceInjection.cxx
+        SurfaceInjection.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC
@@ -10,8 +10,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         renderer.cppm
-        DevicePlugin.ixx
-        InstancePlugin.ixx
-        Renderer.ixx
-        SurfacePlugin.ixx
+        DeviceInjection.ixx
+        InstanceInjection.ixx
+        setup.ixx
+        SurfaceInjection.ixx
 )

@@ -23,7 +23,7 @@ try {
         .insert_resource(
             core::window::Window(util::Size2i{ 1'280, 720 }, "Virtual texturing demo")
         )
-        .transform(extensions::Renderer{})
+        .transform(extensions::renderer::setup)
         .inject_resource(examples::base::DemoBasePlugin{ .movement_speed = 1.f })
         .inject_resource(demo::DemoPlugin{})
         .run(demo::run);

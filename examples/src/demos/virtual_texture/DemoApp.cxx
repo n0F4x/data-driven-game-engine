@@ -19,19 +19,19 @@ import core.renderer.base.resources.Image;
 import core.renderer.base.swapchain.Swapchain;
 import core.renderer.base.swapchain.SwapchainHolder;
 
-import extensions.renderer.DevicePlugin;
-import extensions.renderer.InstancePlugin;
+import extensions.renderer.DeviceInjection;
+import extensions.renderer.InstanceInjection;
 
 import demos.virtual_texture.init;
 import demos.virtual_texture.Camera;
 
 auto demo::DemoPlugin::setup(
-    extensions::renderer::InstancePlugin& instance_plugin,
-    extensions::renderer::DevicePlugin&   device_plugin
+    extensions::renderer::InstanceInjection& instance_injection,
+    extensions::renderer::DeviceInjection&   device_injection
 ) -> void
 {
-    instance_plugin.emplace_dependency(
-        extensions::renderer::InstancePlugin::Dependency{
+    instance_injection.emplace_dependency(
+        extensions::renderer::InstanceInjection::Dependency{
             .required_settings_are_available = [](const vkb::SystemInfo& system_info
                                                ) -> bool {
                 return system_info.is_extension_available(
@@ -47,8 +47,8 @@ auto demo::DemoPlugin::setup(
         }
     );
 
-    device_plugin.emplace_dependency(
-        extensions::renderer::DevicePlugin::Dependency{
+    device_injection.emplace_dependency(
+        extensions::renderer::DeviceInjection::Dependency{
             .require_settings =
                 [](vkb::PhysicalDeviceSelector& physical_device_selector) {
                     physical_device_selector.add_required_extension(

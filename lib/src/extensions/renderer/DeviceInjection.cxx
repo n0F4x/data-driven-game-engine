@@ -6,7 +6,7 @@ module;
 
 #include "core/log/log_macros.hpp"
 
-module extensions.renderer.DevicePlugin;
+module extensions.renderer.DeviceInjection;
 
 import vulkan_hpp;
 
@@ -59,7 +59,7 @@ static auto log_setup(const vkb::Device& device) -> void
 
 namespace extensions::renderer {
 
-auto DevicePlugin::operator()(
+auto DeviceInjection::operator()(
     const core::renderer::base::Instance& instance,
     const vk::UniqueSurfaceKHR&           surface
 ) const -> core::renderer::base::Device

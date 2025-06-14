@@ -1,12 +1,13 @@
 module;
 
 #include <functional>
+#include <utility>
 
 #include <VkBootstrap.h>
 
 #include "core/log/log_macros.hpp"
 
-export module extensions.renderer.RendererPlugin;
+export module extensions.renderer.setup;
 
 import vulkan_hpp;
 
@@ -24,16 +25,14 @@ import core.renderer.base.swapchain.Swapchain;
 import core.renderer.base.swapchain.SwapchainHolder;
 import core.renderer.model.ModelLayout;
 
-import extensions.renderer.DevicePlugin;
-import extensions.renderer.InstancePlugin;
-import extensions.renderer.SurfacePlugin;
+import extensions.renderer.DeviceInjection;
+import extensions.renderer.InstanceInjection;
+import extensions.renderer.SurfaceInjection;
 
 import plugins.resources;
 import plugins.functional;
 
-namespace extensions {
-
-namespace renderer {
+namespace extensions::renderer {
 
 export struct Requirement {
     std::function<bool(const vkb::SystemInfo&)> required_instance_settings_are_available;
@@ -43,10 +42,10 @@ export struct Requirement {
     std::function<void(vkb::PhysicalDevice&)>         enable_optional_device_settings;
 };
 
-export template <plugins::injection_c SurfacePlugin_T>
-class RendererPlugin {
+export template <plugins::injection_c SurfaceInjection_T>
+class Setup {
 public:
-    RendererPlugin();
+    Setup();
 
     template <app::has_plugins_c<plugins::ResourcesTag, plugins::Functional> Builder_T>
     auto operator()(Builder_T&& builder);
@@ -54,19 +53,22 @@ public:
     template <typename Self>
     auto require(this Self&&, Requirement requirement) -> Self;
 
-    template <typename Self, typename... Args>
-    auto set_framebuffer_size_getter(this Self&&, Args&&... args) -> Self;
-
 private:
     std::vector<Requirement> m_requirements;
-    SurfacePlugin_T          m_surface_plugin{};
+    SurfaceInjection_T          m_surface_injection{};
 };
 
-}   // namespace renderer
+class SetupProxy {
+public:
+    template <app::has_plugins_c<plugins::ResourcesTag, plugins::Functional> Builder_T>
+    static auto operator()(Builder_T&& builder);
 
-export using Renderer = renderer::RendererPlugin<renderer::SurfacePlugin>;
+    static auto require(Requirement requirement) -> Setup<SurfaceInjection>;
+};
 
-}   // namespace extensions
+export inline constexpr SetupProxy setup;
+
+}   // namespace extensions::renderer
 
 template <typename Requirement_T>
 auto make_requirement() -> extensions::renderer::Requirement
@@ -128,8 +130,8 @@ auto make_requirement() -> extensions::renderer::Requirement
     return requirement;
 }
 
-template <plugins::injection_c SurfacePlugin_T>
-extensions::renderer::RendererPlugin<SurfacePlugin_T>::RendererPlugin()
+template <plugins::injection_c SurfaceInjection_T>
+extensions::renderer::Setup<SurfaceInjection_T>::Setup()
 {
     require(::make_requirement<core::renderer::base::Allocator::Requirements>());
     require(::make_requirement<core::renderer::base::Swapchain::Requirements>());
@@ -140,9 +142,9 @@ extensions::renderer::RendererPlugin<SurfacePlugin_T>::RendererPlugin()
 
 [[nodiscard]]
 auto to_instance_dependency(const extensions::renderer::Requirement& requirement)
-    -> extensions::renderer::InstancePlugin::Dependency
+    -> extensions::renderer::InstanceInjection::Dependency
 {
-    return extensions::renderer::InstancePlugin::Dependency{
+    return extensions::renderer::InstanceInjection::Dependency{
         .required_settings_are_available =
             requirement.required_instance_settings_are_available,
         .enable_settings = requirement.enable_instance_settings,
@@ -151,33 +153,33 @@ auto to_instance_dependency(const extensions::renderer::Requirement& requirement
 
 [[nodiscard]]
 auto to_device_dependency(const extensions::renderer::Requirement& requirement)
-    -> extensions::renderer::DevicePlugin::Dependency
+    -> extensions::renderer::DeviceInjection::Dependency
 {
-    return extensions::renderer::DevicePlugin::Dependency{
+    return extensions::renderer::DeviceInjection::Dependency{
         .require_settings         = requirement.require_device_settings,
         .enable_optional_settings = requirement.enable_optional_device_settings,
     };
 }
 
-template <plugins::injection_c SurfacePlugin_T>
+template <plugins::injection_c SurfaceInjection_T>
 template <app::has_plugins_c<plugins::ResourcesTag, plugins::Functional> Builder_T>
-auto extensions::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T&& builder)
+auto extensions::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builder)
 {
     return std::forward<Builder_T>(builder)
         .inject_resource([this] {
-            extensions::renderer::InstancePlugin instance_plugin{};
+            extensions::renderer::InstanceInjection instance_injection{};
             for (const Requirement& requirement : m_requirements) {
-                instance_plugin.emplace_dependency(::to_instance_dependency(requirement));
+                instance_injection.emplace_dependency(::to_instance_dependency(requirement));
             }
-            return instance_plugin;
+            return instance_injection;
         }())
-        .inject_resource(m_surface_plugin)
+        .inject_resource(m_surface_injection)
         .inject_resource([this] {
-            extensions::renderer::DevicePlugin device_plugin{};
+            extensions::renderer::DeviceInjection device_injection{};
             for (const Requirement& requirement : m_requirements) {
-                device_plugin.emplace_dependency(::to_device_dependency(requirement));
+                device_injection.emplace_dependency(::to_device_dependency(requirement));
             }
-            return device_plugin;
+            return device_injection;
         }())
         // TODO: reallow using create_framebuffer_size_getter
         .inject_resource([](const vk::UniqueSurfaceKHR&         surface,
@@ -194,9 +196,9 @@ auto extensions::renderer::RendererPlugin<SurfacePlugin_T>::operator()(Builder_T
         });
 }
 
-template <plugins::injection_c SurfacePlugin_T>
+template <plugins::injection_c SurfaceInjection_T>
 template <typename Self>
-auto extensions::renderer::RendererPlugin<SurfacePlugin_T>::require(
+auto extensions::renderer::Setup<SurfaceInjection_T>::require(
     this Self&& self,
     Requirement requirement
 ) -> Self
@@ -205,13 +207,16 @@ auto extensions::renderer::RendererPlugin<SurfacePlugin_T>::require(
     return std::forward<Self>(self);
 }
 
-template <plugins::injection_c SurfacePlugin_T>
-template <typename Self, typename... Args>
-auto extensions::renderer::RendererPlugin<SurfacePlugin_T>::set_framebuffer_size_getter(
-    this Self&& self,
-    Args&&... args
-) -> Self
+template <app::has_plugins_c<plugins::ResourcesTag, plugins::Functional> Builder_T>
+auto extensions::renderer::SetupProxy::operator()(Builder_T&& builder)
 {
-    self.m_create_framebuffer_size_getter.operator=(std::forward<Args>(args)...);
-    return std::forward<Self>(self);
+    return std::forward<Builder_T>(builder).transform(Setup<SurfaceInjection>{});
+}
+
+module :private;
+
+auto extensions::renderer::SetupProxy::require(Requirement requirement)
+    -> Setup<SurfaceInjection>
+{
+    return Setup<SurfaceInjection>{}.require(std::move(requirement));
 }

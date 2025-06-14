@@ -5,13 +5,13 @@ module;
 
 #include <VkBootstrap.h>
 
-export module extensions.renderer.InstancePlugin;
+export module extensions.renderer.InstanceInjection;
 
 import core.renderer.base.instance.Instance;
 
 namespace extensions::renderer {
 
-export class InstancePlugin {
+export class InstanceInjection {
 public:
     struct Dependency {
         std::function<bool(const vkb::SystemInfo&)> required_settings_are_available;
@@ -32,7 +32,7 @@ private:
 }   // namespace extensions::renderer
 
 template <typename Self>
-auto extensions::renderer::InstancePlugin::emplace_dependency(
+auto extensions::renderer::InstanceInjection::emplace_dependency(
     this Self&& self,
     Dependency  dependency
 ) -> Self

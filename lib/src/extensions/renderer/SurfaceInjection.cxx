@@ -8,15 +8,15 @@ module;
 
 #include "core/log/log_macros.hpp"
 
-module extensions.renderer.SurfacePlugin;
+module extensions.renderer.SurfaceInjection;
 
 import app.App;
 import core.log;
 import core.renderer.base.instance.Instance;
 import core.window.Window;
-import extensions.renderer.InstancePlugin;
+import extensions.renderer.InstanceInjection;
 
-auto extensions::renderer::SurfacePlugin::operator()(
+auto extensions::renderer::SurfaceInjection::operator()(
     const core::window::Window&           window,
     const core::renderer::base::Instance& instance
 ) const -> vk::UniqueSurfaceKHR
@@ -30,7 +30,7 @@ auto extensions::renderer::SurfacePlugin::operator()(
         throw std::runtime_error{ "Vulkan surface creation failed" };
     }
 
-    std::bind_front(&SurfacePlugin::setup, *this);
+    std::bind_front(&SurfaceInjection::setup, *this);
     return vk::UniqueSurfaceKHR{ expected_surface.value(), instance.get() };
 }
 
@@ -52,10 +52,10 @@ static auto enable_instance_settings(const vkb::SystemInfo&, vkb::InstanceBuilde
     );
 }
 
-auto extensions::renderer::SurfacePlugin::setup(InstancePlugin& instance_plugin) -> void
+auto extensions::renderer::SurfaceInjection::setup(InstanceInjection& instance_injection) -> void
 {
-    instance_plugin.emplace_dependency(
-        InstancePlugin::Dependency{
+    instance_injection.emplace_dependency(
+        InstanceInjection::Dependency{
             .required_settings_are_available = ::required_instance_settings_are_available,
             .enable_settings                 = ::enable_instance_settings,
         }

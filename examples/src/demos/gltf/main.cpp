@@ -57,7 +57,7 @@ try {
         .plug_in(plugins::runnable)
         .inject_resource(::cache_plugin)
         .insert_resource(core::window::Window(util::Size2i{ 1'280, 720 }, "My window"))
-        .transform(extensions::Renderer{}.require(::require_vulkan_version(1, 1)))
+        .transform(extensions::renderer::setup.require(::require_vulkan_version(1, 1)))
         .inject_resource(
             examples::base::DemoBasePlugin{ .movement_speed = movement_speed }
         )
