@@ -18,7 +18,7 @@ auto main() -> int
     constexpr int result =
         app::create()
             .plug_in(plugins::resources)
-            .use_resource(First{})
+            .insert_resource(First{})
             .inject_resource([](const First& first) -> Second {
                 return Second{ .ref = first.value };
             })

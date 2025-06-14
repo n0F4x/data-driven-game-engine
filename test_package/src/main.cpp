@@ -6,7 +6,7 @@ auto main() -> int
 {
     return app::create()
         .plug_in(plugins::resources)
-        .use_resource(int{})
+        .insert_resource(int{})
         .build()
         .resource_manager.get<int>();
 }

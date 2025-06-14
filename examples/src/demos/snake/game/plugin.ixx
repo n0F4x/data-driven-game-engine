@@ -24,8 +24,8 @@ export constexpr inline auto make_plugin = [](Settings settings) {
         static_assert(app::has_plugins_c<Builder_T, plugins::EventsTag>);
 
         return std::forward<Builder_T>(builder)
-            .use_resource(settings)
-            .use_resource(core::time::FixedTimer<game_tick_rate>{})
+            .insert_resource(settings)
+            .insert_resource(core::time::FixedTimer<game_tick_rate>{})
             .template register_event<GameOver>();
     };
 };

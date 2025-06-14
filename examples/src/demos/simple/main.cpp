@@ -98,7 +98,7 @@ auto main() -> int
 
     app::create()
         .plug_in(plugins::resources)
-        .use_resource(Window{})
+        .insert_resource(Window{})
         .plug_in(plugins::events)
         .register_event<WindowClosed>()
         .plug_in(plugins::ecs)
