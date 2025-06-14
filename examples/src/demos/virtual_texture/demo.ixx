@@ -6,7 +6,7 @@ export module demos.virtual_texture;
 
 import vulkan_hpp;
 
-import core.app.has_addons_c;
+import app.has_addons_c;
 
 import core.gfx.Camera;
 
@@ -20,7 +20,7 @@ import demos.virtual_texture.DemoApp;
 namespace demo {
 
 export constexpr inline auto run =
-    []<core::app::has_addons_c<addons::ResourcesTag> App_T>(App_T&& app) -> void {
+    []<app::has_addons_c<addons::ResourcesTag> App_T>(App_T&& app) -> void {
     app.resource_manager.template get<examples::base::DemoBase>().run(
         [demo_app = std::ref(app.resource_manager.template get<DemoApp>()
          )](examples::base::Renderer& renderer,

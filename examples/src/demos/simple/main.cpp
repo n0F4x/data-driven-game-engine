@@ -3,17 +3,19 @@
 
 import addons.ECS;
 
-import core.app;
+import app;
+
 import core.ecs;
 import core.scheduler;
 
 import demo.Window;
 
-import extensions.ECS;
-import extensions.Events;
-import extensions.Resources;
 import extensions.scheduler;
-import extensions.TaskRunner;
+
+import plugins.ecs;
+import plugins.events;
+import plugins.resources;
+import plugins.scheduler;
 
 import utility.containers.OptionalRef;
 
@@ -94,14 +96,14 @@ auto main() -> int
 {
     namespace argument_providers = extensions::scheduler::argument_providers;
 
-    core::app::create()
-        .extend_with(extensions::resources)
+    app::create()
+        .plug_in(plugins::resources)
         .use_resource(Window{})
-        .extend_with(extensions::events)
+        .plug_in(plugins::events)
         .register_event<WindowClosed>()
-        .extend_with(extensions::ecs)
-        .extend_with(
-            extensions::TaskRunner{
+        .plug_in(plugins::ecs)
+        .plug_in(
+            plugins::Scheduler{
                 argument_providers::resource_provider,
                 argument_providers::event_provider,
                 argument_providers::ecs,

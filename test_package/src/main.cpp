@@ -1,11 +1,11 @@
-import core.app;
+import app;
 
-import extensions.Resources;
+import plugins.resources;
 
 auto main() -> int
 {
-    return core::app::create()
-        .extend_with(extensions::Resources{})
+    return app::create()
+        .plug_in(plugins::resources)
         .use_resource(int{})
         .build()
         .resource_manager.get<int>();

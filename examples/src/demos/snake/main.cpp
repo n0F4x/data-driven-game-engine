@@ -1,17 +1,19 @@
 import addons.ECS;
 
-import core.app;
+import app;
+
 import core.measurement;
 import core.scheduler;
 import core.time;
 
-import extensions.Assets;
-import extensions.ECS;
-import extensions.Events;
-import extensions.Functional;
-import extensions.Resources;
 import extensions.scheduler;
-import extensions.TaskRunner;
+
+import plugins.assets;
+import plugins.ecs;
+import plugins.events;
+import plugins.functional;
+import plugins.resources;
+import plugins.scheduler;
 
 import utility.not_fn;
 
@@ -55,14 +57,14 @@ auto main() -> int
 {
     namespace argument_providers = extensions::scheduler::argument_providers;
 
-    core::app::create()
-        .extend_with(extensions::resources)
-        .extend_with(extensions::assets)
-        .extend_with(extensions::events)
-        .extend_with(extensions::functional)
-        .extend_with(extensions::ecs)
-        .extend_with(
-            extensions::TaskRunner{
+    app::create()
+        .plug_in(plugins::resources)
+        .plug_in(plugins::assets)
+        .plug_in(plugins::events)
+        .plug_in(plugins::functional)
+        .plug_in(plugins::ecs)
+        .plug_in(
+            plugins::Scheduler{
                 argument_providers::resource_provider,
                 argument_providers::event_provider,
                 argument_providers::ecs,

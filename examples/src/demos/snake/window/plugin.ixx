@@ -7,26 +7,27 @@ module;
 
 export module snake.window.plugin;
 
-import core.app.decays_to_builder_c;
-import core.app.extended_with_c;
+import app.decays_to_builder_c;
+import app.has_plugins_c;
+
 import core.time.FixedTimer;
 
 import snake.window.display_rate;
 import snake.window.Settings;
 import snake.window.Window;
 
-import extensions.Events;
-import extensions.Resources;
+import plugins.events;
+import plugins.resources;
 
 namespace window {
 
 export constexpr inline auto make_plugin = [](Settings settings) {
-    return [settings = std::move(settings)]<core::app::decays_to_builder_c Builder_T>(
+    return [settings = std::move(settings)]<app::decays_to_builder_c Builder_T>(
                Builder_T&& builder
            ) {
-        static_assert(core::app::
-                          extended_with_c<Builder_T, extensions::ResourcesTag>);
-        static_assert(core::app::extended_with_c<Builder_T, extensions::EventsTag>);
+        static_assert(app::
+                          has_plugins_c<Builder_T, plugins::ResourcesTag>);
+        static_assert(app::has_plugins_c<Builder_T, plugins::EventsTag>);
 
         return std::forward<Builder_T>(builder)
             .use_resource(settings)

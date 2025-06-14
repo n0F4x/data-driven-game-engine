@@ -1,5 +1,6 @@
 #include <print>
 
+import app;
 import core;
 import addons;
 import extensions;
@@ -15,14 +16,14 @@ import demos.virtual_texture.DemoApp;
 
 auto main() -> int
 try {
-    core::app::create()
-        .extend_with(extensions::Functional{})
-        .extend_with(extensions::Resources{})
-        .extend_with(extensions::Runnable{})
+    app::create()
+        .plug_in(plugins::functional)
+        .plug_in(plugins::resources)
+        .plug_in(plugins::runnable)
         .use_resource(
             core::window::Window(util::Size2i{ 1'280, 720 }, "Virtual texturing demo")
         )
-        .transform(plugins::Renderer{})
+        .transform(extensions::Renderer{})
         .inject_resource(examples::base::DemoBasePlugin{ .movement_speed = 1.f })
         .inject_resource(demo::DemoPlugin{})
         .run(demo::run);

@@ -1,4 +1,3 @@
-add_subdirectory(app)
 add_subdirectory(assets)
 add_subdirectory(cache)
 add_subdirectory(config)

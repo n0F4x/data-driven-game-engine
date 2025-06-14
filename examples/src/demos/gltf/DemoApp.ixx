@@ -6,7 +6,7 @@ module;
 
 export module demos.gltf.DemoApp;
 
-import core.app.App;
+import app.App;
 
 import core.cache.Cache;
 

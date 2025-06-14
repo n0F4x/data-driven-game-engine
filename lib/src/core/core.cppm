@@ -1,6 +1,5 @@
 export module core;
 
-export import core.app;
 export import core.assets;
 export import core.cache;
 export import core.config;

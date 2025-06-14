@@ -1,9 +1,9 @@
 #include <functional>
 
-import core.app;
+import app;
 
-import extensions.Resources;
-import extensions.Runnable;
+import plugins.resources;
+import plugins.runnable;
 
 struct First {
     int value{ 42 };
@@ -16,13 +16,13 @@ struct Second {
 auto main() -> int
 {
     constexpr int result =
-        core::app::create()
-            .extend_with(extensions::resources)
+        app::create()
+            .plug_in(plugins::resources)
             .use_resource(First{})
             .inject_resource([](const First& first) -> Second {
                 return Second{ .ref = first.value };
             })
-            .extend_with(extensions::runnable)
+            .plug_in(plugins::runnable)
             .run([](auto app) {
                 return app.resource_manager.template get<Second>().ref.get();
             });

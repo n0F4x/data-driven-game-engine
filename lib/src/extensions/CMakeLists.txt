@@ -1,3 +1,4 @@
+add_subdirectory(renderer)
 add_subdirectory(scheduler)
 
 target_sources(${PROJECT_NAME} PUBLIC
@@ -6,12 +7,4 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         extensions.cppm
-        Addons.ixx
-        Assets.ixx
-        ECS.ixx
-        Events.ixx
-        Functional.ixx
-        Resources.ixx
-        Runnable.ixx
-        TaskRunner.ixx
 )

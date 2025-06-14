@@ -4,6 +4,7 @@
 
 #include <VkBootstrap.h>
 
+import app;
 import core;
 import addons;
 import extensions;
@@ -23,7 +24,7 @@ static auto cache_plugin() -> core::cache::Cache
 
 [[nodiscard]]
 static auto require_vulkan_version(const uint32_t major, const uint32_t minor)
-    -> plugins::renderer::Requirement
+    -> extensions::renderer::Requirement
 {
     return { .enable_instance_settings = [=](const vkb::SystemInfo&,
                                              vkb::InstanceBuilder& instance_builder) {
@@ -50,13 +51,13 @@ try {
     };
     constexpr static float movement_speed{ 10 };
 
-    core::app::create()
-        .extend_with(extensions::Functional{})
-        .extend_with(extensions::Resources{})
-        .extend_with(extensions::Runnable{})
+    app::create()
+        .plug_in(plugins::functional)
+        .plug_in(plugins::resources)
+        .plug_in(plugins::runnable)
         .inject_resource(::cache_plugin)
         .use_resource(core::window::Window(util::Size2i{ 1'280, 720 }, "My window"))
-        .transform(plugins::Renderer{}.require(::require_vulkan_version(1, 1)))
+        .transform(extensions::Renderer{}.require(::require_vulkan_version(1, 1)))
         .inject_resource(
             examples::base::DemoBasePlugin{ .movement_speed = movement_speed }
         )
