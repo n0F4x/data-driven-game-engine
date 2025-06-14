@@ -33,28 +33,23 @@ using namespace core::ecs::query_parameter_tags;
 
 namespace game {
 
-auto setup_map(
-    const window::Window& window,
-    const Settings&       settings,
-    core::ecs::Registry&  registry
+auto initialize_map(
+    resources::Ref<const window::Window> window,
+    resources::Ref<const Settings>       settings,
+    ecs::RegistryRef                     registry
 ) -> void;
 
-auto setup_snake(const Settings& settings, core::ecs::Registry& registry) -> void;
+auto initialize_snake(resources::Ref<const Settings> settings, ecs::RegistryRef registry)
+    -> void;
 
-inline constexpr auto setup =   //
-    [](const resources::Ref<const window::Window>                   window,
-       const resources::Ref<core::time::FixedTimer<game_tick_rate>> game_timer,
-       const ecs::RegistryRef                                       registry,
-       const resources::Ref<const Settings>                         settings)   //
-{
-    game_timer->reset();
-    setup_map(window.get(), settings.get(), registry.get());
-    setup_snake(settings.get(), registry.get());
-};
+auto reset_timer(resources::Ref<core::time::FixedTimer<game_tick_rate>> game_timer)
+    -> void;
 
 export inline constexpr auto initialize =   //
-    core::scheduler::start_as(setup)        //
-        .then(color_cells);
+    core::scheduler::start_as(initialize_map)
+        .then(initialize_snake)
+        .then(color_cells)
+        .then(reset_timer);
 
 }   // namespace game
 
@@ -72,49 +67,52 @@ auto make_shape(const uint16_t position_x, const uint16_t position_y, const uint
     return result;
 }
 
-auto game::setup_map(
-    const window::Window& window,
-    const Settings&       settings,
-    core::ecs::Registry&  registry
+auto game::initialize_map(
+    const resources::Ref<const window::Window> window,
+    const resources::Ref<const Settings>       settings,
+    const ecs::RegistryRef                     registry
 ) -> void
 {
-    assert(settings.cell_width * settings.cells_per_row <= window.getSize().x);
-    assert(settings.cell_width * settings.cells_per_column <= window.getSize().y);
+    assert(settings->cell_width * settings->cells_per_row <= window->getSize().x);
+    assert(settings->cell_width * settings->cells_per_column <= window->getSize().y);
 
     const uint16_t starting_pixel_x{ static_cast<uint16_t>(
-        (window.getSize().x - settings.cell_width * settings.cells_per_row) / 2
+        (window->getSize().x - settings->cell_width * settings->cells_per_row) / 2
     ) };
     const uint16_t starting_pixel_y{ static_cast<uint16_t>(
-        (window.getSize().y - settings.cell_width * settings.cells_per_column) / 2
+        (window->getSize().y - settings->cell_width * settings->cells_per_column) / 2
     ) };
 
     // TODO: use std::views::cartesian_product
-    for (const uint8_t row_index : std::views::iota(uint8_t{}, settings.cells_per_row)) {
+    for (const uint8_t row_index : std::views::iota(uint8_t{}, settings->cells_per_row)) {
         for (const uint8_t column_index :
-             std::views::iota(uint8_t{}, settings.cells_per_column))
+             std::views::iota(uint8_t{}, settings->cells_per_column))
         {
-            registry.create(
+            registry->create(
                 Cell{},
                 Position{ .row = row_index, .column = column_index },
                 make_shape(
-                    starting_pixel_x + settings.cell_width * row_index,
-                    starting_pixel_y + settings.cell_width * column_index,
-                    settings.cell_width
+                    starting_pixel_x + settings->cell_width * row_index,
+                    starting_pixel_y + settings->cell_width * column_index,
+                    settings->cell_width
                 )
             );
         }
     }
 }
 
-auto game::setup_snake(const Settings& settings, core::ecs::Registry& registry) -> void
+auto game::initialize_snake(
+    const resources::Ref<const Settings> settings,
+    const ecs::RegistryRef               registry
+) -> void
 {
     std::random_device            random_device;
     std::mt19937                  random_engine{ random_device() };
     std::uniform_int_distribution row_distribution{
-        uint8_t{}, static_cast<uint8_t>(settings.cells_per_row - 1)
+        uint8_t{}, static_cast<uint8_t>(settings->cells_per_row - 1)
     };
     std::uniform_int_distribution column_distribution{
-        uint8_t{}, static_cast<uint8_t>(settings.cells_per_column - 1)
+        uint8_t{}, static_cast<uint8_t>(settings->cells_per_column - 1)
     };
 
     const Position snake_position{
@@ -123,7 +121,7 @@ auto game::setup_snake(const Settings& settings, core::ecs::Registry& registry) 
     };
 
     const Direction snake_direction{ [snake_position, &settings] {
-        if (snake_position.row < settings.cells_per_row / 2) {
+        if (snake_position.row < settings->cells_per_row / 2) {
             return Direction::eRight;
         }
         return Direction::eLeft;
@@ -131,7 +129,7 @@ auto game::setup_snake(const Settings& settings, core::ecs::Registry& registry) 
 
     std::optional<core::ecs::ID> snake_head_id;
     core::ecs::query(
-        registry,
+        registry.get(),
         [&snake_head_id,
          snake_position](const core::ecs::ID id, With<Cell>, const Position position) {
             if (position == snake_position) {
@@ -142,7 +140,13 @@ auto game::setup_snake(const Settings& settings, core::ecs::Registry& registry) 
     );
     assert(snake_head_id.has_value());
 
-    registry.insert(
+    registry->insert(
         *snake_head_id, Snake{ .charge = 1 }, SnakeHead{ .direction = snake_direction }
     );
+}
+
+auto game::reset_timer(resources::Ref<core::time::FixedTimer<game_tick_rate>> game_timer)
+    -> void
+{
+    game_timer->reset();
 }
