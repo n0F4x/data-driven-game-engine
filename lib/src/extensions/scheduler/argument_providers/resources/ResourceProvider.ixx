@@ -15,7 +15,7 @@ import utility.meta.type_traits.underlying;
 namespace extensions::scheduler::argument_providers::resources {
 
 export template <
-    util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
+    util::meta::specialization_of_c<core::resources::ResourceManager> ResourceManager_T>
 class ResourceProvider {
 public:
     constexpr explicit ResourceProvider(ResourceManager_T& resource_manager);
@@ -34,7 +34,7 @@ private:
 
 }   // namespace extensions::scheduler::argument_providers::resources
 
-template <util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
+template <util::meta::specialization_of_c<core::resources::ResourceManager> ResourceManager_T>
 constexpr extensions::scheduler::argument_providers::resources::
     ResourceProvider<ResourceManager_T>::ResourceProvider(
         ResourceManager_T& resource_manager
@@ -42,7 +42,7 @@ constexpr extensions::scheduler::argument_providers::resources::
     : m_resource_manager{ resource_manager }
 {}
 
-template <util::meta::specialization_of_c<core::resource::ResourceManager> ResourceManager_T>
+template <util::meta::specialization_of_c<core::resources::ResourceManager> ResourceManager_T>
 template <typename Accessor_T>
     requires util::meta::specialization_of_c<
                  std::remove_cvref_t<Accessor_T>,

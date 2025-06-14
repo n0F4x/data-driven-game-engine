@@ -14,7 +14,7 @@ import utility.TypeList;
 
 import core.resources.resource_c;
 
-namespace core::resource {
+namespace core::resources {
 
 export template <resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
@@ -42,11 +42,11 @@ private:
 
 }   // namespace core::resource
 
-template <core::resource::resource_c... Resources_T>
+template <core::resources::resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
 template <typename... Factories_T>
     requires std::constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
-constexpr core::resource::ResourceManager<Resources_T...>::ResourceManager(
+constexpr core::resources::ResourceManager<Resources_T...>::ResourceManager(
     Factories_T&&... factories
 )
     : m_resources{ std::make_unique<util::StackedTuple<Resources_T...>>(
@@ -54,10 +54,10 @@ constexpr core::resource::ResourceManager<Resources_T...>::ResourceManager(
       ) }
 {}
 
-template <core::resource::resource_c... Resources_T>
+template <core::resources::resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
 template <typename Resource_T, typename Self_T>
-constexpr auto core::resource::ResourceManager<Resources_T...>::get(this Self_T&& self)
+constexpr auto core::resources::ResourceManager<Resources_T...>::get(this Self_T&& self)
     -> std::
         conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>
     requires(contains<Resource_T>())

@@ -28,7 +28,7 @@ import core.resources.resource_c;
 namespace plugins {
 
 export template <typename T>
-concept resource_c = core::resource::resource_c<T>;
+concept resource_c = core::resources::resource_c<T>;
 
 export template <typename T>
 concept injection_c = resource_c<util::meta::result_of_t<T>>;

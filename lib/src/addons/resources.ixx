@@ -15,13 +15,13 @@ struct Resources : ResourcesTag {
     template <typename... Args>
     constexpr explicit Resources(std::in_place_t, Args&&... args);
 
-    core::resource::ResourceManager<Resources_T...> resource_manager;
+    core::resources::ResourceManager<Resources_T...> resource_manager;
 };
+
+}   // namespace addons
 
 template <typename... Resources_T>
 template <typename... Args>
-constexpr Resources<Resources_T...>::Resources(std::in_place_t, Args&&... args)
+constexpr addons::Resources<Resources_T...>::Resources(std::in_place_t, Args&&... args)
     : resource_manager{ std::forward<Args>(args)... }
 {}
-
-}   // namespace addons
