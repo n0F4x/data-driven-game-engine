@@ -13,7 +13,7 @@ using namespace extensions::scheduler::accessors;
 namespace window {
 
 export inline constexpr auto clear_window =     //
-    [](const resources::Ref<Window> window) {   //
+    [](const resources::Resource<Window> window) {   //
         window->clear(sf::Color{ 128, 0, 128 });
     };
 

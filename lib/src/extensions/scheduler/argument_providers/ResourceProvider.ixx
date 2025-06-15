@@ -27,7 +27,7 @@ public:
     template <typename Accessor_T>
         requires util::meta::specialization_of_c<
                      std::remove_cvref_t<Accessor_T>,
-                     accessors::resources::Ref>
+                     accessors::resources::Resource>
               && (ResourceManager_T::template contains<std::remove_const_t<
                       util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>())
     [[nodiscard]] constexpr auto provide() const -> std::remove_cvref_t<Accessor_T>;
@@ -53,7 +53,7 @@ template <
 template <typename Accessor_T>
     requires util::meta::specialization_of_c<
                  std::remove_cvref_t<Accessor_T>,
-                 extensions::scheduler::accessors::resources::Ref>
+                 extensions::scheduler::accessors::resources::Resource>
           && (ResourceManager_T::template contains<std::remove_const_t<
                   util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>())
 constexpr auto extensions::scheduler::argument_providers::

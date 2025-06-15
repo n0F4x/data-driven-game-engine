@@ -38,7 +38,7 @@ struct Collider {
 };
 
 constexpr static auto initialize =                                               //
-    [](const resources::Ref<Window> window, const ecs::RegistryRef registry) {   //
+    [](const resources::Resource<Window> window, const ecs::Registry registry) {   //
         window->open();
 
         registry->create(Position{}, EnemyTag{}, Collider{ .message = "Hi! 👋" });
@@ -88,7 +88,7 @@ constexpr static auto run_game_loop = core::scheduler::loop_until(
 );
 
 constexpr static auto shut_down =               //
-    [](const resources::Ref<Window> window) {   //
+    [](const resources::Resource<Window> window) {   //
         window->close();
     };
 

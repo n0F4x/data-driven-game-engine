@@ -14,7 +14,7 @@ using namespace extensions::scheduler::accessors;
 namespace game {
 
 inline constexpr auto update_game_time =
-    [](const resources::Ref<core::time::FixedTimer<game_tick_rate>> game_timer) {   //
+    [](const resources::Resource<core::time::FixedTimer<game_tick_rate>> game_timer) {   //
         game_timer->update();
     };
 

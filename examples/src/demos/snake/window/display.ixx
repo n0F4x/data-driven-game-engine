@@ -15,8 +15,8 @@ namespace window {
 
 export inline constexpr auto display =   //
     [last_time = std::chrono::steady_clock::time_point{}](
-        const resources::Ref<Settings> settings,
-        const resources::Ref<Window>   window
+        const resources::Resource<Settings> settings,
+        const resources::Resource<Window>   window
     ) mutable   //
 {
     window->display();

@@ -14,7 +14,7 @@ namespace window {
 
 export inline constexpr auto initialize = core::scheduler::group(
     open_window,
-    [](const resources::Ref<core::time::FixedTimer<display_rate>> display_timer) {
+    [](const resources::Resource<core::time::FixedTimer<display_rate>> display_timer) {
         display_timer->reset();
     }
 );

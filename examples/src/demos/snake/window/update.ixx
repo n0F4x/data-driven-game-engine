@@ -20,9 +20,9 @@ using namespace extensions::scheduler::accessors;
 namespace window {
 
 export inline constexpr auto update =
-    [](const resources::Ref<Window> window,
+    [](const resources::Resource<Window> window,
        const extensions::scheduler::accessors::events::Recorder<sf::Event>& event_recorder,
-       const resources::Ref<core::time::FixedTimer<display_rate>> display_timer)   //
+       const resources::Resource<core::time::FixedTimer<display_rate>> display_timer)   //
 {
     window->handleEvents([&event_recorder]<typename Event>(Event&& event) {
         event_recorder.record(std::forward<Event>(event));

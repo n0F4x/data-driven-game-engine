@@ -2,7 +2,7 @@ module;
 
 #include <type_traits>
 
-export module extensions.scheduler.accessors.resources;
+export module extensions.scheduler.accessors.resources.Resource;
 
 import core.resources.resource_c;
 
@@ -12,7 +12,7 @@ namespace extensions::scheduler::accessors::resources {
 
 export template <typename Resource_T>
     requires core::resources::resource_c<std::remove_const_t<Resource_T>>
-class Ref : public util::Ref<Resource_T> {
+class Resource : public util::Ref<Resource_T> {
     using Base = util::Ref<Resource_T>;
 
 public:

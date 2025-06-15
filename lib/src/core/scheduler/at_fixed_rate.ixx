@@ -34,7 +34,7 @@ template <
 constexpr auto core::scheduler::at_fixed_rate(TaskBuilder_T&& task_builder)
 {
     using FixedTimerResource =
-        extensions::scheduler::accessors::resources::Ref<core::time::FixedTimer<tick_rate>>;
+        extensions::scheduler::accessors::resources::Resource<core::time::FixedTimer<tick_rate>>;
 
     return core::scheduler::repeat(
         std::forward<TaskBuilder_T>(task_builder),

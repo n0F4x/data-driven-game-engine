@@ -9,7 +9,7 @@ using namespace extensions::scheduler::accessors;
 namespace window {
 
 export inline constexpr auto open_window =      //
-    [](const resources::Ref<Window> window) {   //
+    [](const resources::Resource<Window> window) {   //
         return window->isOpen();
     };
 

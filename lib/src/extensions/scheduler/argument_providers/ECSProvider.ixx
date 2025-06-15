@@ -22,7 +22,7 @@ public:
     explicit ECSProvider(App_T& app);
 
     template <typename Accessor_T>
-        requires std::same_as<std::remove_cvref_t<Accessor_T>, accessors::ecs::RegistryRef>
+        requires std::same_as<std::remove_cvref_t<Accessor_T>, accessors::ecs::Registry>
     [[nodiscard]]
     auto provide() const -> std::remove_cvref_t<Accessor_T>;
 
@@ -48,7 +48,7 @@ template <typename ECSAddon_T>
 template <typename Accessor_T>
     requires std::same_as<
         std::remove_cvref_t<Accessor_T>,
-        extensions::scheduler::accessors::ecs::RegistryRef>
+        extensions::scheduler::accessors::ecs::Registry>
 auto extensions::scheduler::argument_providers::ECSProvider<ECSAddon_T>::provide() const
     -> std::remove_cvref_t<Accessor_T>
 {

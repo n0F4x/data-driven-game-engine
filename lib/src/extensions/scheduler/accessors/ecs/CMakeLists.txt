@@ -5,5 +5,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         ecs.cppm
         Query.ixx
-        RegistryRef.ixx
+        Registry.ixx
 )

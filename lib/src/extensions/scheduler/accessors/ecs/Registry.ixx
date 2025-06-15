@@ -1,4 +1,4 @@
-export module extensions.scheduler.accessors.ecs.RegistryRef;
+export module extensions.scheduler.accessors.ecs.Registry;
 
 import core.ecs;
 
@@ -6,7 +6,7 @@ import utility.containers.Ref;
 
 namespace extensions::scheduler::accessors::ecs {
 
-export class RegistryRef : public util::Ref<core::ecs::Registry> {
+export class Registry : public util::Ref<core::ecs::Registry> {
     using Base = util::Ref<core::ecs::Registry>;
 
 public:

@@ -19,7 +19,7 @@ using namespace core::ecs::query_parameter_tags;
 namespace game {
 
 export inline constexpr auto draw =
-    [](resources::Ref<window::Window>                   window,
+    [](resources::Resource<window::Window>                   window,
        ecs::Query<With<Cell>, const sf::RectangleShape> cells)   //
 {                                                                //
     cells.for_each([window](const sf::RectangleShape& shape) { window->draw(shape); });

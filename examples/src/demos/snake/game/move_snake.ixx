@@ -11,7 +11,7 @@ export module snake.game.move_snake;
 
 import core.ecs;
 
-import extensions.scheduler.accessors.ecs.RegistryRef;
+import extensions.scheduler.accessors.ecs.Registry;
 import extensions.scheduler.accessors.events.Recorder;
 import extensions.scheduler.accessors.resources;
 
@@ -39,9 +39,9 @@ auto move_snake_head(
 auto decrease_charges(core::ecs::Registry& registry) -> void;
 
 export inline constexpr auto move_snake =
-    [](const resources::Ref<const Settings> settings,
+    [](const resources::Resource<const Settings> settings,
        const events::Recorder<GameOver>&    game_over_recorder,
-       const ecs::RegistryRef               registry)   //
+       const ecs::Registry               registry)   //
 {
     correct_snake_direction(registry.get());
     move_snake_head(game_over_recorder, settings.get(), registry.get());
