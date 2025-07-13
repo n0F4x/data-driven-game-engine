@@ -1,4 +1,4 @@
-export module snake.game.game_tick_rate;
+export module snake.game.apple_spawn_rate;
 
 import mp_units.core;
 
@@ -8,6 +8,6 @@ using namespace core::measurement::symbols;
 
 namespace game {
 
-export inline constexpr mp_units::quantity<ups> game_tick_rate{ 2 * ups };
+export inline constexpr mp_units::quantity<ups> apple_spawn_rate{ 1.0 / 3.0 * ups };
 
 }   // namespace game

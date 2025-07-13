@@ -18,11 +18,10 @@ using namespace core::ecs::query_parameter_tags;
 
 namespace game {
 
-export inline constexpr auto draw =
-    [](resources::Resource<window::Window>                   window,
-       ecs::Query<With<Cell>, const sf::RectangleShape> cells)   //
-{                                                                //
-    cells.for_each([window](const sf::RectangleShape& shape) { window->draw(shape); });
+export inline constexpr auto draw = [](resources::Resource<window::Window> window,
+                                       ecs::Query<const Cell>              cells)   //
+{                                                                      //
+    cells.for_each([window](const Cell& cell) { window->draw(cell.shape); });
 };
 
 }   // namespace game

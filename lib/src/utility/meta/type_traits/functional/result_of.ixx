@@ -8,8 +8,7 @@ import utility.meta.concepts.functional.function;
 import utility.meta.concepts.functional.function_pointer;
 import utility.meta.concepts.functional.function_reference;
 import utility.meta.concepts.functional.member_function_pointer;
-import utility.meta.concepts.functional.unambiguous_explicit_functor;
-import utility.meta.concepts.functional.unambiguous_implicit_functor;
+import utility.meta.concepts.functional.unambiguous_functor;
 import utility.meta.concepts.functional.unambiguously_invocable;
 import utility.meta.type_traits.functional.signature;
 
@@ -40,12 +39,7 @@ struct result_of<F> {
     using type = typename signature<F>::result_t;
 };
 
-template <unambiguous_explicit_functor_c F>
-struct result_of<F> {
-    using type = typename result_of<decltype(&std::remove_cvref_t<F>::operator())>::type;
-};
-
-template <unambiguous_implicit_functor_c F>
+template <unambiguous_functor_c F>
 struct result_of<F> {
     using type = typename result_of<decltype(&std::remove_cvref_t<F>::operator())>::type;
 };

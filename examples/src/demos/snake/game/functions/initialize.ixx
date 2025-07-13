@@ -19,7 +19,7 @@ import extensions.scheduler.accessors.resources.Resource;
 import extensions.scheduler.accessors.states.State;
 
 
-import snake.assets.load_texture;
+import snake.assets.TextureLoader;
 import snake.game.Cell;
 import snake.game.color_cells;
 import snake.game.Direction;
@@ -35,8 +35,8 @@ import snake.window.Window;
 using namespace extensions::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;
 
-using TextureLoader = extensions::scheduler::accessors::assets::
-    Cached<std::remove_cvref_t<decltype(::assets::load_texture)>>;
+using CachedTextureLoader =
+    extensions::scheduler::accessors::assets::Cached<::assets::TextureLoader>;
 
 namespace game {
 
@@ -49,8 +49,10 @@ auto initialize_map(
 auto initialize_snake(resources::Resource<const Settings> settings, ecs::Registry registry)
     -> void;
 
-auto load_apple_texture(states::State<GameState> game_state, TextureLoader texture_loader)
-    -> void;
+auto load_apple_texture(
+    states::State<GameState> game_state,
+    CachedTextureLoader      texture_loader
+) -> void;
 
 auto reset_timer(resources::Resource<core::time::FixedTimer<game_tick_rate>> game_timer)
     -> void;
@@ -100,13 +102,14 @@ auto game::initialize_map(
              std::views::iota(uint8_t{}, settings->cells_per_column))
         {
             registry->create(
-                Cell{},
-                Position{ .row = row_index, .column = column_index },
-                make_shape(
-                    starting_pixel_x + settings->cell_width * row_index,
-                    starting_pixel_y + settings->cell_width * column_index,
-                    settings->cell_width
-                )
+                Cell{
+                    .position = Position{ .row = row_index, .column = column_index },
+                    .shape    = make_shape(
+                        starting_pixel_x + settings->cell_width * row_index,
+                        starting_pixel_y + settings->cell_width * column_index,
+                        settings->cell_width
+                    )
+            }
             );
         }
     }
@@ -142,8 +145,8 @@ auto game::initialize_snake(
     core::ecs::query(
         registry.get(),
         [&snake_head_id,
-         snake_position](const core::ecs::ID id, With<Cell>, const Position position) {
-            if (position == snake_position) {
+         snake_position](const core::ecs::ID id, const Cell& cell) {
+            if (cell.position == snake_position) {
                 assert(!snake_head_id.has_value());
                 snake_head_id = id;
             }
@@ -158,7 +161,7 @@ auto game::initialize_snake(
 
 auto game::load_apple_texture(
     const states::State<GameState> game_state,
-    const TextureLoader            texture_loader
+    const CachedTextureLoader      texture_loader
 ) -> void
 {
     auto apple_texture{ texture_loader->load("PixelApple.png") };

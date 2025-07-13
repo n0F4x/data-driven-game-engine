@@ -13,6 +13,7 @@ import plugins.functional;
 import plugins.states;
 
 import snake.assets.inject_loaders;
+import snake.game.apple_spawn_rate;
 import snake.game.game_tick_rate;
 import snake.game.GameOver;
 import snake.game.GameState;
@@ -35,6 +36,7 @@ export inline constexpr auto setup =
 
     return std::forward<Builder_T>(builder)
         .insert_resource(settings)
+        .insert_resource(core::time::FixedTimer<apple_spawn_rate>{})
         .insert_resource(core::time::FixedTimer<game_tick_rate>{})
         .template register_event<GameOver>()
         .template register_state<GameState>()

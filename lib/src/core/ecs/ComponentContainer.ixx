@@ -11,6 +11,7 @@ export module core.ecs:ComponentContainer;
 
 import utility.contracts;
 import utility.meta.concepts.decays_to;
+import utility.meta.type_traits.maybe_const;
 
 import :component_c;
 import :RecordIndex;
@@ -102,9 +103,8 @@ public:
     Iterator() = default;
 
     constexpr Iterator(
-        std::conditional_t<!is_const_T, ComponentContainer, const ComponentContainer>&
-                     container,
-        const size_t index
+        util::meta::maybe_const_t<is_const_T, ComponentContainer>& container,
+        const size_t                                               index
     )
         : m_base{ &container },
           m_current{ index }
@@ -120,7 +120,8 @@ public:
     };
 
     [[nodiscard]]
-    constexpr auto operator*() const -> Component_T&
+    constexpr auto operator*() const
+        -> util::meta::maybe_const_t<is_const_T, Component_T>&
     {
         return *m_base->m_optional;
     }
@@ -139,8 +140,8 @@ public:
     }
 
 private:
-    ComponentContainer* m_base{};
-    size_t              m_current{};
+    util::meta::maybe_const_t<is_const_T, ComponentContainer>* m_base{};
+    size_t                                                     m_current{};
 };
 
 template <core::ecs::component_c Component_T>

@@ -10,6 +10,7 @@ import utility.meta.concepts.functional.function_reference;
 import utility.meta.concepts.functional.member_function_pointer;
 import utility.meta.concepts.functional.unambiguous_explicit_functor;
 import utility.meta.concepts.functional.unambiguous_implicit_functor;
+import utility.meta.concepts.functional.unambiguous_static_functor;
 import utility.meta.concepts.functional.unambiguously_invocable;
 import utility.meta.type_traits.functional.signature;
 import utility.meta.type_traits.type_list.type_list_drop_front;
@@ -48,6 +49,12 @@ struct arguments_of<F> {
 };
 
 template <unambiguous_implicit_functor_c F>
+struct arguments_of<F> {
+    using type =
+        typename arguments_of<decltype(&std::remove_cvref_t<F>::operator())>::type;
+};
+
+template <unambiguous_static_functor_c F>
 struct arguments_of<F> {
     using type =
         typename arguments_of<decltype(&std::remove_cvref_t<F>::operator())>::type;

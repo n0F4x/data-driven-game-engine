@@ -11,5 +11,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         unambiguous_explicit_functor.ixx
         unambiguous_functor.ixx
         unambiguous_implicit_functor.ixx
+        unambiguous_static_functor.ixx
         unambiguously_invocable.ixx
 )

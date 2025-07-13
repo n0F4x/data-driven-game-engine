@@ -10,6 +10,7 @@ import extensions.scheduler.accessors.ecs.Query;
 
 import utility.containers.OptionalRef;
 
+import snake.game.Apple;
 import snake.game.Cell;
 import snake.game.Snake;
 import snake.game.SnakeHead;
@@ -21,24 +22,28 @@ namespace game {
 
 export constexpr inline auto color_cells =   //
     [](ecs::Query<
-        With<Cell>,
         Optional<const SnakeHead>,
         Optional<const Snake>,
-        sf::RectangleShape> cells)   //
+        Optional<const Apple>,
+        Cell> cells)   //
 {
-    cells.for_each(                  //
+    cells.for_each(    //
         [](const util::OptionalRef<const SnakeHead> snake_head,
            const util::OptionalRef<const Snake>     snake_body,
-           sf::RectangleShape&                      shape)   //
+           const util::OptionalRef<const Apple>     apple,
+           Cell&                                    cell)   //
         {
             if (snake_head.has_value()) {
-                shape.setFillColor(sf::Color{ 76, 187, 23 });
+                cell.shape.setFillColor(sf::Color{ 76, 187, 23 });
             }
             else if (snake_body.has_value()) {
-                shape.setFillColor(sf::Color{ 0, 128, 0 });
+                cell.shape.setFillColor(sf::Color{ 0, 128, 0 });
+            }
+            else if (apple.has_value()) {
+                cell.shape.setFillColor(sf::Color::White);
             }
             else {
-                shape.setFillColor(sf::Color::Black);
+                cell.shape.setFillColor(sf::Color::Black);
             }
         }
     );
