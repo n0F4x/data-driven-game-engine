@@ -6,7 +6,7 @@ module;
 
 export module utility.containers.FunctionWrapper;
 
-import utility.meta.concepts.decayed;
+import utility.meta.concepts.naked;
 import utility.meta.concepts.functional.function;
 import utility.meta.concepts.functional.member_function_pointer;
 import utility.meta.concepts.functional.unambiguous_functor;
@@ -72,7 +72,7 @@ private:
 };
 
 template <util::meta::unambiguous_functor_c Invocable_T>
-    requires util::meta::decayed_c<Invocable_T>
+    requires util::meta::naked_c<Invocable_T>
 class FunctionWrapper<Invocable_T>
     : public function_wrapper_interface_from_t<Invocable_T> {
     using Base = function_wrapper_interface_from_t<Invocable_T>;
@@ -117,7 +117,7 @@ constexpr util::FunctionWrapper<Invocable_T>::FunctionWrapper(Invocable_T invoca
 {}
 
 template <util::meta::unambiguous_functor_c Invocable_T>
-    requires util::meta::decayed_c<Invocable_T>
+    requires util::meta::naked_c<Invocable_T>
 template <typename UInvocable_T>
     requires std::constructible_from<Invocable_T, UInvocable_T&&>
 constexpr util::FunctionWrapper<Invocable_T>::FunctionWrapper(UInvocable_T&& invocable)

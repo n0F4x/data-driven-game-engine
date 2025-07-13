@@ -12,4 +12,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         resources.ixx
         runnable.ixx
         scheduler.ixx
+        states.ixx
 )

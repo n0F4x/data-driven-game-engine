@@ -6,8 +6,8 @@ module;
 
 export module utility.not_fn;
 
-import utility.meta.concepts.decayed;
 import utility.meta.concepts.functional;
+import utility.meta.concepts.naked;
 import utility.meta.type_traits.functional;
 
 template <typename Derived_T, typename Signature_T>
@@ -181,7 +181,7 @@ private:
 };
 
 template <util::meta::unambiguous_functor_c Invocable_T>
-    requires util::meta::decayed_c<Invocable_T>
+    requires util::meta::naked_c<Invocable_T>
 class NotFn<Invocable_T> : public not_fn_interface_from_t<Invocable_T> {
     using Base = not_fn_interface_from_t<Invocable_T>;
 

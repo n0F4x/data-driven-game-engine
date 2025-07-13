@@ -14,6 +14,7 @@ import plugins.events;
 import plugins.functional;
 import plugins.resources;
 import plugins.scheduler;
+import plugins.states;
 
 import utility.not_fn;
 
@@ -51,7 +52,8 @@ constexpr static auto run_game_loop = core::scheduler::loop_until(
     )
 );
 
-constexpr static auto shut_down = window::close_window;
+constexpr static auto shut_down =
+    core::scheduler::start_as(game::shutdown).then(window::close_window);
 
 auto main() -> int
 {
@@ -63,6 +65,7 @@ auto main() -> int
         .plug_in(plugins::events)
         .plug_in(plugins::ecs)
         .plug_in(plugins::scheduler)
+        .plug_in(plugins::states)
         .plug_in(plugins::functional)
         .transform(window::setup)
         .transform(game::setup)

@@ -8,4 +8,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         ECS.ixx
         Events.ixx
         Resources.ixx
+        States.ixx
 )

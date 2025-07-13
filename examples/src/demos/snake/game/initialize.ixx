@@ -16,6 +16,7 @@ import core.time.FixedTimer;
 import extensions.scheduler.accessors.assets.Cached;
 import extensions.scheduler.accessors.ecs.Registry;
 import extensions.scheduler.accessors.resources.Resource;
+import extensions.scheduler.accessors.states.State;
 
 
 import snake.assets.load_texture;
@@ -24,6 +25,7 @@ import snake.game.color_cells;
 import snake.game.Direction;
 import snake.game.game_tick_rate;
 import snake.game.GameOver;
+import snake.game.GameState;
 import snake.game.Position;
 import snake.game.Settings;
 import snake.game.Snake;
@@ -47,7 +49,8 @@ auto initialize_map(
 auto initialize_snake(resources::Resource<const Settings> settings, ecs::Registry registry)
     -> void;
 
-auto load_apple_texture(TextureLoader texture_loader) -> void;
+auto load_apple_texture(states::State<GameState> game_state, TextureLoader texture_loader)
+    -> void;
 
 auto reset_timer(resources::Resource<core::time::FixedTimer<game_tick_rate>> game_timer)
     -> void;
@@ -56,6 +59,7 @@ export inline constexpr auto initialize =   //
     core::scheduler::start_as(initialize_map)
         .then(initialize_snake)
         .then(color_cells)
+        .then(load_apple_texture)
         .then(reset_timer);
 
 }   // namespace game
@@ -150,6 +154,21 @@ auto game::initialize_snake(
     registry->insert(
         *snake_head_id, Snake{ .charge = 1 }, SnakeHead{ .direction = snake_direction }
     );
+}
+
+auto game::load_apple_texture(
+    const states::State<GameState> game_state,
+    const TextureLoader            texture_loader
+) -> void
+{
+    auto apple_texture{ texture_loader->load("PixelApple.png") };
+
+    if (game_state.has_value()) {
+        game_state->textures.push_back(std::move(apple_texture));
+    }
+    else {
+        game_state.emplace(GameState{ .textures = { std::move(apple_texture) } });
+    }
 }
 
 auto game::reset_timer(

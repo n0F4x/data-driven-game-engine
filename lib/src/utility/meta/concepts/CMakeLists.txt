@@ -20,6 +20,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         nothrow_convertible_to.ixx
         nothrow_movable.ixx
         nothrow_move_constructible.ixx
+        storable.ixx
         specialization_of.ixx
         tuple_like.ixx
 )

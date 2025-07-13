@@ -4,8 +4,6 @@ module;
 
 export module utility.containers.Ref;
 
-import utility.meta.concepts.decayed;
-
 namespace util {
 
 export template <typename T>

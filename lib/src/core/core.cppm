@@ -12,6 +12,7 @@ export import core.log;
 export import core.measurement;
 export import core.renderer;
 export import core.scheduler;
+export import core.states;
 export import core.store;
 export import core.time;
 export import core.window;

@@ -11,11 +11,13 @@ target_sources(${PROJECT_NAME} PRIVATE
         game_is_running.ixx
         game_tick_rate.ixx
         GameOver.ixx
+        GameState.ixx
+        initialize.ixx
         move_snake.ixx
         Position.ixx
         Settings.ixx
         setup.ixx
-        initialize.ixx
+        shutdown.ixx
         Snake.ixx
         SnakeHead.ixx
         update.ixx

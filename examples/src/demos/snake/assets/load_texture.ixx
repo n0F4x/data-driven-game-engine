@@ -7,21 +7,14 @@ module;
 
 export module snake.assets.load_texture;
 
+import snake.assets.root_directory;
+
 namespace assets {
 
 export inline constexpr auto load_texture =                    //
     [](const std::filesystem::path& filename) -> sf::Texture   //
 {                                                              //
-    static const std::filesystem::path root_directory{
-        std::filesystem::path{ std::source_location::current().file_name() }
-            .parent_path()
-            .parent_path()
-            .parent_path()
-            .parent_path()
-        / "assets" / "textures"
-    };
-
-    return sf::Texture{ root_directory / filename };
+    return sf::Texture{ root_directory() / "textures" / filename };
 };
 
 }   // namespace assets

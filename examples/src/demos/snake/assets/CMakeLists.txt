@@ -4,6 +4,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         BASE_DIRS ${PROJECT_SOURCE_DIR}
         FILES
         assets.cppm
-        load_texture.ixx
         inject_loaders.ixx
+        load_texture.ixx
+        root_direcory.ixx
 )

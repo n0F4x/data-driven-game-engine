@@ -128,8 +128,8 @@ auto core::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find_hash(
 ) -> std::
     optional<Handle<util::meta::const_like_t<Asset_T, std::remove_reference_t<Self_T>>>>
 {
-    const auto iter{ self.asset_map.find(hash) };
-    if (iter == self.asset_map.cend()) {
+    const auto iter{ self.m_asset_map.find(hash) };
+    if (iter == self.m_asset_map.cend()) {
         return std::nullopt;
     }
 

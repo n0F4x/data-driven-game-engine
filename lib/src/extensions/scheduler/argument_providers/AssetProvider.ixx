@@ -15,6 +15,7 @@ import extensions.scheduler.accessors.assets;
 import utility.meta.concepts.specialization_of;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.type_list.type_list_to;
+import utility.meta.type_traits.type_list.type_list_transform;
 import utility.meta.type_traits.underlying;
 import utility.TypeList;
 
@@ -22,11 +23,14 @@ namespace extensions::scheduler::argument_providers {
 
 export template <typename AssetsAddon_T>
 class AssetProvider {
-public:
-    using Loaders = util::meta::type_list_to_t<
+    using CachedLoaders = util::meta::type_list_to_t<
         std::remove_reference_t<decltype(std::declval<AssetsAddon_T>().asset_loaders)>,
         util::TypeList>;
 
+    using Loaders =
+        util::meta::type_list_transform_t<CachedLoaders, util::meta::underlying>;
+
+public:
     template <app::has_addons_c<AssetsAddon_T> App_T>
     explicit AssetProvider(App_T& app);
 
@@ -40,7 +44,8 @@ public:
                  util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>);
 
 private:
-    std::reference_wrapper<util::meta::type_list_to_t<Loaders, std::tuple>> m_asset_loaders;
+    std::reference_wrapper<util::meta::type_list_to_t<CachedLoaders, std::tuple>>
+        m_asset_loaders;
 };
 
 }   // namespace extensions::scheduler::argument_providers
@@ -64,9 +69,8 @@ auto extensions::scheduler::argument_providers::AssetProvider<AssetsAddon_T>::pr
              Loaders,
              util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>)
 {
-    return extensions::scheduler::accessors::assets::Cached{
-        std::get<util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>(
-            m_asset_loaders.get()
-        )
-    };
+    return std::remove_cvref_t<Accessor_T>{ std::get<
+        core::assets::Cached<util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>(
+        m_asset_loaders.get()
+    ) };
 }

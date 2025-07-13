@@ -8,7 +8,7 @@ module;
 
 export module utility.containers.StackedTuple;
 
-import utility.meta.concepts.decayed;
+import utility.meta.concepts.storable;
 import utility.meta.concepts.integer_sequence.index_sequence;
 import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.functional.arguments_of;
@@ -57,7 +57,7 @@ struct Impl<IntegerSequence_T<size_t, I, Is...>, T, Ts...>
 
 namespace util {
 
-export template <::util::meta::decayed_c... Ts>
+export template <::util::meta::storable_c... Ts>
 class StackedTuple {
 public:
     template <typename... Factories_T>
@@ -70,7 +70,7 @@ public:
     constexpr auto get(this Self_T&&) noexcept -> ::util::meta::
         forward_like_t<util::meta::type_list_at_t<util::TypeList<Ts...>, index_T>, Self_T>;
 
-    template <::util::meta::decayed_c T, typename Self_T>
+    template <::util::meta::storable_c T, typename Self_T>
     [[nodiscard]]
     constexpr auto get(this Self_T&&) noexcept -> ::util::meta::forward_like_t<T, Self_T>;
 
@@ -142,14 +142,14 @@ constexpr Impl<IntegerSequence_T<size_t, I, Is...>, T, Ts...>::Impl(
       }
 {}
 
-template <::util::meta::decayed_c... Ts>
+template <::util::meta::storable_c... Ts>
 template <typename... Factories_T>
     requires(factory_for_c<Factories_T &&, Ts> && ...)
 constexpr util::StackedTuple<Ts...>::StackedTuple(Factories_T&&... factories)
     : m_impl{ std::tuple<>{}, std::forward<Factories_T>(factories)... }
 {}
 
-template <::util::meta::decayed_c... Ts>
+template <::util::meta::storable_c... Ts>
 template <size_t index_T, typename Self_T>
 constexpr auto util::StackedTuple<Ts...>::get(this Self_T&& self) noexcept
     -> meta::forward_like_t<meta::type_list_at_t<TypeList<Ts...>, index_T>, Self_T>
@@ -159,8 +159,8 @@ constexpr auto util::StackedTuple<Ts...>::get(this Self_T&& self) noexcept
     );
 }
 
-template <::util::meta::decayed_c... Ts>
-template <::util::meta::decayed_c T, typename Self_T>
+template <::util::meta::storable_c... Ts>
+template <::util::meta::storable_c T, typename Self_T>
 constexpr auto util::StackedTuple<Ts...>::get(this Self_T&& self) noexcept
     -> meta::forward_like_t<T, Self_T>
 {

@@ -2,7 +2,7 @@ module;
 
 #include <utility>
 
-export module snake.game.plugin;
+export module snake.game.setup;
 
 import app;
 
@@ -10,10 +10,12 @@ import core.time.FixedTimer;
 
 import plugins.events;
 import plugins.functional;
+import plugins.states;
 
 import snake.assets.inject_loaders;
 import snake.game.game_tick_rate;
 import snake.game.GameOver;
+import snake.game.GameState;
 import snake.game.Settings;
 
 namespace game {
@@ -29,11 +31,13 @@ export inline constexpr auto setup =
 {
     static_assert(app::has_plugins_c<Builder_T, plugins::EventsTag>);
     static_assert(app::has_plugins_c<Builder_T, plugins::Functional>);
+    static_assert(app::has_plugins_c<Builder_T, plugins::StatesTag>);
 
     return std::forward<Builder_T>(builder)
         .insert_resource(settings)
         .insert_resource(core::time::FixedTimer<game_tick_rate>{})
         .template register_event<GameOver>()
+        .template register_state<GameState>()
         .transform(assets::inject_loaders);
 };
 

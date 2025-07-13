@@ -16,7 +16,7 @@ import utility.contracts;
 import utility.memory.Allocator;
 import utility.memory.Deallocator;
 import utility.meta.concepts.allocator;
-import utility.meta.concepts.decayed;
+import utility.meta.concepts.storable;
 import utility.meta.concepts.nothrow_movable;
 import utility.meta.concepts.specialization_of;
 import utility.meta.reflection.hash;
@@ -26,7 +26,7 @@ import utility.meta.type_traits.forward_like;
 using namespace std::literals;
 
 template <typename T>
-concept storable_c = util::meta::decayed_c<T> && std::copyable<T>;
+concept storable_c = util::meta::storable_c<T> && std::copyable<T>;
 
 template <size_t size_T, size_t alignment_T>
 struct small_buffer_t {
