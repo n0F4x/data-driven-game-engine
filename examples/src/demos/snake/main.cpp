@@ -61,9 +61,9 @@ auto main() -> int
         .plug_in(plugins::resources)
         .plug_in(plugins::assets)
         .plug_in(plugins::events)
-        .plug_in(plugins::functional)
         .plug_in(plugins::ecs)
         .plug_in(plugins::scheduler)
+        .plug_in(plugins::functional)
         .transform(window::setup)
         .transform(game::setup)
         .run(

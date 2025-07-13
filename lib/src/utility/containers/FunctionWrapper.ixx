@@ -1,5 +1,6 @@
 module;
 
+#include <concepts>
 #include <functional>
 #include <utility>
 
@@ -70,13 +71,17 @@ private:
     Invocable_T m_invocable;
 };
 
-template <util::meta::decayed_c Invocable_T>
-    requires util::meta::unambiguous_functor_c<Invocable_T>
+template <util::meta::unambiguous_functor_c Invocable_T>
+    requires util::meta::decayed_c<Invocable_T>
 class FunctionWrapper<Invocable_T>
     : public function_wrapper_interface_from_t<Invocable_T> {
     using Base = function_wrapper_interface_from_t<Invocable_T>;
 
 public:
+    FunctionWrapper()
+        requires std::default_initializable<Invocable_T>
+    = default;
+
     template <typename UInvocable_T>
         requires std::constructible_from<Invocable_T, UInvocable_T&&>
     constexpr explicit FunctionWrapper(UInvocable_T&& invocable);
@@ -111,8 +116,8 @@ constexpr util::FunctionWrapper<Invocable_T>::FunctionWrapper(Invocable_T invoca
     : m_invocable{ invocable }
 {}
 
-template <util::meta::decayed_c Invocable_T>
-    requires util::meta::unambiguous_functor_c<Invocable_T>
+template <util::meta::unambiguous_functor_c Invocable_T>
+    requires util::meta::decayed_c<Invocable_T>
 template <typename UInvocable_T>
     requires std::constructible_from<Invocable_T, UInvocable_T&&>
 constexpr util::FunctionWrapper<Invocable_T>::FunctionWrapper(UInvocable_T&& invocable)

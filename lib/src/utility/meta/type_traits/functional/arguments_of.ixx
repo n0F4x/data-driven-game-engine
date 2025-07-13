@@ -16,7 +16,7 @@ import utility.meta.type_traits.type_list.type_list_drop_front;
 
 namespace util::meta {
 
-template <typename F>
+template <unambiguously_invocable_c F>
 struct arguments_of;
 
 template <function_c F>

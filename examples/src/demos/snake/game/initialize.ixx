@@ -13,10 +13,12 @@ import core.ecs;
 import core.scheduler;
 import core.time.FixedTimer;
 
+import extensions.scheduler.accessors.assets.Cached;
 import extensions.scheduler.accessors.ecs.Registry;
-import extensions.scheduler.accessors.resources;
+import extensions.scheduler.accessors.resources.Resource;
 
 
+import snake.assets.load_texture;
 import snake.game.Cell;
 import snake.game.color_cells;
 import snake.game.Direction;
@@ -31,16 +33,21 @@ import snake.window.Window;
 using namespace extensions::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;
 
+using TextureLoader = extensions::scheduler::accessors::assets::
+    Cached<std::remove_cvref_t<decltype(::assets::load_texture)>>;
+
 namespace game {
 
 auto initialize_map(
     resources::Resource<const window::Window> window,
     resources::Resource<const Settings>       settings,
-    ecs::Registry                     registry
+    ecs::Registry                             registry
 ) -> void;
 
 auto initialize_snake(resources::Resource<const Settings> settings, ecs::Registry registry)
     -> void;
+
+auto load_apple_texture(TextureLoader texture_loader) -> void;
 
 auto reset_timer(resources::Resource<core::time::FixedTimer<game_tick_rate>> game_timer)
     -> void;
@@ -70,7 +77,7 @@ auto make_shape(const uint16_t position_x, const uint16_t position_y, const uint
 auto game::initialize_map(
     const resources::Resource<const window::Window> window,
     const resources::Resource<const Settings>       settings,
-    const ecs::Registry                     registry
+    const ecs::Registry                             registry
 ) -> void
 {
     assert(settings->cell_width * settings->cells_per_row <= window->getSize().x);
@@ -103,7 +110,7 @@ auto game::initialize_map(
 
 auto game::initialize_snake(
     const resources::Resource<const Settings> settings,
-    const ecs::Registry               registry
+    const ecs::Registry                       registry
 ) -> void
 {
     std::random_device            random_device;
@@ -145,8 +152,9 @@ auto game::initialize_snake(
     );
 }
 
-auto game::reset_timer(resources::Resource<core::time::FixedTimer<game_tick_rate>> game_timer)
-    -> void
+auto game::reset_timer(
+    resources::Resource<core::time::FixedTimer<game_tick_rate>> game_timer
+) -> void
 {
     game_timer->reset();
 }

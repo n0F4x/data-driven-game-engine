@@ -10,7 +10,7 @@ import utility.meta.concepts.decayed;
 import utility.meta.concepts.functional;
 import utility.meta.type_traits.functional;
 
-export template <util::meta::decayed_c, typename>
+template <typename Derived_T, typename Signature_T>
 class NotFnInterface;
 
 template <typename Derived_T, typename Result_T, typename... Args_T>
@@ -180,8 +180,8 @@ private:
     Invocable_T m_invocable;
 };
 
-template <util::meta::decayed_c Invocable_T>
-    requires util::meta::unambiguous_functor_c<Invocable_T>
+template <util::meta::unambiguous_functor_c Invocable_T>
+    requires util::meta::decayed_c<Invocable_T>
 class NotFn<Invocable_T> : public not_fn_interface_from_t<Invocable_T> {
     using Base = not_fn_interface_from_t<Invocable_T>;
 

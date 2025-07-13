@@ -13,6 +13,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         allocator.ixx
         decayed.ixx
         decays_to.ixx
+        hashable.ixx
+        naked.ixx
         nothrow_assignable_from.ixx
         nothrow_constructible_from.ixx
         nothrow_convertible_to.ixx

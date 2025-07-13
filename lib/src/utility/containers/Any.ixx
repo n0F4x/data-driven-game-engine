@@ -574,9 +574,7 @@ template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c A
 constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(BasicAny&& other
 ) noexcept -> BasicAny&
 {
-    PRECOND(
-        other.m_operations != nullptr, "Don't use a 'moved-from' (or destroyed) Any!"
-    );
+    PRECOND(other.m_operations != nullptr, "Don't use a 'moved-from' (or destroyed) Any!");
 
     if (&other == this) {
         return *this;

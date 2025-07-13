@@ -1,15 +1,18 @@
 #include <type_traits>
 
 import utility.meta.type_traits.type_list.type_list_filter;
-import utility.TypeList;
+
+namespace {
+template <typename...>
+struct TypeList {};
+}   // namespace
 
 static_assert(std::is_same_v<
-              util::meta::type_list_filter_t<util::TypeList<float>, std::is_integral>,
-              util::TypeList<>>);
+              util::meta::type_list_filter_t<TypeList<float>, std::is_integral>,
+              TypeList<>>);
 static_assert(std::is_same_v<
-              util::meta::type_list_filter_t<util::TypeList<int, float>, std::is_integral>,
-              util::TypeList<int>>);
+              util::meta::type_list_filter_t<TypeList<int, float>, std::is_integral>,
+              TypeList<int>>);
 static_assert(std::is_same_v<
-              util::meta::
-                  type_list_filter_t<util::TypeList<int, float, long>, std::is_integral>,
-              util::TypeList<int, long>>);
+              util::meta::type_list_filter_t<TypeList<int, float, long>, std::is_integral>,
+              TypeList<int, long>>);

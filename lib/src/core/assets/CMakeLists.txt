@@ -5,6 +5,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         assets.cppm
         asset_c.ixx
-        AssetServer.ixx
+        Cached.ixx
+        Handle.ixx
         loader_c.ixx
+        WeakHandle.ixx
 )
