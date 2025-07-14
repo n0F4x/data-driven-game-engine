@@ -1,0 +1,34 @@
+= Resource management
+
+Resources (unlike assets) are the global variables of your app.
+They are designed to be initialized before startup and easily accessible by systems.
+
+[,c++]
+----
+auto app =
+    app::create()
+        .plug_in(plugins::resources)
+        .insert_resource(MyResource{})
+        .build();
+
+MyResource& my_resource = app.resource_manager.get<MyResource>();
+----
+
+== Dependency injection
+
+Resources can be created from other resources.
+In order to access another *previously* initialized resource, you should inject your resource using a function.
+
+[,c++]
+----
+app::create()
+   .plug_in(plugins::resources)
+   .insert_resource(Dependee{})
+   .inject_resource([](Dependee& dependee) { return Dependant{ dependee }; })
+   .build();
+----
+
+[NOTE]
+====
+The injection function should only take resources as its parameters.
+====

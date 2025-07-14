@@ -1,0 +1,111 @@
+= The app and the builder
+
+The framework provides an easy way to customize your application before it launches.
+The app builder should be the first entry point of any application.
+
+== Plugins
+
+The bare-bone builder does not provide any features, but one customization point.
+Everything is build around that.
+
+[,c++]
+."Hello World!" using the app builder
+----
+struct CustomPlugin {
+    auto say_hello() -> void
+    {
+        std::puts("Hello World!");
+    }
+};
+
+app::create()
+    .plug_in(CustomPlugin{})
+    .say_hello();
+----
+
+[,console]
+----
+Hello World!
+----
+
+=== Builder plugin
+
+Plugins are also allowed to have a `+build()+` method which takes an `+App+` as a parameter and returns it.
+
+[,c++]
+----
+struct CustomPlugin {
+    auto build(auto app)
+    {
+        std::puts("Building custom plugin...");
+        return app;
+    }
+};
+
+auto app =
+    app::create()
+        .plug_in(CustomPlugin{})
+        .build();
+----
+
+[,console]
+----
+Building custom plugin...
+----
+
+== Add-ons
+
+The equivalent of plugins for an app are the add-ons.
+
+[,c++]
+."Hello World!" using an addon
+----
+struct CustomAddon {
+    auto say_hello() -> void
+    {
+        std::puts("Hello World!");
+    }
+};
+
+auto app = app::create().build();
+
+auto customized_app = app.add_on(CustomAddon{});
+
+customized_app.say_hello();
+----
+
+[,console]
+----
+Hello World!
+----
+
+'''
+
+It is also a good practice to combine plugins and addons.
+
+[,c++]
+----
+struct CustomAddon {
+    auto say_hello() -> void
+    {
+        std::puts("Hello World!");
+    }
+};
+
+struct CustomPlugin {
+    auto build(auto app)
+    {
+        return app.add_on(CustomAddon{});
+    }
+};
+
+app::create()
+    .plug_in(CustomPlugin{})
+    .build()
+    .say_hello();
+----
+
+[,console]
+----
+Hello World!
+----
