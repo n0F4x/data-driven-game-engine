@@ -1,0 +1,49 @@
+= Entity Component System
+
+ECS is meant to be the second building block of the engine after its resource management.
+The idea of an entity component system is well-known not only for games but other applications as well, as it is logically similar to an in-memory-database.
+
+In contrast to conventional object oriented programming, ECS offers flexibility and performance when used correctly.
+
+Entities are essentially the rows of the database and represented by a single id.
+Each entity can gain and lose components that represent data. +
+Finally, there is no encapsulation or class methods, but systems, which are responsible for the logic of the ECS world.
+
+[,c++]
+.Components can be added or removed
+----
+auto id = registry.create(Position{}, Velocity{});
+
+registry.insert(id, Weapon{});
+registry.remove(Velocity{});
+----
+
+[WARNING]
+====
+References to components of an entity are invalidated when a new component is added or removed.
+
+Relying on invalidated references leads to undefined behavior!
+====
+
+== Querying
+
+The registry is designed for efficient and frequent use of querying.
+Queries iterate on the registry itself, no extra copies are made.
+
+[,c++]
+.An example for what might be a physics system
+----
+core::ecs::query(
+    registry,
+    [](Position& position, const Velocity& velocity) {
+        // process and manipulate data...
+    }
+);
+----
+
+[WARNING]
+====
+Directly manipulating the registry inside a query leads to undefined behavior.
+
+Do not add/remove components or entities!
+====
