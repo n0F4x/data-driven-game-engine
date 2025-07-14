@@ -15,7 +15,7 @@ Finally, there is no encapsulation or class methods, but systems, which are resp
 auto id = registry.create(Position{}, Velocity{});
 
 registry.insert(id, Weapon{});
-registry.remove(Velocity{});
+registry.remove(id, Velocity{});
 ----
 
 [WARNING]
