@@ -1,19 +1,22 @@
 module;
 
 #include <concepts>
-#include <functional>
+#include <string>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
 export module utility.containers.StackedTuple;
 
-import utility.meta.concepts.storable;
+import utility.meta.algorithms.for_each;
 import utility.meta.concepts.integer_sequence.index_sequence;
+import utility.meta.concepts.storable;
+import utility.meta.reflection.name_of;
 import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.result_of;
 import utility.meta.type_traits.type_list.type_list_at;
+import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.type_list.type_list_index_of;
 import utility.TypeList;
 
@@ -95,7 +98,7 @@ struct gather_dependencies_helper<TypeList_T<SelectedTypes_T...>> {
         -> std::tuple<SelectedTypes_T...>
     {
         return { std::forward_like<SelectedTypes_T>(
-            std::get<std::decay_t<SelectedTypes_T>&>(tuple)
+            std::get<std::remove_cvref_t<SelectedTypes_T>&>(tuple)
         )... };
     }
 };
@@ -103,7 +106,20 @@ struct gather_dependencies_helper<TypeList_T<SelectedTypes_T...>> {
 template <typename Callable_T, typename... Ts>
 constexpr auto gather_dependencies(std::tuple<Ts...>& stack)
 {
+    using namespace std::literals::string_literals;
+
     using RequiredResourcesTuple_T = util::meta::arguments_of_t<Callable_T>;
+
+    util::meta::for_each<RequiredResourcesTuple_T>([]<typename Dependency_T> {
+        static_assert(
+            util::meta::type_list_contains_v<
+                util::TypeList<Ts...>,
+                std::remove_cvref_t<Dependency_T>&>,
+            // TODO: constexpr std::format
+            "Dependency `"s + util::meta::name_of<std::remove_cvref_t<Dependency_T>>()
+                + "` not found for `" + util::meta::name_of<Callable_T>() + "`"
+        );
+    });
 
     return gather_dependencies_helper<RequiredResourcesTuple_T>::operator()(stack);
 }

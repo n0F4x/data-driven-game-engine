@@ -3,6 +3,7 @@ module;
 #include <algorithm>
 #include <any>
 #include <functional>
+#include <string>
 #include <type_traits>
 #include <utility>
 
@@ -15,11 +16,15 @@ import app;
 import core.resources;
 
 import utility.meta.algorithms.apply;
+import utility.meta.algorithms.for_each;
+import utility.meta.reflection.name_of;
+import utility.meta.type_traits.back;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.result_of;
+import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.type_list.type_list_drop_back;
-import utility.meta.type_traits.back;
 import utility.tuple;
+import utility.TypeList;
 
 namespace plugins {
 
@@ -134,7 +139,7 @@ struct gather_helper<TypeList_T<SelectedTypes_T...>> {
         -> std::tuple<SelectedTypes_T...>
     {
         return { std::forward_like<SelectedTypes_T>(
-            std::get<std::decay_t<SelectedTypes_T>>(tuple)
+            std::get<std::remove_cvref_t<SelectedTypes_T>>(tuple)
         )... };
     }
 };
@@ -142,7 +147,20 @@ struct gather_helper<TypeList_T<SelectedTypes_T...>> {
 template <typename Callable_T, typename... Ts>
 constexpr auto gather_parameters(std::tuple<Ts...>& tuple)
 {
+    using namespace std::literals::string_literals;
+
     using RequiredResourcesTuple_T = util::meta::arguments_of_t<Callable_T>;
+
+    util::meta::for_each<RequiredResourcesTuple_T>([]<typename Dependency_T> {
+        static_assert(
+            util::meta::type_list_contains_v<
+                util::TypeList<Ts...>,
+                std::remove_cvref_t<Dependency_T>>,
+            // TODO: constexpr std::format
+            "Dependency `"s + util::meta::name_of<std::remove_cvref_t<Dependency_T>>()
+                + "` not found for `" + util::meta::name_of<Callable_T>() + "`"
+        );
+    });
 
     return gather_helper<RequiredResourcesTuple_T>::operator()(tuple);
 }
