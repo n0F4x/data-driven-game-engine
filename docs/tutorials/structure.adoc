@@ -1,0 +1,12 @@
+= Engine structure
+
+The engine's code is structured around the following modules:
+
+* app - the entry point of the program
+* core - the building blocks of the engine
+* plugins - plugins for extending the app builder
+* addons - addons for extending the app
+* extensions - extra functionality built around common features
+* utility - basic helper functionalities
+
+Each module has its own namespace (corresponding to the name of the module) and submodules.

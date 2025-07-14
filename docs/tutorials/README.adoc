@@ -3,5 +3,6 @@
 Welcome to our tutorial section!
 
 .Listing of tutorials from beginner to advanced
+* xref:structure.adoc[The structure of the engine]
 * xref:app.adoc[The app and the builder]
 * xref:resources.adoc[Resource management]

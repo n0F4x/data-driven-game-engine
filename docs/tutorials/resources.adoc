@@ -28,6 +28,8 @@ app::create()
    .build();
 ----
 
+Injection functions are called from the build method.
+
 [NOTE]
 ====
 The injection function should only take resources as its parameters.

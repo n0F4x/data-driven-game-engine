@@ -1,7 +1,7 @@
 = The app and the builder
 
 The framework provides an easy way to customize your application before it launches.
-The app builder should be the first entry point of any application.
+The app builder should be the first point of entry for any application.
 
 == Plugins
 
