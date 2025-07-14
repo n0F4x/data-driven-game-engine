@@ -47,3 +47,25 @@ Directly manipulating the registry inside a query leads to undefined behavior.
 
 Do not add/remove components or entities!
 ====
+
+=== Query parameter tags
+
+Queries can be tailored to support special selection criteria.
+
+[,c++]
+.Query with special tags
+----
+core::ecs::query(
+    registry,
+    [](core::ecs::ID id, Velocity& velocity, core::ecs::Without<Weapon>) {
+        // only entities with velocity but without a weapon are included
+    }
+);
+----
+
+.List of query parameter tags
+
+* `+ID+` - the id of the entity
+* `+With<Component>+` - only entites that have the specified component are included
+* `+Without<Component>+` - only entites that don't have the specified component are included
+* `+Optional<Component>+` - access to an optional component that an entity may or may not have
