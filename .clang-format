@@ -42,6 +42,7 @@ AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: false
+#AllowShortNamespacesOnASingleLine: false
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
@@ -75,6 +76,7 @@ BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 BreakBeforeConceptDeclarations: Always
 BreakBeforeTernaryOperators: true
+#BreakBinaryOperations: RespectPrecedence
 BreakConstructorInitializers: BeforeColon
 BreakFunctionDefinitionParameters: false
 BreakInheritanceList: BeforeColon
@@ -146,6 +148,7 @@ IncludeIsMainRegex: ''
 IndentAccessModifiers: false
 IndentCaseBlocks: false
 IndentCaseLabels: true
+# IndentExportBlock: true
 IndentExternBlock: Indent
 IndentGotoLabels: true
 IndentPPDirectives: BeforeHash
@@ -174,6 +177,7 @@ PPIndentWidth: 2
 PackConstructorInitializers: CurrentLine
 PenaltyBreakAssignment: 50
 PenaltyBreakBeforeFirstCallParameter: 0
+#PenaltyBreakBeforeMemberAccess: 0
 PenaltyBreakComment: 0
 PenaltyBreakFirstLessLess: 0
 PenaltyBreakOpenParenthesis: 20
@@ -191,13 +195,14 @@ RawStringFormats:
 ReferenceAlignment: Pointer
 ReflowComments: true
 RemoveBracesLLVM: false
+#RemoveEmptyLinesInUnwrappedLines: true
 RemoveParentheses: Leave
 RemoveSemicolon: false
 RequiresClausePosition: OwnLine
 RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Always
 ShortNamespaceLines: 0
-# SkipMacroDefinitionBody: true
+SkipMacroDefinitionBody: true
 SortIncludes: CaseInsensitive
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
@@ -235,7 +240,11 @@ Standard: Latest
 StatementAttributeLikeMacros: [ ]
 StatementMacros: [ ]
 TabWidth: 4
+#TemplateNames: [ ]
+#TypeNames: [ ]
 TypenameMacros: [ ]
 UseTab: Never
+#VariableTemplates: [ ]
 WhitespaceSensitiveMacros: [ ]
+#WrapNamespaceBodyWithEmptyLines: Always
 ---
