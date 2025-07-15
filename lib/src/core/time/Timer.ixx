@@ -16,8 +16,8 @@ public:
     [[nodiscard]]
     auto current() const -> Clock::time_point;
 
-    auto update(Clock::time_point current) -> void;
-    auto reset() -> void;
+    auto update(Clock::time_point current = Clock::now()) -> void;
+    auto reset(Clock::time_point current = Clock::now()) -> void;
 
 private:
     Clock::time_point m_current{ Clock::now() };
@@ -42,8 +42,8 @@ auto core::time::Timer::update(const Clock::time_point current) -> void
     m_current = current;
 }
 
-auto core::time::Timer::reset() -> void
+auto core::time::Timer::reset(const Clock::time_point current) -> void
 {
+    m_current = current;
     m_delta   = Delta{};
-    m_current = Clock::now();
 }

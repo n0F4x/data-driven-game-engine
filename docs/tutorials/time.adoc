@@ -1,0 +1,62 @@
+= Time, timing, timers
+
+The most basic timing facility is the `Timer`.
+Its role is to keep track of the delta time between two updates.
+
+[,c++]
+----
+using core::time;
+
+auto check_time(Res<Timer> timer) -> void
+{
+    auto delta = timer->delta();
+    auto time_of_last_update = timer->current();
+}
+----
+
+It can also be reset and updated.
+
+[,c++]
+----
+using core::time;
+
+auto check_time(Res<Timer> timer) -> void
+{
+    auto last_time = timer->current();
+    auto current_time = Timer::Clock::now();
+
+    // delta gets set to `current_time - last_time`
+    timer->update(current_time);
+
+    // delta gets set to zero
+    timer->reset(current_time);
+}
+----
+
+== Fixed timestamp
+
+Some systems need to be updated at fixed intervals.
+This may be 2 or 60 times a second, or whatever custom time that fits best.
+One iteration of a game loop may take from a couple of microseconds to milliseconds, meaning that a fixed system update should be called 0 or more times per iteration.
+To measure how many times a system should get called at a given timepoint, it is recommended to use a `+FixedTimer<tick_rate>+` resource.
+
+`+FixedTimer<tick_rate>+` is very similar to `+Timer+`, but it makes sure that you get the exact number of ticks that happened since the last tick.
+
+=== Integration with the scheduler
+
+Because of how common fixed systems are, there is a dedicated scheduling primitive for scheduling fixed updates.
+
+[,c++]
+----
+using namespace core::measurement::symbols;
+namespace sch = core::scheduler;
+
+constexpr mp_units::quantity<fps> display_rate = 60 * fps;
+
+constexpr auto render =
+    sch::at_fixed_rate<display_rate>(
+        sch::start_as(clear_window)
+            .then(draw)
+            .then(display)
+    );
+----

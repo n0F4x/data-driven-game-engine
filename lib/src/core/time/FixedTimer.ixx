@@ -23,7 +23,7 @@ public:
     auto current() const -> Clock::time_point;
 
     auto update(Clock::time_point current = Clock::now()) -> void;
-    auto reset() -> void;
+    auto reset(Clock::time_point current = Clock::now()) -> void;
 
 private:
     Clock::time_point m_current{ Clock::now() };
@@ -69,8 +69,8 @@ auto core::time::FixedTimer<tick_rate>::update(const Clock::time_point current) 
 }
 
 template <mp_units::QuantityOf<core::measurement::tick_rate> auto tick_rate>
-auto core::time::FixedTimer<tick_rate>::reset() -> void
+auto core::time::FixedTimer<tick_rate>::reset(const Clock::time_point current) -> void
 {
+    m_current    = current;
     m_delta_time = Delta{};
-    m_current    = Clock::now();
 }
