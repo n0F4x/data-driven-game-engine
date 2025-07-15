@@ -1,0 +1,70 @@
+= Asset management
+
+Assets are objects that are created dynamically during the runtime of an application.
+
+Most assets are loaded from files and require only a filepath.
+Whereas others may need extra options, or may be loaded from other sources.
+There is no general purpose asset loader that fits all.
+Therefore, given the chaotic nature of asset creation, the framework offers one powerful tool -  `+Cached<LoadFunction>+`.
+
+[,c++]
+----
+app::create()
+    .plug_in(plugins::assets)
+    .insert_loader(MyAssetLoader{});
+----
+
+You are free to define your own way of loading an asset.
+The only restriction is that it should be obvious what parameters your function takes and what asset it returns.
+
+[,c++]
+----
+struct MyAssetLoader {
+    auto operator()(std::string_view filename, int flags) -> Image;
+};
+----
+
+The `+Cached+` wrapper will package your asset into an owning handle, and keep a weak reference to it, so the next time it won't need to invoke your loader.
+
+[,c++]
+----
+auto load_my_asset(Cached<MyAssetLoader> loader) -> void
+{
+    auto asset_handle = loader.load("frog.png", 0);
+
+    // MyAssetLoader won't be called the second time
+    asset_handle = loader.load("frog.png", 0);
+}
+----
+
+Also, don't forget to store your handle away somewhere, as your asset may get destroyed otherwise.
+One good practice is keeping your asset in a state.
+
+== Composite loaders
+
+Let's imagine you are writing a loader for a 3D model which also needs to load textures.
+In this case, your model loader will depend on the texture loader.
+
+One solution is to take the other loader as a parameter, but this can get messy.
+The recommended approach is to inject a reference to the texture loader into your model loader instead.
+
+[,c++]
+----
+class ModelLoader {
+public:
+    explicit ModelLoader(
+        core::assets::Cached<TextureLoader>& texture_loader
+    );
+
+    // ...
+};
+
+app::create()
+    .plug_in(plugins::assets)
+    .insert_loader(TextureLoader{});
+    .inject_loader(
+        [](core::assets::Cached<TextureLoader>& texture_loader) {
+            return ModelLoader{ texture_loader };
+        }
+    );
+----
