@@ -1,7 +1,3 @@
-module;
-
-#include <tuple>
-
 export module addons.Assets;
 
 import core.assets;
@@ -9,11 +5,13 @@ import core.assets;
 import extensions.scheduler.argument_provider_for;
 import extensions.scheduler.argument_providers.AssetProvider;
 
+import utility.containers.StackedTuple;
+
 namespace addons {
 
 export template <core::assets::loader_c... Loaders_T>
 struct Assets {
-    std::tuple<core::assets::Cached<Loaders_T>...> asset_loaders;
+    util::StackedTuple<core::assets::Cached<Loaders_T>...> asset_loaders;
 };
 
 }   // namespace addons

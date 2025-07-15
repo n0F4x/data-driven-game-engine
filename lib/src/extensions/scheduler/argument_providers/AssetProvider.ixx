@@ -12,6 +12,7 @@ import core.assets;
 
 import extensions.scheduler.accessors.assets;
 
+import utility.containers.StackedTuple;
 import utility.meta.concepts.specialization_of;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.type_list.type_list_to;
@@ -44,7 +45,7 @@ public:
                  util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>);
 
 private:
-    std::reference_wrapper<util::meta::type_list_to_t<CachedLoaders, std::tuple>>
+    std::reference_wrapper<util::meta::type_list_to_t<CachedLoaders, util::StackedTuple>>
         m_asset_loaders;
 };
 
@@ -69,8 +70,9 @@ auto extensions::scheduler::argument_providers::AssetProvider<AssetsAddon_T>::pr
              Loaders,
              util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>)
 {
-    return std::remove_cvref_t<Accessor_T>{ std::get<
-        core::assets::Cached<util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>(
+    return std::remove_cvref_t<Accessor_T>{
         m_asset_loaders.get()
-    ) };
+            .template get<core::assets::Cached<
+                util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>()
+    };
 }

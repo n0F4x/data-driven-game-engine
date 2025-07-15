@@ -42,7 +42,7 @@ export struct Requirement {
     std::function<void(vkb::PhysicalDevice&)>         enable_optional_device_settings;
 };
 
-export template <plugins::injection_c SurfaceInjection_T>
+export template <plugins::resource_injection_c SurfaceInjection_T>
 class Setup {
 public:
     Setup();
@@ -130,7 +130,7 @@ auto make_requirement() -> extensions::renderer::Requirement
     return requirement;
 }
 
-template <plugins::injection_c SurfaceInjection_T>
+template <plugins::resource_injection_c SurfaceInjection_T>
 extensions::renderer::Setup<SurfaceInjection_T>::Setup()
 {
     require(::make_requirement<core::renderer::base::Allocator::Requirements>());
@@ -161,7 +161,7 @@ auto to_device_dependency(const extensions::renderer::Requirement& requirement)
     };
 }
 
-template <plugins::injection_c SurfaceInjection_T>
+template <plugins::resource_injection_c SurfaceInjection_T>
 template <app::has_plugins_c<plugins::ResourcesTag, plugins::Functional> Builder_T>
 auto extensions::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builder)
 {
@@ -196,7 +196,7 @@ auto extensions::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& bui
         });
 }
 
-template <plugins::injection_c SurfaceInjection_T>
+template <plugins::resource_injection_c SurfaceInjection_T>
 template <typename Self>
 auto extensions::renderer::Setup<SurfaceInjection_T>::require(
     this Self&& self,

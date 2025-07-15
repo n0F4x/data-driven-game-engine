@@ -1,7 +1,5 @@
 module;
 
-#include <algorithm>
-#include <any>
 #include <functional>
 #include <string>
 #include <type_traits>
@@ -32,21 +30,21 @@ export template <typename T>
 concept resource_c = core::resources::resource_c<T>;
 
 export template <typename T>
-concept injection_c = resource_c<util::meta::result_of_t<T>>;
+concept resource_injection_c = resource_c<util::meta::result_of_t<T>>;
 
 export template <typename T>
-concept decays_to_injection_c = injection_c<std::decay_t<T>>;
+concept decays_to_resource_injection_c = resource_injection_c<std::decay_t<T>>;
 
 export struct ResourcesTag {};
 
-template <plugins::injection_c... Injections_T>
+template <plugins::resource_injection_c... Injections_T>
 class BasicResources;
 
 template <typename... Injections_T>
 using old_resources_t =
     util::meta::type_list_drop_back_t<plugins::BasicResources<Injections_T...>>;
 
-template <plugins::injection_c... Injections_T>
+template <plugins::resource_injection_c... Injections_T>
 class BasicResources : public ResourcesTag {
 public:
     BasicResources() = default;
@@ -65,7 +63,7 @@ public:
         requires plugins::resource_c<std::remove_cvref_t<Resource_T>>
     constexpr auto insert_resource(this Self_T&&, Resource_T&& resource);
 
-    template <app::decays_to_builder_c Self_T, plugins::decays_to_injection_c Injection_T>
+    template <app::decays_to_builder_c Self_T, plugins::decays_to_resource_injection_c Injection_T>
     constexpr auto inject_resource(this Self_T&&, Injection_T&& injection);
 
     template <app::decays_to_app_c App_T>
@@ -73,7 +71,7 @@ public:
     constexpr auto build(App_T&& app) &&;
 
 private:
-    template <plugins::injection_c...>
+    template <plugins::resource_injection_c...>
     friend class BasicResources;
 
     std::tuple<std::decay_t<Injections_T>...> m_injections;
@@ -85,7 +83,7 @@ export inline constexpr Resources resources;
 
 }   // namespace plugins
 
-template <plugins::injection_c... Injections_T>
+template <plugins::resource_injection_c... Injections_T>
 template <typename OldBasicResources_T, typename... Args>
     requires std::same_as<
         std::remove_cvref_t<OldBasicResources_T>,
@@ -104,7 +102,7 @@ constexpr plugins::BasicResources<Injections_T...>::BasicResources(
       ) }
 {}
 
-template <plugins::injection_c... Injections_T>
+template <plugins::resource_injection_c... Injections_T>
 template <app::decays_to_builder_c Self_T, typename Resource_T>
     requires plugins::resource_c<std::remove_cvref_t<Resource_T>>
 constexpr auto plugins::BasicResources<Injections_T...>::insert_resource(
@@ -165,8 +163,8 @@ constexpr auto gather_parameters(std::tuple<Ts...>& tuple)
     return gather_helper<RequiredResourcesTuple_T>::operator()(tuple);
 }
 
-template <plugins::injection_c... Injections_T>
-template <app::decays_to_builder_c Self_T, plugins::decays_to_injection_c Injection_T>
+template <plugins::resource_injection_c... Injections_T>
+template <app::decays_to_builder_c Self_T, plugins::decays_to_resource_injection_c Injection_T>
 constexpr auto plugins::BasicResources<Injections_T...>::inject_resource(
     this Self_T&& self,
     Injection_T&& injection
@@ -204,7 +202,7 @@ constexpr auto plugins::BasicResources<Injections_T...>::inject_resource(
         );
 }
 
-template <plugins::injection_c... Injections_T>
+template <plugins::resource_injection_c... Injections_T>
 template <app::decays_to_app_c App_T>
 constexpr auto plugins::BasicResources<Injections_T...>::build(App_T&& app) &&
 {

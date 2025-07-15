@@ -66,7 +66,6 @@ public:
     template <typename... Factories_T>
         requires(factory_for_c<Factories_T &&, Ts> && ...)
     constexpr explicit StackedTuple(Factories_T&&... factories);
-    StackedTuple(const StackedTuple&) = delete;
 
     template <size_t index_T, typename Self_T>
     [[nodiscard]]
@@ -130,10 +129,10 @@ constexpr Impl<IntegerSequence_T<size_t, I>, T>::Impl(
     std::tuple<Stacked_T&...> stack,
     Factory_T&&               factory
 )
-    : Leaf<I, T>{ std::apply(
+    : Leaf<I, T>{ .value{ std::apply(
           std::forward<Factory_T>(factory),
           gather_dependencies<Factory_T>(stack)
-      ) }
+      ) } }
 {}
 
 template <
@@ -148,10 +147,10 @@ constexpr Impl<IntegerSequence_T<size_t, I, Is...>, T, Ts...>::Impl(
     Factory_T&&               factory,
     Factories_T&&... factories
 )
-    : Leaf<I, T>{ std::apply(
+    : Leaf<I, T>{ .value{ std::apply(
           std::forward<Factory_T>(factory),
           gather_dependencies<Factory_T>(stack)
-      ) },
+      ) } },
       Impl<IntegerSequence_T<size_t, Is...>, Ts...>{
           std::tuple_cat(stack, std::tuple<T&>{ Leaf<I, T>::value }),
           std::forward<Factories_T>(factories)...
