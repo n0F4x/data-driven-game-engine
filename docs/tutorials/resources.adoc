@@ -38,8 +38,23 @@ The injection function should only take resources as its parameters.
 == Reference invalidation
 
 References to resources are valid until the app is alive.
-(Which is a very long time under normal circumstances.)
-Feel free to keep references to resources around.
+(Which is a very long time under normal circumstances.) Feel free to keep references to resources around.
 
 Injected resources can also keep using references acquired as parameters.
 Their lifecycle will always end before the resources they depend on.
+
+== Modify previous injections
+
+Sometimes it is necessary to modify previously registered injections.
+For these cases, your injection is allowed to have a `+setup()+` function that takes any number of injections as arguments.
+
+[,c++]
+----
+struct Injection {
+    auto setup(
+        AnotherInjection& another_injection
+    ) -> void;
+
+    // ...
+};
+----
