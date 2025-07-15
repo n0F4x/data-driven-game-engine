@@ -2,8 +2,15 @@
 
 Events are used as a messaging mechanism between different parts of the program.
 Most game engines use an event system, not just for handling input, but other kinds of news as well.
-The event system described here was built with the mechanism of the game loop in mind.
 
+[,c++]
+----
+app::create()
+    .plug_in(plugins::events)
+    .register_event<WindowClosedEvent>();
+----
+
+The event system described here was built with the mechanism of the game loop in mind.
 Events may happen once or multiple times in the time of a game loop iteration.
 After an event is recorded in one iteration, it will get published in the next one, then disappear.
 This makes it so that each event can be acted on for exactly one iteration of the game loop after it was recorded.
@@ -55,7 +62,7 @@ For our example it was
 struct WindowClosedEvent {};
 ----
 
-So far, we have seen how to record events and react to them.
+Finally, we have seen how to record events and react to them.
 The only question left is how to clear and swap the event buffers as it was described above.
 
 [,c++]

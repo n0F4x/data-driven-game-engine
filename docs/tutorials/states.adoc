@@ -1,0 +1,30 @@
+= States
+
+State management is a useful mechanism for storing data specific to different parts of the application.
+All states start out as inactive, but they can be activated or deactivated at any time.
+
+[,cpp]
+----
+struct GameState {
+    int level{};
+};
+
+auto load_next_level(State<GameState> game_state) -> void
+{
+    if (game_state.has_value()) {
+        game_state->level++;
+    } else {
+        game_state.emplace(GameState{ .level = 1 });
+    }
+}
+----
+
+States are like resources wrapped inside an `+std::optional+` or an event that gets activated instantly and cleared manually.
+Similar to resources and events, they should also be registered in advance.
+
+[,c++]
+----
+app::create()
+    .plug_in(plugins::states)
+    .register_state<GameState>();
+----
