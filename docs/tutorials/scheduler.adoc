@@ -1,0 +1,87 @@
+= Scheduling
+
+The most important building block of an application is the scheduler, which is responsible for running the different systems.
+
+[,c++]
+."Hello World!" using the scheduler
+----
+app::create()
+    .plug_in(plugins::scheduler)
+    .run([] { std::puts("Hello World!"); });
+----
+
+We can also describe more complicated logic using scheduling primitives.
+
+[,c++]
+----
+auto say_hello() -> void {
+    std::puts("Hello World!");
+}
+
+auto say_hi() -> void {
+    std::puts("Hi! 👋");
+}
+
+app::create()
+    .plug_in(plugins::scheduler)
+    .run(
+        core::scheduler::start_as(say_hello)
+            .then(say_hi)
+    );
+----
+
+== Scheduling primitives
+
+.Core scheduling primitives
+
+* `+start_as+` - begins a schedule that can be chained using `+.then()+`
+
+* `+in_parallel+` - puts the given tasks in a group +
+Tasks within the group may run in parallel.
+
+* `+group+` - puts the given tasks in a group +
+Tasks within the group that don't share conflicting parameters may run in parallel.
+
+With these, one may describe any form of schedule.
+There are also a lot more primitives that serve some sort of logic, but they are not essential.
+
+== Accessors
+
+Tasks may take accessors as parameters. Accessors come in all sorts of shapes. Here are a few examples:
+
+* `+Res<Resource>+` - reference to a resource
+* `+Registry+` - reference to the registry
+* `+State<State>+` - reference to a state
+
+Most accessors store only a reference, so it is fine to take them by value; however, a few of them (like `+events::Processor+`) are more complicated.
+
+'''
+
+[,c++]
+.Example of a more complicated schedule
+----
+namespace sch = core::schedule;
+
+auto schedule =
+    sch::start_as(initialize_app)
+        .then(
+            sch::loop_until(
+                sch::group(
+                    process_events,
+                    update,
+                    render
+                )
+            ),
+            game_is_running
+        )
+        .then(shut_down);
+----
+
+Where `+game_is_running+` may be defined as +
+[,c++]
+----
+auto game_is_running(Res<Window> window) -> bool
+{
+    return window->is_open();
+}
+----
