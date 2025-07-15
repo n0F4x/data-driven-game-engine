@@ -10,7 +10,7 @@ app::create()
     .register_event<WindowClosedEvent>();
 ----
 
-The event system described here was built with the mechanism of the game loop in mind.
+This event system was built with the mechanism of the game loop in mind.
 Events may happen once or multiple times in the time of a game loop iteration.
 After an event is recorded in one iteration, it will get published in the next one, then disappear.
 This makes it so that each event can be acted on for exactly one iteration of the game loop after it was recorded.
