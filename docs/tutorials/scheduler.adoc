@@ -1,13 +1,13 @@
 = Scheduling
 
-The most important building block of an application is the scheduler, which is responsible for running the different systems.
+The base of an application is the scheduler, which is responsible for running the different systems.
 
 [,c++]
 ."Hello World!" using the scheduler
 ----
 app::create()
     .plug_in(plugins::scheduler)
-    .run([] { std::puts("Hello World!"); });
+    .run([] { std::println("Hello World!"); });
 ----
 
 We can also describe more complicated logic using scheduling primitives.
@@ -15,11 +15,11 @@ We can also describe more complicated logic using scheduling primitives.
 [,c++]
 ----
 auto say_hello() -> void {
-    std::puts("Hello World!");
+    std::println("Hello World!");
 }
 
 auto say_hi() -> void {
-    std::puts("Hi! 👋");
+    std::println("Hi! 👋");
 }
 
 app::create()

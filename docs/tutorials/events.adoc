@@ -20,7 +20,7 @@ This makes it so that each event can be acted on for exactly one iteration of th
 ----
 auto close_window(const Recorder<WindowClosedEvent>& recorder) -> void
 {
-    std::puts("Window closed");
+    std::println("Window closed");
     recorder.record();
 }
 ----
@@ -31,7 +31,7 @@ auto close_window(const Recorder<WindowClosedEvent>& recorder) -> void
 auto say_goodbye(const Reader<WindowClosedEvent>& reader) -> void
 {
     for (auto event : reader.read()) {
-        std::puts("Goodbye window!");
+        std::println("Goodbye window!");
     }
 }
 ----

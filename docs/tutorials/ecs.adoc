@@ -1,6 +1,6 @@
 = Entity Component System
 
-ECS is meant to be the second building block of the engine after its resource management.
+ECS is meant to be the second building block of the engine after resource management.
 The idea of an entity component system is well-known not only for games but other applications as well, as it is logically similar to an in-memory-database.
 
 In contrast to conventional object oriented programming, ECS offers flexibility and performance when used correctly.

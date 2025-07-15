@@ -14,7 +14,7 @@ Everything is build around that.
 struct CustomPlugin {
     auto say_hello() -> void
     {
-        std::puts("Hello World!");
+        std::println("Hello World!");
     }
 };
 
@@ -37,7 +37,7 @@ Plugins are also allowed to have a `+build()+` method which takes an `+App+` as 
 struct CustomPlugin {
     auto build(auto app)
     {
-        std::puts("Building custom plugin...");
+        std::println("Building custom plugin...");
         return app;
     }
 };
@@ -63,7 +63,7 @@ The equivalent of plugins for an app are the add-ons.
 struct CustomAddon {
     auto say_hello() -> void
     {
-        std::puts("Hello World!");
+        std::println("Hello World!");
     }
 };
 
@@ -88,7 +88,7 @@ It is also a good practice to combine plugins and addons.
 struct CustomAddon {
     auto say_hello() -> void
     {
-        std::puts("Hello World!");
+        std::println("Hello World!");
     }
 };
 

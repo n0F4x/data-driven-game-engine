@@ -1,6 +1,6 @@
 module;
 
-#include <iostream>
+#include <print>
 
 export module demo.Window;
 
@@ -8,7 +8,7 @@ export class Window {
 public:
     auto open() -> void
     {
-        std::puts("Window is open");
+        std::println("Window is open");
         m_is_open = true;
     }
 
@@ -20,7 +20,7 @@ public:
 
     auto close() -> void
     {
-        std::puts("Window is closed");
+        std::println("Window is closed");
         m_is_open = false;
     }
 
