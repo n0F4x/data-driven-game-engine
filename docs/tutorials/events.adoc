@@ -1,0 +1,68 @@
+= Event system
+
+Events are used as a messaging mechanism between different parts of the program.
+Most game engines use an event system, not just for handling input, but other kinds of news as well.
+The event system described here was built with the mechanism of the game loop in mind.
+
+Events may happen once or multiple times in the time of a game loop iteration.
+After an event is recorded in one iteration, it will get published in the next one, then disappear.
+This makes it so that each event can be acted on for exactly one iteration of the game loop after it was recorded.
+
+[,c++]
+.A system that records an event
+----
+auto close_window(const Recorder<WindowClosedEvent>& recorder) -> void
+{
+    std::puts("Window closed");
+    recorder.record();
+}
+----
+
+[,c++]
+.A system that reacts on the event
+----
+auto say_goodbye(const Reader<WindowClosedEvent>& reader) -> void
+{
+    for (auto event : reader.read()) {
+        std::puts("Goodbye window!");
+    }
+}
+----
+
+[,c++]
+.Example for events inside the game loop
+----
+core::scheduler::loop_until(
+    core::scheduler::start_as(process_events)
+        .then(say_goodbye)
+        .then(close_window),
+    window_is_open
+)
+----
+
+[,console]
+----
+Window closed
+Goodbye window!
+Window closed
+----
+
+An event can have any type.
+For our example it was
+
+[,c++]
+----
+struct WindowClosedEvent {};
+----
+
+So far, we have seen how to record events and react to them.
+The only question left is how to clear and swap the event buffers as it was described above.
+
+[,c++]
+.Swap event buffer
+----
+auto process_events(const Processor& processor) -> void
+{
+    processor.process_events();
+}
+----

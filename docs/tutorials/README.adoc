@@ -8,3 +8,4 @@ Welcome to our tutorial section!
 * xref:resources.adoc[Resource management]
 * xref:ecs.adoc[Entity Component System]
 * xref:scheduler.adoc[Scheduling]
+* xref:events.adoc[Event system]
