@@ -60,3 +60,8 @@ constexpr auto render =
             .then(display)
     );
 ----
+
+[WARNING]
+====
+Don't nest multiple `+at_fixed_rate+` primitives, as there is no guarantee the nested fixed systems will fire the proper number of times.
+====
