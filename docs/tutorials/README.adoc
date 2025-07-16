@@ -10,5 +10,6 @@ Welcome to our tutorial section!
 * xref:scheduler.adoc[Scheduling]
 * xref:events.adoc[Event system]
 * xref:states.adoc[States]
+* xref:messages.adoc[Messaging]
 * xref:assets.adoc[Asset management]
 * xref:time.adoc[Time]

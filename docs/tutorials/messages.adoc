@@ -1,0 +1,42 @@
+= Messaging
+
+Messages complement events really well.
+While an event will only be triggered for the next iteration, messages become active immediately.
+
+[,c++]
+----
+app::create()
+    .plug_in(plugins::messages)
+    .register_message<WorldNeedsRedraw>();
+----
+
+Sending and receiving messages are also very similar to managing events.
+
+[,c++]
+----
+auto send_message(Sender<Message> sender) -> void
+{
+    sender.send();
+}
+----
+
+[,c++]
+----
+auto receive_messages(Receiver<Message> message_receiver) -> void
+{
+    for (auto _ : message_receiver.receive()) {
+        std::println("Message received!");
+    }
+}
+----
+
+Messages stack up in the message buffer until it gets cleared.
+Use the `Mailbox` to clear them!
+
+[,c++]
+----
+auto clear_messages(const Mailbox& mailbox) -> void
+{
+    mailbox.clear_messages();
+}
+----
