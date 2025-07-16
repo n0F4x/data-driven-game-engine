@@ -53,7 +53,7 @@ constexpr static auto run_game_loop = core::scheduler::loop_until(
 );
 
 constexpr static auto shut_down =
-    core::scheduler::start_as(game::shutdown).then(window::close_window);
+    core::scheduler::start_as(game::shut_down).then(window::close_window);
 
 auto main() -> int
 {

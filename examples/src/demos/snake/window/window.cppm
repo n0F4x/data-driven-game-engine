@@ -6,7 +6,7 @@ export import snake.window.display;
 export import snake.window.display_rate;
 export import snake.window.initialize;
 export import snake.window.open_window;
-export import snake.window.plugin;
+export import snake.window.setup;
 export import snake.window.Settings;
 export import snake.window.update;
 export import snake.window.Window;

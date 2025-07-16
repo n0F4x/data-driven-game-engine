@@ -5,7 +5,7 @@ module;
 
 #include <SFML/Window.hpp>
 
-export module snake.window.plugin;
+export module snake.window.setup;
 
 import app.decays_to_builder_c;
 import app.has_plugins_c;

@@ -1,4 +1,4 @@
-export module snake.game.shutdown;
+export module snake.game.shut_down;
 
 import extensions.scheduler.accessors.states.State;
 
@@ -8,7 +8,7 @@ using namespace extensions::scheduler::accessors;
 
 namespace game {
 
-export inline constexpr auto shutdown = [](states::State<GameState> game_state) {
+export inline constexpr auto shut_down = [](const states::State<GameState> game_state) {
     game_state.reset();
 };
 

@@ -26,6 +26,8 @@ private:
 
 }   // namespace core::time
 
+module :private;
+
 auto core::time::Timer::delta() const -> Delta
 {
     return m_delta;

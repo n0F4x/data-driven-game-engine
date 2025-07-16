@@ -65,3 +65,9 @@ constexpr auto render =
 ====
 Don't nest multiple `+at_fixed_rate+` primitives, as there is no guarantee the nested fixed systems will fire the proper number of times.
 ====
+
+== Variable tick rate
+
+Some situations require a variable tick rate to slow down or speed up gameplay.
+For these cases, `+VariableTimer+` comes in handy.
+It is just like a `+FixedTimer+`, but with an adjustable tick rate.

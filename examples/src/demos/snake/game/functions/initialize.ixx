@@ -20,10 +20,10 @@ import extensions.scheduler.accessors.states.State;
 
 
 import snake.assets.TextureLoader;
+import snake.game.apple_spawn_rate;
 import snake.game.Cell;
 import snake.game.color_cells;
 import snake.game.Direction;
-import snake.game.game_tick_rate;
 import snake.game.GameOver;
 import snake.game.GameState;
 import snake.game.Position;
@@ -54,15 +54,17 @@ auto load_apple_texture(
     CachedTextureLoader      texture_loader
 ) -> void;
 
-auto reset_timer(resources::Resource<core::time::FixedTimer<game_tick_rate>> game_timer)
-    -> void;
+auto reset_timers(
+    resources::Resource<core::time::FixedTimer<apple_spawn_rate>> apple_spawn_timer,
+    states::State<GameState>                                      game_state
+) -> void;
 
 export inline constexpr auto initialize =   //
     core::scheduler::start_as(initialize_map)
         .then(initialize_snake)
-        .then(color_cells)
         .then(load_apple_texture)
-        .then(reset_timer);
+        .then(color_cells)
+        .then(reset_timers);
 
 }   // namespace game
 
@@ -144,8 +146,7 @@ auto game::initialize_snake(
     std::optional<core::ecs::ID> snake_head_id;
     core::ecs::query(
         registry.get(),
-        [&snake_head_id,
-         snake_position](const core::ecs::ID id, const Cell& cell) {
+        [&snake_head_id, snake_position](const core::ecs::ID id, const Cell& cell) {
             if (cell.position == snake_position) {
                 assert(!snake_head_id.has_value());
                 snake_head_id = id;
@@ -174,9 +175,11 @@ auto game::load_apple_texture(
     }
 }
 
-auto game::reset_timer(
-    resources::Resource<core::time::FixedTimer<game_tick_rate>> game_timer
+auto game::reset_timers(
+    const resources::Resource<core::time::FixedTimer<apple_spawn_rate>> apple_spawn_timer,
+    const states::State<GameState>                                      game_state
 ) -> void
 {
-    game_timer->reset();
+    apple_spawn_timer->reset();
+    game_state->snake_move_timer.reset();
 }

@@ -1,3 +1,4 @@
+add_subdirectory(events)
 add_subdirectory(functions)
 
 target_sources(${PROJECT_NAME} PRIVATE
@@ -10,8 +11,6 @@ target_sources(${PROJECT_NAME} PRIVATE
         apple_spawn_rate.ixx
         Cell.ixx
         Direction.ixx
-        game_tick_rate.ixx
-        GameOver.ixx
         GameState.ixx
         Position.ixx
         Settings.ixx

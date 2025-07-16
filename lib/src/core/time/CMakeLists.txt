@@ -6,4 +6,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         time.cppm
         FixedTimer.ixx
         Timer.ixx
+        VariableTimer.ixx
 )
