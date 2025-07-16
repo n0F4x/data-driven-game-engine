@@ -80,6 +80,8 @@ auto schedule =
 Where `+game_is_running+` may be defined as +
 [,c++]
 ----
+using namespace extensions::scheduler::accessors::resources;
+
 auto game_is_running(Res<Window> window) -> bool
 {
     return window->is_open();
