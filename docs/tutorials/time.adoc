@@ -7,7 +7,7 @@ Its role is to keep track of the delta time between two updates.
 ----
 using core::time;
 
-auto check_time(Res<Timer> timer) -> void
+auto check_time(Resource<Timer> timer) -> void
 {
     auto delta = timer->delta();
     auto time_of_last_update = timer->current();
@@ -20,7 +20,7 @@ It can also be reset and updated.
 ----
 using core::time;
 
-auto check_time(Res<Timer> timer) -> void
+auto check_time(Resource<Timer> timer) -> void
 {
     auto last_time = timer->current();
     auto current_time = Timer::Clock::now();
