@@ -36,7 +36,7 @@ constexpr static auto process_events =               //
 constexpr static auto update = core::scheduler::group(window::update, game::update);
 
 constexpr static auto render =                              //
-    core::scheduler::at_fixed_rate<window::display_rate>(   //
+    core::scheduler::at_fixed_rate<window::DisplayTimer>(   //
         core::scheduler::start_as(window::clear_window)     //
             .then(game::draw)
             .then(window::display)

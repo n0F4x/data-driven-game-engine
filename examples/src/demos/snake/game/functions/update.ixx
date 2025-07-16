@@ -12,7 +12,7 @@ import extensions.scheduler.accessors.resources;
 import extensions.scheduler.accessors.states;
 
 import snake.game.adjust_snake_speed;
-import snake.game.apple_spawn_rate;
+import snake.game.AppleSpawnTimer;
 import snake.game.AppleDigested;
 import snake.game.color_cells;
 import snake.game.eat_apple;
@@ -24,8 +24,8 @@ import snake.game.trigger_apple_digested_event;
 using namespace extensions::scheduler::accessors;
 
 auto update_timers(
-    resources::Resource<core::time::FixedTimer<game::apple_spawn_rate>> apple_spawn_timer,
-    states::State<game::GameState>                                      game_state
+    resources::Resource<game::AppleSpawnTimer> apple_spawn_timer,
+    states::State<game::GameState>             game_state
 ) -> void;
 
 [[nodiscard]]
@@ -52,9 +52,9 @@ export inline constexpr auto update =
             )
         )
         .then(
-            core::scheduler::at_fixed_rate<apple_spawn_rate>(   //
+            core::scheduler::at_fixed_rate<AppleSpawnTimer>(   //
                 core::scheduler::group(
-                    spawn_apple,                                //
+                    spawn_apple,                               //
                     trigger_apple_digested_event
                 )
             )
@@ -66,9 +66,8 @@ export inline constexpr auto update =
 module :private;
 
 auto update_timers(
-    const resources::Resource<core::time::FixedTimer<game::apple_spawn_rate>>
-                                         apple_spawn_timer,
-    const states::State<game::GameState> game_state
+    const resources::Resource<game::AppleSpawnTimer> apple_spawn_timer,
+    const states::State<game::GameState>             game_state
 ) -> void
 {
     apple_spawn_timer->update();

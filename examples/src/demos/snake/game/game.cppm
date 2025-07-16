@@ -4,6 +4,8 @@ export import snake.game.events;
 export import snake.game.functions;
 
 export import snake.game.Apple;
+export import snake.game.apple_spawn_time;
+export import snake.game.AppleSpawnTimer;
 export import snake.game.Cell;
 export import snake.game.Direction;
 export import snake.game.GameState;

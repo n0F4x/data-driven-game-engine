@@ -8,7 +8,8 @@ target_sources(${PROJECT_NAME} PRIVATE
         FILES
         game.cppm
         Apple.ixx
-        apple_spawn_rate.ixx
+        apple_spawn_time.ixx
+        AppleSpawnTimer.ixx
         Cell.ixx
         Direction.ixx
         GameState.ixx

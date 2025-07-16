@@ -20,7 +20,7 @@ import extensions.scheduler.accessors.states.State;
 
 
 import snake.assets.TextureLoader;
-import snake.game.apple_spawn_rate;
+import snake.game.AppleSpawnTimer;
 import snake.game.Cell;
 import snake.game.color_cells;
 import snake.game.Direction;
@@ -55,8 +55,8 @@ auto load_apple_texture(
 ) -> void;
 
 auto reset_timers(
-    resources::Resource<core::time::FixedTimer<apple_spawn_rate>> apple_spawn_timer,
-    states::State<GameState>                                      game_state
+    resources::Resource<AppleSpawnTimer> apple_spawn_timer,
+    states::State<GameState>             game_state
 ) -> void;
 
 export inline constexpr auto initialize =   //
@@ -176,8 +176,8 @@ auto game::load_apple_texture(
 }
 
 auto game::reset_timers(
-    const resources::Resource<core::time::FixedTimer<apple_spawn_rate>> apple_spawn_timer,
-    const states::State<GameState>                                      game_state
+    const resources::Resource<AppleSpawnTimer> apple_spawn_timer,
+    const states::State<GameState>             game_state
 ) -> void
 {
     apple_spawn_timer->reset();

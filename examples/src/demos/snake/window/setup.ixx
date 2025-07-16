@@ -12,7 +12,7 @@ import app.has_plugins_c;
 
 import core.time.FixedTimer;
 
-import snake.window.display_rate;
+import snake.window.DisplayTimer;
 import snake.window.Settings;
 import snake.window.Window;
 
@@ -38,7 +38,7 @@ export inline constexpr auto setup =
                 Window{ sf::VideoMode{ sf::Vector2u{ settings.width, settings.height } },
                         std::string{ settings.title } }
             )
-            .insert_resource(core::time::FixedTimer<display_rate>{})
+            .insert_resource(DisplayTimer{})
             .template register_event<sf::Event>();
     };
 

@@ -38,9 +38,9 @@ auto check_time(Resource<Timer> timer) -> void
 Some systems need to be updated at fixed intervals.
 This may be 2 or 60 times a second, or whatever custom time that fits best.
 One iteration of a game loop may take from a couple of microseconds to milliseconds, meaning that a fixed system update should be called 0 or more times per iteration.
-To measure how many times a system should get called at a given timepoint, it is recommended to use a `+FixedTimer<tick_rate>+` resource.
+To measure how many times a system should get called at a given timepoint, it is recommended to use a `+FixedTimer+` resource.
 
-`+FixedTimer<tick_rate>+` is very similar to `+Timer+`, but it makes sure that you get the exact number of ticks that happened since the last tick.
+`+FixedTimer+` is very similar to `+Timer+`, but it makes sure that you get the exact number of ticks that happened within the last update.
 
 === Integration with the scheduler
 
@@ -51,10 +51,10 @@ Because of how common fixed systems are, there is a dedicated scheduling primiti
 using namespace core::measurement::symbols;
 namespace sch = core::scheduler;
 
-constexpr mp_units::quantity<fps> display_rate = 60 * fps;
+using DisplayTimer = core::time::FixedTimer<std::chrono::microseconds, 16'667>;
 
 constexpr auto render =
-    sch::at_fixed_rate<display_rate>(
+    sch::at_fixed_rate<DisplayTimer>(
         sch::start_as(clear_window)
             .then(draw)
             .then(display)
