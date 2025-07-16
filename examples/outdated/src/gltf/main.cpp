@@ -63,7 +63,7 @@ try {
         .inject_resource(
             demo::DemoPlugin{
                 .model_filepath     = model_filepath,
-                .use_virtual_images = true,
+                .use_virtual_images = false,
             }
         )
         .run(demo::run);
