@@ -3,7 +3,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         TYPE CXX_MODULES
         BASE_DIRS ${PROJECT_SOURCE_DIR}
         FILES
-        functions.cppm
+        tasks.cppm
         adjust_snake_speed.ixx
         color_cells.ixx
         draw.ixx
@@ -14,6 +14,6 @@ target_sources(${PROJECT_NAME} PRIVATE
         setup.ixx
         shut_down.ixx
         spawn_apple.ixx
-        trigger_apple_digested_event.ixx
+        trigger_world_update_message.ixx
         update.ixx
 )

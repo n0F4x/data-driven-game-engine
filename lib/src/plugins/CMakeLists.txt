@@ -9,6 +9,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ecs.ixx
         events.ixx
         functional.ixx
+        messages.ixx
         resources.ixx
         runnable.ixx
         scheduler.ixx

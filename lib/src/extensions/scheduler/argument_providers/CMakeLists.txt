@@ -8,5 +8,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         ECSProvider.ixx
         EventProvider.ixx
         ResourceProvider.ixx
+        MessageProvider.ixx
         StateProvider.ixx
 )

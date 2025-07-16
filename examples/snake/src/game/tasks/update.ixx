@@ -8,6 +8,7 @@ import core.scheduler;
 import core.time.FixedTimer;
 
 import extensions.scheduler.accessors.events;
+import extensions.scheduler.accessors.messages;
 import extensions.scheduler.accessors.resources;
 import extensions.scheduler.accessors.states;
 
@@ -19,7 +20,8 @@ import snake.game.eat_apple;
 import snake.game.GameState;
 import snake.game.move_snake;
 import snake.game.spawn_apple;
-import snake.game.trigger_apple_digested_event;
+import snake.game.trigger_world_update_message;
+import snake.game.WorldUpdate;
 
 using namespace extensions::scheduler::accessors;
 
@@ -34,6 +36,9 @@ auto number_of_snake_moves(states::State<game::GameState> game_state) -> uint32_
 [[nodiscard]]
 auto apple_was_digested(events::Reader<game::AppleDigested> event_reader) -> bool;
 
+[[nodiscard]]
+auto world_update_message_received(messages::Receiver<game::WorldUpdate> message_receiver) -> bool;
+
 namespace game {
 
 export inline constexpr auto update =
@@ -46,8 +51,11 @@ export inline constexpr auto update =
         )
         .then(
             core::scheduler::repeat(
-                core::scheduler::start_as(move_snake)   //
-                    .then(eat_apple),
+                core::scheduler::group(
+                    core::scheduler::start_as(move_snake)   //
+                        .then(eat_apple),
+                    trigger_world_update_message
+                ),
                 ::number_of_snake_moves
             )
         )
@@ -55,11 +63,16 @@ export inline constexpr auto update =
             core::scheduler::at_fixed_rate<AppleSpawnTimer>(   //
                 core::scheduler::group(
                     spawn_apple,                               //
-                    trigger_apple_digested_event
+                    trigger_world_update_message
                 )
             )
         )
-        .then(color_cells);
+        .then(
+            core::scheduler::run_if(
+                color_cells,
+                ::world_update_message_received
+            )
+        );
 
 }   // namespace game
 
@@ -79,7 +92,12 @@ auto number_of_snake_moves(const states::State<game::GameState> game_state) -> u
     return game_state->snake_move_timer.delta_ticks();
 }
 
-auto apple_was_digested(events::Reader<game::AppleDigested> event_reader) -> bool
+auto apple_was_digested(const events::Reader<game::AppleDigested> event_reader) -> bool
 {
     return !event_reader.read().empty();
+}
+
+auto world_update_message_received(const messages::Receiver<game::WorldUpdate> message_receiver) -> bool
+{
+    return !message_receiver.receive().empty();
 }

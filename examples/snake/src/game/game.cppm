@@ -1,7 +1,8 @@
 export module snake.game;
 
 export import snake.game.events;
-export import snake.game.functions;
+export import snake.game.tasks;
+export import snake.game.messages;
 
 export import snake.game.Apple;
 export import snake.game.apple_spawn_time;

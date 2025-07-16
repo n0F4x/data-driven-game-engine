@@ -11,6 +11,7 @@ import extensions.scheduler;
 import plugins.assets;
 import plugins.ecs;
 import plugins.events;
+import plugins.messages;
 import plugins.functional;
 import plugins.resources;
 import plugins.scheduler;
@@ -33,6 +34,11 @@ constexpr static auto process_events =               //
         event_processor.process_events();
     };
 
+constexpr static auto clear_messages =       //
+    [](const messages::Mailbox& mailbox) {   //
+        mailbox.clear_messages();
+    };
+
 constexpr static auto update = core::scheduler::group(window::update, game::update);
 
 constexpr static auto render =                              //
@@ -43,7 +49,12 @@ constexpr static auto render =                              //
     );
 
 constexpr static auto run_game_loop = core::scheduler::loop_until(
-    core::scheduler::start_as(process_events)   //
+    core::scheduler::start_as(
+        core::scheduler::group(
+            process_events,   //
+            clear_messages
+        )
+    )
         .then(update)
         .then(render),
     core::scheduler::all_of(
@@ -60,12 +71,13 @@ auto main() -> int
     namespace argument_providers = extensions::scheduler::argument_providers;
 
     app::create()
-        .plug_in(plugins::resources)
-        .plug_in(plugins::assets)
-        .plug_in(plugins::events)
-        .plug_in(plugins::ecs)
         .plug_in(plugins::scheduler)
+        .plug_in(plugins::resources)
         .plug_in(plugins::states)
+        .plug_in(plugins::events)
+        .plug_in(plugins::messages)
+        .plug_in(plugins::ecs)
+        .plug_in(plugins::assets)
         .plug_in(plugins::functional)
         .transform(window::setup)
         .transform(game::setup)

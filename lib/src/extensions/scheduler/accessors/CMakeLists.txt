@@ -1,6 +1,7 @@
 add_subdirectory(assets)
 add_subdirectory(ecs)
 add_subdirectory(events)
+add_subdirectory(messages)
 add_subdirectory(resources)
 add_subdirectory(states)
 
