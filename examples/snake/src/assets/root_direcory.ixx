@@ -21,8 +21,6 @@ auto assets::root_directory() -> const std::filesystem::path&
             .parent_path()
             .parent_path()
             .parent_path()
-            .parent_path()
-            .parent_path()
         / "assets"
     };
 

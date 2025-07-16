@@ -39,8 +39,7 @@ try {
             .parent_path()
             .parent_path()
             .parent_path()
-            .parent_path()
-        / "assets/models"
+        / "assets" / "models"
         // / "BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
         // / "Avocado/glTF-Binary/Avocado.glb",
         // / "PrimitiveModeNormalsTest/glTF/PrimitiveModeNormalsTest.gltf",

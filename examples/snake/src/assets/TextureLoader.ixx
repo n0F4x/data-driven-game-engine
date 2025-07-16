@@ -21,5 +21,5 @@ module :private;
 auto assets::TextureLoader::operator()(const std::filesystem::path& filename)
     -> sf::Texture
 {
-    return sf::Texture{ root_directory() / "textures" / filename };
+    return sf::Texture{ root_directory() / filename };
 }

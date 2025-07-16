@@ -193,8 +193,7 @@ demo::VirtualTexture::VirtualTexture(
                   .parent_path()
                   .parent_path()
                   .parent_path()
-                  .parent_path()
-              / "assets/textures/wheat_field.jpg"
+              / "assets" / "textures" / "wheat_field.jpg"
           ))
       ) },
       m_virtual_image_sampler{ init::create_virtual_image_sampler(device) },
