@@ -22,15 +22,8 @@ import utility.TypeList;
 
 namespace extensions::scheduler::argument_providers {
 
-export template <typename AssetsAddon_T>
+export template <typename AssetManager_T, typename AssetsAddon_T>
 class AssetProvider {
-    using CachedLoaders = util::meta::type_list_to_t<
-        std::remove_reference_t<decltype(std::declval<AssetsAddon_T>().asset_loaders)>,
-        util::TypeList>;
-
-    using Loaders =
-        util::meta::type_list_transform_t<CachedLoaders, util::meta::underlying>;
-
 public:
     template <app::has_addons_c<AssetsAddon_T> App_T>
     explicit AssetProvider(App_T& app);
@@ -40,39 +33,35 @@ public:
             specialization_of_c<std::remove_cvref_t<Accessor_T>, accessors::assets::Cached>
         [[nodiscard]]
         auto provide() const -> std::remove_cvref_t<Accessor_T>
-        requires(util::meta::type_list_contains_v<
-                 Loaders,
-                 util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>);
+        requires(AssetManager_T::template contains<
+                 util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>());
 
 private:
-    std::reference_wrapper<util::meta::type_list_to_t<CachedLoaders, util::StackedTuple>>
-        m_asset_loaders;
+    std::reference_wrapper<AssetManager_T> m_asset_manager;
 };
 
 }   // namespace extensions::scheduler::argument_providers
 
-template <typename AssetsAddon_T>
+template <typename AssetManager_T, typename AssetsAddon_T>
 template <app::has_addons_c<AssetsAddon_T> App_T>
-extensions::scheduler::argument_providers::AssetProvider<AssetsAddon_T>::AssetProvider(
-    App_T& app
-)
-    : m_asset_loaders{ app.asset_loaders }
+extensions::scheduler::argument_providers::AssetProvider<AssetManager_T, AssetsAddon_T>::
+    AssetProvider(App_T& app)
+    : m_asset_manager{ app.asset_manager }
 {}
 
-template <typename AssetsAddon_T>
+template <typename AssetManager_T, typename AssetsAddon_T>
 template <typename Accessor_T>
     requires util::meta::specialization_of_c<
         std::remove_cvref_t<Accessor_T>,
         extensions::scheduler::accessors::assets::Cached>
-auto extensions::scheduler::argument_providers::AssetProvider<AssetsAddon_T>::provide(
-) const -> std::remove_cvref_t<Accessor_T>
-    requires(util::meta::type_list_contains_v<
-             Loaders,
-             util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>)
+auto extensions::scheduler::argument_providers::
+    AssetProvider<AssetManager_T, AssetsAddon_T>::provide() const
+    -> std::remove_cvref_t<Accessor_T>
+    requires(AssetManager_T::template contains<
+             util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>())
 {
     return std::remove_cvref_t<Accessor_T>{
-        m_asset_loaders.get()
-            .template get<core::assets::Cached<
-                util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>()
+        m_asset_manager.get()
+            .template get<util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>()
     };
 }

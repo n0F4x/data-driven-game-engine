@@ -9,6 +9,7 @@ export module core.resources.ResourceManager;
 
 import utility.containers.StackedTuple;
 import utility.meta.concepts.all_different;
+import utility.meta.type_traits.forward_like;
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.functional.result_of;
 import utility.TypeList;
@@ -33,8 +34,7 @@ public:
 
     template <typename Resource_T, typename Self_T>
     [[nodiscard]]
-    constexpr auto get(this Self_T&&) -> std::
-        conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>
+    constexpr auto get(this Self_T&&) -> util::meta::forward_like_t<Resource_T, Self_T>
         requires(contains<Resource_T>());
 
 private:
@@ -66,9 +66,8 @@ template <core::resources::resource_c... Resources_T>
     requires util::meta::all_different_c<Resources_T...>
 template <typename Resource_T, typename Self_T>
 constexpr auto core::resources::ResourceManager<Resources_T...>::get(this Self_T&& self)
-    -> std::
-        conditional_t<std::is_const_v<Self_T>, std::add_const_t<Resource_T&>, Resource_T&>
+    -> util::meta::forward_like_t<Resource_T, Self_T>
     requires(contains<Resource_T>())
 {
-    return self.m_resources->template get<Resource_T>();
+    return std::forward_like<Self_T>(self.m_resources->template get<Resource_T>());
 }

@@ -11,13 +11,14 @@ namespace addons {
 
 export template <core::assets::loader_c... Loaders_T>
 struct Assets {
-    util::StackedTuple<core::assets::Cached<Loaders_T>...> asset_loaders;
+    core::assets::AssetManager<Loaders_T...> asset_manager;
 };
 
 }   // namespace addons
 
-template <typename... Assets_T>
-struct extensions::scheduler::ArgumentProviderFor<addons::Assets<Assets_T...>> {
-    using type = extensions::scheduler::argument_providers::
-        AssetProvider<addons::Assets<Assets_T...>>;
+template <typename... Loaders_T>
+struct extensions::scheduler::ArgumentProviderFor<addons::Assets<Loaders_T...>> {
+    using type = extensions::scheduler::argument_providers::AssetProvider<
+        core::assets::AssetManager<Loaders_T...>,
+        addons::Assets<Loaders_T...>>;
 };
