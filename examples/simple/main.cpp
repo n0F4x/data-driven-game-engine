@@ -1,8 +1,6 @@
 #include <print>
 #include <string>
 
-import addons.ECS;
-
 import app;
 
 import core.ecs;
