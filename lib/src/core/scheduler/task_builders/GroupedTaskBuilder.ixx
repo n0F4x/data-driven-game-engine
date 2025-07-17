@@ -12,17 +12,16 @@ import core.scheduler.task_builders.TaskBuilderBase;
 
 import utility.meta.algorithms.apply;
 import utility.meta.algorithms.for_each;
-import utility.meta.type_traits.type_list.type_list_concat;
-import utility.meta.type_traits.type_list.type_list_unique;
+import utility.meta.type_traits.type_list.type_list_union;
 
 namespace core::scheduler {
 
 export template <task_builder_c... TaskBuilders_T>
 class GroupedTaskBuilder : public TaskBuilderBase {
 public:
-    using Result          = void;
-    using UniqueArguments = util::meta::type_list_unique_t<
-        util::meta::type_list_concat_t<typename TaskBuilders_T::UniqueArguments...>>;
+    using Result = void;
+    using UniqueArguments =
+        util::meta::type_list_union_t<typename TaskBuilders_T::UniqueArguments...>;
 
     template <typename... UTaskBuilders_T>
         requires(std::constructible_from<TaskBuilders_T, UTaskBuilders_T &&> && ...)

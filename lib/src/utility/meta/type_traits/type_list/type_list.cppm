@@ -23,4 +23,5 @@ export import utility.meta.type_traits.type_list.type_list_sort;
 export import utility.meta.type_traits.type_list.type_list_take;
 export import utility.meta.type_traits.type_list.type_list_to;
 export import utility.meta.type_traits.type_list.type_list_transform;
+export import utility.meta.type_traits.type_list.type_list_union;
 export import utility.meta.type_traits.type_list.type_list_unique;

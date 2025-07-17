@@ -11,8 +11,7 @@ import core.scheduler.concepts.predicate_task_builder_c;
 import core.scheduler.task_builders.TaskBuilderBase;
 
 import utility.meta.algorithms.apply;
-import utility.meta.type_traits.type_list.type_list_concat;
-import utility.meta.type_traits.type_list.type_list_unique;
+import utility.meta.type_traits.type_list.type_list_union;
 
 namespace core::scheduler {
 
@@ -22,9 +21,9 @@ export template <
 class LoopUntilBuilder : public TaskBuilderBase {
 public:
     using Result          = void;
-    using UniqueArguments = util::meta::type_list_unique_t<util::meta::type_list_concat_t<
+    using UniqueArguments = util::meta::type_list_union_t<
         typename MainTaskBuilder_T::UniqueArguments,
-        typename PredicateTaskBuilder_T::UniqueArguments>>;
+        typename PredicateTaskBuilder_T::UniqueArguments>;
 
     template <typename UMainTaskBuilder_T, typename UPredicateTaskBuilder_T>
         requires std::constructible_from<MainTaskBuilder_T, UMainTaskBuilder_T&&>

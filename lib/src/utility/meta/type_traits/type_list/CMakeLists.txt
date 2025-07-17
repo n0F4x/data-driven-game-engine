@@ -28,5 +28,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         type_list_take.ixx
         type_list_to.ixx
         type_list_transform.ixx
+        type_list_union.ixx
         type_list_unique.ixx
 )
