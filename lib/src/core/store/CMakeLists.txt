@@ -5,6 +5,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         store.cppm
         item_c.ixx
-        Policy.ixx
         Store.ixx
 )

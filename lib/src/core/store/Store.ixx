@@ -12,9 +12,7 @@ module;
 export module core.store.Store;
 
 import core.store.item_c;
-import core.store.Policy;
 
-import utility.containers.Any;
 import utility.containers.MoveOnlyAny;
 import utility.containers.OptionalRef;
 import utility.contracts;
@@ -23,16 +21,15 @@ import utility.meta.type_traits.const_like;
 
 namespace core::store {
 
-export template <Policy policy_T = Policy::eDefault>
-class BasicStore {
+export class Store {
 public:
-    BasicStore()                      = default;
-    BasicStore(const BasicStore&)     = delete;
-    BasicStore(BasicStore&&) noexcept = default;
-    ~BasicStore();
+    Store()                 = default;
+    Store(const Store&)     = delete;
+    Store(Store&&) noexcept = default;
+    ~Store();
 
-    auto operator=(const BasicStore&) -> BasicStore&     = delete;
-    auto operator=(BasicStore&&) noexcept -> BasicStore& = default;
+    auto operator=(const Store&) -> Store&     = delete;
+    auto operator=(Store&&) noexcept -> Store& = default;
 
     template <item_c Item_T, typename... Args_T>
     auto emplace(Args_T&&... args) -> Item_T&;
@@ -51,21 +48,13 @@ public:
     auto contains() const noexcept -> bool;
 
 private:
-    using Any = std::conditional_t<
-        policy_T == Policy::eMoveOnlyItems,
-        util::BasicMoveOnlyAny<0>,
-        util::BasicAny<0>>;
-
-    tsl::ordered_map<std::type_index, Any> m_map;
+    tsl::ordered_map<std::type_index, util::BasicMoveOnlyAny<0>> m_map;
 };
-
-export using Store = BasicStore<>;
 
 }   // namespace core::store
 
-template <core::store::Policy policy_T>
 template <core::store::item_c Item_T, typename... Args_T>
-auto core::store::BasicStore<policy_T>::emplace(Args_T&&... args) -> Item_T&
+auto core::store::Store::emplace(Args_T&&... args) -> Item_T&
 {
     return util::any_cast<Item_T>(
         m_map
@@ -77,9 +66,8 @@ auto core::store::BasicStore<policy_T>::emplace(Args_T&&... args) -> Item_T&
     );
 }
 
-template <core::store::Policy policy_T>
 template <typename Item_T, typename Self_T>
-auto core::store::BasicStore<policy_T>::find(this Self_T& self) noexcept
+auto core::store::Store::find(this Self_T& self) noexcept
     -> util::OptionalRef<util::meta::const_like_t<Item_T, Self_T>>
 {
     const auto iter{ self.m_map.find(typeid(Item_T)) };
@@ -90,9 +78,8 @@ auto core::store::BasicStore<policy_T>::find(this Self_T& self) noexcept
     return util::any_cast<Item_T>(*iter);
 }
 
-template <core::store::Policy policy_T>
 template <typename Item_T, typename Self_T>
-auto core::store::BasicStore<policy_T>::at(this Self_T& self)
+auto core::store::Store::at(this Self_T& self)
     -> util::meta::const_like_t<Item_T, Self_T>&
 {
     PRECOND(
@@ -102,15 +89,13 @@ auto core::store::BasicStore<policy_T>::at(this Self_T& self)
     return util::any_cast<Item_T>(self.m_map.at(typeid(Item_T)));
 }
 
-template <core::store::Policy policy_T>
 template <typename Item_T>
-auto core::store::BasicStore<policy_T>::contains() const noexcept -> bool
+auto core::store::Store::contains() const noexcept -> bool
 {
     return m_map.contains(typeid(Item_T));
 }
 
-template <core::store::Policy policy_T>
-core::store::BasicStore<policy_T>::~BasicStore<policy_T>()
+core::store::Store::~Store()
 {
     while (!m_map.empty()) {
         m_map.pop_back();
