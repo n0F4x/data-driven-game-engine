@@ -10,7 +10,7 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module utility.containers.Any;
+export module utility.containers.MoveOnlyAny;
 
 import utility.contracts;
 import utility.memory.Allocator;
@@ -25,37 +25,26 @@ import utility.meta.type_traits.forward_like;
 
 using namespace std::literals;
 
-namespace util {
-
-// TODO: move to module namespace with better Clang
-
 template <typename T>
-concept storable_c = util::meta::storable_c<T> && std::copyable<T>;
+concept storable_c = util::meta::storable_c<T> && std::movable<T>;
 
 template <size_t size_T, size_t alignment_T>
-struct SmallBuffer {
+struct small_buffer_t {
     alignas(alignment_T) std::array<std::byte, size_T> data;
-
-    SmallBuffer() = default;
 };
 
-static_assert(std::is_constructible_v<SmallBuffer<64, 8>>);
-
 template <size_t size_T, size_t alignment_T>
-using storage_t = std::variant<SmallBuffer<size_T, alignment_T>, void*>;
+using storage_t = std::variant<small_buffer_t<size_T, alignment_T>, void*>;
 
 template <size_t size_T, size_t alignment_T, typename Allocator_T>
 struct Operations {
     using Storage = storage_t<size_T, alignment_T>;
 
-    using CopyFunc = auto (&)(Storage& out, Allocator_T& allocator, const Storage& storage)
-        -> void;
     using MoveFunc       = auto (&)(Storage& out, Storage&& storage) -> void;
     using DropFunc       = auto (&)(Allocator_T& allocator, Storage&&) -> void;
     using TypesMatchFunc = auto (&)(util::meta::TypeHash) -> bool;
     using TypeNameFunc   = auto (&)() -> std::string_view;
 
-    CopyFunc       copy;
     MoveFunc       move;
     DropFunc       drop;
     TypesMatchFunc types_match;
@@ -76,13 +65,11 @@ template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_all
     requires small_c<T, size_T, alignment_T>
 struct Traits<T, size_T, alignment_T, Allocator_T> {
     using Storage     = storage_t<size_T, alignment_T>;
-    using SmallBuffer = SmallBuffer<size_T, alignment_T>;
+    using SmallBuffer = small_buffer_t<size_T, alignment_T>;
 
     template <typename... Args_T>
     constexpr static auto create(Storage& out, Allocator_T& allocator, Args_T&&... args)
         -> void;
-    constexpr static auto
-        copy(Storage& out, Allocator_T& allocator, const Storage& storage) -> void;
     constexpr static auto move(Storage& out, Storage&& storage) noexcept -> void;
     constexpr static auto drop(Allocator_T& allocator, Storage&& storage) noexcept
         -> void;
@@ -104,7 +91,6 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
     constexpr static auto voidify(const Storage& storage) -> const void*;
 
     constexpr static Operations<size_T, alignment_T, Allocator_T> s_operations{
-        .copy        = copy,
         .move        = move,
         .drop        = drop,
         .types_match = types_match,
@@ -124,8 +110,6 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
     template <typename... Args_T>
     constexpr static auto create(Storage& out, Allocator_T& allocator, Args_T&&... args)
         -> void;
-    constexpr static auto
-        copy(Storage& out, Allocator_T& allocator, const Storage& storage) -> void;
     constexpr static auto move(Storage& out, Storage&& storage) noexcept -> void;
     constexpr static auto drop(Allocator_T& allocator, Storage&& storage) noexcept
         -> void;
@@ -148,7 +132,6 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
 
 
     constexpr static Operations<size_T, alignment_T, Allocator_T> s_operations{
-        .copy        = copy,
         .move        = move,
         .drop        = drop,
         .types_match = types_match,
@@ -156,87 +139,93 @@ struct Traits<T, size_T, alignment_T, Allocator_T> {
     };
 };
 
-class AnyBase {};
+class MoveOnlyAnyBase {};
 
-export template <storable_c T, typename Any_T>
-    requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
-constexpr auto any_cast(Any_T&& any) -> ::util::meta::forward_like_t<T, Any_T>;
+namespace util {
 
-export template <storable_c T, typename Any_T>
-    requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
-constexpr auto dynamic_any_cast(Any_T&& any) -> ::util::meta::forward_like_t<T, Any_T>;
+export template <::storable_c T, typename MoveOnlyAny_T>
+    requires std::derived_from<std::remove_cvref_t<MoveOnlyAny_T>, MoveOnlyAnyBase>
+constexpr auto any_cast(MoveOnlyAny_T&& any)
+    -> ::util::meta::forward_like_t<T, MoveOnlyAny_T>;
+
+export template <::storable_c T, typename MoveOnlyAny_T>
+    requires std::derived_from<std::remove_cvref_t<MoveOnlyAny_T>, MoveOnlyAnyBase>
+constexpr auto dynamic_any_cast(MoveOnlyAny_T&& any)
+    -> ::util::meta::forward_like_t<T, MoveOnlyAny_T>;
 
 export template <
     size_t                            size_T      = 3 * sizeof(void*),
     size_t                            alignment_T = sizeof(void*),
     ::util::meta::generic_allocator_c Allocator_T = Allocator>
-class BasicAny : public AnyBase {
+class BasicMoveOnlyAny : public MoveOnlyAnyBase {
 public:
     constexpr static size_t size      = size_T;
     constexpr static size_t alignment = alignment_T;
     using Allocator                   = Allocator_T;
 
-    constexpr BasicAny(const BasicAny&);
-    constexpr BasicAny(BasicAny&&) noexcept;
-    constexpr ~BasicAny();
+    constexpr BasicMoveOnlyAny(const BasicMoveOnlyAny&) = delete;
+    constexpr BasicMoveOnlyAny(BasicMoveOnlyAny&&) noexcept;
+    constexpr ~BasicMoveOnlyAny();
 
     template <storable_c T, typename... Args_T>
         requires std::constructible_from<T, Args_T&&...>
-    constexpr explicit BasicAny(std::in_place_type_t<T>, Args_T&&... args);
+    constexpr explicit BasicMoveOnlyAny(std::in_place_type_t<T>, Args_T&&... args);
 
     template <typename UAllocator_T, storable_c T, typename... Args_T>
         requires std::same_as<std::decay_t<UAllocator_T>, Allocator>
               && std::constructible_from<T, Args_T&&...>
-    constexpr explicit BasicAny(
+    constexpr explicit BasicMoveOnlyAny(
         UAllocator_T&& allocator,
         std::in_place_type_t<T>,
         Args_T&&... args
     );
 
     template <typename T>
-        requires(!std::same_as<std::decay_t<T>, BasicAny>) && storable_c<std::decay_t<T>>
+        requires(!std::same_as<std::decay_t<T>, BasicMoveOnlyAny>)
+             && storable_c<std::decay_t<T>>
              && (!::util::meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
              && std::constructible_from<std::decay_t<T>, T&&>
-    constexpr explicit BasicAny(T&& value);
+    constexpr explicit BasicMoveOnlyAny(T&& value);
 
     template <typename UAllocator_T, typename T>
         requires std::same_as<std::decay_t<UAllocator_T>, Allocator>
               && storable_c<std::decay_t<T>>
               && (!::util::meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
               && std::constructible_from<std::decay_t<T>, T&&>
-    constexpr explicit BasicAny(UAllocator_T&& allocator, T&& value);
+    constexpr explicit BasicMoveOnlyAny(UAllocator_T&& allocator, T&& value);
 
-    constexpr auto operator=(const BasicAny&) -> BasicAny&;
-    constexpr auto operator=(BasicAny&&) noexcept -> BasicAny&;
+    constexpr auto operator=(const BasicMoveOnlyAny&) -> BasicMoveOnlyAny&;
+    constexpr auto operator=(BasicMoveOnlyAny&&) noexcept -> BasicMoveOnlyAny&;
 
-    template <storable_c T, typename Any_T>
-        requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
-    constexpr friend auto any_cast(Any_T&& any) -> ::util::meta::forward_like_t<T, Any_T>;
+    template <::storable_c T, typename MoveOnlyAny_T>
+        requires std::derived_from<std::remove_cvref_t<MoveOnlyAny_T>, MoveOnlyAnyBase>
+    constexpr friend auto any_cast(MoveOnlyAny_T&& any)
+        -> ::util::meta::forward_like_t<T, MoveOnlyAny_T>;
 
-    template <storable_c T, typename Any_T>
-        requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
-    constexpr friend auto dynamic_any_cast(Any_T&& any)
-        -> ::util::meta::forward_like_t<T, Any_T>;
+    template <::storable_c T, typename MoveOnlyAny_T>
+        requires std::derived_from<std::remove_cvref_t<MoveOnlyAny_T>, MoveOnlyAnyBase>
+    constexpr friend auto dynamic_any_cast(MoveOnlyAny_T&& any)
+        -> ::util::meta::forward_like_t<T, MoveOnlyAny_T>;
 
 private:
-    using Storage = storage_t<size_T, alignment_T>;
+    using Storage = ::storage_t<size_T, alignment_T>;
 
     [[no_unique_address]]
     Allocator                                           m_allocator;
-    const Operations<size_T, alignment_T, Allocator>* m_operations;
+    const ::Operations<size_T, alignment_T, Allocator>* m_operations;
     Storage m_storage{ std::in_place_type<void*> };
 
     constexpr auto reset() -> void;
 };
 
-export using Any = BasicAny<>;
+export using MoveOnlyAny = BasicMoveOnlyAny<>;
 
 }   // namespace util
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
+    requires small_c<T, size_T, alignment_T>
 template <typename... Args_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create(
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::create(
     Storage& out,
     Allocator_T&,
     Args_T&&... args
@@ -246,19 +235,8 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::copy(
-    Storage& out,
-    Allocator_T&,
-    const Storage& storage
-) -> void
-{
-    return create_impl(out, *static_cast<const T*>(voidify(storage)));
-}
-
-template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::move(
+    requires small_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::move(
     Storage&  out,
     Storage&& storage
 ) noexcept -> void
@@ -267,8 +245,8 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::move(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::drop(
+    requires small_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::drop(
     Allocator_T&,
     Storage&& storage
 ) noexcept -> void
@@ -277,12 +255,12 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::drop(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
+    requires small_c<T, size_T, alignment_T>
 template <typename Storage_T>
     requires std::same_as<
         std::remove_cvref_t<Storage_T>,
-        std::variant<util::SmallBuffer<size_T, alignment_T>, void*>>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
+        std::variant<small_buffer_t<size_T, alignment_T>, void*>>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
     Storage_T&& storage
 ) noexcept -> util::meta::forward_like_t<T, Storage_T>
 {
@@ -299,8 +277,8 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::types_match(
+    requires small_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::types_match(
     const util::meta::TypeHash type_hash
 ) -> bool
 {
@@ -308,16 +286,16 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::types_match(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::type_name()
+    requires small_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::type_name()
     -> std::string_view
 {
     return util::meta::name_of<T>();
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(Storage& storage)
+    requires small_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::voidify(Storage& storage)
     -> void*
 {
     SmallBuffer* buffer_ptr{ std::get_if<SmallBuffer>(&storage) };
@@ -326,8 +304,8 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(Storag
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(const Storage& storage)
+    requires small_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::voidify(const Storage& storage)
     -> const void*
 {
     const SmallBuffer* buffer_ptr{ std::get_if<SmallBuffer>(&storage) };
@@ -336,9 +314,9 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(const 
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
+    requires small_c<T, size_T, alignment_T>
 template <typename... Args_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create_impl(
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::create_impl(
     Storage& out,
     Args_T&&... args
 ) -> void
@@ -351,9 +329,9 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create_impl(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
+    requires large_c<T, size_T, alignment_T>
 template <typename... Args_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create(
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::create(
     Storage&     out,
     Allocator_T& allocator,
     Args_T&&... args
@@ -369,19 +347,8 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::copy(
-    Storage&       out,
-    Allocator_T&   allocator,
-    const Storage& storage
-) -> void
-{
-    return create(out, allocator, *static_cast<const T*>(voidify(storage)));
-}
-
-template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::move(
+    requires large_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::move(
     Storage&  out,
     Storage&& storage
 ) noexcept -> void
@@ -390,8 +357,8 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::move(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::drop(
+    requires large_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::drop(
     Allocator_T& allocator,
     Storage&&    storage
 ) noexcept -> void
@@ -400,10 +367,10 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::drop(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
+    requires large_c<T, size_T, alignment_T>
 template <typename Storage_T>
-    requires std::same_as<std::remove_cvref_t<Storage_T>, util::storage_t<size_T, alignment_T>>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
+    requires std::same_as<std::remove_cvref_t<Storage_T>, storage_t<size_T, alignment_T>>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
     Storage_T&& storage
 ) noexcept -> util::meta::forward_like_t<T, Storage_T>
 {
@@ -414,8 +381,8 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::types_match(
+    requires large_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::types_match(
     const util::meta::TypeHash type_hash
 ) -> bool
 {
@@ -423,16 +390,16 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::types_match(
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::type_name()
+    requires large_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::type_name()
     -> std::string_view
 {
     return util::meta::name_of<T>();
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(Storage& storage)
+    requires large_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::voidify(Storage& storage)
     -> void*
 {
     auto* const handle_ptr{ std::get_if<void*>(&storage) };
@@ -441,8 +408,8 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(Storag
 }
 
 template <typename T, size_t size_T, size_t alignment_T, util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(const Storage& storage)
+    requires large_c<T, size_T, alignment_T>
+constexpr auto Traits<T, size_T, alignment_T, Allocator_T>::voidify(const Storage& storage)
     -> const void*
 {
     const auto* const handle_ptr{ std::get_if<void*>(&storage) };
@@ -450,53 +417,47 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(const 
     return *handle_ptr;
 }
 
-template <util::storable_c T, typename Any_T>
-    requires std::derived_from<std::remove_cvref_t<Any_T>, util::AnyBase>
-constexpr auto util::any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
+template <storable_c T, typename MoveOnlyAny_T>
+    requires std::derived_from<std::remove_cvref_t<MoveOnlyAny_T>, MoveOnlyAnyBase>
+constexpr auto util::any_cast(MoveOnlyAny_T&& any)
+    -> meta::forward_like_t<T, MoveOnlyAny_T>
 {
     PRECOND(
-        any.BasicAny::m_operations->types_match(util::meta::hash<T>()),
+        any.BasicMoveOnlyAny::m_operations->types_match(util::meta::hash<T>()),
         // TODO: use constexpr std::format
-        "`Any` has type "s + any.BasicAny::m_operations->type_name()
+        "`MoveOnlyAny` has type "s + any.BasicMoveOnlyAny::m_operations->type_name()
             + ", but requested type is " + util::meta::name_of<T>()
     );
-    return dynamic_any_cast<T>(std::forward<Any_T>(any));
+    return dynamic_any_cast<T>(std::forward<MoveOnlyAny_T>(any));
 }
 
-template <util::storable_c T, typename Any_T>
-    requires std::derived_from<std::remove_cvref_t<Any_T>, util::AnyBase>
-constexpr auto util::dynamic_any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
+template <::storable_c T, typename MoveOnlyAny_T>
+    requires std::derived_from<std::remove_cvref_t<MoveOnlyAny_T>, MoveOnlyAnyBase>
+constexpr auto util::dynamic_any_cast(MoveOnlyAny_T&& any)
+    -> meta::forward_like_t<T, MoveOnlyAny_T>
 {
     PRECOND(
-        any.BasicAny::m_operations != nullptr,
-        "Don't use a 'moved-from' (or destroyed) Any!"
+        any.BasicMoveOnlyAny::m_operations != nullptr,
+        "Don't use a 'moved-from' (or destroyed) MoveOnlyAny!"
     );
     return Traits<
         T,
-        std::remove_cvref_t<Any_T>::BasicAny::size,
-        std::remove_cvref_t<Any_T>::BasicAny::alignment,
-        Allocator>::any_cast(std::forward_like<Any_T>(any.BasicAny::m_storage));
+        std::remove_cvref_t<MoveOnlyAny_T>::BasicMoveOnlyAny::size,
+        std::remove_cvref_t<MoveOnlyAny_T>::BasicMoveOnlyAny::alignment,
+        Allocator>::
+        any_cast(std::forward_like<MoveOnlyAny_T>(any.BasicMoveOnlyAny::m_storage));
 }
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(const BasicAny& other)
-    : m_allocator{ other.m_allocator },
-      m_operations{ other.m_operations }
-{
-    PRECOND(other.m_operations != nullptr, "Don't use a 'moved-from' (or destroyed) Any!");
-    if (m_operations) {
-        m_operations->copy(m_storage, m_allocator, other.m_storage);
-    }
-}
-
-template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
-    BasicAny&& other
+constexpr util::BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>::BasicMoveOnlyAny(
+    BasicMoveOnlyAny&& other
 ) noexcept
     : m_allocator{ std::move(other.m_allocator) },
       m_operations{ std::exchange(other.m_operations, nullptr) }
 {
-    PRECOND(m_operations != nullptr, "Don't use a 'moved-from' (or destroyed) Any!");
+    PRECOND(
+        m_operations != nullptr, "Don't use a 'moved-from' (or destroyed) MoveOnlyAny!"
+    );
     if (m_operations) {
         m_operations->move(m_storage, std::move(other.m_storage));
     }
@@ -504,27 +465,20 @@ constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
 }
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::
-    ~BasicAny<size_T, alignment_T, Allocator_T>()
-{
-    reset();
-}
-
-template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
-template <util::storable_c T, typename... Args_T>
+template <storable_c T, typename... Args_T>
     requires std::constructible_from<T, Args_T&&...>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
+constexpr util::BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>::BasicMoveOnlyAny(
     std::in_place_type_t<T>,
     Args_T&&... args
 )
-    : BasicAny{ Allocator{}, std::in_place_type<T>, std::forward<Args_T>(args)... }
+    : BasicMoveOnlyAny{ Allocator{}, std::in_place_type<T>, std::forward<Args_T>(args)... }
 {}
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
-template <typename UAllocator_T, util::storable_c T, typename... Args_T>
+template <typename UAllocator_T, storable_c T, typename... Args_T>
     requires std::same_as<std::decay_t<UAllocator_T>, Allocator_T>
               && std::constructible_from<T, Args_T&&...>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
+constexpr util::BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>::BasicMoveOnlyAny(
     UAllocator_T&& allocator,
     std::in_place_type_t<T>,
     Args_T&&... args
@@ -539,47 +493,61 @@ constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
 template <typename T>
-    requires(!std::
-                 same_as<std::decay_t<T>, util::BasicAny<size_T, alignment_T, Allocator_T>>)
-         && util::storable_c<std::decay_t<T>>
+    requires(!std::same_as<
+                std::decay_t<T>,
+                util::BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>>)
+         && storable_c<std::decay_t<T>>
          && (!::util::meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
          && std::constructible_from<std::decay_t<T>, T&&>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(T&& value)
-    : BasicAny{ std::in_place_type<std::decay_t<T>>, std::forward<T>(value) }
+constexpr util::BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>::BasicMoveOnlyAny(
+    T&& value
+)
+    : BasicMoveOnlyAny{ std::in_place_type<std::decay_t<T>>, std::forward<T>(value) }
 {}
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
 template <typename UAllocator_T, typename T>
     requires std::same_as<std::decay_t<UAllocator_T>, Allocator_T>
-          && util::storable_c<std::decay_t<T>>
+          && storable_c<std::decay_t<T>>
           && (!::util::meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
           && std::constructible_from<std::decay_t<T>, T&&>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
+constexpr util::BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>::BasicMoveOnlyAny(
     UAllocator_T&& allocator,
     T&&            value
 )
-    : BasicAny{ std::forward<UAllocator_T>(allocator),
-                std::in_place_type<std::decay_t<T>>,
-                std::forward<T>(value) }
+    : BasicMoveOnlyAny{ std::forward<UAllocator_T>(allocator),
+                        std::in_place_type<std::decay_t<T>>,
+                        std::forward<T>(value) }
 {}
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
-constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(
-    const BasicAny& other
-) -> BasicAny&
+constexpr util::BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>::
+    ~BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>()
+{
+    reset();
+}
+
+template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
+constexpr auto util::BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>::operator=(
+    const BasicMoveOnlyAny& other
+) -> BasicMoveOnlyAny&
 {
     if (&other == this) {
         return *this;
     }
 
-    return *this = BasicAny{ other };
+    return *this = BasicMoveOnlyAny{ other };
 }
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
-constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(BasicAny&& other
-) noexcept -> BasicAny&
+constexpr auto util::BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>::operator=(
+    BasicMoveOnlyAny&& other
+) noexcept -> BasicMoveOnlyAny&
 {
-    PRECOND(other.m_operations != nullptr, "Don't use a 'moved-from' (or destroyed) Any!");
+    PRECOND(
+        other.m_operations != nullptr,
+        "Don't use a 'moved-from' (or destroyed) MoveOnlyAny!"
+    );
 
     if (&other == this) {
         return *this;
@@ -599,7 +567,7 @@ constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(Basic
 }
 
 template <size_t size_T, size_t alignment_T, ::util::meta::generic_allocator_c Allocator_T>
-constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::reset() -> void
+constexpr auto util::BasicMoveOnlyAny<size_T, alignment_T, Allocator_T>::reset() -> void
 {
     if (m_operations) {
         m_operations->drop(m_allocator, std::move(m_storage));

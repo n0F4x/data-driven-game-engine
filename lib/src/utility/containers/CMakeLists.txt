@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         containers.cppm
         Any.ixx
         FunctionWrapper.ixx
+        MoveOnlyAny.ixx
         SlotMultiMap.ixx
         OptionalRef.ixx
         Ref.ixx
