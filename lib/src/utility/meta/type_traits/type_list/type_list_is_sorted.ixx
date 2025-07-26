@@ -16,7 +16,7 @@ struct type_list_is_sorted {
 };
 
 export template <type_list_c TypeList_T, template <typename> typename Hash_T>
-constexpr inline bool type_list_is_sorted_v =
+inline constexpr bool type_list_is_sorted_v =
     type_list_is_sorted<TypeList_T, Hash_T>::value;
 
 }   // namespace util::meta

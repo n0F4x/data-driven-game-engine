@@ -56,4 +56,4 @@ export using Size2f = Size<2, float>;
 export using Size3i = Size<3, int>;
 export using Size3f = Size<3, float>;
 
-}   // namespace core
+}   // namespace util

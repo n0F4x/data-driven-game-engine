@@ -45,6 +45,6 @@ struct ForEachClosure<TypeList_T> {
 };
 
 export template <typename T>
-constexpr inline ForEachClosure<T> for_each;
+inline constexpr ForEachClosure<T> for_each;
 
 }   // namespace util::meta

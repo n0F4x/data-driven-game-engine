@@ -43,6 +43,6 @@ struct ApplyClosure<TypeList_T> {
 };
 
 export template <typename T>
-constexpr inline ApplyClosure<T> apply;
+inline constexpr ApplyClosure<T> apply;
 
 }   // namespace util::meta

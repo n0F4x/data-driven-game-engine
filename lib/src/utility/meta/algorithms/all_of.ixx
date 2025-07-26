@@ -43,6 +43,6 @@ struct AllOfClosure<TypeList_T> {
 };
 
 export template <typename T>
-constexpr inline AllOfClosure<T> all_of;
+inline constexpr AllOfClosure<T> all_of;
 
 }   // namespace util::meta

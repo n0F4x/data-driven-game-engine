@@ -18,6 +18,6 @@ struct is_integer_sequence<IntegerSequence_T<Integer_T, integers_T...>> : std::t
 };
 
 export template <typename T>
-constexpr inline bool is_integer_sequence_v = is_integer_sequence<T>::value;
+inline constexpr bool is_integer_sequence_v = is_integer_sequence<T>::value;
 
 }   // namespace util::meta

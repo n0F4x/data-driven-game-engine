@@ -26,6 +26,6 @@ struct EnumerateClosure {
 };
 
 export template <type_list_c TypeList_T>
-constexpr inline EnumerateClosure<TypeList_T> enumerate;
+inline constexpr EnumerateClosure<TypeList_T> enumerate;
 
 }   // namespace util::meta

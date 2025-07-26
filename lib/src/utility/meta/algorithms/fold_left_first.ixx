@@ -60,6 +60,6 @@ struct FoldLeftFirstClosure<TypeList_T> {
 };
 
 export template <typename T>
-constexpr inline FoldLeftFirstClosure<T> fold_left_first;
+inline constexpr FoldLeftFirstClosure<T> fold_left_first;
 
 }   // namespace util::meta

@@ -49,6 +49,6 @@ struct type_list_index_of {
 };
 
 export template <typename TypeList_T, typename T>
-constexpr inline size_t type_list_index_of_v = type_list_index_of<TypeList_T, T>::value;
+inline constexpr size_t type_list_index_of_v = type_list_index_of<TypeList_T, T>::value;
 
 }   // namespace util::meta

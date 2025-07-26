@@ -21,7 +21,7 @@ struct integer_sequence_at<IntegerSequence<Integer_T, integers_T...>, index_T> {
 };
 
 export template <integer_sequence_c IntegerSequence, size_t index_T>
-constexpr inline auto integer_sequence_at_v =
+inline constexpr auto integer_sequence_at_v =
     integer_sequence_at<IntegerSequence, index_T>::value;
 
 }   // namespace util::meta

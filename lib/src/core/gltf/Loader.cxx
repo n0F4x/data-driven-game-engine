@@ -13,15 +13,15 @@ module;
 #include "core/log/log_macros.hpp"
 
 module core.gltf.Model;
-
-import utility.meta.type_traits.functional.arguments_of;
-
 import core.gltf.Image;
 import core.gltf.ImageLoader;
 import core.gltf.Mesh;
 import core.gltf.Texture;
 
 import core.log;
+
+import utility.meta.type_traits.functional.arguments_of;
+import utility.meta.type_traits.type_list.type_list_front;
 
 [[nodiscard]]
 static auto load_asset(const std::filesystem::path& filepath)
@@ -249,7 +249,7 @@ static auto make_accessor_loader(
                Transformation&&          transform
            ) -> void {
         using ElementType = std::remove_cvref_t<
-            std::tuple_element_t<0, util::meta::arguments_of_t<Transformation>>>;
+            util::meta::type_list_front_t<util::meta::arguments_of_t<Transformation>>>;
         using AttributeType = std::remove_cvref_t<
             std::invoke_result_t<Projection, const core::gltf::Model::Vertex&>>;
 

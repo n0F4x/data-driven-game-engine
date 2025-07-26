@@ -14,7 +14,7 @@ struct type_list_all_different_impl<TypeList_T<Ts...>> {
 namespace util::meta {
 
 export template <typename TypeList_T>
-concept type_list_all_different_c =
-    type_list_c<TypeList_T> && ::type_list_all_different_impl<TypeList_T>::value;
+concept type_list_all_different_c = type_list_c<TypeList_T>
+                                 && ::type_list_all_different_impl<TypeList_T>::value;
 
 }   // namespace util::meta

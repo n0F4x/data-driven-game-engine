@@ -21,6 +21,6 @@ struct type_list_all_of<TypeList_T<Ts...>, Predicate_T>
 
 export template <typename TypeList_T, template <typename> typename Predicate_T>
 concept type_list_all_of_c = type_list_c<TypeList_T>
-                       && type_list_all_of<TypeList_T, Predicate_T>::value;
+                          && type_list_all_of<TypeList_T, Predicate_T>::value;
 
 }   // namespace util::meta
