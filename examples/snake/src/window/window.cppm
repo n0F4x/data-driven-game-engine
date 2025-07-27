@@ -6,7 +6,6 @@ export import snake.window.display;
 export import snake.window.display_time;
 export import snake.window.DisplayTimer;
 export import snake.window.initialize;
-export import snake.window.open_window;
 export import snake.window.setup;
 export import snake.window.Settings;
 export import snake.window.update;

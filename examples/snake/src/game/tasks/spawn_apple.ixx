@@ -1,7 +1,5 @@
 module;
 
-#include <algorithm>
-#include <print>
 #include <random>
 
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -31,9 +29,15 @@ using CachedTextureLoader =
 
 namespace game {
 
-export inline constexpr auto spawn_apple =   //
-    [](const CachedTextureLoader texture_loader,
-       const Registry            registry) -> void      //
+export auto spawn_apple(const CachedTextureLoader texture_loader, const Registry registry)
+    -> void;
+
+}   // namespace game
+
+module :private;
+
+auto game::spawn_apple(const CachedTextureLoader texture_loader, const Registry registry)
+    -> void
 {
     static std::random_device random_device;
     static std::mt19937       random_engine{ random_device() };
@@ -56,6 +60,4 @@ export inline constexpr auto spawn_apple =   //
     cell.shape.setTexture(texture_handle.get());
 
     registry->insert(new_apple_id, Apple{});
-};
-
-}   // namespace game
+}

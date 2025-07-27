@@ -20,14 +20,21 @@ using namespace core::ecs::query_parameter_tags;
 
 namespace game {
 
-export constexpr inline auto color_cells =   //
-    [](ecs::Query<
-        Optional<const SnakeHead>,
-        Optional<const Snake>,
-        Optional<const Apple>,
-        Cell> cells)   //
+export auto color_cells(
+    ecs::Query<Optional<const SnakeHead>, Optional<const Snake>, Optional<const Apple>, Cell>
+        cells
+) -> void;
+
+}   // namespace game
+
+module :private;
+
+auto game::color_cells(
+    ecs::Query<Optional<const SnakeHead>, Optional<const Snake>, Optional<const Apple>, Cell>
+        cells
+) -> void
 {
-    cells.for_each(    //
+    cells.for_each(   //
         [](const util::OptionalRef<const SnakeHead> snake_head,
            const util::OptionalRef<const Snake>     snake_body,
            const util::OptionalRef<const Apple>     apple,
@@ -47,6 +54,4 @@ export constexpr inline auto color_cells =   //
             }
         }
     );
-};
-
-}   // namespace game
+}

@@ -9,40 +9,28 @@ import utility.meta.concepts.type_list.type_list;
 import utility.meta.type_traits.integer_sequence.integer_sequence_to;
 import utility.meta.type_traits.type_list.type_list_at;
 import utility.meta.type_traits.type_list.type_list_size;
+import utility.meta.type_traits.type_list.type_list_to;
+import utility.TypeList;
 import utility.ValueSequence;
 
 namespace util::meta {
 
-export template <typename T>
-    requires index_sequence_c<T> || type_list_c<T>
-struct ApplyClosure;
-
-export template <index_sequence_c IndexSequence_T>
-struct ApplyClosure<IndexSequence_T> {
-    template <typename F>
-    constexpr static auto operator()(F func) -> decltype(auto)
-    {
-        return [&func]<size_t... indices_T>(ValueSequence<size_t, indices_T...>)
-                   -> decltype(auto) {
-            return func.template operator()<indices_T...>();
+export template <index_sequence_c IndexSequence_T, typename F>
+auto apply(F&& func) -> decltype(auto)
+{
+    return
+        [&func]<size_t... indices_T>(ValueSequence<size_t, indices_T...>) -> decltype(auto
+                                                                          ) {
+            return std::forward<F>(func).template operator()<indices_T...>();
         }(integer_sequence_to_t<IndexSequence_T, ValueSequence>{});
-    }
-};
+}
 
-export template <type_list_c TypeList_T>
-struct ApplyClosure<TypeList_T> {
-    template <typename F>
-    constexpr static auto operator()(F func) -> decltype(auto)
-    {
-        return ApplyClosure<std::make_index_sequence<type_list_size_v<TypeList_T>>>::
-            operator()([&func]<size_t... indices_T> -> decltype(auto) {
-                return func.template operator()<type_list_at_t<TypeList_T, indices_T>...>(
-                );
-            });
-    }
-};
-
-export template <typename T>
-inline constexpr ApplyClosure<T> apply;
+export template <type_list_c TypeList_T, typename F>
+auto apply(F&& func) -> decltype(auto)
+{
+    return [&func]<typename... Ts>(TypeList<Ts...>) -> decltype(auto) {
+        return std::forward<F>(func).template operator()<Ts...>();
+    }(type_list_to_t<TypeList_T, TypeList>{});
+}
 
 }   // namespace util::meta

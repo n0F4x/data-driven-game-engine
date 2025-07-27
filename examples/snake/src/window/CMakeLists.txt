@@ -10,7 +10,6 @@ target_sources(${PROJECT_NAME} PRIVATE
         display_time.ixx
         DisplayTimer.ixx
         initialize.ixx
-        open_window.ixx
         Settings.ixx
         setup.ixx
         update.ixx

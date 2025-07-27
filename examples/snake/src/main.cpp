@@ -29,15 +29,15 @@ constexpr static auto initialize =   //
         game::initialize
     );
 
-constexpr static auto process_events =               //
-    [](const events::Processor& event_processor) {   //
-        event_processor.process_events();
-    };
+auto process_events(const events::Processor& event_processor) -> void
+{
+    event_processor.process_events();
+}
 
-constexpr static auto clear_messages =       //
-    [](const messages::Mailbox& mailbox) {   //
-        mailbox.clear_messages();
-    };
+auto clear_messages(const messages::Mailbox& mailbox) -> void
+{
+    mailbox.clear_messages();
+}
 
 constexpr static auto update = core::scheduler::group(window::update, game::update);
 

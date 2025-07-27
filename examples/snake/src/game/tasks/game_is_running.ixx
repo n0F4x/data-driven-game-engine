@@ -8,10 +8,13 @@ using namespace extensions::scheduler::accessors;
 
 namespace game {
 
-export constexpr inline auto game_is_running =
-    [](const ::events::Reader<GameOver>& game_over_reader) -> bool   //
-{                                                                    //
-    return game_over_reader.read().size() == 0;
-};
+export auto game_is_running(const ::events::Reader<GameOver>& game_over_reader) -> bool;
 
 }   // namespace game
+
+module :private;
+
+auto game::game_is_running(const events::Reader<GameOver>& game_over_reader) -> bool
+{
+    return game_over_reader.read().size() == 0;
+}

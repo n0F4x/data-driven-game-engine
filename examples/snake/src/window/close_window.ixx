@@ -8,9 +8,13 @@ using namespace extensions::scheduler::accessors;
 
 namespace window {
 
-export inline constexpr auto close_window =     //
-    [](const resources::Resource<Window> window) {   //
-        return window->close();
-    };
+export auto close_window(const resources::Resource<Window> window) -> void;
 
 }   // namespace window
+
+module :private;
+
+auto window::close_window(const resources::Resource<Window> window) -> void
+{
+    return window->close();
+}

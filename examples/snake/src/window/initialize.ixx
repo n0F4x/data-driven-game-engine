@@ -6,17 +6,18 @@ import core.time.FixedTimer;
 import extensions.scheduler.accessors.resources;
 
 import snake.window.DisplayTimer;
-import snake.window.open_window;
 
 using namespace extensions::scheduler::accessors;
 
 namespace window {
 
-export inline constexpr auto initialize = core::scheduler::group(
-    open_window,
-    [](const resources::Resource<DisplayTimer> display_timer) {
-        display_timer->reset();
-    }
-);
+export auto initialize(resources::Resource<DisplayTimer> display_timer) -> void;
 
 }   // namespace window
+
+module :private;
+
+auto window::initialize(const resources::Resource<DisplayTimer> display_timer) -> void
+{
+    display_timer->reset();
+}

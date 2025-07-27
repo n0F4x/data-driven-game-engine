@@ -8,10 +8,15 @@ using namespace extensions::scheduler::accessors;
 
 namespace game {
 
-export constexpr inline auto trigger_world_update_message =
-    [](const ::messages::Sender<WorldUpdate>& sender)   //
-{                                                           //
-    sender.send();
-};
+export auto trigger_world_update_message(const ::messages::Sender<WorldUpdate>& sender)
+    -> void;
 
 }   // namespace game
+
+module :private;
+
+auto game::trigger_world_update_message(const messages::Sender<WorldUpdate>& sender)
+    -> void
+{
+    sender.send();
+}

@@ -2,7 +2,6 @@ module;
 
 #include <cassert>
 #include <optional>
-#include <utility>
 #include <vector>
 
 #include <SFML/Window/Keyboard.hpp>
@@ -28,27 +27,15 @@ using namespace core::ecs::query_parameter_tags;
 
 namespace game {
 
-auto correct_snake_direction(core::ecs::Registry& registry) -> void;
-
-auto move_snake_head(
-    const events::Recorder<GameOver>& game_over_recorder,
-    const Settings&                   settings,
-    core::ecs::Registry&              registry
+export auto move_snake(
+    resources::Resource<const Settings> settings,
+    const events::Recorder<GameOver>&   game_over_recorder,
+    ecs::Registry                       registry
 ) -> void;
 
-auto decrease_charges(core::ecs::Registry& registry) -> void;
-
-export inline constexpr auto move_snake =
-    [](const resources::Resource<const Settings> settings,
-       const events::Recorder<GameOver>&         game_over_recorder,
-       const ecs::Registry                       registry)   //
-{
-    correct_snake_direction(registry.get());
-    move_snake_head(game_over_recorder, settings.get(), registry.get());
-    decrease_charges(registry.get());
-};
-
 }   // namespace game
+
+module :private;
 
 [[nodiscard]]
 auto direction_mixed_with_user_input(game::Direction direction) -> game::Direction
@@ -76,9 +63,9 @@ auto direction_mixed_with_user_input(game::Direction direction) -> game::Directi
     return direction;
 }
 
-auto game::correct_snake_direction(core::ecs::Registry& registry) -> void
+auto correct_snake_direction(core::ecs::Registry& registry) -> void
 {
-    core::ecs::query(registry, [](SnakeHead& snake_head) {
+    core::ecs::query(registry, [](game::SnakeHead& snake_head) {
         snake_head.direction = direction_mixed_with_user_input(snake_head.direction);
     });
 }
@@ -135,24 +122,27 @@ auto next_position(
     std::unreachable();
 }
 
-auto game::move_snake_head(
-    const events::Recorder<GameOver>& game_over_recorder,
-    const Settings&                   settings,
-    core::ecs::Registry&              registry
+auto move_snake_head(
+    const events::Recorder<game::GameOver>& game_over_recorder,
+    const game::Settings&                   settings,
+    core::ecs::Registry&                    registry
 ) -> void
 {
     std::optional<core::ecs::ID> snake_head_id;
-    core::ecs::query(registry, [&snake_head_id](const core::ecs::ID id, With<SnakeHead>) {
-        assert(!snake_head_id.has_value());
-        snake_head_id = id;
-    });
+    core::ecs::query(
+        registry,
+        [&snake_head_id](const core::ecs::ID id, With<game::SnakeHead>) {
+            assert(!snake_head_id.has_value());
+            snake_head_id = id;
+        }
+    );
     assert(snake_head_id.has_value());
 
-    const auto snake_head{ registry.remove_single<SnakeHead>(*snake_head_id) };
-    const auto [cell, snake_body]{ registry.get<Cell, Snake>(*snake_head_id) };
-    assert((!registry.contains_all<SnakeHead>(*snake_head_id)));
+    const auto snake_head{ registry.remove_single<game::SnakeHead>(*snake_head_id) };
+    const auto [cell, snake_body]{ registry.get<game::Cell, game::Snake>(*snake_head_id) };
+    assert((!registry.contains_all<game::SnakeHead>(*snake_head_id)));
 
-    const std::optional<Position> next_pos{
+    const std::optional<game::Position> next_pos{
         next_position(settings, cell.position, snake_head.direction)
     };
     if (!next_pos.has_value()) {
@@ -164,7 +154,7 @@ auto game::move_snake_head(
     core::ecs::query(
         registry,
         [&new_snake_head_id,
-         &next_pos](const core::ecs::ID id, const Cell& new_cell) {
+         &next_pos](const core::ecs::ID id, const game::Cell& new_cell) {
             if (new_cell.position == *next_pos) {
                 assert(!new_snake_head_id.has_value());
                 new_snake_head_id = id;
@@ -173,7 +163,7 @@ auto game::move_snake_head(
     );
     assert(new_snake_head_id.has_value());
 
-    if (registry.contains_all<Snake>(*new_snake_head_id)) {
+    if (registry.contains_all<game::Snake>(*new_snake_head_id)) {
         game_over_recorder.record();
         return;
     }
@@ -181,13 +171,13 @@ auto game::move_snake_head(
     registry.insert(*new_snake_head_id, snake_head, snake_body);
 }
 
-auto game::decrease_charges(core::ecs::Registry& registry) -> void
+auto decrease_charges(core::ecs::Registry& registry) -> void
 {
     std::vector<core::ecs::ID> lost_cells;
 
     core::ecs::query(
         registry,
-        [&lost_cells](const core::ecs::ID id, Snake& snake_body, Without<SnakeHead>) {
+        [&lost_cells](const core::ecs::ID id, game::Snake& snake_body, Without<game::SnakeHead>) {
             snake_body.charge--;
             if (snake_body.charge == 0) {
                 lost_cells.push_back(id);
@@ -196,6 +186,17 @@ auto game::decrease_charges(core::ecs::Registry& registry) -> void
     );
 
     for (const core::ecs::ID id : lost_cells) {
-        registry.remove<Snake>(id);
+        registry.remove<game::Snake>(id);
     }
+}
+
+auto game::move_snake(
+    const resources::Resource<const Settings> settings,
+    const events::Recorder<GameOver>&         game_over_recorder,
+    const ecs::Registry                       registry
+) -> void
+{
+    correct_snake_direction(registry.get());
+    move_snake_head(game_over_recorder, settings.get(), registry.get());
+    decrease_charges(registry.get());
 }

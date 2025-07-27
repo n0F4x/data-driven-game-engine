@@ -12,9 +12,13 @@ using namespace extensions::scheduler::accessors;
 
 namespace window {
 
-export inline constexpr auto clear_window =     //
-    [](const resources::Resource<Window> window) {   //
-        window->clear(sf::Color{ 128, 0, 128 });
-    };
+export auto clear_window(resources::Resource<Window> window) -> void;
 
 }   // namespace window
+
+module :private;
+
+auto window::clear_window(const resources::Resource<Window> window) -> void
+{
+    window->clear(sf::Color{ 128, 0, 128 });
+}
