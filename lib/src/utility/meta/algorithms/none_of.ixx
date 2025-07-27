@@ -4,9 +4,10 @@ import utility.meta.algorithms.any_of;
 
 namespace util::meta {
 
-export template <typename T>
-inline constexpr auto none_of = []<typename Predicate_T>(Predicate_T predicate) -> bool {
+export template <typename T, typename Predicate_T>
+constexpr auto none_of(Predicate_T predicate) -> bool
+{
     return !any_of<T>(predicate);
-};
+}
 
 }   // namespace util::meta

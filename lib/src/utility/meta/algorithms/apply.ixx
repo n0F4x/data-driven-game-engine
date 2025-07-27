@@ -16,7 +16,7 @@ import utility.ValueSequence;
 namespace util::meta {
 
 export template <index_sequence_c IndexSequence_T, typename F>
-auto apply(F&& func) -> decltype(auto)
+constexpr auto apply(F&& func) -> decltype(auto)
 {
     return
         [&func]<size_t... indices_T>(ValueSequence<size_t, indices_T...>) -> decltype(auto
@@ -26,7 +26,7 @@ auto apply(F&& func) -> decltype(auto)
 }
 
 export template <type_list_c TypeList_T, typename F>
-auto apply(F&& func) -> decltype(auto)
+constexpr auto apply(F&& func) -> decltype(auto)
 {
     return [&func]<typename... Ts>(TypeList<Ts...>) -> decltype(auto) {
         return std::forward<F>(func).template operator()<Ts...>();

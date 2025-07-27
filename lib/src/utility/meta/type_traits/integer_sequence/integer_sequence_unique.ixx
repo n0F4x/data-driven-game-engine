@@ -20,17 +20,22 @@ template <
     typename Integer_T,
     Integer_T... integers_T>
 struct integer_sequence_unique<IntegerSequence<Integer_T, integers_T...>> {
-    using type = decltype([] {
+    constexpr static auto make_unique_integers_and_count()
+    {
+        std::array<Integer_T, sizeof...(integers_T)> integers_array{ integers_T... };
+        std::ranges::sort(integers_array);
+        const auto unique_count = std::distance(
+            integers_array.begin(),
+            std::unique(integers_array.begin(), integers_array.end())
+        );
+        return std::make_pair(integers_array, unique_count);
+    }
+
+    constexpr static auto helper()
+    {
         // TODO: constexpr structured binding with p2686r5
-        constexpr static std::pair unique_integers_and_count = [] {
-            std::array<Integer_T, sizeof...(integers_T)> integers_array{ integers_T... };
-            std::ranges::sort(integers_array);
-            const auto unique_count = std::distance(
-                integers_array.begin(),
-                std::unique(integers_array.begin(), integers_array.end())
-            );
-            return std::make_pair(integers_array, unique_count);
-        }();
+        constexpr static std::pair unique_integers_and_count =
+            make_unique_integers_and_count();
 
         return util::meta::
             apply<std::make_index_sequence<unique_integers_and_count.second>>(
@@ -40,7 +45,9 @@ struct integer_sequence_unique<IntegerSequence<Integer_T, integers_T...>> {
                         unique_integers_and_count.first[indices_T]...>{};
                 }
             );
-    }());
+    }
+
+    using type = decltype(helper());
 };
 
 export template <integer_sequence_c IntegerSequence_T>
