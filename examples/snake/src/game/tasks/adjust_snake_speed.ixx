@@ -5,7 +5,6 @@ module;
 export module snake.game.adjust_snake_speed;
 
 import core.ecs;
-import core.measurement.updates_per_second;
 
 import extensions.scheduler.accessors.ecs.Query;
 import extensions.scheduler.accessors.resources.Resource;

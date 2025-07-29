@@ -20,10 +20,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
-# mp-units
-find_package(mp-units CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC mp-units::mp-units)
-
 # GLFW
 find_package(glfw3 CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
