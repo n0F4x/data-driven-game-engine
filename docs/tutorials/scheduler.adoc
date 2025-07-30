@@ -70,9 +70,9 @@ auto schedule =
                     process_events,
                     update,
                     render
-                )
-            ),
-            game_is_running
+                ),
+                game_is_running
+            )
         )
         .then(shut_down);
 ----
