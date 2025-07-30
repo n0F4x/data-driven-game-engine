@@ -50,7 +50,7 @@ class fastgltf(ConanFile):
     def source(self):
         git = Git(self)
         git.clone(url="https://github.com/spnda/fastgltf.git", target=".")
-        git.checkout("c462eaf7114f16a977afe84d0a4590b33091a33f")
+        git.checkout("0d1b67a28c4950ea2deb796702006dcbe31e02b3")
 
     def generate(self):
         tc = CMakeToolchain(self)
