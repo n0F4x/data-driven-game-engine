@@ -33,7 +33,7 @@ However, some libraries require custom configuration / patches.
 Add the provided local third-party repository to Conan remotes. +
 Run `+conan remote add local ./third-party+`
 
-Run `+conan install .+` to set up all the third-party dependencies (or `+conan install . --profile:host=customprofile --profile:build=customprofile+` to make sure it uses the right profile).
+Run `+conan install . -b=missing+` to set up all the third-party dependencies (or `+conan install . -b=missing --profile:host=customprofile --profile:build=customprofile+` to make sure it uses the right profile).
 This will create a _CMakeUserPresets.json_ file inside the working directory that can be used to build the project (with your IDE).
 
 .Conan profile example
