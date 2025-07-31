@@ -362,7 +362,7 @@ auto core::gfx::resources::VirtualImage::request_blocks_by_distance_from_camera(
                   return std::get<0>(block_and_index).m_subresource.mipLevel < lod;
               })
             | std::views::elements<1>,
-        [this, &request_block_count](const size_t block_index) {
+        [this, &request_block_count](const std::size_t block_index) {
             m_to_be_loaded_mask.at(block_index) = true;
             request_block_count++;
         }
@@ -377,7 +377,7 @@ auto core::gfx::resources::VirtualImage::request_all_blocks() -> void
 {
     std::ranges::for_each(
         std::views::iota(0u, m_to_be_loaded_mask.size()),
-        [this](const size_t index) { m_to_be_loaded_mask.at(index) = true; }
+        [this](const std::size_t index) { m_to_be_loaded_mask.at(index) = true; }
     );
 }
 
@@ -411,18 +411,18 @@ auto core::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue spar
             m_to_be_unloaded_mask,
             std::views::iota(0u, m_blocks.size())
         )
-        | std::views::filter([&](std::tuple<bool, bool, size_t> zipped) {
+        | std::views::filter([&](std::tuple<bool, bool, std::size_t> zipped) {
               const bool   to_be_loaded{ std::get<0>(zipped) };
               const bool   to_be_unloaded{ std::get<1>(zipped) };
-              const size_t block_index{ std::get<2>(zipped) };
+              const std::size_t block_index{ std::get<2>(zipped) };
               const Block& block{ m_blocks.at(block_index) };
 
               return (to_be_loaded && !block.m_bound)
                   || (!to_be_loaded && to_be_unloaded && block.m_bound);
           })
-        | std::views::transform([&](std::tuple<bool, bool, size_t> zipped) {
+        | std::views::transform([&](std::tuple<bool, bool, std::size_t> zipped) {
               const bool   to_be_loaded{ std::get<0>(zipped) };
-              const size_t block_index{ std::get<2>(zipped) };
+              const std::size_t block_index{ std::get<2>(zipped) };
               Block&       block{ m_blocks.at(block_index) };
 
               block.m_bound = !block.m_bound;

@@ -24,7 +24,7 @@ template <
     template <typename...> typename TypeList_T,
     typename... Ts,
     template <typename...> typename Tuple_T,
-    size_t... indices_T>
+    std::size_t... indices_T>
 struct generate_tuple_from_helper<
     TypeList_T<Ts...>,
     Tuple_T,
@@ -42,7 +42,7 @@ export template <
     typename Generator_T>
 auto generate_tuple_from(Generator_T&& generator)
 {
-    constexpr static size_t size{ meta::type_list_size_v<TypeList_T> };
+    constexpr static std::size_t size{ meta::type_list_size_v<TypeList_T> };
 
     if constexpr (size == 0) {
         return Tuple_T<>{};
@@ -57,7 +57,7 @@ template <
     typename Integer_T,
     Integer_T... integers_T,
     template <typename...> typename Tuple_T,
-    size_t... indices_T>
+    std::size_t... indices_T>
 struct generate_tuple_from_helper<
     IntegerSequence_T<Integer_T, integers_T...>,
     Tuple_T,
@@ -76,7 +76,7 @@ export template <
     typename Generator_T>
 auto generate_tuple_from(Generator_T&& generator)
 {
-    constexpr static size_t size{ meta::integer_sequence_size_v<IntegerSequence_T> };
+    constexpr static std::size_t size{ meta::integer_sequence_size_v<IntegerSequence_T> };
 
     if constexpr (size == 0) {
         return Tuple_T<>{};

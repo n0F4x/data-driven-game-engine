@@ -26,7 +26,7 @@ private:
     Shader m_vertex_shader;
     Shader m_fragment_shader;
 
-    friend auto hash_value(const Program& program) noexcept -> size_t;
+    friend auto hash_value(const Program& program) noexcept -> std::size_t;
 };
 
 }   // namespace core::renderer
@@ -34,5 +34,5 @@ private:
 export template <>
 struct std::hash<core::renderer::Program> {
     [[nodiscard]]
-    auto operator()(const core::renderer::Program& program) const noexcept -> size_t;
+    auto operator()(const core::renderer::Program& program) const noexcept -> std::size_t;
 };

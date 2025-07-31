@@ -7,23 +7,23 @@ export module utility.meta.type_traits.type_list.type_list_index_of;
 template <typename, typename>
 struct type_list_index_of_impl;
 
-constexpr static size_t not_found = static_cast<size_t>(-1);
-constexpr static size_t ambiguous = not_found - 1;
+constexpr static std::size_t not_found = static_cast<std::size_t>(-1);
+constexpr static std::size_t ambiguous = not_found - 1;
 
 [[nodiscard]]
 consteval auto find_index_return(
-    const size_t current_index,
-    const size_t result,
+    const std::size_t current_index,
+    const std::size_t result,
     const bool   current_match
-) -> size_t
+) -> std::size_t
 {
     return !current_match ? result : (result == not_found ? current_index : ambiguous);
 }
 
-template <size_t N>
+template <std::size_t N>
 [[nodiscard]]
-consteval auto find_index(const size_t current_index, const std::array<bool, N> matches)
-    -> size_t
+consteval auto find_index(const std::size_t current_index, const std::array<bool, N> matches)
+    -> std::size_t
 {
     return current_index == N ? not_found
                               : find_index_return(
@@ -36,7 +36,7 @@ consteval auto find_index(const size_t current_index, const std::array<bool, N> 
 template <template <typename...> typename TypeList_T, typename... Ts, typename T>
 struct type_list_index_of_impl<TypeList_T<Ts...>, T> {
     constexpr static std::array<bool, sizeof...(Ts)> matches{ std::is_same_v<T, Ts>... };
-    constexpr static size_t                          value{ find_index(0, matches) };
+    constexpr static std::size_t                          value{ find_index(0, matches) };
     static_assert(value != not_found, "type not found in type list");
     static_assert(value != ambiguous, "type occurs more than once in type list");
 };
@@ -45,10 +45,10 @@ namespace util::meta {
 
 template <typename TypeList_T, typename T>
 struct type_list_index_of {
-    constexpr static size_t value = ::type_list_index_of_impl<TypeList_T, T>::value;
+    constexpr static std::size_t value = ::type_list_index_of_impl<TypeList_T, T>::value;
 };
 
 export template <typename TypeList_T, typename T>
-inline constexpr size_t type_list_index_of_v = type_list_index_of<TypeList_T, T>::value;
+inline constexpr std::size_t type_list_index_of_v = type_list_index_of<TypeList_T, T>::value;
 
 }   // namespace util::meta

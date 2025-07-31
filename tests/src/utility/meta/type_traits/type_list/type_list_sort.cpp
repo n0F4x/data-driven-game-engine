@@ -7,12 +7,12 @@ template <typename...>
 struct TypeList {};
 }   // namespace
 
-template <size_t int_T>
-using Int = std::integral_constant<size_t, int_T>;
+template <std::size_t int_T>
+using Int = std::integral_constant<std::size_t, int_T>;
 
 template <typename Int>
 struct Hash {
-    constexpr static size_t value = Int::value + 10;
+    constexpr static std::size_t value = Int::value + 10;
 };
 
 static_assert(std::is_same_v<util::meta::type_list_sort_t<TypeList<>, Hash>, TypeList<>>);

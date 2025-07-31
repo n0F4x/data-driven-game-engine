@@ -43,14 +43,14 @@ public:
 
 private:
     util::FunctionWrapper<Loader_T>                              m_loader;
-    std::unordered_map<size_t, WeakHandle<Asset>, std::identity> m_asset_map;
+    std::unordered_map<std::size_t, WeakHandle<Asset>, std::identity> m_asset_map;
 
     [[nodiscard]]
-    constexpr auto hash(Arguments_T... arguments) const -> size_t;
+    constexpr auto hash(Arguments_T... arguments) const -> std::size_t;
 
     template <typename Self_T>
     [[nodiscard]]
-    auto find_hash(this Self_T&&, size_t hash) -> std::optional<
+    auto find_hash(this Self_T&&, std::size_t hash) -> std::optional<
         Handle<util::meta::const_like_t<Asset_T, std::remove_reference_t<Self_T>>>>;
 };
 
@@ -94,7 +94,7 @@ auto core::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::load(
     Arguments_T... arguments
 ) -> Handle<Asset_T>
 {
-    size_t key{ hash(arguments...) };
+    std::size_t key{ hash(arguments...) };
 
     if (const auto found_handle{ find_hash(key) }; found_handle.has_value()) {
         return *found_handle;
@@ -124,7 +124,7 @@ template <typename Loader_T, typename Asset_T, typename... Arguments_T>
 template <typename Self_T>
 auto core::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find_hash(
     this Self_T&& self,
-    const size_t  hash
+    const std::size_t  hash
 ) -> std::
     optional<Handle<util::meta::const_like_t<Asset_T, std::remove_reference_t<Self_T>>>>
 {
@@ -144,7 +144,7 @@ auto core::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find_hash(
 template <typename Loader_T, typename Asset_T, typename... Arguments_T>
 constexpr auto core::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::hash(
     Arguments_T... arguments
-) const -> size_t
+) const -> std::size_t
 {
     return util::hash_combine(arguments...);
 }

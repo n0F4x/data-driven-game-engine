@@ -32,18 +32,18 @@ public:
     [[nodiscard]]
     auto buffer() const noexcept [[lifetime_bound]] -> vk::Buffer;
 
-    template <size_t E>
-    auto set(std::span<const T, E> data, size_t offset = 0) const -> void;
-    auto set(const T& data, size_t offset = 0) const -> void;
+    template <std::size_t E>
+    auto set(std::span<const T, E> data, std::size_t offset = 0) const -> void;
+    auto set(const T& data, std::size_t offset = 0) const -> void;
 
-    template <size_t E>
-    auto get(std::span<T, E> data, size_t offset = 0) const -> void;
-    auto get(T& data, size_t offset = 0) const -> void;
+    template <std::size_t E>
+    auto get(std::span<T, E> data, std::size_t offset = 0) const -> void;
+    auto get(T& data, std::size_t offset = 0) const -> void;
 
     [[nodiscard]]
-    auto size() const noexcept -> size_t;
+    auto size() const noexcept -> std::size_t;
     [[nodiscard]]
-    auto size_bytes() const noexcept -> size_t;
+    auto size_bytes() const noexcept -> std::size_t;
     [[nodiscard]]
     auto empty() const noexcept -> bool;
 
@@ -89,10 +89,10 @@ auto core::renderer::resources::RandomAccessBuffer<T>::buffer() const noexcept
 }
 
 template <typename T>
-template <size_t E>
+template <std::size_t E>
 auto core::renderer::resources::RandomAccessBuffer<T>::set(
     std::span<const T, E> data,
-    const size_t          offset
+    const std::size_t          offset
 ) const -> void
 {
     assert(data.size() <= size() - offset);
@@ -106,7 +106,7 @@ auto core::renderer::resources::RandomAccessBuffer<T>::set(
 template <typename T>
 auto core::renderer::resources::RandomAccessBuffer<T>::set(
     const T&     data,
-    const size_t offset
+    const std::size_t offset
 ) const -> void
 {
     assert(!empty());
@@ -118,10 +118,10 @@ auto core::renderer::resources::RandomAccessBuffer<T>::set(
 }
 
 template <typename T>
-template <size_t E>
+template <std::size_t E>
 auto core::renderer::resources::RandomAccessBuffer<T>::get(
     std::span<T, E> data,
-    const size_t    offset
+    const std::size_t    offset
 ) const -> void
 {
     assert(data.size() <= size() - offset);
@@ -135,7 +135,7 @@ auto core::renderer::resources::RandomAccessBuffer<T>::get(
 template <typename T>
 auto core::renderer::resources::RandomAccessBuffer<T>::get(
     T&           data,
-    const size_t offset
+    const std::size_t offset
 ) const -> void
 {
     assert(!empty());
@@ -147,14 +147,14 @@ auto core::renderer::resources::RandomAccessBuffer<T>::get(
 }
 
 template <typename T>
-auto core::renderer::resources::RandomAccessBuffer<T>::size() const noexcept -> size_t
+auto core::renderer::resources::RandomAccessBuffer<T>::size() const noexcept -> std::size_t
 {
     return size_bytes() / sizeof(T);
 }
 
 template <typename T>
 auto core::renderer::resources::RandomAccessBuffer<T>::size_bytes() const noexcept
-    -> size_t
+    -> std::size_t
 {
     return m_buffer.size();
 }

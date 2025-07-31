@@ -152,7 +152,7 @@ template <app::plugin_c... Plugins_T>
 template <typename Self_T>
 constexpr auto app::Builder<Plugins_T...>::build(this Self_T&& self)
 {
-    return [&self]<size_t index_T, typename App_T>(this auto&& func, App_T&& app) {
+    return [&self]<std::size_t index_T, typename App_T>(this auto&& func, App_T&& app) {
         if constexpr (index_T == sizeof...(Plugins_T)) {
             return std::forward<App_T>(app);
         }

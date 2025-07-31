@@ -17,7 +17,7 @@ namespace util::meta {
 export template <typename T>
 concept allocator_c = decayed_c<T> && nothrow_movable_c<T> && requires {
     typename T::value_type;
-} && requires(T allocator, typename T::value_type* pointer, size_t n) {
+} && requires(T allocator, typename T::value_type* pointer, std::size_t n) {
     {
         allocator.allocate(n)
     } -> std::same_as<typename T::value_type*>;
@@ -28,7 +28,7 @@ concept allocator_c = decayed_c<T> && nothrow_movable_c<T> && requires {
 
 export template <typename T>
 concept generic_allocator_c = decayed_c<T> && nothrow_movable_c<T>
-                           && requires(T allocator, ::Dummy* pointer, size_t n) {
+                           && requires(T allocator, ::Dummy* pointer, std::size_t n) {
                                   {
                                       allocator.template allocate<::Dummy>(n)
                                   } -> std::same_as<::Dummy*>;

@@ -21,7 +21,7 @@ import core.image.png.MimeType;
 import core.log;
 
 template <
-    size_t N = std::
+    std::size_t N = std::
         max({ core::image::png::MimeType::magic().size_bytes(),
               core::image::jpeg::MimeType::magic().size_bytes(),
               core::image::ktx2::MimeType::magic().size_bytes() })>

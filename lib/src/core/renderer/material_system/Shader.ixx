@@ -30,7 +30,7 @@ private:
     cache::Handle<const ShaderModule> m_module;
     std::string                       m_entry_point;
 
-    friend auto hash_value(const Shader& shader) noexcept -> size_t;
+    friend auto hash_value(const Shader& shader) noexcept -> std::size_t;
 };
 
 }   // namespace core::renderer
@@ -38,5 +38,5 @@ private:
 export template <>
 struct std::hash<core::renderer::Shader> {
     [[nodiscard]]
-    auto operator()(const core::renderer::Shader& shader) const noexcept -> size_t;
+    auto operator()(const core::renderer::Shader& shader) const noexcept -> std::size_t;
 };

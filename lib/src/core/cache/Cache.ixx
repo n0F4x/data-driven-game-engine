@@ -49,7 +49,7 @@ private:
     core::store::Store m_store;
 };
 
-export using Cache = BasicCache<size_t, std::unordered_map>;
+export using Cache = BasicCache<std::size_t, std::unordered_map>;
 
 }   // namespace core::cache
 

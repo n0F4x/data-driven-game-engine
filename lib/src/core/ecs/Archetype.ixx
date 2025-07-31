@@ -128,7 +128,7 @@ private:
 
 struct ArchetypeInfoHashClosure {
     [[nodiscard]]
-    constexpr static auto operator()(const Archetype& archetype) noexcept -> size_t
+    constexpr static auto operator()(const Archetype& archetype) noexcept -> std::size_t
     {
         return util::hash_range(archetype.m_component_id_set);
     }

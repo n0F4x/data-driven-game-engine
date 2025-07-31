@@ -17,7 +17,7 @@ inline constexpr bool is_tuple_like_v<std::tuple<Elems...>> = true;
 template <class T1, class T2>
 inline constexpr bool is_tuple_like_v<std::pair<T1, T2>> = true;
 
-template <class T, size_t N>
+template <class T, std::size_t N>
 inline constexpr bool is_tuple_like_v<std::array<T, N>> = true;
 
 template <class Iterator_T, class Sentinel_T, std::ranges::subrange_kind subrange_kind_T>

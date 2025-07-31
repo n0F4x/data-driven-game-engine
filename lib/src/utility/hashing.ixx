@@ -26,7 +26,7 @@ auto hash_combine(std::size_t& seed, const T& val, const Types&... args) -> void
 
 export template <template <typename> typename Hasher, typename... Types>
 [[nodiscard]]
-auto hash_combine(const Types&... args) -> size_t
+auto hash_combine(const Types&... args) -> std::size_t
 {
     std::size_t seed = 0;
     hash_combine<Hasher>(seed, args...);
@@ -35,7 +35,7 @@ auto hash_combine(const Types&... args) -> size_t
 
 export template <typename... Types>
 [[nodiscard]]
-auto hash_combine(const Types&... args) -> size_t
+auto hash_combine(const Types&... args) -> std::size_t
 {
     std::size_t seed = 0;
     hash_combine<std::hash>(seed, args...);
@@ -44,7 +44,7 @@ auto hash_combine(const Types&... args) -> size_t
 
 export template <template <typename> typename Hasher>
 [[nodiscard]]
-auto hash_range(std::ranges::sized_range auto&& range) -> size_t
+auto hash_range(std::ranges::sized_range auto&& range) -> std::size_t
 {
     Hasher<std::ranges::range_value_t<decltype(range)>> hasher;
     std::size_t                                         seed = std::ranges::size(range);
@@ -59,7 +59,7 @@ auto hash_range(std::ranges::sized_range auto&& range) -> size_t
 }
 
 export [[nodiscard]]
-auto hash_range(std::ranges::sized_range auto&& range) -> size_t
+auto hash_range(std::ranges::sized_range auto&& range) -> std::size_t
 {
     return hash_range<std::hash>(std::forward<decltype(range)>(range));
 }

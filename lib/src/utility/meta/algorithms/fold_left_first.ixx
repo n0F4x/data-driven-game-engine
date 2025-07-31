@@ -17,8 +17,8 @@ export template <index_sequence_c IndexSequence_T, typename Transform_T, typenam
     requires(integer_sequence_size_v<IndexSequence_T> != 0)
 constexpr auto fold_left_first(Transform_T transform, Operation_T operation)
 {
-    return apply<IndexSequence_T>([&transform, &operation]<size_t... indices_T>() {
-        return [&transform, &operation]<size_t index_T, typename Accumulated_T>(
+    return apply<IndexSequence_T>([&transform, &operation]<std::size_t... indices_T>() {
+        return [&transform, &operation]<std::size_t index_T, typename Accumulated_T>(
                    this auto&& self, Accumulated_T&& accumulated
                ) {
             if constexpr (index_T == sizeof...(indices_T)) {
@@ -40,7 +40,7 @@ export template <type_list_c TypeList_T, typename Transform_T, typename Operatio
 constexpr auto fold_left_first(Transform_T transform, Operation_T operation)
 {
     return fold_left_first<std::make_index_sequence<type_list_size_v<TypeList_T>>>(
-        [&transform]<size_t index_T> {
+        [&transform]<std::size_t index_T> {
             return transform.template operator()<type_list_at_t<TypeList_T, index_T>>();
         },
         operation

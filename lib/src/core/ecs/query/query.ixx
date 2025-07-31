@@ -73,7 +73,7 @@ auto core::ecs::query(Registry& registry, F&& func) -> F
                                               DecayedArgsTypeList,
                                               DecayedQueryParameter>)
                             {
-                                constexpr size_t argument_index{
+                                constexpr std::size_t argument_index{
                                     util::meta::type_list_index_of_v<
                                         DecayedArgsTypeList,
                                         DecayedQueryParameter>

@@ -55,7 +55,7 @@ constexpr auto core::scheduler::InParallelBuilder<TaskBuilders_T...>::operator()
 {
     const auto build_tasks = [&self, &argument_providers...] {
         return util::meta::apply<std::make_index_sequence<sizeof...(TaskBuilders_T)>>(
-            [&self, &argument_providers...]<size_t... task_builder_indices_T> {
+            [&self, &argument_providers...]<std::size_t... task_builder_indices_T> {
                 return std::make_tuple(build(
                     std::get<task_builder_indices_T>(self.m_task_builders),
                     argument_providers...
@@ -66,7 +66,7 @@ constexpr auto core::scheduler::InParallelBuilder<TaskBuilders_T...>::operator()
 
     return [tasks = build_tasks()] mutable -> Result {
         util::meta::for_each<std::make_index_sequence<sizeof...(TaskBuilders_T)>>(
-            [&tasks]<size_t task_index_T> { std::invoke(std::get<task_index_T>(tasks)); }
+            [&tasks]<std::size_t task_index_T> { std::invoke(std::get<task_index_T>(tasks)); }
         );
     };
 }

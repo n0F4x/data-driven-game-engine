@@ -77,7 +77,7 @@ TEST_CASE("core::ecs::query")
         SECTION("single archetype")
         {
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<int, float>(registry, [&](int&, float&) {
                     ++visit_count;
@@ -88,7 +88,7 @@ TEST_CASE("core::ecs::query")
             }
 
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<int>(registry, [&](int&) { ++visit_count; });
                 core::ecs::query<int>(registry, +[](int&) {});
@@ -99,7 +99,7 @@ TEST_CASE("core::ecs::query")
             registry.create(int{}, float{});
 
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<int, float>(registry, [&](int&, float&) {
                     ++visit_count;
@@ -114,7 +114,7 @@ TEST_CASE("core::ecs::query")
             registry.create(int{}, float{}, long{});
 
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<int, float>(registry, [&](int&, float&) {
                     ++visit_count;
@@ -124,7 +124,7 @@ TEST_CASE("core::ecs::query")
             }
 
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<int, float, long>(registry, [&](int&, float&, long&) {
                     ++visit_count;
@@ -136,7 +136,7 @@ TEST_CASE("core::ecs::query")
             registry.create(int{}, float{}, long{});
 
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<int, float, long>(registry, [&](int&, float&, long&) {
                     ++visit_count;
@@ -159,7 +159,7 @@ TEST_CASE("core::ecs::query")
         registry.create(int{}, float{});
 
         const auto make_visitor = [&registry]<core::ecs::component_c... Components_T>(
-                                      size_t& visit_count
+                                      std::size_t& visit_count
                                   ) {
             return [&registry,
                     &visit_count](const core::ecs::ID id, Components_T&... components) {
@@ -173,7 +173,7 @@ TEST_CASE("core::ecs::query")
         SECTION("single archetype")
         {
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<core::ecs::ID, int, float>(
                     registry, make_visitor.operator()<int, float>(visit_count)
@@ -186,7 +186,7 @@ TEST_CASE("core::ecs::query")
             }
 
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<core::ecs::ID, int>(
                     registry, make_visitor.operator()<int>(visit_count)
@@ -201,7 +201,7 @@ TEST_CASE("core::ecs::query")
             registry.create(int{}, float{});
 
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<core::ecs::ID, int, float>(
                     registry, make_visitor.operator()<int, float>(visit_count)
@@ -216,7 +216,7 @@ TEST_CASE("core::ecs::query")
             registry.create(int{}, float{}, long{});
 
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<core::ecs::ID, int, float>(
                     registry, make_visitor.operator()<int, float>(visit_count)
@@ -226,7 +226,7 @@ TEST_CASE("core::ecs::query")
             }
 
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<core::ecs::ID, int, float, long>(
                     registry, make_visitor.operator()<int, float, long>(visit_count)
@@ -238,7 +238,7 @@ TEST_CASE("core::ecs::query")
             registry.create(int{}, float{}, long{});
 
             {
-                size_t visit_count{};
+                std::size_t visit_count{};
 
                 core::ecs::query<core::ecs::ID, int, float, long>(
                     registry, make_visitor.operator()<int, float, long>(visit_count)
@@ -317,7 +317,7 @@ TEST_CASE("core::ecs::query")
             registry.create(float{}, double{}, int16_t{}, uint8_t{});
             registry.create(float{}, int16_t{}, int32_t{}, uint8_t{}, uint16_t{});
 
-            size_t visit_count{};
+            std::size_t visit_count{};
 
             test_query_parameters(
                 util::TypeList<
@@ -344,7 +344,7 @@ TEST_CASE("core::ecs::query")
             registry.create(float{}, int16_t{});
             registry.create(float{}, int16_t{}, int32_t{}, uint8_t{});
 
-            size_t visit_count{};
+            std::size_t visit_count{};
 
             test_query_parameters(
                 util::
@@ -375,7 +375,7 @@ TEST_CASE("core::ecs::query")
             registry.create(float{}, double{}, int16_t{}, uint8_t{});
             registry.create(float{}, int16_t{}, int32_t{}, uint8_t{}, uint16_t{});
 
-            size_t visit_count{};
+            std::size_t visit_count{};
 
             core::ecs::query(
                 registry,

@@ -23,10 +23,10 @@ static auto count_mip_levels(const uint32_t base_width, const uint32_t base_heig
 [[nodiscard]]
 static auto
     mip_level_size(const uint32_t width, const uint32_t height, const uint32_t block_size)
-        -> size_t
+        -> std::size_t
 {
-    return static_cast<size_t>(width) * static_cast<size_t>(height)
-         * static_cast<size_t>(block_size);
+    return static_cast<std::size_t>(width) * static_cast<std::size_t>(height)
+         * static_cast<std::size_t>(block_size);
 }
 
 [[nodiscard]]
@@ -35,9 +35,9 @@ static auto mipped_image_size(
     const uint32_t base_height,
     const uint32_t block_size,
     const uint32_t mip_level_count
-) -> size_t
+) -> std::size_t
 {
-    size_t result{};
+    std::size_t result{};
 
     // TODO: use std::views::cartesian_product
     uint32_t width{ base_width };
@@ -80,11 +80,11 @@ static auto generate_mip_maps(
 
     uint32_t width{ base_width };
     uint32_t height{ base_height };
-    size_t   offset{};
+    std::size_t   offset{};
     for (const auto _ : std::views::iota(0u, mip_level_count)) {
         const uint32_t next_width{ std::max(width / 2u, 1u) };
         const uint32_t next_height{ std::max(height / 2u, 1u) };
-        const size_t   next_offset{
+        const std::size_t   next_offset{
             offset + ::mip_level_size(width, height, vk::blockSize(format))
         };
 

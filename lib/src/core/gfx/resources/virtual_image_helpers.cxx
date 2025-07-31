@@ -103,7 +103,7 @@ static auto create_block_source(
     const uint32_t            mip_level_index
 ) -> std::vector<std::byte>
 {
-    const size_t texel_block_size{ vk::blockSize(source.format()) };
+    const std::size_t texel_block_size{ vk::blockSize(source.format()) };
 
     std::vector<std::byte> result;
     result.reserve(texel_block_size * extent.width * extent.height * extent.depth);
@@ -114,16 +114,16 @@ static auto create_block_source(
         .depth  = std::max(source.extent().depth >> mip_level_index, 1u),
     };
 
-    for (const size_t z :
-         std::views::iota(static_cast<size_t>(offset.z)) | std::views::take(extent.depth))
+    for (const std::size_t z :
+         std::views::iota(static_cast<std::size_t>(offset.z)) | std::views::take(extent.depth))
     {
-        for (const size_t y : std::views::iota(static_cast<size_t>(offset.y))
+        for (const std::size_t y : std::views::iota(static_cast<std::size_t>(offset.y))
                                   | std::views::take(extent.height))
         {
-            for (const size_t x : std::views::iota(static_cast<size_t>(offset.x))
+            for (const std::size_t x : std::views::iota(static_cast<std::size_t>(offset.x))
                                       | std::views::take(extent.width))
             {
-                const size_t mip_offset{ z * mip_extent.height * mip_extent.width
+                const std::size_t mip_offset{ z * mip_extent.height * mip_extent.width
                                          + y * mip_extent.width + x };
 
                 result.append_range(source.data().subspan(

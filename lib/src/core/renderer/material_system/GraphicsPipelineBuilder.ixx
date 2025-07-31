@@ -41,7 +41,7 @@ private:
 
     friend auto hash_value(
         const GraphicsPipelineBuilder& graphics_pipeline_builder
-    ) noexcept -> size_t;
+    ) noexcept -> std::size_t;
 };
 
 }   // namespace core::renderer
@@ -51,5 +51,5 @@ struct std::hash<core::renderer::GraphicsPipelineBuilder> {
     [[nodiscard]]
     auto operator()(
         const core::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
-    ) const noexcept -> size_t;
+    ) const noexcept -> std::size_t;
 };

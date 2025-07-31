@@ -18,7 +18,7 @@ public:
     constexpr explicit Deallocator(UAllocator_T&& allocator);
 
     template <typename T>
-    constexpr auto operator()(T* pointer, size_t n = 1) -> void;
+    constexpr auto operator()(T* pointer, std::size_t n = 1) -> void;
 
 private:
     Allocator_T m_allocator;
@@ -37,7 +37,7 @@ constexpr util::Deallocator<Allocator_T>::Deallocator(UAllocator_T&& allocator)
 template <typename Allocator_T>
     requires(::util::meta::generic_allocator_c<Allocator_T> || ::util::meta::allocator_c<Allocator_T>)
 template <typename T>
-constexpr auto util::Deallocator<Allocator_T>::operator()(T* const pointer, const size_t n)
+constexpr auto util::Deallocator<Allocator_T>::operator()(T* const pointer, const std::size_t n)
     -> void
 {
     m_allocator.deallocate(pointer, n);
