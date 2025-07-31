@@ -1,6 +1,7 @@
 export module plugins;
 
 export import plugins.addons;
+export import plugins.assets;
 export import plugins.ecs;
 export import plugins.events;
 export import plugins.functional;
