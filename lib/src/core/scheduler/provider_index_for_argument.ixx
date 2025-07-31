@@ -11,8 +11,8 @@ import utility.meta.reflection.name_of;
 namespace core::scheduler {
 
 export template <typename Argument_T, typename... ArgumentProviders_T>
-constexpr inline size_t provider_index_for_argument =
-    []<size_t provider_index_T = 0>(this auto&& fn_self) {
+constexpr inline std::size_t provider_index_for_argument =
+    []<std::size_t provider_index_T = 0>(this auto&& fn_self) {
         using namespace std::string_literals;
         static_assert(
             provider_index_T < sizeof...(ArgumentProviders_T),

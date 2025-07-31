@@ -41,7 +41,7 @@ constexpr auto core::scheduler::build(
     return util::meta::apply<argument_provider_indices_for_task_builder_t<
         std::remove_cvref_t<TaskBuilder_T>,
         ArgumentProviders_T...>>(
-        [&task_builder, &argument_providers...]<size_t... argument_provider_indices_T> {
+        [&task_builder, &argument_providers...]<std::size_t... argument_provider_indices_T> {
             return std::invoke(
                 std::forward<TaskBuilder_T>(task_builder),
                 std::forward<ArgumentProviders_T...[argument_provider_indices_T]>(

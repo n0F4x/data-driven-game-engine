@@ -51,6 +51,6 @@ template <core::events::event_c... Events_T>
 auto core::events::EventManager<Events_T...>::process_events() -> void
 {
     util::meta::for_each<std::make_index_sequence<sizeof...(Events_T)>>(
-        [this]<size_t index_T> { std::get<index_T>(m_event_buffers).swap_buffers(); }
+        [this]<std::size_t index_T> { std::get<index_T>(m_event_buffers).swap_buffers(); }
     );
 }

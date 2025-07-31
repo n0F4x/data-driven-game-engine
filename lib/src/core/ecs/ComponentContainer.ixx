@@ -38,7 +38,7 @@ public:
     [[nodiscard]]
     constexpr auto empty() const noexcept -> bool;
     [[nodiscard]]
-    constexpr auto size() const noexcept -> size_t;
+    constexpr auto size() const noexcept -> std::size_t;
 
     [[nodiscard]]
     constexpr auto begin() -> Iterator;
@@ -75,7 +75,7 @@ public:
     [[nodiscard]]
     constexpr auto empty() const noexcept -> bool;
     [[nodiscard]]
-    constexpr auto size() const noexcept -> size_t;
+    constexpr auto size() const noexcept -> std::size_t;
 
     [[nodiscard]]
     constexpr auto begin() -> Iterator<false>;
@@ -89,7 +89,7 @@ public:
 
 private:
     std::optional<Component_T> m_optional;
-    size_t                     m_size{};
+    std::size_t                     m_size{};
 };
 
 template <core::ecs::component_c Component_T>
@@ -104,7 +104,7 @@ public:
 
     constexpr Iterator(
         util::meta::maybe_const_t<is_const_T, ComponentContainer>& container,
-        const size_t                                               index
+        const std::size_t                                               index
     )
         : m_base{ &container },
           m_current{ index }
@@ -141,7 +141,7 @@ public:
 
 private:
     util::meta::maybe_const_t<is_const_T, ComponentContainer>* m_base{};
-    size_t                                                     m_current{};
+    std::size_t                                                     m_current{};
 };
 
 template <core::ecs::component_c Component_T>
@@ -205,7 +205,7 @@ constexpr auto ComponentContainer<Component_T>::empty() const noexcept -> bool
 }
 
 template <core::ecs::component_c Component_T>
-constexpr auto ComponentContainer<Component_T>::size() const noexcept -> size_t
+constexpr auto ComponentContainer<Component_T>::size() const noexcept -> std::size_t
 {
     return m_vector.size();
 }
@@ -299,7 +299,7 @@ constexpr auto ComponentContainer<Component_T>::empty() const noexcept -> bool
 
 template <core::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
-constexpr auto ComponentContainer<Component_T>::size() const noexcept -> size_t
+constexpr auto ComponentContainer<Component_T>::size() const noexcept -> std::size_t
 {
     return m_size;
 }

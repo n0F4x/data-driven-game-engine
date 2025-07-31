@@ -16,7 +16,7 @@ export template <index_sequence_c IndexSequence_T, typename Predicate_T>
 [[nodiscard]]
 constexpr auto all_of(Predicate_T&& predicate) -> bool
 {
-    return apply<IndexSequence_T>([&predicate]<size_t... indices_T> -> bool {
+    return apply<IndexSequence_T>([&predicate]<std::size_t... indices_T> -> bool {
         return (
             std::forward<Predicate_T>(predicate).template operator()<indices_T>() && ...
         );

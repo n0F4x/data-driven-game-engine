@@ -192,14 +192,14 @@ static auto create_texture(const fastgltf::Texture& texture) -> core::gltf::Text
 {
     if (texture.basisuImageIndex.has_value()) {
         return core::gltf::Texture{
-            .sampler_index = ::convert<size_t, uint32_t>(texture.samplerIndex),
+            .sampler_index = ::convert<std::size_t, uint32_t>(texture.samplerIndex),
             .image_index   = static_cast<uint32_t>(texture.basisuImageIndex.value()),
         };
     }
 
     if (texture.imageIndex.has_value()) {
         return core::gltf::Texture{
-            .sampler_index = ::convert<size_t, uint32_t>(texture.samplerIndex),
+            .sampler_index = ::convert<std::size_t, uint32_t>(texture.samplerIndex),
             .image_index   = static_cast<uint32_t>(texture.imageIndex.value()),
         };
     }
@@ -240,7 +240,7 @@ static auto convert(fastgltf::Optional<std::size_t> optional) noexcept
 static auto make_accessor_loader(
     const fastgltf::Asset&                  asset,
     std::vector<core::gltf::Model::Vertex>& vertices,
-    size_t                                  first_vertex_index
+    std::size_t                                  first_vertex_index
 )
 {
     return [&, first_vertex_index]<typename Projection, typename Transformation>(
@@ -256,7 +256,7 @@ static auto make_accessor_loader(
         fastgltf::iterateAccessorWithIndex<ElementType>(
             asset,
             accessor,
-            [&, first_vertex_index](const ElementType& element, const size_t index) {
+            [&, first_vertex_index](const ElementType& element, const std::size_t index) {
                 std::invoke(project, vertices[first_vertex_index + index]) =
                     std::invoke_r<AttributeType>(transform, element);
             }
@@ -268,7 +268,7 @@ static auto make_accessor_loader(
 static auto make_identity_accessor_loader(
     const fastgltf::Asset&                  asset,
     std::vector<core::gltf::Model::Vertex>& vertices,
-    size_t                                  first_vertex_index
+    std::size_t                                  first_vertex_index
 )
 {
     return [&, first_vertex_index]<typename Projection>(
@@ -280,7 +280,7 @@ static auto make_identity_accessor_loader(
         fastgltf::iterateAccessorWithIndex<AttributeType>(
             asset,
             accessor,
-            [&, first_vertex_index](const AttributeType& element, const size_t index) {
+            [&, first_vertex_index](const AttributeType& element, const std::size_t index) {
                 std::invoke(project, vertices[first_vertex_index + index]) = element;
             }
         );
@@ -304,7 +304,7 @@ auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optio
 
 auto Loader::load_from_file(
     const std::filesystem::path& filepath,
-    const size_t                 scene_index
+    const std::size_t                 scene_index
 ) -> std::optional<Model>
 {
     fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
@@ -321,7 +321,7 @@ auto Loader::load_from_file(
 auto Loader::load_model(
     const std::filesystem::path& filepath,
     const fastgltf::Asset&       asset,
-    const size_t                 scene_index
+    const std::size_t                 scene_index
 ) -> Model
 {
     assert(scene_index < asset.scenes.size());
@@ -343,7 +343,7 @@ auto Loader::load_nodes(
 {
     model.m_root_node_indices.reserve(node_indices.size());
     model.m_nodes.reserve(asset.nodes.size());
-    std::unordered_map<size_t, size_t> node_index_map;
+    std::unordered_map<std::size_t, std::size_t> node_index_map;
     for (const auto node_index : node_indices) {
         model.m_root_node_indices.push_back(node_index);
         node_index_map.try_emplace(node_index, model.m_nodes.size());
@@ -405,11 +405,11 @@ auto Loader::load_node(
     std::vector<Node>&&                 nodes,
     const fastgltf::Asset&              asset,
     const fastgltf::Node&               source_node,
-    std::optional<size_t>               parent_index,
-    std::unordered_map<size_t, size_t>& node_index_map
+    std::optional<std::size_t>               parent_index,
+    std::unordered_map<std::size_t, std::size_t>& node_index_map
 ) -> std::vector<Node>
 {
-    size_t node_index{ nodes.size() };
+    std::size_t node_index{ nodes.size() };
     Node&  node{ nodes.emplace_back(
         parent_index,
         source_node.children,
@@ -437,7 +437,7 @@ auto Loader::load_node(
     node.rotation()    = glm::make_quat(rotation.data());
     node.translation() = glm::make_vec3(translation.data());
 
-    for (const size_t child_index : source_node.children) {
+    for (const std::size_t child_index : source_node.children) {
         if (node_index_map.try_emplace(child_index, model.m_nodes.size()).second) {
             nodes = load_node(
                 model,
@@ -457,9 +457,9 @@ auto Loader::load_mesh(
     Model&                 model,
     const fastgltf::Asset& asset,
     const fastgltf::Mesh&  source_mesh
-) -> size_t
+) -> std::size_t
 {
-    const size_t index = model.m_meshes.size();
+    const std::size_t index = model.m_meshes.size();
     auto& [primitives]{ model.m_meshes.emplace_back() };
 
     primitives.reserve(source_mesh.primitives.size());
@@ -593,15 +593,15 @@ auto Loader::load_indices(
 
 auto Loader::adjust_node_indices(
     Model&                                    model,
-    const std::unordered_map<size_t, size_t>& node_index_map
+    const std::unordered_map<std::size_t, std::size_t>& node_index_map
 ) -> void
 {
-    for (size_t& root_node_index : model.m_root_node_indices) {
+    for (std::size_t& root_node_index : model.m_root_node_indices) {
         root_node_index = node_index_map.at(root_node_index);
     }
 
     for (Node& node : model.m_nodes) {
-        for (size_t& child_index : node.m_child_indices) {
+        for (std::size_t& child_index : node.m_child_indices) {
             child_index = node_index_map.at(child_index);
         }
     }

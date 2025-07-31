@@ -69,8 +69,8 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
     Us&&... values
 ) -> Key
 {
-    ScopeGuards _ = [this, &values...]<size_t... Is>(std::index_sequence<Is...>) {
-        return std::make_tuple(ScopeGuard{ [this, &values...]<size_t I> {
+    ScopeGuards _ = [this, &values...]<std::size_t... Is>(std::index_sequence<Is...>) {
+        return std::make_tuple(ScopeGuard{ [this, &values...]<std::size_t I> {
             std::get<I>(m_value_containers).push_back(std::forward<Us...[I]>(values...[I]));
             return [this] noexcept { std::get<I>(m_value_containers).pop_back(); };
         }.template operator()<Is>() }...);
@@ -89,8 +89,8 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 ) -> std::optional<std::tuple<Ts...>>
 {
     return m_sparse_set.erase(key).transform([this](const auto index) {
-        return [this, index]<size_t... Is>(std::index_sequence<Is...>) {
-            return std::make_tuple([this, index]<size_t I> {
+        return [this, index]<std::size_t... Is>(std::index_sequence<Is...>) {
+            return std::make_tuple([this, index]<std::size_t I> {
                 auto value{ std::move(std::get<I>(m_value_containers)[index]) };
 
                 std::get<I>(m_value_containers
@@ -116,8 +116,8 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 {
     const auto index = self.m_sparse_set.get(key);
 
-    return [&self, index]<size_t... Is>(std::index_sequence<Is...>) {
-        return std::forward_as_tuple([&self, index]<size_t I> -> decltype(auto) {
+    return [&self, index]<std::size_t... Is>(std::index_sequence<Is...>) {
+        return std::forward_as_tuple([&self, index]<std::size_t I> -> decltype(auto) {
             return std::forward_like<Self_T>(std::get<I>(self.m_value_containers)[index]);
         }.template operator()<Is>()...);
     }(std::make_index_sequence<sizeof...(Ts)>{});
@@ -133,8 +133,8 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 ) -> std::optional<std::tuple<Ts&...>>
 {
     return m_sparse_set.find(key).transform([this](const auto index) {
-        return [this, index]<size_t... Is>(std::index_sequence<Is...>) {
-            return std::forward_as_tuple([this, index]<size_t I> -> decltype(auto) {
+        return [this, index]<std::size_t... Is>(std::index_sequence<Is...>) {
+            return std::forward_as_tuple([this, index]<std::size_t I> -> decltype(auto) {
                 return std::get<I>(m_value_containers)[index];
             }.template operator()<Is>()...);
         }(std::make_index_sequence<sizeof...(Ts)>{});

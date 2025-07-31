@@ -194,7 +194,7 @@ constexpr auto plugins::BasicAssets<Injections_T...>::build(App_T&& app) &&
     static_assert(!app::has_addons_c<App_T, AssetsAddon>);
 
     return util::meta::apply<std::make_index_sequence<sizeof...(Injections_T)>>(
-        [this, &app]<size_t... Is> {
+        [this, &app]<std::size_t... Is> {
             return std::forward<App_T>(app).add_on(
                 addons::Assets<util::meta::result_of_t<Injections_T>...>{
                     .asset_manager{ std::get<Injections_T>(std::move(m_injections))... },

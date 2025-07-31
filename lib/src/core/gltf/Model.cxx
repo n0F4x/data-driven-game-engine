@@ -13,8 +13,8 @@ namespace core::gltf {
 
 auto Model::hash(
     const std::filesystem::path& filepath,
-    const std::optional<size_t>  scene_index
-) noexcept -> size_t
+    const std::optional<std::size_t>  scene_index
+) noexcept -> std::size_t
 {
     return util::hash_combine(filepath, scene_index);
 }
@@ -71,7 +71,7 @@ auto Model::nodes() const noexcept -> const std::vector<Node>&
     return m_nodes;
 }
 
-auto Model::root_node_indices() const noexcept -> const std::vector<size_t>&
+auto Model::root_node_indices() const noexcept -> const std::vector<std::size_t>&
 {
     return m_root_node_indices;
 }

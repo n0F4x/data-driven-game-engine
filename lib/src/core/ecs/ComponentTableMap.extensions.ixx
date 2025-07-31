@@ -196,7 +196,7 @@ auto insert_each_component_if(
         [&it,
          &predicate,
          archetype_id,
-         &components...]<size_t index_T, typename Component_T> {
+         &components...]<std::size_t index_T, typename Component_T> {
             if (predicate.template operator()<Component_T>()) {
                 it.insert(archetype_id, std::forward<Component_T>(components...[index_T]));
             }

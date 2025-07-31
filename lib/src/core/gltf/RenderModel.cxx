@@ -595,7 +595,7 @@ static auto create_pipeline(
         builder.enable_blending();
     }
 
-    const size_t hash{ hash_value(builder) };
+    const std::size_t hash{ hash_value(builder) };
 
     return cache.lazy_emplace<vk::UniquePipeline>(
         hash,
@@ -788,7 +788,7 @@ auto core::gltf::RenderModel::create_loader(
                                   pipeline_create_info,
                                   primitive,
                                   primitive.material_index
-                                      .transform([&model](const size_t material_index) {
+                                      .transform([&model](const std::size_t material_index) {
                                           return model->materials().at(material_index);
                                       })
                                       .value_or(Model::default_material()),

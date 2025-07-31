@@ -57,7 +57,7 @@ struct std::hash<Strong_T> {
     [[nodiscard]]
     constexpr static auto operator()(UStrong_T&& strong
     ) noexcept(noexcept(std::hash<typename Strong_T::Underlying>{}(strong.underlying())))
-        -> size_t
+        -> std::size_t
     {
         return std::hash<std::decay_t<decltype(strong.underlying())>>{}(strong.underlying(
         ));

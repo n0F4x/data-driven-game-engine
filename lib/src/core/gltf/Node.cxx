@@ -48,7 +48,7 @@ auto Node::local_matrix() const -> glm::mat4
 auto Node::matrix(const Model& model) const -> glm::mat4
 {
     glm::mat4 result{ local_matrix() };
-    for (std::optional<size_t> parent_index{ m_parent_index }; parent_index.has_value();
+    for (std::optional<std::size_t> parent_index{ m_parent_index }; parent_index.has_value();
          parent_index = model.nodes().at(parent_index.value()).m_parent_index)
     {
         result = model.nodes().at(parent_index.value()).local_matrix() * result;
@@ -56,14 +56,14 @@ auto Node::matrix(const Model& model) const -> glm::mat4
     return result;
 }
 
-auto Node::mesh_index() const noexcept -> std::optional<size_t>
+auto Node::mesh_index() const noexcept -> std::optional<std::size_t>
 {
     return m_mesh_index;
 }
 
 auto Node::mesh(const Model& model) const -> util::OptionalRef<const Mesh>
 {
-    return m_mesh_index.transform([&](const size_t index) {
+    return m_mesh_index.transform([&](const std::size_t index) {
         return std::cref(model.meshes().at(index));
     });
 }

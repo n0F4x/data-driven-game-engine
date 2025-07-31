@@ -32,14 +32,14 @@ public:
     [[nodiscard]]
     auto get() const noexcept [[lifetime_bound]] -> vk::Buffer;
 
-    template <size_t E>
-    auto set(std::span<const T, E> data, size_t offset = 0) const -> void;
-    auto set(const T& data, size_t offset = 0) const -> void;
+    template <std::size_t E>
+    auto set(std::span<const T, E> data, std::size_t offset = 0) const -> void;
+    auto set(const T& data, std::size_t offset = 0) const -> void;
 
     [[nodiscard]]
-    auto size() const noexcept -> size_t;
+    auto size() const noexcept -> std::size_t;
     [[nodiscard]]
-    auto size_bytes() const noexcept -> size_t;
+    auto size_bytes() const noexcept -> std::size_t;
 
 private:
     base::Buffer     m_buffer;
@@ -82,10 +82,10 @@ auto core::renderer::resources::SeqWriteBuffer<T>::get() const noexcept -> vk::B
 }
 
 template <typename T>
-template <size_t E>
+template <std::size_t E>
 auto core::renderer::resources::SeqWriteBuffer<T>::set(
     std::span<const T, E> data,
-    const size_t          offset
+    const std::size_t          offset
 ) const -> void
 {
     assert(data.size_bytes() <= size_bytes() - offset * sizeof(T));
@@ -99,7 +99,7 @@ auto core::renderer::resources::SeqWriteBuffer<T>::set(
 template <typename T>
 auto core::renderer::resources::SeqWriteBuffer<T>::set(
     const T&     data,
-    const size_t offset
+    const std::size_t offset
 ) const -> void
 {
     assert(sizeof(T) <= size_bytes() - offset * sizeof(T));
@@ -111,13 +111,13 @@ auto core::renderer::resources::SeqWriteBuffer<T>::set(
 }
 
 template <typename T>
-auto core::renderer::resources::SeqWriteBuffer<T>::size() const noexcept -> size_t
+auto core::renderer::resources::SeqWriteBuffer<T>::size() const noexcept -> std::size_t
 {
     return size_bytes() / sizeof(T);
 }
 
 template <typename T>
-auto core::renderer::resources::SeqWriteBuffer<T>::size_bytes() const noexcept -> size_t
+auto core::renderer::resources::SeqWriteBuffer<T>::size_bytes() const noexcept -> std::size_t
 {
     return m_buffer.size();
 }

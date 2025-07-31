@@ -49,7 +49,7 @@ public:
     [[nodiscard]]
     auto empty() const noexcept -> bool;
     [[nodiscard]]
-    auto size() const noexcept -> size_t;
+    auto size() const noexcept -> std::size_t;
 
     [[nodiscard]]
     auto archetype_ids() const noexcept -> std::span<const ArchetypeID>;
@@ -166,7 +166,7 @@ auto ComponentTable<Component_T>::empty() const noexcept -> bool
 }
 
 template <core::ecs::component_c Component_T>
-auto ComponentTable<Component_T>::size() const noexcept -> size_t
+auto ComponentTable<Component_T>::size() const noexcept -> std::size_t
 {
     return m_map.size();
 }

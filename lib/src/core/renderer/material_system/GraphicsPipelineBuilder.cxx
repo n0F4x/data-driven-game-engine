@@ -190,7 +190,7 @@ auto core::renderer::GraphicsPipelineBuilder::build(
 
 [[nodiscard]]
 auto core::renderer::hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder
-) noexcept -> size_t
+) noexcept -> std::size_t
 {
     return util::hash_combine(
         graphics_pipeline_builder.m_program,
@@ -204,7 +204,7 @@ auto core::renderer::hash_value(const GraphicsPipelineBuilder& graphics_pipeline
 
 auto std::hash<core::renderer::GraphicsPipelineBuilder>::operator()(
     const core::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
-) const noexcept -> size_t
+) const noexcept -> std::size_t
 {
     return hash_value(graphics_pipeline_builder);
 }

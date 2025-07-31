@@ -18,14 +18,14 @@ static auto load_shader(const vk::Device device, const std::filesystem::path& fi
             "An error occured while reading file '{}'", filepath.generic_string()
         ) };
     }
-    std::vector<std::ifstream::char_type> buffer(static_cast<size_t>(file_size));
+    std::vector<std::ifstream::char_type> buffer(static_cast<std::size_t>(file_size));
 
     file.seekg(0, std::ios::beg);
     file.read(buffer.data(), file_size);
     file.close();
 
     const vk::ShaderModuleCreateInfo create_info{
-        .codeSize = static_cast<size_t>(file_size),
+        .codeSize = static_cast<std::size_t>(file_size),
         .pCode    = reinterpret_cast<uint32_t*>(buffer.data())
     };
 
@@ -34,7 +34,7 @@ static auto load_shader(const vk::Device device, const std::filesystem::path& fi
 
 namespace core::renderer {
 
-auto ShaderModule::hash(const std::filesystem::path& filepath) noexcept -> size_t
+auto ShaderModule::hash(const std::filesystem::path& filepath) noexcept -> std::size_t
 {
     return std::filesystem::hash_value(filepath);
 }
@@ -64,7 +64,7 @@ auto ShaderModule::module() const noexcept -> vk::ShaderModule
 }
 
 [[nodiscard]]
-auto hash_value(const ShaderModule& shader_module) noexcept -> size_t
+auto hash_value(const ShaderModule& shader_module) noexcept -> std::size_t
 {
     return std::filesystem::hash_value(shader_module.m_filepath);
 }
@@ -73,7 +73,7 @@ auto hash_value(const ShaderModule& shader_module) noexcept -> size_t
 
 auto std::hash<core::renderer::ShaderModule>::operator()(
     const core::renderer::ShaderModule& shader_module
-) const noexcept -> size_t
+) const noexcept -> std::size_t
 {
     return hash_value(shader_module);
 }

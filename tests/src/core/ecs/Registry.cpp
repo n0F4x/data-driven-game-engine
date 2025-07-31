@@ -28,7 +28,7 @@ using RegistryValueCategories = util::TypeList<
 using RegularComponents = util::
     TypeList<float, double, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t>;
 
-template <size_t>
+template <std::size_t>
 struct Empty {
     constexpr explicit(false) Empty(int) {}
 
@@ -54,7 +54,7 @@ TEST_CASE("core::ecs::Registry")
     core::ecs::Registry registry;
 
     util::meta::enumerate<
-        ComponentGroups>([&registry]<size_t index_T, typename ComponentGroup_T> {
+        ComponentGroups>([&registry]<std::size_t index_T, typename ComponentGroup_T> {
         util::meta::apply<ComponentGroup_T>([&registry]<typename... Comps> {
             SECTION(component_group_names[index_T])
             {

@@ -15,7 +15,7 @@ template <
     template <typename T_, T_...> typename IntegerSequence_T,
     typename Integer_T,
     Integer_T... integers_T,
-    size_t... indices_T>
+    std::size_t... indices_T>
 struct integer_sequence_sort_impl<
     IntegerSequence_T<Integer_T, integers_T...>,
     std::index_sequence<indices_T...>> {

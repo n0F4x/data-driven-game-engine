@@ -51,6 +51,6 @@ template <core::messages::message_c... Messages_T>
 auto core::messages::MessageManager<Messages_T...>::clear_messages() -> void
 {
     util::meta::for_each<std::make_index_sequence<sizeof...(Messages_T)>>(
-        [this]<size_t index_T> { std::get<index_T>(m_message_buffers).clear(); }
+        [this]<std::size_t index_T> { std::get<index_T>(m_message_buffers).clear(); }
     );
 }

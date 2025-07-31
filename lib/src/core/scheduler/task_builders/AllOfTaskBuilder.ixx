@@ -66,7 +66,7 @@ constexpr auto core::scheduler::AllOfTaskBuilder<PredicateTaskBuilders_T...>::op
     const auto build_tasks = [&self, &argument_providers...] {
         return util::meta::
             apply<std::make_index_sequence<sizeof...(PredicateTaskBuilders_T)>>(
-                [&self, &argument_providers...]<size_t... task_builder_indices_T> {
+                [&self, &argument_providers...]<std::size_t... task_builder_indices_T> {
                     return std::make_tuple(build(
                         std::get<task_builder_indices_T>(self.m_predicate_task_builders),
                         argument_providers...
@@ -78,7 +78,7 @@ constexpr auto core::scheduler::AllOfTaskBuilder<PredicateTaskBuilders_T...>::op
     return [tasks = build_tasks()] mutable -> Result {
         return util::meta::
             all_of<std::make_index_sequence<sizeof...(PredicateTaskBuilders_T)>>(
-                [&tasks]<size_t task_index_T> {
+                [&tasks]<std::size_t task_index_T> {
                     return std::invoke(std::get<task_index_T>(tasks));
                 }
             );
