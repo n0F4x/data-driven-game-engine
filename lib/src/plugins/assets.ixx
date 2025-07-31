@@ -195,6 +195,8 @@ constexpr auto plugins::BasicAssets<Injections_T...>::build(App_T&& app) &&
 
     return util::meta::apply<std::make_index_sequence<sizeof...(Injections_T)>>(
         [this, &app]<size_t... Is> {
+            // Remove this ignore with better Clang
+            std::ignore = this;
             return std::forward<App_T>(app).add_on(
                 addons::Assets<util::meta::result_of_t<Injections_T>...>{
                     .asset_manager{ std::get<Injections_T>(std::move(m_injections))... },
