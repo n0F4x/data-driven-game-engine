@@ -30,10 +30,10 @@ The `+Cached+` wrapper will package your asset into an owning handle, and keep a
 ----
 auto load_my_asset(Cached<MyAssetLoader> loader) -> void
 {
-    auto asset_handle = loader.load("frog.png", 0);
+    auto asset_handle = loader->load("frog.png", 0);
 
     // MyAssetLoader won't be called the second time
-    asset_handle = loader.load("frog.png", 0);
+    asset_handle = loader->load("frog.png", 0);
 }
 ----
 
