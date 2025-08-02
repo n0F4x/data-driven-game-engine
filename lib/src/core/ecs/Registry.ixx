@@ -238,6 +238,7 @@ auto core::ecs::Registry::get(this Self_T&& self, const core::ecs::ID id) -> std
     tuple<util::meta::const_like_t<Components_T, std::remove_reference_t<Self_T>>&...>
 {
     PRECOND(self.exists(id));
+    PRECOND((self.template contains_all<Components_T...>(id)));
 
     const auto [archetype_id, record_id]{ self.get_entity(id) };
 
@@ -255,6 +256,7 @@ auto core::ecs::Registry::get_single(this Self_T&& self, const core::ecs::ID id)
     -> util::meta::const_like_t<Component_T, std::remove_reference_t<Self_T>>&
 {
     PRECOND(self.exists(id));
+    PRECOND((self.template contains_all<Component_T>(id)));
 
     const auto [archetype_id, record_id]{ self.get_entity(id) };
 
@@ -408,6 +410,7 @@ template <core::ecs::component_c... Components_T>
 auto core::ecs::Registry::remove(const core::ecs::ID id) -> std::tuple<Components_T...>
 {
     PRECOND(exists(id));
+    PRECOND((contains_all<Components_T...>(id)));
 
     if constexpr (sizeof...(Components_T) == 0) {
         return {};
@@ -421,6 +424,7 @@ template <core::ecs::component_c Component_T>
 auto core::ecs::Registry::remove_single(const core::ecs::ID id) -> Component_T
 {
     PRECOND(exists(id));
+    PRECOND((contains_all<Component_T>(id)));
 
     return std::get<0>(remove<Component_T>(id, get_entity(id)));
 }
