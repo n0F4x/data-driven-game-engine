@@ -19,8 +19,8 @@ auto core::renderer::GraphicsPipelineBuilder::set_program(Program program) noexc
     return *this;
 }
 
-auto core::renderer::GraphicsPipelineBuilder::add_vertex_layout(VertexLayout vertex_layout
-) -> GraphicsPipelineBuilder&
+auto core::renderer::GraphicsPipelineBuilder::add_vertex_layout(VertexLayout vertex_layout)
+    -> GraphicsPipelineBuilder&
 {
     m_vertex_layouts.push_back(std::move(vertex_layout));
     return *this;
@@ -56,7 +56,8 @@ auto core::renderer::GraphicsPipelineBuilder::disable_blending() noexcept
     return *this;
 }
 
-auto core::renderer::GraphicsPipelineBuilder::set_layout(const vk::PipelineLayout layout
+auto core::renderer::GraphicsPipelineBuilder::set_layout(
+    const vk::PipelineLayout layout
 ) noexcept -> GraphicsPipelineBuilder&
 {
     m_layout = layout;
@@ -189,7 +190,8 @@ auto core::renderer::GraphicsPipelineBuilder::build(
 }
 
 [[nodiscard]]
-auto core::renderer::hash_value(const GraphicsPipelineBuilder& graphics_pipeline_builder
+auto core::renderer::hash_value(
+    const GraphicsPipelineBuilder& graphics_pipeline_builder
 ) noexcept -> std::size_t
 {
     return util::hash_combine(

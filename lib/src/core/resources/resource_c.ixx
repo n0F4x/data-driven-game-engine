@@ -8,4 +8,4 @@ namespace core::resources {
 export template <typename T>
 concept resource_c = ::util::meta::storable_c<T> && util::meta::naked_c<T>;
 
-}   // namespace core::resource
+}   // namespace core::resources

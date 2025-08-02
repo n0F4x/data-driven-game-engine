@@ -6,6 +6,7 @@ import core.scheduler.concepts.predicate_task_builder_c;
 namespace core::scheduler {
 
 export template <typename T>
-concept converts_to_predicate_task_builder_c = predicate_task_builder_c<as_task_builder_t<T>>;
+concept converts_to_predicate_task_builder_c =
+    predicate_task_builder_c<as_task_builder_t<T>>;
 
 }   // namespace core::scheduler

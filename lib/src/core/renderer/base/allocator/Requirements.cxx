@@ -1,10 +1,9 @@
 module;
 
 
+#include <gsl-lite/gsl-lite.hpp>
 
 #include <VkBootstrap.h>
-
-#include <gsl-lite/gsl-lite.hpp>
 
 module core.renderer.base.allocator.Allocator;
 
@@ -32,8 +31,8 @@ constexpr static auto optional_instance_extension_names()
     return s_extension_names;
 }
 
-auto Allocator::Requirements::required_instance_settings_are_available(const vkb::SystemInfo&)
-    -> bool
+auto Allocator::Requirements::
+    required_instance_settings_are_available(const vkb::SystemInfo&) -> bool
 {
     return true;
 }
@@ -59,7 +58,8 @@ auto Allocator::Requirements::enable_optional_device_settings(
 ) -> void
 {
     // VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT
-    physical_device.enable_extension_if_present(vk::KHRGetMemoryRequirements2ExtensionName
+    physical_device.enable_extension_if_present(
+        vk::KHRGetMemoryRequirements2ExtensionName
     );
     physical_device.enable_extension_if_present(vk::KHRDedicatedAllocationExtensionName);
 

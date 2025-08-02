@@ -11,7 +11,7 @@ import utility.meta.reflection.name_of;
 namespace core::scheduler {
 
 export template <typename Accessor_T, typename... Providers_T>
-constexpr inline std::size_t provider_index_for_accessor =
+inline constexpr std::size_t provider_index_for_accessor =
     []<std::size_t provider_index_T = 0>(this auto&& fn_self) {
         using namespace std::string_literals;
         static_assert(

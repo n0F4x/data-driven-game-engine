@@ -68,8 +68,8 @@ template <
     util::meta::specialization_of_c<core::events::EventManager> EventManager_T,
     typename EventsAddon_T>
 template <app::has_addons_c<EventsAddon_T> App_T>
-constexpr extensions::scheduler::providers::
-    EventProvider<EventManager_T, EventsAddon_T>::EventProvider(App_T& app)
+constexpr extensions::scheduler::providers::EventProvider<EventManager_T, EventsAddon_T>::
+    EventProvider(App_T& app)
     : m_event_manager_ref{ app.event_manager }
 {}
 
@@ -78,9 +78,8 @@ template <
     typename EventsAddon_T>
 template <util::meta::decays_to_c<extensions::scheduler::accessors::events::Processor>
               Accessor_T>
-auto extensions::scheduler::providers::
-    EventProvider<EventManager_T, EventsAddon_T>::provide() const
-    -> extensions::scheduler::accessors::events::Processor
+auto extensions::scheduler::providers::EventProvider<EventManager_T, EventsAddon_T>::
+    provide() const -> extensions::scheduler::accessors::events::Processor
 {
     return std::remove_cvref_t<Accessor_T>{ m_event_manager_ref.get() };
 }

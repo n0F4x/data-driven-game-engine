@@ -12,8 +12,8 @@ import core.gltf.Texture;
 namespace core::gltf {
 
 auto Model::hash(
-    const std::filesystem::path& filepath,
-    const std::optional<std::size_t>  scene_index
+    const std::filesystem::path&     filepath,
+    const std::optional<std::size_t> scene_index
 ) noexcept -> std::size_t
 {
     return util::hash_combine(filepath, scene_index);

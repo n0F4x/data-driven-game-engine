@@ -3,8 +3,6 @@ module;
 #include <cmath>
 #include <ranges>
 
-
-
 #include <vk_mem_alloc.h>
 
 #include <VkBootstrap.h>

@@ -15,7 +15,9 @@ import utility.meta.type_traits.type_list.type_list_index_of;
 import utility.meta.type_traits.type_list.type_list_front;
 import utility.TypeList;
 
-namespace extensions::scheduler::accessors::events {
+namespace extensions::scheduler::accessors {
+
+inline namespace events {
 
 export template <core::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)
@@ -42,7 +44,9 @@ private:
         m_buffered_event_queue_refs;
 };
 
-}   // namespace extensions::scheduler::accessors::events
+}   // namespace events
+
+}   // namespace extensions::scheduler::accessors
 
 template <core::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)

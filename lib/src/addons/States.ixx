@@ -18,6 +18,6 @@ struct States : StatesTag {
 
 template <core::states::state_c... States_T>
 struct extensions::scheduler::ProviderFor<addons::States<States_T...>> {
-    using type = extensions::scheduler::providers::
-        StateProvider<addons::States<States_T...>>;
+    using type =
+        extensions::scheduler::providers::StateProvider<addons::States<States_T...>>;
 };

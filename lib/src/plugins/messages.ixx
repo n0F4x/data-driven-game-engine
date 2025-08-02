@@ -22,7 +22,8 @@ export template <core::messages::message_c... Messages_T>
 class BasicMessages : public MessagesTag {
 public:
     template <core::messages::message_c Message_T, app::decays_to_builder_c Self_T>
-        requires(!util::meta::type_list_contains_v<util::TypeList<Messages_T...>, Message_T>)
+        requires(!util::meta::
+                     type_list_contains_v<util::TypeList<Messages_T...>, Message_T>)
     constexpr auto register_message(this Self_T&&);
 
     template <app::decays_to_app_c App_T>
@@ -39,14 +40,11 @@ export inline constexpr Messages messages;
 template <core::messages::message_c... Messages_T>
 template <core::messages::message_c Message_T, app::decays_to_builder_c Self_T>
     requires(!util::meta::type_list_contains_v<util::TypeList<Messages_T...>, Message_T>)
-constexpr auto plugins::BasicMessages<Messages_T...>::register_message(
-    this Self_T&& self
-)
+constexpr auto plugins::BasicMessages<Messages_T...>::register_message(this Self_T&& self)
 {
-    return app::swap_plugin<BasicMessages>(
-        std::forward<Self_T>(self),
-        [](auto&&) { return BasicMessages<Messages_T..., Message_T>{}; }
-    );
+    return app::swap_plugin<BasicMessages>(std::forward<Self_T>(self), [](auto&&) {
+        return BasicMessages<Messages_T..., Message_T>{};
+    });
 }
 
 template <core::messages::message_c... Messages_T>

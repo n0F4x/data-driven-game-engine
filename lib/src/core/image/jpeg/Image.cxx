@@ -78,13 +78,13 @@ static auto generate_mip_maps(
 
     std::memcpy(result.data(), base_image_data.data(), base_image_data.size_bytes());
 
-    uint32_t width{ base_width };
-    uint32_t height{ base_height };
-    std::size_t   offset{};
+    uint32_t    width{ base_width };
+    uint32_t    height{ base_height };
+    std::size_t offset{};
     for (const auto _ : std::views::iota(0u, mip_level_count)) {
-        const uint32_t next_width{ std::max(width / 2u, 1u) };
-        const uint32_t next_height{ std::max(height / 2u, 1u) };
-        const std::size_t   next_offset{
+        const uint32_t    next_width{ std::max(width / 2u, 1u) };
+        const uint32_t    next_height{ std::max(height / 2u, 1u) };
+        const std::size_t next_offset{
             offset + ::mip_level_size(width, height, vk::blockSize(format))
         };
 

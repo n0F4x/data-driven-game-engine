@@ -99,7 +99,8 @@ auto core::window::Window::set_framebuffer_size_callback(Callback&& callback) ->
 }
 
 template <typename Self>
-auto core::window::Window::set_title(this Self&& self, const gsl_lite::czstring title) -> Self
+auto core::window::Window::set_title(this Self&& self, const gsl_lite::czstring title)
+    -> Self
 {
     glfwSetWindowTitle(self.m_impl.get(), title);
     return std::forward<Self>(self);

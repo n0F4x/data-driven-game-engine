@@ -13,7 +13,9 @@ import core.states.state_c;
 import utility.meta.type_traits.const_like;
 import utility.contracts;
 
-namespace extensions::scheduler::accessors::states {
+namespace extensions::scheduler::accessors {
+
+inline namespace states {
 
 export template <typename State_T>
     requires core::states::state_c<std::remove_const_t<State_T>>
@@ -42,7 +44,9 @@ private:
         m_state_ref;
 };
 
-}   // namespace extensions::scheduler::accessors::states
+}   // namespace states
+
+}   // namespace extensions::scheduler::accessors
 
 template <typename State_T>
     requires core::states::state_c<std::remove_const_t<State_T>>

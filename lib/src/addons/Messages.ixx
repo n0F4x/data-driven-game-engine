@@ -18,6 +18,7 @@ struct Messages : MessagesTag {
 
 template <core::messages::message_c... Messages_T>
 struct extensions::scheduler::ProviderFor<addons::Messages<Messages_T...>> {
-    using type = extensions::scheduler::providers::
-        MessageProvider<core::messages::MessageManager<Messages_T...>, addons::Messages<Messages_T...>>;
+    using type = extensions::scheduler::providers::MessageProvider<
+        core::messages::MessageManager<Messages_T...>,
+        addons::Messages<Messages_T...>>;
 };

@@ -89,7 +89,7 @@ public:
 
 private:
     std::optional<Component_T> m_optional;
-    std::size_t                     m_size{};
+    std::size_t                m_size{};
 };
 
 template <core::ecs::component_c Component_T>
@@ -104,7 +104,7 @@ public:
 
     constexpr Iterator(
         util::meta::maybe_const_t<is_const_T, ComponentContainer>& container,
-        const std::size_t                                               index
+        const std::size_t                                          index
     )
         : m_base{ &container },
           m_current{ index }
@@ -141,7 +141,7 @@ public:
 
 private:
     util::meta::maybe_const_t<is_const_T, ComponentContainer>* m_base{};
-    std::size_t                                                     m_current{};
+    std::size_t                                                m_current{};
 };
 
 template <core::ecs::component_c Component_T>

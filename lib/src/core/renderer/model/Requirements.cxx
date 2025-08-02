@@ -1,7 +1,6 @@
 module;
 
 
-
 #include <VkBootstrap.h>
 
 module core.renderer.model.ModelLayout;
@@ -35,7 +34,8 @@ auto ModelLayout::Requirements::require_device_settings(
 {
     // VK_KHR_buffer_device_address
     physical_device_selector.add_required_extension(vk::KHRDeviceGroupExtensionName);
-    physical_device_selector.add_required_extension(vk::KHRBufferDeviceAddressExtensionName
+    physical_device_selector.add_required_extension(
+        vk::KHRBufferDeviceAddressExtensionName
     );
     physical_device_selector.add_required_extension_features(
         vk::PhysicalDeviceBufferDeviceAddressFeatures{ .bufferDeviceAddress = vk::True }
@@ -43,7 +43,8 @@ auto ModelLayout::Requirements::require_device_settings(
 
     // VK_EXT_descriptor_indexing
     physical_device_selector.add_required_extension(vk::KHRMaintenance3ExtensionName);
-    physical_device_selector.add_required_extension(vk::EXTDescriptorIndexingExtensionName
+    physical_device_selector.add_required_extension(
+        vk::EXTDescriptorIndexingExtensionName
     );
     physical_device_selector.add_required_extension_features(
         vk::PhysicalDeviceDescriptorIndexingFeatures{

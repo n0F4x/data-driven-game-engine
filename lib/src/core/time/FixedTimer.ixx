@@ -102,8 +102,9 @@ auto core::time::FixedTimer<Duration_T, tick_duration_T>::update(
 template <
     util::meta::specialization_of_c<std::chrono::duration> Duration_T,
     typename Duration_T::rep                               tick_duration_T>
-auto core::time::FixedTimer<Duration_T, tick_duration_T>::reset(const Clock::time_point current)
-    -> void
+auto core::time::FixedTimer<Duration_T, tick_duration_T>::reset(
+    const Clock::time_point current
+) -> void
 {
     m_current    = current;
     m_delta_time = Delta{};

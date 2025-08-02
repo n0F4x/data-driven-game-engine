@@ -20,4 +20,4 @@ auto DescriptorPool::get() const noexcept -> vk::DescriptorPool
     return m_descriptor_pool.get();
 }
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

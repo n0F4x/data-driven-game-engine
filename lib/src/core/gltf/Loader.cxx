@@ -240,7 +240,7 @@ static auto convert(fastgltf::Optional<std::size_t> optional) noexcept
 static auto make_accessor_loader(
     const fastgltf::Asset&                  asset,
     std::vector<core::gltf::Model::Vertex>& vertices,
-    std::size_t                                  first_vertex_index
+    std::size_t                             first_vertex_index
 )
 {
     return [&, first_vertex_index]<typename Projection, typename Transformation>(
@@ -268,7 +268,7 @@ static auto make_accessor_loader(
 static auto make_identity_accessor_loader(
     const fastgltf::Asset&                  asset,
     std::vector<core::gltf::Model::Vertex>& vertices,
-    std::size_t                                  first_vertex_index
+    std::size_t                             first_vertex_index
 )
 {
     return [&, first_vertex_index]<typename Projection>(
@@ -280,7 +280,8 @@ static auto make_identity_accessor_loader(
         fastgltf::iterateAccessorWithIndex<AttributeType>(
             asset,
             accessor,
-            [&, first_vertex_index](const AttributeType& element, const std::size_t index) {
+            [&,
+             first_vertex_index](const AttributeType& element, const std::size_t index) {
                 std::invoke(project, vertices[first_vertex_index + index]) = element;
             }
         );
@@ -304,7 +305,7 @@ auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optio
 
 auto Loader::load_from_file(
     const std::filesystem::path& filepath,
-    const std::size_t                 scene_index
+    const std::size_t            scene_index
 ) -> std::optional<Model>
 {
     fastgltf::Expected<fastgltf::Asset> asset{ ::load_asset(filepath) };
@@ -321,7 +322,7 @@ auto Loader::load_from_file(
 auto Loader::load_model(
     const std::filesystem::path& filepath,
     const fastgltf::Asset&       asset,
-    const std::size_t                 scene_index
+    const std::size_t            scene_index
 ) -> Model
 {
     assert(scene_index < asset.scenes.size());
@@ -401,21 +402,21 @@ auto Loader::load_materials(Model& model, const fastgltf::Asset& asset) -> void
 }
 
 auto Loader::load_node(
-    Model&                              model,
-    std::vector<Node>&&                 nodes,
-    const fastgltf::Asset&              asset,
-    const fastgltf::Node&               source_node,
-    std::optional<std::size_t>               parent_index,
+    Model&                                        model,
+    std::vector<Node>&&                           nodes,
+    const fastgltf::Asset&                        asset,
+    const fastgltf::Node&                         source_node,
+    std::optional<std::size_t>                    parent_index,
     std::unordered_map<std::size_t, std::size_t>& node_index_map
 ) -> std::vector<Node>
 {
     std::size_t node_index{ nodes.size() };
-    Node&  node{ nodes.emplace_back(
+    Node&       node{ nodes.emplace_back(
         parent_index,
         source_node.children,
         source_node.meshIndex.has_value()
-             ? std::optional{ load_mesh(model, asset, asset.meshes[*source_node.meshIndex]) }
-             : std::nullopt
+                  ? std::optional{ load_mesh(model, asset, asset.meshes[*source_node.meshIndex]) }
+                  : std::nullopt
     ) };
 
     fastgltf::math::fvec3 scale{ 1.f, 1.f, 1.f };
@@ -592,7 +593,7 @@ auto Loader::load_indices(
 }
 
 auto Loader::adjust_node_indices(
-    Model&                                    model,
+    Model&                                              model,
     const std::unordered_map<std::size_t, std::size_t>& node_index_map
 ) -> void
 {

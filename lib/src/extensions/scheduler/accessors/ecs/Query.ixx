@@ -7,7 +7,9 @@ export module extensions.scheduler.accessors.ecs.Query;
 
 import core.ecs;
 
-namespace extensions::scheduler::accessors::ecs {
+namespace extensions::scheduler::accessors {
+
+inline namespace ecs {
 
 export template <core::ecs::query_parameter_c... Parameters_T>
     requires(sizeof...(Parameters_T) != 0)
@@ -22,7 +24,9 @@ private:
     std::reference_wrapper<core::ecs::Registry> m_registry;
 };
 
-}   // namespace extensions::scheduler::accessors::ecs
+}   // namespace ecs
+
+}   // namespace extensions::scheduler::accessors
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires(sizeof...(Parameters_T) != 0)

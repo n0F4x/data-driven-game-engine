@@ -8,7 +8,9 @@ import core.resources.resource_c;
 
 import utility.containers.Ref;
 
-namespace extensions::scheduler::accessors::resources {
+namespace extensions::scheduler::accessors {
+
+inline namespace resources {
 
 export template <typename Resource_T>
     requires core::resources::resource_c<std::remove_const_t<Resource_T>>
@@ -19,4 +21,6 @@ public:
     using Base::Base;
 };
 
-}   // namespace extensions::scheduler::accessors::resources
+}   // namespace resources
+
+}   // namespace extensions::scheduler::accessors

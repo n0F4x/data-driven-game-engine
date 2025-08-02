@@ -1,7 +1,7 @@
 module;
 
-#include <limits>
 #include <cstdint>
+#include <limits>
 
 export module core.renderer.base.resources.MemoryTypeIndex;
 

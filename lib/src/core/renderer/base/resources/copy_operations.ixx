@@ -16,8 +16,10 @@ export struct CopyRegion {
     vk::DeviceSize                           offset{};
 };
 
-export auto copy(const void* source, const CopyRegion& destination, vk::DeviceSize size) -> void;
+export auto copy(const void* source, const CopyRegion& destination, vk::DeviceSize size)
+    -> void;
 
-export auto copy(const CopyRegion& source, void* destination, vk::DeviceSize size) -> void;
+export auto copy(const CopyRegion& source, void* destination, vk::DeviceSize size)
+    -> void;
 
 }   // namespace core::renderer::base

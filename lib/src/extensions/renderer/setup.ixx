@@ -55,7 +55,7 @@ public:
 
 private:
     std::vector<Requirement> m_requirements;
-    SurfaceInjection_T          m_surface_injection{};
+    SurfaceInjection_T       m_surface_injection{};
 };
 
 class SetupProxy {
@@ -169,7 +169,9 @@ auto extensions::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& bui
         .inject_resource([this] {
             extensions::renderer::InstanceInjection instance_injection{};
             for (const Requirement& requirement : m_requirements) {
-                instance_injection.emplace_dependency(::to_instance_dependency(requirement));
+                instance_injection.emplace_dependency(
+                    ::to_instance_dependency(requirement)
+                );
             }
             return instance_injection;
         }())

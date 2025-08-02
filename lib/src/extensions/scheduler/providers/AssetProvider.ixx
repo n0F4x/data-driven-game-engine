@@ -54,11 +54,12 @@ template <typename Accessor_T>
     requires util::meta::specialization_of_c<
         std::remove_cvref_t<Accessor_T>,
         extensions::scheduler::accessors::assets::Cached>
-auto extensions::scheduler::providers::
-    AssetProvider<AssetManager_T, AssetsAddon_T>::provide() const
-    -> std::remove_cvref_t<Accessor_T>
-    requires(AssetManager_T::template contains<
-             util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>())
+auto extensions::scheduler::providers::AssetProvider<AssetManager_T, AssetsAddon_T>::
+    provide() const -> std::remove_cvref_t<Accessor_T>
+    requires(
+        AssetManager_T::
+            template contains<util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>()
+    )
 {
     return std::remove_cvref_t<Accessor_T>{
         m_asset_manager.get()

@@ -15,7 +15,9 @@ import utility.meta.type_traits.type_list.type_list_index_of;
 import utility.meta.type_traits.type_list.type_list_front;
 import utility.TypeList;
 
-namespace extensions::scheduler::accessors::messages {
+namespace extensions::scheduler::accessors {
+
+inline namespace messages {
 
 export template <core::messages::message_c... Messages_T>
     requires(sizeof...(Messages_T) != 0)
@@ -41,7 +43,9 @@ private:
     std::tuple<std::reference_wrapper<std::vector<Messages_T>>...> m_message_buffer_refs;
 };
 
-}   // namespace extensions::scheduler::accessors::messages
+}   // namespace messages
+
+}   // namespace extensions::scheduler::accessors
 
 template <core::messages::message_c... Messages_T>
     requires(sizeof...(Messages_T) != 0)

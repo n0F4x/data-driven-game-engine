@@ -15,8 +15,7 @@ import app.decays_to_builder_c;
 namespace plugins {
 
 template <typename T>
-concept addon_maker =
-    app::addon_c<std::invoke_result_t<std::add_rvalue_reference_t<T>>>;
+concept addon_maker = app::addon_c<std::invoke_result_t<std::add_rvalue_reference_t<T>>>;
 
 template <typename T>
 concept decays_to_addon_maker = addon_maker<std::decay_t<T>>;

@@ -1,15 +1,14 @@
 module;
 
 
-
 #include <VkBootstrap.h>
 
 module core.renderer.base.swapchain.Swapchain;
 
 namespace core::renderer::base {
 
-auto Swapchain::Requirements::required_instance_settings_are_available(const vkb::SystemInfo&)
-    -> bool
+auto Swapchain::Requirements::
+    required_instance_settings_are_available(const vkb::SystemInfo&) -> bool
 {
     return true;
 }

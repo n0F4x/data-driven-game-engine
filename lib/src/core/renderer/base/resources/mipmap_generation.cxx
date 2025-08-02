@@ -3,7 +3,6 @@ module;
 #include <ranges>
 
 
-
 module core.renderer.base.resources.mipmap_generation;
 
 import core.renderer.base.resources.Image;

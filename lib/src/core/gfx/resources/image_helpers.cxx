@@ -1,7 +1,6 @@
 module;
 
 
-
 module core.gfx.resources.image_helpers;
 
 import core.renderer.base.resources.Image;

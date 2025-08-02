@@ -39,14 +39,11 @@ export inline constexpr States states;
 template <core::states::state_c... States_T>
 template <core::states::state_c State_T, app::decays_to_builder_c Self_T>
     requires(!util::meta::type_list_contains_v<util::TypeList<States_T...>, State_T>)
-constexpr auto plugins::BasicStates<States_T...>::register_state(
-    this Self_T&& self
-)
+constexpr auto plugins::BasicStates<States_T...>::register_state(this Self_T&& self)
 {
-    return app::swap_plugin<BasicStates>(
-        std::forward<Self_T>(self),
-        [](auto&&) { return BasicStates<States_T..., State_T>{}; }
-    );
+    return app::swap_plugin<BasicStates>(std::forward<Self_T>(self), [](auto&&) {
+        return BasicStates<States_T..., State_T>{};
+    });
 }
 
 template <core::states::state_c... States_T>

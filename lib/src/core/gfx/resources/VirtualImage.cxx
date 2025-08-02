@@ -412,18 +412,18 @@ auto core::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue spar
             std::views::iota(0u, m_blocks.size())
         )
         | std::views::filter([&](std::tuple<bool, bool, std::size_t> zipped) {
-              const bool   to_be_loaded{ std::get<0>(zipped) };
-              const bool   to_be_unloaded{ std::get<1>(zipped) };
+              const bool        to_be_loaded{ std::get<0>(zipped) };
+              const bool        to_be_unloaded{ std::get<1>(zipped) };
               const std::size_t block_index{ std::get<2>(zipped) };
-              const Block& block{ m_blocks.at(block_index) };
+              const Block&      block{ m_blocks.at(block_index) };
 
               return (to_be_loaded && !block.m_bound)
                   || (!to_be_loaded && to_be_unloaded && block.m_bound);
           })
         | std::views::transform([&](std::tuple<bool, bool, std::size_t> zipped) {
-              const bool   to_be_loaded{ std::get<0>(zipped) };
+              const bool        to_be_loaded{ std::get<0>(zipped) };
               const std::size_t block_index{ std::get<2>(zipped) };
-              Block&       block{ m_blocks.at(block_index) };
+              Block&            block{ m_blocks.at(block_index) };
 
               block.m_bound = !block.m_bound;
 

@@ -114,17 +114,17 @@ static auto create_block_source(
         .depth  = std::max(source.extent().depth >> mip_level_index, 1u),
     };
 
-    for (const std::size_t z :
-         std::views::iota(static_cast<std::size_t>(offset.z)) | std::views::take(extent.depth))
+    for (const std::size_t z : std::views::iota(static_cast<std::size_t>(offset.z))
+                                   | std::views::take(extent.depth))
     {
         for (const std::size_t y : std::views::iota(static_cast<std::size_t>(offset.y))
-                                  | std::views::take(extent.height))
+                                       | std::views::take(extent.height))
         {
             for (const std::size_t x : std::views::iota(static_cast<std::size_t>(offset.x))
-                                      | std::views::take(extent.width))
+                                           | std::views::take(extent.width))
             {
                 const std::size_t mip_offset{ z * mip_extent.height * mip_extent.width
-                                         + y * mip_extent.width + x };
+                                              + y * mip_extent.width + x };
 
                 result.append_range(source.data().subspan(
                     source.offset_of(mip_level_index, 0, 0)

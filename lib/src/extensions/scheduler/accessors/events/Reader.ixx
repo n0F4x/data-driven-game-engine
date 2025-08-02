@@ -8,7 +8,9 @@ export module extensions.scheduler.accessors.events.Reader;
 import core.events.event_c;
 import core.events.BufferedEventQueue;
 
-namespace extensions::scheduler::accessors::events {
+namespace extensions::scheduler::accessors {
+
+inline namespace events {
 
 export template <core::events::event_c Event_T>
 class Reader {
@@ -25,7 +27,9 @@ private:
         m_buffered_event_queue_ref;
 };
 
-}   // namespace extensions::scheduler::accessors::events
+}   // namespace events
+
+}   // namespace extensions::scheduler::accessors
 
 template <core::events::event_c Event_T>
 constexpr extensions::scheduler::accessors::events::Reader<Event_T>::Reader(

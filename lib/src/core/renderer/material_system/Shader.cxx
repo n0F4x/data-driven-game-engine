@@ -3,7 +3,6 @@ module;
 #include <filesystem>
 
 
-
 module core.renderer.material_system.Shader;
 
 import utility.hashing;
@@ -12,10 +11,7 @@ using namespace core::renderer;
 
 namespace core::renderer {
 
-Shader::Shader(
-    cache::Handle<const ShaderModule> shader_module,
-    std::string                       entry_point
-)
+Shader::Shader(cache::Handle<const ShaderModule> shader_module, std::string entry_point)
     : m_module{ std::move(shader_module) },
       m_entry_point{ std::move(entry_point) }
 {}

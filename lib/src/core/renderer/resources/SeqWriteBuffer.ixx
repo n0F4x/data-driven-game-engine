@@ -85,7 +85,7 @@ template <typename T>
 template <std::size_t E>
 auto core::renderer::resources::SeqWriteBuffer<T>::set(
     std::span<const T, E> data,
-    const std::size_t          offset
+    const std::size_t     offset
 ) const -> void
 {
     assert(data.size_bytes() <= size_bytes() - offset * sizeof(T));
@@ -98,7 +98,7 @@ auto core::renderer::resources::SeqWriteBuffer<T>::set(
 
 template <typename T>
 auto core::renderer::resources::SeqWriteBuffer<T>::set(
-    const T&     data,
+    const T&          data,
     const std::size_t offset
 ) const -> void
 {
@@ -117,7 +117,8 @@ auto core::renderer::resources::SeqWriteBuffer<T>::size() const noexcept -> std:
 }
 
 template <typename T>
-auto core::renderer::resources::SeqWriteBuffer<T>::size_bytes() const noexcept -> std::size_t
+auto core::renderer::resources::SeqWriteBuffer<T>::size_bytes() const noexcept
+    -> std::size_t
 {
     return m_buffer.size();
 }

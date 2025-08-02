@@ -42,7 +42,7 @@ public:
         Handle<util::meta::const_like_t<Asset_T, std::remove_reference_t<Self_T>>>>;
 
 private:
-    util::FunctionWrapper<Loader_T>                              m_loader;
+    util::FunctionWrapper<Loader_T>                                   m_loader;
     std::unordered_map<std::size_t, WeakHandle<Asset>, std::identity> m_asset_map;
 
     [[nodiscard]]
@@ -123,8 +123,8 @@ auto core::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find(
 template <typename Loader_T, typename Asset_T, typename... Arguments_T>
 template <typename Self_T>
 auto core::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find_hash(
-    this Self_T&& self,
-    const std::size_t  hash
+    this Self_T&&     self,
+    const std::size_t hash
 ) -> std::
     optional<Handle<util::meta::const_like_t<Asset_T, std::remove_reference_t<Self_T>>>>
 {

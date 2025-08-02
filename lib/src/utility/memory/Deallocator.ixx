@@ -37,8 +37,9 @@ constexpr util::Deallocator<Allocator_T>::Deallocator(UAllocator_T&& allocator)
 template <typename Allocator_T>
     requires(::util::meta::generic_allocator_c<Allocator_T> || ::util::meta::allocator_c<Allocator_T>)
 template <typename T>
-constexpr auto util::Deallocator<Allocator_T>::operator()(T* const pointer, const std::size_t n)
-    -> void
+constexpr auto
+    util::Deallocator<Allocator_T>::operator()(T* const pointer, const std::size_t n)
+        -> void
 {
     m_allocator.deallocate(pointer, n);
 }

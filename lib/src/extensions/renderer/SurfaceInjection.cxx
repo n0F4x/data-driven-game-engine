@@ -52,7 +52,8 @@ static auto enable_instance_settings(const vkb::SystemInfo&, vkb::InstanceBuilde
     );
 }
 
-auto extensions::renderer::SurfaceInjection::setup(InstanceInjection& instance_injection) -> void
+auto extensions::renderer::SurfaceInjection::setup(InstanceInjection& instance_injection)
+    -> void
 {
     instance_injection.emplace_dependency(
         InstanceInjection::Dependency{

@@ -10,7 +10,9 @@ import core.messages.MessageManager;
 import utility.containers.Any;
 import utility.meta.concepts.specialization_of;
 
-namespace extensions::scheduler::accessors::messages {
+namespace extensions::scheduler::accessors {
+
+inline namespace messages {
 
 export class Mailbox;
 
@@ -51,7 +53,9 @@ private:
     const MailboxOperations&      m_operations;
 };
 
-}   // namespace extensions::scheduler::accessors::messages
+}   // namespace messages
+
+}   // namespace extensions::scheduler::accessors
 
 template <util::meta::specialization_of_c<core::messages::MessageManager> MessageManager_T>
 auto extensions::scheduler::accessors::messages::MailboxTraits<MessageManager_T>::

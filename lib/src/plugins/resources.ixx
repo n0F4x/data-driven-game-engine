@@ -63,7 +63,9 @@ public:
         requires plugins::resource_c<std::remove_cvref_t<Resource_T>>
     constexpr auto insert_resource(this Self_T&&, Resource_T&& resource);
 
-    template <app::decays_to_builder_c Self_T, plugins::decays_to_resource_injection_c Injection_T>
+    template <
+        app::decays_to_builder_c                Self_T,
+        plugins::decays_to_resource_injection_c Injection_T>
     constexpr auto inject_resource(this Self_T&&, Injection_T&& injection);
 
     template <app::decays_to_app_c App_T>

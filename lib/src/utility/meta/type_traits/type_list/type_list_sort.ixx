@@ -12,8 +12,8 @@ template <template <typename> typename Hash_T>
 struct hash_has_valid_member_value {
     template <typename T>
     struct type {
-        constexpr static bool value =
-            std::convertible_to<std::remove_cvref_t<decltype(Hash_T<T>::value)>, std::size_t>;
+        constexpr static bool value = std::
+            convertible_to<std::remove_cvref_t<decltype(Hash_T<T>::value)>, std::size_t>;
     };
 };
 

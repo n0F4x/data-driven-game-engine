@@ -15,7 +15,7 @@ public:
     ///------------------------------///
     explicit Device(const vkb::Device& device);
     explicit Device(vkb::Device&& device) noexcept;
-    Device(const Device&)     = delete;
+    Device(const Device&) = delete;
     Device(Device&&) noexcept;
     ~Device();
 
@@ -48,4 +48,4 @@ private:
     vkb::Device m_device;
 };
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

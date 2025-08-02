@@ -1,7 +1,6 @@
 module;
 
 
-
 #include <VkBootstrap.h>
 
 module core.renderer.base.device.Device;

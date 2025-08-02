@@ -8,7 +8,9 @@ export module extensions.scheduler.accessors.messages.Receiver;
 
 import core.messages.message_c;
 
-namespace extensions::scheduler::accessors::messages {
+namespace extensions::scheduler::accessors {
+
+inline namespace messages {
 
 export template <core::messages::message_c Message_T>
 class Receiver {
@@ -22,7 +24,9 @@ private:
     std::reference_wrapper<const std::vector<Message_T>> m_message_buffer_ref;
 };
 
-}   // namespace extensions::scheduler::accessors::messages
+}   // namespace messages
+
+}   // namespace extensions::scheduler::accessors
 
 template <core::messages::message_c Message_T>
 constexpr extensions::scheduler::accessors::messages::Receiver<Message_T>::Receiver(

@@ -24,4 +24,4 @@ struct ComponentIDOfClosure {
 };
 
 template <core::ecs::component_c Component_T>
-constexpr inline ComponentIDOfClosure<Component_T> component_id_of;
+inline constexpr ComponentIDOfClosure<Component_T> component_id_of;

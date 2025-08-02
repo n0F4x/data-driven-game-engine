@@ -43,7 +43,8 @@ public:
 class ModelLayout::Requirements {
 public:
     [[nodiscard]]
-    static auto required_instance_settings_are_available(const vkb::SystemInfo& system_info
+    static auto required_instance_settings_are_available(
+        const vkb::SystemInfo& system_info
     ) -> bool;
 
     static auto enable_instance_settings(

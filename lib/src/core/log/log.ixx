@@ -9,6 +9,7 @@ import core.log.Level;
 
 namespace core::log {
 
-export auto log(std::source_location location, Level level, std::string_view message) -> void;
+export auto log(std::source_location location, Level level, std::string_view message)
+    -> void;
 
 }   // namespace core::log

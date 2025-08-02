@@ -61,4 +61,4 @@ private:
     ) noexcept;
 };
 
-}   // namespace core::image::jpeg
+}   // namespace core::image::png

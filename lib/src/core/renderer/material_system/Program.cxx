@@ -3,7 +3,6 @@ module;
 #include <string_view>
 
 
-
 module core.renderer.material_system.Program;
 
 import utility.hashing;

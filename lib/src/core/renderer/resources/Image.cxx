@@ -2,8 +2,6 @@ module;
 
 #include <ranges>
 
-
-
 #include <vk_mem_alloc.h>
 
 module core.renderer.resources.Image;

@@ -38,7 +38,7 @@ public:
     [[nodiscard]]
     static auto hash(
         const std::filesystem::path& filepath,
-        std::optional<std::size_t>        scene_index
+        std::optional<std::size_t>   scene_index
     ) noexcept -> std::size_t;
 
     [[nodiscard]]
@@ -69,24 +69,24 @@ public:
 private:
     friend Loader;
 
-    std::vector<Vertex>   m_vertices;
-    std::vector<uint32_t> m_indices;
-    std::vector<Image>    m_images;
-    std::vector<Sampler>  m_samplers;
-    std::vector<Texture>  m_textures;
-    std::vector<Material> m_materials;
-    std::vector<Mesh>     m_meshes;
-    std::vector<Node>     m_nodes;
-    std::vector<std::size_t>   m_root_node_indices;
+    std::vector<Vertex>      m_vertices;
+    std::vector<uint32_t>    m_indices;
+    std::vector<Image>       m_images;
+    std::vector<Sampler>     m_samplers;
+    std::vector<Texture>     m_textures;
+    std::vector<Material>    m_materials;
+    std::vector<Mesh>        m_meshes;
+    std::vector<Node>        m_nodes;
+    std::vector<std::size_t> m_root_node_indices;
 };
 
 export class Node {
 public:
     Node() = default;
     explicit Node(
-        std::optional<std::size_t>     parent_index  = std::nullopt,
-        std::ranges::range auto&& child_indices = std::span<std::size_t>{},
-        std::optional<std::size_t>     mesh_index    = std::nullopt
+        std::optional<std::size_t> parent_index  = std::nullopt,
+        std::ranges::range auto&&  child_indices = std::span<std::size_t>{},
+        std::optional<std::size_t> mesh_index    = std::nullopt
     );
 
     [[nodiscard]]
@@ -112,17 +112,16 @@ public:
     [[nodiscard]]
     auto mesh_index() const noexcept -> std::optional<std::size_t>;
     [[nodiscard]]
-    auto mesh(const Model& model) const
-        -> util::OptionalRef<const Mesh>;
+    auto mesh(const Model& model) const -> util::OptionalRef<const Mesh>;
 
 private:
     friend Loader;
 
     std::optional<std::size_t> m_parent_index;
     std::vector<std::size_t>   m_child_indices;
-    glm::vec3             m_translation{};
-    glm::quat             m_rotation{};
-    glm::vec3             m_scale{};
+    glm::vec3                  m_translation{};
+    glm::quat                  m_rotation{};
+    glm::vec3                  m_scale{};
     std::optional<std::size_t> m_mesh_index;
 };
 
@@ -133,15 +132,16 @@ public:
         -> std::optional<Model>;
 
     [[nodiscard]]
-    static auto load_from_file(const std::filesystem::path& filepath, std::size_t scene_index)
-        -> std::optional<Model>;
+    static auto
+        load_from_file(const std::filesystem::path& filepath, std::size_t scene_index)
+            -> std::optional<Model>;
 
 private:
     [[nodiscard]]
     static auto load_model(
         const std::filesystem::path& filepath,
         const fastgltf::Asset&       asset,
-        std::size_t                       scene_index
+        std::size_t                  scene_index
     ) -> Model;
 
     static auto load_nodes(
@@ -159,11 +159,11 @@ private:
     static auto load_materials(Model& model, const fastgltf::Asset& asset) -> void;
 
     static auto load_node(
-        Model&                              model,
-        std::vector<Node>&&                 nodes,
-        const fastgltf::Asset&              asset,
-        const fastgltf::Node&               source_node,
-        std::optional<std::size_t>               parent_index,
+        Model&                                        model,
+        std::vector<Node>&&                           nodes,
+        const fastgltf::Asset&                        asset,
+        const fastgltf::Node&                         source_node,
+        std::optional<std::size_t>                    parent_index,
         std::unordered_map<std::size_t, std::size_t>& node_index_map
     ) -> std::vector<Node>;
 
@@ -198,7 +198,7 @@ private:
     ) -> void;
 
     static auto adjust_node_indices(
-        Model&                                    model,
+        Model&                                              model,
         const std::unordered_map<std::size_t, std::size_t>& node_index_map
     ) -> void;
 };
@@ -207,7 +207,7 @@ private:
 
 core::gltf::Node::Node(
     const std::optional<std::size_t> parent_index,
-    std::ranges::range auto&&   child_indices,
+    std::ranges::range auto&&        child_indices,
     const std::optional<std::size_t> mesh_index
 )
     : m_parent_index{ parent_index },

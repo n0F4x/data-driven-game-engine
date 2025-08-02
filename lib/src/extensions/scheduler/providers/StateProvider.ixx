@@ -45,8 +45,9 @@ private:
 
 template <typename StatesAddon_T>
 template <app::has_addons_c<StatesAddon_T> App_T>
-constexpr extensions::scheduler::providers::StateProvider<StatesAddon_T>::
-    StateProvider(App_T& app)
+constexpr extensions::scheduler::providers::StateProvider<StatesAddon_T>::StateProvider(
+    App_T& app
+)
     : m_state_manager_ref{ app.state_manager }
 {}
 
@@ -55,9 +56,8 @@ template <typename Accessor_T>
     requires util::meta::specialization_of_c<
         std::remove_cvref_t<Accessor_T>,
         extensions::scheduler::accessors::states::State>
-constexpr auto
-    extensions::scheduler::providers::StateProvider<StatesAddon_T>::provide(
-    ) const -> std::remove_cvref_t<Accessor_T>
+constexpr auto extensions::scheduler::providers::StateProvider<StatesAddon_T>::provide(
+) const -> std::remove_cvref_t<Accessor_T>
     requires(StateManager::template registered<std::remove_const_t<
                  util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>())
 {

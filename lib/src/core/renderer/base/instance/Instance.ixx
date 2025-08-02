@@ -14,7 +14,7 @@ public:
     ///  Constructors / Destructors  ///
     ///------------------------------///
     explicit Instance(const vkb::Instance& instance) noexcept;
-    Instance(const Instance&)     = delete;
+    Instance(const Instance&) = delete;
     Instance(Instance&&) noexcept;
     ~Instance();
 
@@ -45,4 +45,4 @@ private:
     vkb::Instance m_instance;
 };
 
-}   // namespace core::renderer
+}   // namespace core::renderer::base

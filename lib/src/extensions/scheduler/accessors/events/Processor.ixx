@@ -10,7 +10,9 @@ import core.events.EventManager;
 import utility.containers.Any;
 import utility.meta.concepts.specialization_of;
 
-namespace extensions::scheduler::accessors::events {
+namespace extensions::scheduler::accessors {
+
+inline namespace events {
 
 export class Processor;
 
@@ -49,7 +51,9 @@ private:
     const ProcessorOperations&    m_operations;
 };
 
-}   // namespace extensions::scheduler::accessors::events
+}   // namespace events
+
+}   // namespace extensions::scheduler::accessors
 
 template <util::meta::specialization_of_c<core::events::EventManager> EventManager_T>
 auto extensions::scheduler::accessors::events::ProcessorTraits<EventManager_T>::

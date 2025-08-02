@@ -48,7 +48,8 @@ auto Node::local_matrix() const -> glm::mat4
 auto Node::matrix(const Model& model) const -> glm::mat4
 {
     glm::mat4 result{ local_matrix() };
-    for (std::optional<std::size_t> parent_index{ m_parent_index }; parent_index.has_value();
+    for (std::optional<std::size_t> parent_index{ m_parent_index };
+         parent_index.has_value();
          parent_index = model.nodes().at(parent_index.value()).m_parent_index)
     {
         result = model.nodes().at(parent_index.value()).local_matrix() * result;
