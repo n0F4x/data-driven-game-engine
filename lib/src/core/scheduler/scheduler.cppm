@@ -8,7 +8,7 @@ export import core.scheduler.concepts;
 export import core.scheduler.group;
 export import core.scheduler.in_parallel;
 export import core.scheduler.loop_until;
-export import core.scheduler.provider_index_for_argument;
+export import core.scheduler.provider_index_for_accessor;
 export import core.scheduler.task_builders;
 export import core.scheduler.repeat;
 export import core.scheduler.run_if;

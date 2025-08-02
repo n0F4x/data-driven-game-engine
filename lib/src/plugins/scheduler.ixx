@@ -10,8 +10,8 @@ import app.builder_c;
 
 import core.scheduler;
 
-import extensions.scheduler.argument_provider_c;
-import extensions.scheduler.argument_provider_for;
+import extensions.scheduler.provider_c;
+import extensions.scheduler.provider_for;
 
 import utility.meta.algorithms.apply;
 import utility.meta.type_traits.type_list.type_list_filter;
@@ -32,15 +32,14 @@ export inline constexpr Scheduler scheduler;
 template <typename App_T>
 struct AddonTraits {
     template <typename Addon_T>
-        struct HasArgumentProvider : std::bool_constant < requires {
-        extensions::scheduler::argument_provider_c<
-            extensions::scheduler::argument_provider_for_t<Addon_T>,
-            App_T>;
+        struct HasProvider : std::bool_constant < requires {
+        extensions::scheduler::
+            provider_c<extensions::scheduler::provider_for_t<Addon_T>, App_T>;
     } > {};
 
     template <typename Addon_T>
-    struct ArgumentProvider {
-        using type = extensions::scheduler::argument_provider_for_t<Addon_T>;
+    struct Provider {
+        using type = extensions::scheduler::provider_for_t<Addon_T>;
     };
 };
 
@@ -48,20 +47,18 @@ template <app::builder_c Self_T, core::scheduler::decays_to_task_builder_c TaskB
 constexpr auto plugins::Scheduler::run(this Self_T&& self, TaskBuilder_T&& task_builder)
 {
     auto app{ std::forward<Self_T>(self).build() };
-    using App               = decltype(app);
-    using Addons            = App::Addons;
-    using ArgumentProviders = util::meta::type_list_transform_t<
-        util::meta::
-            type_list_filter_t<Addons, AddonTraits<App>::template HasArgumentProvider>,
-        AddonTraits<App>::template ArgumentProvider>;
+    using App       = decltype(app);
+    using Addons    = App::Addons;
+    using Providers = util::meta::type_list_transform_t<
+        util::meta::type_list_filter_t<Addons, AddonTraits<App>::template HasProvider>,
+        AddonTraits<App>::template Provider>;
 
-    auto root_task = util::meta::apply<ArgumentProviders>(
-        [&task_builder, &app]<typename... ArgumentProviders_T> {
-            return core::scheduler::build(
-                std::forward<TaskBuilder_T>(task_builder), ArgumentProviders_T(app)...
-            );
-        }
-    );
+    auto root_task = util::meta::apply<Providers>([&task_builder,
+                                                   &app]<typename... Providers_T> {
+        return core::scheduler::build(
+            std::forward<TaskBuilder_T>(task_builder), Providers_T(app)...
+        );
+    });
 
     return std::invoke(root_task);
 }

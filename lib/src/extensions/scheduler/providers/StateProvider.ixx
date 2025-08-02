@@ -4,7 +4,7 @@ module;
 #include <functional>
 #include <type_traits>
 
-export module extensions.scheduler.argument_providers.StateProvider;
+export module extensions.scheduler.providers.StateProvider;
 
 import app;
 
@@ -18,7 +18,7 @@ import utility.meta.concepts.type_list.type_list_all_of;
 import utility.meta.type_traits.type_list.type_list_transform;
 import utility.meta.type_traits.underlying;
 
-namespace extensions::scheduler::argument_providers {
+namespace extensions::scheduler::providers {
 
 export template <typename StatesAddon_T>
 class StateProvider {
@@ -41,11 +41,11 @@ private:
     std::reference_wrapper<StateManager> m_state_manager_ref;
 };
 
-}   // namespace extensions::scheduler::argument_providers
+}   // namespace extensions::scheduler::providers
 
 template <typename StatesAddon_T>
 template <app::has_addons_c<StatesAddon_T> App_T>
-constexpr extensions::scheduler::argument_providers::StateProvider<StatesAddon_T>::
+constexpr extensions::scheduler::providers::StateProvider<StatesAddon_T>::
     StateProvider(App_T& app)
     : m_state_manager_ref{ app.state_manager }
 {}
@@ -56,7 +56,7 @@ template <typename Accessor_T>
         std::remove_cvref_t<Accessor_T>,
         extensions::scheduler::accessors::states::State>
 constexpr auto
-    extensions::scheduler::argument_providers::StateProvider<StatesAddon_T>::provide(
+    extensions::scheduler::providers::StateProvider<StatesAddon_T>::provide(
     ) const -> std::remove_cvref_t<Accessor_T>
     requires(StateManager::template registered<std::remove_const_t<
                  util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>())

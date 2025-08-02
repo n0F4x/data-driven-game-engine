@@ -92,8 +92,6 @@ constexpr static auto shut_down =               //
 
 auto main() -> int
 {
-    namespace argument_providers = extensions::scheduler::argument_providers;
-
     app::create()
         .plug_in(plugins::resources)
         .insert_resource(Window{})

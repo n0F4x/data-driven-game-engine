@@ -3,7 +3,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         TYPE CXX_MODULES
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
-        argument_providers.cppm
+        providers.cppm
         AssetProvider.ixx
         ECSProvider.ixx
         EventProvider.ixx

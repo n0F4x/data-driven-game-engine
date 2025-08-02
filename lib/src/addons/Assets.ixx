@@ -2,8 +2,8 @@ export module addons.Assets;
 
 import core.assets;
 
-import extensions.scheduler.argument_provider_for;
-import extensions.scheduler.argument_providers.AssetProvider;
+import extensions.scheduler.provider_for;
+import extensions.scheduler.providers.AssetProvider;
 
 import utility.containers.StackedTuple;
 
@@ -17,8 +17,8 @@ struct Assets {
 }   // namespace addons
 
 template <typename... Loaders_T>
-struct extensions::scheduler::ArgumentProviderFor<addons::Assets<Loaders_T...>> {
-    using type = extensions::scheduler::argument_providers::AssetProvider<
+struct extensions::scheduler::ProviderFor<addons::Assets<Loaders_T...>> {
+    using type = extensions::scheduler::providers::AssetProvider<
         core::assets::AssetManager<Loaders_T...>,
         addons::Assets<Loaders_T...>>;
 };

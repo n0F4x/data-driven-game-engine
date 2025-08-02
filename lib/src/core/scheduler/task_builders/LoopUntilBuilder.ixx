@@ -21,9 +21,9 @@ export template <
 class LoopUntilBuilder : public TaskBuilderBase {
 public:
     using Result          = void;
-    using UniqueArguments = util::meta::type_list_union_t<
-        typename MainTaskBuilder_T::UniqueArguments,
-        typename PredicateTaskBuilder_T::UniqueArguments>;
+    using UniqueAccessors = util::meta::type_list_union_t<
+        typename MainTaskBuilder_T::UniqueAccessors,
+        typename PredicateTaskBuilder_T::UniqueAccessors>;
 
     template <typename UMainTaskBuilder_T, typename UPredicateTaskBuilder_T>
         requires std::constructible_from<MainTaskBuilder_T, UMainTaskBuilder_T&&>
@@ -33,9 +33,9 @@ public:
         UPredicateTaskBuilder_T&& predicate_task_builder
     );
 
-    template <typename Self_T, typename... ArgumentProviders_T>
+    template <typename Self_T, typename... Providers_T>
     [[nodiscard]]
-    constexpr auto operator()(this Self_T&&, ArgumentProviders_T... argument_providers);
+    constexpr auto operator()(this Self_T&&, Providers_T... providers);
 
 private:
     MainTaskBuilder_T      m_main_task_builder;
@@ -64,15 +64,14 @@ constexpr core::scheduler::LoopUntilBuilder<MainTaskBuilder_T, PredicateTaskBuil
 template <
     core::scheduler::task_builder_c           MainTaskBuilder_T,
     core::scheduler::predicate_task_builder_c PredicateTaskBuilder_T>
-template <typename Self_T, typename... ArgumentProviders_T>
+template <typename Self_T, typename... Providers_T>
 constexpr auto
     core::scheduler::LoopUntilBuilder<MainTaskBuilder_T, PredicateTaskBuilder_T>::
-        operator()(this Self_T&& self, ArgumentProviders_T... argument_providers)
+        operator()(this Self_T&& self, Providers_T... providers)
 {
-    return [main_task      = build(self.m_main_task_builder, argument_providers...),
-            predicate_task = build(
-                self.m_predicate_task_builder, argument_providers...
-            )] mutable -> Result {
+    return [main_task = build(self.m_main_task_builder, providers...),
+            predicate_task =
+                build(self.m_predicate_task_builder, providers...)] mutable -> Result {
         while (std::invoke(predicate_task)) {
             std::invoke(main_task);
         }

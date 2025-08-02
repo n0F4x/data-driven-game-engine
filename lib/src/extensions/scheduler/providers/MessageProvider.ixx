@@ -4,7 +4,7 @@ module;
 #include <functional>
 #include <type_traits>
 
-export module extensions.scheduler.argument_providers.MessageProvider;
+export module extensions.scheduler.providers.MessageProvider;
 
 import app;
 
@@ -18,7 +18,7 @@ import utility.meta.concepts.type_list.type_list_all_of;
 import utility.meta.type_traits.type_list.type_list_transform;
 import utility.meta.type_traits.underlying;
 
-namespace extensions::scheduler::argument_providers {
+namespace extensions::scheduler::providers {
 
 export template <
     util::meta::specialization_of_c<core::messages::MessageManager> MessageManager_T,
@@ -61,13 +61,13 @@ private:
     std::reference_wrapper<MessageManager_T> m_message_manager_ref;
 };
 
-}   // namespace extensions::scheduler::argument_providers
+}   // namespace extensions::scheduler::providers
 
 template <
     util::meta::specialization_of_c<core::messages::MessageManager> MessageManager_T,
     typename MessagesAddon_T>
 template <app::has_addons_c<MessagesAddon_T> App_T>
-constexpr extensions::scheduler::argument_providers::
+constexpr extensions::scheduler::providers::
     MessageProvider<MessageManager_T, MessagesAddon_T>::MessageProvider(App_T& app)
     : m_message_manager_ref{ app.message_manager }
 {}
@@ -77,7 +77,7 @@ template <
     typename MessagesAddon_T>
 template <util::meta::decays_to_c<extensions::scheduler::accessors::messages::Mailbox>
               Accessor_T>
-auto extensions::scheduler::argument_providers::
+auto extensions::scheduler::providers::
     MessageProvider<MessageManager_T, MessagesAddon_T>::provide() const
     -> extensions::scheduler::accessors::messages::Mailbox
 {
@@ -91,7 +91,7 @@ template <typename Accessor_T>
     requires util::meta::specialization_of_c<
         std::remove_cvref_t<Accessor_T>,
         extensions::scheduler::accessors::messages::Receiver>
-constexpr auto extensions::scheduler::argument_providers::
+constexpr auto extensions::scheduler::providers::
     MessageProvider<MessageManager_T, MessagesAddon_T>::provide() const
     -> std::remove_cvref_t<Accessor_T>
     requires(all_registered<std::remove_cvref_t<Accessor_T>>)
@@ -110,7 +110,7 @@ template <typename Accessor_T>
     requires util::meta::specialization_of_c<
         std::remove_cvref_t<Accessor_T>,
         extensions::scheduler::accessors::messages::Sender>
-constexpr auto extensions::scheduler::argument_providers::
+constexpr auto extensions::scheduler::providers::
     MessageProvider<MessageManager_T, MessagesAddon_T>::provide() const
     -> std::remove_cvref_t<Accessor_T>
     requires(all_registered<std::remove_cvref_t<Accessor_T>>)

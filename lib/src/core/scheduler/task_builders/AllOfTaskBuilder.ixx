@@ -20,8 +20,8 @@ export template <predicate_task_builder_c... PredicateTaskBuilders_T>
 class AllOfTaskBuilder : public TaskBuilderBase {
 public:
     using Result = bool;
-    using UniqueArguments =
-        util::meta::type_list_union_t<typename PredicateTaskBuilders_T::UniqueArguments...>;
+    using UniqueAccessors =
+        util::meta::type_list_union_t<typename PredicateTaskBuilders_T::UniqueAccessors...>;
 
     template <typename... UPredicateTaskBuilders_T>
         requires(
@@ -32,9 +32,9 @@ public:
         UPredicateTaskBuilders_T&&... predicate_task_builders
     );
 
-    template <typename Self_T, typename... ArgumentProviders_T>
+    template <typename Self_T, typename... Providers_T>
     [[nodiscard]]
-    constexpr auto operator()(this Self_T&&, ArgumentProviders_T&&... argument_providers);
+    constexpr auto operator()(this Self_T&&, Providers_T&&... providers);
 
 private:
     std::tuple<PredicateTaskBuilders_T...> m_predicate_task_builders;
@@ -57,19 +57,19 @@ constexpr core::scheduler::AllOfTaskBuilder<PredicateTaskBuilders_T...>::AllOfTa
 {}
 
 template <core::scheduler::predicate_task_builder_c... PredicateTaskBuilders_T>
-template <typename Self_T, typename... ArgumentProviders_T>
+template <typename Self_T, typename... Providers_T>
 constexpr auto core::scheduler::AllOfTaskBuilder<PredicateTaskBuilders_T...>::operator()(
     this Self_T&& self,
-    ArgumentProviders_T&&... argument_providers
+    Providers_T&&... providers
 )
 {
-    const auto build_tasks = [&self, &argument_providers...] {
+    const auto build_tasks = [&self, &providers...] {
         return util::meta::
             apply<std::make_index_sequence<sizeof...(PredicateTaskBuilders_T)>>(
-                [&self, &argument_providers...]<std::size_t... task_builder_indices_T> {
+                [&self, &providers...]<std::size_t... task_builder_indices_T> {
                     return std::make_tuple(build(
                         std::get<task_builder_indices_T>(self.m_predicate_task_builders),
-                        argument_providers...
+                        providers...
                     )...);
                 }
             );

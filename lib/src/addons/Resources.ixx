@@ -2,8 +2,8 @@ export module addons.Resources;
 
 import core.resources;
 
-import extensions.scheduler.argument_provider_for;
-import extensions.scheduler.argument_providers.ResourceProvider;
+import extensions.scheduler.provider_for;
+import extensions.scheduler.providers.ResourceProvider;
 
 namespace addons {
 
@@ -17,8 +17,8 @@ struct Resources : ResourcesTag {
 }   // namespace addons
 
 template <core::resources::resource_c... Resources_T>
-struct extensions::scheduler::ArgumentProviderFor<addons::Resources<Resources_T...>> {
-    using type = extensions::scheduler::argument_providers::ResourceProvider<
+struct extensions::scheduler::ProviderFor<addons::Resources<Resources_T...>> {
+    using type = extensions::scheduler::providers::ResourceProvider<
         core::resources::ResourceManager<Resources_T...>,
         addons::Resources<Resources_T...>>;
 };

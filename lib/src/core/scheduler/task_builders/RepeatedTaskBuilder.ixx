@@ -22,9 +22,9 @@ export template <
 class RepeatedTaskBuilder : public TaskBuilderBase {
 public:
     using Result          = void;
-    using UniqueArguments = util::meta::type_list_union_t<
-        typename MainTaskBuilder_T::UniqueArguments,
-        typename RepetitionSpecifierTaskBuilder_T::UniqueArguments>;
+    using UniqueAccessors = util::meta::type_list_union_t<
+        typename MainTaskBuilder_T::UniqueAccessors,
+        typename RepetitionSpecifierTaskBuilder_T::UniqueAccessors>;
 
     template <typename UMainTaskBuilder_T, typename URepetitionSpecifierTaskBuilder_T>
         requires std::constructible_from<MainTaskBuilder_T, UMainTaskBuilder_T&&>
@@ -36,9 +36,9 @@ public:
         URepetitionSpecifierTaskBuilder_T&& repetition_specifier_task_builder
     );
 
-    template <typename Self_T, typename... ArgumentProviders_T>
+    template <typename Self_T, typename... Providers_T>
     [[nodiscard]]
-    constexpr auto operator()(this Self_T&&, ArgumentProviders_T... argument_providers);
+    constexpr auto operator()(this Self_T&&, Providers_T... providers);
 
 private:
     MainTaskBuilder_T                m_main_task_builder;
@@ -70,16 +70,16 @@ constexpr core::scheduler::
 template <
     core::scheduler::task_builder_c                      MainTaskBuilder_T,
     core::scheduler::repetition_specifier_task_builder_c RepetitionSpecifierTaskBuilder_T>
-template <typename Self_T, typename... ArgumentProviders_T>
+template <typename Self_T, typename... Providers_T>
 constexpr auto core::scheduler::
     RepeatedTaskBuilder<MainTaskBuilder_T, RepetitionSpecifierTaskBuilder_T>::operator()(
         this Self_T&& self,
-        ArgumentProviders_T... argument_providers
+        Providers_T... providers
     )
 {
-    return [main_task = build(self.m_main_task_builder, argument_providers...),
+    return [main_task                 = build(self.m_main_task_builder, providers...),
             repetition_specifier_task = build(
-                self.m_repetition_specifier_task_builder, argument_providers...
+                self.m_repetition_specifier_task_builder, providers...
             )] mutable -> Result {
         for (const auto _ :
              std::views::repeat(std::ignore, std::invoke(repetition_specifier_task)))

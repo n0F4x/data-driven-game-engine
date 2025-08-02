@@ -7,7 +7,7 @@ module;
 
 export module core.scheduler.task_builders.SimpleTaskBuilder;
 
-import core.scheduler.provider_index_for_argument;
+import core.scheduler.provider_index_for_accessor;
 import core.scheduler.task_builders.TaskBuilderBase;
 
 import utility.meta.algorithms.apply;
@@ -27,16 +27,16 @@ export template <typename Invocable_T>
 class SimpleTaskBuilder : public TaskBuilderBase {
 public:
     using Result = util::meta::result_of_t<Invocable_T>;
-    using UniqueArguments =
+    using UniqueAccessors =
         util::meta::type_list_unique_t<util::meta::arguments_of_t<Invocable_T>>;
 
     template <typename UInvocable>
         requires std::constructible_from<util::FunctionWrapper<Invocable_T>, UInvocable&&>
     constexpr explicit SimpleTaskBuilder(UInvocable&& invocable);
 
-    template <typename Self_T, typename... ArgumentProviders_T>
+    template <typename Self_T, typename... Providers_T>
     [[nodiscard]]
-    constexpr auto operator()(this Self_T&&, ArgumentProviders_T&&... argument_providers);
+    constexpr auto operator()(this Self_T&&, Providers_T&&... providers);
 
 private:
     util::FunctionWrapper<Invocable_T> m_invocable;
@@ -56,27 +56,26 @@ constexpr core::scheduler::SimpleTaskBuilder<Invocable_T>::SimpleTaskBuilder(
 
 template <typename Invocable_T>
     requires requires { std::type_identity<util::FunctionWrapper<Invocable_T>>{}; }
-template <typename Self_T, typename... ArgumentProviders_T>
+template <typename Self_T, typename... Providers_T>
 constexpr auto core::scheduler::SimpleTaskBuilder<Invocable_T>::operator()(
     this Self_T&& self,
-    ArgumentProviders_T&&... argument_providers
+    Providers_T&&... providers
 )
 {
-    const auto make_arguments = [&argument_providers...]<typename... Arguments_T> {
+    const auto make_accessors = [&providers...]<typename... Accessors_T> {
         return std::make_tuple(
             util::wrap_ref(
-                argument_providers...
-                    [provider_index_for_argument<Arguments_T, ArgumentProviders_T...>]
-                        .template provide<Arguments_T>()
+                providers...[provider_index_for_accessor<Accessors_T, Providers_T...>]
+                    .template provide<Accessors_T>()
             )...
         );
     };
 
     return util::meta::apply<util::meta::arguments_of_t<Invocable_T>>(
-        [&self, &make_arguments]<typename... Arguments_T> {
-            return [arguments = make_arguments.template operator()<Arguments_T...>(),
+        [&self, &make_accessors]<typename... Accessors_T> {
+            return [accessors = make_accessors.template operator()<Accessors_T...>(),
                     invocable = std::forward_like<Self_T>(self.m_invocable)] mutable {
-                return std::apply(invocable, arguments);
+                return std::apply(invocable, accessors);
             };
         }
     );

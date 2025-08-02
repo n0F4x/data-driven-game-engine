@@ -2,8 +2,8 @@ export module addons.States;
 
 import core.states;
 
-import extensions.scheduler.argument_provider_for;
-import extensions.scheduler.argument_providers.StateProvider;
+import extensions.scheduler.provider_for;
+import extensions.scheduler.providers.StateProvider;
 
 namespace addons {
 
@@ -17,7 +17,7 @@ struct States : StatesTag {
 }   // namespace addons
 
 template <core::states::state_c... States_T>
-struct extensions::scheduler::ArgumentProviderFor<addons::States<States_T...>> {
-    using type = extensions::scheduler::argument_providers::
+struct extensions::scheduler::ProviderFor<addons::States<States_T...>> {
+    using type = extensions::scheduler::providers::
         StateProvider<addons::States<States_T...>>;
 };

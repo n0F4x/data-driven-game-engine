@@ -2,8 +2,8 @@ export module addons.Messages;
 
 import core.messages;
 
-import extensions.scheduler.argument_provider_for;
-import extensions.scheduler.argument_providers.MessageProvider;
+import extensions.scheduler.provider_for;
+import extensions.scheduler.providers.MessageProvider;
 
 namespace addons {
 
@@ -17,7 +17,7 @@ struct Messages : MessagesTag {
 }   // namespace addons
 
 template <core::messages::message_c... Messages_T>
-struct extensions::scheduler::ArgumentProviderFor<addons::Messages<Messages_T...>> {
-    using type = extensions::scheduler::argument_providers::
+struct extensions::scheduler::ProviderFor<addons::Messages<Messages_T...>> {
+    using type = extensions::scheduler::providers::
         MessageProvider<core::messages::MessageManager<Messages_T...>, addons::Messages<Messages_T...>>;
 };

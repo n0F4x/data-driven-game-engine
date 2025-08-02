@@ -22,8 +22,8 @@ export template <task_builder_c... TaskBuilders_T>
 class ScheduleBuilder : public TaskBuilderBase {
 public:
     using Result = void;
-    using UniqueArguments =
-        util::meta::type_list_union_t<typename TaskBuilders_T::UniqueArguments...>;
+    using UniqueAccessors =
+        util::meta::type_list_union_t<typename TaskBuilders_T::UniqueAccessors...>;
 
     template <typename... UTaskBuilders_T>
         requires(std::constructible_from<TaskBuilders_T, UTaskBuilders_T &&> && ...)
@@ -33,9 +33,9 @@ public:
     constexpr auto then(this Self_T&&, TaskBuilder_T&& task_builder)
         -> ScheduleBuilder<TaskBuilders_T..., as_task_builder_t<TaskBuilder_T>>;
 
-    template <typename Self_T, typename... ArgumentProviders_T>
+    template <typename Self_T, typename... Providers_T>
     [[nodiscard]]
-    constexpr auto operator()(this Self_T&&, ArgumentProviders_T&&... argument_providers);
+    constexpr auto operator()(this Self_T&&, Providers_T&&... providers);
 
 private:
     std::tuple<TaskBuilders_T...> m_task_builders;
@@ -71,18 +71,17 @@ constexpr auto core::scheduler::ScheduleBuilder<TaskBuilders_T...>::then(
 }
 
 template <core::scheduler::task_builder_c... TaskBuilders_T>
-template <typename Self_T, typename... ArgumentProviders_T>
+template <typename Self_T, typename... Providers_T>
 constexpr auto core::scheduler::ScheduleBuilder<TaskBuilders_T...>::operator()(
     this Self_T&& self,
-    ArgumentProviders_T&&... argument_providers
+    Providers_T&&... providers
 )
 {
-    const auto build_tasks = [&self, &argument_providers...] {
+    const auto build_tasks = [&self, &providers...] {
         return util::meta::apply<std::make_index_sequence<sizeof...(TaskBuilders_T)>>(
-            [&self, &argument_providers...]<std::size_t... task_builder_indices_T> {
+            [&self, &providers...]<std::size_t... task_builder_indices_T> {
                 return std::make_tuple(build(
-                    std::get<task_builder_indices_T>(self.m_task_builders),
-                    argument_providers...
+                    std::get<task_builder_indices_T>(self.m_task_builders), providers...
                 )...);
             }
         );
@@ -90,7 +89,9 @@ constexpr auto core::scheduler::ScheduleBuilder<TaskBuilders_T...>::operator()(
 
     return [tasks = build_tasks()] mutable -> Result {
         util::meta::for_each<std::make_index_sequence<sizeof...(TaskBuilders_T)>>(
-            [&tasks]<std::size_t task_index_T> { std::invoke(std::get<task_index_T>(tasks)); }
+            [&tasks]<std::size_t task_index_T> {
+                std::invoke(std::get<task_index_T>(tasks));
+            }
         );
     };
 }

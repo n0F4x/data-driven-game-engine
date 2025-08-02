@@ -14,7 +14,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         group.ixx
         in_parallel.ixx
         loop_until.ixx
-        provider_index_for_argument.ixx
+        provider_index_for_accessor.ixx
         repeat.ixx
         run_if.ixx
         start_as.ixx

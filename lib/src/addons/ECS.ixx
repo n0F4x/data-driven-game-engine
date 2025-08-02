@@ -2,8 +2,8 @@ export module addons.ECS;
 
 import core.ecs;
 
-import extensions.scheduler.argument_provider_for;
-import extensions.scheduler.argument_providers.ECSProvider;
+import extensions.scheduler.provider_for;
+import extensions.scheduler.providers.ECSProvider;
 
 namespace addons {
 
@@ -14,6 +14,6 @@ export struct ECS {
 }   // namespace addons
 
 template <>
-struct extensions::scheduler::ArgumentProviderFor<addons::ECS> {
-    using type = extensions::scheduler::argument_providers::ECSProvider<addons::ECS>;
+struct extensions::scheduler::ProviderFor<addons::ECS> {
+    using type = extensions::scheduler::providers::ECSProvider<addons::ECS>;
 };

@@ -4,7 +4,7 @@ module;
 #include <functional>
 #include <type_traits>
 
-export module extensions.scheduler.argument_providers.EventProvider;
+export module extensions.scheduler.providers.EventProvider;
 
 import app;
 
@@ -19,7 +19,7 @@ import utility.meta.concepts.type_list.type_list_all_of;
 import utility.meta.type_traits.type_list.type_list_transform;
 import utility.meta.type_traits.underlying;
 
-namespace extensions::scheduler::argument_providers {
+namespace extensions::scheduler::providers {
 
 export template <
     util::meta::specialization_of_c<core::events::EventManager> EventManager_T,
@@ -62,13 +62,13 @@ private:
     std::reference_wrapper<EventManager_T> m_event_manager_ref;
 };
 
-}   // namespace extensions::scheduler::argument_providers
+}   // namespace extensions::scheduler::providers
 
 template <
     util::meta::specialization_of_c<core::events::EventManager> EventManager_T,
     typename EventsAddon_T>
 template <app::has_addons_c<EventsAddon_T> App_T>
-constexpr extensions::scheduler::argument_providers::
+constexpr extensions::scheduler::providers::
     EventProvider<EventManager_T, EventsAddon_T>::EventProvider(App_T& app)
     : m_event_manager_ref{ app.event_manager }
 {}
@@ -78,7 +78,7 @@ template <
     typename EventsAddon_T>
 template <util::meta::decays_to_c<extensions::scheduler::accessors::events::Processor>
               Accessor_T>
-auto extensions::scheduler::argument_providers::
+auto extensions::scheduler::providers::
     EventProvider<EventManager_T, EventsAddon_T>::provide() const
     -> extensions::scheduler::accessors::events::Processor
 {
@@ -92,7 +92,7 @@ template <typename Accessor_T>
     requires util::meta::specialization_of_c<
         std::remove_cvref_t<Accessor_T>,
         extensions::scheduler::accessors::events::Recorder>
-constexpr auto extensions::scheduler::argument_providers::
+constexpr auto extensions::scheduler::providers::
     EventProvider<EventManager_T, EventsAddon_T>::provide() const
     -> std::remove_cvref_t<Accessor_T>
     requires(all_registered<std::remove_cvref_t<Accessor_T>>)
@@ -107,7 +107,7 @@ template <typename Accessor_T>
     requires util::meta::specialization_of_c<
         std::remove_cvref_t<Accessor_T>,
         extensions::scheduler::accessors::events::Reader>
-constexpr auto extensions::scheduler::argument_providers::
+constexpr auto extensions::scheduler::providers::
     EventProvider<EventManager_T, EventsAddon_T>::provide() const
     -> std::remove_cvref_t<Accessor_T>
     requires(all_registered<std::remove_cvref_t<Accessor_T>>)
