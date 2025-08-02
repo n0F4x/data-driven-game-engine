@@ -124,6 +124,9 @@ public:
     template <component_c Component_T>
     auto erase_single(core::ecs::ID id) -> std::optional<Component_T>;
 
+    [[nodiscard]]
+    auto exists(core::ecs::ID id) const noexcept -> bool;
+
 private:
     template <query_parameter_c... Parameters_T>
         requires ::query_parameter_components_are_all_different_c<Parameters_T...>
@@ -234,6 +237,8 @@ template <core::ecs::component_c... Components_T, typename Self_T>
 auto core::ecs::Registry::get(this Self_T&& self, const core::ecs::ID id) -> std::
     tuple<util::meta::const_like_t<Components_T, std::remove_reference_t<Self_T>>&...>
 {
+    PRECOND(self.exists(id));
+
     const auto [archetype_id, record_id]{ self.get_entity(id) };
 
     return std::forward_as_tuple(
@@ -249,6 +254,8 @@ template <core::ecs::component_c Component_T, typename Self_T>
 auto core::ecs::Registry::get_single(this Self_T&& self, const core::ecs::ID id)
     -> util::meta::const_like_t<Component_T, std::remove_reference_t<Self_T>>&
 {
+    PRECOND(self.exists(id));
+
     const auto [archetype_id, record_id]{ self.get_entity(id) };
 
     return ::get_component<Component_T>(
@@ -347,6 +354,8 @@ template <::decays_to_component_c... Components_T>
 auto core::ecs::Registry::insert(const core::ecs::ID id, Components_T&&... components)
     -> void
 {
+    PRECOND(exists(id));
+
     if constexpr (sizeof...(Components_T) > 0) {
         auto& entity{ get_entity(id) };
 
@@ -361,6 +370,8 @@ auto core::ecs::Registry::insert_or_replace(
     Components_T&&... components
 ) -> void
 {
+    PRECOND(exists(id));
+
     if constexpr (sizeof...(Components_T) > 0) {
         auto& entity{ get_entity(id) };
 
@@ -396,6 +407,8 @@ template <core::ecs::component_c... Components_T>
     requires util::meta::all_different_c<Components_T...>
 auto core::ecs::Registry::remove(const core::ecs::ID id) -> std::tuple<Components_T...>
 {
+    PRECOND(exists(id));
+
     if constexpr (sizeof...(Components_T) == 0) {
         return {};
     }
@@ -407,6 +420,8 @@ auto core::ecs::Registry::remove(const core::ecs::ID id) -> std::tuple<Component
 template <core::ecs::component_c Component_T>
 auto core::ecs::Registry::remove_single(const core::ecs::ID id) -> Component_T
 {
+    PRECOND(exists(id));
+
     return std::get<0>(remove<Component_T>(id, get_entity(id)));
 }
 
@@ -521,6 +536,11 @@ auto core::ecs::Registry::erase_single(core::ecs::ID id) -> std::optional<Compon
             return std::get<0>(remove<Component_T>(id, entity));
         }
     );
+}
+
+auto core::ecs::Registry::exists(const core::ecs::ID id) const noexcept -> bool
+{
+    return m_entities.contains(id.underlying());
 }
 
 template <typename Self_T>
