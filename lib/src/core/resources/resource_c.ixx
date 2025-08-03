@@ -1,11 +1,10 @@
 export module core.resources.resource_c;
 
-import utility.meta.concepts.naked;
-import utility.meta.concepts.storable;
+import core.store.item_c;
 
 namespace core::resources {
 
 export template <typename T>
-concept resource_c = ::util::meta::storable_c<T> && util::meta::naked_c<T>;
+concept resource_c = core::store::item_c<T>;
 
 }   // namespace core::resources

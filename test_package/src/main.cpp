@@ -8,5 +8,5 @@ auto main() -> int
         .plug_in(plugins::resources)
         .insert_resource(int{})
         .build()
-        .resource_manager.get<int>();
+        .resource_manager.at<int>();
 }

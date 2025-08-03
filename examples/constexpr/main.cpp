@@ -15,7 +15,8 @@ struct Second {
 
 auto main() -> int
 {
-    constexpr int result =
+    // ordered_map is not constexpr 😢
+    int result =
         app::create()
             .plug_in(plugins::resources)
             .insert_resource(First{})
@@ -24,7 +25,7 @@ auto main() -> int
             })
             .plug_in(plugins::runnable)
             .run([](auto app) {
-                return app.resource_manager.template get<Second>().ref.get();
+                return app.resource_manager.template at<Second>().ref.get();
             });
 
     return result;

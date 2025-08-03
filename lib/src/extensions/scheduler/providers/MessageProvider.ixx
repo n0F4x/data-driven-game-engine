@@ -1,119 +1,111 @@
 module;
 
 #include <concepts>
+#include <format>
 #include <functional>
 #include <type_traits>
 
+#include "utility/contracts_macros.hpp"
+
 export module extensions.scheduler.providers.MessageProvider;
+
+import addons.Messages;
 
 import app;
 
-import core.messages.MessageManager;
+import core.messages;
+import core.scheduler.ProviderFor;
+import core.store.Store;
 
 import extensions.scheduler.accessors.messages;
+import extensions.scheduler.ProviderOf;
 
-import utility.meta.concepts.decays_to;
+import utility.contracts;
+import utility.meta.algorithms.apply;
+import utility.meta.algorithms.for_each;
 import utility.meta.concepts.specialization_of;
-import utility.meta.concepts.type_list.type_list_all_of;
-import utility.meta.type_traits.type_list.type_list_transform;
-import utility.meta.type_traits.underlying;
+import utility.meta.reflection.name_of;
 
 namespace extensions::scheduler::providers {
 
-export template <
-    util::meta::specialization_of_c<core::messages::MessageManager> MessageManager_T,
-    typename MessagesAddon_T>
 class MessageProvider {
-    template <typename Message_T>
-    struct IsRegistered
-        : std::bool_constant<MessageManager_T::template registered<Message_T>()> {};
-
-    template <typename Accessor_T>
-    constexpr static bool all_registered = util::meta::type_list_all_of_c<
-        util::meta::type_list_transform_t<Accessor_T, std::remove_cvref>,
-        IsRegistered>;
-
 public:
-    template <app::has_addons_c<MessagesAddon_T> App_T>
+    template <app::has_addons_c<addons::Messages> App_T>
     constexpr explicit MessageProvider(App_T& app);
 
-    template <util::meta::decays_to_c<accessors::messages::Mailbox> Accessor_T>
+    template <std::same_as<accessors::messages::Mailbox>>
     [[nodiscard]]
     auto provide() const -> accessors::messages::Mailbox;
 
-    template <typename Accessor_T>
-        requires util::meta::specialization_of_c<
-            std::remove_cvref_t<Accessor_T>,
-            accessors::messages::Receiver>   //
+    template <util::meta::specialization_of_c<accessors::messages::Receiver> Receiver_T>
     [[nodiscard]]
-    constexpr auto provide() const -> std::remove_cvref_t<Accessor_T>
-        requires(all_registered<std::remove_cvref_t<Accessor_T>>);
+    constexpr auto provide() const -> Receiver_T;
 
-    template <typename Accessor_T>
-        requires util::meta::specialization_of_c<
-            std::remove_cvref_t<Accessor_T>,
-            accessors::messages::Sender>   //
+    template <util::meta::specialization_of_c<accessors::messages::Sender> Sender_T>
     [[nodiscard]]
-    constexpr auto provide() const -> std::remove_cvref_t<Accessor_T>
-        requires(all_registered<std::remove_cvref_t<Accessor_T>>);
+    constexpr auto provide() const -> Sender_T;
 
 private:
-    std::reference_wrapper<MessageManager_T> m_message_manager_ref;
+    std::reference_wrapper<core::messages::MessageManager> m_message_manager_ref;
 };
 
 }   // namespace extensions::scheduler::providers
 
-template <
-    util::meta::specialization_of_c<core::messages::MessageManager> MessageManager_T,
-    typename MessagesAddon_T>
-template <app::has_addons_c<MessagesAddon_T> App_T>
-constexpr extensions::scheduler::providers::
-    MessageProvider<MessageManager_T, MessagesAddon_T>::MessageProvider(App_T& app)
+template <>
+struct extensions::scheduler::ProviderOf<addons::Messages>
+    : std::type_identity<extensions::scheduler::providers::MessageProvider> {};
+
+template <>
+struct core::scheduler::ProviderFor<extensions::scheduler::accessors::messages::Mailbox>
+    : std::type_identity<extensions::scheduler::providers::MessageProvider> {};
+
+template <typename Event_T>
+struct core::scheduler::
+    ProviderFor<extensions::scheduler::accessors::messages::Receiver<Event_T>>
+    : std::type_identity<extensions::scheduler::providers::MessageProvider> {};
+
+template <typename... Events_T>
+struct core::scheduler::
+    ProviderFor<extensions::scheduler::accessors::messages::Sender<Events_T...>>
+    : std::type_identity<extensions::scheduler::providers::MessageProvider> {};
+
+template <app::has_addons_c<addons::Messages> App_T>
+constexpr extensions::scheduler::providers::MessageProvider::MessageProvider(App_T& app)
     : m_message_manager_ref{ app.message_manager }
 {}
 
-template <
-    util::meta::specialization_of_c<core::messages::MessageManager> MessageManager_T,
-    typename MessagesAddon_T>
-template <util::meta::decays_to_c<extensions::scheduler::accessors::messages::Mailbox>
-              Accessor_T>
-auto extensions::scheduler::providers::
-    MessageProvider<MessageManager_T, MessagesAddon_T>::provide() const
+template <std::same_as<extensions::scheduler::accessors::messages::Mailbox>>
+auto extensions::scheduler::providers::MessageProvider::provide() const
     -> extensions::scheduler::accessors::messages::Mailbox
 {
-    return std::remove_cvref_t<Accessor_T>{ m_message_manager_ref.get() };
+    return extensions::scheduler::accessors::messages::Mailbox{ m_message_manager_ref };
 }
 
-template <
-    util::meta::specialization_of_c<core::messages::MessageManager> MessageManager_T,
-    typename MessagesAddon_T>
-template <typename Accessor_T>
-    requires util::meta::specialization_of_c<
-        std::remove_cvref_t<Accessor_T>,
-        extensions::scheduler::accessors::messages::Receiver>
-constexpr auto extensions::scheduler::providers::
-    MessageProvider<MessageManager_T, MessagesAddon_T>::provide() const
-    -> std::remove_cvref_t<Accessor_T>
-    requires(all_registered<std::remove_cvref_t<Accessor_T>>)
+template <util::meta::specialization_of_c<
+    extensions::scheduler::accessors::messages::Receiver> Receiver_T>
+constexpr auto extensions::scheduler::providers::MessageProvider::provide() const
+    -> Receiver_T
 {
-    return std::remove_cvref_t<Accessor_T>{
-        m_message_manager_ref.get()
-            .template message_buffer<
-                util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>()
-    };
+    using Message = typename Receiver_T::Message;
+
+    PRECOND(
+        (m_message_manager_ref.get().manages_message<Message>()),
+        std::format("Message {} was not registered", util::meta::name_of<Message>())
+    );
+
+    return Receiver_T{ m_message_manager_ref.get().message_buffer<Message>() };
 }
 
-template <
-    util::meta::specialization_of_c<core::messages::MessageManager> MessageManager_T,
-    typename MessagesAddon_T>
-template <typename Accessor_T>
-    requires util::meta::specialization_of_c<
-        std::remove_cvref_t<Accessor_T>,
-        extensions::scheduler::accessors::messages::Sender>
-constexpr auto extensions::scheduler::providers::
-    MessageProvider<MessageManager_T, MessagesAddon_T>::provide() const
-    -> std::remove_cvref_t<Accessor_T>
-    requires(all_registered<std::remove_cvref_t<Accessor_T>>)
+template <util::meta::specialization_of_c<
+    extensions::scheduler::accessors::messages::Sender> Sender_T>
+constexpr auto extensions::scheduler::providers::MessageProvider::provide() const
+    -> Sender_T
 {
-    return std::remove_cvref_t<Accessor_T>{ m_message_manager_ref.get() };
+    using Messages = typename Sender_T::Messages;
+
+    return util::meta::apply<Messages>([this]<typename... Messages_T> -> Sender_T {
+        PRECOND((m_message_manager_ref.get().manages_message<Messages_T>() && ...));
+
+        return Sender_T{ m_message_manager_ref.get().message_buffer<Messages_T>()... };
+    });
 }

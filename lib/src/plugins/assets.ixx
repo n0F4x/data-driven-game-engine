@@ -194,7 +194,8 @@ constexpr auto plugins::BasicAssets<Injections_T...>::build(App_T&& app) &&
     static_assert(!app::has_addons_c<App_T, AssetsAddon>);
 
     return util::meta::apply<std::make_index_sequence<sizeof...(Injections_T)>>(
-        [this, &app]<std::size_t... Is> {
+        [this, &app]<size_t... Is> {
+            // TODO: remove this ignore with better Clang
             std::ignore = this;
             return std::forward<App_T>(app).add_on(
                 addons::Assets<util::meta::result_of_t<Injections_T>...>{

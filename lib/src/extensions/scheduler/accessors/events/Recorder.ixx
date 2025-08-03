@@ -23,8 +23,10 @@ export template <core::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)
 class Recorder {
 public:
+    using Events = util::TypeList<Events_T...>;
+
     constexpr explicit Recorder(
-        util::meta::specialization_of_c<core::events::EventManager> auto& event_manager
+        core::events::BufferedEventQueue<Events_T>&... buffered_event_queues
     );
 
     template <typename... Args_T>
@@ -51,9 +53,9 @@ private:
 template <core::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)
 constexpr extensions::scheduler::accessors::events::Recorder<Events_T...>::Recorder(
-    util::meta::specialization_of_c<core::events::EventManager> auto& event_manager
+    core::events::BufferedEventQueue<Events_T>&... buffered_event_queues
 )
-    : m_buffered_event_queue_refs{ event_manager.template event_buffer<Events_T>()... }
+    : m_buffered_event_queue_refs{ buffered_event_queues... }
 {}
 
 template <core::events::event_c... Events_T>

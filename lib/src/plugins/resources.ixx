@@ -208,17 +208,13 @@ template <plugins::resource_injection_c... Injections_T>
 template <app::decays_to_app_c App_T>
 constexpr auto plugins::BasicResources<Injections_T...>::build(App_T&& app) &&
 {
-    using ResourcesAddon = addons::Resources<util::meta::result_of_t<Injections_T>...>;
-
-    static_assert(!app::has_addons_c<App_T, ResourcesAddon>);
+    static_assert(!app::has_addons_c<App_T, addons::Resources>);
 
     return util::meta::apply<std::make_index_sequence<sizeof...(Injections_T)>>(
-        [this, &app]<std::size_t... Is> {
+        [this, &app]<size_t... indices_T> {
             return std::forward<App_T>(app).add_on(
-                ResourcesAddon{
-                    .resource_manager = core::resources::ResourceManager{ std::move(
-                        std::get<Is>(m_injections)
-                    )... },
+                addons::Resources{
+                    .resource_manager{ std::move(std::get<indices_T>(m_injections))... },
                 }
             );
         }

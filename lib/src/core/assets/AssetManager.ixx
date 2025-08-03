@@ -22,6 +22,8 @@ export template <core::assets::loader_c... Loaders_T>
     requires util::meta::all_different_c<Loaders_T...>
 class AssetManager {
 public:
+    using Loaders = util::TypeList<Loaders_T...>;
+
     template <core::assets::loader_c Loader_T>
     constexpr static std::bool_constant<
         util::meta::type_list_contains_v<util::TypeList<Loaders_T...>, Loader_T>>

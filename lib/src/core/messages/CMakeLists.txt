@@ -5,5 +5,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         messages.cppm
         message_c.ixx
+        MessageBuffer.ixx
         MessageManager.ixx
 )

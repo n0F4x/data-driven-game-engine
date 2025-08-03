@@ -18,6 +18,7 @@ import utility.containers.OptionalRef;
 import utility.contracts;
 import utility.meta.reflection.name_of;
 import utility.meta.type_traits.const_like;
+import utility.meta.type_traits.forward_like;
 
 namespace core::store {
 
@@ -34,16 +35,16 @@ public:
     template <item_c Item_T, typename... Args_T>
     auto emplace(Args_T&&... args) -> Item_T&;
 
-    template <typename Item_T, typename Self_T>
+    template <item_c Item_T, typename Self_T>
     [[nodiscard]]
     auto find(this Self_T&) noexcept
         -> util::OptionalRef<util::meta::const_like_t<Item_T, Self_T>>;
 
-    template <typename Item_T, typename Self_T>
+    template <item_c Item_T, typename Self_T>
     [[nodiscard]]
-    auto at(this Self_T&) -> util::meta::const_like_t<Item_T, Self_T>&;
+    auto at(this Self_T&&) -> util::meta::forward_like_t<Item_T, Self_T>;
 
-    template <typename Item_T>
+    template <item_c Item_T>
     [[nodiscard]]
     auto contains() const noexcept -> bool;
 
@@ -66,7 +67,7 @@ auto core::store::Store::emplace(Args_T&&... args) -> Item_T&
     );
 }
 
-template <typename Item_T, typename Self_T>
+template <core::store::item_c Item_T, typename Self_T>
 auto core::store::Store::find(this Self_T& self) noexcept
     -> util::OptionalRef<util::meta::const_like_t<Item_T, Self_T>>
 {
@@ -78,22 +79,25 @@ auto core::store::Store::find(this Self_T& self) noexcept
     return util::any_cast<Item_T>(*iter);
 }
 
-template <typename Item_T, typename Self_T>
-auto core::store::Store::at(this Self_T& self)
-    -> util::meta::const_like_t<Item_T, Self_T>&
+template <core::store::item_c Item_T, typename Self_T>
+auto core::store::Store::at(this Self_T&& self)
+    -> util::meta::forward_like_t<Item_T, Self_T>
 {
     PRECOND(
         self.template contains<Item_T>(),
         std::format("Item {} not found", util::meta::name_of<Item_T>())
     );
-    return util::any_cast<Item_T>(self.m_map.at(typeid(Item_T)));
+    return util::any_cast<Item_T>(std::forward_like<Self_T>(self.m_map.at(typeid(Item_T)))
+    );
 }
 
-template <typename Item_T>
+template <core::store::item_c Item_T>
 auto core::store::Store::contains() const noexcept -> bool
 {
     return m_map.contains(typeid(Item_T));
 }
+
+module :private;
 
 core::store::Store::~Store()
 {

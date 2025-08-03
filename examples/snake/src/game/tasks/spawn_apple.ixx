@@ -2,7 +2,7 @@ module;
 
 #include <random>
 
-#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics.hpp>
 
 export module snake.game.spawn_apple;
 
@@ -29,8 +29,7 @@ using CachedTextureLoader =
 
 namespace game {
 
-export auto spawn_apple(const CachedTextureLoader texture_loader, const Registry registry)
-    -> void;
+export auto spawn_apple(CachedTextureLoader texture_loader, Registry registry) -> void;
 
 }   // namespace game
 

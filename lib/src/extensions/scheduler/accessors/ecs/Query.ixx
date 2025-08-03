@@ -1,6 +1,5 @@
 module;
 
-#include <functional>
 #include <utility>
 
 export module extensions.scheduler.accessors.ecs.Query;
@@ -21,7 +20,8 @@ public:
     auto for_each(F&& func) const -> F;
 
 private:
-    std::reference_wrapper<core::ecs::Registry> m_registry;
+    // TODO: Use `std::reference_wrapper` with next Clang
+    core::ecs::Registry* m_registry;
 };
 
 }   // namespace ecs
@@ -33,7 +33,7 @@ template <core::ecs::query_parameter_c... Parameters_T>
 extensions::scheduler::accessors::ecs::Query<Parameters_T...>::Query(
     core::ecs::Registry& registry
 )
-    : m_registry{ registry }
+    : m_registry{ &registry }
 {}
 
 template <core::ecs::query_parameter_c... Parameters_T>
@@ -43,5 +43,5 @@ auto extensions::scheduler::accessors::ecs::Query<Parameters_T...>::for_each(
     F&& func
 ) const -> F
 {
-    return core::ecs::query<Parameters_T...>(m_registry, std::forward<F>(func));
+    return core::ecs::query<Parameters_T...>(*m_registry, std::forward<F>(func));
 }

@@ -1,45 +1,65 @@
 module;
 
 #include <optional>
-#include <tuple>
-#include <type_traits>
 #include <utility>
 
 export module core.states.StateManager;
 
 import core.states.state_c;
+import core.store.Store;
 
-import utility.meta.type_traits.forward_like;
-import utility.meta.type_traits.type_list.type_list_contains;
+import utility.containers.OptionalRef;
+import utility.meta.type_traits.const_like;
 import utility.TypeList;
 
 namespace core::states {
 
-export template <state_c... States_T>
-class StateManager {
+export class StateManager {
 public:
-    template <state_c State_T>
-    constexpr static std::bool_constant<
-        util::meta::type_list_contains_v<util::TypeList<States_T...>, State_T>>
-        registered;
+    template <state_c... States_T>
+    StateManager(util::TypeList<States_T...>);
 
     template <state_c State_T, typename Self_T>
     [[nodiscard]]
-    constexpr auto get(this Self_T&&)
-        -> util::meta::forward_like_t<std::optional<State_T>, Self_T>
-        requires(registered<State_T>());
+    auto find(this Self_T&) noexcept
+        -> util::OptionalRef<util::meta::const_like_t<std::optional<State_T>, Self_T>>;
+
+    template <state_c State_T, typename Self_T>
+    [[nodiscard]]
+    auto at(this Self_T&) -> util::meta::const_like_t<std::optional<State_T>, Self_T>&;
+
+    template <state_c State_T>
+    [[nodiscard]]
+    auto contains() const noexcept -> bool;
 
 private:
-    std::tuple<std::optional<States_T>...> m_states;
+    store::Store m_states;
 };
 
 }   // namespace core::states
 
 template <core::states::state_c... States_T>
-template <core::states::state_c State_T, typename Self_T>
-constexpr auto core::states::StateManager<States_T...>::get(this Self_T&& self)
-    -> util::meta::forward_like_t<std::optional<State_T>, Self_T>
-    requires(registered<State_T>())
+core::states::StateManager::StateManager(util::TypeList<States_T...>)
 {
-    return std::get<std::optional<State_T>>(std::forward_like<Self_T>(self.m_states));
+    (m_states.emplace<std::optional<States_T>>(), ...);
+}
+
+template <core::states::state_c State_T, typename Self_T>
+auto core::states::StateManager::find(this Self_T& self) noexcept
+    -> util::OptionalRef<util::meta::const_like_t<std::optional<State_T>, Self_T>>
+{
+    return self.m_states.template find<std::optional<State_T>>();
+}
+
+template <core::states::state_c State_T, typename Self_T>
+auto core::states::StateManager::at(this Self_T& self)
+    -> util::meta::const_like_t<std::optional<State_T>, Self_T>&
+{
+    return self.m_states.template at<std::optional<State_T>>();
+}
+
+template <core::states::state_c State_T>
+auto core::states::StateManager::contains() const noexcept -> bool
+{
+    return m_states.contains<std::optional<State_T>>();
 }

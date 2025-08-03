@@ -15,6 +15,8 @@ inline namespace messages {
 export template <core::messages::message_c Message_T>
 class Receiver {
 public:
+    using Message = Message_T;
+
     constexpr explicit Receiver(const std::vector<Message_T>& message_buffer);
 
     [[nodiscard]]

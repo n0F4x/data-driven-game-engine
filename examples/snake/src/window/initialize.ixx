@@ -1,6 +1,5 @@
 export module snake.window.initialize;
 
-import core.scheduler;
 import core.time.FixedTimer;
 
 import extensions.scheduler.accessors.resources;

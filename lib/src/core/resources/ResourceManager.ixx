@@ -1,73 +1,86 @@
 module;
 
-#include <concepts>
-#include <memory>
-#include <type_traits>
+#include <functional>
 #include <utility>
 
 export module core.resources.ResourceManager;
 
-import utility.containers.StackedTuple;
-import utility.meta.concepts.all_different;
+import core.resources.resource_c;
+import core.store.Store;
+
+import utility.containers.OptionalRef;
+import utility.meta.concepts.functional.unambiguously_invocable;
+import utility.meta.type_traits.const_like;
 import utility.meta.type_traits.forward_like;
-import utility.meta.type_traits.type_list.type_list_contains;
+import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.result_of;
 import utility.TypeList;
 
-import core.resources.resource_c;
-
 namespace core::resources {
 
-export template <resource_c... Resources_T>
-    requires util::meta::all_different_c<Resources_T...>
-class ResourceManager {
+export class ResourceManager {
 public:
-    template <resource_c Resource_T>
-    constexpr static std::bool_constant<
-        util::meta::type_list_contains_v<util::TypeList<Resources_T...>, Resource_T>>
-        contains;
+    template <util::meta::unambiguously_invocable_c... Factories_T>
+    explicit ResourceManager(Factories_T&&... factories);
 
-    template <typename... Factories_T>
-        requires std::
-            constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
-        constexpr explicit ResourceManager(Factories_T&&... factories);
-
-    template <typename Resource_T, typename Self_T>
+    template <resource_c Resource_T, typename Self_T>
     [[nodiscard]]
-    constexpr auto get(this Self_T&&) -> util::meta::forward_like_t<Resource_T, Self_T>
-        requires(contains<Resource_T>());
+    auto find(this Self_T&) noexcept
+        -> util::OptionalRef<util::meta::const_like_t<Resource_T, Self_T>>;
+
+    template <resource_c Resource_T, typename Self_T>
+    [[nodiscard]]
+    auto at(this Self_T&&) -> util::meta::forward_like_t<Resource_T, Self_T>;
+
+    template <resource_c Resource_T>
+    [[nodiscard]]
+    auto contains() const noexcept -> bool;
 
 private:
-    std::unique_ptr<::util::StackedTuple<Resources_T...>> m_resources;
+    core::store::Store m_store;
 };
-
-template <typename... Factories_T>
-    requires std::constructible_from<
-        util::StackedTuple<util::meta::result_of_t<Factories_T>...>,
-        Factories_T&&...>
-ResourceManager(Factories_T&&...)
-    -> ResourceManager<util::meta::result_of_t<Factories_T>...>;
 
 }   // namespace core::resources
 
-template <core::resources::resource_c... Resources_T>
-    requires util::meta::all_different_c<Resources_T...>
-template <typename... Factories_T>
-    requires std::constructible_from<util::StackedTuple<Resources_T...>, Factories_T&&...>
-constexpr core::resources::ResourceManager<Resources_T...>::ResourceManager(
-    Factories_T&&... factories
-)
-    : m_resources{ std::make_unique<util::StackedTuple<Resources_T...>>(
-          std::forward<Factories_T>(factories)...
-      ) }
-{}
-
-template <core::resources::resource_c... Resources_T>
-    requires util::meta::all_different_c<Resources_T...>
-template <typename Resource_T, typename Self_T>
-constexpr auto core::resources::ResourceManager<Resources_T...>::get(this Self_T&& self)
-    -> util::meta::forward_like_t<Resource_T, Self_T>
-    requires(contains<Resource_T>())
+template <typename Factory_T>
+[[nodiscard]]
+auto produce_resource(Factory_T&& factory, core::store::Store& store)
+    -> util::meta::result_of_t<Factory_T>
 {
-    return std::forward_like<Self_T>(self.m_resources->template get<Resource_T>());
+    return [&factory,
+            &store]<typename... Dependencies_T>(util::TypeList<Dependencies_T...>) {
+        return std::invoke(
+            std::forward<Factory_T>(factory),
+            store.at<std::remove_cvref_t<Dependencies_T>>()...
+        );
+    }(util::meta::arguments_of_t<Factory_T>{});
+}
+
+template <util::meta::unambiguously_invocable_c... Factories_T>
+core::resources::ResourceManager::ResourceManager(Factories_T&&... factories)
+{
+    (m_store.emplace<util::meta::result_of_t<Factories_T>>(
+         ::produce_resource(std::forward<Factories_T>(factories), m_store)
+     ),
+     ...);
+}
+
+template <core::resources::resource_c Resource_T, typename Self_T>
+auto core::resources::ResourceManager::find(this Self_T& self) noexcept
+    -> util::OptionalRef<util::meta::const_like_t<Resource_T, Self_T>>
+{
+    return self.m_store.template find<Resource_T>();
+}
+
+template <core::resources::resource_c Resource_T, typename Self_T>
+auto core::resources::ResourceManager::at(this Self_T&& self)
+    -> util::meta::forward_like_t<Resource_T, Self_T>
+{
+    return std::forward_like<Self_T>(self.m_store).template at<Resource_T>();
+}
+
+template <core::resources::resource_c Resource_T>
+auto core::resources::ResourceManager::contains() const noexcept -> bool
+{
+    return m_store.contains<Resource_T>();
 }

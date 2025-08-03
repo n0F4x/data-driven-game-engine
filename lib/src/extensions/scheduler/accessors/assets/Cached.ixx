@@ -13,6 +13,8 @@ class Cached : public util::Ref<core::assets::Cached<Loader_T>> {
     using Base = util::Ref<core::assets::Cached<Loader_T>>;
 
 public:
+    using Loader = Loader_T;
+
     using Base::Base;
 };
 

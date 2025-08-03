@@ -18,6 +18,8 @@ class Resource : public util::Ref<Resource_T> {
     using Base = util::Ref<Resource_T>;
 
 public:
+    using Underlying = Resource_T;
+
     using Base::Base;
 };
 

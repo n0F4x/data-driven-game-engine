@@ -5,7 +5,6 @@ module;
 export module snake.game.draw;
 
 import core.ecs;
-import core.scheduler;
 
 import extensions.scheduler.accessors.ecs.Query;
 import extensions.scheduler.accessors.resources;

@@ -6,8 +6,7 @@ module;
 
 export module extensions.scheduler.accessors.messages.Sender;
 
-import core.messages.message_c;
-import core.messages.MessageManager;
+import core.messages;
 
 import utility.meta.concepts.specialization_of;
 import utility.meta.type_traits.type_list.type_list_contains;
@@ -23,8 +22,10 @@ export template <core::messages::message_c... Messages_T>
     requires(sizeof...(Messages_T) != 0)
 class Sender {
 public:
+    using Messages = util::TypeList<Messages_T...>;
+
     constexpr explicit Sender(
-        util::meta::specialization_of_c<core::messages::MessageManager> auto& message_manager
+        core::messages::MessageBuffer<Messages_T>&... message_buffers
     );
 
     template <typename... Args_T>
@@ -40,7 +41,8 @@ public:
     constexpr auto send(Args_T&&... args) const -> void;
 
 private:
-    std::tuple<std::reference_wrapper<std::vector<Messages_T>>...> m_message_buffer_refs;
+    std::tuple<std::reference_wrapper<core::messages::MessageBuffer<Messages_T>>...>
+        m_message_buffer_refs;
 };
 
 }   // namespace messages
@@ -50,9 +52,9 @@ private:
 template <core::messages::message_c... Messages_T>
     requires(sizeof...(Messages_T) != 0)
 constexpr extensions::scheduler::accessors::messages::Sender<Messages_T...>::Sender(
-    util::meta::specialization_of_c<core::messages::MessageManager> auto& message_manager
+    core::messages::MessageBuffer<Messages_T>&... message_buffers
 )
-    : m_message_buffer_refs{ message_manager.template message_buffer<Messages_T>()... }
+    : m_message_buffer_refs{ message_buffers... }
 {}
 
 template <core::messages::message_c... Messages_T>

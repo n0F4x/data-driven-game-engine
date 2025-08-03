@@ -1,119 +1,111 @@
 module;
 
 #include <concepts>
+#include <format>
 #include <functional>
 #include <type_traits>
 
+#include "utility/contracts_macros.hpp"
+
 export module extensions.scheduler.providers.EventProvider;
+
+import addons.Events;
 
 import app;
 
-import core.events.EventManager;
-import core.events.BufferedEventQueue;
+import core.events;
+import core.scheduler.ProviderFor;
+import core.store.Store;
 
 import extensions.scheduler.accessors.events;
+import extensions.scheduler.ProviderOf;
 
-import utility.meta.concepts.decays_to;
+import utility.contracts;
+import utility.meta.algorithms.apply;
+import utility.meta.algorithms.for_each;
 import utility.meta.concepts.specialization_of;
-import utility.meta.concepts.type_list.type_list_all_of;
-import utility.meta.type_traits.type_list.type_list_transform;
-import utility.meta.type_traits.underlying;
+import utility.meta.reflection.name_of;
 
 namespace extensions::scheduler::providers {
 
-export template <
-    util::meta::specialization_of_c<core::events::EventManager> EventManager_T,
-    typename EventsAddon_T>
 class EventProvider {
-    template <typename Event_T>
-    struct IsRegistered
-        : std::bool_constant<EventManager_T::template registered<Event_T>()> {};
-
-    template <typename Accessor_T>
-    constexpr static bool all_registered = util::meta::type_list_all_of_c<
-        util::meta::type_list_transform_t<Accessor_T, std::remove_cvref>,
-        IsRegistered>;
-
 public:
-    template <app::has_addons_c<EventsAddon_T> App_T>
+    template <app::has_addons_c<addons::Events> App_T>
     constexpr explicit EventProvider(App_T& app);
 
-    template <util::meta::decays_to_c<accessors::events::Processor> Accessor_T>
+    template <std::same_as<accessors::events::Processor>>
     [[nodiscard]]
     auto provide() const -> accessors::events::Processor;
 
-    template <typename Accessor_T>
-        requires util::meta::specialization_of_c<
-            std::remove_cvref_t<Accessor_T>,
-            accessors::events::Recorder>   //
+    template <util::meta::specialization_of_c<accessors::events::Recorder> Recorder_T>
     [[nodiscard]]
-    constexpr auto provide() const -> std::remove_cvref_t<Accessor_T>
-        requires(all_registered<std::remove_cvref_t<Accessor_T>>);
+    constexpr auto provide() const -> Recorder_T;
 
-    template <typename Accessor_T>
-        requires util::meta::specialization_of_c<
-            std::remove_cvref_t<Accessor_T>,
-            accessors::events::Reader>   //
+    template <util::meta::specialization_of_c<accessors::events::Reader> Reader_T>
     [[nodiscard]]
-    constexpr auto provide() const -> std::remove_cvref_t<Accessor_T>
-        requires(all_registered<std::remove_cvref_t<Accessor_T>>);
+    constexpr auto provide() const -> Reader_T;
 
 private:
-    std::reference_wrapper<EventManager_T> m_event_manager_ref;
+    std::reference_wrapper<core::events::EventManager> m_event_manager_ref;
 };
 
 }   // namespace extensions::scheduler::providers
 
-template <
-    util::meta::specialization_of_c<core::events::EventManager> EventManager_T,
-    typename EventsAddon_T>
-template <app::has_addons_c<EventsAddon_T> App_T>
-constexpr extensions::scheduler::providers::EventProvider<EventManager_T, EventsAddon_T>::
-    EventProvider(App_T& app)
+template <>
+struct extensions::scheduler::ProviderOf<addons::Events>
+    : std::type_identity<extensions::scheduler::providers::EventProvider> {};
+
+template <>
+struct core::scheduler::ProviderFor<extensions::scheduler::accessors::events::Processor>
+    : std::type_identity<extensions::scheduler::providers::EventProvider> {};
+
+template <typename... Events_T>
+struct core::scheduler::
+    ProviderFor<extensions::scheduler::accessors::events::Recorder<Events_T...>>
+    : std::type_identity<extensions::scheduler::providers::EventProvider> {};
+
+template <typename Event_T>
+struct core::scheduler::
+    ProviderFor<extensions::scheduler::accessors::events::Reader<Event_T>>
+    : std::type_identity<extensions::scheduler::providers::EventProvider> {};
+
+template <app::has_addons_c<addons::Events> App_T>
+constexpr extensions::scheduler::providers::EventProvider::EventProvider(App_T& app)
     : m_event_manager_ref{ app.event_manager }
 {}
 
-template <
-    util::meta::specialization_of_c<core::events::EventManager> EventManager_T,
-    typename EventsAddon_T>
-template <util::meta::decays_to_c<extensions::scheduler::accessors::events::Processor>
-              Accessor_T>
-auto extensions::scheduler::providers::EventProvider<EventManager_T, EventsAddon_T>::
-    provide() const -> extensions::scheduler::accessors::events::Processor
+template <std::same_as<extensions::scheduler::accessors::events::Processor> Accessor_T>
+auto extensions::scheduler::providers::EventProvider::provide() const
+    -> extensions::scheduler::accessors::events::Processor
 {
-    return std::remove_cvref_t<Accessor_T>{ m_event_manager_ref.get() };
+    return extensions::scheduler::accessors::events::Processor{ m_event_manager_ref };
 }
 
-template <
-    util::meta::specialization_of_c<core::events::EventManager> EventManager_T,
-    typename EventsAddon_T>
-template <typename Accessor_T>
-    requires util::meta::specialization_of_c<
-        std::remove_cvref_t<Accessor_T>,
-        extensions::scheduler::accessors::events::Recorder>
-constexpr auto extensions::scheduler::providers::
-    EventProvider<EventManager_T, EventsAddon_T>::provide() const
-    -> std::remove_cvref_t<Accessor_T>
-    requires(all_registered<std::remove_cvref_t<Accessor_T>>)
+template <util::meta::specialization_of_c<
+    extensions::scheduler::accessors::events::Recorder> Recorder_T>
+constexpr auto extensions::scheduler::providers::EventProvider::provide() const
+    -> Recorder_T
 {
-    return std::remove_cvref_t<Accessor_T>{ m_event_manager_ref.get() };
+    using Events = typename Recorder_T::Events;
+
+    return util::meta::apply<Events>([this]<typename... Events_T> -> Recorder_T {
+        PRECOND((m_event_manager_ref.get().manages_event<Events_T>() && ...));
+
+        return Recorder_T{ m_event_manager_ref.get().event_buffer<Events_T>()... };
+    });
 }
 
-template <
-    util::meta::specialization_of_c<core::events::EventManager> EventManager_T,
-    typename EventsAddon_T>
-template <typename Accessor_T>
-    requires util::meta::specialization_of_c<
-        std::remove_cvref_t<Accessor_T>,
-        extensions::scheduler::accessors::events::Reader>
-constexpr auto extensions::scheduler::providers::
-    EventProvider<EventManager_T, EventsAddon_T>::provide() const
-    -> std::remove_cvref_t<Accessor_T>
-    requires(all_registered<std::remove_cvref_t<Accessor_T>>)
+template <util::meta::specialization_of_c<extensions::scheduler::accessors::events::Reader>
+              Reader_T>
+constexpr auto extensions::scheduler::providers::EventProvider::provide() const
+    -> Reader_T
 {
-    return std::remove_cvref_t<Accessor_T>{
-        m_event_manager_ref.get()
-            .template event_buffer<
-                util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>()
-    };
+    using Event = typename Reader_T::Event;
+
+    PRECOND(
+        (m_event_manager_ref.get().manages_event<Event>()),
+        std::format("Event {} was not registered", util::meta::name_of<Event>())
+    );
+
+    return Reader_T{ m_event_manager_ref.get().event_buffer<Event>() };
 }

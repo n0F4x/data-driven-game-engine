@@ -1,11 +1,10 @@
 export module core.states.state_c;
 
-import utility.meta.concepts.naked;
-import utility.meta.concepts.storable;
+import core.store.item_c;
 
 namespace core::states {
 
 export template <typename T>
-concept state_c = util::meta::storable_c<T> && util::meta::naked_c<T>;
+concept state_c = store::item_c<T>;
 
 }   // namespace core::states

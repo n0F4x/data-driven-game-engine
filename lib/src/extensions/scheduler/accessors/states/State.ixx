@@ -21,6 +21,8 @@ export template <typename State_T>
     requires core::states::state_c<std::remove_const_t<State_T>>
 class State {
 public:
+    using Underlying = State_T;
+
     constexpr explicit State(
         util::meta::const_like_t<std::optional<std::remove_const_t<State_T>>, State_T>& state
     );

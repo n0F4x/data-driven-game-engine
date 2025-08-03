@@ -1,68 +1,69 @@
 module;
 
+#include <format>
 #include <functional>
 #include <type_traits>
 
+#include "utility/contracts_macros.hpp"
+
 export module extensions.scheduler.providers.ResourceProvider;
+
+import addons.Resources;
 
 import app;
 
 import core.resources.ResourceManager;
+import core.scheduler.ProviderFor;
 
 import extensions.scheduler.accessors.resources;
+import extensions.scheduler.ProviderOf;
 
+import utility.contracts;
 import utility.meta.concepts.specialization_of;
-import utility.meta.type_traits.underlying;
+import utility.meta.reflection.name_of;
 
 namespace extensions::scheduler::providers {
 
-export template <
-    util::meta::specialization_of_c<core::resources::ResourceManager> ResourceManager_T,
-    typename ResourcesAddon_T>
-class ResourceProvider {
+export class ResourceProvider {
 public:
-    template <app::has_addons_c<ResourcesAddon_T> App_T>
+    template <app::has_addons_c<addons::Resources> App_T>
     constexpr explicit ResourceProvider(App_T& app);
 
-    template <typename Accessor_T>
-        requires util::meta::specialization_of_c<
-                     std::remove_cvref_t<Accessor_T>,
-                     accessors::resources::Resource>
-              && (ResourceManager_T::template contains<std::remove_const_t<
-                      util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>())
-    [[nodiscard]] constexpr auto provide() const -> std::remove_cvref_t<Accessor_T>;
+    template <util::meta::specialization_of_c<accessors::resources::Resource> Resource_T>
+    [[nodiscard]]
+    constexpr auto provide() const -> Resource_T;
 
 private:
-    std::reference_wrapper<ResourceManager_T> m_resource_manager;
+    std::reference_wrapper<core::resources::ResourceManager> m_resource_manager_ref;
 };
 
 }   // namespace extensions::scheduler::providers
 
-template <
-    util::meta::specialization_of_c<core::resources::ResourceManager> ResourceManager_T,
-    typename ResourcesAddon_T>
-template <app::has_addons_c<ResourcesAddon_T> App_T>
-constexpr extensions::scheduler::providers::
-    ResourceProvider<ResourceManager_T, ResourcesAddon_T>::ResourceProvider(App_T& app)
-    : m_resource_manager{ app.resource_manager }
+template <>
+struct extensions::scheduler::ProviderOf<addons::Resources>
+    : std::type_identity<extensions::scheduler::providers::ResourceProvider> {};
+
+template <typename Resource_T>
+struct core::scheduler::
+    ProviderFor<extensions::scheduler::accessors::resources::Resource<Resource_T>>
+    : std::type_identity<extensions::scheduler::providers::ResourceProvider> {};
+
+template <app::has_addons_c<addons::Resources> App_T>
+constexpr extensions::scheduler::providers::ResourceProvider::ResourceProvider(App_T& app)
+    : m_resource_manager_ref{ app.resource_manager }
 {}
 
-template <
-    util::meta::specialization_of_c<core::resources::ResourceManager> ResourceManager_T,
-    typename ResourcesAddon_T>
-template <typename Accessor_T>
-    requires util::meta::specialization_of_c<
-                 std::remove_cvref_t<Accessor_T>,
-                 extensions::scheduler::accessors::resources::Resource>
-          && (ResourceManager_T::template contains<std::remove_const_t<
-                  util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>())
-constexpr auto extensions::scheduler::providers::
-    ResourceProvider<ResourceManager_T, ResourcesAddon_T>::provide() const
-    -> std::remove_cvref_t<Accessor_T>
+template <util::meta::specialization_of_c<
+    extensions::scheduler::accessors::resources::Resource> Resource_T>
+constexpr auto extensions::scheduler::providers::ResourceProvider::provide() const
+    -> Resource_T
 {
-    return std::remove_cvref_t<Accessor_T>{
-        m_resource_manager.get()
-            .template get<std::remove_const_t<
-                util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>>()
-    };
+    using Resource = std::remove_const_t<typename Resource_T::Underlying>;
+
+    PRECOND(
+        (m_resource_manager_ref.get().contains<Resource>()),
+        std::format("Resource `{}` does not exist", util::meta::name_of<Resource>())
+    );
+
+    return Resource_T{ m_resource_manager_ref.get().at<Resource>() };
 }

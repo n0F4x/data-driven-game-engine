@@ -1,4 +1,5 @@
 add_subdirectory(accessors)
+add_subdirectory(primitives)
 add_subdirectory(providers)
 
 target_sources(${PROJECT_NAME} PUBLIC
@@ -8,5 +9,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         scheduler.cppm
         provider_c.ixx
-        provider_for.ixx
+        ProviderOf.ixx
 )

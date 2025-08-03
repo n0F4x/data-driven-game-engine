@@ -15,6 +15,8 @@ inline namespace events {
 export template <core::events::event_c Event_T>
 class Reader {
 public:
+    using Event = Event_T;
+
     constexpr explicit Reader(
         const core::events::BufferedEventQueue<Event_T>& buffered_event_queue
     );

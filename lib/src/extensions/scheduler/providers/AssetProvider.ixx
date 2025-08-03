@@ -2,67 +2,76 @@ module;
 
 #include <functional>
 #include <type_traits>
-#include <utility>
+
+#include "utility/contracts_macros.hpp"
 
 export module extensions.scheduler.providers.AssetProvider;
+
+import addons.Assets;
 
 import app;
 
 import core.assets;
+import core.scheduler.ProviderFor;
+import core.store;
 
 import extensions.scheduler.accessors.assets;
+import extensions.scheduler.ProviderOf;
 
-import utility.containers.StackedTuple;
+import utility.contracts;
+import utility.meta.algorithms.for_each;
 import utility.meta.concepts.specialization_of;
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.meta.type_traits.type_list.type_list_to;
-import utility.meta.type_traits.type_list.type_list_transform;
-import utility.meta.type_traits.underlying;
-import utility.TypeList;
 
 namespace extensions::scheduler::providers {
 
-export template <typename AssetManager_T, typename AssetsAddon_T>
-class AssetProvider {
+export class AssetProvider {
 public:
-    template <app::has_addons_c<AssetsAddon_T> App_T>
+    template <app::has_addons_c<addons::AssetsTag> App_T>
     explicit AssetProvider(App_T& app);
 
-    template <typename Accessor_T>
-        requires util::meta::
-            specialization_of_c<std::remove_cvref_t<Accessor_T>, accessors::assets::Cached>
-        [[nodiscard]]
-        auto provide() const -> std::remove_cvref_t<Accessor_T>
-        requires(AssetManager_T::template contains<
-                 util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>());
+    template <util::meta::specialization_of_c<accessors::assets::Cached> Cached_T>
+    [[nodiscard]]
+    auto provide() const -> Cached_T;
 
 private:
-    std::reference_wrapper<AssetManager_T> m_asset_manager;
+    core::store::Store m_cached_loader_refs;
 };
 
 }   // namespace extensions::scheduler::providers
 
-template <typename AssetManager_T, typename AssetsAddon_T>
-template <app::has_addons_c<AssetsAddon_T> App_T>
-extensions::scheduler::providers::AssetProvider<AssetManager_T, AssetsAddon_T>::
-    AssetProvider(App_T& app)
-    : m_asset_manager{ app.asset_manager }
-{}
+template <typename... Loaders_T>
+struct extensions::scheduler::ProviderOf<addons::Assets<Loaders_T...>>
+    : std::type_identity<extensions::scheduler::providers::AssetProvider> {};
 
-template <typename AssetManager_T, typename AssetsAddon_T>
-template <typename Accessor_T>
-    requires util::meta::specialization_of_c<
-        std::remove_cvref_t<Accessor_T>,
-        extensions::scheduler::accessors::assets::Cached>
-auto extensions::scheduler::providers::AssetProvider<AssetManager_T, AssetsAddon_T>::
-    provide() const -> std::remove_cvref_t<Accessor_T>
-    requires(
-        AssetManager_T::
-            template contains<util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>()
-    )
+template <typename Loader_T>
+struct core::scheduler::
+    ProviderFor<extensions::scheduler::accessors::assets::Cached<Loader_T>>
+    : std::type_identity<extensions::scheduler::providers::AssetProvider> {};
+
+template <app::has_addons_c<addons::AssetsTag> App_T>
+extensions::scheduler::providers::AssetProvider::AssetProvider(App_T& app)
 {
-    return std::remove_cvref_t<Accessor_T>{
-        m_asset_manager.get()
-            .template get<util::meta::underlying_t<std::remove_cvref_t<Accessor_T>>>()
-    };
+    using AssetManager = std::remove_cvref_t<decltype(app.asset_manager)>;
+
+    util::meta::for_each<typename AssetManager::Loaders>(
+        [this, asset_manager = std::ref(app.asset_manager)]<typename Loader_T> {
+            m_cached_loader_refs
+                .emplace<std::reference_wrapper<core::assets::Cached<Loader_T>>>(
+                    asset_manager.get().template get<Loader_T>()
+                );
+        }
+    );
+}
+
+template <util::meta::specialization_of_c<extensions::scheduler::accessors::assets::Cached>
+              Cached_T>
+auto extensions::scheduler::providers::AssetProvider::provide() const -> Cached_T
+{
+    using Loader          = typename Cached_T::Loader;
+    using CachedLoader    = core::assets::Cached<Loader>;
+    using CachedLoaderRef = std::reference_wrapper<CachedLoader>;
+
+    PRECOND(m_cached_loader_refs.contains<CachedLoaderRef>());
+
+    return Cached_T{ m_cached_loader_refs.at<CachedLoaderRef>() };
 }

@@ -51,5 +51,7 @@ template <core::messages::message_c... Messages_T>
 template <app::decays_to_app_c App_T>
 constexpr auto plugins::BasicMessages<Messages_T...>::build(App_T&& app)
 {
-    return std::forward<App_T>(app).add_on(addons::Messages<Messages_T...>{});
+    return std::forward<App_T>(app).add_on(
+        addons::Messages{ .message_manager{ util::TypeList<Messages_T...>{} } }
+    );
 }

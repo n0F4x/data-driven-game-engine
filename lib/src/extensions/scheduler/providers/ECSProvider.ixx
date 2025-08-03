@@ -5,32 +5,32 @@ module;
 
 export module extensions.scheduler.providers.ECSProvider;
 
+import addons.ECS;
+
 import app;
 
 import core.ecs;
+import core.scheduler.ProviderFor;
 
 import extensions.scheduler.accessors.ecs;
+import extensions.scheduler.ProviderOf;
 
 import utility.meta.concepts.specialization_of;
 
 namespace extensions::scheduler::providers {
 
-export template <typename ECSAddon_T>
-class ECSProvider {
+export class ECSProvider {
 public:
-    template <app::has_addons_c<ECSAddon_T> App_T>
+    template <app::has_addons_c<addons::ECS> App_T>
     explicit ECSProvider(App_T& app);
 
-    template <typename Accessor_T>
-        requires std::same_as<std::remove_cvref_t<Accessor_T>, accessors::ecs::Registry>
+    template <std::same_as<accessors::ecs::Registry>>
     [[nodiscard]]
-    auto provide() const -> std::remove_cvref_t<Accessor_T>;
+    auto provide() const -> accessors::ecs::Registry;
 
-    template <typename Accessor_T>
-        requires util::meta::
-            specialization_of_c<std::remove_cvref_t<Accessor_T>, accessors::ecs::Query>
-        [[nodiscard]]
-        auto provide() const -> std::remove_cvref_t<Accessor_T>;
+    template <util::meta::specialization_of_c<accessors::ecs::Query> Query_T>
+    [[nodiscard]]
+    auto provide() const -> Query_T;
 
 private:
     std::reference_wrapper<core::ecs::Registry> m_registry;
@@ -38,30 +38,34 @@ private:
 
 }   // namespace extensions::scheduler::providers
 
-template <typename ECSAddon_T>
-template <app::has_addons_c<ECSAddon_T> App_T>
-extensions::scheduler::providers::ECSProvider<ECSAddon_T>::ECSProvider(App_T& app)
+template <>
+struct extensions::scheduler::ProviderOf<addons::ECS>
+    : std::type_identity<extensions::scheduler::providers::ECSProvider> {};
+
+template <>
+struct core::scheduler::ProviderFor<extensions::scheduler::accessors::ecs::Registry>
+    : std::type_identity<extensions::scheduler::providers::ECSProvider> {};
+
+template <typename... Parameters_T>
+struct core::scheduler::
+    ProviderFor<extensions::scheduler::accessors::ecs::Query<Parameters_T...>>
+    : std::type_identity<extensions::scheduler::providers::ECSProvider> {};
+
+template <app::has_addons_c<addons::ECS> App_T>
+extensions::scheduler::providers::ECSProvider::ECSProvider(App_T& app)
     : m_registry{ app.registry }
 {}
 
-template <typename ECSAddon_T>
-template <typename Accessor_T>
-    requires std::same_as<
-        std::remove_cvref_t<Accessor_T>,
-        extensions::scheduler::accessors::ecs::Registry>
-auto extensions::scheduler::providers::ECSProvider<ECSAddon_T>::provide() const
-    -> std::remove_cvref_t<Accessor_T>
+template <std::same_as<extensions::scheduler::accessors::ecs::Registry>>
+auto extensions::scheduler::providers::ECSProvider::provide() const
+    -> accessors::ecs::Registry
 {
-    return std::remove_cvref_t<Accessor_T>{ m_registry };
+    return accessors::ecs::Registry{ m_registry };
 }
 
-template <typename ECSAddon_T>
-template <typename Accessor_T>
-    requires util::meta::specialization_of_c<
-        std::remove_cvref_t<Accessor_T>,
-        extensions::scheduler::accessors::ecs::Query>
-auto extensions::scheduler::providers::ECSProvider<ECSAddon_T>::provide() const
-    -> std::remove_cvref_t<Accessor_T>
+template <
+    util::meta::specialization_of_c<extensions::scheduler::accessors::ecs::Query> Query_T>
+auto extensions::scheduler::providers::ECSProvider::provide() const -> Query_T
 {
-    return std::remove_cvref_t<Accessor_T>{ m_registry };
+    return Query_T{ m_registry };
 }

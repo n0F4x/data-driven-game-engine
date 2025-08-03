@@ -50,5 +50,8 @@ template <core::events::event_c... Events_T>
 template <app::decays_to_app_c App_T>
 constexpr auto plugins::BasicEvents<Events_T...>::build(App_T&& app)
 {
-    return std::forward<App_T>(app).add_on(addons::Events<Events_T...>{});
+    return std::forward<App_T>(app).add_on(
+        addons::Events{
+            .event_manager = core::events::EventManager{ util::TypeList<Events_T...>{} } }
+    );
 }

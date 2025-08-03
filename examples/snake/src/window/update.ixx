@@ -6,7 +6,6 @@ module;
 
 export module snake.window.update;
 
-import core.scheduler;
 import core.time.FixedTimer;
 
 import extensions.scheduler.accessors.events.Recorder;

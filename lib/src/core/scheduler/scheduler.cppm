@@ -1,15 +1,14 @@
 export module core.scheduler;
 
-export import core.scheduler.all_of;
-export import core.scheduler.as_task_builder;
-export import core.scheduler.at_fixed_rate;
-export import core.scheduler.build;
-export import core.scheduler.concepts;
-export import core.scheduler.group;
-export import core.scheduler.in_parallel;
-export import core.scheduler.loop_until;
-export import core.scheduler.provider_index_for_accessor;
-export import core.scheduler.task_builders;
-export import core.scheduler.repeat;
-export import core.scheduler.run_if;
-export import core.scheduler.start_as;
+export import extensions.scheduler.primitives;
+
+export import core.scheduler.accessor_c;
+export import core.scheduler.Nexus;
+export import core.scheduler.converts_to_task_builder_c;
+export import core.scheduler.provide_accessors_for;
+export import core.scheduler.ProviderFor;
+export import core.scheduler.provides_c;
+export import core.scheduler.SchedulerBuilder;
+export import core.scheduler.Task;
+export import core.scheduler.TaskBuilder;
+export import core.scheduler.wrap_as_builder;

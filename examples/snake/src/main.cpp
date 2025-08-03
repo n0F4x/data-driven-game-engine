@@ -2,7 +2,7 @@ import addons.ECS;
 
 import app;
 
-import core.scheduler;
+import core.scheduler.TaskBuilder;
 import core.time;
 
 import extensions.scheduler;
@@ -22,9 +22,9 @@ import snake;
 
 using namespace extensions::scheduler::accessors;
 
-constexpr static auto initialize =   //
-    core::scheduler::group(
-        window::initialize,          //
+static const core::scheduler::TaskBuilder<void> initialize =   //
+    extensions::scheduler::group(
+        window::initialize,                                    //
         game::initialize
     );
 
@@ -38,32 +38,34 @@ auto clear_messages(const messages::Mailbox& mailbox) -> void
     mailbox.clear_messages();
 }
 
-constexpr static auto update = core::scheduler::group(window::update, game::update);
+static const core::scheduler::TaskBuilder<void> update =
+    extensions::scheduler::group(window::update, game::update);
 
-constexpr static auto render =                              //
-    core::scheduler::at_fixed_rate<window::DisplayTimer>(   //
-        core::scheduler::start_as(window::clear_window)     //
+static const core::scheduler::TaskBuilder<void> render =          //
+    extensions::scheduler::at_fixed_rate<window::DisplayTimer>(   //
+        extensions::scheduler::start_as(window::clear_window)     //
             .then(game::draw)
             .then(window::display)
     );
 
-constexpr static auto run_game_loop = core::scheduler::loop_until(
-    core::scheduler::start_as(
-        core::scheduler::group(
-            process_events,   //
-            clear_messages
+static const core::scheduler::TaskBuilder<void> run_game_loop =
+    extensions::scheduler::loop_until(
+        extensions::scheduler::start_as(
+            extensions::scheduler::group(
+                process_events,   //
+                clear_messages
+            )
         )
-    )
-        .then(update)
-        .then(render),
-    core::scheduler::all_of(
-        util::not_fn(window::window_should_close),   //
-        game::game_is_running
-    )
-);
+            .then(update)
+            .then(render),
+        extensions::scheduler::all_of(
+            util::not_fn(window::window_should_close),   //
+            game::game_is_running
+        )
+    );
 
-constexpr static auto shut_down =
-    core::scheduler::start_as(game::shut_down).then(window::close_window);
+static const core::scheduler::TaskBuilder<void> shut_down =
+    extensions::scheduler::start_as(game::shut_down).then(window::close_window);
 
 auto main() -> int
 {
@@ -79,7 +81,7 @@ auto main() -> int
         .transform(window::setup)
         .transform(game::setup)
         .run(
-            core::scheduler::start_as(initialize)   //
+            extensions::scheduler::start_as(initialize)   //
                 .then(run_game_loop)
                 .then(shut_down)
         );

@@ -50,5 +50,8 @@ template <core::states::state_c... States_T>
 template <app::decays_to_app_c App_T>
 constexpr auto plugins::BasicStates<States_T...>::build(App_T&& app)
 {
-    return std::forward<App_T>(app).add_on(addons::States<States_T...>{});
+    return std::forward<App_T>(app).add_on(
+        addons::States{
+            .state_manager = core::states::StateManager{ util::TypeList<States_T...>{} } }
+    );
 }

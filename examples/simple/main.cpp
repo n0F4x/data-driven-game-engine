@@ -4,7 +4,6 @@
 import app;
 
 import core.ecs;
-import core.scheduler;
 
 import demo.Window;
 
@@ -35,7 +34,7 @@ struct Collider {
     std::string message{};
 };
 
-constexpr static auto initialize =                                               //
+constexpr static auto initialize =                                                 //
     [](const resources::Resource<Window> window, const ecs::Registry registry) {   //
         window->open();
 
@@ -74,9 +73,9 @@ constexpr static auto game_is_running =
         return window_closed_event_reader.read().size() == 0;
     };
 
-constexpr static auto run_game_loop = core::scheduler::loop_until(
-    core::scheduler::start_as(
-        core::scheduler::group(
+static const auto run_game_loop = extensions::scheduler::loop_until(
+    extensions::scheduler::start_as(
+        extensions::scheduler::group(
             update_world,   //
             record_window_events
         )
@@ -85,7 +84,7 @@ constexpr static auto run_game_loop = core::scheduler::loop_until(
     game_is_running
 );
 
-constexpr static auto shut_down =               //
+constexpr static auto shut_down =                    //
     [](const resources::Resource<Window> window) {   //
         window->close();
     };
@@ -100,7 +99,7 @@ auto main() -> int
         .plug_in(plugins::ecs)
         .plug_in(plugins::scheduler)
         .run(
-            core::scheduler::start_as(initialize)   //
+            extensions::scheduler::start_as(initialize)   //
                 .then(run_game_loop)
                 .then(shut_down)
         );
