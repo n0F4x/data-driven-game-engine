@@ -2,6 +2,7 @@ module;
 
 #include <chrono>
 #include <cmath>
+#include <concepts>
 #include <type_traits>
 
 export module core.time.FixedTimer;
@@ -10,11 +11,13 @@ import utility.meta.concepts.specialization_of;
 
 namespace core::time {
 
+class FixedTimerBase {};
+
 // TODO: take only tick_duration_T when it becomes a valid non-type parameter
 export template <
     util::meta::specialization_of_c<std::chrono::duration> Duration_T,
     typename Duration_T::rep                               tick_duration_T>
-class FixedTimer {
+class FixedTimer : public FixedTimerBase {
 public:
     using Clock = std::chrono::steady_clock;
     using Delta = Clock::duration;
@@ -46,6 +49,9 @@ struct IsSpecializationOfFixedTimer<FixedTimer<Duration_T, tick_duration_T>>
 
 export template <typename T>
 concept specialization_of_FixedTimer_c = IsSpecializationOfFixedTimer<T>::value;
+
+export template <typename T>
+concept is_FixedTimer_c = std::derived_from<T, FixedTimerBase>;
 
 }   // namespace core::time
 

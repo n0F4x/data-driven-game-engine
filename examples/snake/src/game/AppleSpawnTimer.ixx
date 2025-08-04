@@ -10,7 +10,8 @@ import snake.game.apple_spawn_time;
 
 namespace game {
 
-export using AppleSpawnTimer = core::time::
-    FixedTimer<std::remove_cvref_t<decltype(apple_spawn_time)>, apple_spawn_time.count()>;
+export class AppleSpawnTimer : public core::time::FixedTimer<
+                                   std::remove_cvref_t<decltype(apple_spawn_time)>,
+                                   apple_spawn_time.count()> {};
 
 }   // namespace game
