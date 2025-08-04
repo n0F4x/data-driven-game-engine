@@ -2,6 +2,7 @@ module;
 
 #include <chrono>
 #include <cmath>
+#include <concepts>
 
 export module core.time.VariableTimer;
 
@@ -9,8 +10,10 @@ import utility.meta.concepts.specialization_of;
 
 namespace core::time {
 
+class VariableTimerBase {};
+
 export template <util::meta::specialization_of_c<std::chrono::duration> Duration_T>
-class VariableTimer {
+class VariableTimer : public VariableTimerBase {
 public:
     using Clock = std::chrono::steady_clock;
     using Delta = Clock::duration;
@@ -33,6 +36,9 @@ private:
     Clock::time_point m_current{ Clock::now() };
     Delta             m_delta_time{};
 };
+
+export template <typename T>
+concept is_VariableTimer_c = std::derived_from<T, VariableTimerBase>;
 
 }   // namespace core::time
 
