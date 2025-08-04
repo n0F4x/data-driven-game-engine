@@ -25,7 +25,7 @@ using namespace extensions::scheduler::accessors;
 static const core::scheduler::TaskBuilder<void> initialize =   //
     extensions::scheduler::group(
         window::initialize,                                    //
-        game::initialize
+        game::create_initialize_task_builder()
     );
 
 auto process_events(const events::Processor& event_processor) -> void
@@ -39,7 +39,7 @@ auto clear_messages(const messages::Mailbox& mailbox) -> void
 }
 
 static const core::scheduler::TaskBuilder<void> update =
-    extensions::scheduler::group(window::update, game::update);
+    extensions::scheduler::group(window::update, game::create_update_task_builder());
 
 static const core::scheduler::TaskBuilder<void> render =          //
     extensions::scheduler::at_fixed_rate<window::DisplayTimer>(   //

@@ -1,7 +1,7 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        eat_apple.cxx
-        initialize.cxx
-        update.cxx
+        create_eat_apple_task_builder.cxx
+        create_initialize_task_builder.cxx
+        create_update_task_builder.cxx
 )
 
 target_sources(${PROJECT_NAME} PRIVATE
@@ -12,14 +12,14 @@ target_sources(${PROJECT_NAME} PRIVATE
         tasks.cppm
         adjust_snake_speed.ixx
         color_cells.ixx
+        create_eat_apple_task_builder.ixx
+        create_initialize_task_builder.ixx
+        create_update_task_builder.ixx
         draw.ixx
-        eat_apple.ixx
         game_is_running.ixx
-        initialize.ixx
         move_snake.ixx
         setup.ixx
         shut_down.ixx
         spawn_apple.ixx
         trigger_world_update_message.ixx
-        update.ixx
 )

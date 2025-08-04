@@ -2,9 +2,9 @@ module;
 
 #include <cstdint>
 
-module snake.game.update;
+module snake.game.create_update_task_builder;
 
-import core.scheduler;
+import core.scheduler.TaskBuilder;
 import core.time.FixedTimer;
 
 import extensions.scheduler;
@@ -13,7 +13,7 @@ import snake.game.adjust_snake_speed;
 import snake.game.AppleSpawnTimer;
 import snake.game.AppleDigested;
 import snake.game.color_cells;
-import snake.game.eat_apple;
+import snake.game.create_eat_apple_task_builder;
 import snake.game.GameState;
 import snake.game.move_snake;
 import snake.game.spawn_apple;
@@ -48,8 +48,9 @@ auto world_update_message_received(
     return !message_receiver.receive().empty();
 }
 
-const core::scheduler::TaskBuilder<void> game::update{
-    extensions::scheduler::start_as(::update_timers)
+auto game::create_update_task_builder() -> core::scheduler::TaskBuilder<void>
+{
+    return extensions::scheduler::start_as(::update_timers)
         .then(
             extensions::scheduler::run_if(
                 adjust_snake_speed,   //
@@ -60,7 +61,7 @@ const core::scheduler::TaskBuilder<void> game::update{
             extensions::scheduler::repeat(
                 extensions::scheduler::group(
                     extensions::scheduler::start_as(move_snake)   //
-                        .then(eat_apple),
+                        .then(create_eat_apple_task_builder()),
                     trigger_world_update_message
                 ),
                 ::number_of_snake_moves
@@ -74,5 +75,5 @@ const core::scheduler::TaskBuilder<void> game::update{
                 )
             )
         )
-        .then(extensions::scheduler::run_if(color_cells, ::world_update_message_received))
-};
+        .then(extensions::scheduler::run_if(color_cells, ::world_update_message_received));
+}

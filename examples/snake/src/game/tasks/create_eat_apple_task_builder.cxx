@@ -2,10 +2,10 @@ module;
 
 #include <span>
 
-module snake.game.eat_apple;
+module snake.game.create_eat_apple_task_builder;
 
 import core.ecs;
-import core.scheduler;
+import core.scheduler.TaskBuilder;
 
 import extensions.scheduler;
 
@@ -54,12 +54,13 @@ auto grow_snake(
     }
 }
 
-const core::scheduler::TaskBuilder<void> game::eat_apple{
-    extensions::scheduler::start_as(check_apple_digestion)
+auto game::create_eat_apple_task_builder() -> core::scheduler::TaskBuilder<void>
+{
+    return extensions::scheduler::start_as(check_apple_digestion)
         .then(
             extensions::scheduler::group(
                 despawn_digested_apple,   //
                 grow_snake
             )
-        )
-};
+        );
+}

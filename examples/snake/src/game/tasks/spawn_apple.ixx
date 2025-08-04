@@ -8,7 +8,6 @@ export module snake.game.spawn_apple;
 
 import core.assets.Handle;
 import core.ecs;
-import core.scheduler;
 import core.time.FixedTimer;
 
 import extensions.scheduler.accessors.assets.Cached;

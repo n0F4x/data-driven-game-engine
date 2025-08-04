@@ -7,10 +7,10 @@ module;
 
 #include <SFML/Graphics.hpp>
 
-module snake.game.initialize;
+module snake.game.create_initialize_task_builder;
 
 import core.ecs;
-import core.scheduler;
+import core.scheduler.TaskBuilder;
 import core.time.FixedTimer;
 
 import extensions.scheduler;
@@ -152,13 +152,11 @@ auto reset_timers(
     game_state->snake_move_timer.reset();
 }
 
-namespace game {
-
-const core::scheduler::TaskBuilder<void> initialize =   //
-    extensions::scheduler::start_as(::initialize_map)
+auto game::create_initialize_task_builder() -> core::scheduler::TaskBuilder<void>
+{
+    return extensions::scheduler::start_as(::initialize_map)
         .then(::initialize_snake)
         .then(::load_apple_texture)
         .then(color_cells)
         .then(::reset_timers);
-
-}   // namespace game
+}
