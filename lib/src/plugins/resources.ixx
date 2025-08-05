@@ -53,7 +53,7 @@ public:
 
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
-    auto build(App_T&& app) &&;
+    auto build(App_T&& app) && -> app::add_on_t<App_T, addons::Resources>;
 
     template <resource_c Resource_T>
     [[nodiscard]]
@@ -150,7 +150,7 @@ auto plugins::Resources::inject_resource(this Self_T&& self, Injection_T&& injec
 }
 
 template <app::decays_to_app_c App_T>
-auto plugins::Resources::build(App_T&& app) &&
+auto plugins::Resources::build(App_T&& app) && -> app::add_on_t<App_T, addons::Resources>
 {
     static_assert(!app::has_addons_c<App_T, addons::Resources>);
 

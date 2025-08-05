@@ -4,7 +4,7 @@ module;
 
 export module plugins.ecs;
 
-import app.decays_to_app_c;
+import app;
 
 import addons.ECS;
 
@@ -16,7 +16,7 @@ export class ECS : public ECSTag {
 public:
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
-    constexpr auto build(App_T&& app);
+    constexpr auto build(App_T&& app) -> app::add_on_t<App_T, addons::ECS>;
 };
 
 export inline constexpr ECS ecs;
@@ -24,7 +24,7 @@ export inline constexpr ECS ecs;
 }   // namespace plugins
 
 template <app::decays_to_app_c App_T>
-constexpr auto plugins::ECS::build(App_T&& app)
+constexpr auto plugins::ECS::build(App_T&& app) -> app::add_on_t<App_T, addons::ECS>
 {
     return std::forward<App_T>(app).add_on(addons::ECS{});
 }

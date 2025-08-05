@@ -4,6 +4,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         app.cppm
+        add_on_t.ixx
         addon_c.ixx
         App.ixx
         app_c.ixx

@@ -4,12 +4,11 @@ module;
 
 export module plugins.events;
 
-import app.Builder;
-import app.decays_to_app_c;
-import app.decays_to_builder_c;
-import core.events;
-
 import addons.Events;
+
+import app;
+
+import core.events;
 
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.TypeList;
@@ -27,7 +26,7 @@ public:
 
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
-    constexpr auto build(App_T&& app);
+    constexpr auto build(App_T&& app) -> app::add_on_t<App_T, addons::Events>;
 };
 
 export using Events = BasicEvents<>;
@@ -49,6 +48,7 @@ constexpr auto plugins::BasicEvents<Events_T...>::register_event(this Self_T&& s
 template <core::events::event_c... Events_T>
 template <app::decays_to_app_c App_T>
 constexpr auto plugins::BasicEvents<Events_T...>::build(App_T&& app)
+    -> app::add_on_t<App_T, addons::Events>
 {
     return std::forward<App_T>(app).add_on(
         addons::Events{

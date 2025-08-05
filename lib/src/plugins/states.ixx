@@ -4,12 +4,11 @@ module;
 
 export module plugins.states;
 
-import app.Builder;
-import app.decays_to_app_c;
-import app.decays_to_builder_c;
-import core.states;
-
 import addons.States;
+
+import app;
+
+import core.states;
 
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.TypeList;
@@ -27,7 +26,7 @@ public:
 
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
-    constexpr auto build(App_T&& app);
+    constexpr auto build(App_T&& app) -> app::add_on_t<App_T, addons::States>;
 };
 
 export using States = BasicStates<>;
@@ -49,6 +48,7 @@ constexpr auto plugins::BasicStates<States_T...>::register_state(this Self_T&& s
 template <core::states::state_c... States_T>
 template <app::decays_to_app_c App_T>
 constexpr auto plugins::BasicStates<States_T...>::build(App_T&& app)
+    -> app::add_on_t<App_T, addons::States>
 {
     return std::forward<App_T>(app).add_on(
         addons::States{

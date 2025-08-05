@@ -1,6 +1,7 @@
 export module app;
 
 export import app.addon_c;
+export import app.add_on_t;
 export import app.App;
 export import app.app_c;
 export import app.Builder;

@@ -4,12 +4,11 @@ module;
 
 export module plugins.messages;
 
-import app.Builder;
-import app.decays_to_app_c;
-import app.decays_to_builder_c;
-import core.messages;
-
 import addons.Messages;
+
+import app;
+
+import core.messages;
 
 import utility.meta.type_traits.type_list.type_list_contains;
 import utility.TypeList;
@@ -28,7 +27,7 @@ public:
 
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
-    constexpr auto build(App_T&& app);
+    constexpr auto build(App_T&& app) -> app::add_on_t<App_T, addons::Messages>;
 };
 
 export using Messages = BasicMessages<>;
@@ -50,6 +49,7 @@ constexpr auto plugins::BasicMessages<Messages_T...>::register_message(this Self
 template <core::messages::message_c... Messages_T>
 template <app::decays_to_app_c App_T>
 constexpr auto plugins::BasicMessages<Messages_T...>::build(App_T&& app)
+    -> app::add_on_t<App_T, addons::Messages>
 {
     return std::forward<App_T>(app).add_on(
         addons::Messages{ .message_manager{ util::TypeList<Messages_T...>{} } }

@@ -67,7 +67,9 @@ public:
 
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
-    constexpr auto build(App_T&& app) &&;
+    constexpr auto build(
+        App_T&& app
+    ) && -> app::add_on_t<App_T, addons::Assets<util::meta::result_of_t<Injections_T>...>>;
 
 private:
     template <plugins::asset_loader_injection_c...>
@@ -187,7 +189,9 @@ constexpr auto plugins::BasicAssets<Injections_T...>::inject_loader(
 
 template <plugins::asset_loader_injection_c... Injections_T>
 template <app::decays_to_app_c App_T>
-constexpr auto plugins::BasicAssets<Injections_T...>::build(App_T&& app) &&
+constexpr auto plugins::BasicAssets<Injections_T...>::build(
+    App_T&& app
+) && -> app::add_on_t<App_T, addons::Assets<util::meta::result_of_t<Injections_T>...>>
 {
     using AssetsAddon = addons::Assets<util::meta::result_of_t<Injections_T>...>;
 
