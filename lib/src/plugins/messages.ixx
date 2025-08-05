@@ -32,8 +32,6 @@ public:
 
 export using Messages = BasicMessages<>;
 
-export inline constexpr Messages messages;
-
 }   // namespace plugins
 
 template <core::messages::message_c... Messages_T>

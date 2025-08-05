@@ -27,8 +27,6 @@ public:
     constexpr auto run(this Self_T&&, TaskBuilder_T&& task_builder);
 };
 
-export inline constexpr Scheduler scheduler;
-
 }   // namespace plugins
 
 template <typename App_T>

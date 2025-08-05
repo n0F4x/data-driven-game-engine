@@ -22,8 +22,6 @@ public:
         -> std::invoke_result_t<Modifier_T, Self_T&&>;
 };
 
-export inline constexpr Functional functional;
-
 }   // namespace plugins
 
 template <app::decays_to_builder_c Self_T, plugins::modifier_c<Self_T> Modifier_T>

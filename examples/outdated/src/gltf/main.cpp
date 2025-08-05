@@ -51,9 +51,9 @@ try {
     constexpr static float movement_speed{ 10 };
 
     app::create()
-        .plug_in(plugins::functional)
+        .plug_in(plugins::Functional{})
         .plug_in(plugins::Resources{})
-        .plug_in(plugins::runnable)
+        .plug_in(plugins::Runnable{})
         .inject_resource(::cache_plugin)
         .insert_resource(core::window::Window(util::Size2i{ 1'280, 720 }, "My window"))
         .transform(extensions::renderer::setup.require(::require_vulkan_version(1, 1)))

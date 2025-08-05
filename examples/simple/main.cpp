@@ -94,10 +94,10 @@ auto main() -> int
     app::create()
         .plug_in(plugins::Resources{})
         .insert_resource(Window{})
-        .plug_in(plugins::events)
+        .plug_in(plugins::Events{})
         .register_event<WindowClosed>()
-        .plug_in(plugins::ecs)
-        .plug_in(plugins::scheduler)
+        .plug_in(plugins::ECS{})
+        .plug_in(plugins::Scheduler{})
         .run(
             extensions::scheduler::start_as(initialize)   //
                 .then(run_game_loop)

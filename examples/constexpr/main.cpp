@@ -22,7 +22,7 @@ auto main() -> int
                      .inject_resource([](const First& first) -> Second {
                          return Second{ .ref = first.value };
                      })
-                     .plug_in(plugins::runnable)
+                     .plug_in(plugins::Runnable{})
                      .run([](auto app) {
                          return app.resource_manager.template at<Second>().ref.get();
                      });

@@ -19,8 +19,6 @@ public:
     constexpr auto build(App_T&& app) -> app::add_on_t<App_T, addons::ECS>;
 };
 
-export inline constexpr ECS ecs;
-
 }   // namespace plugins
 
 template <app::decays_to_app_c App_T>

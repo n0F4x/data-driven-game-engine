@@ -31,8 +31,6 @@ public:
 
 export using States = BasicStates<>;
 
-export inline constexpr States states;
-
 }   // namespace plugins
 
 template <core::states::state_c... States_T>

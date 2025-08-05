@@ -17,9 +17,9 @@ import demos.virtual_texture.DemoApp;
 auto main() -> int
 try {
     app::create()
-        .plug_in(plugins::functional)
+        .plug_in(plugins::Functional{})
         .plug_in(plugins::Resources{})
-        .plug_in(plugins::runnable)
+        .plug_in(plugins::Runnable{})
         .insert_resource(
             core::window::Window(util::Size2i{ 1'280, 720 }, "Virtual texturing demo")
         )
