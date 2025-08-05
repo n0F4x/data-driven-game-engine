@@ -87,7 +87,9 @@ auto core::store::Store::at(this Self_T&& self)
         self.template contains<Item_T>(),
         std::format("Item {} not found", util::meta::name_of<Item_T>())
     );
-    return util::any_cast<Item_T>(std::forward_like<Self_T>(self.m_map.at(typeid(Item_T)))
+
+    return util::any_cast<Item_T>(   //
+        std::forward_like<Self_T>(self.m_map.at(typeid(Item_T)))
     );
 }
 

@@ -18,7 +18,7 @@ auto main() -> int
 try {
     app::create()
         .plug_in(plugins::functional)
-        .plug_in(plugins::resources)
+        .plug_in(plugins::Resources{})
         .plug_in(plugins::runnable)
         .insert_resource(
             core::window::Window(util::Size2i{ 1'280, 720 }, "Virtual texturing demo")

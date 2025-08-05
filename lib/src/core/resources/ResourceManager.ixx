@@ -1,6 +1,5 @@
 module;
 
-#include <functional>
 #include <utility>
 
 export module core.resources.ResourceManager;
@@ -9,19 +8,15 @@ import core.resources.resource_c;
 import core.store.Store;
 
 import utility.containers.OptionalRef;
-import utility.meta.concepts.functional.unambiguously_invocable;
 import utility.meta.type_traits.const_like;
 import utility.meta.type_traits.forward_like;
-import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.functional.result_of;
-import utility.TypeList;
 
 namespace core::resources {
 
 export class ResourceManager {
 public:
-    template <util::meta::unambiguously_invocable_c... Factories_T>
-    explicit ResourceManager(Factories_T&&... factories);
+    ResourceManager() = default;
+    explicit ResourceManager(store::Store&& store);
 
     template <resource_c Resource_T, typename Self_T>
     [[nodiscard]]
@@ -42,28 +37,9 @@ private:
 
 }   // namespace core::resources
 
-template <typename Factory_T>
-[[nodiscard]]
-auto produce_resource(Factory_T&& factory, core::store::Store& store)
-    -> util::meta::result_of_t<Factory_T>
-{
-    return [&factory,
-            &store]<typename... Dependencies_T>(util::TypeList<Dependencies_T...>) {
-        return std::invoke(
-            std::forward<Factory_T>(factory),
-            store.at<std::remove_cvref_t<Dependencies_T>>()...
-        );
-    }(util::meta::arguments_of_t<Factory_T>{});
-}
-
-template <util::meta::unambiguously_invocable_c... Factories_T>
-core::resources::ResourceManager::ResourceManager(Factories_T&&... factories)
-{
-    (m_store.emplace<util::meta::result_of_t<Factories_T>>(
-         ::produce_resource(std::forward<Factories_T>(factories), m_store)
-     ),
-     ...);
-}
+core::resources::ResourceManager::ResourceManager(store::Store&& store)
+    : m_store{ std::move(store) }
+{}
 
 template <core::resources::resource_c Resource_T, typename Self_T>
 auto core::resources::ResourceManager::find(this Self_T& self) noexcept

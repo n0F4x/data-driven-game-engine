@@ -1,9 +1,13 @@
 module;
 
+#include <algorithm>
 #include <functional>
-#include <string>
 #include <type_traits>
+#include <typeindex>
 #include <utility>
+#include <vector>
+
+#include "utility/contracts_macros.hpp"
 
 export module plugins.resources;
 
@@ -12,16 +16,12 @@ import addons.Resources;
 import app;
 
 import core.resources;
+import core.store.Store;
 
-import utility.meta.algorithms.apply;
-import utility.meta.algorithms.for_each;
-import utility.meta.reflection.name_of;
-import utility.meta.type_traits.back;
+import utility.contracts;
+import utility.meta.concepts.type_list.type_list_all_of;
 import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.result_of;
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.meta.type_traits.type_list.type_list_drop_back;
-import utility.tuple;
 import utility.TypeList;
 
 namespace plugins {
@@ -29,194 +29,145 @@ namespace plugins {
 export template <typename T>
 concept resource_c = core::resources::resource_c<T>;
 
+template <typename T>
+struct ResourceDependency
+    : std::bool_constant<
+          !std::is_rvalue_reference_v<T> && resource_c<std::remove_cvref_t<T>>> {};
+
 export template <typename T>
-concept resource_injection_c = resource_c<util::meta::result_of_t<T>>;
+concept resource_injection_c =
+    resource_c<util::meta::result_of_t<T>>
+    && util::meta::type_list_all_of_c<util::meta::arguments_of_t<T>, ResourceDependency>;
 
 export template <typename T>
 concept decays_to_resource_injection_c = resource_injection_c<std::decay_t<T>>;
 
-export struct ResourcesTag {};
-
-template <plugins::resource_injection_c... Injections_T>
-class BasicResources;
-
-template <typename... Injections_T>
-using old_resources_t =
-    util::meta::type_list_drop_back_t<plugins::BasicResources<Injections_T...>>;
-
-template <plugins::resource_injection_c... Injections_T>
-class BasicResources : public ResourcesTag {
+export class Resources {
 public:
-    BasicResources() = default;
-
-    template <typename OldBasicResources_T, typename... Args_T>
-        requires std::same_as<
-            std::remove_cvref_t<OldBasicResources_T>,
-            old_resources_t<Injections_T...>>
-    constexpr BasicResources(
-        OldBasicResources_T&& old_resources,
-        std::in_place_t,
-        Args_T&&... args
-    );
-
-    template <app::decays_to_builder_c Self_T, typename Resource_T>
+    template <typename Self_T, typename Resource_T>
         requires plugins::resource_c<std::remove_cvref_t<Resource_T>>
-    constexpr auto insert_resource(this Self_T&&, Resource_T&& resource);
+    auto insert_resource(this Self_T&& self, Resource_T&& resource) -> Self_T;
 
-    template <
-        app::decays_to_builder_c                Self_T,
-        plugins::decays_to_resource_injection_c Injection_T>
-    constexpr auto inject_resource(this Self_T&&, Injection_T&& injection);
+    template <typename Self_T, plugins::decays_to_resource_injection_c Injection_T>
+    auto inject_resource(this Self_T&& self, Injection_T&& injection) -> Self_T;
 
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
-    constexpr auto build(App_T&& app) &&;
+    auto build(App_T&& app) &&;
+
+    template <resource_c Resource_T>
+    [[nodiscard]]
+    auto contains_resource() const -> bool;
 
 private:
-    template <plugins::resource_injection_c...>
-    friend class BasicResources;
+    using Caller = std::function<void(core::store::Store&)>;
 
-    std::tuple<std::decay_t<Injections_T>...> m_injections;
+    core::store::Store           m_injections;
+    std::vector<Caller>          m_callers;
+    std::vector<std::type_index> m_types;
 };
-
-export using Resources = BasicResources<>;
-
-export inline constexpr Resources resources;
 
 }   // namespace plugins
 
-template <plugins::resource_injection_c... Injections_T>
-template <typename OldBasicResources_T, typename... Args>
-    requires std::same_as<
-        std::remove_cvref_t<OldBasicResources_T>,
-        plugins::old_resources_t<Injections_T...>>
-constexpr plugins::BasicResources<Injections_T...>::BasicResources(
-    OldBasicResources_T&& old_resources,
-    std::in_place_t,
-    Args&&... args
-)
-    : m_injections{ std::tuple_cat(
-          std::forward_like<OldBasicResources_T>(old_resources.m_injections),
-          std::make_tuple(
-              std::decay_t<util::meta::back_t<Injections_T...>>(std::forward<Args>(args
-              )...)
-          )
-      ) }
-{}
-
-template <plugins::resource_injection_c... Injections_T>
-template <app::decays_to_builder_c Self_T, typename Resource_T>
+template <typename Self_T, typename Resource_T>
     requires plugins::resource_c<std::remove_cvref_t<Resource_T>>
-constexpr auto plugins::BasicResources<Injections_T...>::insert_resource(
-    this Self_T&& self,
-    Resource_T&&  resource
-)
+auto plugins::Resources::insert_resource(this Self_T&& self, Resource_T&& resource)
+    -> Self_T
 {
     using Resource = std::remove_cvref_t<Resource_T>;
 
-    struct Injection {
-        constexpr auto operator()() && -> Resource
-        {
-            return std::move(resource);
-        }
+    Resources& this_self{ static_cast<Resources&>(self) };
 
+    PRECOND((!this_self.contains_resource<Resource>()));
+
+    struct Injection {
         Resource resource;
     };
 
-    return std::forward<Self_T>(self).inject_resource(
-        Injection{ std::forward<Resource_T>(resource) }
-    );
-}
+    Injection& injection = this_self.m_injections.emplace<Injection>(Injection{
+        std::forward<Resource_T>(resource) });
 
-template <typename>
-struct gather_helper;
-
-template <template <typename...> typename TypeList_T, typename... SelectedTypes_T>
-struct gather_helper<TypeList_T<SelectedTypes_T...>> {
-    template <typename... Ts>
-    [[nodiscard]]
-    constexpr static auto operator()(std::tuple<Ts...>& tuple)
-        -> std::tuple<SelectedTypes_T...>
-    {
-        return { std::forward_like<SelectedTypes_T>(
-            std::get<std::remove_cvref_t<SelectedTypes_T>>(tuple)
-        )... };
-    }
-};
-
-template <typename Callable_T, typename... Ts>
-constexpr auto gather_parameters(std::tuple<Ts...>& tuple)
-{
-    using namespace std::literals::string_literals;
-
-    using RequiredResourcesTuple_T = util::meta::arguments_of_t<Callable_T>;
-
-    util::meta::for_each<RequiredResourcesTuple_T>([]<typename Dependency_T> {
-        static_assert(
-            util::meta::type_list_contains_v<
-                util::TypeList<Ts...>,
-                std::remove_cvref_t<Dependency_T>>,
-            // TODO: constexpr std::format
-            "Dependency `"s + util::meta::name_of<std::remove_cvref_t<Dependency_T>>()
-                + "` not found for `" + util::meta::name_of<Callable_T>() + "`"
-        );
+    this_self.m_callers.push_back([&injection](core::store::Store& store) -> void {
+        store.emplace<Resource>(std::move(injection.resource));
     });
 
-    return gather_helper<RequiredResourcesTuple_T>::operator()(tuple);
+    this_self.m_types.push_back(typeid(Resource));
+
+    return std::forward<Self_T>(self);
 }
 
-template <plugins::resource_injection_c... Injections_T>
-template <app::decays_to_builder_c Self_T, plugins::decays_to_resource_injection_c Injection_T>
-constexpr auto plugins::BasicResources<Injections_T...>::inject_resource(
-    this Self_T&& self,
-    Injection_T&& injection
-)
+template <typename Injection_T>
+auto call_injection(Injection_T&& injection, core::store::Store& parameter_store)
+    -> util::meta::result_of_t<Injection_T>
 {
+    using Parameters = util::meta::arguments_of_t<Injection_T>;
+    static_assert(util::meta::type_list_all_of_c<Parameters, std::is_lvalue_reference>);
+
+    return [&injection,
+            &parameter_store]<typename... Parameters_T>(util::TypeList<Parameters_T...>) {
+        return std::invoke(
+            std::forward<Injection_T>(injection),
+            parameter_store.at<std::remove_cvref_t<Parameters_T>>()...
+        );
+    }(Parameters{});
+}
+
+template <typename Self_T, plugins::decays_to_resource_injection_c Injection_T>
+auto plugins::Resources::inject_resource(this Self_T&& self, Injection_T&& injection)
+    -> Self_T
+{
+    using Resource  = std::remove_cvref_t<util::meta::result_of_t<Injection_T>>;
+    using Injection = std::decay_t<Injection_T>;
+
+    Resources& this_self{ static_cast<Resources&>(self) };
+
+    PRECOND((!this_self.contains_resource<Resource>()));
+
     if constexpr (requires { requires std::is_function_v<decltype(Injection_T::setup)>; })
     {
-        std::apply(
-            Injection_T::setup,
-            ::gather_parameters<decltype(Injection_T::setup)>(self.m_injections)
-        );
+        ::call_injection(Injection_T::setup, this_self.m_injections);
     }
     else if constexpr (requires {
                            requires std::
                                is_member_function_pointer_v<decltype(&Injection_T::setup)>;
                        })
     {
-        std::apply(
-            std::bind_front(&Injection_T::setup, injection),
-            ::gather_parameters<decltype(&Injection_T::setup)>(self.m_injections)
+        ::call_injection(
+            std::bind_front(&Injection_T::setup, injection), this_self.m_injections
         );
     }
 
-    return app::swap_plugin<BasicResources>(
-        std::forward<Self_T>(self),
-        [&]<typename BasicResources_T>
-            requires(std::is_same_v<std::remove_cvref_t<BasicResources_T>, BasicResources>)
-        (BasicResources_T&& resources) {
-            return BasicResources<Injections_T..., std::decay_t<Injection_T>>{
-                std::forward<BasicResources_T>(resources),
-                std::in_place,
-                std::forward<Injection_T>(injection)
-            };
-        }
-        );
+    Injection& stored_injection =
+        this_self.m_injections.emplace<Injection>(std::forward<Injection_T>(injection));
+
+    this_self.m_callers.push_back([&stored_injection](core::store::Store& store) -> void {
+        store.emplace<Resource>(::call_injection(std::move(stored_injection), store));
+    });
+
+    this_self.m_types.push_back(typeid(Resource));
+
+    return std::forward<Self_T>(self);
 }
 
-template <plugins::resource_injection_c... Injections_T>
 template <app::decays_to_app_c App_T>
-constexpr auto plugins::BasicResources<Injections_T...>::build(App_T&& app) &&
+auto plugins::Resources::build(App_T&& app) &&
 {
     static_assert(!app::has_addons_c<App_T, addons::Resources>);
 
-    return util::meta::apply<std::make_index_sequence<sizeof...(Injections_T)>>(
-        [this, &app]<size_t... indices_T> {
-            return std::forward<App_T>(app).add_on(
-                addons::Resources{
-                    .resource_manager{ std::move(std::get<indices_T>(m_injections))... },
-                }
-            );
+    core::store::Store store;
+    for (const Caller& caller : m_callers) {
+        caller(store);
+    }
+
+    return std::forward<App_T>(app).add_on(
+        addons::Resources{
+            .resource_manager{ std::move(store) },
         }
     );
+}
+
+template <plugins::resource_c Resource_T>
+auto plugins::Resources::contains_resource() const -> bool
+{
+    return std::ranges::contains(m_types, typeid(Resource_T));
 }

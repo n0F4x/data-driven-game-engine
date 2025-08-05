@@ -29,7 +29,7 @@ inline constexpr Settings settings{
 
 export inline constexpr auto setup =
     []<app::decays_to_builder_c Builder_T>(Builder_T&& builder) {
-        static_assert(app::has_plugins_c<Builder_T, plugins::ResourcesTag>);
+        static_assert(app::has_plugins_c<Builder_T, plugins::Resources>);
         static_assert(app::has_plugins_c<Builder_T, plugins::EventsTag>);
 
         return std::forward<Builder_T>(builder)

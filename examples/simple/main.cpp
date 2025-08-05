@@ -92,7 +92,7 @@ constexpr static auto shut_down =                    //
 auto main() -> int
 {
     app::create()
-        .plug_in(plugins::resources)
+        .plug_in(plugins::Resources{})
         .insert_resource(Window{})
         .plug_in(plugins::events)
         .register_event<WindowClosed>()

@@ -47,7 +47,7 @@ class Setup {
 public:
     Setup();
 
-    template <app::has_plugins_c<plugins::ResourcesTag, plugins::Functional> Builder_T>
+    template <app::has_plugins_c<plugins::Resources, plugins::Functional> Builder_T>
     auto operator()(Builder_T&& builder);
 
     template <typename Self>
@@ -60,7 +60,7 @@ private:
 
 class SetupProxy {
 public:
-    template <app::has_plugins_c<plugins::ResourcesTag, plugins::Functional> Builder_T>
+    template <app::has_plugins_c<plugins::Resources, plugins::Functional> Builder_T>
     static auto operator()(Builder_T&& builder);
 
     static auto require(Requirement requirement) -> Setup<SurfaceInjection>;
@@ -162,7 +162,7 @@ auto to_device_dependency(const extensions::renderer::Requirement& requirement)
 }
 
 template <plugins::resource_injection_c SurfaceInjection_T>
-template <app::has_plugins_c<plugins::ResourcesTag, plugins::Functional> Builder_T>
+template <app::has_plugins_c<plugins::Resources, plugins::Functional> Builder_T>
 auto extensions::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builder)
 {
     return std::forward<Builder_T>(builder)
@@ -209,7 +209,7 @@ auto extensions::renderer::Setup<SurfaceInjection_T>::require(
     return std::forward<Self>(self);
 }
 
-template <app::has_plugins_c<plugins::ResourcesTag, plugins::Functional> Builder_T>
+template <app::has_plugins_c<plugins::Resources, plugins::Functional> Builder_T>
 auto extensions::renderer::SetupProxy::operator()(Builder_T&& builder)
 {
     return std::forward<Builder_T>(builder).transform(Setup<SurfaceInjection>{});

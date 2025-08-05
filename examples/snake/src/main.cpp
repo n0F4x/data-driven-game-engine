@@ -71,7 +71,7 @@ auto main() -> int
 {
     app::create()
         .plug_in(plugins::scheduler)
-        .plug_in(plugins::resources)
+        .plug_in(plugins::Resources{})
         .plug_in(plugins::states)
         .plug_in(plugins::events)
         .plug_in(plugins::messages)

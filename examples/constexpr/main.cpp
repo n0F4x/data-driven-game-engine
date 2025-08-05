@@ -16,17 +16,16 @@ struct Second {
 auto main() -> int
 {
     // ordered_map is not constexpr 😢
-    int result =
-        app::create()
-            .plug_in(plugins::resources)
-            .insert_resource(First{})
-            .inject_resource([](const First& first) -> Second {
-                return Second{ .ref = first.value };
-            })
-            .plug_in(plugins::runnable)
-            .run([](auto app) {
-                return app.resource_manager.template at<Second>().ref.get();
-            });
+    int result = app::create()
+                     .plug_in(plugins::Resources{})
+                     .insert_resource(First{})
+                     .inject_resource([](const First& first) -> Second {
+                         return Second{ .ref = first.value };
+                     })
+                     .plug_in(plugins::runnable)
+                     .run([](auto app) {
+                         return app.resource_manager.template at<Second>().ref.get();
+                     });
 
     return result;
 }
