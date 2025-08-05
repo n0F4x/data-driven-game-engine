@@ -76,7 +76,7 @@ auto main() -> int
         .plug_in(plugins::events)
         .plug_in(plugins::messages)
         .plug_in(plugins::ecs)
-        .plug_in(plugins::assets)
+        .plug_in(plugins::Assets{})
         .plug_in(plugins::functional)
         .transform(window::setup)
         .transform(game::setup)

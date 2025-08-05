@@ -30,14 +30,14 @@ export template <typename T>
 concept resource_c = core::resources::resource_c<T>;
 
 template <typename T>
-struct ResourceDependency
+struct IsResourceDependency
     : std::bool_constant<
           !std::is_rvalue_reference_v<T> && resource_c<std::remove_cvref_t<T>>> {};
 
 export template <typename T>
 concept resource_injection_c =
     resource_c<util::meta::result_of_t<T>>
-    && util::meta::type_list_all_of_c<util::meta::arguments_of_t<T>, ResourceDependency>;
+    && util::meta::type_list_all_of_c<util::meta::arguments_of_t<T>, IsResourceDependency>;
 
 export template <typename T>
 concept decays_to_resource_injection_c = resource_injection_c<std::decay_t<T>>;

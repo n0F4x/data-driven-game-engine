@@ -4,11 +4,8 @@ import core.assets;
 
 namespace addons {
 
-export struct AssetsTag {};
-
-export template <core::assets::loader_c... Loaders_T>
-struct Assets : AssetsTag {
-    core::assets::AssetManager<Loaders_T...> asset_manager;
+export struct Assets {
+    core::assets::AssetManager asset_manager;
 };
 
 }   // namespace addons
