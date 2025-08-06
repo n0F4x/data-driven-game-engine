@@ -24,15 +24,15 @@ import snake.game.WorldUpdate;
 
 namespace game {
 
-inline constexpr Settings settings{
-    .cells_per_row    = 20,
-    .cells_per_column = 20,
-    .cell_width       = 32,
-};
-
 export inline constexpr auto setup =
-    []<app::decays_to_builder_c Builder_T>(Builder_T&& builder)   //
+    []<app::decays_to_builder_c Builder_T>(Builder_T&& builder) -> Builder_T   //
 {
+    constexpr Settings settings{
+        .cells_per_row    = 20,
+        .cells_per_column = 20,
+        .cell_width       = 32,
+    };
+
     static_assert(app::has_plugins_c<Builder_T, plugins::States>);
     static_assert(app::has_plugins_c<Builder_T, plugins::Events>);
     static_assert(app::has_plugins_c<Builder_T, plugins::Messages>);
