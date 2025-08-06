@@ -1,26 +1,29 @@
 module;
 
-#include <functional>
+#include <flat_map>
+#include <ranges>
+#include <typeindex>
 #include <utility>
+
+#include "utility/contracts_macros.hpp"
 
 export module core.messages.MessageManager;
 
 import core.messages.message_c;
 import core.messages.MessageBuffer;
-import core.store.Store;
+import core.messages.ErasedMessageBuffer;
 
-import utility.meta.algorithms.for_each;
+import utility.containers.Any;
+import utility.contracts;
 import utility.meta.type_traits.const_like;
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.tuple.tuple_for_each;
-import utility.TypeList;
 
 namespace core::messages {
 
 export class MessageManager {
 public:
-    template <message_c... Messages_T>
-    explicit MessageManager(util::TypeList<Messages_T...>);
+    explicit MessageManager(
+        std::flat_map<std::type_index, ErasedMessageBuffer>&& message_buffers
+    );
 
     template <message_c Message_T, typename Self_T>
     [[nodiscard]]
@@ -34,43 +37,37 @@ public:
     auto clear_messages() -> void;
 
 private:
-    store::Store          m_message_buffers;
-    std::function<void()> m_clear_messages;
+    std::flat_map<std::type_index, ErasedMessageBuffer> m_message_buffers;
 };
 
 }   // namespace core::messages
-
-template <core::messages::message_c... Messages_T>
-core::messages::MessageManager::MessageManager(util::TypeList<Messages_T...>)
-{
-    (m_message_buffers.emplace<MessageBuffer<Messages_T>>(), ...);
-    m_clear_messages =
-        [buffer_refs_tuple =
-             std::tuple<std::reference_wrapper<MessageBuffer<Messages_T>>...>{
-                 m_message_buffers.at<MessageBuffer<Messages_T>>()... }] {
-            // TODO: remove this ignore with next Clang version
-            std::ignore = buffer_refs_tuple;
-            (std::get<std::reference_wrapper<MessageBuffer<Messages_T>>>(buffer_refs_tuple)
-                 .get()
-                 .clear(),
-             ...);
-        };
-}
 
 template <core::messages::message_c Message_T, typename Self_T>
 auto core::messages::MessageManager::message_buffer(this Self_T& self)
     -> util::meta::const_like_t<MessageBuffer<Message_T>, Self_T>&
 {
-    return self.m_message_buffers.template at<MessageBuffer<Message_T>>();
+    const auto iter{ self.m_message_buffers.find(typeid(Message_T)) };
+    PRECOND(iter != self.m_message_buffers.cend());
+    return util::any_cast<MessageBuffer<Message_T>>(iter->second);
 }
 
 template <core::messages::message_c Message_T>
 auto core::messages::MessageManager::manages_message() const noexcept -> bool
 {
-    return m_message_buffers.contains<MessageBuffer<Message_T>>();
+    return m_message_buffers.contains(typeid(Message_T));
 }
+
+module :private;
+
+core::messages::MessageManager::MessageManager(
+    std::flat_map<std::type_index, ErasedMessageBuffer>&& message_buffers
+)
+    : m_message_buffers{ std::move(message_buffers) }
+{}
 
 auto core::messages::MessageManager::clear_messages() -> void
 {
-    m_clear_messages();
+    for (auto& message_buffer : m_message_buffers | std::views::values) {
+        message_buffer.clear();
+    }
 }

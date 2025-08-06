@@ -35,7 +35,7 @@ export inline constexpr auto setup =
 {
     static_assert(app::has_plugins_c<Builder_T, plugins::StatesTag>);
     static_assert(app::has_plugins_c<Builder_T, plugins::Events>);
-    static_assert(app::has_plugins_c<Builder_T, plugins::MessagesTag>);
+    static_assert(app::has_plugins_c<Builder_T, plugins::Messages>);
     static_assert(app::has_plugins_c<Builder_T, plugins::Functional>);
 
     return std::forward<Builder_T>(builder)

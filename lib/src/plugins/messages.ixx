@@ -1,5 +1,7 @@
 module;
 
+#include <flat_map>
+#include <typeindex>
 #include <utility>
 
 export module plugins.messages;
@@ -10,46 +12,36 @@ import app;
 
 import core.messages;
 
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.TypeList;
-
 namespace plugins {
 
-export struct MessagesTag {};
-
-export template <core::messages::message_c... Messages_T>
-class BasicMessages : public MessagesTag {
+export class Messages {
 public:
-    template <core::messages::message_c Message_T, app::decays_to_builder_c Self_T>
-        requires(!util::meta::
-                     type_list_contains_v<util::TypeList<Messages_T...>, Message_T>)
-    constexpr auto register_message(this Self_T&&);
+    template <core::messages::message_c Message_T, typename Self_T>
+    auto register_message(this Self_T&&) -> Self_T;
 
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
-    constexpr auto build(App_T&& app) -> app::add_on_t<App_T, addons::Messages>;
-};
+    auto build(App_T&& app) && -> app::add_on_t<App_T, addons::Messages>;
 
-export using Messages = BasicMessages<>;
+private:
+    std::flat_map<std::type_index, core::messages::ErasedMessageBuffer> m_message_buffers;
+};
 
 }   // namespace plugins
 
-template <core::messages::message_c... Messages_T>
-template <core::messages::message_c Message_T, app::decays_to_builder_c Self_T>
-    requires(!util::meta::type_list_contains_v<util::TypeList<Messages_T...>, Message_T>)
-constexpr auto plugins::BasicMessages<Messages_T...>::register_message(this Self_T&& self)
+template <core::messages::message_c Message_T, typename Self_T>
+auto plugins::Messages::register_message(this Self_T&& self) -> Self_T
 {
-    return app::swap_plugin<BasicMessages>(std::forward<Self_T>(self), [](auto&&) {
-        return BasicMessages<Messages_T..., Message_T>{};
-    });
+    static_cast<Messages&>(self)
+        .m_message_buffers.try_emplace(typeid(Message_T), std::in_place_type<Message_T>);
+
+    return std::forward<Self_T>(self);
 }
 
-template <core::messages::message_c... Messages_T>
 template <app::decays_to_app_c App_T>
-constexpr auto plugins::BasicMessages<Messages_T...>::build(App_T&& app)
-    -> app::add_on_t<App_T, addons::Messages>
+auto plugins::Messages::build(App_T&& app) && -> app::add_on_t<App_T, addons::Messages>
 {
     return std::forward<App_T>(app).add_on(
-        addons::Messages{ .message_manager{ util::TypeList<Messages_T...>{} } }
+        addons::Messages{ .message_manager{ std::move(m_message_buffers) } }
     );
 }
