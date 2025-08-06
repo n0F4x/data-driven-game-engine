@@ -16,8 +16,7 @@ namespace core::states {
 
 export class StateManager {
 public:
-    template <state_c... States_T>
-    StateManager(util::TypeList<States_T...>);
+    explicit StateManager(store::Store&& states);
 
     template <state_c State_T, typename Self_T>
     [[nodiscard]]
@@ -38,12 +37,6 @@ private:
 
 }   // namespace core::states
 
-template <core::states::state_c... States_T>
-core::states::StateManager::StateManager(util::TypeList<States_T...>)
-{
-    (m_states.emplace<std::optional<States_T>>(), ...);
-}
-
 template <core::states::state_c State_T, typename Self_T>
 auto core::states::StateManager::find(this Self_T& self) noexcept
     -> util::OptionalRef<util::meta::const_like_t<std::optional<State_T>, Self_T>>
@@ -63,3 +56,9 @@ auto core::states::StateManager::contains() const noexcept -> bool
 {
     return m_states.contains<std::optional<State_T>>();
 }
+
+module :private;
+
+core::states::StateManager::StateManager(store::Store&& states)
+    : m_states{ std::move(states) }
+{}
