@@ -34,7 +34,7 @@ export inline constexpr auto setup =
     []<app::decays_to_builder_c Builder_T>(Builder_T&& builder)   //
 {
     static_assert(app::has_plugins_c<Builder_T, plugins::StatesTag>);
-    static_assert(app::has_plugins_c<Builder_T, plugins::EventsTag>);
+    static_assert(app::has_plugins_c<Builder_T, plugins::Events>);
     static_assert(app::has_plugins_c<Builder_T, plugins::MessagesTag>);
     static_assert(app::has_plugins_c<Builder_T, plugins::Functional>);
 

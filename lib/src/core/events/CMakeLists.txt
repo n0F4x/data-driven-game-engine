@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         events.cppm
         BufferedEventQueue.ixx
         decays_to_event_c.ixx
+        ErasedBufferedEventQueue.ixx
         event_c.ixx
         EventManager.ixx
 )

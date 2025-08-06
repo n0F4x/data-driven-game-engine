@@ -1,5 +1,7 @@
 module;
 
+#include <flat_map>
+#include <typeindex>
 #include <utility>
 
 export module plugins.events;
@@ -10,46 +12,37 @@ import app;
 
 import core.events;
 
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.TypeList;
-
 namespace plugins {
 
-export struct EventsTag {};
-
-export template <core::events::event_c... Events_T>
-class BasicEvents : public EventsTag {
+export class Events {
 public:
-    template <core::events::event_c Event_T, app::decays_to_builder_c Self_T>
-        requires(!util::meta::type_list_contains_v<util::TypeList<Events_T...>, Event_T>)
-    constexpr auto register_event(this Self_T&&);
+    template <core::events::event_c Event_T, typename Self_T>
+    auto register_event(this Self_T&&) -> Self_T;
 
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
-    constexpr auto build(App_T&& app) -> app::add_on_t<App_T, addons::Events>;
-};
+    auto build(App_T&& app) && -> app::add_on_t<App_T, addons::Events>;
 
-export using Events = BasicEvents<>;
+private:
+    std::flat_map<std::type_index, core::events::ErasedBufferedEventQueue>
+        m_buffered_event_queues;
+};
 
 }   // namespace plugins
 
-template <core::events::event_c... Events_T>
-template <core::events::event_c Event_T, app::decays_to_builder_c Self_T>
-    requires(!util::meta::type_list_contains_v<util::TypeList<Events_T...>, Event_T>)
-constexpr auto plugins::BasicEvents<Events_T...>::register_event(this Self_T&& self)
+template <core::events::event_c Event_T, typename Self_T>
+auto plugins::Events::register_event(this Self_T&& self) -> Self_T
 {
-    return app::swap_plugin<BasicEvents>(std::forward<Self_T>(self), [](auto&&) {
-        return BasicEvents<Events_T..., Event_T>{};
-    });
+    static_cast<Events&>(self)
+        .m_buffered_event_queues.try_emplace(typeid(Event_T), std::in_place_type<Event_T>);
+
+    return std::forward<Self_T>(self);
 }
 
-template <core::events::event_c... Events_T>
 template <app::decays_to_app_c App_T>
-constexpr auto plugins::BasicEvents<Events_T...>::build(App_T&& app)
-    -> app::add_on_t<App_T, addons::Events>
+auto plugins::Events::build(App_T&& app) && -> app::add_on_t<App_T, addons::Events>
 {
     return std::forward<App_T>(app).add_on(
-        addons::Events{
-            .event_manager = core::events::EventManager{ util::TypeList<Events_T...>{} } }
+        addons::Events{ .event_manager{ std::move(m_buffered_event_queues) } }
     );
 }
