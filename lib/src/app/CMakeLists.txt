@@ -17,5 +17,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         decays_to_plugin_c.ixx
         has_addons_c.ixx
         has_plugins_c.ixx
+        plug_in_t.ixx
         plugin_c.ixx
 )

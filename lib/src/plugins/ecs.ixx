@@ -10,9 +10,7 @@ import addons.ECS;
 
 namespace plugins {
 
-export struct ECSTag {};
-
-export class ECS : public ECSTag {
+export class ECS {
 public:
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
