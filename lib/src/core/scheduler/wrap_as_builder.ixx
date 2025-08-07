@@ -33,15 +33,14 @@ auto wrap_as_builder(SchedulerBuilder_T&& scheduler_builder) -> TaskBuilder<void
 }   // namespace core::scheduler
 
 template <util::meta::unambiguously_invocable_c F>
-auto core::scheduler::wrap_as_builder(F&& func)
-    -> TaskBuilder<util::meta::result_of_t<F>>
+auto core::scheduler::wrap_as_builder(F&& func) -> TaskBuilder<util::meta::result_of_t<F>>
 {
     return TaskBuilder<util::meta::result_of_t<F>>{
         [wrapped_func = std::forward<F>(func
          )](Nexus& nexus) -> Task<util::meta::result_of_t<F>> {
             return Task<util::meta::result_of_t<F>>{
-                [wrapped_func, accessors_tuple = provide_accessors_for<F>(nexus)]
-                -> util::meta::result_of_t<F> {
+                [wrapped_func, accessors_tuple = provide_accessors_for<F>(nexus)] mutable
+                    -> util::meta::result_of_t<F> {
                     return std::apply(wrapped_func, accessors_tuple);
                 }
             };
@@ -59,11 +58,10 @@ template <typename TaskBuilder_T>
 }
 
 template <typename SchedulerBuilder_T>
-    requires std::same_as<
-        std::remove_cvref_t<SchedulerBuilder_T>,
-        core::scheduler::SchedulerBuilder>
-auto core::scheduler::wrap_as_builder(SchedulerBuilder_T&& scheduler_builder)
-    -> TaskBuilder<void>
+    requires std::
+        same_as<std::remove_cvref_t<SchedulerBuilder_T>, core::scheduler::SchedulerBuilder>
+    auto core::scheduler::wrap_as_builder(SchedulerBuilder_T&& scheduler_builder)
+        -> TaskBuilder<void>
 {
     return std::forward<SchedulerBuilder_T>(scheduler_builder);
 }

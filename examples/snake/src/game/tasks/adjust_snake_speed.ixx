@@ -23,9 +23,9 @@ using namespace extensions::scheduler::accessors::states;
 namespace game {
 
 export auto adjust_snake_speed(
-    Resource<Settings>                settings,
-    State<GameState>                  game_state,
-    Query<core::ecs::ID, With<Snake>> snakes
+    Resource<Settings>                 settings,
+    State<GameState>                   game_state,
+    Query<core::ecs::ID, With<Snake>>& snakes
 ) -> void;
 
 }   // namespace game
@@ -33,9 +33,9 @@ export auto adjust_snake_speed(
 module :private;
 
 auto game::adjust_snake_speed(
-    const Resource<Settings>                settings,
-    const State<GameState>                  game_state,
-    const Query<core::ecs::ID, With<Snake>> snakes
+    const Resource<Settings>           settings,
+    const State<GameState>             game_state,
+    Query<core::ecs::ID, With<Snake>>& snakes
 ) -> void
 {
     int number_of_snakes{};

@@ -130,7 +130,7 @@ public:
 private:
     template <query_parameter_c... Parameters_T>
         requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-    friend struct QueryClosure;
+    friend class Query;
 
 
     ::ComponentTableMap                                m_component_tables;

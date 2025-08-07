@@ -17,11 +17,10 @@ public:
     explicit Query(core::ecs::Registry& registry);
 
     template <typename F>
-    auto for_each(F&& func) const -> F;
+    auto for_each(F&& func) -> F;
 
 private:
-    // TODO: Use `std::reference_wrapper` with next Clang
-    core::ecs::Registry* m_registry;
+    core::ecs::Query<Parameters_T...> m_query;
 };
 
 }   // namespace ecs
@@ -33,15 +32,14 @@ template <core::ecs::query_parameter_c... Parameters_T>
 extensions::scheduler::accessors::ecs::Query<Parameters_T...>::Query(
     core::ecs::Registry& registry
 )
-    : m_registry{ &registry }
+    : m_query{ registry }
 {}
 
 template <core::ecs::query_parameter_c... Parameters_T>
     requires(sizeof...(Parameters_T) != 0)
 template <typename F>
-auto extensions::scheduler::accessors::ecs::Query<Parameters_T...>::for_each(
-    F&& func
-) const -> F
+auto extensions::scheduler::accessors::ecs::Query<Parameters_T...>::for_each(F&& func)
+    -> F
 {
-    return core::ecs::query<Parameters_T...>(*m_registry, std::forward<F>(func));
+    return m_query(std::forward<F>(func));
 }

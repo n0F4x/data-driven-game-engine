@@ -22,9 +22,9 @@ using namespace extensions::scheduler::accessors::events;
 using namespace extensions::scheduler::accessors::messages;
 
 auto check_apple_digestion(
-    const Query<core::ecs::ID, With<game::SnakeHead>, With<game::Apple>> eaten_apples,
-    const Recorder<game::AppleDigested>                                  event_recorder,
-    const Sender<game::DigestedApple>                                    message_sender
+    Query<core::ecs::ID, With<game::SnakeHead>, With<game::Apple>>& eaten_apples,
+    const Recorder<game::AppleDigested>                             event_recorder,
+    const Sender<game::DigestedApple>                               message_sender
 ) -> void
 {
     eaten_apples.for_each([message_sender, event_recorder](const core::ecs::ID id) {
@@ -45,7 +45,7 @@ auto despawn_digested_apple(
 }
 
 auto grow_snake(
-    const Query<game::Snake>            snake_body,
+    Query<game::Snake>&                 snake_body,
     const Receiver<game::DigestedApple> message_receiver
 ) -> void
 {

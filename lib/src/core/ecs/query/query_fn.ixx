@@ -22,11 +22,11 @@ concept deducable_query_function_c =
     util::meta::unambiguously_invocable_c<F>
     && util::meta::
         type_list_none_of_c<util::meta::arguments_of_t<F>, std::is_rvalue_reference>
-    && requires {
+    && requires(core::ecs::Registry& registry) {
            util::meta::type_list_to_t<
                util::meta::
                    type_list_transform_t<util::meta::arguments_of_t<F>, std::remove_reference>,
-               core::ecs::QueryClosure>{};
+               core::ecs::Query>{ registry };
        };
 
 namespace core::ecs {
@@ -50,8 +50,7 @@ template <core::ecs::query_parameter_c... Parameters_T, typename F>
     requires(sizeof...(Parameters_T) != 0)
 auto core::ecs::query(Registry& registry, F&& func) -> F
 {
-    constexpr static QueryClosure<Parameters_T...> query_closure;
-    return query_closure(registry, std::forward<F>(func));
+    return Query<Parameters_T...>{ registry }(std::forward<F>(func));
 }
 
 template <deducable_query_function_c F>

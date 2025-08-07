@@ -5,8 +5,8 @@ import :query.query_parameter_components_are_all_different_c;
 
 namespace core::ecs {
 
-template <core::ecs::query_parameter_c... Parameters_T>
+export template <core::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-struct QueryClosure;
+class Query;
 
 }   // namespace core::ecs

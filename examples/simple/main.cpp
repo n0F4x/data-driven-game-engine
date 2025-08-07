@@ -47,12 +47,12 @@ constexpr static auto process_events =                //
     };
 
 constexpr static auto update_world =   //
-    [](const ecs::Query<
+    [](ecs::Query<
         const Position,
         Without<Health>,
         With<EnemyTag>,
         Optional<Renderable>,
-        Optional<const Collider>> entities)   //
+        Optional<const Collider>>& entities)   //
 {
     entities.for_each([](const Position,
                          const util::OptionalRef<Renderable>,
