@@ -10,7 +10,7 @@ Therefore, given the chaotic nature of asset creation, the framework offers one 
 [,c++]
 ----
 app::create()
-    .plug_in(plugins::assets)
+    .plug_in(plugins::Assets{})
     .insert_loader(MyAssetLoader{});
 ----
 
@@ -60,7 +60,7 @@ public:
 };
 
 app::create()
-    .plug_in(plugins::assets)
+    .plug_in(plugins::Assets{})
     .insert_loader(TextureLoader{});
     .inject_loader(
         [](core::assets::Cached<TextureLoader>& texture_loader) {

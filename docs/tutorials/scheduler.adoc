@@ -6,7 +6,7 @@ The base of an application is the scheduler, which is responsible for running th
 ."Hello World!" using the scheduler
 ----
 app::create()
-    .plug_in(plugins::scheduler)
+    .plug_in(plugins::Scheduler{})
     .run([] { std::println("Hello World!"); });
 ----
 
@@ -23,7 +23,7 @@ auto say_hi() -> void {
 }
 
 app::create()
-    .plug_in(plugins::scheduler)
+    .plug_in(plugins::Scheduler{})
     .run(
         core::scheduler::start_as(say_hello)
             .then(say_hi)

@@ -25,6 +25,6 @@ Similar to resources and events, they should also be registered in advance.
 [,c++]
 ----
 app::create()
-    .plug_in(plugins::states)
+    .plug_in(plugins::States{})
     .register_state<GameState>();
 ----

@@ -6,7 +6,7 @@ Most game engines use an event system, not just for handling input, but other ki
 [,c++]
 ----
 app::create()
-    .plug_in(plugins::events)
+    .plug_in(plugins::Events{})
     .register_event<WindowClosedEvent>();
 ----
 

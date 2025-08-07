@@ -7,7 +7,7 @@ They are designed to be initialized before startup and easily accessible by syst
 ----
 auto app =
     app::create()
-        .plug_in(plugins::resources)
+        .plug_in(plugins::Resources{})
         .insert_resource(MyResource{})
         .build();
 
@@ -22,7 +22,7 @@ In order to access another *previously* initialized resource, you should inject 
 [,c++]
 ----
 app::create()
-   .plug_in(plugins::resources)
+   .plug_in(plugins::Resources{})
    .insert_resource(Dependee{})
    .inject_resource([](Dependee& dependee) { return Dependant{ dependee }; })
    .build();
