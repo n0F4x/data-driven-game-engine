@@ -53,13 +53,13 @@ auto extensions::scheduler::run_if(
          wrapped_predicate_task_builder = core::scheduler::wrap_as_builder(
              std::forward<PredicateTaskBuilder_T>(predicate_task_builder)
          )](core::scheduler::Nexus& nexus) -> core::scheduler::Task<void> {
-            return
-                [task           = wrapped_task_builder.build(nexus),
-                 predicate_task = wrapped_predicate_task_builder.build(nexus)] -> void {
-                    if (predicate_task()) {
-                        task();
-                    }
-                };
+            return [task = wrapped_task_builder.build(nexus),
+                    predicate_task =
+                        wrapped_predicate_task_builder.build(nexus)] mutable -> void {
+                if (predicate_task()) {
+                    task();
+                }
+            };
         }
     };
 }

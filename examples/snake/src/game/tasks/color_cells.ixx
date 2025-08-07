@@ -21,7 +21,7 @@ using namespace core::ecs::query_parameter_tags;
 namespace game {
 
 export auto color_cells(
-    ecs::Query<Optional<const SnakeHead>, Optional<const Snake>, Optional<const Apple>, Cell>
+    Query<Optional<const SnakeHead>, Optional<const Snake>, Optional<const Apple>, Cell>&
         cells
 ) -> void;
 
@@ -30,7 +30,7 @@ export auto color_cells(
 module :private;
 
 auto game::color_cells(
-    ecs::Query<Optional<const SnakeHead>, Optional<const Snake>, Optional<const Apple>, Cell>
+    Query<Optional<const SnakeHead>, Optional<const Snake>, Optional<const Apple>, Cell>&
         cells
 ) -> void
 {

@@ -14,7 +14,13 @@ import core.scheduler.Task;
 import core.scheduler.TaskBuilder;
 
 import utility.meta.concepts.functional.unambiguously_invocable;
+import utility.meta.concepts.type_list.type_list_all_of;
+import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.result_of;
+
+template <typename T>
+struct IsConstructibleFromReference
+    : std::bool_constant<std::constructible_from<T, std::remove_cvref_t<T>&>> {};
 
 namespace core::scheduler {
 
@@ -30,13 +36,18 @@ public:
 
     template <typename Self_T, util::meta::unambiguously_invocable_c F>
         requires std::same_as<util::meta::result_of_t<F>, void>
+              && util::meta::type_list_all_of_c<
+                     util::meta::arguments_of_t<F>,
+                     ::IsConstructibleFromReference>
     [[nodiscard]]
     auto then(this Self_T&&, F&& func) -> SchedulerBuilder;
+
     template <typename Self_T, typename TaskBuilder_T>
         requires specialization_of_TaskBuilder_c<std::remove_cvref_t<TaskBuilder_T>>
               && std::same_as<typename std::remove_cvref_t<TaskBuilder_T>::Result, void>
     [[nodiscard]]
     auto then(this Self_T&&, TaskBuilder_T&& task_builder) -> SchedulerBuilder;
+
     template <typename Self_T, typename ScheduleBuilder_T>
         requires std::same_as<std::remove_cvref_t<ScheduleBuilder_T>, SchedulerBuilder>
     [[nodiscard]]
@@ -67,6 +78,9 @@ core::scheduler::SchedulerBuilder::operator TaskBuilder<void>(this Self_T && sel
 
 template <typename Self_T, util::meta::unambiguously_invocable_c F>
     requires std::same_as<util::meta::result_of_t<F>, void>
+          && util::meta::type_list_all_of_c<
+                 util::meta::arguments_of_t<F>,
+                 IsConstructibleFromReference>
 auto core::scheduler::SchedulerBuilder::then(this Self_T&& self, F&& func)
     -> SchedulerBuilder
 {
@@ -98,7 +112,7 @@ auto core::scheduler::SchedulerBuilder::then(
          wrapped_next_task_builder = std::forward<TaskBuilder_T>(task_builder
          )](Nexus& nexus) -> Task<void> {
             return [task      = wrapped_task_builder.build(nexus),
-                    next_task = wrapped_next_task_builder.build(nexus)] -> void {
+                    next_task = wrapped_next_task_builder.build(nexus)] mutable -> void {
                 task();
                 std::invoke(next_task);
             };

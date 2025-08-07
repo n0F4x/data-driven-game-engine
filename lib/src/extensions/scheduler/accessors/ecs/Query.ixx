@@ -15,6 +15,8 @@ export template <core::ecs::query_parameter_c... Parameters_T>
 class Query {
 public:
     explicit Query(core::ecs::Registry& registry);
+    Query(const Query&) = delete("Queries should be taken by reference");
+    Query(Query&&)      = default;
 
     template <typename F>
     auto for_each(F&& func) -> F;

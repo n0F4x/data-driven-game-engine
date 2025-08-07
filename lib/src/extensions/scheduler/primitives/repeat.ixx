@@ -56,9 +56,9 @@ auto extensions::scheduler::repeat(
                  repetition_specifier_task_builder
              )
          )](core::scheduler::Nexus& nexus) -> core::scheduler::Task<void> {
-            return [task = wrapped_task_builder.build(nexus),
-                    repetition_specifier_task =
-                        wrapped_repetition_specifier_task_builder.build(nexus)] -> void {
+            return [task                      = wrapped_task_builder.build(nexus),
+                    repetition_specifier_task = wrapped_repetition_specifier_task_builder
+                                                    .build(nexus)] mutable -> void {
                 for (const auto _ : std::views::repeat(
                          std::ignore, std::invoke(repetition_specifier_task)
                      ))

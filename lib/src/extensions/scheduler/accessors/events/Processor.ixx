@@ -1,7 +1,6 @@
 module;
 
 #include <functional>
-#include <utility>
 
 export module extensions.scheduler.accessors.events.Processor;
 

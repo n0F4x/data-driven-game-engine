@@ -40,7 +40,7 @@ auto extensions::scheduler::primitives::all_of(TaskBuilders_T&&... task_builders
         [... wrapped_task_builders = core::scheduler::wrap_as_builder(
              std::forward<TaskBuilders_T>(task_builders)
          )](core::scheduler::Nexus& nexus) -> core::scheduler::Task<bool> {
-            return [... tasks = wrapped_task_builders.build(nexus)] -> bool {
+            return [... tasks = wrapped_task_builders.build(nexus)] mutable -> bool {
                 return (tasks() && ...);
             };
         }
