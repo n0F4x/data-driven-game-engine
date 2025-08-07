@@ -56,9 +56,7 @@ constexpr auto swap_plugin(Builder_T&& builder, Transform_T&& transform_plugin)
 export template <plugin_c... Plugins_T>
 class Builder : public Plugins_T... {
 public:
-    Builder()
-        requires(sizeof...(Plugins_T) == 0)
-    = default;
+    Builder() = default;
 
     template <typename Self_T, decays_to_plugin_c Plugin_T>
         requires(!util::meta::type_list_contains_v<util::TypeList<Plugins_T...>, Plugin_T>)

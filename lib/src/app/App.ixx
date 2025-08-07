@@ -45,11 +45,9 @@ constexpr auto swap_addon(App_T&& app, Transform_T&& transform_addon)
 export template <addon_c... Addons_T>
 class App : public Addons_T... {
 public:
-    using Addons = util::TypeList<Addons_T...>;
+    App() = default;
 
-    App()
-        requires(sizeof...(Addons_T) == 0)
-    = default;
+    using Addons = util::TypeList<Addons_T...>;
 
     template <typename Self_T, decays_to_addon_c Addon_T>
         requires(!util::meta::type_list_contains_v<util::TypeList<Addons_T...>, Addon_T>)
