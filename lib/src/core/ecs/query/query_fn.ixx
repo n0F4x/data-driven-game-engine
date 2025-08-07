@@ -13,6 +13,7 @@ import utility.meta.type_traits.type_list.type_list_contains;
 import utility.meta.type_traits.type_list.type_list_index_of;
 import utility.meta.type_traits.type_list.type_list_to;
 import utility.meta.type_traits.type_list.type_list_transform;
+import utility.TypeList;
 
 import :query.QueryClosure;
 import :Registry;
@@ -44,6 +45,10 @@ auto query(Registry& registry, F&& func) -> F;
 export template <deducable_query_function_c F>
 auto query(Registry& registry, F&& func) -> F;
 
+export template <query_parameter_c... Parameters_T>
+    requires(sizeof...(Parameters_T) != 0)
+auto count(Registry& registry) -> std::size_t;
+
 }   // namespace core::ecs
 
 template <core::ecs::query_parameter_c... Parameters_T, typename F>
@@ -61,7 +66,7 @@ auto core::ecs::query(Registry& registry, F&& func) -> F
             return query<std::remove_reference_t<QueryParameters_T>...>(
                 registry,
                 [&func]<typename... Args_T>(Args_T&&... args) {
-                    using DecayedArgsTypeList = std::tuple<std::decay_t<Args_T>...>;
+                    using DecayedArgsTypeList = util::TypeList<std::decay_t<Args_T>...>;
                     std::invoke(
                         std::forward<F>(func),
                         [&args...]<
@@ -91,4 +96,11 @@ auto core::ecs::query(Registry& registry, F&& func) -> F
         }
     );
     return std::forward<F>(func);
+}
+
+template <core::ecs::query_parameter_c... Parameters_T>
+    requires(sizeof...(Parameters_T) != 0)
+auto core::ecs::count(Registry& registry) -> std::size_t
+{
+    return Query<Parameters_T...>{ registry }.count();
 }

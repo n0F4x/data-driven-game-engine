@@ -396,3 +396,13 @@ TEST_CASE("core::ecs::query")
         }
     }
 }
+
+TEST_CASE("core::ecs::count")
+{
+    core::ecs::Registry registry;
+
+    registry.create(int{});
+    registry.create(int{}, float{});
+
+    REQUIRE((core::ecs::count<int>(registry) == 2));
+}

@@ -176,7 +176,8 @@ public:
     template <::invocable_with_c<FunctionParameters> F>
     auto operator()(F&& func) -> F;
 
-    auto cache_component_tables() -> void;
+    [[nodiscard]]
+    auto count() -> std::size_t;
 
 private:
     [[nodiscard]]
@@ -233,6 +234,8 @@ private:
     std::reference_wrapper<Registry>   m_registry_ref;
     IncludedOptionalComponentTableRefs m_included_optional_component_table_refs;
     bool                               m_acquired_all_included_component_tables{};
+
+    auto cache_component_tables() -> void;
 };
 
 }   // namespace core::ecs
@@ -280,6 +283,37 @@ auto core::ecs::Query<Parameters_T...>::operator()(F&& func) -> F
     }
 
     return std::forward<F>(func);
+}
+
+template <core::ecs::query_parameter_c... Parameters_T>
+    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
+auto core::ecs::Query<Parameters_T...>::count() -> std::size_t
+{
+    cache_component_tables();
+    if (!m_acquired_all_included_component_tables) {
+        return 0;
+    }
+
+    std::size_t result{};
+    for (const ArchetypeID archetype_id :
+         matching_archetype_ids_from(smallest_group_of_required_archetype_ids_from(
+             m_included_optional_component_table_refs
+         )))
+    {
+        util::meta::apply<QueriedParameters>(
+            [this, &result, archetype_id]<typename... QueriedParameter_T> {
+                result += std::views::zip(
+                              queried_type_view_from<QueriedParameter_T>(
+                                  m_registry_ref,
+                                  m_included_optional_component_table_refs,
+                                  archetype_id
+                              )...
+                )
+                              .size();
+            }
+        );
+    }
+    return result;
 }
 
 template <core::ecs::query_parameter_c... Parameters_T>
