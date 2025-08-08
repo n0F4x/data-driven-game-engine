@@ -1,6 +1,5 @@
 add_subdirectory(assets)
 add_subdirectory(cache)
-add_subdirectory(config)
 add_subdirectory(ecs)
 add_subdirectory(events)
 add_subdirectory(gfx)

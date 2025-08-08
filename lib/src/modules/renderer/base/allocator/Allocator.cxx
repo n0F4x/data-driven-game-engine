@@ -16,7 +16,7 @@ import modules.renderer.base.resources.Allocation;
 import modules.renderer.base.resources.Buffer;
 import modules.renderer.base.resources.Image;
 
-import modules.config.vulkan;
+import config.vulkan;
 
 import modules.renderer.base.instance.Instance;
 import modules.renderer.base.device.Device;
@@ -96,43 +96,43 @@ static auto vma_allocator_create_flags(
 static auto get_vulkan_functions() -> VmaVulkanFunctions
 {
     return VmaVulkanFunctions{
-        .vkGetInstanceProcAddr = modules::config::vulkan::dispatcher().vkGetInstanceProcAddr,
-        .vkGetDeviceProcAddr   = modules::config::vulkan::dispatcher().vkGetDeviceProcAddr,
+        .vkGetInstanceProcAddr = config::vulkan::dispatcher().vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr   = config::vulkan::dispatcher().vkGetDeviceProcAddr,
         .vkGetPhysicalDeviceProperties =
-            modules::config::vulkan::dispatcher().vkGetPhysicalDeviceProperties,
+            config::vulkan::dispatcher().vkGetPhysicalDeviceProperties,
         .vkGetPhysicalDeviceMemoryProperties =
-            modules::config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties,
-        .vkAllocateMemory = modules::config::vulkan::dispatcher().vkAllocateMemory,
-        .vkFreeMemory     = modules::config::vulkan::dispatcher().vkFreeMemory,
-        .vkMapMemory      = modules::config::vulkan::dispatcher().vkMapMemory,
-        .vkUnmapMemory    = modules::config::vulkan::dispatcher().vkUnmapMemory,
+            config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties,
+        .vkAllocateMemory = config::vulkan::dispatcher().vkAllocateMemory,
+        .vkFreeMemory     = config::vulkan::dispatcher().vkFreeMemory,
+        .vkMapMemory      = config::vulkan::dispatcher().vkMapMemory,
+        .vkUnmapMemory    = config::vulkan::dispatcher().vkUnmapMemory,
         .vkFlushMappedMemoryRanges =
-            modules::config::vulkan::dispatcher().vkFlushMappedMemoryRanges,
+            config::vulkan::dispatcher().vkFlushMappedMemoryRanges,
         .vkInvalidateMappedMemoryRanges =
-            modules::config::vulkan::dispatcher().vkInvalidateMappedMemoryRanges,
-        .vkBindBufferMemory = modules::config::vulkan::dispatcher().vkBindBufferMemory,
-        .vkBindImageMemory  = modules::config::vulkan::dispatcher().vkBindImageMemory,
+            config::vulkan::dispatcher().vkInvalidateMappedMemoryRanges,
+        .vkBindBufferMemory = config::vulkan::dispatcher().vkBindBufferMemory,
+        .vkBindImageMemory  = config::vulkan::dispatcher().vkBindImageMemory,
         .vkGetBufferMemoryRequirements =
-            modules::config::vulkan::dispatcher().vkGetBufferMemoryRequirements,
+            config::vulkan::dispatcher().vkGetBufferMemoryRequirements,
         .vkGetImageMemoryRequirements =
-            modules::config::vulkan::dispatcher().vkGetImageMemoryRequirements,
-        .vkCreateBuffer  = modules::config::vulkan::dispatcher().vkCreateBuffer,
-        .vkDestroyBuffer = modules::config::vulkan::dispatcher().vkDestroyBuffer,
-        .vkCreateImage   = modules::config::vulkan::dispatcher().vkCreateImage,
-        .vkDestroyImage  = modules::config::vulkan::dispatcher().vkDestroyImage,
-        .vkCmdCopyBuffer = modules::config::vulkan::dispatcher().vkCmdCopyBuffer,
+            config::vulkan::dispatcher().vkGetImageMemoryRequirements,
+        .vkCreateBuffer  = config::vulkan::dispatcher().vkCreateBuffer,
+        .vkDestroyBuffer = config::vulkan::dispatcher().vkDestroyBuffer,
+        .vkCreateImage   = config::vulkan::dispatcher().vkCreateImage,
+        .vkDestroyImage  = config::vulkan::dispatcher().vkDestroyImage,
+        .vkCmdCopyBuffer = config::vulkan::dispatcher().vkCmdCopyBuffer,
         .vkGetBufferMemoryRequirements2KHR =
-            modules::config::vulkan::dispatcher().vkGetBufferMemoryRequirements2,
+            config::vulkan::dispatcher().vkGetBufferMemoryRequirements2,
         .vkGetImageMemoryRequirements2KHR =
-            modules::config::vulkan::dispatcher().vkGetImageMemoryRequirements2,
-        .vkBindBufferMemory2KHR = modules::config::vulkan::dispatcher().vkBindBufferMemory2,
-        .vkBindImageMemory2KHR  = modules::config::vulkan::dispatcher().vkBindImageMemory2,
+            config::vulkan::dispatcher().vkGetImageMemoryRequirements2,
+        .vkBindBufferMemory2KHR = config::vulkan::dispatcher().vkBindBufferMemory2,
+        .vkBindImageMemory2KHR  = config::vulkan::dispatcher().vkBindImageMemory2,
         .vkGetPhysicalDeviceMemoryProperties2KHR =
-            modules::config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties2,
+            config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties2,
         .vkGetDeviceBufferMemoryRequirements =
-            modules::config::vulkan::dispatcher().vkGetDeviceBufferMemoryRequirements,
+            config::vulkan::dispatcher().vkGetDeviceBufferMemoryRequirements,
         .vkGetDeviceImageMemoryRequirements =
-            modules::config::vulkan::dispatcher().vkGetDeviceImageMemoryRequirements,
+            config::vulkan::dispatcher().vkGetDeviceImageMemoryRequirements,
     };
 }
 

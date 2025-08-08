@@ -2,7 +2,6 @@ export module modules;
 
 export import modules.assets;
 export import modules.cache;
-export import modules.config;
 export import modules.ecs;
 export import modules.events;
 export import modules.gfx;

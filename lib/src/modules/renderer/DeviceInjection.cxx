@@ -12,7 +12,7 @@ import vulkan_hpp;
 
 import app.App;
 
-import modules.config.vulkan;
+import config.vulkan;
 
 import modules.log;
 

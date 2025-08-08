@@ -16,7 +16,7 @@ module modules.window.Window;
 
 import modules.log;
 
-import modules.config.vulkan;
+import config.vulkan;
 
 import utility.Size;
 
@@ -28,7 +28,7 @@ static auto init_glfw() -> void
         ENGINE_LOG_ERROR(description);
     });
 
-    glfwInitVulkanLoader(modules::config::vulkan::dispatcher().vkGetInstanceProcAddr);
+    glfwInitVulkanLoader(config::vulkan::dispatcher().vkGetInstanceProcAddr);
 
     if (const int success{ glfwInit() }; success != GLFW_TRUE) {
         const char* description{};

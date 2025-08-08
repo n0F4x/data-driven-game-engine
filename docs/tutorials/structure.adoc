@@ -7,5 +7,6 @@ The engine's code is structured around the following modules:
 * plugins - plugins for extending the app builder
 * addons - addons for extending the app
 * utility - basic helper functionalities
+* config - configuration files for third-party
 
 Each module has its own namespace (corresponding to the name of the module) and submodules.

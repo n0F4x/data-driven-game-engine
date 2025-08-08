@@ -16,7 +16,7 @@ module modules.renderer.InstanceInjection;
 import vulkan_hpp;
 
 import app.App;
-import modules.config.vulkan;
+import config.vulkan;
 import modules.log;
 import modules.renderer.base.instance.Instance;
 
