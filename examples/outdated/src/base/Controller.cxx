@@ -7,15 +7,15 @@ module;
 
 module examples.base.Controller;
 
-import core.gfx.Camera;
-import core.window.Window;
+import modules.gfx.Camera;
+import modules.window.Window;
 
 examples::base::Controller::Controller(const float movement_speed) noexcept
     : m_movement_speed{ movement_speed }
 {}
 
 auto examples::base::Controller::update(
-    const core::window::Window&   window,
+    const modules::window::Window&   window,
     std::chrono::duration<double> delta_time
 ) -> void
 {
@@ -67,8 +67,8 @@ auto examples::base::Controller::update(
     }
 }
 
-auto examples::base::Controller::update_camera(core::gfx::Camera camera) const noexcept
-    -> core::gfx::Camera
+auto examples::base::Controller::update_camera(modules::gfx::Camera camera) const noexcept
+    -> modules::gfx::Camera
 {
     camera.set_view_yxz(m_position, glm::vec3{ m_vertical_angle, m_horizontal_angle, 0 });
     return camera;

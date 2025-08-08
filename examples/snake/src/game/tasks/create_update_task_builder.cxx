@@ -4,10 +4,10 @@ module;
 
 module snake.game.create_update_task_builder;
 
-import core.scheduler.TaskBuilder;
-import core.time.FixedTimer;
+import modules.scheduler.TaskBuilder;
+import modules.time.FixedTimer;
 
-import core.scheduler;
+import modules.scheduler;
 
 import snake.game.adjust_snake_speed;
 import snake.game.AppleSpawnTimer;
@@ -20,7 +20,7 @@ import snake.game.spawn_apple;
 import snake.game.trigger_world_update_message;
 import snake.game.WorldUpdate;
 
-using namespace core::scheduler::accessors;
+using namespace modules::scheduler::accessors;
 
 auto update_timers(
     const resources::Resource<game::AppleSpawnTimer> apple_spawn_timer,
@@ -48,19 +48,19 @@ auto world_update_message_received(
     return !message_receiver.receive().empty();
 }
 
-auto game::create_update_task_builder() -> core::scheduler::TaskBuilder<void>
+auto game::create_update_task_builder() -> modules::scheduler::TaskBuilder<void>
 {
-    return core::scheduler::start_as(::update_timers)
+    return modules::scheduler::start_as(::update_timers)
         .then(
-            core::scheduler::run_if(
+            modules::scheduler::run_if(
                 adjust_snake_speed,   //
                 ::apple_was_digested
             )
         )
         .then(
-            core::scheduler::repeat(
-                core::scheduler::group(
-                    core::scheduler::start_as(move_snake)   //
+            modules::scheduler::repeat(
+                modules::scheduler::group(
+                    modules::scheduler::start_as(move_snake)   //
                         .then(create_eat_apple_task_builder()),
                     trigger_world_update_message
                 ),
@@ -68,12 +68,12 @@ auto game::create_update_task_builder() -> core::scheduler::TaskBuilder<void>
             )
         )
         .then(
-            core::scheduler::at_fixed_rate<AppleSpawnTimer>(   //
-                core::scheduler::group(
+            modules::scheduler::at_fixed_rate<AppleSpawnTimer>(   //
+                modules::scheduler::group(
                     spawn_apple,                                     //
                     trigger_world_update_message
                 )
             )
         )
-        .then(core::scheduler::run_if(color_cells, ::world_update_message_received));
+        .then(modules::scheduler::run_if(color_cells, ::world_update_message_received));
 }

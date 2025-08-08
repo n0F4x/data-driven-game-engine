@@ -1,9 +1,9 @@
 #include <print>
 
 import app;
-import core;
+import modules;
 import addons;
-import core;
+import modules;
 import plugins;
 
 import utility.Size;
@@ -21,9 +21,9 @@ try {
         .plug_in(plugins::Resources{})
         .plug_in(plugins::Runnable{})
         .insert_resource(
-            core::window::Window(util::Size2i{ 1'280, 720 }, "Virtual texturing demo")
+            modules::window::Window(util::Size2i{ 1'280, 720 }, "Virtual texturing demo")
         )
-        .transform(core::renderer::setup)
+        .transform(modules::renderer::setup)
         .inject_resource(examples::base::DemoBasePlugin{ .movement_speed = 1.f })
         .inject_resource(demo::DemoPlugin{})
         .run(demo::run);

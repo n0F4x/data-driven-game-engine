@@ -6,17 +6,17 @@ module;
 
 module examples.base.Renderer;
 
-import core.renderer.base.swapchain.SwapchainHolder;
-import core.renderer.scene.Scene;
+import modules.renderer.base.swapchain.SwapchainHolder;
+import modules.renderer.scene.Scene;
 
-import core.window.Window;
+import modules.window.Window;
 
 import examples.base.init;
 
 examples::base::Renderer::Renderer(
-    const core::window::Window&            window,
-    const core::renderer::base::Device&    device,
-    core::renderer::base::SwapchainHolder& swapchain_holder
+    const modules::window::Window&            window,
+    const modules::renderer::base::Device&    device,
+    modules::renderer::base::SwapchainHolder& swapchain_holder
 )
     : m_device{ device },
       m_swapchain{ swapchain_holder },

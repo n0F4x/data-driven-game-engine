@@ -6,21 +6,21 @@ module;
 
 export module snake.window.update;
 
-import core.time.FixedTimer;
+import modules.time.FixedTimer;
 
-import core.scheduler.accessors.events.Recorder;
-import core.scheduler.accessors.resources;
+import modules.scheduler.accessors.events.Recorder;
+import modules.scheduler.accessors.resources;
 
 import snake.window.DisplayTimer;
 import snake.window.Window;
 
-using namespace core::scheduler::accessors;
+using namespace modules::scheduler::accessors;
 
 namespace window {
 
 export auto update(
     resources::Resource<Window>                                          window,
-    const core::scheduler::accessors::events::Recorder<sf::Event>& event_recorder,
+    const modules::scheduler::accessors::events::Recorder<sf::Event>& event_recorder,
     resources::Resource<DisplayTimer>                                    display_timer
 ) -> void;
 
@@ -30,7 +30,7 @@ module :private;
 
 auto window::update(
     const resources::Resource<Window>                                    window,
-    const core::scheduler::accessors::events::Recorder<sf::Event>& event_recorder,
+    const modules::scheduler::accessors::events::Recorder<sf::Event>& event_recorder,
     const resources::Resource<DisplayTimer>                              display_timer
 ) -> void
 {

@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-import core.ecs;
+import modules.ecs;
 
 import utility.containers.OptionalRef;
 import utility.meta.concepts.specialization_of;
@@ -23,34 +23,34 @@ struct Empty2 {
     constexpr explicit Empty2(Tag) {}
 };
 
-template <core::ecs::query_parameter_c T>
+template <modules::ecs::query_parameter_c T>
 struct IsQueried {
-    constexpr static bool value = core::ecs::queryable_component_c<std::remove_const_t<T>>
-                               || std::same_as<T, core::ecs::ID>
-                               || util::meta::specialization_of_c<T, core::ecs::Optional>;
+    constexpr static bool value = modules::ecs::queryable_component_c<std::remove_const_t<T>>
+                               || std::same_as<T, modules::ecs::ID>
+                               || util::meta::specialization_of_c<T, modules::ecs::Optional>;
 };
 
-template <core::ecs::query_parameter_c T>
+template <modules::ecs::query_parameter_c T>
 struct ToFunctionParameter;
 
-template <core::ecs::query_parameter_c T>
-    requires core::ecs::queryable_component_c<std::remove_const_t<T>>
+template <modules::ecs::query_parameter_c T>
+    requires modules::ecs::queryable_component_c<std::remove_const_t<T>>
 struct ToFunctionParameter<T> : std::type_identity<std::add_lvalue_reference_t<T>> {};
 
-template <core::ecs::query_parameter_c T>
-    requires std::same_as<T, core::ecs::ID>
+template <modules::ecs::query_parameter_c T>
+    requires std::same_as<T, modules::ecs::ID>
 struct ToFunctionParameter<T> : std::type_identity<T> {};
 
-template <core::ecs::query_parameter_c T>
-    requires util::meta::specialization_of_c<T, core::ecs::Optional>
+template <modules::ecs::query_parameter_c T>
+    requires util::meta::specialization_of_c<T, modules::ecs::Optional>
 struct ToFunctionParameter<T>
     : std::type_identity<util::OptionalRef<util::meta::underlying_t<T>>> {};
 
 }   // namespace
 
-TEST_CASE("core::ecs::query")
+TEST_CASE("modules::ecs::query")
 {
-    core::ecs::Registry registry;
+    modules::ecs::Registry registry;
 
     SECTION("empty component")
     {
@@ -58,7 +58,7 @@ TEST_CASE("core::ecs::query")
 
         int visit_count{};
 
-        core::ecs::query<Empty, core::ecs::Optional<Empty2>>(
+        modules::ecs::query<Empty, modules::ecs::Optional<Empty2>>(
             registry, [&](Empty, util::OptionalRef<Empty2>) { ++visit_count; }
         );
 
@@ -69,7 +69,7 @@ TEST_CASE("core::ecs::query")
     {
         SECTION("empty registry")
         {
-            core::ecs::query<int>(registry, [](int&) {});
+            modules::ecs::query<int>(registry, [](int&) {});
         }
 
         registry.create(int{}, float{});
@@ -79,10 +79,10 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<int, float>(registry, [&](int&, float&) {
+                modules::ecs::query<int, float>(registry, [&](int&, float&) {
                     ++visit_count;
                 });
-                core::ecs::query<int, float>(registry, [&](int&, float&) {});
+                modules::ecs::query<int, float>(registry, [&](int&, float&) {});
 
                 REQUIRE(visit_count == 1);
             }
@@ -90,8 +90,8 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<int>(registry, [&](int&) { ++visit_count; });
-                core::ecs::query<int>(registry, +[](int&) {});
+                modules::ecs::query<int>(registry, [&](int&) { ++visit_count; });
+                modules::ecs::query<int>(registry, +[](int&) {});
 
                 REQUIRE(visit_count == 1);
             }
@@ -101,7 +101,7 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<int, float>(registry, [&](int&, float&) {
+                modules::ecs::query<int, float>(registry, [&](int&, float&) {
                     ++visit_count;
                 });
 
@@ -116,7 +116,7 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<int, float>(registry, [&](int&, float&) {
+                modules::ecs::query<int, float>(registry, [&](int&, float&) {
                     ++visit_count;
                 });
 
@@ -126,7 +126,7 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<int, float, long>(registry, [&](int&, float&, long&) {
+                modules::ecs::query<int, float, long>(registry, [&](int&, float&, long&) {
                     ++visit_count;
                 });
 
@@ -138,7 +138,7 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<int, float, long>(registry, [&](int&, float&, long&) {
+                modules::ecs::query<int, float, long>(registry, [&](int&, float&, long&) {
                     ++visit_count;
                 });
 
@@ -151,18 +151,18 @@ TEST_CASE("core::ecs::query")
     {
         SECTION("empty registry")
         {
-            core::ecs::query<core::ecs::ID, int>(
-                registry, [&](const core::ecs::ID, int&) {}
+            modules::ecs::query<modules::ecs::ID, int>(
+                registry, [&](const modules::ecs::ID, int&) {}
             );
         }
 
         registry.create(int{}, float{});
 
-        const auto make_visitor = [&registry]<core::ecs::component_c... Components_T>(
+        const auto make_visitor = [&registry]<modules::ecs::component_c... Components_T>(
                                       std::size_t& visit_count
                                   ) {
             return [&registry,
-                    &visit_count](const core::ecs::ID id, Components_T&... components) {
+                    &visit_count](const modules::ecs::ID id, Components_T&... components) {
                 ++visit_count;
                 const auto found_components = registry.find_all<Components_T...>(id);
                 REQUIRE(found_components.has_value());
@@ -175,11 +175,11 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<core::ecs::ID, int, float>(
+                modules::ecs::query<modules::ecs::ID, int, float>(
                     registry, make_visitor.operator()<int, float>(visit_count)
                 );
-                core::ecs::query<core::ecs::ID, int, float>(
-                    registry, +[](core::ecs::ID, int&, float&) {}
+                modules::ecs::query<modules::ecs::ID, int, float>(
+                    registry, +[](modules::ecs::ID, int&, float&) {}
                 );
 
                 REQUIRE(visit_count == 1);
@@ -188,11 +188,11 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<core::ecs::ID, int>(
+                modules::ecs::query<modules::ecs::ID, int>(
                     registry, make_visitor.operator()<int>(visit_count)
                 );
-                core::ecs::query<core::ecs::ID, int>(
-                    registry, +[](core::ecs::ID, int&) {}
+                modules::ecs::query<modules::ecs::ID, int>(
+                    registry, +[](modules::ecs::ID, int&) {}
                 );
 
                 REQUIRE(visit_count == 1);
@@ -203,7 +203,7 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<core::ecs::ID, int, float>(
+                modules::ecs::query<modules::ecs::ID, int, float>(
                     registry, make_visitor.operator()<int, float>(visit_count)
                 );
 
@@ -218,7 +218,7 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<core::ecs::ID, int, float>(
+                modules::ecs::query<modules::ecs::ID, int, float>(
                     registry, make_visitor.operator()<int, float>(visit_count)
                 );
 
@@ -228,7 +228,7 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<core::ecs::ID, int, float, long>(
+                modules::ecs::query<modules::ecs::ID, int, float, long>(
                     registry, make_visitor.operator()<int, float, long>(visit_count)
                 );
 
@@ -240,7 +240,7 @@ TEST_CASE("core::ecs::query")
             {
                 std::size_t visit_count{};
 
-                core::ecs::query<core::ecs::ID, int, float, long>(
+                modules::ecs::query<modules::ecs::ID, int, float, long>(
                     registry, make_visitor.operator()<int, float, long>(visit_count)
                 );
 
@@ -251,11 +251,11 @@ TEST_CASE("core::ecs::query")
 
     SECTION("query parameter tags")
     {
-        using namespace core::ecs::query_parameter_tags;
+        using namespace modules::ecs::query_parameter_tags;
 
         // Test that it compiles
-        core::ecs::query<
-            core::ecs::ID,
+        modules::ecs::query<
+            modules::ecs::ID,
             float,
             const double,
             Without<int8_t>,
@@ -264,7 +264,7 @@ TEST_CASE("core::ecs::query")
             Optional<uint8_t>,
             Optional<const uint16_t>>(
             registry,
-            [](core::ecs::ID,
+            [](modules::ecs::ID,
                float&,
                const double&,
                util::OptionalRef<uint8_t>,
@@ -280,7 +280,7 @@ TEST_CASE("core::ecs::query")
                     ToFunctionParameter>;
 
                 [&registry, &func]<typename... Us>(util::TypeList<Us...>) {
-                    core::ecs::query<Ts...>(registry, [&func](Us...) {
+                    modules::ecs::query<Ts...>(registry, [&func](Us...) {
                         std::invoke(func);
                     });
                 }(QueryFunctionParameters{});
@@ -288,7 +288,7 @@ TEST_CASE("core::ecs::query")
 
         SECTION("empty registry")
         {
-            test_query_parameters(util::TypeList<float, core::ecs::ID>{});
+            test_query_parameters(util::TypeList<float, modules::ecs::ID>{});
 
             test_query_parameters(util::TypeList<float, Without<double>>{});
 
@@ -300,7 +300,7 @@ TEST_CASE("core::ecs::query")
 
             test_query_parameters(
                 util::TypeList<
-                    core::ecs::ID,
+                    modules::ecs::ID,
                     int8_t,
                     const int16_t,
                     Without<uint8_t>,
@@ -321,7 +321,7 @@ TEST_CASE("core::ecs::query")
 
             test_query_parameters(
                 util::TypeList<
-                    core::ecs::ID,
+                    modules::ecs::ID,
                     float,
                     const double,
                     Without<int8_t>,
@@ -348,7 +348,7 @@ TEST_CASE("core::ecs::query")
 
             test_query_parameters(
                 util::
-                    TypeList<core::ecs::ID, Without<int8_t>, With<int16_t>, With<int32_t>>{},
+                    TypeList<modules::ecs::ID, Without<int8_t>, With<int16_t>, With<int32_t>>{},
                 [&visit_count] { ++visit_count; }
             );
 
@@ -356,7 +356,7 @@ TEST_CASE("core::ecs::query")
 
             static_assert(requires {
                 !requires {
-                    core::ecs::query<core::ecs::ID, Without<int8_t>>(registry, [] {});
+                    modules::ecs::query<modules::ecs::ID, Without<int8_t>>(registry, [] {});
                 };
             });
         }
@@ -364,7 +364,7 @@ TEST_CASE("core::ecs::query")
         SECTION("no actually queried component nor id")
         {
             static_assert(requires {
-                !requires { core::ecs::query<Without<int8_t>>(registry, [] {}); };
+                !requires { modules::ecs::query<Without<int8_t>>(registry, [] {}); };
             });
         }
 
@@ -377,10 +377,10 @@ TEST_CASE("core::ecs::query")
 
             std::size_t visit_count{};
 
-            core::ecs::query(
+            modules::ecs::query(
                 registry,
                 [&visit_count](
-                    core::ecs::ID,                                              //
+                    modules::ecs::ID,                                              //
                     float&,                                                     //
                     const double&,                                              //
                     Without<int8_t>,                                            //
@@ -397,12 +397,12 @@ TEST_CASE("core::ecs::query")
     }
 }
 
-TEST_CASE("core::ecs::count")
+TEST_CASE("modules::ecs::count")
 {
-    core::ecs::Registry registry;
+    modules::ecs::Registry registry;
 
     registry.create(int{});
     registry.create(int{}, float{});
 
-    REQUIRE((core::ecs::count<int>(registry) == 2));
+    REQUIRE((modules::ecs::count<int>(registry) == 2));
 }

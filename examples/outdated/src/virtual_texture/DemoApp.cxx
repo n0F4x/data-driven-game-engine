@@ -10,28 +10,28 @@ module;
 
 module demos.virtual_texture.DemoApp;
 
-import core.gfx.Camera;
-import core.gfx.resources.image_helpers;
-import core.renderer.base.device.Device;
-import core.renderer.base.allocator.Allocator;
-import core.renderer.base.resources.copy_operations;
-import core.renderer.base.resources.Image;
-import core.renderer.base.swapchain.Swapchain;
-import core.renderer.base.swapchain.SwapchainHolder;
+import modules.gfx.Camera;
+import modules.gfx.resources.image_helpers;
+import modules.renderer.base.device.Device;
+import modules.renderer.base.allocator.Allocator;
+import modules.renderer.base.resources.copy_operations;
+import modules.renderer.base.resources.Image;
+import modules.renderer.base.swapchain.Swapchain;
+import modules.renderer.base.swapchain.SwapchainHolder;
 
-import core.renderer.DeviceInjection;
-import core.renderer.InstanceInjection;
+import modules.renderer.DeviceInjection;
+import modules.renderer.InstanceInjection;
 
 import demos.virtual_texture.init;
 import demos.virtual_texture.Camera;
 
 auto demo::DemoPlugin::setup(
-    core::renderer::InstanceInjection& instance_injection,
-    core::renderer::DeviceInjection&   device_injection
+    modules::renderer::InstanceInjection& instance_injection,
+    modules::renderer::DeviceInjection&   device_injection
 ) -> void
 {
     instance_injection.emplace_dependency(
-        core::renderer::InstanceInjection::Dependency{
+        modules::renderer::InstanceInjection::Dependency{
             .required_settings_are_available = [](const vkb::SystemInfo& system_info
                                                ) -> bool {
                 return system_info.is_extension_available(
@@ -48,7 +48,7 @@ auto demo::DemoPlugin::setup(
     );
 
     device_injection.emplace_dependency(
-        core::renderer::DeviceInjection::Dependency{
+        modules::renderer::DeviceInjection::Dependency{
             .require_settings =
                 [](vkb::PhysicalDeviceSelector& physical_device_selector) {
                     physical_device_selector.add_required_extension(
@@ -79,18 +79,18 @@ auto demo::DemoPlugin::setup(
 }
 
 auto demo::DemoPlugin::operator()(
-    const core::renderer::base::Device&    device,
-    const core::renderer::base::Allocator& allocator,
-    core::renderer::base::SwapchainHolder& swapchain_holder
+    const modules::renderer::base::Device&    device,
+    const modules::renderer::base::Allocator& allocator,
+    modules::renderer::base::SwapchainHolder& swapchain_holder
 ) const -> DemoApp
 {
     return DemoApp{ device, allocator, swapchain_holder };
 }
 
 demo::DemoApp::DemoApp(
-    const core::renderer::base::Device&    device,
-    const core::renderer::base::Allocator& allocator,
-    core::renderer::base::SwapchainHolder& swapchain_holder
+    const modules::renderer::base::Device&    device,
+    const modules::renderer::base::Allocator& allocator,
+    modules::renderer::base::SwapchainHolder& swapchain_holder
 )
     : m_swapchain_holder_ref{ swapchain_holder },
       m_descriptor_set_layout{ demo::init::create_descriptor_set_layout(device.get()) },
@@ -104,7 +104,7 @@ demo::DemoApp::DemoApp(
           swapchain_holder.get().value().extent()
       ) },
       m_depth_image_view{ init::create_depth_image_view(device, m_depth_image.get()) },
-      m_descriptor_pool{ core::renderer::base::DescriptorPool::create()
+      m_descriptor_pool{ modules::renderer::base::DescriptorPool::create()
                              .request_descriptor_sets(1)
                              .request_descriptors(
                                  vk::DescriptorPoolSize{
@@ -191,7 +191,7 @@ demo::DemoApp::DemoApp(
       ) }
 {
     swapchain_holder.on_swapchain_recreated(
-        [&](const core::renderer::base::Swapchain& swapchain) {
+        [&](const modules::renderer::base::Swapchain& swapchain) {
             m_depth_image.reset();
             m_depth_image = init::create_depth_image(
                 device.physical_device(), allocator, swapchain.extent()
@@ -233,7 +233,7 @@ auto demo::DemoApp::render(
     const uint32_t           image_index,
     const vk::Extent2D       swapchain_extent,
     const vk::CommandBuffer  graphics_command_buffer,
-    const core::gfx::Camera& camera
+    const modules::gfx::Camera& camera
 ) -> void
 {
     constexpr static vk::ImageSubresourceRange color_image_subresource_range{
@@ -256,10 +256,10 @@ auto demo::DemoApp::render(
         color_image_subresource_range
     );
 
-    ::core::gfx::resources::transition_image_layout(
+    ::modules::gfx::resources::transition_image_layout(
         graphics_command_buffer,
         m_depth_image,
-        core::renderer::base::Image::State{
+        modules::renderer::base::Image::State{
             .stage_mask = vk::PipelineStageFlagBits::eEarlyFragmentTests
                         | vk::PipelineStageFlagBits::eLateFragmentTests,
             .access_mask = vk::AccessFlagBits::eDepthStencilAttachmentRead
@@ -325,7 +325,7 @@ auto demo::DemoApp::render(
 
 auto demo::DemoApp::draw(
     const vk::CommandBuffer  graphics_command_buffer,
-    const core::gfx::Camera& camera
+    const modules::gfx::Camera& camera
 ) -> void
 {
     m_camera_buffer.set(
@@ -354,13 +354,13 @@ auto demo::DemoApp::draw(
     draw_debug(graphics_command_buffer);
 }
 
-auto demo::DemoApp::update_virtual_texture([[maybe_unused]] const core::gfx::Camera& camera
+auto demo::DemoApp::update_virtual_texture([[maybe_unused]] const modules::gfx::Camera& camera
 ) -> void
 {
     // Update based on feedback from shader
     std::vector<uint32_t> virtual_texture_blocks(m_virtual_texture.get().blocks().size());
-    core::renderer::base::copy(
-        core::renderer::base::CopyRegion{
+    modules::renderer::base::copy(
+        modules::renderer::base::CopyRegion{
             .allocation = m_virtual_texture_blocks_buffer.allocation() },
         virtual_texture_blocks.data(),
         virtual_texture_blocks.size() * sizeof(uint32_t)
@@ -373,9 +373,9 @@ auto demo::DemoApp::update_virtual_texture([[maybe_unused]] const core::gfx::Cam
             virtual_texture_blocks.at(block_index) = 0;
         }
     }
-    core::renderer::base::copy(
+    modules::renderer::base::copy(
         virtual_texture_blocks.data(),
-        core::renderer::base::CopyRegion{
+        modules::renderer::base::CopyRegion{
             .allocation = m_virtual_texture_blocks_buffer.allocation(),
         },
         virtual_texture_blocks.size() * sizeof(uint32_t)

@@ -6,7 +6,7 @@ export module snake.game.setup;
 
 import app;
 
-import core.time.FixedTimer;
+import modules.time.FixedTimer;
 
 import plugins.events;
 import plugins.messages;

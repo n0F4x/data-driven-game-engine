@@ -1,11 +1,11 @@
 export module addons.Events;
 
-import core.events;
+import modules.events;
 
 namespace addons {
 
 export struct Events {
-    core::events::EventManager event_manager;
+    modules::events::EventManager event_manager;
 };
 
 }   // namespace addons

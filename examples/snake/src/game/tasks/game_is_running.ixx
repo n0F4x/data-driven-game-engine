@@ -1,10 +1,10 @@
 export module snake.game.game_is_running;
 
-import core.scheduler.accessors.events.Reader;
+import modules.scheduler.accessors.events.Reader;
 
 import snake.game.GameOver;
 
-using namespace core::scheduler::accessors;
+using namespace modules::scheduler::accessors;
 
 namespace game {
 

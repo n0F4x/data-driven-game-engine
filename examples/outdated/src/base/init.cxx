@@ -6,7 +6,7 @@ module;
 
 module examples.base.init;
 
-import core.renderer.base.device.Device;
+import modules.renderer.base.device.Device;
 
 auto examples::base::init::create_command_pool(const vk::Device device, const uint32_t queue_family_index)
     -> vk::UniqueCommandPool

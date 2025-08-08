@@ -25,7 +25,7 @@ auto say_hi() -> void {
 app::create()
     .plug_in(plugins::Scheduler{})
     .run(
-        core::scheduler::start_as(say_hello)
+        modules::scheduler::start_as(say_hello)
             .then(say_hi)
     );
 ----
@@ -62,7 +62,7 @@ Most accessors store only a reference, so it is fine to take them by value; howe
 [,c++]
 .Example of a more complicated schedule
 ----
-namespace sch = core::schedule;
+namespace sch = modules::schedule;
 
 auto schedule =
     sch::start_as(initialize_app)
@@ -83,7 +83,7 @@ Where `+game_is_running+` may be defined as +
 
 [,c++]
 ----
-using namespace core::scheduler::accessors::resources;
+using namespace modules::scheduler::accessors::resources;
 
 auto game_is_running(Resource<Window> window) -> bool
 {

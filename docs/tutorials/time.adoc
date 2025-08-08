@@ -5,7 +5,7 @@ Its role is to keep track of the delta time between two updates.
 
 [,c++]
 ----
-using core::time;
+using modules::time;
 
 auto check_time(Resource<Timer> timer) -> void
 {
@@ -18,7 +18,7 @@ It can also be reset and updated.
 
 [,c++]
 ----
-using core::time;
+using modules::time;
 
 auto check_time(Resource<Timer> timer) -> void
 {
@@ -48,10 +48,10 @@ Because of how common fixed systems are, there is a dedicated scheduling primiti
 
 [,c++]
 ----
-using namespace core::measurement::symbols;
-namespace sch = core::scheduler;
+using namespace modules::measurement::symbols;
+namespace sch = modules::scheduler;
 
-using DisplayTimer = core::time::FixedTimer<std::chrono::microseconds, 16'667>;
+using DisplayTimer = modules::time::FixedTimer<std::chrono::microseconds, 16'667>;
 
 constexpr auto render =
     sch::at_fixed_rate<DisplayTimer>(

@@ -9,12 +9,12 @@ export module examples.base.Renderer;
 
 import vulkan_hpp;
 
-import core.gfx.Camera;
-import core.renderer.base.device.Device;
-import core.renderer.base.swapchain.SwapchainHolder;
-import core.renderer.scene.Scene;
+import modules.gfx.Camera;
+import modules.renderer.base.device.Device;
+import modules.renderer.base.swapchain.SwapchainHolder;
+import modules.renderer.scene.Scene;
 
-import core.window.Window;
+import modules.window.Window;
 
 namespace examples::base {
 
@@ -22,17 +22,17 @@ export struct Renderer {
     constexpr static uint32_t frame_count_v{ 1 };
 
     explicit Renderer(
-        const core::window::Window&            window,
-        const core::renderer::base::Device&    device,
-        core::renderer::base::SwapchainHolder& swapchain_holder
+        const modules::window::Window&            window,
+        const modules::renderer::base::Device&    device,
+        modules::renderer::base::SwapchainHolder& swapchain_holder
     );
 
     template <
-        std::invocable<uint32_t, vk::Extent2D, vk::CommandBuffer, const core::gfx::Camera&>
+        std::invocable<uint32_t, vk::Extent2D, vk::CommandBuffer, const modules::gfx::Camera&>
             Recorder>
     auto render(
         vk::Extent2D      framebuffer_size,
-        core::gfx::Camera camera,
+        modules::gfx::Camera camera,
         Recorder&&        recorder
     ) -> void;
 
@@ -43,8 +43,8 @@ private:
     auto finish_rendering(vk::CommandBuffer command_buffer) -> void;
 
 
-    std::reference_wrapper<const core::renderer::base::Device>    m_device;
-    std::reference_wrapper<core::renderer::base::SwapchainHolder> m_swapchain;
+    std::reference_wrapper<const modules::renderer::base::Device>    m_device;
+    std::reference_wrapper<modules::renderer::base::SwapchainHolder> m_swapchain;
     vk::UniqueCommandPool                                         m_command_pool;
     std::vector<vk::CommandBuffer>                                m_command_buffers;
     std::vector<vk::UniqueSemaphore> m_image_acquired_semaphores;
@@ -56,11 +56,11 @@ private:
 
 }   // namespace examples::base
 
-template <std::invocable<uint32_t, vk::Extent2D, vk::CommandBuffer, const core::gfx::Camera&>
+template <std::invocable<uint32_t, vk::Extent2D, vk::CommandBuffer, const modules::gfx::Camera&>
               Recorder>
 auto examples::base::Renderer::render(
     const vk::Extent2D framebuffer_size,
-    core::gfx::Camera  camera,
+    modules::gfx::Camera  camera,
     Recorder&&         recorder
 ) -> void
 {

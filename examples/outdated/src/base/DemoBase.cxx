@@ -12,19 +12,19 @@ module;
 
 module examples.base.DemoBase;
 
-import core.gfx.Camera;
-import core.renderer.base.device.Device;
-import core.renderer.base.swapchain.SwapchainHolder;
+import modules.gfx.Camera;
+import modules.renderer.base.device.Device;
+import modules.renderer.base.swapchain.SwapchainHolder;
 import utility.Size;
-import core.window.CursorMode;
-import core.window.events;
-import core.window.Key;
-import core.window.Window;
+import modules.window.CursorMode;
+import modules.window.events;
+import modules.window.Key;
+import modules.window.Window;
 
 auto examples::base::DemoBasePlugin::operator()(
-    core::window::Window&                  window,
-    const core::renderer::base::Device&    device,
-    core::renderer::base::SwapchainHolder& swapchain_holder
+    modules::window::Window&                  window,
+    const modules::renderer::base::Device&    device,
+    modules::renderer::base::SwapchainHolder& swapchain_holder
 ) const -> DemoBase
 {
     return DemoBase{
@@ -34,7 +34,7 @@ auto examples::base::DemoBasePlugin::operator()(
 }
 
 examples::base::DemoBase::DemoBase(
-    core::window::Window& window,
+    modules::window::Window& window,
     const Controller&     controller,
     Renderer&&            renderer
 ) noexcept
@@ -44,13 +44,13 @@ examples::base::DemoBase::DemoBase(
 {}
 
 auto examples::base::DemoBase::run(
-    const std::function<void(Renderer&, vk::Extent2D, core::gfx::Camera)>& render
+    const std::function<void(Renderer&, vk::Extent2D, modules::gfx::Camera)>& render
 ) -> void
 {
     const std::string original_window_title{ m_window.get().title() };
     bool              running{ true };
 
-    m_window.get().set_cursor_mode(core::window::CursorMode::eDisabled);
+    m_window.get().set_cursor_mode(modules::window::CursorMode::eDisabled);
     m_window.get().set_cursor_position(glm::dvec2{ m_window.get().size() } / 2.0);
 
     bool reset_mouse{};
@@ -62,7 +62,7 @@ auto examples::base::DemoBase::run(
         }
     );
 
-    core::gfx::Camera camera;
+    modules::gfx::Camera camera;
     std::mutex        camera_mutex{};
 
     std::atomic_uint32_t fps{};
@@ -87,7 +87,7 @@ auto examples::base::DemoBase::run(
                                  fps       = static_cast<uint32_t>(1s / delta_time);
 
                                  camera_mutex.lock();
-                                 const core::gfx::Camera render_camera{ camera };
+                                 const modules::gfx::Camera render_camera{ camera };
                                  camera_mutex.unlock();
                                  if (render) {
                                      render(m_renderer, framebuffer_size, render_camera);
@@ -103,7 +103,7 @@ auto examples::base::DemoBase::run(
 
     std::chrono::time_point last_time{ std::chrono::high_resolution_clock::now() };
     while (running && !rendering_finished()) {
-        core::window::poll_events();
+        modules::window::poll_events();
 
         const std::chrono::time_point now{ std::chrono::high_resolution_clock::now() };
         const std::chrono::duration<double> delta_time{ now - last_time };
@@ -117,16 +117,16 @@ auto examples::base::DemoBase::run(
             running = false;
         }
 
-        if (m_window.get().key_pressed(core::window::eEscape)) {
+        if (m_window.get().key_pressed(modules::window::eEscape)) {
             running = false;
         }
 
-        if (m_window.get().key_pressed(core::window::eLeftControl)) {
-            m_window.get().set_cursor_mode(core::window::CursorMode::eNormal);
+        if (m_window.get().key_pressed(modules::window::eLeftControl)) {
+            m_window.get().set_cursor_mode(modules::window::CursorMode::eNormal);
             reset_mouse = true;
         }
         else {
-            m_window.get().set_cursor_mode(core::window::CursorMode::eDisabled);
+            m_window.get().set_cursor_mode(modules::window::CursorMode::eDisabled);
 
             if (!reset_mouse) {
                 m_controller.update(m_window.get(), delta_time);

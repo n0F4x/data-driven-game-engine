@@ -1,11 +1,11 @@
 export module addons.ECS;
 
-import core.ecs;
+import modules.ecs;
 
 namespace addons {
 
 export struct ECS {
-    core::ecs::Registry registry;
+    modules::ecs::Registry registry;
 };
 
 }   // namespace addons

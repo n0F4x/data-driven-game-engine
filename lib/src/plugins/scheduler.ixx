@@ -8,10 +8,10 @@ export module plugins.scheduler;
 
 import app.builder_c;
 
-import core.scheduler;
+import modules.scheduler;
 
-import core.scheduler.provider_c;
-import core.scheduler.ProviderOf;
+import modules.scheduler.provider_c;
+import modules.scheduler.ProviderOf;
 
 import utility.meta.type_traits.type_list.type_list_filter;
 import utility.meta.type_traits.type_list.type_list_transform;
@@ -23,7 +23,7 @@ export class Scheduler {
 public:
     template <
         app::builder_c                                  Self_T,
-        core::scheduler::converts_to_task_builder_c TaskBuilder_T>
+        modules::scheduler::converts_to_task_builder_c TaskBuilder_T>
     constexpr auto run(this Self_T&&, TaskBuilder_T&& task_builder);
 };
 
@@ -33,18 +33,18 @@ template <typename App_T>
 struct AddonTraits {
     template <typename Addon_T>
         struct HasAccessorProvider : std::bool_constant < requires {
-        core::scheduler::provider_c<
-            core::scheduler::provider_of_t<Addon_T>,
+        modules::scheduler::provider_c<
+            modules::scheduler::provider_of_t<Addon_T>,
             App_T>;
     } > {};
 
     template <typename Addon_T>
     struct AccessorProvider {
-        using type = core::scheduler::provider_of_t<Addon_T>;
+        using type = modules::scheduler::provider_of_t<Addon_T>;
     };
 };
 
-template <app::builder_c Self_T, core::scheduler::converts_to_task_builder_c TaskBuilder_T>
+template <app::builder_c Self_T, modules::scheduler::converts_to_task_builder_c TaskBuilder_T>
 constexpr auto plugins::Scheduler::run(this Self_T&& self, TaskBuilder_T&& task_builder)
 {
     auto app{ std::forward<Self_T>(self).build() };
@@ -57,8 +57,8 @@ constexpr auto plugins::Scheduler::run(this Self_T&& self, TaskBuilder_T&& task_
 
     return [&task_builder,
             &app]<typename... AccessorProviders_T>(util::TypeList<AccessorProviders_T...>) {
-        core::scheduler::Nexus nexus{ AccessorProviders_T(app)... };
+        modules::scheduler::Nexus nexus{ AccessorProviders_T(app)... };
 
-        return core::scheduler::wrap_as_builder(task_builder).build(nexus)();
+        return modules::scheduler::wrap_as_builder(task_builder).build(nexus)();
     }(AccessorProviders{});
 }

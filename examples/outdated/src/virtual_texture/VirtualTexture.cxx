@@ -11,14 +11,14 @@ module;
 
 module demos.virtual_texture.VirtualTexture;
 
-import core.gfx.resources.VirtualImage;
+import modules.gfx.resources.VirtualImage;
 
-import core.image.jpeg.Image;
+import modules.image.jpeg.Image;
 
-import core.renderer.base.device.Device;
-import core.renderer.base.allocator.Allocator;
-import core.renderer.resources.Buffer;
-import core.renderer.resources.SeqWriteBuffer;
+import modules.renderer.base.device.Device;
+import modules.renderer.base.allocator.Allocator;
+import modules.renderer.resources.Buffer;
+import modules.renderer.resources.SeqWriteBuffer;
 
 import demos.virtual_texture.init;
 import demos.virtual_texture.Vertex;
@@ -26,37 +26,37 @@ import demos.virtual_texture.Vertex;
 template <typename T>
 [[nodiscard]]
 static auto create_staging_buffer(
-    const core::renderer::base::Allocator& allocator,
+    const modules::renderer::base::Allocator& allocator,
     const std::span<const T>               data
-) -> core::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>
+) -> modules::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>
 {
     const vk::BufferCreateInfo staging_buffer_create_info{
         .size  = data.size_bytes(),
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
 
-    return core::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{
+    return modules::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{
         allocator, staging_buffer_create_info, data.data()
     };
 }
 
 [[nodiscard]]
 static auto create_gpu_only_buffer(
-    const core::renderer::base::Allocator& allocator,
+    const modules::renderer::base::Allocator& allocator,
     const vk::BufferUsageFlags             usage_flags,
     const uint32_t                         size
-) -> core::renderer::resources::Buffer
+) -> modules::renderer::resources::Buffer
 {
     const vk::BufferCreateInfo buffer_create_info = {
         .size = size, .usage = usage_flags | vk::BufferUsageFlagBits::eTransferDst
     };
 
-    return core::renderer::resources::Buffer{ allocator, buffer_create_info };
+    return modules::renderer::resources::Buffer{ allocator, buffer_create_info };
 }
 
 template <std::invocable<vk::CommandBuffer> Executor>
 static auto
-    execute_command(const core::renderer::base::Device& device, Executor&& executor)
+    execute_command(const modules::renderer::base::Device& device, Executor&& executor)
         -> void
 {
     const vk::UniqueCommandPool command_pool{ examples::base::init::create_command_pool(
@@ -92,11 +92,11 @@ static auto
 
 [[nodiscard]]
 static auto create_vertex_buffer(
-    const core::renderer::base::Device&    device,
-    const core::renderer::base::Allocator& allocator,
+    const modules::renderer::base::Device&    device,
+    const modules::renderer::base::Allocator& allocator,
     const glm::vec3&                       center,
     const float                            scale = 1.f
-) -> core::renderer::resources::Buffer
+) -> modules::renderer::resources::Buffer
 {
     const float scale_divided_by_2{ scale / 2 };
 
@@ -119,12 +119,12 @@ static auto create_vertex_buffer(
                      .uv       = { 1.0f, 1.0f } }
     };
 
-    const core::renderer::resources::SeqWriteBuffer staging_buffer{
+    const modules::renderer::resources::SeqWriteBuffer staging_buffer{
         ::create_staging_buffer<demo::Vertex>(allocator, vertices)
     };
     staging_buffer.set(std::span{ vertices });
 
-    core::renderer::resources::Buffer vertex_buffer{ ::create_gpu_only_buffer(
+    modules::renderer::resources::Buffer vertex_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eVertexBuffer,
         static_cast<uint32_t>(staging_buffer.size_bytes())
@@ -144,19 +144,19 @@ static auto create_vertex_buffer(
 
 [[nodiscard]]
 static auto create_index_buffer(
-    const core::renderer::base::Device&    device,
-    const core::renderer::base::Allocator& allocator
-) -> core::renderer::resources::Buffer
+    const modules::renderer::base::Device&    device,
+    const modules::renderer::base::Allocator& allocator
+) -> modules::renderer::resources::Buffer
 {
     constexpr static std::array indices{ uint32_t{ 0 }, uint32_t{ 1 }, uint32_t{ 2 },
                                          uint32_t{ 2 }, uint32_t{ 3 }, uint32_t{ 0 } };
 
-    const core::renderer::resources::SeqWriteBuffer staging_buffer{
+    const modules::renderer::resources::SeqWriteBuffer staging_buffer{
         ::create_staging_buffer<uint32_t>(allocator, indices)
     };
     staging_buffer.set(std::span{ indices });
 
-    core::renderer::resources::Buffer index_buffer{ ::create_gpu_only_buffer(
+    modules::renderer::resources::Buffer index_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eIndexBuffer,
         static_cast<uint32_t>(staging_buffer.size_bytes())
@@ -175,8 +175,8 @@ static auto create_index_buffer(
 }
 
 demo::VirtualTexture::VirtualTexture(
-    const core::renderer::base::Device&    device,
-    const core::renderer::base::Allocator& allocator
+    const modules::renderer::base::Device&    device,
+    const modules::renderer::base::Allocator& allocator
 )
     : m_device_ref{ device },
       m_allocator_ref{ allocator },
@@ -188,7 +188,7 @@ demo::VirtualTexture::VirtualTexture(
       m_virtual_image{ init::create_virtual_image(
           device,
           allocator,
-          std::make_unique<core::image::jpeg::Image>(core::image::jpeg::Image::load_from(
+          std::make_unique<modules::image::jpeg::Image>(modules::image::jpeg::Image::load_from(
               std::filesystem::path{ std::source_location::current().file_name() }
                   .parent_path()
                   .parent_path()
@@ -210,13 +210,13 @@ auto demo::VirtualTexture::debug_position() const noexcept -> const glm::vec3&
     return m_debug_position;
 }
 
-auto demo::VirtualTexture::get() noexcept -> core::gfx::resources::VirtualImage&
+auto demo::VirtualTexture::get() noexcept -> modules::gfx::resources::VirtualImage&
 {
     return m_virtual_image;
 }
 
 auto demo::VirtualTexture::get() const noexcept
-    -> const core::gfx::resources::VirtualImage&
+    -> const modules::gfx::resources::VirtualImage&
 {
     return m_virtual_image;
 }

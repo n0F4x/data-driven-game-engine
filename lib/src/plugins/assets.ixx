@@ -15,8 +15,8 @@ import addons.Assets;
 
 import app;
 
-import core.assets;
-import core.store.Store;
+import modules.assets;
+import modules.store.Store;
 
 import utility.contracts;
 import utility.meta.concepts.specialization_of;
@@ -28,13 +28,13 @@ import utility.TypeList;
 namespace plugins {
 
 export template <typename T>
-concept loader_c = core::assets::loader_c<T>;
+concept loader_c = modules::assets::loader_c<T>;
 
 template <typename T>
 struct IsCachedLoaderDependency
     : std::bool_constant<
           !std::is_rvalue_reference_v<T>
-          && util::meta::specialization_of_c<std::remove_cvref_t<T>, core::assets::Cached>> {
+          && util::meta::specialization_of_c<std::remove_cvref_t<T>, modules::assets::Cached>> {
 };
 
 export template <typename T>
@@ -64,9 +64,9 @@ public:
     auto contains_loader() const -> bool;
 
 private:
-    using Caller = std::function<void(core::store::Store&)>;
+    using Caller = std::function<void(modules::store::Store&)>;
 
-    core::store::Store           m_injections;
+    modules::store::Store           m_injections;
     std::vector<Caller>          m_callers;
     std::vector<std::type_index> m_types;
 };
@@ -90,8 +90,8 @@ auto plugins::Assets::insert_loader(this Self_T&& self, Loader_T&& loader) -> Se
     Injection& injection = this_self.m_injections.emplace<Injection>(Injection{
         std::forward<Loader_T>(loader) });
 
-    this_self.m_callers.push_back([&injection](core::store::Store& store) -> void {
-        store.emplace<core::assets::Cached<Loader>>(std::move(injection.loader));
+    this_self.m_callers.push_back([&injection](modules::store::Store& store) -> void {
+        store.emplace<modules::assets::Cached<Loader>>(std::move(injection.loader));
     });
 
     this_self.m_types.push_back(typeid(Loader));
@@ -100,7 +100,7 @@ auto plugins::Assets::insert_loader(this Self_T&& self, Loader_T&& loader) -> Se
 }
 
 template <typename Injection_T>
-auto call_injection(Injection_T&& injection, core::store::Store& parameter_store)
+auto call_injection(Injection_T&& injection, modules::store::Store& parameter_store)
     -> util::meta::result_of_t<Injection_T>
 {
     using Parameters = util::meta::arguments_of_t<Injection_T>;
@@ -128,7 +128,7 @@ auto plugins::Assets::inject_loader(this Self_T&& self, Injection_T&& injection)
     Injection& stored_injection =
         this_self.m_injections.emplace<Injection>(std::forward<Injection_T>(injection));
 
-    this_self.m_callers.push_back([&stored_injection](core::store::Store& store) -> void {
+    this_self.m_callers.push_back([&stored_injection](modules::store::Store& store) -> void {
         store.emplace<Loader>(::call_injection(std::move(stored_injection), store));
     });
 
@@ -142,7 +142,7 @@ auto plugins::Assets::build(App_T&& app) && -> app::add_on_t<App_T, addons::Asse
 {
     static_assert(!app::has_addons_c<App_T, addons::Assets>);
 
-    core::store::Store store;
+    modules::store::Store store;
     for (const Caller& caller : m_callers) {
         caller(store);
     }

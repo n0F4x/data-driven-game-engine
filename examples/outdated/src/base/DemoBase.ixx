@@ -6,10 +6,10 @@ module;
 
 export module examples.base.DemoBase;
 
-import core.gfx.Camera;
-import core.renderer.base.device.Device;
-import core.renderer.base.swapchain.SwapchainHolder;
-import core.window.Window;
+import modules.gfx.Camera;
+import modules.renderer.base.device.Device;
+import modules.renderer.base.swapchain.SwapchainHolder;
+import modules.window.Window;
 
 import examples.base.Controller;
 import examples.base.Renderer;
@@ -23,25 +23,25 @@ export struct DemoBasePlugin {
 
     [[nodiscard]]
     auto operator()(
-        core::window::Window&                  window,
-        const core::renderer::base::Device&    device,
-        core::renderer::base::SwapchainHolder& swapchain_holder
+        modules::window::Window&                  window,
+        const modules::renderer::base::Device&    device,
+        modules::renderer::base::SwapchainHolder& swapchain_holder
     ) const -> DemoBase;
 };
 
 export class DemoBase {
 public:
     DemoBase(
-        core::window::Window& window,
+        modules::window::Window& window,
         const Controller&     controller,
         Renderer&&            renderer
     ) noexcept;
 
-    auto run(const std::function<void(Renderer&, vk::Extent2D, core::gfx::Camera)>& render)
+    auto run(const std::function<void(Renderer&, vk::Extent2D, modules::gfx::Camera)>& render)
         -> void;
 
 private:
-    std::reference_wrapper<core::window::Window> m_window;
+    std::reference_wrapper<modules::window::Window> m_window;
     Controller                                   m_controller;
     Renderer                                     m_renderer;
 };

@@ -5,9 +5,9 @@
 #include <VkBootstrap.h>
 
 import app;
-import core;
+import modules;
 import addons;
-import core;
+import modules;
 import plugins;
 
 import utility.Size;
@@ -17,14 +17,14 @@ import demos.gltf.DemoApp;
 import demos.gltf;
 
 [[nodiscard]]
-static auto cache_plugin() -> core::cache::Cache
+static auto cache_plugin() -> modules::cache::Cache
 {
     return {};
 }
 
 [[nodiscard]]
 static auto require_vulkan_version(const uint32_t major, const uint32_t minor)
-    -> core::renderer::Requirement
+    -> modules::renderer::Requirement
 {
     return { .enable_instance_settings = [=](const vkb::SystemInfo&,
                                              vkb::InstanceBuilder& instance_builder) {
@@ -55,8 +55,8 @@ try {
         .plug_in(plugins::Resources{})
         .plug_in(plugins::Runnable{})
         .inject_resource(::cache_plugin)
-        .insert_resource(core::window::Window(util::Size2i{ 1'280, 720 }, "My window"))
-        .transform(core::renderer::setup.require(::require_vulkan_version(1, 1)))
+        .insert_resource(modules::window::Window(util::Size2i{ 1'280, 720 }, "My window"))
+        .transform(modules::renderer::setup.require(::require_vulkan_version(1, 1)))
         .inject_resource(
             examples::base::DemoBasePlugin{ .movement_speed = movement_speed }
         )

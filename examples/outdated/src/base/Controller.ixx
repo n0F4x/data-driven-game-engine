@@ -6,9 +6,9 @@ module;
 
 export module examples.base.Controller;
 
-import core.gfx.Camera;
-import core.window.Key;
-import core.window.Window;
+import modules.gfx.Camera;
+import modules.window.Key;
+import modules.window.Window;
 
 namespace examples::base {
 
@@ -17,21 +17,21 @@ public:
     explicit Controller(float movement_speed) noexcept;
 
     auto update(
-        const core::window::Window&   window,
+        const modules::window::Window&   window,
         std::chrono::duration<double> delta_time
     ) -> void;
 
     [[nodiscard]]
-    auto update_camera(core::gfx::Camera camera) const noexcept -> core::gfx::Camera;
+    auto update_camera(modules::gfx::Camera camera) const noexcept -> modules::gfx::Camera;
 
 private:
     struct MovementKeyMap {
-        core::window::Key left     = core::window::eA;
-        core::window::Key right    = core::window::eD;
-        core::window::Key forward  = core::window::eW;
-        core::window::Key backward = core::window::eS;
-        core::window::Key up       = core::window::eSpace;
-        core::window::Key down     = core::window::eLeftShift;
+        modules::window::Key left     = modules::window::eA;
+        modules::window::Key right    = modules::window::eD;
+        modules::window::Key forward  = modules::window::eW;
+        modules::window::Key backward = modules::window::eS;
+        modules::window::Key up       = modules::window::eSpace;
+        modules::window::Key down     = modules::window::eLeftShift;
     } m_movement_key_map;
 
     double m_movement_speed{ 5.f };

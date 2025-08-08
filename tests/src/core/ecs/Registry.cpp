@@ -2,7 +2,7 @@
 
 #include "utility/contracts_macros.hpp"
 
-import core.ecs;
+import modules.ecs;
 import utility.containers.OptionalRef;
 import utility.contracts;
 import utility.meta.algorithms.apply;
@@ -20,10 +20,10 @@ import utility.tuple.tuple_any_of;
 import utility.TypeList;
 
 using RegistryValueCategories = util::TypeList<
-    core::ecs::Registry&,
-    const core::ecs::Registry&,
-    core::ecs::Registry&&,
-    const core::ecs::Registry&&>;
+    modules::ecs::Registry&,
+    const modules::ecs::Registry&,
+    modules::ecs::Registry&&,
+    const modules::ecs::Registry&&>;
 
 using RegularComponents = util::
     TypeList<float, double, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t>;
@@ -49,9 +49,9 @@ constexpr static std::array<const char*, util::meta::type_list_size_v<ComponentG
 
 using namespace std::literals;
 
-TEST_CASE("core::ecs::Registry")
+TEST_CASE("modules::ecs::Registry")
 {
-    core::ecs::Registry registry;
+    modules::ecs::Registry registry;
 
     util::meta::enumerate<
         ComponentGroups>([&registry]<std::size_t index_T, typename ComponentGroup_T> {
@@ -62,7 +62,7 @@ TEST_CASE("core::ecs::Registry")
                 {
                     decltype(auto) id = registry.create(Comps...[0](1), Comps...[1](2));
 
-                    static_assert(std::is_same_v<decltype(id), core::ecs::ID>);
+                    static_assert(std::is_same_v<decltype(id), modules::ecs::ID>);
                 }
 
                 SECTION("destroy")
@@ -156,7 +156,7 @@ TEST_CASE("core::ecs::Registry")
 
                             REQUIRE_THROWS_AS(
                                 static_cast<Registry_T>(registry).template get<Comps...[0]>(
-                                    core::ecs::Registry::null_id
+                                    modules::ecs::Registry::null_id
                                 ),
                                 util::PreconditionViolation
                             );
@@ -218,7 +218,7 @@ TEST_CASE("core::ecs::Registry")
                             REQUIRE_THROWS_AS(
                                 static_cast<Registry_T>(registry)
                                     .template get_single<Comps...[0]>(
-                                        core::ecs::Registry::null_id
+                                        modules::ecs::Registry::null_id
                                     ),
                                 util::PreconditionViolation
                             );
@@ -402,7 +402,7 @@ TEST_CASE("core::ecs::Registry")
                                 util::tuple_any_of(
                                     static_cast<Registry_T>(registry)
                                         .template find<Comps...[0]>(
-                                            core::ecs::Registry::null_id
+                                            modules::ecs::Registry::null_id
                                         ),
                                     []<typename Optional_T>(Optional_T optional) static {
                                         return optional.has_value();
@@ -527,7 +527,7 @@ TEST_CASE("core::ecs::Registry")
                             REQUIRE_FALSE(
                                 static_cast<Registry_T>(registry)
                                     .template find_all<Comps...[0]>(
-                                        core::ecs::Registry::null_id
+                                        modules::ecs::Registry::null_id
                                     )
                                     .has_value()
                             );
@@ -593,7 +593,7 @@ TEST_CASE("core::ecs::Registry")
                             REQUIRE_FALSE(
                                 static_cast<Registry_T>(registry)
                                     .template find_single<Comps...[0]>(
-                                        core::ecs::Registry::null_id
+                                        modules::ecs::Registry::null_id
                                     )
                                     .has_value()
                             );
@@ -631,11 +631,11 @@ TEST_CASE("core::ecs::Registry")
                         registry.contains_all<Comps...[1], Comps...[0], Comps...[2]>(id)
                     );
                     REQUIRE_FALSE(registry.contains_all<Comps...[2]>(id));
-                    REQUIRE_FALSE(registry.contains_all<>(core::ecs::Registry::null_id));
+                    REQUIRE_FALSE(registry.contains_all<>(modules::ecs::Registry::null_id));
 
                     []<typename... Components_T>() {
                         static_assert(!requires(
-                            core::ecs::Registry registry, core::ecs::ID id
+                            modules::ecs::Registry registry, modules::ecs::ID id
                         ) { registry.contains_all<Components_T...>(id); });
                     }.template operator()<Comps...[0], Comps...[0]>();
                 }
@@ -655,7 +655,7 @@ TEST_CASE("core::ecs::Registry")
                     );
 
                     REQUIRE_THROWS_AS(
-                        registry.insert(core::ecs::Registry::null_id, Comps...[0](1)),
+                        registry.insert(modules::ecs::Registry::null_id, Comps...[0](1)),
                         util::PreconditionViolation
                     );
                     REQUIRE_THROWS_AS(
@@ -699,7 +699,7 @@ TEST_CASE("core::ecs::Registry")
 
                     REQUIRE_THROWS_AS(
                         registry.insert_or_replace(
-                            core::ecs::Registry::null_id, Comps...[0](1)
+                            modules::ecs::Registry::null_id, Comps...[0](1)
                         ),
                         util::PreconditionViolation
                     );
@@ -734,7 +734,7 @@ TEST_CASE("core::ecs::Registry")
                     REQUIRE_FALSE(registry.contains_all<Comps...[5]>(id));
 
                     REQUIRE_THROWS_AS(
-                        registry.remove<Comps...[0]>(core::ecs::Registry::null_id),
+                        registry.remove<Comps...[0]>(modules::ecs::Registry::null_id),
                         util::PreconditionViolation
                     );
                     REQUIRE_THROWS_AS(
@@ -767,7 +767,7 @@ TEST_CASE("core::ecs::Registry")
                     REQUIRE_FALSE(registry.contains_all<Comps...[5]>(id));
 
                     REQUIRE_THROWS_AS(
-                        registry.remove_single<Comps...[0]>(core::ecs::Registry::null_id),
+                        registry.remove_single<Comps...[0]>(modules::ecs::Registry::null_id),
                         util::PreconditionViolation
                     );
                     REQUIRE_THROWS_AS(
@@ -811,7 +811,7 @@ TEST_CASE("core::ecs::Registry")
 
                     REQUIRE_FALSE(
                         std::get<std::optional<Comps...[0]>>(
-                            registry.erase<Comps...[0]>(core::ecs::Registry::null_id)
+                            registry.erase<Comps...[0]>(modules::ecs::Registry::null_id)
                         )
                             .has_value()
                     );
@@ -855,7 +855,7 @@ TEST_CASE("core::ecs::Registry")
                     REQUIRE_FALSE(registry.contains_all<Comps...[5]>(id));
 
                     REQUIRE_FALSE(
-                        registry.erase_all<Comps...[0]>(core::ecs::Registry::null_id)
+                        registry.erase_all<Comps...[0]>(modules::ecs::Registry::null_id)
                             .has_value()
                     );
                     REQUIRE_FALSE(registry.erase_all<Comps...[4]>(id).has_value());
@@ -887,7 +887,7 @@ TEST_CASE("core::ecs::Registry")
                     REQUIRE_FALSE(registry.contains_all<Comps...[5]>(id));
 
                     REQUIRE_FALSE(
-                        registry.erase_single<Comps...[0]>(core::ecs::Registry::null_id)
+                        registry.erase_single<Comps...[0]>(modules::ecs::Registry::null_id)
                             .has_value()
                     );
                     REQUIRE_FALSE(registry.erase_single<Comps...[5]>(id).has_value());

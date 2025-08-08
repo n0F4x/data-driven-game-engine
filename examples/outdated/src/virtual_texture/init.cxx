@@ -13,24 +13,24 @@ module;
 
 module demos.virtual_texture.init;
 
-import core.cache.Handle;
+import modules.cache.Handle;
 
-import core.image.Image;
+import modules.image.Image;
 
-import core.gfx.resources.VirtualImage;
+import modules.gfx.resources.VirtualImage;
 
-import core.renderer.base.device.Device;
-import core.renderer.material_system.GraphicsPipelineBuilder;
-import core.renderer.material_system.Program;
-import core.renderer.material_system.Shader;
-import core.renderer.material_system.ShaderModule;
-import core.renderer.material_system.VertexLayout;
-import core.renderer.base.allocator.Allocator;
-import core.renderer.base.resources.copy_operations;
-import core.renderer.base.resources.Image;
-import core.renderer.resources.Buffer;
-import core.renderer.resources.Image;
-import core.renderer.resources.RandomAccessBuffer;
+import modules.renderer.base.device.Device;
+import modules.renderer.material_system.GraphicsPipelineBuilder;
+import modules.renderer.material_system.Program;
+import modules.renderer.material_system.Shader;
+import modules.renderer.material_system.ShaderModule;
+import modules.renderer.material_system.VertexLayout;
+import modules.renderer.base.allocator.Allocator;
+import modules.renderer.base.resources.copy_operations;
+import modules.renderer.base.resources.Image;
+import modules.renderer.resources.Buffer;
+import modules.renderer.resources.Image;
+import modules.renderer.resources.RandomAccessBuffer;
 
 import examples.base.init;
 
@@ -123,9 +123,9 @@ static auto find_depth_format(const vk::PhysicalDevice physical_device) -> vk::F
 
 auto demo::init::create_depth_image(
     const vk::PhysicalDevice               physical_device,
-    const core::renderer::base::Allocator& allocator,
+    const modules::renderer::base::Allocator& allocator,
     const vk::Extent2D                     swapchain_extent
-) -> core::renderer::resources::Image
+) -> modules::renderer::resources::Image
 {
     const vk::ImageCreateInfo image_create_info = {
         .imageType   = vk::ImageType::e2D,
@@ -144,13 +144,13 @@ auto demo::init::create_depth_image(
         .priority = 1.f,
     };
 
-    return core::renderer::resources::Image{ allocator,
+    return modules::renderer::resources::Image{ allocator,
                                              image_create_info,
                                              allocation_create_info };
 }
 
 auto demo::init::create_depth_image_view(
-    const core::renderer::base::Device& device,
+    const modules::renderer::base::Device& device,
     const vk::Image                     depth_image
 ) -> vk::UniqueImageView
 {
@@ -173,7 +173,7 @@ auto demo::init::create_depth_image_view(
 static auto create_program(
     const vk::Device       device,
     const std::string_view fragment_shader_file_name
-) -> core::renderer::Program
+) -> modules::renderer::Program
 {
     static const std::filesystem::path shader_path{
         std::filesystem::path{ std::source_location::current().file_name() }.parent_path()
@@ -183,14 +183,14 @@ static auto create_program(
     const std::filesystem::path fragment_shader_path{ shader_path
                                                       / fragment_shader_file_name };
 
-    return core::renderer::Program{
-        core::renderer::Shader{
-            core::cache::make_handle<const core::renderer::ShaderModule>(
-                core::renderer::ShaderModule::load(device, vertex_shader_path)
+    return modules::renderer::Program{
+        modules::renderer::Shader{
+            modules::cache::make_handle<const modules::renderer::ShaderModule>(
+                modules::renderer::ShaderModule::load(device, vertex_shader_path)
             ) },
-        core::renderer::Shader{
-            core::cache::make_handle<const core::renderer::ShaderModule>(
-                core::renderer::ShaderModule::load(device, fragment_shader_path)
+        modules::renderer::Shader{
+            modules::cache::make_handle<const modules::renderer::ShaderModule>(
+                modules::renderer::ShaderModule::load(device, fragment_shader_path)
             ) }
     };
 }
@@ -209,21 +209,21 @@ auto demo::init::create_pipeline(
         .depthAttachmentFormat   = depth_format,
     };
 
-    return core::renderer::GraphicsPipelineBuilder{
+    return modules::renderer::GraphicsPipelineBuilder{
         ::create_program(device, fragment_shader_file_name)
     }
         .set_layout(layout)
         .add_vertex_layout(
-            core::renderer::VertexLayout{ sizeof(Vertex), vk::VertexInputRate::eVertex }
+            modules::renderer::VertexLayout{ sizeof(Vertex), vk::VertexInputRate::eVertex }
                 .add_attribute(
-                    core::renderer::VertexAttribute{
+                    modules::renderer::VertexAttribute{
                         .location = 0,
                         .format   = vk::Format::eR32G32B32Sfloat,
                         .offset   = 0,
                     }
                 )
                 .add_attribute(
-                    core::renderer::VertexAttribute{
+                    modules::renderer::VertexAttribute{
                         .location = 1,
                         .format   = vk::Format::eR32G32Sfloat,
                         .offset   = offsetof(Vertex, uv),
@@ -235,22 +235,22 @@ auto demo::init::create_pipeline(
         .build(device, &dynamic_rendering_create_info);
 }
 
-auto demo::init::create_camera_buffer(const core::renderer::base::Allocator& allocator)
-    -> core::renderer::resources::RandomAccessBuffer<Camera>
+auto demo::init::create_camera_buffer(const modules::renderer::base::Allocator& allocator)
+    -> modules::renderer::resources::RandomAccessBuffer<Camera>
 {
     constexpr vk::BufferCreateInfo buffer_create_info = {
         .size = sizeof(Camera), .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    return core::renderer::resources::RandomAccessBuffer<Camera>{ allocator,
+    return modules::renderer::resources::RandomAccessBuffer<Camera>{ allocator,
                                                                   buffer_create_info };
 }
 
 auto demo::init::create_virtual_image(
-    const core::renderer::base::Device&    device,
-    const core::renderer::base::Allocator& allocator,
-    std::unique_ptr<core::image::Image>&&  source
-) -> core::gfx::resources::VirtualImage
+    const modules::renderer::base::Device&    device,
+    const modules::renderer::base::Allocator& allocator,
+    std::unique_ptr<modules::image::Image>&&  source
+) -> modules::gfx::resources::VirtualImage
 {
     const vk::UniqueCommandPool command_pool{ examples::base::init::create_command_pool(
         device.get(), device.info().get_queue_index(vkb::QueueType::graphics).value()
@@ -266,15 +266,15 @@ auto demo::init::create_virtual_image(
     constexpr static vk::CommandBufferBeginInfo begin_info{};
     command_buffer.begin(begin_info);
 
-    core::gfx::resources::VirtualImage::Loader virtual_image_loader{
+    modules::gfx::resources::VirtualImage::Loader virtual_image_loader{
         device.physical_device(), device.get(), allocator, *source
     };
 
-    core::gfx::resources::VirtualImage virtual_image{ std::move(virtual_image_loader)(
+    modules::gfx::resources::VirtualImage virtual_image{ std::move(virtual_image_loader)(
         device.physical_device(),
         device.info().get_queue(vkb::QueueType::graphics).value(),
         command_buffer,
-        core::renderer::base::Image::State{
+        modules::renderer::base::Image::State{
             .stage_mask  = vk::PipelineStageFlagBits::eFragmentShader,
             .access_mask = vk::AccessFlagBits::eShaderRead,
             .layout      = vk::ImageLayout::eShaderReadOnlyOptimal,
@@ -299,7 +299,7 @@ auto demo::init::create_virtual_image(
     return virtual_image;
 }
 
-auto demo::init::create_virtual_image_sampler(const core::renderer::base::Device& device)
+auto demo::init::create_virtual_image_sampler(const modules::renderer::base::Device& device)
     -> vk::UniqueSampler
 {
     const vk::PhysicalDeviceLimits limits{
@@ -322,16 +322,16 @@ auto demo::init::create_virtual_image_sampler(const core::renderer::base::Device
 }
 
 auto demo::init::create_virtual_texture_info_buffer(
-    const core::renderer::base::Allocator&    allocator,
-    const core::gfx::resources::VirtualImage& virtual_image
-) -> core::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
+    const modules::renderer::base::Allocator&    allocator,
+    const modules::gfx::resources::VirtualImage& virtual_image
+) -> modules::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
 {
     constexpr vk::BufferCreateInfo buffer_create_info = {
         .size  = sizeof(VirtualTextureInfo),
         .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    core::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
+    modules::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
         virtual_texture_info_buffer{ allocator, buffer_create_info };
 
     const glm::uvec2 base_extent{
@@ -356,9 +356,9 @@ auto demo::init::create_virtual_texture_info_buffer(
 }
 
 auto demo::init::create_virtual_texture_blocks_buffer(
-    const core::renderer::base::Allocator&    allocator,
-    const core::gfx::resources::VirtualImage& virtual_image
-) -> core::renderer::resources::Buffer
+    const modules::renderer::base::Allocator&    allocator,
+    const modules::gfx::resources::VirtualImage& virtual_image
+) -> modules::renderer::resources::Buffer
 {
     const vk::BufferCreateInfo buffer_create_info = {
         .size  = virtual_image.blocks().size_bytes(),
@@ -372,14 +372,14 @@ auto demo::init::create_virtual_texture_blocks_buffer(
         .usage = VMA_MEMORY_USAGE_AUTO,
     };
 
-    core::renderer::resources::Buffer virtual_texture_blocks_buffer{
+    modules::renderer::resources::Buffer virtual_texture_blocks_buffer{
         allocator, buffer_create_info, allocation_create_info
     };
 
     const std::vector<uint32_t> virtual_texture_blocks(virtual_image.blocks().size());
-    core::renderer::base::copy(
+    modules::renderer::base::copy(
         virtual_texture_blocks.data(),
-        core::renderer::base::CopyRegion{
+        modules::renderer::base::CopyRegion{
             .allocation = virtual_texture_blocks_buffer.allocation(),
         },
         virtual_texture_blocks.size() * sizeof(uint32_t)
@@ -390,9 +390,9 @@ auto demo::init::create_virtual_texture_blocks_buffer(
 
 auto demo::init::create_virtual_texture_blocks_uniform(
     const vk::Device                       device,
-    const core::renderer::base::Allocator& allocator,
+    const modules::renderer::base::Allocator& allocator,
     const vk::Buffer                       virtual_blocks_buffer
-) -> core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
+) -> modules::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
 {
     constexpr vk::BufferCreateInfo buffer_create_info = {
         .size = sizeof(vk::DeviceAddress), .usage = vk::BufferUsageFlagBits::eUniformBuffer
@@ -402,7 +402,7 @@ auto demo::init::create_virtual_texture_blocks_uniform(
         .buffer = virtual_blocks_buffer,
     };
 
-    core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
+    modules::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
         virtual_texture_block_uniform{ allocator, buffer_create_info };
 
     virtual_texture_block_uniform.set(device.getBufferAddress(buffer_device_address_info));

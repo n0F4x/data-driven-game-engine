@@ -4,14 +4,14 @@ module;
 
 export module snake.window.DisplayTimer;
 
-import core.time.FixedTimer;
+import modules.time.FixedTimer;
 
 import snake.window.display_time;
 
 namespace window {
 
 export class DisplayTimer
-    : public core::time::
+    : public modules::time::
           FixedTimer<std::remove_cvref_t<decltype(display_time)>, display_time.count()> {
 };
 

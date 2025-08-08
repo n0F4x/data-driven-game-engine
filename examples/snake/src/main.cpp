@@ -2,10 +2,10 @@ import addons.ECS;
 
 import app;
 
-import core.scheduler.TaskBuilder;
-import core.time;
+import modules.scheduler.TaskBuilder;
+import modules.time;
 
-import core.scheduler;
+import modules.scheduler;
 
 import plugins.assets;
 import plugins.ecs;
@@ -20,10 +20,10 @@ import utility.not_fn;
 
 import snake;
 
-using namespace core::scheduler::accessors;
+using namespace modules::scheduler::accessors;
 
-static const core::scheduler::TaskBuilder<void> initialize =   //
-    core::scheduler::group(
+static const modules::scheduler::TaskBuilder<void> initialize =   //
+    modules::scheduler::group(
         window::initialize,                                    //
         game::create_initialize_task_builder()
     );
@@ -38,34 +38,34 @@ auto clear_messages(const messages::Mailbox& mailbox) -> void
     mailbox.clear_messages();
 }
 
-static const core::scheduler::TaskBuilder<void> update =
-    core::scheduler::group(window::update, game::create_update_task_builder());
+static const modules::scheduler::TaskBuilder<void> update =
+    modules::scheduler::group(window::update, game::create_update_task_builder());
 
-static const core::scheduler::TaskBuilder<void> render =          //
-    core::scheduler::at_fixed_rate<window::DisplayTimer>(   //
-        core::scheduler::start_as(window::clear_window)     //
+static const modules::scheduler::TaskBuilder<void> render =          //
+    modules::scheduler::at_fixed_rate<window::DisplayTimer>(   //
+        modules::scheduler::start_as(window::clear_window)     //
             .then(game::draw)
             .then(window::display)
     );
 
-static const core::scheduler::TaskBuilder<void> run_game_loop =
-    core::scheduler::loop_until(
-        core::scheduler::start_as(
-            core::scheduler::group(
+static const modules::scheduler::TaskBuilder<void> run_game_loop =
+    modules::scheduler::loop_until(
+        modules::scheduler::start_as(
+            modules::scheduler::group(
                 process_events,   //
                 clear_messages
             )
         )
             .then(update)
             .then(render),
-        core::scheduler::all_of(
+        modules::scheduler::all_of(
             util::not_fn(window::window_should_close),   //
             game::game_is_running
         )
     );
 
-static const core::scheduler::TaskBuilder<void> shut_down =
-    core::scheduler::start_as(game::shut_down).then(window::close_window);
+static const modules::scheduler::TaskBuilder<void> shut_down =
+    modules::scheduler::start_as(game::shut_down).then(window::close_window);
 
 auto main() -> int
 {
@@ -81,7 +81,7 @@ auto main() -> int
         .transform(window::setup)
         .transform(game::setup)
         .run(
-            core::scheduler::start_as(initialize)   //
+            modules::scheduler::start_as(initialize)   //
                 .then(run_game_loop)
                 .then(shut_down)
         );

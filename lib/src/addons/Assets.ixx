@@ -1,11 +1,11 @@
 export module addons.Assets;
 
-import core.assets;
+import modules.assets;
 
 namespace addons {
 
 export struct Assets {
-    core::assets::AssetManager asset_manager;
+    modules::assets::AssetManager asset_manager;
 };
 
 }   // namespace addons

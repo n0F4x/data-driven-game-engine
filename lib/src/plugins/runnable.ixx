@@ -2,13 +2,13 @@ module;
 
 #include <concepts>
 
-#include "core/log/log_macros.hpp"
+#include "modules/log/log_macros.hpp"
 
 export module plugins.runnable;
 
 import app.decays_to_builder_c;
 
-import core.log;
+import modules.log;
 
 namespace plugins {
 

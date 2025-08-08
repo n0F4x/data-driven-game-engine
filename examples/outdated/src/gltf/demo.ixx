@@ -8,7 +8,7 @@ import vulkan_hpp;
 
 import app.has_addons_c;
 
-import core.gfx.Camera;
+import modules.gfx.Camera;
 
 import addons.Resources;
 
@@ -25,7 +25,7 @@ export constexpr auto run =
         [demo_app = std::ref(app.resource_manager.template at<DemoApp>()
          )](examples::base::Renderer& renderer,
             const vk::Extent2D        framebuffer_size,
-            core::gfx::Camera         camera) {
+            modules::gfx::Camera         camera) {
             renderer.render(
                 framebuffer_size,
                 camera,

@@ -12,7 +12,7 @@ import addons.Messages;
 
 import app;
 
-import core.messages;
+import modules.messages;
 
 import utility.contracts;
 
@@ -20,24 +20,24 @@ namespace plugins {
 
 export class Messages {
 public:
-    template <core::messages::message_c Message_T, typename Self_T>
+    template <modules::messages::message_c Message_T, typename Self_T>
     auto register_message(this Self_T&&) -> Self_T;
 
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
     auto build(App_T&& app) && -> app::add_on_t<App_T, addons::Messages>;
 
-    template <core::messages::message_c Message_T>
+    template <modules::messages::message_c Message_T>
     [[nodiscard]]
     auto manages_message() const noexcept -> bool;
 
 private:
-    std::flat_map<std::type_index, core::messages::ErasedMessageBuffer> m_message_buffers;
+    std::flat_map<std::type_index, modules::messages::ErasedMessageBuffer> m_message_buffers;
 };
 
 }   // namespace plugins
 
-template <core::messages::message_c Message_T, typename Self_T>
+template <modules::messages::message_c Message_T, typename Self_T>
 auto plugins::Messages::register_message(this Self_T&& self) -> Self_T
 {
     Messages& this_self{ static_cast<Messages&>(self) };
@@ -55,7 +55,7 @@ auto plugins::Messages::build(App_T&& app) && -> app::add_on_t<App_T, addons::Me
     );
 }
 
-template <core::messages::message_c Message_T>
+template <modules::messages::message_c Message_T>
 auto plugins::Messages::manages_message() const noexcept -> bool
 {
     return m_message_buffers.contains(typeid(Message_T));

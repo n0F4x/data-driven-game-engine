@@ -1,5 +1,5 @@
 add_subdirectory(addons)
 add_subdirectory(app)
-add_subdirectory(core)
+add_subdirectory(modules)
 add_subdirectory(plugins)
 add_subdirectory(utility)

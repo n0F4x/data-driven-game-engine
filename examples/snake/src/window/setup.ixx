@@ -10,7 +10,7 @@ export module snake.window.setup;
 import app.decays_to_builder_c;
 import app.has_plugins_c;
 
-import core.time.FixedTimer;
+import modules.time.FixedTimer;
 
 import snake.window.DisplayTimer;
 import snake.window.Settings;

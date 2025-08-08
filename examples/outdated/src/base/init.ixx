@@ -6,7 +6,7 @@ module;
 
 export module examples.base.init;
 
-import core.renderer.resources.Image;
+import modules.renderer.resources.Image;
 
 namespace examples::base::init {
 

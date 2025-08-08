@@ -9,11 +9,11 @@ module;
 
 module snake.game.create_initialize_task_builder;
 
-import core.ecs;
-import core.scheduler.TaskBuilder;
-import core.time.FixedTimer;
+import modules.ecs;
+import modules.scheduler.TaskBuilder;
+import modules.time.FixedTimer;
 
-import core.scheduler;
+import modules.scheduler;
 
 import snake.assets.TextureLoader;
 import snake.game.AppleSpawnTimer;
@@ -28,11 +28,11 @@ import snake.game.Snake;
 import snake.game.SnakeHead;
 import snake.window.Window;
 
-using namespace core::scheduler::accessors;
-using namespace core::ecs::query_parameter_tags;
+using namespace modules::scheduler::accessors;
+using namespace modules::ecs::query_parameter_tags;
 
 using CachedTextureLoader =
-    core::scheduler::accessors::assets::Cached<::assets::TextureLoader>;
+    modules::scheduler::accessors::assets::Cached<::assets::TextureLoader>;
 
 [[nodiscard]]
 auto make_shape(const uint16_t position_x, const uint16_t position_y, const uint8_t width)
@@ -109,10 +109,10 @@ auto initialize_snake(
         return game::Direction::eLeft;
     }() };
 
-    std::optional<core::ecs::ID> snake_head_id;
-    core::ecs::query(
+    std::optional<modules::ecs::ID> snake_head_id;
+    modules::ecs::query(
         registry.get(),
-        [&snake_head_id, snake_position](const core::ecs::ID id, const game::Cell& cell) {
+        [&snake_head_id, snake_position](const modules::ecs::ID id, const game::Cell& cell) {
             if (cell.position == snake_position) {
                 assert(!snake_head_id.has_value());
                 snake_head_id = id;
@@ -152,9 +152,9 @@ auto reset_timers(
     game_state->snake_move_timer.reset();
 }
 
-auto game::create_initialize_task_builder() -> core::scheduler::TaskBuilder<void>
+auto game::create_initialize_task_builder() -> modules::scheduler::TaskBuilder<void>
 {
-    return core::scheduler::start_as(::initialize_map)
+    return modules::scheduler::start_as(::initialize_map)
         .then(::initialize_snake)
         .then(::load_apple_texture)
         .then(color_cells)

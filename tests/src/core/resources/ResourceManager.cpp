@@ -1,6 +1,6 @@
 #include <functional>
 
-import core.resources.ResourceManager;
+import modules.resources.ResourceManager;
 
 namespace {
 
@@ -28,7 +28,7 @@ constexpr auto make_second(const First& first) -> Second
 
 static_assert(
     [] {
-        core::resource::ResourceManager<First, Second> resource_manager{ make_first,
+        modules::resource::ResourceManager<First, Second> resource_manager{ make_first,
                                                                          make_second };
         auto moved_resource_manager{ std::move(resource_manager) };
 

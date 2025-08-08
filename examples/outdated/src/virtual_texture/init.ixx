@@ -4,14 +4,14 @@ module;
 
 export module demos.virtual_texture.init;
 
-import core.image.Image;
-import core.gfx.resources.VirtualImage;
-import core.renderer.base.allocator.Allocator;
-import core.renderer.base.device.Device;
-import core.renderer.resources.Buffer;
-import core.renderer.resources.Image;
-import core.renderer.resources.RandomAccessBuffer;
-import core.renderer.scene.Scene;
+import modules.image.Image;
+import modules.gfx.resources.VirtualImage;
+import modules.renderer.base.allocator.Allocator;
+import modules.renderer.base.device.Device;
+import modules.renderer.resources.Buffer;
+import modules.renderer.resources.Image;
+import modules.renderer.resources.RandomAccessBuffer;
+import modules.renderer.scene.Scene;
 
 import demos.virtual_texture.Camera;
 import demos.virtual_texture.VirtualTexture;
@@ -31,13 +31,13 @@ auto create_pipeline_layout(
 export [[nodiscard]]
 auto create_depth_image(
     vk::PhysicalDevice                     physical_device,
-    const core::renderer::base::Allocator& allocator,
+    const modules::renderer::base::Allocator& allocator,
     vk::Extent2D                           swapchain_extent
-) -> core::renderer::resources::Image;
+) -> modules::renderer::resources::Image;
 
 export [[nodiscard]]
 auto create_depth_image_view(
-    const core::renderer::base::Device& device,
+    const modules::renderer::base::Device& device,
     vk::Image                           depth_image
 ) -> vk::UniqueImageView;
 
@@ -51,38 +51,38 @@ auto create_pipeline(
 ) -> vk::UniquePipeline;
 
 export [[nodiscard]]
-auto create_camera_buffer(const core::renderer::base::Allocator& allocator)
-    -> core::renderer::resources::RandomAccessBuffer<Camera>;
+auto create_camera_buffer(const modules::renderer::base::Allocator& allocator)
+    -> modules::renderer::resources::RandomAccessBuffer<Camera>;
 
 export [[nodiscard]]
 auto create_virtual_image(
-    const core::renderer::base::Device&    device,
-    const core::renderer::base::Allocator& allocator,
-    std::unique_ptr<core::image::Image>&&  source
-) -> core::gfx::resources::VirtualImage;
+    const modules::renderer::base::Device&    device,
+    const modules::renderer::base::Allocator& allocator,
+    std::unique_ptr<modules::image::Image>&&  source
+) -> modules::gfx::resources::VirtualImage;
 
 export [[nodiscard]]
-auto create_virtual_image_sampler(const core::renderer::base::Device& device)
+auto create_virtual_image_sampler(const modules::renderer::base::Device& device)
     -> vk::UniqueSampler;
 
 export [[nodiscard]]
 auto create_virtual_texture_info_buffer(
-    const core::renderer::base::Allocator&    allocator,
-    const core::gfx::resources::VirtualImage& virtual_image
-) -> core::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>;
+    const modules::renderer::base::Allocator&    allocator,
+    const modules::gfx::resources::VirtualImage& virtual_image
+) -> modules::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>;
 
 export [[nodiscard]]
 auto create_virtual_texture_blocks_buffer(
-    const core::renderer::base::Allocator&    allocator,
-    const core::gfx::resources::VirtualImage& virtual_image
-) -> core::renderer::resources::Buffer;
+    const modules::renderer::base::Allocator&    allocator,
+    const modules::gfx::resources::VirtualImage& virtual_image
+) -> modules::renderer::resources::Buffer;
 
 export [[nodiscard]]
 auto create_virtual_texture_blocks_uniform(
     vk::Device                             device,
-    const core::renderer::base::Allocator& allocator,
+    const modules::renderer::base::Allocator& allocator,
     vk::Buffer                             virtual_blocks_buffer
-) -> core::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>;
+) -> modules::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>;
 
 export [[nodiscard]]
 auto create_debug_texture_descriptor_set(

@@ -1,11 +1,11 @@
 export module addons.States;
 
-import core.states;
+import modules.states;
 
 namespace addons {
 
 export struct States {
-    core::states::StateManager state_manager;
+    modules::states::StateManager state_manager;
 };
 
 }   // namespace addons

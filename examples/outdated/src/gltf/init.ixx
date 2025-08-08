@@ -6,26 +6,26 @@ module;
 
 export module demos.gltf.init;
 
-import core.renderer.base.device.Device;
-import core.renderer.base.allocator.Allocator;
-import core.renderer.resources.Image;
+import modules.renderer.base.device.Device;
+import modules.renderer.base.allocator.Allocator;
+import modules.renderer.resources.Image;
 
 namespace demo::init {
 
 export [[nodiscard]]
-auto create_render_pass(vk::Format color_format, const core::renderer::base::Device& device)
+auto create_render_pass(vk::Format color_format, const modules::renderer::base::Device& device)
     -> vk::UniqueRenderPass;
 
 export [[nodiscard]]
 auto create_depth_image(
     vk::PhysicalDevice                     physical_device,
-    const core::renderer::base::Allocator& allocator,
+    const modules::renderer::base::Allocator& allocator,
     vk::Extent2D                           swapchain_extent
-) -> core::renderer::resources::Image;
+) -> modules::renderer::resources::Image;
 
 export [[nodiscard]]
 auto create_depth_image_view(
-    const core::renderer::base::Device& device,
+    const modules::renderer::base::Device& device,
     vk::Image                           depth_image
 ) -> vk::UniqueImageView;
 

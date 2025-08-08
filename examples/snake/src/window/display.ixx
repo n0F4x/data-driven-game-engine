@@ -4,12 +4,12 @@ module;
 
 export module snake.window.display;
 
-import core.scheduler.accessors.resources;
+import modules.scheduler.accessors.resources;
 
 import snake.window.Settings;
 import snake.window.Window;
 
-using namespace core::scheduler::accessors;
+using namespace modules::scheduler::accessors;
 
 namespace window {
 

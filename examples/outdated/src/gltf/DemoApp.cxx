@@ -9,22 +9,22 @@ module;
 
 module demos.gltf.DemoApp;
 
-import core.cache.Handle;
-import core.gltf.Model;
-import core.renderer.base.swapchain.Swapchain;
-import core.renderer.base.swapchain.SwapchainHolder;
-import core.renderer.scene.Scene;
-import core.window.Window;
+import modules.cache.Handle;
+import modules.gltf.Model;
+import modules.renderer.base.swapchain.Swapchain;
+import modules.renderer.base.swapchain.SwapchainHolder;
+import modules.renderer.scene.Scene;
+import modules.window.Window;
 
 import examples.base.init;
 
 import demos.gltf.init;
 
 auto demo::DemoPlugin::operator()(
-    core::cache::Cache&                    cache,
-    const core::renderer::base::Device&    device,
-    const core::renderer::base::Allocator& allocator,
-    core::renderer::base::SwapchainHolder& swapchain_holder
+    modules::cache::Cache&                    cache,
+    const modules::renderer::base::Device&    device,
+    const modules::renderer::base::Allocator& allocator,
+    modules::renderer::base::SwapchainHolder& swapchain_holder
 ) const -> DemoApp
 {
     return DemoApp{ cache,          device,
@@ -34,7 +34,7 @@ auto demo::DemoPlugin::operator()(
 
 template <std::invocable<vk::CommandBuffer> Executor>
 static auto
-    execute_command(const core::renderer::base::Device& device, Executor&& executor)
+    execute_command(const modules::renderer::base::Device& device, Executor&& executor)
         -> void
 {
     const vk::UniqueCommandPool command_pool{ examples::base::init::create_command_pool(
@@ -70,17 +70,17 @@ static auto
 
 [[nodiscard]]
 static auto load_scene(
-    const core::renderer::base::Device&    device,
-    const core::renderer::base::Allocator& allocator,
+    const modules::renderer::base::Device&    device,
+    const modules::renderer::base::Allocator& allocator,
     const vk::RenderPass                   render_pass,
-    core::gltf::Model&&                    model,
-    core::cache::Cache&                    cache,
+    modules::gltf::Model&&                    model,
+    modules::cache::Cache&                    cache,
     const bool                             use_virtual_images
-) -> core::renderer::Scene
+) -> modules::renderer::Scene
 {
     auto packaged_scene{
-        core::renderer::Scene::create()
-            .add_model(core::cache::make_handle<const core::gltf::Model>(std::move(model)))
+        modules::renderer::Scene::create()
+            .add_model(modules::cache::make_handle<const modules::gltf::Model>(std::move(model)))
             .set_cache(cache)
             .build(device, allocator, render_pass, use_virtual_images)
     };
@@ -91,10 +91,10 @@ static auto load_scene(
 }
 
 demo::DemoApp::DemoApp(
-    core::cache::Cache&                    cache,
-    const core::renderer::base::Device&    device,
-    const core::renderer::base::Allocator& allocator,
-    core::renderer::base::SwapchainHolder& swapchain_holder,
+    modules::cache::Cache&                    cache,
+    const modules::renderer::base::Device&    device,
+    const modules::renderer::base::Allocator& allocator,
+    modules::renderer::base::SwapchainHolder& swapchain_holder,
     const std::filesystem::path&           model_filepath,
     const bool                             use_virtual_images
 )
@@ -120,25 +120,25 @@ demo::DemoApp::DemoApp(
           device,
           allocator,
           m_render_pass.get(),
-          core::gltf::Loader::load_from_file(model_filepath).value(),
+          modules::gltf::Loader::load_from_file(model_filepath).value(),
           cache,
           use_virtual_images
       ) }
 {
     swapchain_holder.on_swapchain_recreated(
-        [&](const core::renderer::base::Swapchain& swapchain) {
+        [&](const modules::renderer::base::Swapchain& swapchain) {
             m_depth_image.reset();
             m_depth_image = init::create_depth_image(
                 device.physical_device(), allocator, swapchain.extent()
             );
         }
     );
-    swapchain_holder.on_swapchain_recreated([&](const core::renderer::base::Swapchain&) {
+    swapchain_holder.on_swapchain_recreated([&](const modules::renderer::base::Swapchain&) {
         m_depth_image_view.reset();
         m_depth_image_view = init::create_depth_image_view(device, m_depth_image.get());
     });
     swapchain_holder.on_swapchain_recreated(
-        [&](const core::renderer::base::Swapchain& swapchain) {
+        [&](const modules::renderer::base::Swapchain& swapchain) {
             m_framebuffers.clear();
             m_framebuffers = init::create_framebuffers(
                 device.get(),
@@ -155,7 +155,7 @@ auto demo::DemoApp::record_command_buffer(
     const uint32_t           image_index,
     const vk::Extent2D       swapchain_extent,
     const vk::CommandBuffer  graphics_command_buffer,
-    const core::gfx::Camera& camera
+    const modules::gfx::Camera& camera
 ) -> void
 {
     constexpr static std::array clear_values{
@@ -177,7 +177,7 @@ auto demo::DemoApp::record_command_buffer(
     ::execute_command(
         m_device,
         std::bind_front(
-            &core::renderer::Scene::update,
+            &modules::renderer::Scene::update,
             std::ref(m_scene),
             std::cref(camera),
             m_allocator,

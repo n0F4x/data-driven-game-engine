@@ -1,11 +1,11 @@
 export module addons.Messages;
 
-import core.messages;
+import modules.messages;
 
 namespace addons {
 
 export struct Messages {
-    core::messages::MessageManager message_manager;
+    modules::messages::MessageManager message_manager;
 };
 
 }   // namespace addons

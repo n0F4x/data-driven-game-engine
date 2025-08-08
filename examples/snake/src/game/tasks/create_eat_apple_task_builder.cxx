@@ -4,10 +4,10 @@ module;
 
 module snake.game.create_eat_apple_task_builder;
 
-import core.ecs;
-import core.scheduler.TaskBuilder;
+import modules.ecs;
+import modules.scheduler.TaskBuilder;
 
-import core.scheduler;
+import modules.scheduler;
 
 import snake.game.Apple;
 import snake.game.AppleDigested;
@@ -16,18 +16,18 @@ import snake.game.DigestedApple;
 import snake.game.Snake;
 import snake.game.SnakeHead;
 
-using namespace core::ecs::query_parameter_tags;
-using namespace core::scheduler::accessors::ecs;
-using namespace core::scheduler::accessors::events;
-using namespace core::scheduler::accessors::messages;
+using namespace modules::ecs::query_parameter_tags;
+using namespace modules::scheduler::accessors::ecs;
+using namespace modules::scheduler::accessors::events;
+using namespace modules::scheduler::accessors::messages;
 
 auto check_apple_digestion(
-    Query<core::ecs::ID, With<game::SnakeHead>, With<game::Apple>>& eaten_apples,
+    Query<modules::ecs::ID, With<game::SnakeHead>, With<game::Apple>>& eaten_apples,
     const Recorder<game::AppleDigested>                             event_recorder,
     const Sender<game::DigestedApple>                               message_sender
 ) -> void
 {
-    eaten_apples.for_each([message_sender, event_recorder](const core::ecs::ID id) {
+    eaten_apples.for_each([message_sender, event_recorder](const modules::ecs::ID id) {
         event_recorder.record();
         message_sender.send(game::DigestedApple{ .id = id });
     });
@@ -54,11 +54,11 @@ auto grow_snake(
     }
 }
 
-auto game::create_eat_apple_task_builder() -> core::scheduler::TaskBuilder<void>
+auto game::create_eat_apple_task_builder() -> modules::scheduler::TaskBuilder<void>
 {
-    return core::scheduler::start_as(check_apple_digestion)
+    return modules::scheduler::start_as(check_apple_digestion)
         .then(
-            core::scheduler::group(
+            modules::scheduler::group(
                 despawn_digested_apple,   //
                 grow_snake
             )

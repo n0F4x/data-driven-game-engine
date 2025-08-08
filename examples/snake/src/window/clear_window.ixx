@@ -4,11 +4,11 @@ module;
 
 export module snake.window.clear_window;
 
-import core.scheduler.accessors.resources;
+import modules.scheduler.accessors.resources;
 
 import snake.window.Window;
 
-using namespace core::scheduler::accessors;
+using namespace modules::scheduler::accessors;
 
 namespace window {
 

@@ -53,7 +53,7 @@ The recommended approach is to inject a reference to the texture loader into you
 class ModelLoader {
 public:
     explicit ModelLoader(
-        core::assets::Cached<TextureLoader>& texture_loader
+        modules::assets::Cached<TextureLoader>& texture_loader
     );
 
     // ...
@@ -63,7 +63,7 @@ app::create()
     .plug_in(plugins::Assets{})
     .insert_loader(TextureLoader{});
     .inject_loader(
-        [](core::assets::Cached<TextureLoader>& texture_loader) {
+        [](modules::assets::Cached<TextureLoader>& texture_loader) {
             return ModelLoader{ texture_loader };
         }
     );

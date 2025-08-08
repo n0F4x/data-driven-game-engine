@@ -4,16 +4,16 @@ module;
 
 export module snake.game.draw;
 
-import core.ecs;
+import modules.ecs;
 
-import core.scheduler.accessors.ecs.Query;
-import core.scheduler.accessors.resources;
+import modules.scheduler.accessors.ecs.Query;
+import modules.scheduler.accessors.resources;
 
 import snake.game.Cell;
 import snake.window.Window;
 
-using namespace core::scheduler::accessors;
-using namespace core::ecs::query_parameter_tags;
+using namespace modules::scheduler::accessors;
+using namespace modules::ecs::query_parameter_tags;
 
 namespace game {
 

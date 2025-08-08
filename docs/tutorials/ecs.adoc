@@ -33,7 +33,7 @@ Queries iterate on the registry itself, no extra copies are made.
 [,c++]
 .An example for what might be a physics system
 ----
-core::ecs::query(
+modules::ecs::query(
     registry,
     [](Position& position, const Velocity& velocity) {
         // process and manipulate data...
@@ -55,9 +55,9 @@ Queries can be tailored to support special selection criteria.
 [,c++]
 .Query with special tags
 ----
-core::ecs::query(
+modules::ecs::query(
     registry,
-    [](core::ecs::ID id, Velocity& velocity, core::ecs::Without<Weapon>) {
+    [](modules::ecs::ID id, Velocity& velocity, modules::ecs::Without<Weapon>) {
         // only entities with velocity but without a weapon are included
     }
 );

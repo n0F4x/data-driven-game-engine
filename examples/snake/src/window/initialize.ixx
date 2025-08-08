@@ -1,12 +1,12 @@
 export module snake.window.initialize;
 
-import core.time.FixedTimer;
+import modules.time.FixedTimer;
 
-import core.scheduler.accessors.resources;
+import modules.scheduler.accessors.resources;
 
 import snake.window.DisplayTimer;
 
-using namespace core::scheduler::accessors;
+using namespace modules::scheduler::accessors;
 
 namespace window {
 

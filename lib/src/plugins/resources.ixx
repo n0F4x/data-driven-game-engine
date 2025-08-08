@@ -15,8 +15,8 @@ import addons.Resources;
 
 import app;
 
-import core.resources;
-import core.store.Store;
+import modules.resources;
+import modules.store.Store;
 
 import utility.contracts;
 import utility.meta.concepts.type_list.type_list_all_of;
@@ -27,7 +27,7 @@ import utility.TypeList;
 namespace plugins {
 
 export template <typename T>
-concept resource_c = core::resources::resource_c<T>;
+concept resource_c = modules::resources::resource_c<T>;
 
 template <typename T>
 struct IsResourceDependency
@@ -60,9 +60,9 @@ public:
     auto contains_resource() const -> bool;
 
 private:
-    using Caller = std::function<void(core::store::Store&)>;
+    using Caller = std::function<void(modules::store::Store&)>;
 
-    core::store::Store           m_injections;
+    modules::store::Store           m_injections;
     std::vector<Caller>          m_callers;
     std::vector<std::type_index> m_types;
 };
@@ -87,7 +87,7 @@ auto plugins::Resources::insert_resource(this Self_T&& self, Resource_T&& resour
     Injection& injection = this_self.m_injections.emplace<Injection>(Injection{
         std::forward<Resource_T>(resource) });
 
-    this_self.m_callers.push_back([&injection](core::store::Store& store) -> void {
+    this_self.m_callers.push_back([&injection](modules::store::Store& store) -> void {
         store.emplace<Resource>(std::move(injection.resource));
     });
 
@@ -97,7 +97,7 @@ auto plugins::Resources::insert_resource(this Self_T&& self, Resource_T&& resour
 }
 
 template <typename Injection_T>
-auto call_injection(Injection_T&& injection, core::store::Store& parameter_store)
+auto call_injection(Injection_T&& injection, modules::store::Store& parameter_store)
     -> util::meta::result_of_t<Injection_T>
 {
     using Parameters = util::meta::arguments_of_t<Injection_T>;
@@ -140,7 +140,7 @@ auto plugins::Resources::inject_resource(this Self_T&& self, Injection_T&& injec
     Injection& stored_injection =
         this_self.m_injections.emplace<Injection>(std::forward<Injection_T>(injection));
 
-    this_self.m_callers.push_back([&stored_injection](core::store::Store& store) -> void {
+    this_self.m_callers.push_back([&stored_injection](modules::store::Store& store) -> void {
         store.emplace<Resource>(::call_injection(std::move(stored_injection), store));
     });
 
@@ -154,7 +154,7 @@ auto plugins::Resources::build(App_T&& app) && -> app::add_on_t<App_T, addons::R
 {
     static_assert(!app::has_addons_c<App_T, addons::Resources>);
 
-    core::store::Store store;
+    modules::store::Store store;
     for (const Caller& caller : m_callers) {
         caller(store);
     }
