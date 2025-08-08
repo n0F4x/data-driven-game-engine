@@ -10,17 +10,11 @@ export module core.scheduler.SchedulerBuilder;
 
 import core.scheduler.Nexus;
 import core.scheduler.provide_accessors_for;
+import core.scheduler.raw_task_c;
 import core.scheduler.Task;
 import core.scheduler.TaskBuilder;
 
-import utility.meta.concepts.functional.unambiguously_invocable;
-import utility.meta.concepts.type_list.type_list_all_of;
-import utility.meta.type_traits.functional.arguments_of;
 import utility.meta.type_traits.functional.result_of;
-
-template <typename T>
-struct IsConstructibleFromReference
-    : std::bool_constant<std::constructible_from<T, std::remove_cvref_t<T>&>> {};
 
 namespace core::scheduler {
 
@@ -34,11 +28,8 @@ public:
     template <typename Self_T>
     explicit(false) operator TaskBuilder<void>(this Self_T&&);
 
-    template <typename Self_T, util::meta::unambiguously_invocable_c F>
+    template <typename Self_T, raw_task_c F>
         requires std::same_as<util::meta::result_of_t<F>, void>
-              && util::meta::type_list_all_of_c<
-                     util::meta::arguments_of_t<F>,
-                     ::IsConstructibleFromReference>
     [[nodiscard]]
     auto then(this Self_T&&, F&& func) -> SchedulerBuilder;
 
@@ -76,11 +67,8 @@ core::scheduler::SchedulerBuilder::operator TaskBuilder<void>(this Self_T && sel
     return std::forward_like<Self_T>(self.m_builder);
 }
 
-template <typename Self_T, util::meta::unambiguously_invocable_c F>
+template <typename Self_T, core::scheduler::raw_task_c F>
     requires std::same_as<util::meta::result_of_t<F>, void>
-          && util::meta::type_list_all_of_c<
-                 util::meta::arguments_of_t<F>,
-                 IsConstructibleFromReference>
 auto core::scheduler::SchedulerBuilder::then(this Self_T&& self, F&& func)
     -> SchedulerBuilder
 {

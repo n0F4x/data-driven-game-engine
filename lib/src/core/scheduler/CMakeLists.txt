@@ -9,8 +9,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         converts_to_task_builder_c.ixx
         Nexus.ixx
         provide_accessors_for.ixx
-        provides_c.ixx
         ProviderFor.ixx
+        provides_c.ixx
+        raw_task_c.ixx
         ScheduleBuilder.ixx
         Task.ixx
         TaskBuilder.ixx
