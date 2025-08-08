@@ -3,7 +3,7 @@
 import app;
 import core;
 import addons;
-import extensions;
+import core;
 import plugins;
 
 import utility.Size;
@@ -23,7 +23,7 @@ try {
         .insert_resource(
             core::window::Window(util::Size2i{ 1'280, 720 }, "Virtual texturing demo")
         )
-        .transform(extensions::renderer::setup)
+        .transform(core::renderer::setup)
         .inject_resource(examples::base::DemoBasePlugin{ .movement_speed = 1.f })
         .inject_resource(demo::DemoPlugin{})
         .run(demo::run);

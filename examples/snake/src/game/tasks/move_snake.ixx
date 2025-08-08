@@ -10,9 +10,9 @@ export module snake.game.move_snake;
 
 import core.ecs;
 
-import extensions.scheduler.accessors.ecs.Registry;
-import extensions.scheduler.accessors.events.Recorder;
-import extensions.scheduler.accessors.resources;
+import core.scheduler.accessors.ecs.Registry;
+import core.scheduler.accessors.events.Recorder;
+import core.scheduler.accessors.resources;
 
 import snake.game.Cell;
 import snake.game.Direction;
@@ -22,7 +22,7 @@ import snake.game.Settings;
 import snake.game.Snake;
 import snake.game.SnakeHead;
 
-using namespace extensions::scheduler::accessors;
+using namespace core::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;
 
 namespace game {

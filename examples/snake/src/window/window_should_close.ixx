@@ -4,9 +4,9 @@ module;
 
 export module snake.window.window_should_close;
 
-import extensions.scheduler.accessors.events.Reader;
+import core.scheduler.accessors.events.Reader;
 
-using namespace extensions::scheduler::accessors;
+using namespace core::scheduler::accessors;
 
 namespace window {
 

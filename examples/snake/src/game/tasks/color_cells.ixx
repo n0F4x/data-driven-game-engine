@@ -6,7 +6,7 @@ export module snake.game.color_cells;
 
 import core.ecs;
 
-import extensions.scheduler.accessors.ecs.Query;
+import core.scheduler.accessors.ecs.Query;
 
 import utility.containers.OptionalRef;
 
@@ -15,7 +15,7 @@ import snake.game.Cell;
 import snake.game.Snake;
 import snake.game.SnakeHead;
 
-using namespace extensions::scheduler::accessors;
+using namespace core::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;
 
 namespace game {

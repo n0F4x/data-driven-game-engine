@@ -1,10 +1,10 @@
 export module snake.game.shut_down;
 
-import extensions.scheduler.accessors.states.State;
+import core.scheduler.accessors.states.State;
 
 import snake.game.GameState;
 
-using namespace extensions::scheduler::accessors;
+using namespace core::scheduler::accessors;
 
 namespace game {
 

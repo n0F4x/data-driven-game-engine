@@ -13,7 +13,7 @@ import core.ecs;
 import core.scheduler.TaskBuilder;
 import core.time.FixedTimer;
 
-import extensions.scheduler;
+import core.scheduler;
 
 import snake.assets.TextureLoader;
 import snake.game.AppleSpawnTimer;
@@ -28,11 +28,11 @@ import snake.game.Snake;
 import snake.game.SnakeHead;
 import snake.window.Window;
 
-using namespace extensions::scheduler::accessors;
+using namespace core::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;
 
 using CachedTextureLoader =
-    extensions::scheduler::accessors::assets::Cached<::assets::TextureLoader>;
+    core::scheduler::accessors::assets::Cached<::assets::TextureLoader>;
 
 [[nodiscard]]
 auto make_shape(const uint16_t position_x, const uint16_t position_y, const uint8_t width)
@@ -154,7 +154,7 @@ auto reset_timers(
 
 auto game::create_initialize_task_builder() -> core::scheduler::TaskBuilder<void>
 {
-    return extensions::scheduler::start_as(::initialize_map)
+    return core::scheduler::start_as(::initialize_map)
         .then(::initialize_snake)
         .then(::load_apple_texture)
         .then(color_cells)

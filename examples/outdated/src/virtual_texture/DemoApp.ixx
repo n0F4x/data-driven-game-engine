@@ -15,8 +15,8 @@ import core.renderer.resources.Buffer;
 import core.renderer.resources.Image;
 import core.renderer.resources.RandomAccessBuffer;
 
-import extensions.renderer.DeviceInjection;
-import extensions.renderer.InstanceInjection;
+import core.renderer.DeviceInjection;
+import core.renderer.InstanceInjection;
 
 import demos.virtual_texture.Camera;
 import demos.virtual_texture.VirtualTexture;
@@ -28,8 +28,8 @@ export class DemoApp;
 
 export struct DemoPlugin {
     static auto setup(
-        extensions::renderer::InstanceInjection& instance_injection,
-        extensions::renderer::DeviceInjection&   device_injection
+        core::renderer::InstanceInjection& instance_injection,
+        core::renderer::DeviceInjection&   device_injection
     ) -> void;
 
     auto operator()(

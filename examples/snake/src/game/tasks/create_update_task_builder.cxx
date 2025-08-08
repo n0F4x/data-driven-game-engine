@@ -7,7 +7,7 @@ module snake.game.create_update_task_builder;
 import core.scheduler.TaskBuilder;
 import core.time.FixedTimer;
 
-import extensions.scheduler;
+import core.scheduler;
 
 import snake.game.adjust_snake_speed;
 import snake.game.AppleSpawnTimer;
@@ -20,7 +20,7 @@ import snake.game.spawn_apple;
 import snake.game.trigger_world_update_message;
 import snake.game.WorldUpdate;
 
-using namespace extensions::scheduler::accessors;
+using namespace core::scheduler::accessors;
 
 auto update_timers(
     const resources::Resource<game::AppleSpawnTimer> apple_spawn_timer,
@@ -50,17 +50,17 @@ auto world_update_message_received(
 
 auto game::create_update_task_builder() -> core::scheduler::TaskBuilder<void>
 {
-    return extensions::scheduler::start_as(::update_timers)
+    return core::scheduler::start_as(::update_timers)
         .then(
-            extensions::scheduler::run_if(
+            core::scheduler::run_if(
                 adjust_snake_speed,   //
                 ::apple_was_digested
             )
         )
         .then(
-            extensions::scheduler::repeat(
-                extensions::scheduler::group(
-                    extensions::scheduler::start_as(move_snake)   //
+            core::scheduler::repeat(
+                core::scheduler::group(
+                    core::scheduler::start_as(move_snake)   //
                         .then(create_eat_apple_task_builder()),
                     trigger_world_update_message
                 ),
@@ -68,12 +68,12 @@ auto game::create_update_task_builder() -> core::scheduler::TaskBuilder<void>
             )
         )
         .then(
-            extensions::scheduler::at_fixed_rate<AppleSpawnTimer>(   //
-                extensions::scheduler::group(
+            core::scheduler::at_fixed_rate<AppleSpawnTimer>(   //
+                core::scheduler::group(
                     spawn_apple,                                     //
                     trigger_world_update_message
                 )
             )
         )
-        .then(extensions::scheduler::run_if(color_cells, ::world_update_message_received));
+        .then(core::scheduler::run_if(color_cells, ::world_update_message_received));
 }

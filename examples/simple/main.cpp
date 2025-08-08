@@ -7,7 +7,7 @@ import core.ecs;
 
 import demo.Window;
 
-import extensions.scheduler;
+import core.scheduler;
 
 import plugins.ecs;
 import plugins.events;
@@ -16,7 +16,7 @@ import plugins.scheduler;
 
 import utility.containers.OptionalRef;
 
-using namespace extensions::scheduler::accessors;
+using namespace core::scheduler::accessors;
 using namespace core::ecs::query_parameter_tags;
 
 struct WindowClosed {};
@@ -73,9 +73,9 @@ constexpr static auto game_is_running =
         return window_closed_event_reader.read().size() == 0;
     };
 
-static const auto run_game_loop = extensions::scheduler::loop_until(
-    extensions::scheduler::start_as(
-        extensions::scheduler::group(
+static const auto run_game_loop = core::scheduler::loop_until(
+    core::scheduler::start_as(
+        core::scheduler::group(
             update_world,   //
             record_window_events
         )
@@ -99,7 +99,7 @@ auto main() -> int
         .plug_in(plugins::ECS{})
         .plug_in(plugins::Scheduler{})
         .run(
-            extensions::scheduler::start_as(initialize)   //
+            core::scheduler::start_as(initialize)   //
                 .then(run_game_loop)
                 .then(shut_down)
         );

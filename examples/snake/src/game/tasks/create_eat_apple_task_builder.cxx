@@ -7,7 +7,7 @@ module snake.game.create_eat_apple_task_builder;
 import core.ecs;
 import core.scheduler.TaskBuilder;
 
-import extensions.scheduler;
+import core.scheduler;
 
 import snake.game.Apple;
 import snake.game.AppleDigested;
@@ -17,9 +17,9 @@ import snake.game.Snake;
 import snake.game.SnakeHead;
 
 using namespace core::ecs::query_parameter_tags;
-using namespace extensions::scheduler::accessors::ecs;
-using namespace extensions::scheduler::accessors::events;
-using namespace extensions::scheduler::accessors::messages;
+using namespace core::scheduler::accessors::ecs;
+using namespace core::scheduler::accessors::events;
+using namespace core::scheduler::accessors::messages;
 
 auto check_apple_digestion(
     Query<core::ecs::ID, With<game::SnakeHead>, With<game::Apple>>& eaten_apples,
@@ -56,9 +56,9 @@ auto grow_snake(
 
 auto game::create_eat_apple_task_builder() -> core::scheduler::TaskBuilder<void>
 {
-    return extensions::scheduler::start_as(check_apple_digestion)
+    return core::scheduler::start_as(check_apple_digestion)
         .then(
-            extensions::scheduler::group(
+            core::scheduler::group(
                 despawn_digested_apple,   //
                 grow_snake
             )

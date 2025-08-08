@@ -10,8 +10,8 @@ import core.assets.Handle;
 import core.ecs;
 import core.time.FixedTimer;
 
-import extensions.scheduler.accessors.assets.Cached;
-import extensions.scheduler.accessors.ecs.Registry;
+import core.scheduler.accessors.assets.Cached;
+import core.scheduler.accessors.ecs.Registry;
 
 import snake.assets.TextureLoader;
 import snake.game.Apple;
@@ -21,10 +21,10 @@ import snake.game.Snake;
 
 using namespace core::ecs::query_parameter_tags;
 
-using namespace extensions::scheduler::accessors::ecs;
+using namespace core::scheduler::accessors::ecs;
 
 using CachedTextureLoader =
-    extensions::scheduler::accessors::assets::Cached<assets::TextureLoader>;
+    core::scheduler::accessors::assets::Cached<assets::TextureLoader>;
 
 namespace game {
 

@@ -6,9 +6,9 @@ export module snake.game.adjust_snake_speed;
 
 import core.ecs;
 
-import extensions.scheduler.accessors.ecs.Query;
-import extensions.scheduler.accessors.resources.Resource;
-import extensions.scheduler.accessors.states.State;
+import core.scheduler.accessors.ecs.Query;
+import core.scheduler.accessors.resources.Resource;
+import core.scheduler.accessors.states.State;
 
 import snake.game.GameState;
 import snake.game.Settings;
@@ -16,9 +16,9 @@ import snake.game.Snake;
 
 using namespace core::ecs::query_parameter_tags;
 
-using namespace extensions::scheduler::accessors::ecs;
-using namespace extensions::scheduler::accessors::resources;
-using namespace extensions::scheduler::accessors::states;
+using namespace core::scheduler::accessors::ecs;
+using namespace core::scheduler::accessors::resources;
+using namespace core::scheduler::accessors::states;
 
 namespace game {
 

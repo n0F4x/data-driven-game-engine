@@ -10,8 +10,8 @@ import app.builder_c;
 
 import core.scheduler;
 
-import extensions.scheduler.provider_c;
-import extensions.scheduler.ProviderOf;
+import core.scheduler.provider_c;
+import core.scheduler.ProviderOf;
 
 import utility.meta.type_traits.type_list.type_list_filter;
 import utility.meta.type_traits.type_list.type_list_transform;
@@ -33,14 +33,14 @@ template <typename App_T>
 struct AddonTraits {
     template <typename Addon_T>
         struct HasAccessorProvider : std::bool_constant < requires {
-        extensions::scheduler::provider_c<
-            extensions::scheduler::provider_of_t<Addon_T>,
+        core::scheduler::provider_c<
+            core::scheduler::provider_of_t<Addon_T>,
             App_T>;
     } > {};
 
     template <typename Addon_T>
     struct AccessorProvider {
-        using type = extensions::scheduler::provider_of_t<Addon_T>;
+        using type = core::scheduler::provider_of_t<Addon_T>;
     };
 };
 
