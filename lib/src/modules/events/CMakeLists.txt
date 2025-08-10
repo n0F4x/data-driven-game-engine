@@ -4,9 +4,11 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         events.cppm
+        Addon.ixx
         BufferedEventQueue.ixx
         decays_to_event_c.ixx
         ErasedBufferedEventQueue.ixx
         event_c.ixx
         EventManager.ixx
+        Plugin.ixx
 )

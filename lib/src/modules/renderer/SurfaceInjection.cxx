@@ -10,7 +10,7 @@ module;
 
 module modules.renderer.SurfaceInjection;
 
-import app.App;
+import modules.app.App;
 import modules.log;
 import modules.renderer.base.instance.Instance;
 import modules.window.Window;

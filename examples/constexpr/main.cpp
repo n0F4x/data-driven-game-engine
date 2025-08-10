@@ -1,9 +1,6 @@
 #include <functional>
 
-import app;
-
-import plugins.resources;
-import plugins.runnable;
+import prelude;
 
 struct First {
     int value{ 42 };

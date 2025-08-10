@@ -6,8 +6,6 @@ module;
 
 export module demos.gltf.DemoApp;
 
-import app.App;
-
 import modules.cache.Cache;
 
 import modules.gfx.Camera;

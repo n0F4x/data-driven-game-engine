@@ -4,8 +4,7 @@ module;
 
 export module snake.assets.inject_loaders;
 
-import app;
-import plugins.assets;
+import prelude;
 
 import snake.assets.TextureLoader;
 

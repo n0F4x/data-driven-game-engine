@@ -8,11 +8,8 @@ module;
 
 export module modules.scheduler.providers.ResourceProvider;
 
-import addons.Resources;
-
-import app;
-
-import modules.resources.ResourceManager;
+import modules.app;
+import modules.resources;
 import modules.scheduler.ProviderFor;
 
 import modules.scheduler.accessors.resources;
@@ -26,7 +23,7 @@ namespace modules::scheduler::providers {
 
 export class ResourceProvider {
 public:
-    template <app::has_addons_c<addons::Resources> App_T>
+    template <modules::app::has_addons_c<resources::Addon> App_T>
     constexpr explicit ResourceProvider(App_T& app);
 
     template <util::meta::specialization_of_c<accessors::resources::Resource> Resource_T>
@@ -40,7 +37,7 @@ private:
 }   // namespace modules::scheduler::providers
 
 template <>
-struct modules::scheduler::ProviderOf<addons::Resources>
+struct modules::scheduler::ProviderOf<modules::resources::Addon>
     : std::type_identity<modules::scheduler::providers::ResourceProvider> {};
 
 template <typename Resource_T>
@@ -48,7 +45,7 @@ struct modules::scheduler::
     ProviderFor<modules::scheduler::accessors::resources::Resource<Resource_T>>
     : std::type_identity<modules::scheduler::providers::ResourceProvider> {};
 
-template <app::has_addons_c<addons::Resources> App_T>
+template <modules::app::has_addons_c<modules::resources::Addon> App_T>
 constexpr modules::scheduler::providers::ResourceProvider::ResourceProvider(App_T& app)
     : m_resource_manager_ref{ app.resource_manager }
 {}

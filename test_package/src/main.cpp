@@ -1,6 +1,4 @@
-import app;
-
-import plugins.resources;
+import prelude;
 
 auto main() -> int
 {

@@ -5,8 +5,10 @@ export import modules.scheduler.primitives;
 export import modules.scheduler.providers;
 
 export import modules.scheduler.accessor_c;
-export import modules.scheduler.Nexus;
+export import modules.scheduler.as_task_builder_t;
 export import modules.scheduler.converts_to_task_builder_c;
+export import modules.scheduler.Nexus;
+export import modules.scheduler.Plugin;
 export import modules.scheduler.provide_accessors_for;
 export import modules.scheduler.provider_c;
 export import modules.scheduler.ProviderFor;

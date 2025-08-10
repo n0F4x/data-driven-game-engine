@@ -11,7 +11,8 @@ export module modules.renderer.setup;
 
 import vulkan_hpp;
 
-import app.has_plugins_c;
+import modules.app.has_plugins_c;
+import modules.app.extensions.FunctionalPlugin;
 
 import modules.gfx.resources.Image;
 import modules.gfx.resources.VirtualImage;
@@ -29,8 +30,7 @@ import modules.renderer.DeviceInjection;
 import modules.renderer.InstanceInjection;
 import modules.renderer.SurfaceInjection;
 
-import plugins.resources;
-import plugins.functional;
+import modules.resources.Plugin;
 
 namespace modules::renderer {
 
@@ -42,12 +42,12 @@ export struct Requirement {
     std::function<void(vkb::PhysicalDevice&)>         enable_optional_device_settings;
 };
 
-export template <plugins::resource_injection_c SurfaceInjection_T>
+export template <resources::resource_injection_c SurfaceInjection_T>
 class Setup {
 public:
     Setup();
 
-    template <app::has_plugins_c<plugins::Resources, plugins::Functional> Builder_T>
+    template <modules::app::has_plugins_c<resources::Plugin, app::extensions::FunctionalPlugin> Builder_T>
     auto operator()(Builder_T&& builder);
 
     template <typename Self>
@@ -60,7 +60,7 @@ private:
 
 class SetupProxy {
 public:
-    template <app::has_plugins_c<plugins::Resources, plugins::Functional> Builder_T>
+    template <modules::app::has_plugins_c<resources::Plugin, app::extensions::FunctionalPlugin> Builder_T>
     static auto operator()(Builder_T&& builder);
 
     static auto require(Requirement requirement) -> Setup<SurfaceInjection>;
@@ -130,7 +130,7 @@ auto make_requirement() -> modules::renderer::Requirement
     return requirement;
 }
 
-template <plugins::resource_injection_c SurfaceInjection_T>
+template <modules::resources::resource_injection_c SurfaceInjection_T>
 modules::renderer::Setup<SurfaceInjection_T>::Setup()
 {
     require(::make_requirement<base::Allocator::Requirements>());
@@ -161,8 +161,9 @@ auto to_device_dependency(const modules::renderer::Requirement& requirement)
     };
 }
 
-template <plugins::resource_injection_c SurfaceInjection_T>
-template <app::has_plugins_c<plugins::Resources, plugins::Functional> Builder_T>
+template <modules::resources::resource_injection_c SurfaceInjection_T>
+template <
+    modules::app::has_plugins_c<modules::resources::Plugin, modules::app::extensions::FunctionalPlugin> Builder_T>
 auto modules::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builder)
 {
     return std::forward<Builder_T>(builder)
@@ -184,12 +185,11 @@ auto modules::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builde
             return device_injection;
         }())
         // TODO: reallow using create_framebuffer_size_getter
-        .inject_resource([](const vk::UniqueSurfaceKHR&         surface,
-                            const base::Device& device) {
+        .inject_resource([](const vk::UniqueSurfaceKHR& surface,
+                            const base::Device&         device) {
             return base::SwapchainHolder{ surface.get(), device, nullptr };
         })
-        .inject_resource([](const base::Instance& instance,
-                            const base::Device&   device) {
+        .inject_resource([](const base::Instance& instance, const base::Device& device) {
             return base::Allocator{ instance, device };
         })
         .transform([]<typename B_T>(B_T&& b) {
@@ -198,7 +198,7 @@ auto modules::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builde
         });
 }
 
-template <plugins::resource_injection_c SurfaceInjection_T>
+template <modules::resources::resource_injection_c SurfaceInjection_T>
 template <typename Self>
 auto modules::renderer::Setup<SurfaceInjection_T>::require(
     this Self&& self,
@@ -209,7 +209,8 @@ auto modules::renderer::Setup<SurfaceInjection_T>::require(
     return std::forward<Self>(self);
 }
 
-template <app::has_plugins_c<plugins::Resources, plugins::Functional> Builder_T>
+template <
+    modules::app::has_plugins_c<modules::resources::Plugin, modules::app::extensions::FunctionalPlugin> Builder_T>
 auto modules::renderer::SetupProxy::operator()(Builder_T&& builder)
 {
     return std::forward<Builder_T>(builder).transform(Setup<SurfaceInjection>{});

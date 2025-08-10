@@ -1,10 +1,7 @@
 #include <print>
 
-import app;
+import prelude;
 import modules;
-import addons;
-import modules;
-import plugins;
 
 import utility.Size;
 

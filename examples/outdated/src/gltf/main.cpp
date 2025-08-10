@@ -4,23 +4,14 @@
 
 #include <VkBootstrap.h>
 
-import app;
+import prelude;
 import modules;
-import addons;
-import modules;
-import plugins;
 
 import utility.Size;
 
 import examples.base.DemoBase;
 import demos.gltf.DemoApp;
 import demos.gltf;
-
-[[nodiscard]]
-static auto cache_plugin() -> modules::cache::Cache
-{
-    return {};
-}
 
 [[nodiscard]]
 static auto require_vulkan_version(const uint32_t major, const uint32_t minor)
@@ -54,7 +45,7 @@ try {
         .plug_in(plugins::Functional{})
         .plug_in(plugins::Resources{})
         .plug_in(plugins::Runnable{})
-        .inject_resource(::cache_plugin)
+        .insert_resource(modules::cache::Cache{})
         .insert_resource(modules::window::Window(util::Size2i{ 1'280, 720 }, "My window"))
         .transform(modules::renderer::setup.require(::require_vulkan_version(1, 1)))
         .inject_resource(

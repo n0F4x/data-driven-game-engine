@@ -5,9 +5,7 @@ module;
 
 export module modules.scheduler.providers.ECSProvider;
 
-import addons.ECS;
-
-import app;
+import modules.app;
 
 import modules.ecs;
 import modules.scheduler.ProviderFor;
@@ -21,7 +19,7 @@ namespace modules::scheduler::providers {
 
 export class ECSProvider {
 public:
-    template <app::has_addons_c<addons::ECS> App_T>
+    template <modules::app::has_addons_c<modules::ecs::Addon> App_T>
     explicit ECSProvider(App_T& app);
 
     template <std::same_as<accessors::ecs::Registry>>
@@ -39,7 +37,7 @@ private:
 }   // namespace modules::scheduler::providers
 
 template <>
-struct modules::scheduler::ProviderOf<addons::ECS>
+struct modules::scheduler::ProviderOf<modules::ecs::Addon>
     : std::type_identity<modules::scheduler::providers::ECSProvider> {};
 
 template <>
@@ -51,7 +49,7 @@ struct modules::scheduler::
     ProviderFor<modules::scheduler::accessors::ecs::Query<Parameters_T...>>
     : std::type_identity<modules::scheduler::providers::ECSProvider> {};
 
-template <app::has_addons_c<addons::ECS> App_T>
+template <modules::app::has_addons_c<modules::ecs::Addon> App_T>
 modules::scheduler::providers::ECSProvider::ECSProvider(App_T& app)
     : m_registry{ app.registry }
 {}

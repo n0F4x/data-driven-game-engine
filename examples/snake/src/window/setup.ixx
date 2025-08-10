@@ -7,17 +7,13 @@ module;
 
 export module snake.window.setup;
 
-import app.decays_to_builder_c;
-import app.has_plugins_c;
+import prelude;
 
 import modules.time.FixedTimer;
 
 import snake.window.DisplayTimer;
 import snake.window.Settings;
 import snake.window.Window;
-
-import plugins.events;
-import plugins.resources;
 
 namespace window {
 

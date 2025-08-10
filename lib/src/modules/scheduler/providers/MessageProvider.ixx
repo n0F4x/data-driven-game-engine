@@ -9,9 +9,7 @@ module;
 
 export module modules.scheduler.providers.MessageProvider;
 
-import addons.Messages;
-
-import app;
+import modules.app;
 
 import modules.messages;
 import modules.scheduler.ProviderFor;
@@ -30,7 +28,7 @@ namespace modules::scheduler::providers {
 
 class MessageProvider {
 public:
-    template <app::has_addons_c<addons::Messages> App_T>
+    template <modules::app::has_addons_c<messages::Addon> App_T>
     constexpr explicit MessageProvider(App_T& app);
 
     template <std::same_as<accessors::messages::Mailbox>>
@@ -52,7 +50,7 @@ private:
 }   // namespace modules::scheduler::providers
 
 template <>
-struct modules::scheduler::ProviderOf<addons::Messages>
+struct modules::scheduler::ProviderOf<modules::messages::Addon>
     : std::type_identity<modules::scheduler::providers::MessageProvider> {};
 
 template <>
@@ -69,7 +67,7 @@ struct modules::scheduler::
     ProviderFor<modules::scheduler::accessors::messages::Sender<Events_T...>>
     : std::type_identity<modules::scheduler::providers::MessageProvider> {};
 
-template <app::has_addons_c<addons::Messages> App_T>
+template <modules::app::has_addons_c<modules::messages::Addon> App_T>
 constexpr modules::scheduler::providers::MessageProvider::MessageProvider(App_T& app)
     : m_message_manager_ref{ app.message_manager }
 {}
@@ -96,10 +94,9 @@ constexpr auto modules::scheduler::providers::MessageProvider::provide() const
     return Receiver_T{ m_message_manager_ref.get().message_buffer<Message>() };
 }
 
-template <util::meta::specialization_of_c<
-    modules::scheduler::accessors::messages::Sender> Sender_T>
-constexpr auto modules::scheduler::providers::MessageProvider::provide() const
-    -> Sender_T
+template <util::meta::specialization_of_c<modules::scheduler::accessors::messages::Sender>
+              Sender_T>
+constexpr auto modules::scheduler::providers::MessageProvider::provide() const -> Sender_T
 {
     using Messages = typename Sender_T::Messages;
 

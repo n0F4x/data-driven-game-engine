@@ -1,5 +1,6 @@
 export module modules;
 
+export import modules.app;
 export import modules.assets;
 export import modules.cache;
 export import modules.ecs;

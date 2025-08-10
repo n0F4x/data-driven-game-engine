@@ -9,9 +9,7 @@ module;
 
 export module modules.scheduler.providers.EventProvider;
 
-import addons.Events;
-
-import app;
+import modules.app;
 
 import modules.events;
 import modules.scheduler.ProviderFor;
@@ -30,7 +28,7 @@ namespace modules::scheduler::providers {
 
 class EventProvider {
 public:
-    template <app::has_addons_c<addons::Events> App_T>
+    template <modules::app::has_addons_c<events::Addon> App_T>
     constexpr explicit EventProvider(App_T& app);
 
     template <std::same_as<accessors::events::Processor>>
@@ -52,7 +50,7 @@ private:
 }   // namespace modules::scheduler::providers
 
 template <>
-struct modules::scheduler::ProviderOf<addons::Events>
+struct modules::scheduler::ProviderOf<modules::events::Addon>
     : std::type_identity<modules::scheduler::providers::EventProvider> {};
 
 template <>
@@ -69,7 +67,7 @@ struct modules::scheduler::
     ProviderFor<modules::scheduler::accessors::events::Reader<Event_T>>
     : std::type_identity<modules::scheduler::providers::EventProvider> {};
 
-template <app::has_addons_c<addons::Events> App_T>
+template <modules::app::has_addons_c<modules::events::Addon> App_T>
 constexpr modules::scheduler::providers::EventProvider::EventProvider(App_T& app)
     : m_event_manager_ref{ app.event_manager }
 {}
@@ -81,10 +79,9 @@ auto modules::scheduler::providers::EventProvider::provide() const
     return modules::scheduler::accessors::events::Processor{ m_event_manager_ref };
 }
 
-template <util::meta::specialization_of_c<
-    modules::scheduler::accessors::events::Recorder> Recorder_T>
-constexpr auto modules::scheduler::providers::EventProvider::provide() const
-    -> Recorder_T
+template <util::meta::specialization_of_c<modules::scheduler::accessors::events::Recorder>
+              Recorder_T>
+constexpr auto modules::scheduler::providers::EventProvider::provide() const -> Recorder_T
 {
     using Events = typename Recorder_T::Events;
 
@@ -97,8 +94,7 @@ constexpr auto modules::scheduler::providers::EventProvider::provide() const
 
 template <util::meta::specialization_of_c<modules::scheduler::accessors::events::Reader>
               Reader_T>
-constexpr auto modules::scheduler::providers::EventProvider::provide() const
-    -> Reader_T
+constexpr auto modules::scheduler::providers::EventProvider::provide() const -> Reader_T
 {
     using Event = typename Reader_T::Event;
 

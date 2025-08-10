@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         as_task_builder_t.ixx
         converts_to_task_builder_c.ixx
         Nexus.ixx
+        Plugin.ixx
         provide_accessors_for.ixx
         provider_c.ixx
         ProviderFor.ixx

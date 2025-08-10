@@ -8,10 +8,7 @@ module;
 
 export module modules.scheduler.providers.StateProvider;
 
-import addons.States;
-
-import app;
-
+import modules.app;
 import modules.states;
 import modules.scheduler.ProviderFor;
 
@@ -26,7 +23,7 @@ namespace modules::scheduler::providers {
 
 export class StateProvider {
 public:
-    template <app::has_addons_c<addons::States> App_T>
+    template <modules::app::has_addons_c<states::Addon> App_T>
     constexpr explicit StateProvider(App_T& app);
 
     template <util::meta::specialization_of_c<accessors::states::State> State_T>
@@ -40,7 +37,7 @@ private:
 }   // namespace modules::scheduler::providers
 
 template <>
-struct modules::scheduler::ProviderOf<addons::States>
+struct modules::scheduler::ProviderOf<modules::states::Addon>
     : std::type_identity<modules::scheduler::providers::StateProvider> {};
 
 template <typename State_T>
@@ -48,13 +45,13 @@ struct modules::scheduler::
     ProviderFor<modules::scheduler::accessors::states::State<State_T>>
     : std::type_identity<modules::scheduler::providers::StateProvider> {};
 
-template <app::has_addons_c<addons::States> App_T>
+template <modules::app::has_addons_c<modules::states::Addon> App_T>
 constexpr modules::scheduler::providers::StateProvider::StateProvider(App_T& app)
     : m_state_manager_ref{ app.state_manager }
 {}
 
-template <util::meta::specialization_of_c<modules::scheduler::accessors::states::State>
-              State_T>
+template <
+    util::meta::specialization_of_c<modules::scheduler::accessors::states::State> State_T>
 constexpr auto modules::scheduler::providers::StateProvider::provide() const -> State_T
 {
     using State = std::remove_const_t<typename State_T::Underlying>;

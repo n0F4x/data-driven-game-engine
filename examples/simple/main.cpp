@@ -1,18 +1,13 @@
 #include <print>
 #include <string>
 
-import app;
+import prelude;
 
 import modules.ecs;
 
 import demo.Window;
 
 import modules.scheduler;
-
-import plugins.ecs;
-import plugins.events;
-import plugins.resources;
-import plugins.scheduler;
 
 import utility.containers.OptionalRef;
 

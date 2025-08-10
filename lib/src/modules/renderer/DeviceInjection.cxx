@@ -10,7 +10,7 @@ module modules.renderer.DeviceInjection;
 
 import vulkan_hpp;
 
-import app.App;
+import modules.app.App;
 
 import config.vulkan;
 

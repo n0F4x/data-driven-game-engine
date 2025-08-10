@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         ecs.cppm
+        Addon.ixx
         ArchetypeID.ixx
         Archetype.ixx
         component_c.ixx
@@ -22,6 +23,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ID.ixx
         LookupTable.ixx
         LookupTableMap.ixx
+        Plugin.ixx
         RecordID.ixx
         RecordIndex.ixx
         Registry.ixx

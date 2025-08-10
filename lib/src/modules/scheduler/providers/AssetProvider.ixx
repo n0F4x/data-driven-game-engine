@@ -7,10 +7,7 @@ module;
 
 export module modules.scheduler.providers.AssetProvider;
 
-import addons.Assets;
-
-import app;
-
+import modules.app;
 import modules.assets;
 import modules.scheduler.ProviderFor;
 
@@ -25,7 +22,7 @@ namespace modules::scheduler::providers {
 
 export class AssetProvider {
 public:
-    template <app::has_addons_c<addons::Assets> App_T>
+    template <modules::app::has_addons_c<assets::Addon> App_T>
     explicit AssetProvider(App_T& app);
 
     template <util::meta::specialization_of_c<accessors::assets::Cached> Cached_T>
@@ -39,7 +36,7 @@ private:
 }   // namespace modules::scheduler::providers
 
 template <>
-struct modules::scheduler::ProviderOf<addons::Assets>
+struct modules::scheduler::ProviderOf<modules::assets::Addon>
     : std::type_identity<modules::scheduler::providers::AssetProvider> {};
 
 template <typename Loader_T>
@@ -47,7 +44,7 @@ struct modules::scheduler::
     ProviderFor<modules::scheduler::accessors::assets::Cached<Loader_T>>
     : std::type_identity<modules::scheduler::providers::AssetProvider> {};
 
-template <app::has_addons_c<addons::Assets> App_T>
+template <modules::app::has_addons_c<modules::assets::Addon> App_T>
 modules::scheduler::providers::AssetProvider::AssetProvider(App_T& app)
     : m_asset_manager_ref{ app.asset_manager }
 {}

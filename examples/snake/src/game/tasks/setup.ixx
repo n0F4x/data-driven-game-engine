@@ -4,14 +4,9 @@ module;
 
 export module snake.game.setup;
 
-import app;
+import prelude;
 
 import modules.time.FixedTimer;
-
-import plugins.events;
-import plugins.messages;
-import plugins.functional;
-import plugins.states;
 
 import snake.assets.inject_loaders;
 import snake.game.AppleDigested;

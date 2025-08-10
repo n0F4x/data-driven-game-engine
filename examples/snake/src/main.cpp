@@ -1,20 +1,9 @@
-import addons.ECS;
-
-import app;
+import prelude;
 
 import modules.scheduler.TaskBuilder;
 import modules.time;
 
 import modules.scheduler;
-
-import plugins.assets;
-import plugins.ecs;
-import plugins.events;
-import plugins.messages;
-import plugins.functional;
-import plugins.resources;
-import plugins.scheduler;
-import plugins.states;
 
 import utility.not_fn;
 

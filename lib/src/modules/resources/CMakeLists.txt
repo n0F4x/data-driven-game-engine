@@ -4,6 +4,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         resources.cppm
+        Addon.ixx
+        Plugin.ixx
         resource_c.ixx
         ResourceManager.ixx
 )

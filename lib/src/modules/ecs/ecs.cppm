@@ -1,5 +1,6 @@
 export module modules.ecs;
 
+export import :Addon;
 export import :Archetype;
 export import :ArchetypeID;
 export import :component_c;
@@ -16,6 +17,7 @@ export import :ErasedComponentTable.extensions;
 export import :ID;
 export import :LookupTable;
 export import :LookupTableMap;
+export import :Plugin;
 export import :query;
 export import :RecordID;
 export import :RecordIndex;
