@@ -9,7 +9,9 @@ export module modules.app.extensions.RunnablePlugin;
 import modules.app.decays_to_builder_c;
 import modules.log;
 
-namespace modules::app::extensions {
+namespace modules::app {
+
+inline namespace extensions {
 
 template <typename Runner_T, typename Builder_T, typename... Args_T>
 concept runner_c = requires(Runner_T&& runner, Builder_T&& builder, Args_T&&... args) {
@@ -27,7 +29,9 @@ public:
         invoke_result_t<Runner_T&&, decltype(std::forward<Self_T>(self).build()), Args_T&&...>;
 };
 
-}   // namespace modules::app::extensions
+}   // namespace extensions
+
+}   // namespace modules::app
 
 template <
     modules::app::decays_to_builder_c Self_T,

@@ -6,7 +6,9 @@ export module modules.app.extensions.FunctionalPlugin;
 
 import modules.app.decays_to_builder_c;
 
-namespace modules::app::extensions {
+namespace modules::app {
+
+inline namespace extensions {
 
 template <typename Modifier_T, typename Builder_T>
 concept modifier_c = requires {
@@ -22,7 +24,9 @@ public:
         -> std::invoke_result_t<Modifier_T, Self_T&&>;
 };
 
-}   // namespace modules::app::extensions
+}   // namespace extensions
+
+}   // namespace modules::app
 
 template <
     modules::app::decays_to_builder_c            Self_T,

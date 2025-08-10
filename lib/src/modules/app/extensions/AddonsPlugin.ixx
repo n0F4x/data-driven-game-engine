@@ -12,7 +12,9 @@ import modules.app.decays_to_addon_c;
 import modules.app.decays_to_app_c;
 import modules.app.decays_to_builder_c;
 
-namespace modules::app::extensions {
+namespace modules::app {
+
+inline namespace extensions {
 
 template <typename T>
 concept addon_maker = addon_c<std::invoke_result_t<std::add_rvalue_reference_t<T>>>;
@@ -43,7 +45,9 @@ public:
     constexpr auto inject_addon(this Self_T&&, AddonMaker_T&& addon);
 };
 
-}   // namespace modules::app::extensions
+}   // namespace extensions
+
+}   // namespace modules::app
 
 template <modules::app::extensions::addon_maker AddonMaker_T>
 template <typename UAddonMaker_T>
