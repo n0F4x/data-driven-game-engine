@@ -1,8 +1,8 @@
-export module modules.renderer.base;
+export module ddge.modules.renderer.base;
 
-export import modules.renderer.base.allocator;
-export import modules.renderer.base.descriptor_pool;
-export import modules.renderer.base.device;
-export import modules.renderer.base.instance;
-export import modules.renderer.base.resources;
-export import modules.renderer.base.swapchain;
+export import ddge.modules.renderer.base.allocator;
+export import ddge.modules.renderer.base.descriptor_pool;
+export import ddge.modules.renderer.base.device;
+export import ddge.modules.renderer.base.instance;
+export import ddge.modules.renderer.base.resources;
+export import ddge.modules.renderer.base.swapchain;

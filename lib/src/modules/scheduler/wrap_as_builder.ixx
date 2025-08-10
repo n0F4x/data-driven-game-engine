@@ -5,21 +5,21 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module modules.scheduler.wrap_as_builder;
+export module ddge.modules.scheduler.wrap_as_builder;
 
-import modules.scheduler.Nexus;
-import modules.scheduler.provide_accessors_for;
-import modules.scheduler.raw_task_c;
-import modules.scheduler.Task;
-import modules.scheduler.TaskBuilder;
-import modules.scheduler.SchedulerBuilder;
+import ddge.modules.scheduler.Nexus;
+import ddge.modules.scheduler.provide_accessors_for;
+import ddge.modules.scheduler.raw_task_c;
+import ddge.modules.scheduler.Task;
+import ddge.modules.scheduler.TaskBuilder;
+import ddge.modules.scheduler.SchedulerBuilder;
 
-import utility.meta.concepts.functional.unambiguously_invocable;
-import utility.meta.concepts.type_list.type_list_all_of;
-import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.functional.result_of;
+import ddge.utility.meta.concepts.functional.unambiguously_invocable;
+import ddge.utility.meta.concepts.type_list.type_list_all_of;
+import ddge.utility.meta.type_traits.functional.arguments_of;
+import ddge.utility.meta.type_traits.functional.result_of;
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 
 export template <raw_task_c F>
 [[nodiscard]]
@@ -35,10 +35,10 @@ export template <typename SchedulerBuilder_T>
 [[nodiscard]]
 auto wrap_as_builder(SchedulerBuilder_T&& scheduler_builder) -> TaskBuilder<void>;
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler
 
-template <modules::scheduler::raw_task_c F>
-auto modules::scheduler::wrap_as_builder(F&& func) -> TaskBuilder<util::meta::result_of_t<F>>
+template <ddge::scheduler::raw_task_c F>
+auto ddge::scheduler::wrap_as_builder(F&& func) -> TaskBuilder<util::meta::result_of_t<F>>
 {
     return TaskBuilder<util::meta::result_of_t<F>>{
         [wrapped_func = std::forward<F>(func
@@ -54,9 +54,9 @@ auto modules::scheduler::wrap_as_builder(F&& func) -> TaskBuilder<util::meta::re
 }
 
 template <typename TaskBuilder_T>
-    requires modules::scheduler::
+    requires ddge::scheduler::
         specialization_of_TaskBuilder_c<std::remove_cvref_t<TaskBuilder_T>>
-    auto modules::scheduler::wrap_as_builder(TaskBuilder_T&& task_builder)
+    auto ddge::scheduler::wrap_as_builder(TaskBuilder_T&& task_builder)
         -> std::remove_cvref_t<TaskBuilder_T>
 {
     return std::forward<TaskBuilder_T>(task_builder);
@@ -64,8 +64,8 @@ template <typename TaskBuilder_T>
 
 template <typename SchedulerBuilder_T>
     requires std::
-        same_as<std::remove_cvref_t<SchedulerBuilder_T>, modules::scheduler::SchedulerBuilder>
-    auto modules::scheduler::wrap_as_builder(SchedulerBuilder_T&& scheduler_builder)
+        same_as<std::remove_cvref_t<SchedulerBuilder_T>, ddge::scheduler::SchedulerBuilder>
+    auto ddge::scheduler::wrap_as_builder(SchedulerBuilder_T&& scheduler_builder)
         -> TaskBuilder<void>
 {
     return std::forward<SchedulerBuilder_T>(scheduler_builder);

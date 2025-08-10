@@ -6,8 +6,8 @@ They are designed to be initialized before startup and easily accessible by syst
 [,c++]
 ----
 auto app =
-    app::create()
-        .plug_in(plugins::Resources{})
+    ddge::app::create()
+        .plug_in(ddge::plugins::Resources{})
         .insert_resource(MyResource{})
         .build();
 
@@ -21,8 +21,8 @@ In order to access another *previously* initialized resource, you should inject 
 
 [,c++]
 ----
-app::create()
-   .plug_in(plugins::Resources{})
+ddge::app::create()
+   .plug_in(ddge::plugins::Resources{})
    .insert_resource(Dependee{})
    .inject_resource([](Dependee& dependee) { return Dependant{ dependee }; })
    .build();

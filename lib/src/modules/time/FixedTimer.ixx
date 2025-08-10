@@ -5,11 +5,11 @@ module;
 #include <concepts>
 #include <type_traits>
 
-export module modules.time.FixedTimer;
+export module ddge.modules.time.FixedTimer;
 
-import utility.meta.concepts.specialization_of;
+import ddge.utility.meta.concepts.specialization_of;
 
-namespace modules::time {
+namespace ddge::time {
 
 class FixedTimerBase {};
 
@@ -53,38 +53,38 @@ concept specialization_of_FixedTimer_c = IsSpecializationOfFixedTimer<T>::value;
 export template <typename T>
 concept is_FixedTimer_c = std::derived_from<T, FixedTimerBase>;
 
-}   // namespace modules::time
+}   // namespace ddge::time
 
 template <
-    util::meta::specialization_of_c<std::chrono::duration> Duration_T,
-    typename Duration_T::rep                               tick_duration_T>
-constexpr auto modules::time::FixedTimer<Duration_T, tick_duration_T>::tick_duration()
+    ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T,
+    typename Duration_T::rep                                     tick_duration_T>
+constexpr auto ddge::time::FixedTimer<Duration_T, tick_duration_T>::tick_duration()
     -> Duration_T
 {
     return Duration_T{ tick_duration_T };
 }
 
 template <
-    util::meta::specialization_of_c<std::chrono::duration> Duration_T,
-    typename Duration_T::rep                               tick_duration_T>
-auto modules::time::FixedTimer<Duration_T, tick_duration_T>::delta_ticks() const -> uint32_t
+    ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T,
+    typename Duration_T::rep                                     tick_duration_T>
+auto ddge::time::FixedTimer<Duration_T, tick_duration_T>::delta_ticks() const -> uint32_t
 {
     return static_cast<uint32_t>(std::floor(m_delta_time / tick_duration()));
 }
 
 template <
-    util::meta::specialization_of_c<std::chrono::duration> Duration_T,
-    typename Duration_T::rep                               tick_duration_T>
-auto modules::time::FixedTimer<Duration_T, tick_duration_T>::current() const
+    ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T,
+    typename Duration_T::rep                                     tick_duration_T>
+auto ddge::time::FixedTimer<Duration_T, tick_duration_T>::current() const
     -> Clock::time_point
 {
     return m_current;
 }
 
 template <
-    util::meta::specialization_of_c<std::chrono::duration> Duration_T,
-    typename Duration_T::rep                               tick_duration_T>
-auto modules::time::FixedTimer<Duration_T, tick_duration_T>::update(
+    ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T,
+    typename Duration_T::rep                                     tick_duration_T>
+auto ddge::time::FixedTimer<Duration_T, tick_duration_T>::update(
     const Clock::time_point current
 ) -> void
 {
@@ -106,9 +106,9 @@ auto modules::time::FixedTimer<Duration_T, tick_duration_T>::update(
 }
 
 template <
-    util::meta::specialization_of_c<std::chrono::duration> Duration_T,
-    typename Duration_T::rep                               tick_duration_T>
-auto modules::time::FixedTimer<Duration_T, tick_duration_T>::reset(
+    ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T,
+    typename Duration_T::rep                                     tick_duration_T>
+auto ddge::time::FixedTimer<Duration_T, tick_duration_T>::reset(
     const Clock::time_point current
 ) -> void
 {

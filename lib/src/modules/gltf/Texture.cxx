@@ -4,9 +4,9 @@ module;
 
 #include <fastgltf/types.hpp>
 
-module modules.gltf.Texture;
+module ddge.modules.gltf.Texture;
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 auto TextureInfo::create(const fastgltf::TextureInfo& source) -> TextureInfo
 {
@@ -16,4 +16,4 @@ auto TextureInfo::create(const fastgltf::TextureInfo& source) -> TextureInfo
     };
 }
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

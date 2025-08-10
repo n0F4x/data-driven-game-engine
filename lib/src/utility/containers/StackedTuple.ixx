@@ -6,19 +6,19 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module utility.containers.StackedTuple;
+export module ddge.utility.containers.StackedTuple;
 
-import utility.meta.algorithms.for_each;
-import utility.meta.concepts.integer_sequence.index_sequence;
-import utility.meta.concepts.storable;
-import utility.meta.reflection.name_of;
-import utility.meta.type_traits.forward_like;
-import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.functional.result_of;
-import utility.meta.type_traits.type_list.type_list_at;
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.meta.type_traits.type_list.type_list_index_of;
-import utility.TypeList;
+import ddge.utility.meta.algorithms.for_each;
+import ddge.utility.meta.concepts.integer_sequence.index_sequence;
+import ddge.utility.meta.concepts.storable;
+import ddge.utility.meta.reflection.name_of;
+import ddge.utility.meta.type_traits.forward_like;
+import ddge.utility.meta.type_traits.functional.arguments_of;
+import ddge.utility.meta.type_traits.functional.result_of;
+import ddge.utility.meta.type_traits.type_list.type_list_at;
+import ddge.utility.meta.type_traits.type_list.type_list_contains;
+import ddge.utility.meta.type_traits.type_list.type_list_index_of;
+import ddge.utility.TypeList;
 
 template <std::size_t, typename T>
 struct Leaf {
@@ -26,9 +26,10 @@ struct Leaf {
 };
 
 template <typename Factory_T, typename T>
-concept factory_for_c = std::constructible_from<T, util::meta::result_of_t<Factory_T>>;
+concept factory_for_c =
+    std::constructible_from<T, ddge::util::meta::result_of_t<Factory_T>>;
 
-template <util::meta::index_sequence_c, typename... Ts>
+template <ddge::util::meta::index_sequence_c, typename... Ts>
 struct Impl;
 
 template <template <typename T_, T_...> typename IntegerSequence_T>
@@ -58,9 +59,9 @@ struct Impl<IntegerSequence_T<std::size_t, I, Is...>, T, Ts...>
     );
 };
 
-namespace util {
+namespace ddge::util {
 
-export template <::util::meta::storable_c... Ts>
+export template <meta::storable_c... Ts>
 class StackedTuple {
 public:
     template <typename... Factories_T>
@@ -69,18 +70,18 @@ public:
 
     template <std::size_t index_T, typename Self_T>
     [[nodiscard]]
-    constexpr auto get(this Self_T&&) noexcept -> ::util::meta::
-        forward_like_t<util::meta::type_list_at_t<util::TypeList<Ts...>, index_T>, Self_T>;
+    constexpr auto get(this Self_T&&) noexcept -> meta::
+        forward_like_t<meta::type_list_at_t<util::TypeList<Ts...>, index_T>, Self_T>;
 
-    template <::util::meta::storable_c T, typename Self_T>
+    template <meta::storable_c T, typename Self_T>
     [[nodiscard]]
-    constexpr auto get(this Self_T&&) noexcept -> ::util::meta::forward_like_t<T, Self_T>;
+    constexpr auto get(this Self_T&&) noexcept -> meta::forward_like_t<T, Self_T>;
 
 private:
     Impl<std::make_index_sequence<sizeof...(Ts)>, Ts...> m_impl;
 };
 
-}   // namespace util
+}   // namespace ddge::util
 
 template <template <typename T_, T_...> typename IntegerSequence_T>
 constexpr Impl<IntegerSequence_T<std::size_t>>::Impl(std::tuple<>)
@@ -107,16 +108,17 @@ constexpr auto gather_dependencies(std::tuple<Ts...>& stack)
 {
     using namespace std::literals::string_literals;
 
-    using RequiredResourcesTuple_T = util::meta::arguments_of_t<Callable_T>;
+    using RequiredResourcesTuple_T = ddge::util::meta::arguments_of_t<Callable_T>;
 
-    util::meta::for_each<RequiredResourcesTuple_T>([]<typename Dependency_T> {
+    ddge::util::meta::for_each<RequiredResourcesTuple_T>([]<typename Dependency_T> {
         static_assert(
-            util::meta::type_list_contains_v<
-                util::TypeList<Ts...>,
+            ddge::util::meta::type_list_contains_v<
+                ddge::util::TypeList<Ts...>,
                 std::remove_cvref_t<Dependency_T>&>,
             // TODO: constexpr std::format
-            "Dependency `"s + util::meta::name_of<std::remove_cvref_t<Dependency_T>>()
-                + "` not found for `" + util::meta::name_of<Callable_T>() + "`"
+            "Dependency `"s
+                + ddge::util::meta::name_of<std::remove_cvref_t<Dependency_T>>()
+                + "` not found for `" + ddge::util::meta::name_of<Callable_T>() + "`"
         );
     });
 
@@ -157,16 +159,16 @@ constexpr Impl<IntegerSequence_T<std::size_t, I, Is...>, T, Ts...>::Impl(
       }
 {}
 
-template <::util::meta::storable_c... Ts>
+template <ddge::util::meta::storable_c... Ts>
 template <typename... Factories_T>
     requires(factory_for_c<Factories_T &&, Ts> && ...)
-constexpr util::StackedTuple<Ts...>::StackedTuple(Factories_T&&... factories)
+constexpr ddge::util::StackedTuple<Ts...>::StackedTuple(Factories_T&&... factories)
     : m_impl{ std::tuple<>{}, std::forward<Factories_T>(factories)... }
 {}
 
-template <::util::meta::storable_c... Ts>
+template <ddge::util::meta::storable_c... Ts>
 template <std::size_t index_T, typename Self_T>
-constexpr auto util::StackedTuple<Ts...>::get(this Self_T&& self) noexcept
+constexpr auto ddge::util::StackedTuple<Ts...>::get(this Self_T&& self) noexcept
     -> meta::forward_like_t<meta::type_list_at_t<TypeList<Ts...>, index_T>, Self_T>
 {
     return std::forward_like<Self_T>(
@@ -174,9 +176,9 @@ constexpr auto util::StackedTuple<Ts...>::get(this Self_T&& self) noexcept
     );
 }
 
-template <::util::meta::storable_c... Ts>
-template <::util::meta::storable_c T, typename Self_T>
-constexpr auto util::StackedTuple<Ts...>::get(this Self_T&& self) noexcept
+template <ddge::util::meta::storable_c... Ts>
+template <ddge::util::meta::storable_c T, typename Self_T>
+constexpr auto ddge::util::StackedTuple<Ts...>::get(this Self_T&& self) noexcept
     -> meta::forward_like_t<T, Self_T>
 {
     return std::forward_like<Self_T>(

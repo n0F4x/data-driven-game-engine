@@ -2,20 +2,20 @@ module;
 
 #include <cstdint>
 
-export module modules.ecs:ComponentID;
+export module ddge.modules.ecs:ComponentID;
 
-import utility.meta.reflection.hash;
-import utility.Strong;
+import ddge.utility.meta.reflection.hash;
+import ddge.utility.Strong;
 
 import :component_c;
 
-struct ComponentID : ::util::Strong<uint_least32_t, ComponentID> {
+struct ComponentID : ddge::util::Strong<uint_least32_t, ComponentID> {
     using Strong::Strong;
 };
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 struct ComponentIDOfClosure {
-    constexpr static ComponentID value{ util::meta::hash<Component_T>() };
+    constexpr static ComponentID value{ ddge::util::meta::hash<Component_T>() };
 
     consteval static auto operator()() -> ComponentID
     {
@@ -23,5 +23,5 @@ struct ComponentIDOfClosure {
     }
 };
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 inline constexpr ComponentIDOfClosure<Component_T> component_id_of;

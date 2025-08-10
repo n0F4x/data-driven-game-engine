@@ -1,6 +1,6 @@
 export module snake.game.AppleDigested;
 
-import modules.ecs;
+import ddge.modules.ecs;
 
 namespace game {
 

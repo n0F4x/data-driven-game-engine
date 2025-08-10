@@ -1,4 +1,4 @@
-export module modules.image.ktx2;
+export module ddge.modules.image.ktx2;
 
-export import modules.image.ktx2.Image;
-export import modules.image.ktx2.MimeType;
+export import ddge.modules.image.ktx2.Image;
+export import ddge.modules.image.ktx2.MimeType;

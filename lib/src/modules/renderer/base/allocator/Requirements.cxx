@@ -5,9 +5,9 @@ module;
 
 #include <VkBootstrap.h>
 
-module modules.renderer.base.allocator.Allocator;
+module ddge.modules.renderer.base.allocator.Allocator;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 [[nodiscard]]
 constexpr static auto optional_instance_extension_names()
@@ -76,4 +76,4 @@ auto Allocator::Requirements::enable_optional_device_settings(
     physical_device.enable_extension_features_if_present(coherent_memory_features_AMD);
 }
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

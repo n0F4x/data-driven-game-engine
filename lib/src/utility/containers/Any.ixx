@@ -10,22 +10,22 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module utility.containers.Any;
+export module ddge.utility.containers.Any;
 
-import utility.contracts;
-import utility.memory.Allocator;
-import utility.memory.Deallocator;
-import utility.meta.concepts.allocator;
-import utility.meta.concepts.storable;
-import utility.meta.concepts.nothrow_movable;
-import utility.meta.concepts.specialization_of;
-import utility.meta.reflection.hash;
-import utility.meta.reflection.name_of;
-import utility.meta.type_traits.forward_like;
+import ddge.utility.contracts;
+import ddge.utility.memory.Allocator;
+import ddge.utility.memory.Deallocator;
+import ddge.utility.meta.concepts.allocator;
+import ddge.utility.meta.concepts.storable;
+import ddge.utility.meta.concepts.nothrow_movable;
+import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.meta.reflection.hash;
+import ddge.utility.meta.reflection.name_of;
+import ddge.utility.meta.type_traits.forward_like;
 
 using namespace std::literals;
 
-namespace util {
+namespace ddge::util {
 
 // TODO: move to module namespace with better Clang
 
@@ -172,16 +172,17 @@ class AnyBase {};
 
 export template <storable_c T, typename Any_T>
     requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
-constexpr auto any_cast(Any_T&& any) -> ::util::meta::forward_like_t<T, Any_T>;
+constexpr auto any_cast(Any_T&& any) -> ddge::util::meta::forward_like_t<T, Any_T>;
 
 export template <storable_c T, typename Any_T>
     requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
-constexpr auto dynamic_any_cast(Any_T&& any) -> ::util::meta::forward_like_t<T, Any_T>;
+constexpr auto dynamic_any_cast(Any_T&& any)
+    -> ddge::util::meta::forward_like_t<T, Any_T>;
 
 export template <
-    std::size_t                       size_T      = 3 * sizeof(void*),
-    std::size_t                       alignment_T = sizeof(void*),
-    ::util::meta::generic_allocator_c Allocator_T = Allocator>
+    std::size_t                           size_T      = 3 * sizeof(void*),
+    std::size_t                           alignment_T = sizeof(void*),
+    ddge::util::meta::generic_allocator_c Allocator_T = Allocator>
 class BasicAny : public AnyBase {
 public:
     constexpr static std::size_t size      = size_T;
@@ -207,14 +208,14 @@ public:
 
     template <typename T>
         requires(!std::same_as<std::decay_t<T>, BasicAny>) && storable_c<std::decay_t<T>>
-             && (!::util::meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
+             && (!meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
              && std::constructible_from<std::decay_t<T>, T&&>
     constexpr explicit BasicAny(T&& value);
 
     template <typename UAllocator_T, typename T>
         requires std::same_as<std::decay_t<UAllocator_T>, Allocator>
               && storable_c<std::decay_t<T>>
-              && (!::util::meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
+              && (!meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
               && std::constructible_from<std::decay_t<T>, T&&>
     constexpr explicit BasicAny(UAllocator_T&& allocator, T&& value);
 
@@ -223,12 +224,11 @@ public:
 
     template <storable_c T, typename Any_T>
         requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
-    constexpr friend auto any_cast(Any_T&& any) -> ::util::meta::forward_like_t<T, Any_T>;
+    constexpr friend auto any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>;
 
     template <storable_c T, typename Any_T>
         requires std::derived_from<std::remove_cvref_t<Any_T>, AnyBase>
-    constexpr friend auto dynamic_any_cast(Any_T&& any)
-        -> ::util::meta::forward_like_t<T, Any_T>;
+    constexpr friend auto dynamic_any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>;
 
 private:
     using Storage = storage_t<size_T, alignment_T>;
@@ -243,16 +243,16 @@ private:
 
 export using Any = BasicAny<>;
 
-}   // namespace util
+}   // namespace ddge::util
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::small_c<T, size_T, alignment_T>
 template <typename... Args_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create(
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::create(
     Storage& out,
     Allocator_T&,
     Args_T&&... args
@@ -263,11 +263,11 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::copy(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::small_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::copy(
     Storage& out,
     Allocator_T&,
     const Storage& storage
@@ -278,11 +278,11 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::copy(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::move(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::small_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::move(
     Storage&  out,
     Storage&& storage
 ) noexcept -> void
@@ -292,11 +292,11 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::move(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::drop(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::small_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::drop(
     Allocator_T&,
     Storage&& storage
 ) noexcept -> void
@@ -306,17 +306,17 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::drop(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::small_c<T, size_T, alignment_T>
 template <typename Storage_T>
     requires std::same_as<
         std::remove_cvref_t<Storage_T>,
-        std::variant<util::SmallBuffer<size_T, alignment_T>, void*>>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
+        std::variant<ddge::util::SmallBuffer<size_T, alignment_T>, void*>>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
     Storage_T&& storage
-) noexcept -> util::meta::forward_like_t<T, Storage_T>
+) noexcept -> meta::forward_like_t<T, Storage_T>
 {
     using TPtr = std::
         conditional_t<std::is_const_v<std::remove_reference_t<Storage_T>>, const T*, T*>;
@@ -332,37 +332,38 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::types_match(
-    const util::meta::TypeHash type_hash
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::small_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::types_match(
+    const meta::TypeHash type_hash
 ) -> bool
 {
-    return type_hash == ::util::meta::hash<T>();
+    return type_hash == meta::hash<T>();
 }
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::type_name()
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::small_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::type_name()
     -> std::string_view
 {
-    return util::meta::name_of<T>();
+    return meta::name_of<T>();
 }
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(Storage& storage)
-    -> void*
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::small_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(
+    Storage& storage
+) -> void*
 {
     SmallBuffer* buffer_ptr{ std::get_if<SmallBuffer>(&storage) };
     assert(buffer_ptr != nullptr);
@@ -371,11 +372,11 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(Storag
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::small_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(
     const Storage& storage
 ) -> const void*
 {
@@ -386,12 +387,12 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::small_c<T, size_T, alignment_T>
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::small_c<T, size_T, alignment_T>
 template <typename... Args_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create_impl(
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::create_impl(
     Storage& out,
     Args_T&&... args
 ) -> void
@@ -405,18 +406,18 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create_impl(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::large_c<T, size_T, alignment_T>
 template <typename... Args_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create(
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::create(
     Storage&     out,
     Allocator_T& allocator,
     Args_T&&... args
 ) -> void
 {
-    using Deallocator = ::util::Deallocator<Allocator_T>;
+    using Deallocator = Deallocator<Allocator_T>;
 
     std::unique_ptr<T, Deallocator> handle{ allocator.template allocate<T>(),
                                             Deallocator{ allocator } };
@@ -427,11 +428,11 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::create(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::copy(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::large_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::copy(
     Storage&       out,
     Allocator_T&   allocator,
     const Storage& storage
@@ -442,11 +443,11 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::copy(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::move(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::large_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::move(
     Storage&  out,
     Storage&& storage
 ) noexcept -> void
@@ -456,11 +457,11 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::move(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::drop(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::large_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::drop(
     Allocator_T& allocator,
     Storage&&    storage
 ) noexcept -> void
@@ -470,16 +471,16 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::drop(
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::large_c<T, size_T, alignment_T>
 template <typename Storage_T>
     requires std::
-        same_as<std::remove_cvref_t<Storage_T>, util::storage_t<size_T, alignment_T>>
-    constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
+        same_as<std::remove_cvref_t<Storage_T>, ddge::util::storage_t<size_T, alignment_T>>
+    constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::any_cast(
         Storage_T&& storage
-    ) noexcept -> util::meta::forward_like_t<T, Storage_T>
+    ) noexcept -> meta::forward_like_t<T, Storage_T>
 {
     using TPtr = std::
         conditional_t<std::is_const_v<std::remove_reference_t<Storage_T>>, const T*, T*>;
@@ -489,37 +490,38 @@ template <typename Storage_T>
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::types_match(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::large_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::types_match(
     const util::meta::TypeHash type_hash
 ) -> bool
 {
-    return type_hash == util::meta::hash<T>();
+    return type_hash == meta::hash<T>();
 }
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::type_name()
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::large_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::type_name()
     -> std::string_view
 {
-    return util::meta::name_of<T>();
+    return meta::name_of<T>();
 }
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(Storage& storage)
-    -> void*
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::large_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(
+    Storage& storage
+) -> void*
 {
     auto* const handle_ptr{ std::get_if<void*>(&storage) };
     assert(handle_ptr != nullptr);
@@ -528,11 +530,11 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(Storag
 
 template <
     typename T,
-    std::size_t                     size_T,
-    std::size_t                     alignment_T,
-    util::meta::generic_allocator_c Allocator_T>
-    requires util::large_c<T, size_T, alignment_T>
-constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+    requires ddge::util::large_c<T, size_T, alignment_T>
+constexpr auto ddge::util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(
     const Storage& storage
 ) -> const void*
 {
@@ -541,9 +543,9 @@ constexpr auto util::Traits<T, size_T, alignment_T, Allocator_T>::voidify(
     return *handle_ptr;
 }
 
-template <util::storable_c T, typename Any_T>
-    requires std::derived_from<std::remove_cvref_t<Any_T>, util::AnyBase>
-constexpr auto util::any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
+template <ddge::util::storable_c T, typename Any_T>
+    requires std::derived_from<std::remove_cvref_t<Any_T>, ddge::util::AnyBase>
+constexpr auto ddge::util::any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
 {
     PRECOND(
         any.BasicAny::m_operations->types_match(util::meta::hash<T>()),
@@ -554,9 +556,9 @@ constexpr auto util::any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
     return dynamic_any_cast<T>(std::forward<Any_T>(any));
 }
 
-template <util::storable_c T, typename Any_T>
-    requires std::derived_from<std::remove_cvref_t<Any_T>, util::AnyBase>
-constexpr auto util::dynamic_any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
+template <ddge::util::storable_c T, typename Any_T>
+    requires std::derived_from<std::remove_cvref_t<Any_T>, ddge::util::AnyBase>
+constexpr auto ddge::util::dynamic_any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
 {
     PRECOND(
         any.BasicAny::m_operations != nullptr,
@@ -570,10 +572,12 @@ constexpr auto util::dynamic_any_cast(Any_T&& any) -> meta::forward_like_t<T, An
 }
 
 template <
-    std::size_t                       size_T,
-    std::size_t                       alignment_T,
-    ::util::meta::generic_allocator_c Allocator_T>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(const BasicAny& other)
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+constexpr ddge::util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
+    const BasicAny& other
+)
     : m_allocator{ other.m_allocator },
       m_operations{ other.m_operations }
 {
@@ -584,10 +588,10 @@ constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(const Basic
 }
 
 template <
-    std::size_t                       size_T,
-    std::size_t                       alignment_T,
-    ::util::meta::generic_allocator_c Allocator_T>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+constexpr ddge::util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
     BasicAny&& other
 ) noexcept
     : m_allocator{ std::move(other.m_allocator) },
@@ -601,22 +605,22 @@ constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
 }
 
 template <
-    std::size_t                       size_T,
-    std::size_t                       alignment_T,
-    ::util::meta::generic_allocator_c Allocator_T>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+constexpr ddge::util::BasicAny<size_T, alignment_T, Allocator_T>::
     ~BasicAny<size_T, alignment_T, Allocator_T>()
 {
     reset();
 }
 
 template <
-    std::size_t                       size_T,
-    std::size_t                       alignment_T,
-    ::util::meta::generic_allocator_c Allocator_T>
-template <util::storable_c T, typename... Args_T>
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+template <ddge::util::storable_c T, typename... Args_T>
     requires std::constructible_from<T, Args_T&&...>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
+constexpr ddge::util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
     std::in_place_type_t<T>,
     Args_T&&... args
 )
@@ -624,13 +628,13 @@ constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
 {}
 
 template <
-    std::size_t                       size_T,
-    std::size_t                       alignment_T,
-    ::util::meta::generic_allocator_c Allocator_T>
-template <typename UAllocator_T, util::storable_c T, typename... Args_T>
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+template <typename UAllocator_T, ddge::util::storable_c T, typename... Args_T>
     requires std::same_as<std::decay_t<UAllocator_T>, Allocator_T>
               && std::constructible_from<T, Args_T&&...>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
+constexpr ddge::util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
     UAllocator_T&& allocator,
     std::in_place_type_t<T>,
     Args_T&&... args
@@ -644,29 +648,30 @@ constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
 }
 
 template <
-    std::size_t                       size_T,
-    std::size_t                       alignment_T,
-    ::util::meta::generic_allocator_c Allocator_T>
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
 template <typename T>
-    requires(!std::
-                 same_as<std::decay_t<T>, util::BasicAny<size_T, alignment_T, Allocator_T>>)
-         && util::storable_c<std::decay_t<T>>
-         && (!::util::meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
+    requires(!std::same_as<
+                std::decay_t<T>,
+                ddge::util::BasicAny<size_T, alignment_T, Allocator_T>>)
+         && ddge::util::storable_c<std::decay_t<T>>
+         && (!ddge::util::meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
          && std::constructible_from<std::decay_t<T>, T&&>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(T&& value)
+constexpr ddge::util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(T&& value)
     : BasicAny{ std::in_place_type<std::decay_t<T>>, std::forward<T>(value) }
 {}
 
 template <
-    std::size_t                       size_T,
-    std::size_t                       alignment_T,
-    ::util::meta::generic_allocator_c Allocator_T>
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
 template <typename UAllocator_T, typename T>
     requires std::same_as<std::decay_t<UAllocator_T>, Allocator_T>
-          && util::storable_c<std::decay_t<T>>
-          && (!::util::meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
+          && ddge::util::storable_c<std::decay_t<T>>
+          && (!ddge::util::meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
           && std::constructible_from<std::decay_t<T>, T&&>
-constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
+constexpr ddge::util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
     UAllocator_T&& allocator,
     T&&            value
 )
@@ -676,10 +681,10 @@ constexpr util::BasicAny<size_T, alignment_T, Allocator_T>::BasicAny(
 {}
 
 template <
-    std::size_t                       size_T,
-    std::size_t                       alignment_T,
-    ::util::meta::generic_allocator_c Allocator_T>
-constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+constexpr auto ddge::util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(
     const BasicAny& other
 ) -> BasicAny&
 {
@@ -691,10 +696,11 @@ constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(
 }
 
 template <
-    std::size_t                       size_T,
-    std::size_t                       alignment_T,
-    ::util::meta::generic_allocator_c Allocator_T>
-constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(BasicAny&& other
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+constexpr auto ddge::util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(
+    BasicAny&& other
 ) noexcept -> BasicAny&
 {
     PRECOND(other.m_operations != nullptr, "Don't use a 'moved-from' (or destroyed) Any!");
@@ -717,10 +723,10 @@ constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::operator=(Basic
 }
 
 template <
-    std::size_t                       size_T,
-    std::size_t                       alignment_T,
-    ::util::meta::generic_allocator_c Allocator_T>
-constexpr auto util::BasicAny<size_T, alignment_T, Allocator_T>::reset() -> void
+    std::size_t                           size_T,
+    std::size_t                           alignment_T,
+    ddge::util::meta::generic_allocator_c Allocator_T>
+constexpr auto ddge::util::BasicAny<size_T, alignment_T, Allocator_T>::reset() -> void
 {
     if (m_operations) {
         m_operations->drop(m_allocator, std::move(m_storage));

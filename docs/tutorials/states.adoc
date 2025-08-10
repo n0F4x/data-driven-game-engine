@@ -3,7 +3,7 @@
 State management is a useful mechanism for storing data specific to different parts of the application.
 All states start out as inactive, but they can be activated or deactivated at any time.
 
-[,cpp]
+[,c++]
 ----
 struct GameState {
     int level{};
@@ -24,7 +24,7 @@ Similar to resources and events, they should also be registered in advance.
 
 [,c++]
 ----
-app::create()
-    .plug_in(plugins::States{})
+ddge::app::create()
+    .plug_in(ddge::plugins::States{})
     .register_state<GameState>();
 ----

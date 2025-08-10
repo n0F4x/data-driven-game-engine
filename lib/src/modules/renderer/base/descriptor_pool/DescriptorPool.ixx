@@ -3,11 +3,11 @@ module;
 #include <cstdint>
 #include <vector>
 
-export module modules.renderer.base.descriptor_pool.DescriptorPool;
+export module ddge.modules.renderer.base.descriptor_pool.DescriptorPool;
 
 import vulkan_hpp;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 export class DescriptorPool {
 public:
@@ -48,10 +48,10 @@ private:
     std::vector<vk::DescriptorPoolSize> m_pool_sizes;
 };
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base
 
 template <typename Self>
-auto modules::renderer::base::DescriptorPool::Builder::set_flags(
+auto ddge::renderer::base::DescriptorPool::Builder::set_flags(
     this Self&&                   self,
     vk::DescriptorPoolCreateFlags flags
 ) noexcept -> Self
@@ -61,7 +61,7 @@ auto modules::renderer::base::DescriptorPool::Builder::set_flags(
 }
 
 template <typename Self>
-auto modules::renderer::base::DescriptorPool::Builder::request_descriptor_sets(
+auto ddge::renderer::base::DescriptorPool::Builder::request_descriptor_sets(
     this Self&& self,
     uint32_t    count
 ) -> Self
@@ -71,7 +71,7 @@ auto modules::renderer::base::DescriptorPool::Builder::request_descriptor_sets(
 }
 
 template <typename Self>
-auto modules::renderer::base::DescriptorPool::Builder::request_descriptors(
+auto ddge::renderer::base::DescriptorPool::Builder::request_descriptors(
     this Self&&                   self,
     const vk::DescriptorPoolSize& pool_size
 ) -> Self
@@ -81,7 +81,7 @@ auto modules::renderer::base::DescriptorPool::Builder::request_descriptors(
 }
 
 template <typename Self>
-auto modules::renderer::base::DescriptorPool::Builder::request_descriptors(
+auto ddge::renderer::base::DescriptorPool::Builder::request_descriptors(
     this Self&&               self,
     std::ranges::range auto&& pool_sizes
 ) -> Self

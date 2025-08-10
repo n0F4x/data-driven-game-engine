@@ -9,26 +9,26 @@ module;
 
 #include "utility/lifetime_bound.hpp"
 
-export module utility.containers.SlotMap;
+export module ddge.utility.containers.SlotMap;
 
-import utility.containers.SparseSet;
+import ddge.utility.containers.SparseSet;
 
-import utility.meta.concepts.nothrow_movable;
-import utility.meta.concepts.specialization_of;
-import utility.meta.type_traits.forward_like;
-import utility.containers.OptionalRef;
-import utility.ScopeGuard;
-import utility.Strong;
+import ddge.utility.meta.concepts.nothrow_movable;
+import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.meta.type_traits.forward_like;
+import ddge.utility.containers.OptionalRef;
+import ddge.utility.ScopeGuard;
+import ddge.utility.Strong;
 
 template <typename T>
-concept key_c = requires { util::SparseSet<T>{}; };
+concept key_c = requires { ddge::util::SparseSet<T>{}; };
 
-namespace util {
+namespace ddge::util {
 
 export template <
-    ::key_c                         Key_T,
-    ::util::meta::nothrow_movable_c T,
-    uint8_t                         version_bit_size_T = sizeof(Key_T) * 2>
+    ::key_c                             Key_T,
+    ddge::util::meta::nothrow_movable_c T,
+    uint8_t                             version_bit_size_T = sizeof(Key_T) * 2>
 class SlotMap {
     using SparseSet = SparseSet<Key_T, version_bit_size_T>;
 
@@ -69,18 +69,18 @@ private:
     std::vector<T> m_values;
 };
 
-}   // namespace util
+}   // namespace ddge::util
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::next_key() const noexcept
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::next_key() const noexcept
     -> Key
 {
     return m_sparse_set.next_key();
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 template <typename... Args_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::emplace(Args_T&&... args)
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::emplace(Args_T&&... args)
     -> std::pair<Key, Index>
 {
     m_values.emplace_back(std::forward<Args_T>(args)...);
@@ -89,8 +89,8 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::emplace(Args_T&&... 
     return m_sparse_set.emplace();
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
     -> std::optional<std::pair<Value, Index>>
 {
     return m_sparse_set.erase(key).transform([this](const auto index) {
@@ -103,8 +103,8 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
     });
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::remove(const Key key)
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::remove(const Key key)
     -> std::pair<Value, Index>
 {
     const Index index = m_sparse_set.remove(key);
@@ -117,65 +117,69 @@ constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::remove(const Key key
     return result;
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
 template <typename Self>
-constexpr auto
-    util::SlotMap<Key_T, T, version_bit_size_T>::get(this Self&& self, const Key key)
-        -> meta::forward_like_t<Value, Self>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::get(
+    this Self&& self,
+    const Key   key
+) -> meta::forward_like_t<Value, Self>
 {
     const auto index{ self.m_sparse_set.get(key) };
 
     return std::forward_like<Self>(self.m_values[index]);
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(const Key key) noexcept
-    -> OptionalRef<Value>
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::find(
+    const Key key
+) noexcept -> OptionalRef<Value>
 {
     return m_sparse_set.find(key).transform([this](const auto index) {
         return std::ref(m_values[index]);
     });
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find(
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::find(
     const Key key
 ) const noexcept -> OptionalRef<const Value>
 {
     return const_cast<SlotMap&>(*this).find(key);
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::contains(
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::contains(
     const Key key
 ) const noexcept -> bool
 {
     return m_sparse_set.contains(key);
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::empty() const noexcept -> bool
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::empty() const noexcept
+    -> bool
 {
     assert(m_sparse_set.empty() == m_values.empty());
     return m_sparse_set.empty();
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::values() const noexcept
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::values() const noexcept
     -> std::span<const Value>
 {
     return m_values;
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::get_index(const Key key) const
-    -> Index
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::get_index(
+    const Key key
+) const -> Index
 {
     return m_sparse_set.get(key);
 }
 
-template <::key_c Key_T, ::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
-constexpr auto util::SlotMap<Key_T, T, version_bit_size_T>::find_index(
+template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
+constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::find_index(
     const Key key
 ) const noexcept -> std::optional<Index>
 {

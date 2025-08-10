@@ -4,7 +4,7 @@ module;
 
 export module snake.game.Snake;
 
-import utility.Strong;
+import ddge.utility.Strong;
 
 namespace game {
 

@@ -2,14 +2,14 @@ module;
 
 #include <utility>
 
-export module utility.meta.algorithms.enumerate;
+export module ddge.utility.meta.algorithms.enumerate;
 
-import utility.meta.algorithms.for_each;
-import utility.meta.concepts.type_list.type_list;
-import utility.meta.type_traits.type_list.type_list_at;
-import utility.meta.type_traits.type_list.type_list_size;
+import ddge.utility.meta.algorithms.for_each;
+import ddge.utility.meta.concepts.type_list.type_list;
+import ddge.utility.meta.type_traits.type_list.type_list_at;
+import ddge.utility.meta.type_traits.type_list.type_list_size;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <type_list_c TypeList_T, typename F>
 constexpr auto enumerate(F&& func) -> F
@@ -22,4 +22,4 @@ constexpr auto enumerate(F&& func) -> F
     return std::forward<F>(func);
 }
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

@@ -3,9 +3,9 @@ module;
 #include <cstdint>
 #include <span>
 
-module modules.renderer.material_system.VertexLayout;
+module ddge.modules.renderer.material_system.VertexLayout;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 VertexLayout::VertexLayout(
     const uint32_t            stride,
@@ -30,4 +30,4 @@ auto VertexLayout::attributes() const noexcept -> std::span<const VertexAttribut
     return m_attributes;
 }
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer

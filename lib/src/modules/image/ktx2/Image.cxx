@@ -9,7 +9,7 @@ module;
 
 #include <ktx.h>
 
-module modules.image.ktx2.Image;
+module ddge.modules.image.ktx2.Image;
 
 static auto transcode(ktxTexture2* texture) -> void
 {
@@ -30,7 +30,7 @@ static auto transcode(ktxTexture2* texture) -> void
     }
 }
 
-auto modules::image::ktx2::Image::load_from(const std::filesystem::path& filepath) -> Image
+auto ddge::image::ktx2::Image::load_from(const std::filesystem::path& filepath) -> Image
 {
     ktxTexture2* texture{};
 
@@ -55,7 +55,7 @@ auto modules::image::ktx2::Image::load_from(const std::filesystem::path& filepat
     return Image{ gsl_lite::make_not_null(texture) };
 }
 
-auto modules::image::ktx2::Image::load_from(const std::span<const std::byte> data) -> Image
+auto ddge::image::ktx2::Image::load_from(const std::span<const std::byte> data) -> Image
 {
     ktxTexture2* texture{};
 
@@ -77,42 +77,42 @@ auto modules::image::ktx2::Image::load_from(const std::span<const std::byte> dat
     return Image{ gsl_lite::make_not_null(texture) };
 }
 
-auto modules::image::ktx2::Image::data() const noexcept -> std::span<const std::byte>
+auto ddge::image::ktx2::Image::data() const noexcept -> std::span<const std::byte>
 {
     return std::as_bytes(std::span{ m_impl->pData, m_impl->dataSize });
 }
 
-auto modules::image::ktx2::Image::width() const noexcept -> uint32_t
+auto ddge::image::ktx2::Image::width() const noexcept -> uint32_t
 {
     return m_impl->baseWidth;
 }
 
-auto modules::image::ktx2::Image::height() const noexcept -> uint32_t
+auto ddge::image::ktx2::Image::height() const noexcept -> uint32_t
 {
     return m_impl->baseHeight;
 }
 
-auto modules::image::ktx2::Image::depth() const noexcept -> uint32_t
+auto ddge::image::ktx2::Image::depth() const noexcept -> uint32_t
 {
     return m_impl->baseDepth;
 }
 
-auto modules::image::ktx2::Image::mip_level_count() const noexcept -> uint32_t
+auto ddge::image::ktx2::Image::mip_level_count() const noexcept -> uint32_t
 {
     return std::max(m_impl->numLevels, 1u);
 }
 
-auto modules::image::ktx2::Image::needs_mip_generation() const noexcept -> bool
+auto ddge::image::ktx2::Image::needs_mip_generation() const noexcept -> bool
 {
     return m_impl->numLevels == 0;
 }
 
-auto modules::image::ktx2::Image::format() const noexcept -> vk::Format
+auto ddge::image::ktx2::Image::format() const noexcept -> vk::Format
 {
     return static_cast<vk::Format>(m_impl->vkFormat);
 }
 
-auto modules::image::ktx2::Image::offset_of(
+auto ddge::image::ktx2::Image::offset_of(
     const uint32_t mip_level,
     const uint32_t layer,
     const uint32_t face_slice
@@ -129,12 +129,12 @@ auto modules::image::ktx2::Image::offset_of(
     return offset;
 }
 
-auto modules::image::ktx2::Image::Deleter::operator()(ktxTexture2* const texture
+auto ddge::image::ktx2::Image::Deleter::operator()(ktxTexture2* const texture
 ) const noexcept -> void
 {
     ktxTexture_Destroy(ktxTexture(texture));
 }
 
-modules::image::ktx2::Image::Image(const gsl_lite::not_null<ktxTexture2*> texture) noexcept
+ddge::image::ktx2::Image::Image(const gsl_lite::not_null<ktxTexture2*> texture) noexcept
     : m_impl{ texture }
 {}

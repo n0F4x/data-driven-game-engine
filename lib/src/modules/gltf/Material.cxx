@@ -7,33 +7,33 @@ module;
 
 #include <fastgltf/types.hpp>
 
-module modules.gltf.Material;
+module ddge.modules.gltf.Material;
 
-import modules.gltf.Texture;
+import ddge.modules.gltf.Texture;
 
 [[nodiscard]]
 static auto convert(const fastgltf::PBRData& source)
-    -> modules::gltf::Material::PbrMetallicRoughness
+    -> ddge::gltf::Material::PbrMetallicRoughness
 {
-    return modules::gltf::Material::PbrMetallicRoughness{
+    return ddge::gltf::Material::PbrMetallicRoughness{
         .base_color_factor = glm::make_vec4(source.baseColorFactor.data()),
         .base_color_texture_info =
-            source.baseColorTexture.transform(modules::gltf::TextureInfo::create),
+            source.baseColorTexture.transform(ddge::gltf::TextureInfo::create),
         .metallic_factor  = source.metallicFactor,
         .roughness_factor = source.roughnessFactor,
         .metallic_roughness_texture_info =
-            source.metallicRoughnessTexture.transform(modules::gltf::TextureInfo::create),
+            source.metallicRoughnessTexture.transform(ddge::gltf::TextureInfo::create),
     };
 }
 
 [[nodiscard]]
 static auto convert(const fastgltf::Optional<fastgltf::NormalTextureInfo>& optional)
-    -> std::optional<modules::gltf::Material::NormalTextureInfo>
+    -> std::optional<ddge::gltf::Material::NormalTextureInfo>
 {
     if (!optional.has_value()) {
         return std::nullopt;
     }
-    return modules::gltf::Material::NormalTextureInfo{
+    return ddge::gltf::Material::NormalTextureInfo{
         .texture_index   = static_cast<uint32_t>(optional->textureIndex),
         .tex_coord_index = static_cast<uint32_t>(optional->texCoordIndex),
         .scale           = optional->scale,
@@ -42,12 +42,12 @@ static auto convert(const fastgltf::Optional<fastgltf::NormalTextureInfo>& optio
 
 [[nodiscard]]
 static auto convert(const fastgltf::Optional<fastgltf::OcclusionTextureInfo>& optional)
-    -> std::optional<modules::gltf::Material::OcclusionTextureInfo>
+    -> std::optional<ddge::gltf::Material::OcclusionTextureInfo>
 {
     if (!optional.has_value()) {
         return std::nullopt;
     }
-    return modules::gltf::Material::OcclusionTextureInfo{
+    return ddge::gltf::Material::OcclusionTextureInfo{
         .texture_index   = static_cast<uint32_t>(optional->textureIndex),
         .tex_coord_index = static_cast<uint32_t>(optional->texCoordIndex),
         .strength        = optional->strength,
@@ -56,9 +56,9 @@ static auto convert(const fastgltf::Optional<fastgltf::OcclusionTextureInfo>& op
 
 [[nodiscard]]
 static auto convert(const fastgltf::AlphaMode alpha_mode) noexcept
-    -> modules::gltf::Material::AlphaMode
+    -> ddge::gltf::Material::AlphaMode
 {
-    using enum modules::gltf::Material::AlphaMode;
+    using enum ddge::gltf::Material::AlphaMode;
     switch (alpha_mode) {
         case fastgltf::AlphaMode::Opaque: return eOpaque;
         case fastgltf::AlphaMode::Mask:   return eMask;
@@ -67,7 +67,7 @@ static auto convert(const fastgltf::AlphaMode alpha_mode) noexcept
     std::unreachable();
 }
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 auto Material::create(const fastgltf::Material& material) -> Material
 {
@@ -83,4 +83,4 @@ auto Material::create(const fastgltf::Material& material) -> Material
     };
 }
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

@@ -6,17 +6,17 @@ module;
 
 module examples.base.Renderer;
 
-import modules.renderer.base.swapchain.SwapchainHolder;
-import modules.renderer.scene.Scene;
+import ddge.modules.renderer.base.swapchain.SwapchainHolder;
+import ddge.modules.renderer.scene.Scene;
 
-import modules.window.Window;
+import ddge.modules.window.Window;
 
 import examples.base.init;
 
 examples::base::Renderer::Renderer(
-    const modules::window::Window&            window,
-    const modules::renderer::base::Device&    device,
-    modules::renderer::base::SwapchainHolder& swapchain_holder
+    const ddge::window::Window&            window,
+    const ddge::renderer::base::Device&    device,
+    ddge::renderer::base::SwapchainHolder& swapchain_holder
 )
     : m_device{ device },
       m_swapchain{ swapchain_holder },

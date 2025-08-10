@@ -1,4 +1,4 @@
-export module modules.store;
+export module ddge.modules.store;
 
-export import modules.store.item_c;
-export import modules.store.Store;
+export import ddge.modules.store.item_c;
+export import ddge.modules.store.Store;

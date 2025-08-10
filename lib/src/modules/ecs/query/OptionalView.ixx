@@ -6,10 +6,10 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.ecs:query.OptionalView;
+export module ddge.modules.ecs:query.OptionalView;
 
-import utility.contracts;
-import utility.meta.type_traits.const_like;
+import ddge.utility.contracts;
+import ddge.utility.meta.type_traits.const_like;
 
 import :component_c;
 import :ComponentContainer;
@@ -24,9 +24,9 @@ constexpr auto empty_container_ref() -> Container_T&
 }
 
 template <typename Component_T>
-    requires modules::ecs::component_c<std::remove_const_t<Component_T>>
+    requires ddge::ecs::component_c<std::remove_const_t<Component_T>>
 class OptionalView : std::ranges::view_interface<OptionalView<Component_T>> {
-    using Container = util::meta::
+    using Container = ddge::util::meta::
         const_like_t<ComponentContainer<std::remove_const_t<Component_T>>, Component_T>;
     using Underlying = std::ranges::ref_view<Container>;
 
@@ -63,34 +63,34 @@ private:
 };
 
 template <typename Component_T>
-    requires modules::ecs::component_c<std::remove_const_t<Component_T>>
+    requires ddge::ecs::component_c<std::remove_const_t<Component_T>>
 class OptionalView<Component_T>::Iterator {
     using UnderlyingIterator = std::ranges::iterator_t<Container>;
 
 public:
     using iterator_concept = std::random_access_iterator_tag;
-    using value_type       = modules::ecs::Optional<Component_T>;
+    using value_type       = ddge::ecs::Optional<Component_T>;
     using difference_type  = typename UnderlyingIterator::difference_type;
 
     Iterator() = default;
 
     [[nodiscard]]
-    constexpr auto operator*() const -> modules::ecs::Optional<Component_T>
+    constexpr auto operator*() const -> ddge::ecs::Optional<Component_T>
     {
         return m_optional_iterator
             .transform([](const UnderlyingIterator iterator) {
-                return modules::ecs::Optional{ *iterator };
+                return ddge::ecs::Optional{ *iterator };
             })
             .value_or(std::nullopt);
     }
 
     [[nodiscard]]
     constexpr auto operator[](const difference_type difference) const
-        -> modules::ecs::Optional<Component_T>
+        -> ddge::ecs::Optional<Component_T>
     {
         return m_optional_iterator
             .transform([difference](const UnderlyingIterator iterator) {
-                return modules::ecs::Optional{ *iterator[difference] };
+                return ddge::ecs::Optional{ *iterator[difference] };
             })
             .value_or(std::nullopt);
     }

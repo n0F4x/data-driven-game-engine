@@ -1,6 +1,6 @@
-export module modules.resources;
+export module ddge.modules.resources;
 
-export import modules.resources.Addon;
-export import modules.resources.Plugin;
-export import modules.resources.resource_c;
-export import modules.resources.ResourceManager;
+export import ddge.modules.resources.Addon;
+export import ddge.modules.resources.Plugin;
+export import ddge.modules.resources.resource_c;
+export import ddge.modules.resources.ResourceManager;

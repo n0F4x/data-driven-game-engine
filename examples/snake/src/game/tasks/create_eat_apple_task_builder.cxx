@@ -4,10 +4,10 @@ module;
 
 module snake.game.create_eat_apple_task_builder;
 
-import modules.ecs;
-import modules.scheduler.TaskBuilder;
+import ddge.modules.ecs;
+import ddge.modules.scheduler.TaskBuilder;
 
-import modules.scheduler;
+import ddge.modules.scheduler;
 
 import snake.game.Apple;
 import snake.game.AppleDigested;
@@ -16,18 +16,18 @@ import snake.game.DigestedApple;
 import snake.game.Snake;
 import snake.game.SnakeHead;
 
-using namespace modules::ecs::query_parameter_tags;
-using namespace modules::scheduler::accessors::ecs;
-using namespace modules::scheduler::accessors::events;
-using namespace modules::scheduler::accessors::messages;
+using namespace ddge::ecs::query_parameter_tags;
+using namespace ddge::scheduler::accessors::ecs;
+using namespace ddge::scheduler::accessors::events;
+using namespace ddge::scheduler::accessors::messages;
 
 auto check_apple_digestion(
-    Query<modules::ecs::ID, With<game::SnakeHead>, With<game::Apple>>& eaten_apples,
+    Query<ddge::ecs::ID, With<game::SnakeHead>, With<game::Apple>>& eaten_apples,
     const Recorder<game::AppleDigested>                             event_recorder,
     const Sender<game::DigestedApple>                               message_sender
 ) -> void
 {
-    eaten_apples.for_each([message_sender, event_recorder](const modules::ecs::ID id) {
+    eaten_apples.for_each([message_sender, event_recorder](const ddge::ecs::ID id) {
         event_recorder.record();
         message_sender.send(game::DigestedApple{ .id = id });
     });
@@ -54,11 +54,11 @@ auto grow_snake(
     }
 }
 
-auto game::create_eat_apple_task_builder() -> modules::scheduler::TaskBuilder<void>
+auto game::create_eat_apple_task_builder() -> ddge::scheduler::TaskBuilder<void>
 {
-    return modules::scheduler::start_as(check_apple_digestion)
+    return ddge::scheduler::start_as(check_apple_digestion)
         .then(
-            modules::scheduler::group(
+            ddge::scheduler::group(
                 despawn_digested_apple,   //
                 grow_snake
             )

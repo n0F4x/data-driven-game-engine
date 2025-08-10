@@ -2,9 +2,9 @@ module;
 
 #include <chrono>
 
-export module modules.window.events;
+export module ddge.modules.window.events;
 
-namespace modules::window {
+namespace ddge::window {
 
 export auto poll_events() -> void;
 
@@ -12,4 +12,4 @@ export auto wait_for_events() -> void;
 
 export auto wait_for_events(std::chrono::duration<float> timeout) -> void;
 
-}   // namespace modules::window
+}   // namespace ddge::window

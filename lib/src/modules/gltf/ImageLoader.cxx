@@ -9,22 +9,22 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-module modules.gltf.ImageLoader;
+module ddge.modules.gltf.ImageLoader;
 
-import modules.image.jpeg.Image;
-import modules.image.jpeg.MimeType;
-import modules.image.ktx2.Image;
-import modules.image.ktx2.MimeType;
-import modules.image.png.Image;
-import modules.image.png.MimeType;
+import ddge.modules.image.jpeg.Image;
+import ddge.modules.image.jpeg.MimeType;
+import ddge.modules.image.ktx2.Image;
+import ddge.modules.image.ktx2.MimeType;
+import ddge.modules.image.png.Image;
+import ddge.modules.image.png.MimeType;
 
-import modules.log;
+import ddge.modules.log;
 
 template <
     std::size_t N = std::
-        max({ modules::image::png::MimeType::magic().size_bytes(),
-              modules::image::jpeg::MimeType::magic().size_bytes(),
-              modules::image::ktx2::MimeType::magic().size_bytes() })>
+        max({ ddge::image::png::MimeType::magic().size_bytes(),
+              ddge::image::jpeg::MimeType::magic().size_bytes(),
+              ddge::image::ktx2::MimeType::magic().size_bytes() })>
 [[nodiscard]]
 static auto read_n_from(const std::filesystem::path& filepath)
     -> std::array<std::ifstream::char_type, N>
@@ -56,20 +56,20 @@ static auto mime_type(const std::ranges::range auto& first_characters)
     };
 
     using enum SupportedMimeTypes;
-    if (std::ranges::starts_with(first_bytes, modules::image::png::MimeType::magic())) {
+    if (std::ranges::starts_with(first_bytes, ddge::image::png::MimeType::magic())) {
         return ePNG;
     }
-    if (std::ranges::starts_with(first_bytes, modules::image::jpeg::MimeType::magic())) {
+    if (std::ranges::starts_with(first_bytes, ddge::image::jpeg::MimeType::magic())) {
         return eJPG;
     }
-    if (std::ranges::starts_with(first_bytes, modules::image::ktx2::MimeType::magic())) {
+    if (std::ranges::starts_with(first_bytes, ddge::image::ktx2::MimeType::magic())) {
         return eKTX2;
     }
 
     return std::nullopt;
 }
 
-auto modules::gltf::ImageLoader::load_from(const std::filesystem::path& filepath)
+auto ddge::gltf::ImageLoader::load_from(const std::filesystem::path& filepath)
     -> std::optional<Image>
 {
     return ::mime_type(read_n_from(filepath))
@@ -93,7 +93,7 @@ auto modules::gltf::ImageLoader::load_from(const std::filesystem::path& filepath
         });
 }
 
-auto modules::gltf::ImageLoader::load_from(
+auto ddge::gltf::ImageLoader::load_from(
     const std::span<const std::byte> data,
     const fastgltf::MimeType         mime_type
 ) -> std::optional<Image>

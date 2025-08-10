@@ -3,14 +3,14 @@ module;
 #include <optional>
 #include <vector>
 
-export module modules.renderer.material_system.GraphicsPipelineBuilder;
+export module ddge.modules.renderer.material_system.GraphicsPipelineBuilder;
 
 import vulkan_hpp;
 
-import modules.renderer.material_system.Program;
-import modules.renderer.material_system.VertexLayout;
+import ddge.modules.renderer.material_system.Program;
+import ddge.modules.renderer.material_system.VertexLayout;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 export class GraphicsPipelineBuilder {
 public:
@@ -44,12 +44,12 @@ private:
     ) noexcept -> std::size_t;
 };
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer
 
 export template <>
-struct std::hash<modules::renderer::GraphicsPipelineBuilder> {
+struct std::hash<ddge::renderer::GraphicsPipelineBuilder> {
     [[nodiscard]]
     auto operator()(
-        const modules::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
+        const ddge::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
     ) const noexcept -> std::size_t;
 };

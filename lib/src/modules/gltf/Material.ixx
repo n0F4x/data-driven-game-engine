@@ -7,11 +7,11 @@ module;
 
 #include <fastgltf/types.hpp>
 
-export module modules.gltf.Material;
+export module ddge.modules.gltf.Material;
 
-import modules.gltf.Texture;
+import ddge.modules.gltf.Texture;
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 // NOLINTNEXTLINE(*-member-init)
 export struct Material {
@@ -56,4 +56,4 @@ export struct Material {
     static auto create(const fastgltf::Material& material) -> Material;
 };
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

@@ -4,29 +4,29 @@ module;
 
 #include <vulkan/vulkan_hash.hpp>
 
-module modules.renderer.material_system.GraphicsPipelineBuilder;
+module ddge.modules.renderer.material_system.GraphicsPipelineBuilder;
 
-import utility.hashing;
+import ddge.utility.hashing;
 
-modules::renderer::GraphicsPipelineBuilder::GraphicsPipelineBuilder(Program program) noexcept
+ddge::renderer::GraphicsPipelineBuilder::GraphicsPipelineBuilder(Program program) noexcept
     : m_program{ std::move(program) }
 {}
 
-auto modules::renderer::GraphicsPipelineBuilder::set_program(Program program) noexcept
+auto ddge::renderer::GraphicsPipelineBuilder::set_program(Program program) noexcept
     -> GraphicsPipelineBuilder&
 {
     m_program = std::move(program);
     return *this;
 }
 
-auto modules::renderer::GraphicsPipelineBuilder::add_vertex_layout(VertexLayout vertex_layout)
+auto ddge::renderer::GraphicsPipelineBuilder::add_vertex_layout(VertexLayout vertex_layout)
     -> GraphicsPipelineBuilder&
 {
     m_vertex_layouts.push_back(std::move(vertex_layout));
     return *this;
 }
 
-auto modules::renderer::GraphicsPipelineBuilder::set_primitive_topology(
+auto ddge::renderer::GraphicsPipelineBuilder::set_primitive_topology(
     const vk::PrimitiveTopology primitive_topology
 ) noexcept -> GraphicsPipelineBuilder&
 {
@@ -34,7 +34,7 @@ auto modules::renderer::GraphicsPipelineBuilder::set_primitive_topology(
     return *this;
 }
 
-auto modules::renderer::GraphicsPipelineBuilder::set_cull_mode(
+auto ddge::renderer::GraphicsPipelineBuilder::set_cull_mode(
     const vk::CullModeFlags cull_mode
 ) noexcept -> GraphicsPipelineBuilder&
 {
@@ -42,21 +42,21 @@ auto modules::renderer::GraphicsPipelineBuilder::set_cull_mode(
     return *this;
 }
 
-auto modules::renderer::GraphicsPipelineBuilder::enable_blending() noexcept
+auto ddge::renderer::GraphicsPipelineBuilder::enable_blending() noexcept
     -> GraphicsPipelineBuilder&
 {
     m_enable_blending = true;
     return *this;
 }
 
-auto modules::renderer::GraphicsPipelineBuilder::disable_blending() noexcept
+auto ddge::renderer::GraphicsPipelineBuilder::disable_blending() noexcept
     -> GraphicsPipelineBuilder&
 {
     m_enable_blending = false;
     return *this;
 }
 
-auto modules::renderer::GraphicsPipelineBuilder::set_layout(
+auto ddge::renderer::GraphicsPipelineBuilder::set_layout(
     const vk::PipelineLayout layout
 ) noexcept -> GraphicsPipelineBuilder&
 {
@@ -64,7 +64,7 @@ auto modules::renderer::GraphicsPipelineBuilder::set_layout(
     return *this;
 }
 
-auto modules::renderer::GraphicsPipelineBuilder::set_render_pass(
+auto ddge::renderer::GraphicsPipelineBuilder::set_render_pass(
     const vk::RenderPass render_pass
 ) noexcept -> GraphicsPipelineBuilder&
 {
@@ -72,7 +72,7 @@ auto modules::renderer::GraphicsPipelineBuilder::set_render_pass(
     return *this;
 }
 
-auto modules::renderer::GraphicsPipelineBuilder::build(
+auto ddge::renderer::GraphicsPipelineBuilder::build(
     const vk::Device device,
     const void*      next_create_info_struct
 ) const -> vk::UniquePipeline
@@ -190,7 +190,7 @@ auto modules::renderer::GraphicsPipelineBuilder::build(
 }
 
 [[nodiscard]]
-auto modules::renderer::hash_value(
+auto ddge::renderer::hash_value(
     const GraphicsPipelineBuilder& graphics_pipeline_builder
 ) noexcept -> std::size_t
 {
@@ -204,8 +204,8 @@ auto modules::renderer::hash_value(
     );
 }
 
-auto std::hash<modules::renderer::GraphicsPipelineBuilder>::operator()(
-    const modules::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
+auto std::hash<ddge::renderer::GraphicsPipelineBuilder>::operator()(
+    const ddge::renderer::GraphicsPipelineBuilder& graphics_pipeline_builder
 ) const noexcept -> std::size_t
 {
     return hash_value(graphics_pipeline_builder);

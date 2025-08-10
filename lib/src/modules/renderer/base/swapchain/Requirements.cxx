@@ -3,9 +3,9 @@ module;
 
 #include <VkBootstrap.h>
 
-module modules.renderer.base.swapchain.Swapchain;
+module ddge.modules.renderer.base.swapchain.Swapchain;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 auto Swapchain::Requirements::
     required_instance_settings_are_available(const vkb::SystemInfo&) -> bool
@@ -28,4 +28,4 @@ auto Swapchain::Requirements::enable_optional_device_settings(vkb::PhysicalDevic
     -> void
 {}
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

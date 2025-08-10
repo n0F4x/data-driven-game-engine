@@ -2,13 +2,13 @@ module;
 
 #include <type_traits>
 
-export module modules.events.decays_to_event_c;
+export module ddge.modules.events.decays_to_event_c;
 
-import modules.events.event_c;
+import ddge.modules.events.event_c;
 
-namespace modules::events {
+namespace ddge::events {
 
 export template <typename T>
 concept decays_to_event_c = event_c<std::decay_t<T>>;
 
-}   // namespace modules::events
+}   // namespace ddge::events

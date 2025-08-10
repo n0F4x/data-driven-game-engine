@@ -2,9 +2,9 @@ module;
 
 #include <functional>
 
-export module utility.containers.Ref;
+export module ddge.utility.containers.Ref;
 
-namespace util {
+namespace ddge::util {
 
 export template <typename T>
     requires(!std::is_reference_v<T>)
@@ -22,23 +22,23 @@ private:
     std::reference_wrapper<T> m_ref;
 };
 
-}   // namespace util
+}   // namespace ddge::util
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr util::Ref<T>::Ref(T& ref) : m_ref{ ref }
+constexpr ddge::util::Ref<T>::Ref(T& ref) : m_ref{ ref }
 {}
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-auto util::Ref<T>::get() const -> T&
+auto ddge::util::Ref<T>::get() const -> T&
 {
     return m_ref.get();
 }
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr auto util::Ref<T>::operator->() const -> T*
+constexpr auto ddge::util::Ref<T>::operator->() const -> T*
 {
     return std::addressof(m_ref.get());
 }

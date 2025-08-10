@@ -8,11 +8,11 @@ module;
 
 export module snake.game.move_snake;
 
-import modules.ecs;
+import ddge.modules.ecs;
 
-import modules.scheduler.accessors.ecs.Registry;
-import modules.scheduler.accessors.events.Recorder;
-import modules.scheduler.accessors.resources;
+import ddge.modules.scheduler.accessors.ecs.Registry;
+import ddge.modules.scheduler.accessors.events.Recorder;
+import ddge.modules.scheduler.accessors.resources;
 
 import snake.game.Cell;
 import snake.game.Direction;
@@ -22,8 +22,8 @@ import snake.game.Settings;
 import snake.game.Snake;
 import snake.game.SnakeHead;
 
-using namespace modules::scheduler::accessors;
-using namespace modules::ecs::query_parameter_tags;
+using namespace ddge::scheduler::accessors;
+using namespace ddge::ecs::query_parameter_tags;
 
 namespace game {
 
@@ -63,9 +63,9 @@ auto direction_mixed_with_user_input(game::Direction direction) -> game::Directi
     return direction;
 }
 
-auto correct_snake_direction(modules::ecs::Registry& registry) -> void
+auto correct_snake_direction(ddge::ecs::Registry& registry) -> void
 {
-    modules::ecs::query(registry, [](game::SnakeHead& snake_head) {
+    ddge::ecs::query(registry, [](game::SnakeHead& snake_head) {
         snake_head.direction = direction_mixed_with_user_input(snake_head.direction);
     });
 }
@@ -125,13 +125,13 @@ auto next_position(
 auto move_snake_head(
     const events::Recorder<game::GameOver>& game_over_recorder,
     const game::Settings&                   settings,
-    modules::ecs::Registry&                    registry
+    ddge::ecs::Registry&                    registry
 ) -> void
 {
-    std::optional<modules::ecs::ID> snake_head_id;
-    modules::ecs::query(
+    std::optional<ddge::ecs::ID> snake_head_id;
+    ddge::ecs::query(
         registry,
-        [&snake_head_id](const modules::ecs::ID id, With<game::SnakeHead>) {
+        [&snake_head_id](const ddge::ecs::ID id, With<game::SnakeHead>) {
             assert(!snake_head_id.has_value());
             snake_head_id = id;
         }
@@ -150,11 +150,11 @@ auto move_snake_head(
         return;
     }
 
-    std::optional<modules::ecs::ID> new_snake_head_id;
-    modules::ecs::query(
+    std::optional<ddge::ecs::ID> new_snake_head_id;
+    ddge::ecs::query(
         registry,
         [&new_snake_head_id,
-         &next_pos](const modules::ecs::ID id, const game::Cell& new_cell) {
+         &next_pos](const ddge::ecs::ID id, const game::Cell& new_cell) {
             if (new_cell.position == *next_pos) {
                 assert(!new_snake_head_id.has_value());
                 new_snake_head_id = id;
@@ -171,13 +171,13 @@ auto move_snake_head(
     registry.insert(*new_snake_head_id, snake_head, snake_body);
 }
 
-auto decrease_charges(modules::ecs::Registry& registry) -> void
+auto decrease_charges(ddge::ecs::Registry& registry) -> void
 {
-    std::vector<modules::ecs::ID> lost_cells;
+    std::vector<ddge::ecs::ID> lost_cells;
 
-    modules::ecs::query(
+    ddge::ecs::query(
         registry,
-        [&lost_cells](const modules::ecs::ID id, game::Snake& snake_body, Without<game::SnakeHead>) {
+        [&lost_cells](const ddge::ecs::ID id, game::Snake& snake_body, Without<game::SnakeHead>) {
             snake_body.charge--;
             if (snake_body.charge == 0) {
                 lost_cells.push_back(id);
@@ -185,7 +185,7 @@ auto decrease_charges(modules::ecs::Registry& registry) -> void
         }
     );
 
-    for (const modules::ecs::ID id : lost_cells) {
+    for (const ddge::ecs::ID id : lost_cells) {
         registry.remove<game::Snake>(id);
     }
 }

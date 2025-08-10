@@ -1,6 +1,6 @@
-export module utility.meta.type_traits.type_list.type_list_concat;
+export module ddge.utility.meta.type_traits.type_list.type_list_concat;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename...>
 struct type_list_concat;
@@ -26,4 +26,4 @@ export template <typename... TypeLists_T>
     requires(sizeof...(TypeLists_T) != 0)
 using type_list_concat_t = typename type_list_concat<TypeLists_T...>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

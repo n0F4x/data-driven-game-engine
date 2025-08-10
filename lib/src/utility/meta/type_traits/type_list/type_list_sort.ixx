@@ -3,10 +3,10 @@ module;
 #include <algorithm>
 #include <array>
 
-export module utility.meta.type_traits.type_list.type_list_sort;
+export module ddge.utility.meta.type_traits.type_list.type_list_sort;
 
-import utility.meta.concepts.type_list.type_list;
-import utility.meta.concepts.type_list.type_list_all_of;
+import ddge.utility.meta.concepts.type_list.type_list;
+import ddge.utility.meta.concepts.type_list.type_list_all_of;
 
 template <template <typename> typename Hash_T>
 struct hash_has_valid_member_value {
@@ -50,7 +50,7 @@ struct type_list_sort_impl<TypeList_T<Ts...>, Hash_T> {
         std::make_index_sequence<sizeof...(Ts)>>::type;
 };
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <type_list_c TypeList_T, template <typename> typename Hash_T>
     requires type_list_all_of_c<
@@ -64,4 +64,4 @@ export template <type_list_c TypeList_T, template <typename> typename Hash_T>
     requires type_list_all_of_c<TypeList_T, hash_has_valid_member_value<Hash_T>::template type>
 using type_list_sort_t = typename type_list_sort<TypeList_T, Hash_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

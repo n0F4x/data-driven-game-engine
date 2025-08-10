@@ -1,6 +1,6 @@
-export module utility.meta.type_traits.type_list.type_list_to;
+export module ddge.utility.meta.type_traits.type_list.type_list_to;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename From_T, template <typename> typename To_T>
 struct type_list_to;
@@ -13,4 +13,4 @@ struct type_list_to<From_T<Ts...>, To_T> {
 export template <typename From_T, template <typename> typename To_T>
 using type_list_to_t = typename type_list_to<From_T, To_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

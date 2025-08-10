@@ -2,9 +2,9 @@ module;
 
 #include <concepts>
 
-export module modules.scheduler.provides_c;
+export module ddge.modules.scheduler.provides_c;
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 
 export template <typename Provider_T, typename T>
 concept provides_c = requires(Provider_T& provider) {
@@ -13,4 +13,4 @@ concept provides_c = requires(Provider_T& provider) {
     } -> std::same_as<T>;
 };
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler

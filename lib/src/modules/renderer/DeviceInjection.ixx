@@ -5,14 +5,14 @@ module;
 
 #include <VkBootstrap.h>
 
-export module modules.renderer.DeviceInjection;
+export module ddge.modules.renderer.DeviceInjection;
 
 import vulkan_hpp;
 
-import modules.renderer.base.instance.Instance;
-import modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.instance.Instance;
+import ddge.modules.renderer.base.device.Device;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 export class DeviceInjection {
 public:
@@ -22,8 +22,8 @@ public:
     };
 
     auto operator()(
-        const base::Instance& instance,
-        const vk::UniqueSurfaceKHR&           surface
+        const base::Instance&       instance,
+        const vk::UniqueSurfaceKHR& surface
     ) const -> base::Device;
 
     template <typename Self>
@@ -33,10 +33,10 @@ private:
     std::vector<Dependency> m_dependencies;
 };
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer
 
 template <typename Self>
-auto modules::renderer::DeviceInjection::emplace_dependency(
+auto ddge::renderer::DeviceInjection::emplace_dependency(
     this Self&& self,
     Dependency  dependency
 ) -> Self

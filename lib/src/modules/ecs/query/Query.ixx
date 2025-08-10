@@ -9,19 +9,19 @@ module;
 
 #include "utility/lifetime_bound.hpp"
 
-export module modules.ecs:query.QueryClosure;
+export module ddge.modules.ecs:query.QueryClosure;
 
-import utility.meta.algorithms.apply;
-import utility.meta.algorithms.any_of;
-import utility.meta.algorithms.fold_left_first;
-import utility.containers.OptionalRef;
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.meta.type_traits.type_list.type_list_filter;
-import utility.meta.type_traits.type_list.type_list_transform;
-import utility.meta.type_traits.type_list.type_list_size;
-import utility.meta.type_traits.const_like;
-import utility.meta.type_traits.underlying;
-import utility.TypeList;
+import ddge.utility.meta.algorithms.apply;
+import ddge.utility.meta.algorithms.any_of;
+import ddge.utility.meta.algorithms.fold_left_first;
+import ddge.utility.containers.OptionalRef;
+import ddge.utility.meta.type_traits.type_list.type_list_contains;
+import ddge.utility.meta.type_traits.type_list.type_list_filter;
+import ddge.utility.meta.type_traits.type_list.type_list_transform;
+import ddge.utility.meta.type_traits.type_list.type_list_size;
+import ddge.utility.meta.type_traits.const_like;
+import ddge.utility.meta.type_traits.underlying;
+import ddge.utility.TypeList;
 
 import :ComponentTable;
 import :ComponentTableMap.extensions;
@@ -31,62 +31,66 @@ import :query.queryable_component_c;
 import :query.ToComponent;
 import :Registry;
 
-template <modules::ecs::query_parameter_c T>
+template <ddge::ecs::query_parameter_c T>
 struct IsComponentOrIDOrOptional {
-    constexpr static bool value = modules::ecs::queryable_component_c<std::remove_const_t<T>>
-                               || std::same_as<T, modules::ecs::ID>
-                               || util::meta::specialization_of_c<T, modules::ecs::Optional>;
+    constexpr static bool value =
+        ddge::ecs::queryable_component_c<std::remove_const_t<T>>
+        || std::same_as<T, ddge::ecs::ID>
+        || ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>;
 };
 
-template <modules::ecs::query_parameter_c T>
+template <ddge::ecs::query_parameter_c T>
 struct IsComponentOrWith {
-    constexpr static bool value = modules::ecs::queryable_component_c<std::remove_const_t<T>>
-                               || util::meta::specialization_of_c<T, modules::ecs::With>;
+    constexpr static bool value =
+        ddge::ecs::queryable_component_c<std::remove_const_t<T>>
+        || ddge::util::meta::specialization_of_c<T, ddge::ecs::With>;
 };
 
-template <modules::ecs::query_parameter_c T>
+template <ddge::ecs::query_parameter_c T>
 struct IsComponentOrWithOrOptional {
-    constexpr static bool value = modules::ecs::queryable_component_c<std::remove_const_t<T>>
-                               || util::meta::specialization_of_c<T, modules::ecs::With>
-                               || util::meta::specialization_of_c<T, modules::ecs::Optional>;
+    constexpr static bool value =
+        ddge::ecs::queryable_component_c<std::remove_const_t<T>>
+        || ddge::util::meta::specialization_of_c<T, ddge::ecs::With>
+        || ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>;
 };
 
-template <modules::ecs::query_parameter_c T>
+template <ddge::ecs::query_parameter_c T>
 struct IsWithout {
-    constexpr static bool value = util::meta::specialization_of_c<T, modules::ecs::Without>;
+    constexpr static bool value =
+        ddge::util::meta::specialization_of_c<T, ddge::ecs::Without>;
 };
 
-template <modules::ecs::query_parameter_c T>
+template <ddge::ecs::query_parameter_c T>
 struct IsQueriedParameter : IsComponentOrIDOrOptional<T> {};
 
-template <modules::ecs::query_parameter_c T>
+template <ddge::ecs::query_parameter_c T>
 struct ToQueriedType;
 
-template <modules::ecs::query_parameter_c T>
-    requires modules::ecs::queryable_component_c<std::remove_const_t<T>>
+template <ddge::ecs::query_parameter_c T>
+    requires ddge::ecs::queryable_component_c<std::remove_const_t<T>>
 struct ToQueriedType<T> : std::type_identity<T> {};
 
-template <modules::ecs::query_parameter_c T>
-    requires std::same_as<T, modules::ecs::ID>
+template <ddge::ecs::query_parameter_c T>
+    requires std::same_as<T, ddge::ecs::ID>
 struct ToQueriedType<T> : std::type_identity<T> {};
 
-template <modules::ecs::query_parameter_c T>
-    requires util::meta::specialization_of_c<T, modules::ecs::Optional>
-struct ToQueriedType<T> : std::type_identity<util::meta::underlying_t<T>> {};
+template <ddge::ecs::query_parameter_c T>
+    requires ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>
+struct ToQueriedType<T> : std::type_identity<ddge::util::meta::underlying_t<T>> {};
 
-template <modules::ecs::query_parameter_c T>
+template <ddge::ecs::query_parameter_c T>
 struct ToFunctionParameter;
 
-template <modules::ecs::query_parameter_c T>
-    requires modules::ecs::queryable_component_c<std::remove_const_t<T>>
+template <ddge::ecs::query_parameter_c T>
+    requires ddge::ecs::queryable_component_c<std::remove_const_t<T>>
 struct ToFunctionParameter<T> : std::type_identity<std::add_lvalue_reference_t<T>> {};
 
-template <modules::ecs::query_parameter_c T>
-    requires std::same_as<T, modules::ecs::ID>
+template <ddge::ecs::query_parameter_c T>
+    requires std::same_as<T, ddge::ecs::ID>
 struct ToFunctionParameter<T> : std::type_identity<T> {};
 
-template <modules::ecs::query_parameter_c T>
-    requires util::meta::specialization_of_c<T, modules::ecs::Optional>
+template <ddge::ecs::query_parameter_c T>
+    requires ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>
 struct ToFunctionParameter<T> : std::type_identity<T> {};
 
 template <typename, typename>
@@ -100,10 +104,10 @@ template <typename F, typename FunctionParametersTypeList_T>
 concept invocable_with_c = invocable_with_impl<F, FunctionParametersTypeList_T>::value;
 
 template <typename Component_T>
-    requires modules::ecs::component_c<std::remove_const_t<Component_T>>
+    requires ddge::ecs::component_c<std::remove_const_t<Component_T>>
 struct ToOptionalComponentTableRef {
-    using type = util::OptionalRef<
-        util::meta::
+    using type = ddge::util::OptionalRef<
+        ddge::util::meta::
             const_like_t<ComponentTable<std::remove_const_t<Component_T>>, Component_T>>;
 };
 
@@ -111,14 +115,14 @@ template <typename Component_T>
 using OptionalComponentTableRef = typename ToOptionalComponentTableRef<Component_T>::type;
 
 template <typename Component_T>
-    requires modules::ecs::component_c<std::remove_const_t<Component_T>>
+    requires ddge::ecs::component_c<std::remove_const_t<Component_T>>
 struct ToComponentContainer {
-    using type = util::meta::
+    using type = ddge::util::meta::
         const_like_t<ComponentContainer<std::remove_const_t<Component_T>>, Component_T>;
 };
 
 template <typename Component_T>
-    requires modules::ecs::component_c<std::remove_const_t<Component_T>>
+    requires ddge::ecs::component_c<std::remove_const_t<Component_T>>
 struct ToComponentContainerRef {
     using type = ToComponentContainer<Component_T>&;
 };
@@ -126,9 +130,9 @@ struct ToComponentContainerRef {
 template <typename Component_T>
 using ComponentContainerRef = typename ToComponentContainerRef<Component_T>::type;
 
-namespace modules::ecs {
+namespace ddge::ecs {
 
-export template <modules::ecs::query_parameter_c... Parameters_T>
+export template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 class Query {
     using QueriedParameters =
@@ -171,7 +175,7 @@ public:
     [[nodiscard]]
     constexpr static auto matches_archetype(const Archetype& archetype) -> bool;
 
-    explicit Query(modules::ecs::Registry& registry [[lifetime_bound]]);
+    explicit Query(ddge::ecs::Registry& registry [[lifetime_bound]]);
 
     template <::invocable_with_c<FunctionParameters> F>
     auto operator()(F&& func) -> F;
@@ -183,7 +187,7 @@ private:
     [[nodiscard]]
     static auto fill_included_optional_component_table_refs(
         IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
-        modules::ecs::Registry&                registry
+        ddge::ecs::Registry&                registry
     ) -> bool;
 
     [[nodiscard]]
@@ -196,35 +200,35 @@ private:
 
     template <typename F>
     static auto visit_archetype(
-        modules::ecs::Registry&                registry,
+        ddge::ecs::Registry&                registry,
         IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
         ArchetypeID                         archetype_id,
         F&&                                 func
     ) -> void;
 
     template <typename QueriedParameter_T>
-        requires(std::is_same_v<QueriedParameter_T, modules::ecs::ID>)
+        requires(std::is_same_v<QueriedParameter_T, ddge::ecs::ID>)
     [[nodiscard]]
     static auto queried_type_view_from(
-        modules::ecs::Registry&                registry,
+        ddge::ecs::Registry&                registry,
         IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
         ArchetypeID                         archetype_id
-    ) -> std::span<const modules::ecs::ID>;
+    ) -> std::span<const ddge::ecs::ID>;
 
     template <typename QueriedParameter_T>
-        requires(util::meta::specialization_of_c<QueriedParameter_T, modules::ecs::Optional>)
+        requires(util::meta::specialization_of_c<QueriedParameter_T, ddge::ecs::Optional>)
     [[nodiscard]]
     static auto queried_type_view_from(
-        modules::ecs::Registry&                registry,
+        ddge::ecs::Registry&                registry,
         IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
         ArchetypeID                         archetype_id
     ) -> OptionalView<typename ToComponent<QueriedParameter_T>::type>;
 
     template <typename QueriedParameter_T>
-        requires modules::ecs::queryable_component_c<std::remove_const_t<QueriedParameter_T>>
+        requires ddge::ecs::queryable_component_c<std::remove_const_t<QueriedParameter_T>>
     [[nodiscard]]
     static auto queried_type_view_from(
-        modules::ecs::Registry&                registry,
+        ddge::ecs::Registry&                registry,
         IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
         ArchetypeID                         archetype_id
     )
@@ -238,11 +242,11 @@ private:
     auto cache_component_tables() -> void;
 };
 
-}   // namespace modules::ecs
+}   // namespace ddge::ecs
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-constexpr auto modules::ecs::Query<Parameters_T...>::matches_archetype(
+constexpr auto ddge::ecs::Query<Parameters_T...>::matches_archetype(
     const Archetype& archetype
 ) -> bool
 {
@@ -254,18 +258,19 @@ constexpr auto modules::ecs::Query<Parameters_T...>::matches_archetype(
            });
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-modules::ecs::Query<Parameters_T...>::Query(modules::ecs::Registry& registry)
+ddge::ecs::Query<Parameters_T...>::Query(ddge::ecs::Registry& registry)
     : m_registry_ref{ registry }
 {}
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-template <::invocable_with_c<util::meta::type_list_transform_t<
-    util::meta::type_list_filter_t<util::TypeList<Parameters_T...>, IsQueriedParameter>,
+template <::invocable_with_c<ddge::util::meta::type_list_transform_t<
+    ddge::util::meta::
+        type_list_filter_t<ddge::util::TypeList<Parameters_T...>, IsQueriedParameter>,
     ToFunctionParameter>> F>
-auto modules::ecs::Query<Parameters_T...>::operator()(F&& func) -> F
+auto ddge::ecs::Query<Parameters_T...>::operator()(F&& func) -> F
 {
     cache_component_tables();
     if (!m_acquired_all_included_component_tables) {
@@ -285,9 +290,9 @@ auto modules::ecs::Query<Parameters_T...>::operator()(F&& func) -> F
     return std::forward<F>(func);
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto modules::ecs::Query<Parameters_T...>::count() -> std::size_t
+auto ddge::ecs::Query<Parameters_T...>::count() -> std::size_t
 {
     cache_component_tables();
     if (!m_acquired_all_included_component_tables) {
@@ -316,11 +321,11 @@ auto modules::ecs::Query<Parameters_T...>::count() -> std::size_t
     return result;
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto modules::ecs::Query<Parameters_T...>::fill_included_optional_component_table_refs(
+auto ddge::ecs::Query<Parameters_T...>::fill_included_optional_component_table_refs(
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
-    modules::ecs::Registry&                registry
+    ddge::ecs::Registry&                registry
 ) -> bool
 {
     if (util::meta::any_of<IncludedComponents>(
@@ -351,9 +356,9 @@ auto modules::ecs::Query<Parameters_T...>::fill_included_optional_component_tabl
     return true;
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto modules::ecs::Query<Parameters_T...>::smallest_group_of_required_archetype_ids_from(
+auto ddge::ecs::Query<Parameters_T...>::smallest_group_of_required_archetype_ids_from(
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs
 ) -> std::span<const ArchetypeID>
 {
@@ -373,9 +378,9 @@ auto modules::ecs::Query<Parameters_T...>::smallest_group_of_required_archetype_
     );
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto modules::ecs::Query<Parameters_T...>::matching_archetype_ids_from(
+auto ddge::ecs::Query<Parameters_T...>::matching_archetype_ids_from(
     std::span<const ArchetypeID> archetype_ids
 )
 {
@@ -386,11 +391,11 @@ auto modules::ecs::Query<Parameters_T...>::matching_archetype_ids_from(
            });
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <typename F>
-auto modules::ecs::Query<Parameters_T...>::visit_archetype(
-    modules::ecs::Registry&                registry,
+auto ddge::ecs::Query<Parameters_T...>::visit_archetype(
+    ddge::ecs::Registry&                registry,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     const ArchetypeID                   archetype_id,
     F&&                                 func
@@ -412,25 +417,25 @@ auto modules::ecs::Query<Parameters_T...>::visit_archetype(
     });
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <typename QueriedParameter_T>
-    requires(std::is_same_v<QueriedParameter_T, modules::ecs::ID>)
-auto modules::ecs::Query<Parameters_T...>::queried_type_view_from(
-    modules::ecs::Registry& registry,
+    requires(std::is_same_v<QueriedParameter_T, ddge::ecs::ID>)
+auto ddge::ecs::Query<Parameters_T...>::queried_type_view_from(
+    ddge::ecs::Registry& registry,
     IncludedOptionalComponentTableRefs&,
     const ArchetypeID archetype_id
-) -> std::span<const modules::ecs::ID>
+) -> std::span<const ddge::ecs::ID>
 {
     return registry.m_lookup_tables.get_iterator(archetype_id)->second.ids();
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <typename QueriedParameter_T>
-    requires(util::meta::specialization_of_c<QueriedParameter_T, modules::ecs::Optional>)
-auto modules::ecs::Query<Parameters_T...>::queried_type_view_from(
-    modules::ecs::Registry&,
+    requires(ddge::util::meta::specialization_of_c<QueriedParameter_T, ddge::ecs::Optional>)
+auto ddge::ecs::Query<Parameters_T...>::queried_type_view_from(
+    ddge::ecs::Registry&,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     const ArchetypeID                   archetype_id
 ) -> OptionalView<typename ToComponent<QueriedParameter_T>::type>
@@ -456,12 +461,12 @@ auto modules::ecs::Query<Parameters_T...>::queried_type_view_from(
     };
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
 template <typename QueriedParameter_T>
-    requires modules::ecs::queryable_component_c<std::remove_const_t<QueriedParameter_T>>
-auto modules::ecs::Query<Parameters_T...>::queried_type_view_from(
-    modules::ecs::Registry&,
+    requires ddge::ecs::queryable_component_c<std::remove_const_t<QueriedParameter_T>>
+auto ddge::ecs::Query<Parameters_T...>::queried_type_view_from(
+    ddge::ecs::Registry&,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     const ArchetypeID                   archetype_id
 )
@@ -482,9 +487,9 @@ auto modules::ecs::Query<Parameters_T...>::queried_type_view_from(
             .value_or(std::ranges::ref_view{ empty_container });
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto modules::ecs::Query<Parameters_T...>::cache_component_tables() -> void
+auto ddge::ecs::Query<Parameters_T...>::cache_component_tables() -> void
 {
     if (m_acquired_all_included_component_tables) {
         return;

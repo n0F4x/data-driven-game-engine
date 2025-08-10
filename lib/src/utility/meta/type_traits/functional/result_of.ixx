@@ -2,17 +2,17 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.type_traits.functional.result_of;
+export module ddge.utility.meta.type_traits.functional.result_of;
 
-import utility.meta.concepts.functional.function;
-import utility.meta.concepts.functional.function_pointer;
-import utility.meta.concepts.functional.function_reference;
-import utility.meta.concepts.functional.member_function_pointer;
-import utility.meta.concepts.functional.unambiguous_functor;
-import utility.meta.concepts.functional.unambiguously_invocable;
-import utility.meta.type_traits.functional.signature;
+import ddge.utility.meta.concepts.functional.function;
+import ddge.utility.meta.concepts.functional.function_pointer;
+import ddge.utility.meta.concepts.functional.function_reference;
+import ddge.utility.meta.concepts.functional.member_function_pointer;
+import ddge.utility.meta.concepts.functional.unambiguous_functor;
+import ddge.utility.meta.concepts.functional.unambiguously_invocable;
+import ddge.utility.meta.type_traits.functional.signature;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 template <unambiguously_invocable_c F>
 struct result_of;
@@ -47,4 +47,4 @@ struct result_of<F> {
 export template <typename F>
 using result_of_t = typename result_of<F>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

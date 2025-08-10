@@ -2,12 +2,12 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.concepts.functional.unambiguous_explicit_functor;
+export module ddge.utility.meta.concepts.functional.unambiguous_explicit_functor;
 
-import utility.meta.type_traits.functional.signature;
-import utility.meta.type_traits.type_list.type_list_front;
+import ddge.utility.meta.type_traits.functional.signature;
+import ddge.utility.meta.type_traits.type_list.type_list_front;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename T>
 concept unambiguous_explicit_functor_c =
@@ -19,4 +19,4 @@ concept unambiguous_explicit_functor_c =
             decltype(&std::remove_cvref_t<T>::operator())>>::arguments_t>>,
         std::remove_cvref_t<T>>;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

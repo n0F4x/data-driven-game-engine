@@ -5,8 +5,8 @@ Most game engines use an event system, not just for handling input, but other ki
 
 [,c++]
 ----
-app::create()
-    .plug_in(plugins::Events{})
+ddge::app::create()
+    .plug_in(ddge::plugins::Events{})
     .register_event<WindowClosedEvent>();
 ----
 
@@ -39,8 +39,8 @@ auto say_goodbye(const Reader<WindowClosedEvent>& reader) -> void
 [,c++]
 .Example for events inside the game loop
 ----
-modules::scheduler::loop_until(
-    modules::scheduler::start_as(process_events)
+ddge::scheduler::loop_until(
+    ddge::scheduler::start_as(process_events)
         .then(say_goodbye)
         .then(close_window),
     window_is_open

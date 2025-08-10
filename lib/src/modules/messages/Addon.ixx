@@ -1,11 +1,11 @@
-export module modules.messages.Addon;
+export module ddge.modules.messages.Addon;
 
-import modules.messages.MessageManager;
+import ddge.modules.messages.MessageManager;
 
-namespace modules::messages {
+namespace ddge::messages {
 
 export struct Addon {
     MessageManager message_manager;
 };
 
-}   // namespace addons
+}   // namespace ddge::messages

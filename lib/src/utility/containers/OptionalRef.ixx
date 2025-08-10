@@ -6,17 +6,17 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module utility.containers.OptionalRef;
+export module ddge.utility.containers.OptionalRef;
 
-import utility.contracts;
+import ddge.utility.contracts;
 
-namespace util {
+namespace ddge::util {
 
 export template <typename T>
     requires(!std::is_reference_v<T>)
 class OptionalRef;
 
-}   // namespace util
+}   // namespace ddge::util
 
 template <typename F, typename T>
 concept and_then_func_c =
@@ -27,7 +27,7 @@ template <typename F, typename T>
     requires(std::is_reference_v<T>)
 using transform_result_t = std::conditional_t<
     std::is_reference_v<std::invoke_result_t<F, T>>,
-    util::OptionalRef<std::remove_reference_t<std::invoke_result_t<F, T>>>,
+    ddge::util::OptionalRef<std::remove_reference_t<std::invoke_result_t<F, T>>>,
     std::optional<std::invoke_result_t<F, T>>>;
 
 template <typename F, typename T>
@@ -36,7 +36,7 @@ concept transform_func_c = std::invocable<F&&, T&>;
 template <typename F, typename T>
 concept or_else_func_c = std::constructible_from<std::invoke_result_t<F&&>, T&>;
 
-namespace util {
+namespace ddge::util {
 
 template <typename T>
     requires(!std::is_reference_v<T>)
@@ -77,16 +77,16 @@ private:
     T* m_handle{};
 };
 
-}   // namespace util
+}   // namespace ddge::util
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr util::OptionalRef<T>::OptionalRef(std::nullopt_t) noexcept : OptionalRef{}
+constexpr ddge::util::OptionalRef<T>::OptionalRef(std::nullopt_t) noexcept : OptionalRef{}
 {}
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr util::OptionalRef<T>::OptionalRef(
+constexpr ddge::util::OptionalRef<T>::OptionalRef(
     OptionalRef<std::remove_const_t<T>> other
 ) noexcept
     requires(std::is_const_v<T>)
@@ -96,13 +96,13 @@ constexpr util::OptionalRef<T>::OptionalRef(
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr util::OptionalRef<T>::OptionalRef(T& ref) noexcept
+constexpr ddge::util::OptionalRef<T>::OptionalRef(T& ref) noexcept
     : m_handle{ std::addressof(ref) }
 {}
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr util::OptionalRef<T>::OptionalRef(
+constexpr ddge::util::OptionalRef<T>::OptionalRef(
     const std::optional<std::reference_wrapper<T>>& optional_ref_wrapper
 ) noexcept
     : m_handle{ optional_ref_wrapper.transform([](T& ref) { return std::addressof(ref); }
@@ -111,7 +111,7 @@ constexpr util::OptionalRef<T>::OptionalRef(
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr util::OptionalRef<T>::operator std::optional<std::remove_const_t<T>>(
+constexpr ddge::util::OptionalRef<T>::operator std::optional<std::remove_const_t<T>>(
 ) noexcept(noexcept(T{ std::declval<T&>() }))
 {
     if (has_value()) {
@@ -122,7 +122,7 @@ constexpr util::OptionalRef<T>::operator std::optional<std::remove_const_t<T>>(
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr auto util::OptionalRef<T>::operator->() const -> T*
+constexpr auto ddge::util::OptionalRef<T>::operator->() const -> T*
 {
     PRECOND(m_handle != nullptr);
     return m_handle;
@@ -130,7 +130,7 @@ constexpr auto util::OptionalRef<T>::operator->() const -> T*
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr auto util::OptionalRef<T>::operator*() const -> T&
+constexpr auto ddge::util::OptionalRef<T>::operator*() const -> T&
 {
     PRECOND(m_handle != nullptr);
     return *m_handle;
@@ -138,14 +138,14 @@ constexpr auto util::OptionalRef<T>::operator*() const -> T&
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr auto util::OptionalRef<T>::has_value() const noexcept -> bool
+constexpr auto ddge::util::OptionalRef<T>::has_value() const noexcept -> bool
 {
     return m_handle != nullptr;
 }
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr auto util::OptionalRef<T>::value_or(T& other) const noexcept -> T&
+constexpr auto ddge::util::OptionalRef<T>::value_or(T& other) const noexcept -> T&
 {
     if (has_value()) {
         return *m_handle;
@@ -156,7 +156,7 @@ constexpr auto util::OptionalRef<T>::value_or(T& other) const noexcept -> T&
 template <typename T>
     requires(!std::is_reference_v<T>)
 template <and_then_func_c<T> F>
-constexpr auto util::OptionalRef<T>::and_then(F&& func) const
+constexpr auto ddge::util::OptionalRef<T>::and_then(F&& func) const
     -> std::invoke_result_t<F&&, T&>
 {
     if (has_value()) {
@@ -168,7 +168,7 @@ constexpr auto util::OptionalRef<T>::and_then(F&& func) const
 template <typename T>
     requires(!std::is_reference_v<T>)
 template <transform_func_c<T> F>
-constexpr auto util::OptionalRef<T>::transform(F&& func) const
+constexpr auto ddge::util::OptionalRef<T>::transform(F&& func) const
     -> transform_result_t<F&&, T&>
 {
     if (has_value()) {
@@ -182,7 +182,8 @@ constexpr auto util::OptionalRef<T>::transform(F&& func) const
 template <typename T>
     requires(!std::is_reference_v<T>)
 template <or_else_func_c<T> F>
-constexpr auto util::OptionalRef<T>::or_else(F&& func) const -> std::invoke_result_t<F&&>
+constexpr auto ddge::util::OptionalRef<T>::or_else(F&& func) const
+    -> std::invoke_result_t<F&&>
 {
     if (!has_value()) {
         return std::invoke(std::forward<F>(func));

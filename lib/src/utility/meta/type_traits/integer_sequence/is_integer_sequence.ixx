@@ -3,9 +3,9 @@ module;
 #include <concepts>
 #include <type_traits>
 
-export module utility.meta.type_traits.integer_sequence.is_integer_sequence;
+export module ddge.utility.meta.type_traits.integer_sequence.is_integer_sequence;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename>
 struct is_integer_sequence : std::false_type {};
@@ -20,4 +20,4 @@ struct is_integer_sequence<IntegerSequence_T<Integer_T, integers_T...>> : std::t
 export template <typename T>
 inline constexpr bool is_integer_sequence_v = is_integer_sequence<T>::value;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

@@ -1,16 +1,16 @@
-export module modules.scheduler.accessors.assets.Cached;
+export module ddge.modules.scheduler.accessors.assets.Cached;
 
-import modules.assets;
+import ddge.modules.assets;
 
-import utility.containers.Ref;
+import ddge.utility.containers.Ref;
 
-namespace modules::scheduler::accessors {
+namespace ddge::scheduler::accessors {
 
 inline namespace assets {
 
-export template <modules::assets::loader_c Loader_T>
-class Cached : public util::Ref<modules::assets::Cached<Loader_T>> {
-    using Base = util::Ref<modules::assets::Cached<Loader_T>>;
+export template <ddge::assets::loader_c Loader_T>
+class Cached : public util::Ref<ddge::assets::Cached<Loader_T>> {
+    using Base = util::Ref<ddge::assets::Cached<Loader_T>>;
 
 public:
     using Loader = Loader_T;
@@ -20,4 +20,4 @@ public:
 
 }   // namespace assets
 
-}   // namespace modules::scheduler::accessors
+}   // namespace ddge::scheduler::accessors

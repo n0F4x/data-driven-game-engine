@@ -3,13 +3,13 @@ module;
 
 #include <VkBootstrap.h>
 
-module modules.renderer.model.ModelLayout;
+module ddge.modules.renderer.model.ModelLayout;
 
 // Required extensions:
 //     - VK_KHR_buffer_device_address
 //     - VK_EXT_descriptor_indexing
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 auto ModelLayout::Requirements::required_instance_settings_are_available(
     const vkb::SystemInfo& system_info
@@ -59,4 +59,4 @@ auto ModelLayout::Requirements::enable_optional_device_settings(vkb::PhysicalDev
     -> void
 {}
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer

@@ -4,19 +4,19 @@ module;
 
 export module snake.game.color_cells;
 
-import modules.ecs;
+import ddge.modules.ecs;
 
-import modules.scheduler.accessors.ecs.Query;
+import ddge.modules.scheduler.accessors.ecs.Query;
 
-import utility.containers.OptionalRef;
+import ddge.utility.containers.OptionalRef;
 
 import snake.game.Apple;
 import snake.game.Cell;
 import snake.game.Snake;
 import snake.game.SnakeHead;
 
-using namespace modules::scheduler::accessors;
-using namespace modules::ecs::query_parameter_tags;
+using namespace ddge::scheduler::accessors;
+using namespace ddge::ecs::query_parameter_tags;
 
 namespace game {
 
@@ -35,10 +35,10 @@ auto game::color_cells(
 ) -> void
 {
     cells.for_each(   //
-        [](const util::OptionalRef<const SnakeHead> snake_head,
-           const util::OptionalRef<const Snake>     snake_body,
-           const util::OptionalRef<const Apple>     apple,
-           Cell&                                    cell)   //
+        [](const ddge::util::OptionalRef<const SnakeHead> snake_head,
+           const ddge::util::OptionalRef<const Snake>     snake_body,
+           const ddge::util::OptionalRef<const Apple>     apple,
+           Cell&                                          cell)   //
         {
             if (snake_head.has_value()) {
                 cell.shape.setFillColor(sf::Color{ 76, 187, 23 });

@@ -2,11 +2,11 @@ module;
 
 #include <cstddef>
 
-export module utility.meta.type_traits.integer_sequence.integer_sequence_at;
+export module ddge.utility.meta.type_traits.integer_sequence.integer_sequence_at;
 
-import utility.meta.concepts.integer_sequence.integer_sequence;
+import ddge.utility.meta.concepts.integer_sequence.integer_sequence;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <integer_sequence_c IntegerSequence, std::size_t index_T>
 struct integer_sequence_at;
@@ -24,4 +24,4 @@ export template <integer_sequence_c IntegerSequence, std::size_t index_T>
 inline constexpr auto integer_sequence_at_v =
     integer_sequence_at<IntegerSequence, index_T>::value;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

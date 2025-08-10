@@ -1,13 +1,5 @@
-export module prelude.app;
+export module ddge.prelude.app;
 
-import modules.app.create;
-import modules.app.decays_to_builder_c;
-import modules.app.has_plugins_c;
-
-namespace app {
-
-export using modules::app::create;
-export using modules::app::decays_to_builder_c;
-export using modules::app::has_plugins_c;
-
-}   // namespace app
+export import ddge.modules.app.create;
+export import ddge.modules.app.decays_to_builder_c;
+export import ddge.modules.app.has_plugins_c;

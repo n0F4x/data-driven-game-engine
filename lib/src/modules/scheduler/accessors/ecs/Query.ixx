@@ -3,19 +3,19 @@ module;
 #include <cstddef>
 #include <utility>
 
-export module modules.scheduler.accessors.ecs.Query;
+export module ddge.modules.scheduler.accessors.ecs.Query;
 
-import modules.ecs;
+import ddge.modules.ecs;
 
-namespace modules::scheduler::accessors {
+namespace ddge::scheduler::accessors {
 
 inline namespace ecs {
 
-export template <modules::ecs::query_parameter_c... Parameters_T>
+export template <ddge::ecs::query_parameter_c... Parameters_T>
     requires(sizeof...(Parameters_T) != 0)
 class Query {
 public:
-    explicit Query(modules::ecs::Registry& registry);
+    explicit Query(ddge::ecs::Registry& registry);
     Query(const Query&) = delete("Queries should be taken by reference");
     Query(Query&&)      = default;
 
@@ -26,33 +26,32 @@ public:
     auto count() -> std::size_t;
 
 private:
-    modules::ecs::Query<Parameters_T...> m_query;
+    ddge::ecs::Query<Parameters_T...> m_query;
 };
 
 }   // namespace ecs
 
-}   // namespace modules::scheduler::accessors
+}   // namespace ddge::scheduler::accessors
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires(sizeof...(Parameters_T) != 0)
-modules::scheduler::accessors::ecs::Query<Parameters_T...>::Query(
-    modules::ecs::Registry& registry
+ddge::scheduler::accessors::ecs::Query<Parameters_T...>::Query(
+    ddge::ecs::Registry& registry
 )
     : m_query{ registry }
 {}
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires(sizeof...(Parameters_T) != 0)
 template <typename F>
-auto modules::scheduler::accessors::ecs::Query<Parameters_T...>::for_each(F&& func)
-    -> F
+auto ddge::scheduler::accessors::ecs::Query<Parameters_T...>::for_each(F&& func) -> F
 {
     return m_query(std::forward<F>(func));
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires(sizeof...(Parameters_T) != 0)
-auto modules::scheduler::accessors::Query<Parameters_T...>::count() -> std::size_t
+auto ddge::scheduler::accessors::Query<Parameters_T...>::count() -> std::size_t
 {
     return m_query.count();
 }

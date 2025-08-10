@@ -5,13 +5,13 @@ module;
 
 #include <vk_mem_alloc.h>
 
-module modules.renderer.resources.Buffer;
+module ddge.modules.renderer.resources.Buffer;
 
-import utility.tuple.tuple_drop_back;
+import ddge.utility.tuple.tuple_drop_back;
 
-import modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.allocator.Allocator;
 
-modules::renderer::resources::Buffer::Buffer(
+ddge::renderer::resources::Buffer::Buffer(
     const base::Allocator&         allocator,
     const vk::BufferCreateInfo&    buffer_create_info,
     const VmaAllocationCreateInfo& allocation_create_info
@@ -23,23 +23,23 @@ modules::renderer::resources::Buffer::Buffer(
       ) }
 {}
 
-auto modules::renderer::resources::Buffer::buffer() const -> const base::Buffer&
+auto ddge::renderer::resources::Buffer::buffer() const -> const base::Buffer&
 {
     return m_buffer;
 }
 
-auto modules::renderer::resources::Buffer::allocation() const -> const base::Allocation&
+auto ddge::renderer::resources::Buffer::allocation() const -> const base::Allocation&
 {
     return m_allocation;
 }
 
-auto modules::renderer::resources::Buffer::reset() noexcept -> void
+auto ddge::renderer::resources::Buffer::reset() noexcept -> void
 {
     m_allocation.reset();
     m_buffer.reset();
 }
 
-modules::renderer::resources::Buffer::Buffer(
+ddge::renderer::resources::Buffer::Buffer(
     base::Buffer&&     buffer,
     base::Allocation&& allocation
 ) noexcept
@@ -47,7 +47,7 @@ modules::renderer::resources::Buffer::Buffer(
       m_allocation{ std::move(allocation) }
 {}
 
-auto modules::renderer::resources::Buffer::make_from(
+auto ddge::renderer::resources::Buffer::make_from(
     std::tuple<base::Buffer, base::Allocation>&& tuple
 ) noexcept -> Buffer
 {

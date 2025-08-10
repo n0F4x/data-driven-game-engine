@@ -4,11 +4,11 @@ module;
 #include <cmath>
 #include <concepts>
 
-export module modules.time.VariableTimer;
+export module ddge.modules.time.VariableTimer;
 
-import utility.meta.concepts.specialization_of;
+import ddge.utility.meta.concepts.specialization_of;
 
-namespace modules::time {
+namespace ddge::time {
 
 class VariableTimerBase {};
 
@@ -40,41 +40,41 @@ private:
 export template <typename T>
 concept is_VariableTimer_c = std::derived_from<T, VariableTimerBase>;
 
-}   // namespace modules::time
+}   // namespace ddge::time
 
-template <util::meta::specialization_of_c<std::chrono::duration> Duration_T>
-modules::time::VariableTimer<Duration_T>::VariableTimer(const Duration_T tick_duration)
+template <ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T>
+ddge::time::VariableTimer<Duration_T>::VariableTimer(const Duration_T tick_duration)
     : m_tick_duration{ tick_duration }
 {}
 
-template <util::meta::specialization_of_c<std::chrono::duration> Duration_T>
-auto modules::time::VariableTimer<Duration_T>::delta_ticks() const -> uint32_t
+template <ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T>
+auto ddge::time::VariableTimer<Duration_T>::delta_ticks() const -> uint32_t
 {
     return static_cast<uint32_t>(std::floor(m_delta_time / m_tick_duration));
 }
 
-template <util::meta::specialization_of_c<std::chrono::duration> Duration_T>
-auto modules::time::VariableTimer<Duration_T>::current() const -> Clock::time_point
+template <ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T>
+auto ddge::time::VariableTimer<Duration_T>::current() const -> Clock::time_point
 {
     return m_current;
 }
 
-template <util::meta::specialization_of_c<std::chrono::duration> Duration_T>
-auto modules::time::VariableTimer<Duration_T>::tick_duration() const -> Duration_T
+template <ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T>
+auto ddge::time::VariableTimer<Duration_T>::tick_duration() const -> Duration_T
 {
     return m_tick_duration;
 }
 
-template <util::meta::specialization_of_c<std::chrono::duration> Duration_T>
-auto modules::time::VariableTimer<Duration_T>::adjust_tick_duration(
+template <ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T>
+auto ddge::time::VariableTimer<Duration_T>::adjust_tick_duration(
     const Duration_T tick_duration
 ) -> void
 {
     m_tick_duration = tick_duration;
 }
 
-template <util::meta::specialization_of_c<std::chrono::duration> Duration_T>
-auto modules::time::VariableTimer<Duration_T>::update(const Clock::time_point current)
+template <ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T>
+auto ddge::time::VariableTimer<Duration_T>::update(const Clock::time_point current)
     -> void
 {
     if (delta_ticks() >= 1) {
@@ -94,8 +94,8 @@ auto modules::time::VariableTimer<Duration_T>::update(const Clock::time_point cu
     }
 }
 
-template <util::meta::specialization_of_c<std::chrono::duration> Duration_T>
-auto modules::time::VariableTimer<Duration_T>::reset(const Clock::time_point current) -> void
+template <ddge::util::meta::specialization_of_c<std::chrono::duration> Duration_T>
+auto ddge::time::VariableTimer<Duration_T>::reset(const Clock::time_point current) -> void
 {
     m_current    = current;
     m_delta_time = Delta{};

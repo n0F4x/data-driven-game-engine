@@ -3,10 +3,10 @@ module;
 #include <algorithm>
 #include <array>
 
-export module utility.meta.type_traits.integer_sequence.integer_sequence_sort;
+export module ddge.utility.meta.type_traits.integer_sequence.integer_sequence_sort;
 
-import utility.meta.concepts.integer_sequence.integer_sequence;
-import utility.meta.type_traits.integer_sequence.integer_sequence_size;
+import ddge.utility.meta.concepts.integer_sequence.integer_sequence;
+import ddge.utility.meta.type_traits.integer_sequence.integer_sequence_size;
 
 template <typename IntegerSequence_T, typename IndexSequence_T>
 struct integer_sequence_sort_impl;
@@ -28,7 +28,7 @@ struct integer_sequence_sort_impl<
     using type = IntegerSequence_T<Integer_T, sorted_array[indices_T]...>;
 };
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <integer_sequence_c IntegerSequence_T>
 struct integer_sequence_sort {
@@ -40,4 +40,4 @@ struct integer_sequence_sort {
 export template <integer_sequence_c IntegerSequence_T>
 using integer_sequence_sort_t = typename integer_sequence_sort<IntegerSequence_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

@@ -5,14 +5,14 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module modules.ecs:ComponentTableMap.extensions;
+export module ddge.modules.ecs:ComponentTableMap.extensions;
 
-import utility.containers.Any;
-import utility.meta.algorithms.enumerate;
-import utility.meta.concepts.all_different;
-import utility.meta.concepts.decays_to;
-import utility.meta.concepts.ranges.input_range_of;
-import utility.all_same;
+import ddge.utility.containers.Any;
+import ddge.utility.meta.algorithms.enumerate;
+import ddge.utility.meta.concepts.all_different;
+import ddge.utility.meta.concepts.decays_to;
+import ddge.utility.meta.concepts.ranges.input_range_of;
+import ddge.utility.all_same;
 
 import :ArchetypeID;
 import :component_c;
@@ -24,11 +24,11 @@ import :RecordIndex;
 
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
+         && ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
 auto insert(ComponentTableMap& it, ArchetypeID archetype_id, Components_T&&... components)
     -> RecordIndex;
 
-template <util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
+template <ddge::util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
 auto remove_components(
     ComponentTableMap&    it,
     ComponentIDInputRange component_ids,
@@ -36,8 +36,8 @@ auto remove_components(
     RecordIndex           record_index
 ) -> void;
 
-template <modules::ecs::component_c... Components_T>
-    requires util::meta::all_different_c<Components_T...>
+template <ddge::ecs::component_c... Components_T>
+    requires ddge::util::meta::all_different_c<Components_T...>
 auto remove_components(
     ComponentTableMap& it,
     ArchetypeID        archetype_id,
@@ -46,7 +46,7 @@ auto remove_components(
 
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
+         && ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
 auto replace_components(
     ComponentTableMap& it,
     ArchetypeID        archetype_id,
@@ -64,7 +64,7 @@ auto replace_component(
 
 template <typename Predicate_T, decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
+         && ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
 auto insert_each_component_if(
     ComponentTableMap& it,
     Predicate_T        predicate,
@@ -72,7 +72,7 @@ auto insert_each_component_if(
     Components_T&&... components
 ) -> void;
 
-template <util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
+template <ddge::util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
 auto move_components(
     ComponentTableMap&    it,
     ComponentIDInputRange component_ids,
@@ -81,42 +81,42 @@ auto move_components(
     ArchetypeID           new_archetype_id
 ) -> void;
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto find_component_table(ComponentTableMap& it)
-    -> util::OptionalRef<ComponentTable<Component_T>>;
-template <modules::ecs::component_c Component_T>
+    -> ddge::util::OptionalRef<ComponentTable<Component_T>>;
+template <ddge::ecs::component_c Component_T>
 auto find_component_table(const ComponentTableMap& it)
-    -> util::OptionalRef<const ComponentTable<Component_T>>;
+    -> ddge::util::OptionalRef<const ComponentTable<Component_T>>;
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto get_component(
     ComponentTableMap& it,
     ArchetypeID        archetype_id,
     RecordIndex        record_index
 ) -> Component_T&;
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto get_component(
     const ComponentTableMap& it,
     ArchetypeID              archetype_id,
     RecordIndex              record_index
 ) -> const Component_T&;
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto find_component(
     ComponentTableMap& it,
     ArchetypeID        archetype_id,
     RecordIndex        record_index
-) -> util::OptionalRef<Component_T>;
-template <modules::ecs::component_c Component_T>
+) -> ddge::util::OptionalRef<Component_T>;
+template <ddge::ecs::component_c Component_T>
 auto find_component(
     const ComponentTableMap& it,
     ArchetypeID              archetype_id,
     RecordIndex              record_index
-) -> util::OptionalRef<const Component_T>;
+) -> ddge::util::OptionalRef<const Component_T>;
 
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
+         && ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
 auto insert(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
@@ -124,12 +124,12 @@ auto insert(
 ) -> RecordIndex
 {
     return []<std::same_as<RecordIndex>... Indices_T>(const Indices_T... record_indices) {
-        assert(util::all_same(record_indices...));
+        assert(ddge::util::all_same(record_indices...));
         return record_indices...[0];
     }(it.insert(archetype_id, std::forward<Components_T>(components))...);
 }
 
-template <util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
+template <ddge::util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
 auto remove_components(
     ComponentTableMap&    it,
     ComponentIDInputRange component_ids,
@@ -142,8 +142,8 @@ auto remove_components(
     }
 }
 
-template <modules::ecs::component_c... Components_T>
-    requires util::meta::all_different_c<Components_T...>
+template <ddge::ecs::component_c... Components_T>
+    requires ddge::util::meta::all_different_c<Components_T...>
 auto remove_components(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
@@ -156,7 +156,7 @@ auto remove_components(
 
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
+         && ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
 auto replace_components(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
@@ -184,7 +184,7 @@ auto replace_component(
 
 template <typename Predicate_T, decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
+         && ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
 auto insert_each_component_if(
     ComponentTableMap& it,
     Predicate_T        predicate,
@@ -192,7 +192,7 @@ auto insert_each_component_if(
     Components_T&&... components
 ) -> void
 {
-    util::meta::enumerate<util::TypeList<Components_T...>>(
+    ddge::util::meta::enumerate<ddge::util::TypeList<Components_T...>>(
         [&it,
          &predicate,
          archetype_id,
@@ -204,7 +204,7 @@ auto insert_each_component_if(
     );
 }
 
-template <util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
+template <ddge::util::meta::input_range_of_c<ComponentID> ComponentIDInputRange>
 auto move_components(
     ComponentTableMap&    it,
     ComponentIDInputRange component_ids,
@@ -218,24 +218,25 @@ auto move_components(
     }
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto find_component_table(ComponentTableMap& it)
-    -> util::OptionalRef<ComponentTable<Component_T>>
+    -> ddge::util::OptionalRef<ComponentTable<Component_T>>
 {
     return it.find_component_table(component_id_of<Component_T>())
         .transform([](ErasedComponentTable& erased_component_table) -> decltype(auto) {
-            return util::any_cast<ComponentTable<Component_T>>(erased_component_table);
+            return ddge::util::any_cast<ComponentTable<Component_T>>(erased_component_table
+            );
         });
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto find_component_table(const ComponentTableMap& it)
-    -> util::OptionalRef<const ComponentTable<Component_T>>
+    -> ddge::util::OptionalRef<const ComponentTable<Component_T>>
 {
     return find_component_table<Component_T>(const_cast<ComponentTableMap&>(it));
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto get_component(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
@@ -247,7 +248,7 @@ auto get_component(
     );
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto get_component(
     const ComponentTableMap& it,
     const ArchetypeID        archetype_id,
@@ -259,12 +260,12 @@ auto get_component(
     );
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto find_component(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
     const RecordIndex  record_index
-) -> util::OptionalRef<Component_T>
+) -> ddge::util::OptionalRef<Component_T>
 {
     return it.find_component_table(component_id_of<Component_T>())
         .and_then([archetype_id,
@@ -275,12 +276,12 @@ auto find_component(
         });
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto find_component(
     const ComponentTableMap& it,
     const ArchetypeID        archetype_id,
     const RecordIndex        record_index
-) -> util::OptionalRef<const Component_T>
+) -> ddge::util::OptionalRef<const Component_T>
 {
     return find_component<Component_T>(
         const_cast<ComponentTableMap&>(it), archetype_id, record_index

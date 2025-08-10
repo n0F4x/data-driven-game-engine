@@ -2,18 +2,18 @@ module;
 
 #include <utility>
 
-export module utility.meta.algorithms.apply;
+export module ddge.utility.meta.algorithms.apply;
 
-import utility.meta.concepts.integer_sequence.index_sequence;
-import utility.meta.concepts.type_list.type_list;
-import utility.meta.type_traits.integer_sequence.integer_sequence_to;
-import utility.meta.type_traits.type_list.type_list_at;
-import utility.meta.type_traits.type_list.type_list_size;
-import utility.meta.type_traits.type_list.type_list_to;
-import utility.TypeList;
-import utility.ValueSequence;
+import ddge.utility.meta.concepts.integer_sequence.index_sequence;
+import ddge.utility.meta.concepts.type_list.type_list;
+import ddge.utility.meta.type_traits.integer_sequence.integer_sequence_to;
+import ddge.utility.meta.type_traits.type_list.type_list_at;
+import ddge.utility.meta.type_traits.type_list.type_list_size;
+import ddge.utility.meta.type_traits.type_list.type_list_to;
+import ddge.utility.TypeList;
+import ddge.utility.ValueSequence;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <index_sequence_c IndexSequence_T, typename F>
 constexpr auto apply(F&& func) -> decltype(auto)
@@ -32,4 +32,4 @@ constexpr auto apply(F&& func) -> decltype(auto)
     }(type_list_to_t<TypeList_T, TypeList>{});
 }
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

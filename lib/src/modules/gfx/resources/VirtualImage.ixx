@@ -4,20 +4,20 @@ module;
 
 #include <VkBootstrap.h>
 
-export module modules.gfx.resources.VirtualImage;
+export module ddge.modules.gfx.resources.VirtualImage;
 
 import vulkan_hpp;
 
-import modules.image.Image;
+import ddge.modules.image.Image;
 
-import modules.gfx.resources.Image;
+import ddge.modules.gfx.resources.Image;
 
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.resources.Allocation;
-import modules.renderer.base.resources.Image;
-import modules.renderer.resources.SeqWriteBuffer;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.resources.Allocation;
+import ddge.modules.renderer.base.resources.Image;
+import ddge.modules.renderer.resources.SeqWriteBuffer;
 
-namespace modules::gfx::resources {
+namespace ddge::gfx::resources {
 
 export class VirtualImage {
 public:
@@ -133,7 +133,7 @@ private:
     std::vector<bool> m_to_be_loaded_mask;
     std::vector<bool> m_to_be_unloaded_mask;
 
-    std::optional<modules::renderer::resources::SeqWriteBuffer<>> m_staging_buffer;
+    std::optional<ddge::renderer::resources::SeqWriteBuffer<>> m_staging_buffer;
 
     Image m_debug_image;
 
@@ -150,9 +150,9 @@ private:
     auto bind_memory_blocks(vk::Queue sparse_queue) -> void;
 
     auto upload_new_memory_blocks(
-        const modules::renderer::base::Allocator& allocator,
+        const ddge::renderer::base::Allocator& allocator,
         vk::CommandBuffer                      transfer_command_buffer
     ) -> void;
 };
 
-}   // namespace modules::gfx::resources
+}   // namespace ddge::gfx::resources

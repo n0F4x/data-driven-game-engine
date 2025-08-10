@@ -6,9 +6,9 @@ module;
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float3.hpp>
 
-module modules.gfx.Camera;
+module ddge.modules.gfx.Camera;
 
-namespace modules::gfx {
+namespace ddge::gfx {
 
 auto Camera::set_perspective_projection(
     const double fov_y,
@@ -65,4 +65,4 @@ auto Camera::projection() const noexcept -> const glm::mat4&
     return m_projection;
 }
 
-}   // namespace modules::gfx
+}   // namespace ddge::gfx

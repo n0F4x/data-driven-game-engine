@@ -4,12 +4,12 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-export module modules.app.extensions.RunnablePlugin;
+export module ddge.modules.app.extensions.RunnablePlugin;
 
-import modules.app.decays_to_builder_c;
-import modules.log;
+import ddge.modules.app.decays_to_builder_c;
+import ddge.modules.log;
 
-namespace modules::app {
+namespace ddge::app {
 
 inline namespace extensions {
 
@@ -31,13 +31,13 @@ public:
 
 }   // namespace extensions
 
-}   // namespace modules::app
+}   // namespace ddge::app
 
 template <
-    modules::app::decays_to_builder_c Self_T,
+    ddge::app::decays_to_builder_c Self_T,
     typename... Args_T,
-    modules::app::extensions::runner_c<Self_T, Args_T...> Runner_T>
-constexpr auto modules::app::extensions::RunnablePlugin::run(
+    ddge::app::extensions::runner_c<Self_T, Args_T...> Runner_T>
+constexpr auto ddge::app::extensions::RunnablePlugin::run(
     this Self_T&& self,
     Runner_T&&    runner,
     Args_T&&... args

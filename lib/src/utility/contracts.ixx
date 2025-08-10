@@ -7,9 +7,9 @@ module;
 
 #include <fmt/color.h>
 
-export module utility.contracts;
+export module ddge.utility.contracts;
 
-namespace util {
+namespace ddge::util {
 
 export constexpr auto assert_precondition(
     bool                 condition,
@@ -49,9 +49,9 @@ private:
             -> std::string;
 };
 
-}   // namespace util
+}   // namespace ddge::util
 
-constexpr util::PreconditionViolation::PreconditionViolation(
+constexpr ddge::util::PreconditionViolation::PreconditionViolation(
     const std::source_location location,
     const std::string_view     message
 )
@@ -60,13 +60,13 @@ constexpr util::PreconditionViolation::PreconditionViolation(
       m_message{ message }
 {}
 
-constexpr auto util::PreconditionViolation::headline() -> std::string_view
+constexpr auto ddge::util::PreconditionViolation::headline() -> std::string_view
 {
     constexpr static std::string_view result{ "Precondition violated!" };
     return result;
 }
 
-constexpr auto util::PreconditionViolation::format_location(
+constexpr auto ddge::util::PreconditionViolation::format_location(
     const std::source_location location
 ) -> std::string
 {
@@ -80,7 +80,7 @@ constexpr auto util::PreconditionViolation::format_location(
     );
 }
 
-constexpr auto util::PreconditionViolation::format_what(
+constexpr auto ddge::util::PreconditionViolation::format_what(
     const std::source_location location,
     const std::string_view     message
 ) -> std::string
@@ -94,7 +94,7 @@ constexpr auto util::PreconditionViolation::format_what(
     );
 }
 
-constexpr auto util::assert_precondition(
+constexpr auto ddge::util::assert_precondition(
     const bool                                  condition,
     [[maybe_unused]] const char*                condition_as_string,
     [[maybe_unused]] const std::source_location location
@@ -117,7 +117,7 @@ constexpr auto util::assert_precondition(
     }
 }
 
-constexpr auto util::assert_precondition(
+constexpr auto ddge::util::assert_precondition(
     const bool                                  condition,
     [[maybe_unused]] const char*                condition_as_string,
     [[maybe_unused]] const std::source_location location,
@@ -143,7 +143,7 @@ constexpr auto util::assert_precondition(
 
 module :private;
 
-auto util::PreconditionViolation::print() const -> void
+auto ddge::util::PreconditionViolation::print() const -> void
 {
     fmt::println("{}", fmt::styled(headline(), fmt::fg(fmt::color::orange_red)));
     fmt::println(

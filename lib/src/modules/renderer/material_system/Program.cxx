@@ -3,13 +3,13 @@ module;
 #include <string_view>
 
 
-module modules.renderer.material_system.Program;
+module ddge.modules.renderer.material_system.Program;
 
-import utility.hashing;
+import ddge.utility.hashing;
 
-using namespace modules::renderer;
+using namespace ddge::renderer;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 Program::Program(Shader vertex_shader, Shader fragment_shader) noexcept
     : m_vertex_shader{ std::move(vertex_shader) },
@@ -46,7 +46,7 @@ auto hash_value(const Program& program) noexcept -> std::size_t
     return util::hash_combine(program.m_vertex_shader, program.m_fragment_shader);
 }
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer
 
 auto std::hash<Program>::operator()(const Program& program) const noexcept -> std::size_t
 {

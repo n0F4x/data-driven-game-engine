@@ -3,13 +3,13 @@ module;
 #include <filesystem>
 #include <optional>
 
-module modules.gltf.Model;
+module ddge.modules.gltf.Model;
 
-import utility.hashing;
+import ddge.utility.hashing;
 
-import modules.gltf.Texture;
+import ddge.modules.gltf.Texture;
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 auto Model::hash(
     const std::filesystem::path&     filepath,
@@ -76,4 +76,4 @@ auto Model::root_node_indices() const noexcept -> const std::vector<std::size_t>
     return m_root_node_indices;
 }
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

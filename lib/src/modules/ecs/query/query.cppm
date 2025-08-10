@@ -1,4 +1,4 @@
-export module modules.ecs:query;
+export module ddge.modules.ecs:query;
 
 export import :query.component_query_parameter_c;
 export import :query.OptionalView;

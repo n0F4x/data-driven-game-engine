@@ -6,9 +6,9 @@ module;
 
 #include <functional>
 
-export module utility.hashing;
+export module ddge.utility.hashing;
 
-namespace util {
+namespace ddge::util {
 
 export template <template <typename> typename Hasher, typename T>
 auto hash_combine(std::size_t& seed, const T& v) -> void
@@ -64,4 +64,4 @@ auto hash_range(std::ranges::sized_range auto&& range) -> std::size_t
     return hash_range<std::hash>(std::forward<decltype(range)>(range));
 }
 
-}   // namespace util
+}   // namespace ddge::util

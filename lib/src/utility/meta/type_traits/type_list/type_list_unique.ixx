@@ -2,13 +2,13 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.type_traits.type_list.type_list_unique;
+export module ddge.utility.meta.type_traits.type_list.type_list_unique;
 
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.meta.type_traits.type_list.type_list_drop_back;
-import utility.meta.type_traits.type_list.type_list_push_back;
+import ddge.utility.meta.type_traits.type_list.type_list_contains;
+import ddge.utility.meta.type_traits.type_list.type_list_drop_back;
+import ddge.utility.meta.type_traits.type_list.type_list_push_back;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T>
 struct type_list_unique;
@@ -33,4 +33,4 @@ struct type_list_unique<TypeList_T<Ts...>>
 export template <typename TypeList_T>
 using type_list_unique_t = typename type_list_unique<TypeList_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

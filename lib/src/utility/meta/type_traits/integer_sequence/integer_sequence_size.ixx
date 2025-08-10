@@ -2,11 +2,11 @@ module;
 
 #include <cstddef>
 
-export module utility.meta.type_traits.integer_sequence.integer_sequence_size;
+export module ddge.utility.meta.type_traits.integer_sequence.integer_sequence_size;
 
-import utility.meta.concepts.integer_sequence.integer_sequence;
+import ddge.utility.meta.concepts.integer_sequence.integer_sequence;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <integer_sequence_c IntegerSequence_T>
 struct integer_sequence_size;
@@ -23,4 +23,4 @@ export template <integer_sequence_c IntegerSequence_T>
 inline constexpr std::size_t integer_sequence_size_v =
     integer_sequence_size<IntegerSequence_T>::value;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

@@ -1,4 +1,4 @@
-export module modules.scheduler.accessors.ecs;
+export module ddge.modules.scheduler.accessors.ecs;
 
-export import modules.scheduler.accessors.ecs.Query;
-export import modules.scheduler.accessors.ecs.Registry;
+export import ddge.modules.scheduler.accessors.ecs.Query;
+export import ddge.modules.scheduler.accessors.ecs.Registry;

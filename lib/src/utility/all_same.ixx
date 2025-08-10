@@ -2,11 +2,11 @@ module;
 
 #include <utility>
 
-export module utility.all_same;
+export module ddge.utility.all_same;
 
-import utility.meta.type_traits.all_same;
+import ddge.utility.meta.type_traits.all_same;
 
-namespace util {
+namespace ddge::util {
 
 template <typename T, typename... Ts>
 [[nodiscard]]
@@ -27,4 +27,4 @@ constexpr auto all_same(Ts&&... values) -> bool
     }
 }
 
-}   // namespace util
+}   // namespace ddge::util

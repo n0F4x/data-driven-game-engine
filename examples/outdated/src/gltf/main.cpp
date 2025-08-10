@@ -4,10 +4,9 @@
 
 #include <VkBootstrap.h>
 
-import prelude;
-import modules;
-
-import utility.Size;
+import ddge.prelude;
+import ddge.modules;
+import ddge.utility.Size;
 
 import examples.base.DemoBase;
 import demos.gltf.DemoApp;
@@ -15,7 +14,7 @@ import demos.gltf;
 
 [[nodiscard]]
 static auto require_vulkan_version(const uint32_t major, const uint32_t minor)
-    -> modules::renderer::Requirement
+    -> ddge::renderer::Requirement
 {
     return { .enable_instance_settings = [=](const vkb::SystemInfo&,
                                              vkb::InstanceBuilder& instance_builder) {
@@ -30,7 +29,8 @@ try {
             .parent_path()
             .parent_path()
             .parent_path()
-        / "assets" / "models"
+        / "assets"
+        / "models"
         // / "BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
         // / "Avocado/glTF-Binary/Avocado.glb",
         // / "PrimitiveModeNormalsTest/glTF/PrimitiveModeNormalsTest.gltf",
@@ -41,13 +41,15 @@ try {
     };
     constexpr static float movement_speed{ 10 };
 
-    app::create()
-        .plug_in(plugins::Functional{})
-        .plug_in(plugins::Resources{})
-        .plug_in(plugins::Runnable{})
-        .insert_resource(modules::cache::Cache{})
-        .insert_resource(modules::window::Window(util::Size2i{ 1'280, 720 }, "My window"))
-        .transform(modules::renderer::setup.require(::require_vulkan_version(1, 1)))
+    ddge::app::create()
+        .plug_in(ddge::plugins::Functional{})
+        .plug_in(ddge::plugins::Resources{})
+        .plug_in(ddge::plugins::Runnable{})
+        .insert_resource(ddge::cache::Cache{})
+        .insert_resource(
+            ddge::window::Window(ddge::util::Size2i{ 1'280, 720 }, "My window")
+        )
+        .transform(ddge::renderer::setup.require(::require_vulkan_version(1, 1)))
         .inject_resource(
             examples::base::DemoBasePlugin{ .movement_speed = movement_speed }
         )

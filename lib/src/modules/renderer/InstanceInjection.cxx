@@ -11,14 +11,14 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-module modules.renderer.InstanceInjection;
+module ddge.modules.renderer.InstanceInjection;
 
 import vulkan_hpp;
 
-import modules.app.App;
-import config.vulkan;
-import modules.log;
-import modules.renderer.base.instance.Instance;
+import ddge.modules.app.App;
+import ddge.config.vulkan;
+import ddge.modules.log;
+import ddge.modules.renderer.base.instance.Instance;
 
 // ReSharper disable once CppEnforceFunctionDeclarationStyle
 static VKAPI_ATTR VkBool32 VKAPI_CALL debug_message(
@@ -136,7 +136,7 @@ static auto
     ::set_debug_messenger(instance_builder);
 }
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 const InstanceInjection::Dependency InstanceInjection::debug_dependency{
     .required_settings_are_available = ::required_debug_settings_are_available,
@@ -191,4 +191,4 @@ auto InstanceInjection::operator()() const -> base::Instance
     return instance;
 }
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer

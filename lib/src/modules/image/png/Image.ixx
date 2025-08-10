@@ -4,13 +4,13 @@ module;
 #include <span>
 #include <vector>
 
-export module modules.image.png.Image;
+export module ddge.modules.image.png.Image;
 
 import vulkan_hpp;
 
-import modules.image.Image;
+import ddge.modules.image.Image;
 
-namespace modules::image::png {
+namespace ddge::image::png {
 
 export class Image : public image::Image {
 public:
@@ -61,4 +61,4 @@ private:
     ) noexcept;
 };
 
-}   // namespace modules::image::png
+}   // namespace ddge::image::png

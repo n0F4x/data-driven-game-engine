@@ -1,10 +1,10 @@
-export module utility.containers;
+export module ddge.utility.containers;
 
-export import utility.containers.Any;
-export import utility.containers.SlotMultiMap;
-export import utility.containers.MoveOnlyAny;
-export import utility.containers.OptionalRef;
-export import utility.containers.Ref;
-export import utility.containers.SlotMap;
-export import utility.containers.SparseSet;
-export import utility.containers.StackedTuple;
+export import ddge.utility.containers.Any;
+export import ddge.utility.containers.SlotMultiMap;
+export import ddge.utility.containers.MoveOnlyAny;
+export import ddge.utility.containers.OptionalRef;
+export import ddge.utility.containers.Ref;
+export import ddge.utility.containers.SlotMap;
+export import ddge.utility.containers.SparseSet;
+export import ddge.utility.containers.StackedTuple;

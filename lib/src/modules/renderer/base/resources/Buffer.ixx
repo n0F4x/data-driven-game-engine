@@ -2,11 +2,11 @@ module;
 
 #include "utility/lifetime_bound.hpp"
 
-export module modules.renderer.base.resources.Buffer;
+export module ddge.modules.renderer.base.resources.Buffer;
 
 import vulkan_hpp;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 export class Buffer {
 public:
@@ -26,4 +26,4 @@ private:
     vk::DeviceSize   m_size{};
 };
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

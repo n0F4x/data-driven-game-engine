@@ -2,12 +2,12 @@ module;
 
 #include <array>
 
-module modules.renderer.model.ModelLayout;
+module ddge.modules.renderer.model.ModelLayout;
 
 [[nodiscard]]
 static auto create_descriptor_set_layouts(
     const vk::Device                                                  device,
-    const modules::renderer::ModelLayout::DescriptorSetLayoutCreateInfo& info
+    const ddge::renderer::ModelLayout::DescriptorSetLayoutCreateInfo& info
 ) -> std::array<vk::UniqueDescriptorSetLayout, 3>
 {
     constexpr static std::array bindings_0{
@@ -101,7 +101,7 @@ static auto create_descriptor_set_layouts(
     };
 }
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 auto ModelLayout::descriptor_set_count() noexcept -> uint32_t
 {
@@ -169,4 +169,4 @@ auto ModelLayout::push_constant_range() noexcept -> vk::PushConstantRange
     };
 }
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer

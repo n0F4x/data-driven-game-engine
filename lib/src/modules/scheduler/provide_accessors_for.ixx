@@ -3,18 +3,18 @@ module;
 #include <tuple>
 #include <type_traits>
 
-export module modules.scheduler.provide_accessors_for;
+export module ddge.modules.scheduler.provide_accessors_for;
 
-import modules.scheduler.accessor_c;
-import modules.scheduler.Nexus;
+import ddge.modules.scheduler.accessor_c;
+import ddge.modules.scheduler.Nexus;
 
-import utility.meta.concepts.functional.unambiguously_invocable;
-import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.type_list.type_list_transform;
-import utility.meta.type_traits.type_list.type_list_to;
-import utility.TypeList;
+import ddge.utility.meta.concepts.functional.unambiguously_invocable;
+import ddge.utility.meta.type_traits.functional.arguments_of;
+import ddge.utility.meta.type_traits.type_list.type_list_transform;
+import ddge.utility.meta.type_traits.type_list.type_list_to;
+import ddge.utility.TypeList;
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 
 template <typename F>
 using accessors_tuple_for_t = util::meta::type_list_to_t<
@@ -25,10 +25,10 @@ export template <util::meta::unambiguously_invocable_c F>
 [[nodiscard]]
 auto provide_accessors_for(Nexus& nexus) -> accessors_tuple_for_t<F>;
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler
 
-template <util::meta::unambiguously_invocable_c F>
-auto modules::scheduler::provide_accessors_for(modules::scheduler::Nexus& nexus)
+template <ddge::util::meta::unambiguously_invocable_c F>
+auto ddge::scheduler::provide_accessors_for(ddge::scheduler::Nexus& nexus)
     -> accessors_tuple_for_t<F>
 {
     return

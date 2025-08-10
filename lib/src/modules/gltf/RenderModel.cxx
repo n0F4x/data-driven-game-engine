@@ -14,24 +14,24 @@ module;
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
 
-module modules.gltf.RenderModel;
+module ddge.modules.gltf.RenderModel;
 
-import modules.gltf.Image;
-import modules.gltf.Material;
-import modules.gltf.Mesh;
-import modules.gltf.Texture;
+import ddge.modules.gltf.Image;
+import ddge.modules.gltf.Material;
+import ddge.modules.gltf.Mesh;
+import ddge.modules.gltf.Texture;
 
-import modules.renderer.base.device.Device;
-import modules.renderer.base.resources.Buffer;
-import modules.renderer.base.resources.Image;
-import modules.renderer.material_system.GraphicsPipelineBuilder;
-import modules.renderer.material_system.Program;
-import modules.renderer.material_system.Shader;
-import modules.renderer.material_system.ShaderModule;
-import modules.renderer.model.ModelLayout;
-import modules.renderer.resources.Buffer;
-import modules.renderer.resources.RandomAccessBuffer;
-import modules.renderer.resources.SeqWriteBuffer;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.resources.Buffer;
+import ddge.modules.renderer.base.resources.Image;
+import ddge.modules.renderer.material_system.GraphicsPipelineBuilder;
+import ddge.modules.renderer.material_system.Program;
+import ddge.modules.renderer.material_system.Shader;
+import ddge.modules.renderer.material_system.ShaderModule;
+import ddge.modules.renderer.model.ModelLayout;
+import ddge.modules.renderer.resources.Buffer;
+import ddge.modules.renderer.resources.RandomAccessBuffer;
+import ddge.modules.renderer.resources.SeqWriteBuffer;
 
 struct ShaderVertex {
     glm::vec3 position;
@@ -86,9 +86,9 @@ struct ShaderMaterial {
 template <typename T>
 [[nodiscard]]
 static auto create_staging_buffer(
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     const std::span<T>                     data
-) -> std::optional<modules::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>>
+) -> std::optional<ddge::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>>
 {
     if (data.empty()) {
         return std::nullopt;
@@ -99,17 +99,17 @@ static auto create_staging_buffer(
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
 
-    return modules::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{
+    return ddge::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{
         allocator, staging_buffer_create_info, data.data()
     };
 }
 
 [[nodiscard]]
 static auto create_gpu_only_buffer(
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     const vk::BufferUsageFlags             usage_flags,
     const uint32_t                         size
-) -> std::optional<modules::renderer::resources::Buffer>
+) -> std::optional<ddge::renderer::resources::Buffer>
 {
     if (size == 0) {
         return std::nullopt;
@@ -119,25 +119,25 @@ static auto create_gpu_only_buffer(
         .size = size, .usage = usage_flags | vk::BufferUsageFlagBits::eTransferDst
     };
 
-    return modules::renderer::resources::Buffer{ allocator, buffer_create_info };
+    return ddge::renderer::resources::Buffer{ allocator, buffer_create_info };
 }
 
 template <typename UniformBlock>
 [[nodiscard]]
-static auto create_buffer(const modules::renderer::base::Allocator& allocator)
-    -> modules::renderer::resources::RandomAccessBuffer<UniformBlock>
+static auto create_buffer(const ddge::renderer::base::Allocator& allocator)
+    -> ddge::renderer::resources::RandomAccessBuffer<UniformBlock>
 {
     constexpr static vk::BufferCreateInfo buffer_create_info = {
         .size = sizeof(UniformBlock), .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    return modules::renderer::resources::RandomAccessBuffer<UniformBlock>{
+    return ddge::renderer::resources::RandomAccessBuffer<UniformBlock>{
         allocator, buffer_create_info
     };
 }
 
 [[nodiscard]]
-static auto convert_material(const modules::gltf::Material& material) noexcept
+static auto convert_material(const ddge::gltf::Material& material) noexcept
     -> ShaderMaterial
 {
     return ShaderMaterial{
@@ -148,12 +148,12 @@ static auto convert_material(const modules::gltf::Material& material) noexcept
                     ShaderTextureInfo{
                         .index =
                             material.pbr_metallic_roughness.base_color_texture_info
-                                .transform([](const modules::gltf::TextureInfo& texture_info
+                                .transform([](const ddge::gltf::TextureInfo& texture_info
                                            ) { return texture_info.texture_index; })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                         .texCoord =
                             material.pbr_metallic_roughness.base_color_texture_info
-                                .transform([](const modules::gltf::TextureInfo& texture_info
+                                .transform([](const ddge::gltf::TextureInfo& texture_info
                                            ) { return texture_info.tex_coord_index; })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                     }, .metallicFactor  = material.pbr_metallic_roughness.metallic_factor,
@@ -163,30 +163,30 @@ static auto convert_material(const modules::gltf::Material& material) noexcept
                         .index =
                             material.pbr_metallic_roughness
                                 .metallic_roughness_texture_info
-                                .transform([](const modules::gltf::TextureInfo& texture_info
+                                .transform([](const ddge::gltf::TextureInfo& texture_info
                                            ) { return texture_info.texture_index; })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                         .texCoord =
                             material.pbr_metallic_roughness
                                 .metallic_roughness_texture_info
-                                .transform([](const modules::gltf::TextureInfo& texture_info
+                                .transform([](const ddge::gltf::TextureInfo& texture_info
                                            ) { return texture_info.tex_coord_index; })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                     }, },
         .normalTexture =
             ShaderNormalTextureInfo{
                                        .index = material.normal_texture_info
-                             .transform([](const modules::gltf::Material::NormalTextureInfo&
+                             .transform([](const ddge::gltf::Material::NormalTextureInfo&
                                                texture_info
                                         ) { return texture_info.texture_index; })
                              .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord = material.normal_texture_info
-                                .transform([](const modules::gltf::Material::
+                                .transform([](const ddge::gltf::Material::
                                                   NormalTextureInfo& texture_info
                                            ) { return texture_info.tex_coord_index; })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                                        .scale = material.normal_texture_info
-                             .transform([](const modules::gltf::Material::NormalTextureInfo&
+                             .transform([](const ddge::gltf::Material::NormalTextureInfo&
                                                texture_info
                                         ) { return texture_info.scale; })
                              .value_or(1.f),
@@ -194,17 +194,17 @@ static auto convert_material(const modules::gltf::Material& material) noexcept
         .occlusionTexture =
             ShaderOcclusionTextureInfo{
                                        .index = material.occlusion_texture_info
-                             .transform([](const modules::gltf::Material::
+                             .transform([](const ddge::gltf::Material::
                                                OcclusionTextureInfo& texture_info
                                         ) { return texture_info.texture_index; })
                              .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord = material.occlusion_texture_info
-                                .transform([](const modules::gltf::Material::
+                                .transform([](const ddge::gltf::Material::
                                                   OcclusionTextureInfo& texture_info
                                            ) { return texture_info.tex_coord_index; })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                                        .strength = material.occlusion_texture_info
-                                .transform([](const modules::gltf::Material::
+                                .transform([](const ddge::gltf::Material::
                                                   OcclusionTextureInfo& texture_info
                                            ) { return texture_info.strength; })
                                 .value_or(1.f),
@@ -212,17 +212,17 @@ static auto convert_material(const modules::gltf::Material& material) noexcept
         .emissiveTexture =
             ShaderTextureInfo{
                                        .index = material.emissive_texture_info
-                             .transform([](const modules::gltf::TextureInfo& texture_info) {
+                             .transform([](const ddge::gltf::TextureInfo& texture_info) {
                                  return texture_info.texture_index;
                              })
                              .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord = material.emissive_texture_info
-                                .transform([](const modules::gltf::TextureInfo& texture_info
+                                .transform([](const ddge::gltf::TextureInfo& texture_info
                                            ) { return texture_info.tex_coord_index; })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                                        },
         .emissiveFactor = material.emissive_factor,
-        .alphaCutoff    = material.alpha_mode == modules::gltf::Material::AlphaMode::eMask
+        .alphaCutoff    = material.alpha_mode == ddge::gltf::Material::AlphaMode::eMask
                             ? material.alpha_cutoff
                             : -1.f,
     };
@@ -233,14 +233,14 @@ static auto create_base_descriptor_set(
     const vk::Device              device,
     const vk::DescriptorSetLayout descriptor_set_layout,
     const vk::DescriptorPool      descriptor_pool,
-    const modules::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& vertex_uniform,
-    const modules::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&
+    const ddge::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& vertex_uniform,
+    const ddge::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>&
                       transform_uniform,
     const vk::Sampler default_sampler,
-    const modules::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& texture_uniform,
-    const modules::renderer::resources::RandomAccessBuffer<ShaderMaterial>&
+    const ddge::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& texture_uniform,
+    const ddge::renderer::resources::RandomAccessBuffer<ShaderMaterial>&
         default_material_uniform,
-    const modules::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& material_uniform
+    const ddge::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>& material_uniform
 ) -> vk::UniqueDescriptorSet
 {
     const vk::DescriptorSetAllocateInfo descriptor_set_allocate_info{
@@ -387,10 +387,10 @@ static auto create_image_descriptor_set(
 }
 
 [[nodiscard]]
-static auto to_mag_filter(const modules::gltf::Sampler::MagFilter mag_filter) noexcept
+static auto to_mag_filter(const ddge::gltf::Sampler::MagFilter mag_filter) noexcept
     -> vk::Filter
 {
-    using enum modules::gltf::Sampler::MagFilter;
+    using enum ddge::gltf::Sampler::MagFilter;
     switch (mag_filter) {
         case eNearest: return vk::Filter::eNearest;
         case eLinear:  return vk::Filter::eLinear;
@@ -399,10 +399,10 @@ static auto to_mag_filter(const modules::gltf::Sampler::MagFilter mag_filter) no
 }
 
 [[nodiscard]]
-static auto to_min_filter(const modules::gltf::Sampler::MinFilter min_filter) noexcept
+static auto to_min_filter(const ddge::gltf::Sampler::MinFilter min_filter) noexcept
     -> vk::Filter
 {
-    using enum modules::gltf::Sampler::MinFilter;
+    using enum ddge::gltf::Sampler::MinFilter;
     switch (min_filter) {
         case eNearest:              return vk::Filter::eNearest;
         case eLinear:               return vk::Filter::eLinear;
@@ -415,10 +415,10 @@ static auto to_min_filter(const modules::gltf::Sampler::MinFilter min_filter) no
 }
 
 [[nodiscard]]
-static auto to_mipmap_mode(const modules::gltf::Sampler::MinFilter min_filter) noexcept
+static auto to_mipmap_mode(const ddge::gltf::Sampler::MinFilter min_filter) noexcept
     -> vk::SamplerMipmapMode
 {
-    using enum modules::gltf::Sampler::MinFilter;
+    using enum ddge::gltf::Sampler::MinFilter;
     switch (min_filter) {
         case eNearest:              [[fallthrough]];
         case eLinear:               return vk::SamplerMipmapMode::eLinear;
@@ -431,10 +431,10 @@ static auto to_mipmap_mode(const modules::gltf::Sampler::MinFilter min_filter) n
 }
 
 [[nodiscard]]
-static auto to_address_mode(const modules::gltf::Sampler::WrapMode wrap_mode) noexcept
+static auto to_address_mode(const ddge::gltf::Sampler::WrapMode wrap_mode) noexcept
     -> vk::SamplerAddressMode
 {
-    using enum modules::gltf::Sampler::WrapMode;
+    using enum ddge::gltf::Sampler::WrapMode;
     switch (wrap_mode) {
         case eClampToEdge:    return vk::SamplerAddressMode::eClampToEdge;
         case eMirroredRepeat: return vk::SamplerAddressMode::eMirroredRepeat;
@@ -445,8 +445,8 @@ static auto to_address_mode(const modules::gltf::Sampler::WrapMode wrap_mode) no
 
 [[nodiscard]]
 static auto create_sampler(
-    const modules::renderer::base::Device& device,
-    const modules::gltf::Sampler&          sampler_info
+    const ddge::renderer::base::Device& device,
+    const ddge::gltf::Sampler&          sampler_info
 ) -> vk::UniqueSampler
 {
     const vk::PhysicalDeviceLimits limits{
@@ -526,10 +526,10 @@ static auto create_sampler_descriptor_set(
 }
 
 [[nodiscard]]
-static auto convert(const modules::gltf::Mesh::Primitive::Topology topology)
+static auto convert(const ddge::gltf::Mesh::Primitive::Topology topology)
     -> vk::PrimitiveTopology
 {
-    using enum modules::gltf::Mesh::Primitive::Topology;
+    using enum ddge::gltf::Mesh::Primitive::Topology;
     switch (topology) {
         case ePoints:     return vk::PrimitiveTopology::ePointList;
         case eLineStrips: return vk::PrimitiveTopology::eLineStrip;
@@ -546,8 +546,8 @@ static auto convert(const modules::gltf::Mesh::Primitive::Topology topology)
 }
 
 [[nodiscard]]
-static auto create_program(const vk::Device device, modules::cache::Cache& cache)
-    -> modules::renderer::Program
+static auto create_program(const vk::Device device, ddge::cache::Cache& cache)
+    -> ddge::renderer::Program
 {
     static const std::filesystem::path shader_path{
         std::filesystem::path{ std::source_location::current().file_name() }.parent_path()
@@ -558,17 +558,17 @@ static auto create_program(const vk::Device device, modules::cache::Cache& cache
     static const std::filesystem::path fragment_shader_path{ shader_path
                                                              / "pbr.frag.spv" };
 
-    return modules::renderer::Program{
-        modules::renderer::Shader{ cache.lazy_emplace<const modules::renderer::ShaderModule>(
-            modules::renderer::ShaderModule::hash(vertex_shader_path),
+    return ddge::renderer::Program{
+        ddge::renderer::Shader{ cache.lazy_emplace<const ddge::renderer::ShaderModule>(
+            ddge::renderer::ShaderModule::hash(vertex_shader_path),
             [device]() {
-                return modules::renderer::ShaderModule::load(device, vertex_shader_path);
+                return ddge::renderer::ShaderModule::load(device, vertex_shader_path);
             }
         ) },
-        modules::renderer::Shader{ cache.lazy_emplace<const modules::renderer::ShaderModule>(
-            modules::renderer::ShaderModule::hash(fragment_shader_path),
+        ddge::renderer::Shader{ cache.lazy_emplace<const ddge::renderer::ShaderModule>(
+            ddge::renderer::ShaderModule::hash(fragment_shader_path),
             [device]() {
-                return modules::renderer::ShaderModule::load(device, fragment_shader_path);
+                return ddge::renderer::ShaderModule::load(device, fragment_shader_path);
             }
         ) }
     };
@@ -577,13 +577,13 @@ static auto create_program(const vk::Device device, modules::cache::Cache& cache
 [[nodiscard]]
 static auto create_pipeline(
     const vk::Device                                   device,
-    const modules::gltf::RenderModel::PipelineCreateInfo& create_info,
-    const modules::gltf::Mesh::Primitive                  primitive,
-    const modules::gltf::Material                         material,
-    modules::cache::Cache&                                cache
-) -> modules::cache::Handle<vk::UniquePipeline>
+    const ddge::gltf::RenderModel::PipelineCreateInfo& create_info,
+    const ddge::gltf::Mesh::Primitive                  primitive,
+    const ddge::gltf::Material                         material,
+    ddge::cache::Cache&                                cache
+) -> ddge::cache::Handle<vk::UniquePipeline>
 {
-    modules::renderer::GraphicsPipelineBuilder builder{ ::create_program(device, cache) };
+    ddge::renderer::GraphicsPipelineBuilder builder{ ::create_program(device, cache) };
 
     builder.set_layout(create_info.layout);
     builder.set_render_pass(create_info.render_pass);
@@ -591,7 +591,7 @@ static auto create_pipeline(
     builder.set_cull_mode(
         material.double_sided ? vk::CullModeFlagBits::eNone : vk::CullModeFlagBits::eBack
     );
-    if (material.alpha_mode == modules::gltf::Material::AlphaMode::eBlend) {
+    if (material.alpha_mode == ddge::gltf::Material::AlphaMode::eBlend) {
         builder.enable_blending();
     }
 
@@ -600,12 +600,12 @@ static auto create_pipeline(
     return cache.lazy_emplace<vk::UniquePipeline>(
         hash,
         std::bind_front(
-            &modules::renderer::GraphicsPipelineBuilder::build, builder, device, nullptr
+            &ddge::renderer::GraphicsPipelineBuilder::build, builder, device, nullptr
         )
     );
 }
 
-auto modules::gltf::RenderModel::create_loader(
+auto ddge::gltf::RenderModel::create_loader(
     const renderer::base::Device&                     device,
     const renderer::base::Allocator&                  allocator,
     const std::span<const vk::DescriptorSetLayout, 3> descriptor_set_layouts,
@@ -1051,7 +1051,7 @@ auto modules::gltf::RenderModel::create_loader(
     };
 }
 
-auto modules::gltf::RenderModel::update(
+auto ddge::gltf::RenderModel::update(
     const gfx::Camera&               camera,
     const renderer::base::Allocator& allocator,
     const vk::Queue                  sparse_queue,
@@ -1081,7 +1081,7 @@ auto modules::gltf::RenderModel::update(
     );
 }
 
-auto modules::gltf::RenderModel::draw(
+auto ddge::gltf::RenderModel::draw(
     const vk::CommandBuffer  graphics_command_buffer,
     const vk::PipelineLayout pipeline_layout
 ) const noexcept -> void
@@ -1137,7 +1137,7 @@ auto modules::gltf::RenderModel::draw(
     }
 }
 
-modules::gltf::RenderModel::RenderModel(
+ddge::gltf::RenderModel::RenderModel(
     const vk::Device                                             device,
     std::optional<renderer::resources::Buffer>&&                 index_buffer,
     std::optional<renderer::resources::Buffer>&&                 vertex_buffer,

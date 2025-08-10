@@ -4,14 +4,14 @@ module;
 
 export module demos.virtual_texture.init;
 
-import modules.image.Image;
-import modules.gfx.resources.VirtualImage;
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.device.Device;
-import modules.renderer.resources.Buffer;
-import modules.renderer.resources.Image;
-import modules.renderer.resources.RandomAccessBuffer;
-import modules.renderer.scene.Scene;
+import ddge.modules.image.Image;
+import ddge.modules.gfx.resources.VirtualImage;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.resources.Buffer;
+import ddge.modules.renderer.resources.Image;
+import ddge.modules.renderer.resources.RandomAccessBuffer;
+import ddge.modules.renderer.scene.Scene;
 
 import demos.virtual_texture.Camera;
 import demos.virtual_texture.VirtualTexture;
@@ -31,13 +31,13 @@ auto create_pipeline_layout(
 export [[nodiscard]]
 auto create_depth_image(
     vk::PhysicalDevice                     physical_device,
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     vk::Extent2D                           swapchain_extent
-) -> modules::renderer::resources::Image;
+) -> ddge::renderer::resources::Image;
 
 export [[nodiscard]]
 auto create_depth_image_view(
-    const modules::renderer::base::Device& device,
+    const ddge::renderer::base::Device& device,
     vk::Image                           depth_image
 ) -> vk::UniqueImageView;
 
@@ -51,38 +51,38 @@ auto create_pipeline(
 ) -> vk::UniquePipeline;
 
 export [[nodiscard]]
-auto create_camera_buffer(const modules::renderer::base::Allocator& allocator)
-    -> modules::renderer::resources::RandomAccessBuffer<Camera>;
+auto create_camera_buffer(const ddge::renderer::base::Allocator& allocator)
+    -> ddge::renderer::resources::RandomAccessBuffer<Camera>;
 
 export [[nodiscard]]
 auto create_virtual_image(
-    const modules::renderer::base::Device&    device,
-    const modules::renderer::base::Allocator& allocator,
-    std::unique_ptr<modules::image::Image>&&  source
-) -> modules::gfx::resources::VirtualImage;
+    const ddge::renderer::base::Device&    device,
+    const ddge::renderer::base::Allocator& allocator,
+    std::unique_ptr<ddge::image::Image>&&  source
+) -> ddge::gfx::resources::VirtualImage;
 
 export [[nodiscard]]
-auto create_virtual_image_sampler(const modules::renderer::base::Device& device)
+auto create_virtual_image_sampler(const ddge::renderer::base::Device& device)
     -> vk::UniqueSampler;
 
 export [[nodiscard]]
 auto create_virtual_texture_info_buffer(
-    const modules::renderer::base::Allocator&    allocator,
-    const modules::gfx::resources::VirtualImage& virtual_image
-) -> modules::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>;
+    const ddge::renderer::base::Allocator&    allocator,
+    const ddge::gfx::resources::VirtualImage& virtual_image
+) -> ddge::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>;
 
 export [[nodiscard]]
 auto create_virtual_texture_blocks_buffer(
-    const modules::renderer::base::Allocator&    allocator,
-    const modules::gfx::resources::VirtualImage& virtual_image
-) -> modules::renderer::resources::Buffer;
+    const ddge::renderer::base::Allocator&    allocator,
+    const ddge::gfx::resources::VirtualImage& virtual_image
+) -> ddge::renderer::resources::Buffer;
 
 export [[nodiscard]]
 auto create_virtual_texture_blocks_uniform(
     vk::Device                             device,
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     vk::Buffer                             virtual_blocks_buffer
-) -> modules::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>;
+) -> ddge::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>;
 
 export [[nodiscard]]
 auto create_debug_texture_descriptor_set(

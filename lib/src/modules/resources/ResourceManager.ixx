@@ -2,16 +2,16 @@ module;
 
 #include <utility>
 
-export module modules.resources.ResourceManager;
+export module ddge.modules.resources.ResourceManager;
 
-import modules.resources.resource_c;
-import modules.store.Store;
+import ddge.modules.resources.resource_c;
+import ddge.modules.store.Store;
 
-import utility.containers.OptionalRef;
-import utility.meta.type_traits.const_like;
-import utility.meta.type_traits.forward_like;
+import ddge.utility.containers.OptionalRef;
+import ddge.utility.meta.type_traits.const_like;
+import ddge.utility.meta.type_traits.forward_like;
 
-namespace modules::resources {
+namespace ddge::resources {
 
 export class ResourceManager {
 public:
@@ -32,31 +32,31 @@ public:
     auto contains() const noexcept -> bool;
 
 private:
-    modules::store::Store m_store;
+    ddge::store::Store m_store;
 };
 
-}   // namespace modules::resources
+}   // namespace ddge::resources
 
-modules::resources::ResourceManager::ResourceManager(store::Store&& store)
+ddge::resources::ResourceManager::ResourceManager(store::Store&& store)
     : m_store{ std::move(store) }
 {}
 
-template <modules::resources::resource_c Resource_T, typename Self_T>
-auto modules::resources::ResourceManager::find(this Self_T& self) noexcept
+template <ddge::resources::resource_c Resource_T, typename Self_T>
+auto ddge::resources::ResourceManager::find(this Self_T& self) noexcept
     -> util::OptionalRef<util::meta::const_like_t<Resource_T, Self_T>>
 {
     return self.m_store.template find<Resource_T>();
 }
 
-template <modules::resources::resource_c Resource_T, typename Self_T>
-auto modules::resources::ResourceManager::at(this Self_T&& self)
+template <ddge::resources::resource_c Resource_T, typename Self_T>
+auto ddge::resources::ResourceManager::at(this Self_T&& self)
     -> util::meta::forward_like_t<Resource_T, Self_T>
 {
     return std::forward_like<Self_T>(self.m_store).template at<Resource_T>();
 }
 
-template <modules::resources::resource_c Resource_T>
-auto modules::resources::ResourceManager::contains() const noexcept -> bool
+template <ddge::resources::resource_c Resource_T>
+auto ddge::resources::ResourceManager::contains() const noexcept -> bool
 {
     return m_store.contains<Resource_T>();
 }

@@ -5,11 +5,11 @@ module;
 
 #include <VkBootstrap.h>
 
-export module modules.renderer.InstanceInjection;
+export module ddge.modules.renderer.InstanceInjection;
 
-import modules.renderer.base.instance.Instance;
+import ddge.modules.renderer.base.instance.Instance;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 export class InstanceInjection {
 public:
@@ -29,10 +29,10 @@ private:
     std::vector<Dependency> m_dependencies;
 };
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer
 
 template <typename Self>
-auto modules::renderer::InstanceInjection::emplace_dependency(
+auto ddge::renderer::InstanceInjection::emplace_dependency(
     this Self&& self,
     Dependency  dependency
 ) -> Self

@@ -2,16 +2,16 @@ module;
 
 #include <functional>
 
-export module utility.meta.algorithms.fold_left_first;
+export module ddge.utility.meta.algorithms.fold_left_first;
 
-import utility.meta.algorithms.apply;
-import utility.meta.concepts.integer_sequence.index_sequence;
-import utility.meta.concepts.type_list.type_list;
-import utility.meta.type_traits.integer_sequence.integer_sequence_size;
-import utility.meta.type_traits.type_list.type_list_at;
-import utility.meta.type_traits.type_list.type_list_size;
+import ddge.utility.meta.algorithms.apply;
+import ddge.utility.meta.concepts.integer_sequence.index_sequence;
+import ddge.utility.meta.concepts.type_list.type_list;
+import ddge.utility.meta.type_traits.integer_sequence.integer_sequence_size;
+import ddge.utility.meta.type_traits.type_list.type_list_at;
+import ddge.utility.meta.type_traits.type_list.type_list_size;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <index_sequence_c IndexSequence_T, typename Transform_T, typename Operation_T>
     requires(integer_sequence_size_v<IndexSequence_T> != 0)
@@ -47,4 +47,4 @@ constexpr auto fold_left_first(Transform_T transform, Operation_T operation)
     );
 }
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

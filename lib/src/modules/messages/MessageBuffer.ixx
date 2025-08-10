@@ -2,13 +2,13 @@ module;
 
 #include <vector>
 
-export module modules.messages.MessageBuffer;
+export module ddge.modules.messages.MessageBuffer;
 
-import modules.messages.message_c;
+import ddge.modules.messages.message_c;
 
-namespace modules::messages {
+namespace ddge::messages {
 
 export template <message_c Message_T>
 using MessageBuffer = std::vector<Message_T>;
 
-}   // namespace modules::messages
+}   // namespace ddge::messages

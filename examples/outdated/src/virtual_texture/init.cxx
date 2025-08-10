@@ -13,24 +13,24 @@ module;
 
 module demos.virtual_texture.init;
 
-import modules.cache.Handle;
+import ddge.modules.cache.Handle;
 
-import modules.image.Image;
+import ddge.modules.image.Image;
 
-import modules.gfx.resources.VirtualImage;
+import ddge.modules.gfx.resources.VirtualImage;
 
-import modules.renderer.base.device.Device;
-import modules.renderer.material_system.GraphicsPipelineBuilder;
-import modules.renderer.material_system.Program;
-import modules.renderer.material_system.Shader;
-import modules.renderer.material_system.ShaderModule;
-import modules.renderer.material_system.VertexLayout;
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.resources.copy_operations;
-import modules.renderer.base.resources.Image;
-import modules.renderer.resources.Buffer;
-import modules.renderer.resources.Image;
-import modules.renderer.resources.RandomAccessBuffer;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.material_system.GraphicsPipelineBuilder;
+import ddge.modules.renderer.material_system.Program;
+import ddge.modules.renderer.material_system.Shader;
+import ddge.modules.renderer.material_system.ShaderModule;
+import ddge.modules.renderer.material_system.VertexLayout;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.resources.copy_operations;
+import ddge.modules.renderer.base.resources.Image;
+import ddge.modules.renderer.resources.Buffer;
+import ddge.modules.renderer.resources.Image;
+import ddge.modules.renderer.resources.RandomAccessBuffer;
 
 import examples.base.init;
 
@@ -123,9 +123,9 @@ static auto find_depth_format(const vk::PhysicalDevice physical_device) -> vk::F
 
 auto demo::init::create_depth_image(
     const vk::PhysicalDevice               physical_device,
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     const vk::Extent2D                     swapchain_extent
-) -> modules::renderer::resources::Image
+) -> ddge::renderer::resources::Image
 {
     const vk::ImageCreateInfo image_create_info = {
         .imageType   = vk::ImageType::e2D,
@@ -144,13 +144,13 @@ auto demo::init::create_depth_image(
         .priority = 1.f,
     };
 
-    return modules::renderer::resources::Image{ allocator,
+    return ddge::renderer::resources::Image{ allocator,
                                              image_create_info,
                                              allocation_create_info };
 }
 
 auto demo::init::create_depth_image_view(
-    const modules::renderer::base::Device& device,
+    const ddge::renderer::base::Device& device,
     const vk::Image                     depth_image
 ) -> vk::UniqueImageView
 {
@@ -173,7 +173,7 @@ auto demo::init::create_depth_image_view(
 static auto create_program(
     const vk::Device       device,
     const std::string_view fragment_shader_file_name
-) -> modules::renderer::Program
+) -> ddge::renderer::Program
 {
     static const std::filesystem::path shader_path{
         std::filesystem::path{ std::source_location::current().file_name() }.parent_path()
@@ -183,14 +183,14 @@ static auto create_program(
     const std::filesystem::path fragment_shader_path{ shader_path
                                                       / fragment_shader_file_name };
 
-    return modules::renderer::Program{
-        modules::renderer::Shader{
-            modules::cache::make_handle<const modules::renderer::ShaderModule>(
-                modules::renderer::ShaderModule::load(device, vertex_shader_path)
+    return ddge::renderer::Program{
+        ddge::renderer::Shader{
+            ddge::cache::make_handle<const ddge::renderer::ShaderModule>(
+                ddge::renderer::ShaderModule::load(device, vertex_shader_path)
             ) },
-        modules::renderer::Shader{
-            modules::cache::make_handle<const modules::renderer::ShaderModule>(
-                modules::renderer::ShaderModule::load(device, fragment_shader_path)
+        ddge::renderer::Shader{
+            ddge::cache::make_handle<const ddge::renderer::ShaderModule>(
+                ddge::renderer::ShaderModule::load(device, fragment_shader_path)
             ) }
     };
 }
@@ -209,21 +209,21 @@ auto demo::init::create_pipeline(
         .depthAttachmentFormat   = depth_format,
     };
 
-    return modules::renderer::GraphicsPipelineBuilder{
+    return ddge::renderer::GraphicsPipelineBuilder{
         ::create_program(device, fragment_shader_file_name)
     }
         .set_layout(layout)
         .add_vertex_layout(
-            modules::renderer::VertexLayout{ sizeof(Vertex), vk::VertexInputRate::eVertex }
+            ddge::renderer::VertexLayout{ sizeof(Vertex), vk::VertexInputRate::eVertex }
                 .add_attribute(
-                    modules::renderer::VertexAttribute{
+                    ddge::renderer::VertexAttribute{
                         .location = 0,
                         .format   = vk::Format::eR32G32B32Sfloat,
                         .offset   = 0,
                     }
                 )
                 .add_attribute(
-                    modules::renderer::VertexAttribute{
+                    ddge::renderer::VertexAttribute{
                         .location = 1,
                         .format   = vk::Format::eR32G32Sfloat,
                         .offset   = offsetof(Vertex, uv),
@@ -235,22 +235,22 @@ auto demo::init::create_pipeline(
         .build(device, &dynamic_rendering_create_info);
 }
 
-auto demo::init::create_camera_buffer(const modules::renderer::base::Allocator& allocator)
-    -> modules::renderer::resources::RandomAccessBuffer<Camera>
+auto demo::init::create_camera_buffer(const ddge::renderer::base::Allocator& allocator)
+    -> ddge::renderer::resources::RandomAccessBuffer<Camera>
 {
     constexpr vk::BufferCreateInfo buffer_create_info = {
         .size = sizeof(Camera), .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    return modules::renderer::resources::RandomAccessBuffer<Camera>{ allocator,
+    return ddge::renderer::resources::RandomAccessBuffer<Camera>{ allocator,
                                                                   buffer_create_info };
 }
 
 auto demo::init::create_virtual_image(
-    const modules::renderer::base::Device&    device,
-    const modules::renderer::base::Allocator& allocator,
-    std::unique_ptr<modules::image::Image>&&  source
-) -> modules::gfx::resources::VirtualImage
+    const ddge::renderer::base::Device&    device,
+    const ddge::renderer::base::Allocator& allocator,
+    std::unique_ptr<ddge::image::Image>&&  source
+) -> ddge::gfx::resources::VirtualImage
 {
     const vk::UniqueCommandPool command_pool{ examples::base::init::create_command_pool(
         device.get(), device.info().get_queue_index(vkb::QueueType::graphics).value()
@@ -266,15 +266,15 @@ auto demo::init::create_virtual_image(
     constexpr static vk::CommandBufferBeginInfo begin_info{};
     command_buffer.begin(begin_info);
 
-    modules::gfx::resources::VirtualImage::Loader virtual_image_loader{
+    ddge::gfx::resources::VirtualImage::Loader virtual_image_loader{
         device.physical_device(), device.get(), allocator, *source
     };
 
-    modules::gfx::resources::VirtualImage virtual_image{ std::move(virtual_image_loader)(
+    ddge::gfx::resources::VirtualImage virtual_image{ std::move(virtual_image_loader)(
         device.physical_device(),
         device.info().get_queue(vkb::QueueType::graphics).value(),
         command_buffer,
-        modules::renderer::base::Image::State{
+        ddge::renderer::base::Image::State{
             .stage_mask  = vk::PipelineStageFlagBits::eFragmentShader,
             .access_mask = vk::AccessFlagBits::eShaderRead,
             .layout      = vk::ImageLayout::eShaderReadOnlyOptimal,
@@ -299,7 +299,7 @@ auto demo::init::create_virtual_image(
     return virtual_image;
 }
 
-auto demo::init::create_virtual_image_sampler(const modules::renderer::base::Device& device)
+auto demo::init::create_virtual_image_sampler(const ddge::renderer::base::Device& device)
     -> vk::UniqueSampler
 {
     const vk::PhysicalDeviceLimits limits{
@@ -322,16 +322,16 @@ auto demo::init::create_virtual_image_sampler(const modules::renderer::base::Dev
 }
 
 auto demo::init::create_virtual_texture_info_buffer(
-    const modules::renderer::base::Allocator&    allocator,
-    const modules::gfx::resources::VirtualImage& virtual_image
-) -> modules::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
+    const ddge::renderer::base::Allocator&    allocator,
+    const ddge::gfx::resources::VirtualImage& virtual_image
+) -> ddge::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
 {
     constexpr vk::BufferCreateInfo buffer_create_info = {
         .size  = sizeof(VirtualTextureInfo),
         .usage = vk::BufferUsageFlagBits::eUniformBuffer
     };
 
-    modules::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
+    ddge::renderer::resources::RandomAccessBuffer<VirtualTextureInfo>
         virtual_texture_info_buffer{ allocator, buffer_create_info };
 
     const glm::uvec2 base_extent{
@@ -356,9 +356,9 @@ auto demo::init::create_virtual_texture_info_buffer(
 }
 
 auto demo::init::create_virtual_texture_blocks_buffer(
-    const modules::renderer::base::Allocator&    allocator,
-    const modules::gfx::resources::VirtualImage& virtual_image
-) -> modules::renderer::resources::Buffer
+    const ddge::renderer::base::Allocator&    allocator,
+    const ddge::gfx::resources::VirtualImage& virtual_image
+) -> ddge::renderer::resources::Buffer
 {
     const vk::BufferCreateInfo buffer_create_info = {
         .size  = virtual_image.blocks().size_bytes(),
@@ -372,14 +372,14 @@ auto demo::init::create_virtual_texture_blocks_buffer(
         .usage = VMA_MEMORY_USAGE_AUTO,
     };
 
-    modules::renderer::resources::Buffer virtual_texture_blocks_buffer{
+    ddge::renderer::resources::Buffer virtual_texture_blocks_buffer{
         allocator, buffer_create_info, allocation_create_info
     };
 
     const std::vector<uint32_t> virtual_texture_blocks(virtual_image.blocks().size());
-    modules::renderer::base::copy(
+    ddge::renderer::base::copy(
         virtual_texture_blocks.data(),
-        modules::renderer::base::CopyRegion{
+        ddge::renderer::base::CopyRegion{
             .allocation = virtual_texture_blocks_buffer.allocation(),
         },
         virtual_texture_blocks.size() * sizeof(uint32_t)
@@ -390,9 +390,9 @@ auto demo::init::create_virtual_texture_blocks_buffer(
 
 auto demo::init::create_virtual_texture_blocks_uniform(
     const vk::Device                       device,
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     const vk::Buffer                       virtual_blocks_buffer
-) -> modules::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
+) -> ddge::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
 {
     constexpr vk::BufferCreateInfo buffer_create_info = {
         .size = sizeof(vk::DeviceAddress), .usage = vk::BufferUsageFlagBits::eUniformBuffer
@@ -402,7 +402,7 @@ auto demo::init::create_virtual_texture_blocks_uniform(
         .buffer = virtual_blocks_buffer,
     };
 
-    modules::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
+    ddge::renderer::resources::RandomAccessBuffer<vk::DeviceAddress>
         virtual_texture_block_uniform{ allocator, buffer_create_info };
 
     virtual_texture_block_uniform.set(device.getBufferAddress(buffer_device_address_info));

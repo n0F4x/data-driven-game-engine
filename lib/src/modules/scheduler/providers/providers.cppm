@@ -1,8 +1,8 @@
-export module modules.scheduler.providers;
+export module ddge.modules.scheduler.providers;
 
-export import modules.scheduler.providers.AssetProvider;
-export import modules.scheduler.providers.ECSProvider;
-export import modules.scheduler.providers.EventProvider;
-export import modules.scheduler.providers.ResourceProvider;
-export import modules.scheduler.providers.MessageProvider;
-export import modules.scheduler.providers.StateProvider;
+export import ddge.modules.scheduler.providers.AssetProvider;
+export import ddge.modules.scheduler.providers.ECSProvider;
+export import ddge.modules.scheduler.providers.EventProvider;
+export import ddge.modules.scheduler.providers.ResourceProvider;
+export import ddge.modules.scheduler.providers.MessageProvider;
+export import ddge.modules.scheduler.providers.StateProvider;

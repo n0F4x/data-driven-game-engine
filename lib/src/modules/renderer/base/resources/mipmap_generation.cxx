@@ -3,11 +3,11 @@ module;
 #include <ranges>
 
 
-module modules.renderer.base.resources.mipmap_generation;
+module ddge.modules.renderer.base.resources.mipmap_generation;
 
-import modules.renderer.base.resources.Image;
+import ddge.modules.renderer.base.resources.Image;
 
-auto modules::renderer::base::generate_mipmaps(
+auto ddge::renderer::base::generate_mipmaps(
     const vk::PhysicalDevice physical_device,
     const vk::CommandBuffer  graphics_command_buffer,
     Image&                   image,

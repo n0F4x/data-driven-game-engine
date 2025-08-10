@@ -5,8 +5,8 @@ The base of an application is the scheduler, which is responsible for running th
 [,c++]
 ."Hello World!" using the scheduler
 ----
-app::create()
-    .plug_in(plugins::Scheduler{})
+ddge::app::create()
+    .plug_in(ddge::plugins::Scheduler{})
     .run([] { std::println("Hello World!"); });
 ----
 
@@ -22,10 +22,10 @@ auto say_hi() -> void {
     std::println("Hi! 👋");
 }
 
-app::create()
-    .plug_in(plugins::Scheduler{})
+ddge::app::create()
+    .plug_in(ddge::plugins::Scheduler{})
     .run(
-        modules::scheduler::start_as(say_hello)
+        ddge::scheduler::start_as(say_hello)
             .then(say_hi)
     );
 ----
@@ -62,7 +62,7 @@ Most accessors store only a reference, so it is fine to take them by value; howe
 [,c++]
 .Example of a more complicated schedule
 ----
-namespace sch = modules::schedule;
+namespace sch = ddge::schedule;
 
 auto schedule =
     sch::start_as(initialize_app)
@@ -83,7 +83,7 @@ Where `+game_is_running+` may be defined as +
 
 [,c++]
 ----
-using namespace modules::scheduler::accessors::resources;
+using namespace ddge::scheduler::accessors::resources;
 
 auto game_is_running(Resource<Window> window) -> bool
 {

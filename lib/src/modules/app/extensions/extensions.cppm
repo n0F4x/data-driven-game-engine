@@ -1,5 +1,5 @@
-export module modules.app.extensions;
+export module ddge.modules.app.extensions;
 
-export import modules.app.extensions.AddonsPlugin;
-export import modules.app.extensions.FunctionalPlugin;
-export import modules.app.extensions.RunnablePlugin;
+export import ddge.modules.app.extensions.AddonsPlugin;
+export import ddge.modules.app.extensions.FunctionalPlugin;
+export import ddge.modules.app.extensions.RunnablePlugin;

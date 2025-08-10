@@ -2,11 +2,11 @@ module;
 
 #include <concepts>
 
-export module modules.scheduler.provider_c;
+export module ddge.modules.scheduler.provider_c;
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 
 export template <typename T, typename App_T>
 concept provider_c = std::constructible_from<T, App_T&>;
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler

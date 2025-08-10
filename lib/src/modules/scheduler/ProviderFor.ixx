@@ -2,15 +2,15 @@ module;
 
 #include <string>
 
-export module modules.scheduler.ProviderFor;
+export module ddge.modules.scheduler.ProviderFor;
 
-import modules.scheduler.accessor_c;
+import ddge.modules.scheduler.accessor_c;
 
-import utility.meta.reflection.name_of;
+import ddge.utility.meta.reflection.name_of;
 
 using namespace std::string_literals;
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 export template <accessor_c Accessor_T>
 struct ProviderFor {
     static_assert(
@@ -22,4 +22,4 @@ struct ProviderFor {
 export template <accessor_c Accessor_T>
 using provider_for_t = typename ProviderFor<Accessor_T>::type;
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler

@@ -4,9 +4,9 @@ module;
 #include <cstring>
 #include <span>
 
-module modules.renderer.base.resources.copy_operations;
+module ddge.modules.renderer.base.resources.copy_operations;
 
-auto modules::renderer::base::copy(
+auto ddge::renderer::base::copy(
     const void*       source,
     const CopyRegion& destination,
     vk::DeviceSize    size
@@ -33,7 +33,7 @@ auto modules::renderer::base::copy(
     destination.allocation.get().unmap();
 }
 
-auto modules::renderer::base::copy(
+auto ddge::renderer::base::copy(
     const CopyRegion& source,
     void*             destination,
     vk::DeviceSize    size

@@ -1,3 +1,3 @@
-export module utility.meta.concepts.ranges;
+export module ddge.utility.meta.concepts.ranges;
 
-export import utility.meta.concepts.ranges.input_range_of;
+export import ddge.utility.meta.concepts.ranges.input_range_of;

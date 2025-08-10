@@ -2,9 +2,9 @@ module;
 
 #include <memory>
 
-export module utility.memory.Allocator;
+export module ddge.utility.memory.Allocator;
 
-namespace util {
+namespace ddge::util {
 
 export class Allocator {
 public:
@@ -16,16 +16,17 @@ public:
     constexpr static auto deallocate(T* pointer, std::size_t n = 1) -> void;
 };
 
-}   // namespace util
+}   // namespace ddge::util
 
 template <typename T>
-constexpr auto util::Allocator::allocate(const std::size_t n) -> T*
+constexpr auto ddge::util::Allocator::allocate(const std::size_t n) -> T*
 {
     return std::allocator<T>{}.allocate(n);
 }
 
 template <typename T>
-constexpr auto util::Allocator::deallocate(T* const pointer, const std::size_t n) -> void
+constexpr auto ddge::util::Allocator::deallocate(T* const pointer, const std::size_t n)
+    -> void
 {
     std::allocator<T>{}.deallocate(pointer, n);
 }

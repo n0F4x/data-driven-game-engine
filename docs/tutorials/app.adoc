@@ -18,7 +18,7 @@ struct CustomPlugin {
     }
 };
 
-app::create()
+ddge::app::create()
     .plug_in(CustomPlugin{})
     .say_hello();
 ----
@@ -43,7 +43,7 @@ struct CustomPlugin {
 };
 
 auto app =
-    app::create()
+    ddge::app::create()
         .plug_in(CustomPlugin{})
         .build();
 ----
@@ -67,7 +67,7 @@ struct CustomAddon {
     }
 };
 
-auto app = app::create().build();
+auto app = ddge::app::create().build();
 
 auto customized_app = app.add_on(CustomAddon{});
 
@@ -99,7 +99,7 @@ struct CustomPlugin {
     }
 };
 
-app::create()
+ddge::app::create()
     .plug_in(CustomPlugin{})
     .build()
     .say_hello();

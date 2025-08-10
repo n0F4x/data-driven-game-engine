@@ -3,11 +3,11 @@ module;
 #include <cstdint>
 #include <span>
 
-export module modules.image.Image;
+export module ddge.modules.image.Image;
 
 import vulkan_hpp;
 
-namespace modules::image {
+namespace ddge::image {
 
 export class Image {
 public:
@@ -39,4 +39,4 @@ public:
         -> uint64_t = 0;
 };
 
-}   // namespace modules::image
+}   // namespace ddge::image

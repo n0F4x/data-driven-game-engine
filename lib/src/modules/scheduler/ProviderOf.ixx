@@ -1,13 +1,13 @@
-export module modules.scheduler.ProviderOf;
+export module ddge.modules.scheduler.ProviderOf;
 
-import modules.app.addon_c;
+import ddge.modules.app.addon_c;
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 
-export template <modules::app::addon_c Addon_T>
+export template <ddge::app::addon_c Addon_T>
 struct ProviderOf;
 
-export template <modules::app::addon_c Addon_T>
+export template <ddge::app::addon_c Addon_T>
 using provider_of_t = typename ProviderOf<Addon_T>::type;
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler

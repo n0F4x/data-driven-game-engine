@@ -6,18 +6,18 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-module modules.renderer.DeviceInjection;
+module ddge.modules.renderer.DeviceInjection;
 
 import vulkan_hpp;
 
-import modules.app.App;
+import ddge.modules.app.App;
 
-import config.vulkan;
+import ddge.config.vulkan;
 
-import modules.log;
+import ddge.modules.log;
 
-import modules.renderer.base.instance.Instance;
-import modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.instance.Instance;
+import ddge.modules.renderer.base.device.Device;
 
 static auto log_setup(const vkb::Device& device) -> void
 {
@@ -57,11 +57,11 @@ static auto log_setup(const vkb::Device& device) -> void
     ENGINE_LOG_DEBUG(enabled_extensions);
 }
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 auto DeviceInjection::operator()(
-    const base::Instance& instance,
-    const vk::UniqueSurfaceKHR&           surface
+    const base::Instance&       instance,
+    const vk::UniqueSurfaceKHR& surface
 ) const -> base::Device
 {
     vkb::PhysicalDeviceSelector physical_device_selector(
@@ -103,4 +103,4 @@ auto DeviceInjection::operator()(
     return device;
 }
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer

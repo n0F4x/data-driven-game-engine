@@ -1,4 +1,4 @@
-export module prelude;
+export module ddge.prelude;
 
-export import prelude.app;
-export import prelude.plugins;
+export import ddge.prelude.app;
+export import ddge.prelude.plugins;

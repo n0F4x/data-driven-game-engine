@@ -2,11 +2,11 @@ module;
 
 #include <VkBootstrap.h>
 
-export module modules.renderer.base.device.Device;
+export module ddge.modules.renderer.base.device.Device;
 
 import vulkan_hpp;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 export class Device {
 public:
@@ -48,4 +48,4 @@ private:
     vkb::Device m_device;
 };
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

@@ -7,28 +7,28 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.scheduler.providers.MessageProvider;
+export module ddge.modules.scheduler.providers.MessageProvider;
 
-import modules.app;
+import ddge.modules.app;
 
-import modules.messages;
-import modules.scheduler.ProviderFor;
-import modules.store.Store;
+import ddge.modules.messages;
+import ddge.modules.scheduler.ProviderFor;
+import ddge.modules.store.Store;
 
-import modules.scheduler.accessors.messages;
-import modules.scheduler.ProviderOf;
+import ddge.modules.scheduler.accessors.messages;
+import ddge.modules.scheduler.ProviderOf;
 
-import utility.contracts;
-import utility.meta.algorithms.apply;
-import utility.meta.algorithms.for_each;
-import utility.meta.concepts.specialization_of;
-import utility.meta.reflection.name_of;
+import ddge.utility.contracts;
+import ddge.utility.meta.algorithms.apply;
+import ddge.utility.meta.algorithms.for_each;
+import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.meta.reflection.name_of;
 
-namespace modules::scheduler::providers {
+namespace ddge::scheduler::providers {
 
 class MessageProvider {
 public:
-    template <modules::app::has_addons_c<messages::Addon> App_T>
+    template <ddge::app::has_addons_c<messages::Addon> App_T>
     constexpr explicit MessageProvider(App_T& app);
 
     template <std::same_as<accessors::messages::Mailbox>>
@@ -44,45 +44,43 @@ public:
     constexpr auto provide() const -> Sender_T;
 
 private:
-    std::reference_wrapper<modules::messages::MessageManager> m_message_manager_ref;
+    std::reference_wrapper<ddge::messages::MessageManager> m_message_manager_ref;
 };
 
-}   // namespace modules::scheduler::providers
+}   // namespace ddge::scheduler::providers
 
 template <>
-struct modules::scheduler::ProviderOf<modules::messages::Addon>
-    : std::type_identity<modules::scheduler::providers::MessageProvider> {};
+struct ddge::scheduler::ProviderOf<ddge::messages::Addon>
+    : std::type_identity<ddge::scheduler::providers::MessageProvider> {};
 
 template <>
-struct modules::scheduler::ProviderFor<modules::scheduler::accessors::messages::Mailbox>
-    : std::type_identity<modules::scheduler::providers::MessageProvider> {};
+struct ddge::scheduler::ProviderFor<ddge::scheduler::accessors::messages::Mailbox>
+    : std::type_identity<ddge::scheduler::providers::MessageProvider> {};
 
 template <typename Event_T>
-struct modules::scheduler::
-    ProviderFor<modules::scheduler::accessors::messages::Receiver<Event_T>>
-    : std::type_identity<modules::scheduler::providers::MessageProvider> {};
+struct ddge::scheduler::ProviderFor<ddge::scheduler::accessors::messages::Receiver<Event_T>>
+    : std::type_identity<ddge::scheduler::providers::MessageProvider> {};
 
 template <typename... Events_T>
-struct modules::scheduler::
-    ProviderFor<modules::scheduler::accessors::messages::Sender<Events_T...>>
-    : std::type_identity<modules::scheduler::providers::MessageProvider> {};
+struct ddge::scheduler::
+    ProviderFor<ddge::scheduler::accessors::messages::Sender<Events_T...>>
+    : std::type_identity<ddge::scheduler::providers::MessageProvider> {};
 
-template <modules::app::has_addons_c<modules::messages::Addon> App_T>
-constexpr modules::scheduler::providers::MessageProvider::MessageProvider(App_T& app)
+template <ddge::app::has_addons_c<ddge::messages::Addon> App_T>
+constexpr ddge::scheduler::providers::MessageProvider::MessageProvider(App_T& app)
     : m_message_manager_ref{ app.message_manager }
 {}
 
-template <std::same_as<modules::scheduler::accessors::messages::Mailbox>>
-auto modules::scheduler::providers::MessageProvider::provide() const
-    -> modules::scheduler::accessors::messages::Mailbox
+template <std::same_as<ddge::scheduler::accessors::messages::Mailbox>>
+auto ddge::scheduler::providers::MessageProvider::provide() const
+    -> ddge::scheduler::accessors::messages::Mailbox
 {
-    return modules::scheduler::accessors::messages::Mailbox{ m_message_manager_ref };
+    return ddge::scheduler::accessors::messages::Mailbox{ m_message_manager_ref };
 }
 
-template <util::meta::specialization_of_c<
-    modules::scheduler::accessors::messages::Receiver> Receiver_T>
-constexpr auto modules::scheduler::providers::MessageProvider::provide() const
-    -> Receiver_T
+template <ddge::util::meta::specialization_of_c<
+    ddge::scheduler::accessors::messages::Receiver> Receiver_T>
+constexpr auto ddge::scheduler::providers::MessageProvider::provide() const -> Receiver_T
 {
     using Message = typename Receiver_T::Message;
 
@@ -94,9 +92,9 @@ constexpr auto modules::scheduler::providers::MessageProvider::provide() const
     return Receiver_T{ m_message_manager_ref.get().message_buffer<Message>() };
 }
 
-template <util::meta::specialization_of_c<modules::scheduler::accessors::messages::Sender>
-              Sender_T>
-constexpr auto modules::scheduler::providers::MessageProvider::provide() const -> Sender_T
+template <ddge::util::meta::
+              specialization_of_c<ddge::scheduler::accessors::messages::Sender> Sender_T>
+constexpr auto ddge::scheduler::providers::MessageProvider::provide() const -> Sender_T
 {
     using Messages = typename Sender_T::Messages;
 

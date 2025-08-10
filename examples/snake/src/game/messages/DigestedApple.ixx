@@ -1,11 +1,11 @@
 export module snake.game.DigestedApple;
 
-import modules.ecs;
+import ddge.modules.ecs;
 
 namespace game {
 
 export struct DigestedApple {
-    modules::ecs::ID id;
+    ddge::ecs::ID id;
 };
 
 }   // namespace game

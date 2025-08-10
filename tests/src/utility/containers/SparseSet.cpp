@@ -2,7 +2,7 @@
 #include <limits>
 #include <tuple>
 
-import utility.containers.SparseSet;
+import ddge.utility.containers.SparseSet;
 
 namespace {
 
@@ -14,7 +14,7 @@ constexpr Key missing_key{ std::numeric_limits<Key>::max() };
 
 static_assert(
     [] {
-        util::SparseSet<Key> sparse_set;
+        ddge::util::SparseSet<Key> sparse_set;
 
         const std::tuple key_and_id{ sparse_set.next_key(), sparse_set.next_id() };
         const std::tuple actual_key_and_id{ sparse_set.emplace() };
@@ -26,7 +26,7 @@ static_assert(
 
 static_assert(
     [] {
-        util::SparseSet<Key> sparse_set;
+        ddge::util::SparseSet<Key> sparse_set;
         const auto [key, _id]{ sparse_set.emplace() };
 
         return sparse_set.contains(key);
@@ -36,7 +36,7 @@ static_assert(
 
 static_assert(
     [] {
-        const util::SparseSet<Key> sparse_set;
+        const ddge::util::SparseSet<Key> sparse_set;
 
         return !sparse_set.contains(missing_key);
     }(),
@@ -45,7 +45,7 @@ static_assert(
 
 static_assert(
     [] {
-        util::SparseSet<Key> sparse_set;
+        ddge::util::SparseSet<Key> sparse_set;
         const auto [key, id]{ sparse_set.emplace() };
 
         return sparse_set.get(key) == id;
@@ -55,7 +55,7 @@ static_assert(
 
 static_assert(
     [] {
-        util::SparseSet<Key> sparse_set;
+        ddge::util::SparseSet<Key> sparse_set;
         const auto [key, id]{ sparse_set.emplace() };
 
         return sparse_set.find(key).value() == id;
@@ -65,7 +65,7 @@ static_assert(
 
 static_assert(
     [] {
-        const util::SparseSet<Key> sparse_set;
+        const ddge::util::SparseSet<Key> sparse_set;
 
         return !sparse_set.find(missing_key).has_value();
     }(),
@@ -74,7 +74,7 @@ static_assert(
 
 static_assert(
     [] {
-        util::SparseSet<Key> sparse_set;
+        ddge::util::SparseSet<Key> sparse_set;
         const auto [key, _]{ sparse_set.emplace() };
 
         return sparse_set.erase(key) && !sparse_set.find(key).has_value();
@@ -84,7 +84,7 @@ static_assert(
 
 static_assert(
     [] {
-        util::SparseSet<Key> sparse_set;
+        ddge::util::SparseSet<Key> sparse_set;
 
         return !sparse_set.erase(missing_key);
     }(),
@@ -93,7 +93,7 @@ static_assert(
 
 static_assert(
     [] {
-        util::SparseSet<Key> sparse_set;
+        ddge::util::SparseSet<Key> sparse_set;
         const auto [old_key, _]{ sparse_set.emplace() };
         sparse_set.erase(old_key);
         const auto [new_key, _]{ sparse_set.emplace() };
@@ -105,7 +105,7 @@ static_assert(
 
 static_assert(
     [] {
-        util::SparseSet<Key> sparse_set;
+        ddge::util::SparseSet<Key> sparse_set;
         const auto [first_key, _]{ sparse_set.emplace() };
         const auto [second_key, _]{ sparse_set.emplace() };
         sparse_set.erase(second_key);

@@ -3,11 +3,11 @@ module;
 #include <filesystem>
 #include <optional>
 
-export module modules.renderer.material_system.ShaderModule;
+export module ddge.modules.renderer.material_system.ShaderModule;
 
 import vulkan_hpp;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 export class ShaderModule {
 public:
@@ -35,11 +35,11 @@ private:
     friend auto hash_value(const ShaderModule& shader_module) noexcept -> std::size_t;
 };
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer
 
 export template <>
-struct std::hash<modules::renderer::ShaderModule> {
+struct std::hash<ddge::renderer::ShaderModule> {
     [[nodiscard]]
-    auto operator()(const modules::renderer::ShaderModule& shader_module) const noexcept
+    auto operator()(const ddge::renderer::ShaderModule& shader_module) const noexcept
         -> std::size_t;
 };   // namespace std

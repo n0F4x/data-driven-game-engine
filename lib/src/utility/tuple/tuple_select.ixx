@@ -2,9 +2,9 @@ module;
 
 #include <tuple>
 
-export module utility.tuple.tuple_select;
+export module ddge.utility.tuple.tuple_select;
 
-namespace util {
+namespace ddge::util {
 
 export template <typename Tuple_T, std::size_t... Ints_V>
 auto tuple_select(Tuple_T&& tuple, std::index_sequence<Ints_V...>)
@@ -14,4 +14,4 @@ auto tuple_select(Tuple_T&& tuple, std::index_sequence<Ints_V...>)
     };
 }
 
-}   // namespace util
+}   // namespace ddge::util

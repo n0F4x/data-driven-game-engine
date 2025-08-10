@@ -1,6 +1,6 @@
-export module utility.meta.type_traits.type_list.type_list_disjoin;
+export module ddge.utility.meta.type_traits.type_list.type_list_disjoin;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T>
 struct type_list_disjoin;
@@ -13,4 +13,4 @@ struct type_list_disjoin<TypeList_T<Ts...>> {
 export template <typename TypeList_T>
 using type_list_disjoin_t = typename type_list_disjoin<TypeList_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

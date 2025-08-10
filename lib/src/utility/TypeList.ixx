@@ -1,8 +1,8 @@
-export module utility.TypeList;
+export module ddge.utility.TypeList;
 
-namespace util {
+namespace ddge::util {
 
 export template <typename...>
 struct TypeList {};
 
-}   // namespace util
+}   // namespace ddge::util

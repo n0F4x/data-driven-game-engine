@@ -1,11 +1,11 @@
-export module modules.resources.Addon;
+export module ddge.modules.resources.Addon;
 
-import modules.resources.ResourceManager;
+import ddge.modules.resources.ResourceManager;
 
-namespace modules::resources {
+namespace ddge::resources {
 
 export struct Addon {
     ResourceManager resource_manager;
 };
 
-}   // namespace modules::resources
+}   // namespace ddge::resources

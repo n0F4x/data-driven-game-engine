@@ -1,9 +1,9 @@
-export module utility.meta.type_traits.type_list.type_list_join;
+export module ddge.utility.meta.type_traits.type_list.type_list_join;
 
-import utility.meta.concepts.type_list.type_list;
-import utility.meta.type_traits.type_list.type_list_concat;
+import ddge.utility.meta.concepts.type_list.type_list;
+import ddge.utility.meta.type_traits.type_list.type_list_concat;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T>
 struct type_list_join;
@@ -27,4 +27,4 @@ struct type_list_join<TypeList_T<TypeLists_T...>> {
 export template <typename TypeList_T>
 using type_list_join_t = typename type_list_join<TypeList_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

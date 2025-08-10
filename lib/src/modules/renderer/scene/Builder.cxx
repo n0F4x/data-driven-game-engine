@@ -5,14 +5,14 @@ module;
 #include <ranges>
 #include <vector>
 
-module modules.renderer.scene.Scene;
+module ddge.modules.renderer.scene.Scene;
 
-import modules.renderer.base.device.Device;
-import modules.renderer.base.descriptor_pool.DescriptorPool;
-import modules.renderer.model.ModelLayout;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.descriptor_pool.DescriptorPool;
+import ddge.modules.renderer.model.ModelLayout;
 
-using namespace modules;
-using namespace modules::renderer;
+using namespace ddge;
+using namespace ddge::renderer;
 
 [[nodiscard]]
 static auto create_global_descriptor_set_layout(const vk::Device device)
@@ -181,7 +181,7 @@ static auto create_global_descriptor_set(
     return result;
 }
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 auto Scene::Builder::set_cache(cache::Cache& cache) noexcept -> Scene::Builder&
 {
@@ -303,4 +303,4 @@ auto Scene::Builder::build(
     } };
 }
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer

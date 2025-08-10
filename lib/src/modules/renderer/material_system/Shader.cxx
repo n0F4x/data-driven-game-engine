@@ -3,13 +3,13 @@ module;
 #include <filesystem>
 
 
-module modules.renderer.material_system.Shader;
+module ddge.modules.renderer.material_system.Shader;
 
-import utility.hashing;
+import ddge.utility.hashing;
 
-using namespace modules::renderer;
+using namespace ddge::renderer;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 Shader::Shader(cache::Handle<const ShaderModule> shader_module, std::string entry_point)
     : m_module{ std::move(shader_module) },
@@ -37,7 +37,7 @@ auto hash_value(const Shader& shader) noexcept -> std::size_t
     return util::hash_combine(*shader.m_module, shader.m_entry_point);
 }
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer
 
 auto std::hash<Shader>::operator()(const Shader& shader) const noexcept -> std::size_t
 {

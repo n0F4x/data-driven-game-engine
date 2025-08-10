@@ -9,16 +9,16 @@ module;
 
 #include "utility/lifetime_bound.hpp"
 
-export module modules.renderer.resources.RandomAccessBuffer;
+export module ddge.modules.renderer.resources.RandomAccessBuffer;
 
 import vulkan_hpp;
 
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.resources.Allocation;
-import modules.renderer.base.resources.Buffer;
-import modules.renderer.base.resources.copy_operations;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.resources.Allocation;
+import ddge.modules.renderer.base.resources.Buffer;
+import ddge.modules.renderer.base.resources.copy_operations;
 
-namespace modules::renderer::resources {
+namespace ddge::renderer::resources {
 
 export template <typename T = std::byte>
 class RandomAccessBuffer {
@@ -60,10 +60,10 @@ private:
     RandomAccessBuffer(base::Buffer&& buffer, base::Allocation&& allocation);
 };
 
-}   // namespace modules::renderer::resources
+}   // namespace ddge::renderer::resources
 
 template <typename T>
-modules::renderer::resources::RandomAccessBuffer<T>::RandomAccessBuffer(
+ddge::renderer::resources::RandomAccessBuffer<T>::RandomAccessBuffer(
     const base::Allocator&      allocator,
     const vk::BufferCreateInfo& buffer_create_info,
     const void*                 data
@@ -82,7 +82,7 @@ modules::renderer::resources::RandomAccessBuffer<T>::RandomAccessBuffer(
 {}
 
 template <typename T>
-auto modules::renderer::resources::RandomAccessBuffer<T>::buffer() const noexcept
+auto ddge::renderer::resources::RandomAccessBuffer<T>::buffer() const noexcept
     -> vk::Buffer
 {
     return m_buffer.get();
@@ -90,7 +90,7 @@ auto modules::renderer::resources::RandomAccessBuffer<T>::buffer() const noexcep
 
 template <typename T>
 template <std::size_t E>
-auto modules::renderer::resources::RandomAccessBuffer<T>::set(
+auto ddge::renderer::resources::RandomAccessBuffer<T>::set(
     std::span<const T, E> data,
     const std::size_t     offset
 ) const -> void
@@ -104,7 +104,7 @@ auto modules::renderer::resources::RandomAccessBuffer<T>::set(
 }
 
 template <typename T>
-auto modules::renderer::resources::RandomAccessBuffer<T>::set(
+auto ddge::renderer::resources::RandomAccessBuffer<T>::set(
     const T&          data,
     const std::size_t offset
 ) const -> void
@@ -119,7 +119,7 @@ auto modules::renderer::resources::RandomAccessBuffer<T>::set(
 
 template <typename T>
 template <std::size_t E>
-auto modules::renderer::resources::RandomAccessBuffer<T>::get(
+auto ddge::renderer::resources::RandomAccessBuffer<T>::get(
     std::span<T, E>   data,
     const std::size_t offset
 ) const -> void
@@ -133,7 +133,7 @@ auto modules::renderer::resources::RandomAccessBuffer<T>::get(
 }
 
 template <typename T>
-auto modules::renderer::resources::RandomAccessBuffer<T>::get(
+auto ddge::renderer::resources::RandomAccessBuffer<T>::get(
     T&                data,
     const std::size_t offset
 ) const -> void
@@ -147,27 +147,27 @@ auto modules::renderer::resources::RandomAccessBuffer<T>::get(
 }
 
 template <typename T>
-auto modules::renderer::resources::RandomAccessBuffer<T>::size() const noexcept
+auto ddge::renderer::resources::RandomAccessBuffer<T>::size() const noexcept
     -> std::size_t
 {
     return size_bytes() / sizeof(T);
 }
 
 template <typename T>
-auto modules::renderer::resources::RandomAccessBuffer<T>::size_bytes() const noexcept
+auto ddge::renderer::resources::RandomAccessBuffer<T>::size_bytes() const noexcept
     -> std::size_t
 {
     return m_buffer.size();
 }
 
 template <typename T>
-auto modules::renderer::resources::RandomAccessBuffer<T>::empty() const noexcept -> bool
+auto ddge::renderer::resources::RandomAccessBuffer<T>::empty() const noexcept -> bool
 {
     return m_buffer.size() == 0;
 }
 
 template <typename T>
-auto modules::renderer::resources::RandomAccessBuffer<T>::make_from(
+auto ddge::renderer::resources::RandomAccessBuffer<T>::make_from(
     std::tuple<base::Buffer, base::Allocation, VmaAllocationInfo>&& tuple,
     const void*                                                     data
 ) noexcept -> RandomAccessBuffer
@@ -188,7 +188,7 @@ auto modules::renderer::resources::RandomAccessBuffer<T>::make_from(
 }
 
 template <typename T>
-modules::renderer::resources::RandomAccessBuffer<T>::RandomAccessBuffer(
+ddge::renderer::resources::RandomAccessBuffer<T>::RandomAccessBuffer(
     base::Buffer&&     buffer,
     base::Allocation&& allocation
 )

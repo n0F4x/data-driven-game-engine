@@ -3,18 +3,18 @@ module;
 #include <array>
 #include <span>
 
-export module modules.image.png.MimeType;
+export module ddge.modules.image.png.MimeType;
 
-namespace modules::image::png {
+namespace ddge::image::png {
 
 export struct MimeType {
     [[nodiscard]]
     constexpr static auto magic() noexcept -> std::span<const std::byte, 8>;
 };
 
-}   // namespace modules::image::png
+}   // namespace ddge::image::png
 
-constexpr auto modules::image::png::MimeType::magic() noexcept
+constexpr auto ddge::image::png::MimeType::magic() noexcept
     -> std::span<const std::byte, 8>
 {
     constexpr static std::array s_magic{ std::byte{ 0x89 }, std::byte{ 0x50 },

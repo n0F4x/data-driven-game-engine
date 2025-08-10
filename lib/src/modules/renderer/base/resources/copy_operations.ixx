@@ -2,13 +2,13 @@ module;
 
 #include <functional>
 
-export module modules.renderer.base.resources.copy_operations;
+export module ddge.modules.renderer.base.resources.copy_operations;
 
 import vulkan_hpp;
 
-import modules.renderer.base.resources.Allocation;
+import ddge.modules.renderer.base.resources.Allocation;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 // NOLINTNEXTLINE(*-member-init)
 export struct CopyRegion {
@@ -22,4 +22,4 @@ export auto copy(const void* source, const CopyRegion& destination, vk::DeviceSi
 export auto copy(const CopyRegion& source, void* destination, vk::DeviceSize size)
     -> void;
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

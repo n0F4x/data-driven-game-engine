@@ -6,11 +6,11 @@ module;
 
 #include <glm/ext/vector_float4.hpp>
 
-module modules.renderer.scene.Scene;
+module ddge.modules.renderer.scene.Scene;
 
-import modules.renderer.base.descriptor_pool.DescriptorPool;
+import ddge.modules.renderer.base.descriptor_pool.DescriptorPool;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 auto Scene::create() noexcept -> Builder
 {
@@ -79,4 +79,4 @@ Scene::Scene(
       m_models(std::move(models))
 {}
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer

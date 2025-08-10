@@ -10,7 +10,7 @@ module;
 #include <stb_image.h>
 #include <stb_image_resize2.h>
 
-module modules.image.png.Image;
+module ddge.modules.image.png.Image;
 
 [[nodiscard]]
 static auto count_mip_levels(const uint32_t base_width, const uint32_t base_height)
@@ -108,7 +108,7 @@ static auto generate_mip_maps(
     return result;
 }
 
-auto modules::image::png::Image::load_from(const std::filesystem::path& filepath) -> Image
+auto ddge::image::png::Image::load_from(const std::filesystem::path& filepath) -> Image
 {
     // TODO: request format
     constexpr static vk::Format format{ vk::Format::eR8G8B8A8Srgb };
@@ -157,7 +157,7 @@ auto modules::image::png::Image::load_from(const std::filesystem::path& filepath
                   mip_level_count };
 }
 
-auto modules::image::png::Image::load_from(const std::span<const std::byte> data) -> Image
+auto ddge::image::png::Image::load_from(const std::span<const std::byte> data) -> Image
 {
     // TODO: request format
     constexpr static vk::Format format{ vk::Format::eR8G8B8A8Srgb };
@@ -205,42 +205,42 @@ auto modules::image::png::Image::load_from(const std::span<const std::byte> data
                   mip_level_count };
 }
 
-auto modules::image::png::Image::data() const noexcept -> std::span<const std::byte>
+auto ddge::image::png::Image::data() const noexcept -> std::span<const std::byte>
 {
     return m_data;
 }
 
-auto modules::image::png::Image::width() const noexcept -> uint32_t
+auto ddge::image::png::Image::width() const noexcept -> uint32_t
 {
     return m_base_width;
 }
 
-auto modules::image::png::Image::height() const noexcept -> uint32_t
+auto ddge::image::png::Image::height() const noexcept -> uint32_t
 {
     return m_base_height;
 }
 
-auto modules::image::png::Image::depth() const noexcept -> uint32_t
+auto ddge::image::png::Image::depth() const noexcept -> uint32_t
 {
     return 1;
 }
 
-auto modules::image::png::Image::mip_level_count() const noexcept -> uint32_t
+auto ddge::image::png::Image::mip_level_count() const noexcept -> uint32_t
 {
     return m_mip_level_count;
 }
 
-auto modules::image::png::Image::needs_mip_generation() const noexcept -> bool
+auto ddge::image::png::Image::needs_mip_generation() const noexcept -> bool
 {
     return false;
 }
 
-auto modules::image::png::Image::format() const noexcept -> vk::Format
+auto ddge::image::png::Image::format() const noexcept -> vk::Format
 {
     return m_format;
 }
 
-auto modules::image::png::Image::offset_of(
+auto ddge::image::png::Image::offset_of(
     const uint32_t mip_level_index,
     const uint32_t,
     const uint32_t
@@ -263,7 +263,7 @@ auto modules::image::png::Image::offset_of(
     return result;
 }
 
-modules::image::png::Image::Image(
+ddge::image::png::Image::Image(
     std::vector<std::byte>&& data,
     const uint32_t           base_width,
     const uint32_t           base_height,

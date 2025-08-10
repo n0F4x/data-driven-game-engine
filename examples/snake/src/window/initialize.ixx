@@ -1,12 +1,12 @@
 export module snake.window.initialize;
 
-import modules.time.FixedTimer;
+import ddge.modules.time.FixedTimer;
 
-import modules.scheduler.accessors.resources;
+import ddge.modules.scheduler.accessors.resources;
 
 import snake.window.DisplayTimer;
 
-using namespace modules::scheduler::accessors;
+using namespace ddge::scheduler::accessors;
 
 namespace window {
 

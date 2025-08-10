@@ -6,19 +6,19 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.scheduler.Nexus;
+export module ddge.modules.scheduler.Nexus;
 
-import modules.scheduler.accessor_c;
-import modules.scheduler.ProviderFor;
+import ddge.modules.scheduler.accessor_c;
+import ddge.modules.scheduler.ProviderFor;
 
-import modules.store;
+import ddge.modules.store;
 
-import utility.contracts;
-import utility.meta.algorithms.for_each;
-import utility.meta.reflection.name_of;
-import utility.meta.concepts.all_different;
+import ddge.utility.contracts;
+import ddge.utility.meta.algorithms.for_each;
+import ddge.utility.meta.reflection.name_of;
+import ddge.utility.meta.concepts.all_different;
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 
 export class Nexus {
 public:
@@ -37,11 +37,11 @@ private:
     store::Store m_providers;
 };
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler
 
 template <typename... Providers_T>
-    requires util::meta::all_different_c<std::remove_cvref_t<Providers_T>...>
-modules::scheduler::Nexus::Nexus(Providers_T&&... providers)
+    requires ddge::util::meta::all_different_c<std::remove_cvref_t<Providers_T>...>
+ddge::scheduler::Nexus::Nexus(Providers_T&&... providers)
 {
     (m_providers.emplace<std::remove_cvref_t<Providers_T>>(
          std::forward<Providers_T>(providers)
@@ -49,8 +49,8 @@ modules::scheduler::Nexus::Nexus(Providers_T&&... providers)
      ...);
 }
 
-template <modules::scheduler::accessor_c Accessor_T>
-auto modules::scheduler::Nexus::provide() -> Accessor_T
+template <ddge::scheduler::accessor_c Accessor_T>
+auto ddge::scheduler::Nexus::provide() -> Accessor_T
 {
     using Provider = provider_for_t<Accessor_T>;
 

@@ -7,32 +7,32 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-export module modules.renderer.setup;
+export module ddge.modules.renderer.setup;
 
 import vulkan_hpp;
 
-import modules.app.has_plugins_c;
-import modules.app.extensions.FunctionalPlugin;
+import ddge.modules.app.has_plugins_c;
+import ddge.modules.app.extensions.FunctionalPlugin;
 
-import modules.gfx.resources.Image;
-import modules.gfx.resources.VirtualImage;
+import ddge.modules.gfx.resources.Image;
+import ddge.modules.gfx.resources.VirtualImage;
 
-import modules.log;
+import ddge.modules.log;
 
-import modules.renderer.base.instance.Instance;
-import modules.renderer.base.device.Device;
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.swapchain.Swapchain;
-import modules.renderer.base.swapchain.SwapchainHolder;
-import modules.renderer.model.ModelLayout;
+import ddge.modules.renderer.base.instance.Instance;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.swapchain.Swapchain;
+import ddge.modules.renderer.base.swapchain.SwapchainHolder;
+import ddge.modules.renderer.model.ModelLayout;
 
-import modules.renderer.DeviceInjection;
-import modules.renderer.InstanceInjection;
-import modules.renderer.SurfaceInjection;
+import ddge.modules.renderer.DeviceInjection;
+import ddge.modules.renderer.InstanceInjection;
+import ddge.modules.renderer.SurfaceInjection;
 
-import modules.resources.Plugin;
+import ddge.modules.resources.Plugin;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 export struct Requirement {
     std::function<bool(const vkb::SystemInfo&)> required_instance_settings_are_available;
@@ -47,8 +47,9 @@ class Setup {
 public:
     Setup();
 
-    template <modules::app::has_plugins_c<resources::Plugin, app::extensions::FunctionalPlugin> Builder_T>
-    auto operator()(Builder_T&& builder);
+    template <ddge::app::has_plugins_c<resources::Plugin, app::extensions::FunctionalPlugin>
+                  Builder_T>
+    auto operator()(Builder_T&& builder) -> Builder_T;
 
     template <typename Self>
     auto require(this Self&&, Requirement requirement) -> Self;
@@ -60,20 +61,21 @@ private:
 
 class SetupProxy {
 public:
-    template <modules::app::has_plugins_c<resources::Plugin, app::extensions::FunctionalPlugin> Builder_T>
-    static auto operator()(Builder_T&& builder);
+    template <ddge::app::has_plugins_c<resources::Plugin, app::extensions::FunctionalPlugin>
+                  Builder_T>
+    static auto operator()(Builder_T&& builder) -> Builder_T;
 
     static auto require(Requirement requirement) -> Setup<SurfaceInjection>;
 };
 
 export inline constexpr SetupProxy setup;
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer
 
 template <typename Requirement_T>
-auto make_requirement() -> modules::renderer::Requirement
+auto make_requirement() -> ddge::renderer::Requirement
 {
-    modules::renderer::Requirement requirement;
+    ddge::renderer::Requirement requirement;
 
     if constexpr (requires(Requirement_T, const vkb::SystemInfo& system_info) {
                       {
@@ -130,8 +132,8 @@ auto make_requirement() -> modules::renderer::Requirement
     return requirement;
 }
 
-template <modules::resources::resource_injection_c SurfaceInjection_T>
-modules::renderer::Setup<SurfaceInjection_T>::Setup()
+template <ddge::resources::resource_injection_c SurfaceInjection_T>
+ddge::renderer::Setup<SurfaceInjection_T>::Setup()
 {
     require(::make_requirement<base::Allocator::Requirements>());
     require(::make_requirement<base::Swapchain::Requirements>());
@@ -141,10 +143,10 @@ modules::renderer::Setup<SurfaceInjection_T>::Setup()
 }
 
 [[nodiscard]]
-auto to_instance_dependency(const modules::renderer::Requirement& requirement)
-    -> modules::renderer::InstanceInjection::Dependency
+auto to_instance_dependency(const ddge::renderer::Requirement& requirement)
+    -> ddge::renderer::InstanceInjection::Dependency
 {
-    return modules::renderer::InstanceInjection::Dependency{
+    return ddge::renderer::InstanceInjection::Dependency{
         .required_settings_are_available =
             requirement.required_instance_settings_are_available,
         .enable_settings = requirement.enable_instance_settings,
@@ -152,19 +154,21 @@ auto to_instance_dependency(const modules::renderer::Requirement& requirement)
 }
 
 [[nodiscard]]
-auto to_device_dependency(const modules::renderer::Requirement& requirement)
-    -> modules::renderer::DeviceInjection::Dependency
+auto to_device_dependency(const ddge::renderer::Requirement& requirement)
+    -> ddge::renderer::DeviceInjection::Dependency
 {
-    return modules::renderer::DeviceInjection::Dependency{
+    return ddge::renderer::DeviceInjection::Dependency{
         .require_settings         = requirement.require_device_settings,
         .enable_optional_settings = requirement.enable_optional_device_settings,
     };
 }
 
-template <modules::resources::resource_injection_c SurfaceInjection_T>
-template <
-    modules::app::has_plugins_c<modules::resources::Plugin, modules::app::extensions::FunctionalPlugin> Builder_T>
-auto modules::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builder)
+template <ddge::resources::resource_injection_c SurfaceInjection_T>
+template <ddge::app::has_plugins_c<
+    ddge::resources::Plugin,
+    ddge::app::extensions::FunctionalPlugin> Builder_T>
+auto ddge::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builder)
+    -> Builder_T
 {
     return std::forward<Builder_T>(builder)
         .inject_resource([this] {
@@ -198,9 +202,9 @@ auto modules::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builde
         });
 }
 
-template <modules::resources::resource_injection_c SurfaceInjection_T>
+template <ddge::resources::resource_injection_c SurfaceInjection_T>
 template <typename Self>
-auto modules::renderer::Setup<SurfaceInjection_T>::require(
+auto ddge::renderer::Setup<SurfaceInjection_T>::require(
     this Self&& self,
     Requirement requirement
 ) -> Self
@@ -209,16 +213,17 @@ auto modules::renderer::Setup<SurfaceInjection_T>::require(
     return std::forward<Self>(self);
 }
 
-template <
-    modules::app::has_plugins_c<modules::resources::Plugin, modules::app::extensions::FunctionalPlugin> Builder_T>
-auto modules::renderer::SetupProxy::operator()(Builder_T&& builder)
+template <ddge::app::has_plugins_c<
+    ddge::resources::Plugin,
+    ddge::app::extensions::FunctionalPlugin> Builder_T>
+auto ddge::renderer::SetupProxy::operator()(Builder_T&& builder) -> Builder_T
 {
     return std::forward<Builder_T>(builder).transform(Setup<SurfaceInjection>{});
 }
 
 module :private;
 
-auto modules::renderer::SetupProxy::require(Requirement requirement)
+auto ddge::renderer::SetupProxy::require(Requirement requirement)
     -> Setup<SurfaceInjection>
 {
     return Setup<SurfaceInjection>{}.require(std::move(requirement));

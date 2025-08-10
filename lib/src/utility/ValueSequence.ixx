@@ -3,11 +3,11 @@ module;
 #include <array>
 #include <type_traits>
 
-export module utility.ValueSequence;
+export module ddge.utility.ValueSequence;
 
-import utility.meta.type_traits.all_same;
+import ddge.utility.meta.type_traits.all_same;
 
-namespace util {
+namespace ddge::util {
 
 export template <typename T, T... values_T>
 struct ValueSequence {
@@ -22,11 +22,12 @@ struct ValueSequence {
         -> std::array<T, sizeof...(values_T)>;
 };
 
-}   // namespace util
+}   // namespace ddge::util
 
 template <typename T, T... values_T>
 template <typename Visitor>
-constexpr auto util::ValueSequence<T, values_T...>::for_each(Visitor&& visitor) -> void
+constexpr auto ddge::util::ValueSequence<T, values_T...>::for_each(Visitor&& visitor)
+    -> void
 {
     [&visitor]<std::size_t... Is>(std::index_sequence<Is...>) {
         (visitor.template operator()<values_T...[Is]>(), ...);
@@ -35,8 +36,9 @@ constexpr auto util::ValueSequence<T, values_T...>::for_each(Visitor&& visitor) 
 
 template <typename T, T... values_T>
 template <typename IndexedVisitor>
-constexpr auto util::ValueSequence<T, values_T...>::enumerate(IndexedVisitor&& visitor)
-    -> void
+constexpr auto ddge::util::ValueSequence<T, values_T...>::enumerate(
+    IndexedVisitor&& visitor
+) -> void
 {
     [&visitor]<std::size_t... Is>(std::index_sequence<Is...>) {
         (visitor.template operator()<Is, values_T...[Is]>(), ...);
@@ -44,7 +46,7 @@ constexpr auto util::ValueSequence<T, values_T...>::enumerate(IndexedVisitor&& v
 }
 
 template <typename T, T... values_T>
-constexpr auto util::ValueSequence<T, values_T...>::realize(
+constexpr auto ddge::util::ValueSequence<T, values_T...>::realize(
 ) noexcept(std::is_nothrow_copy_constructible_v<T>) -> std::array<T, sizeof...(values_T)>
 {
     return std::array<T, sizeof...(values_T)>{ values_T... };

@@ -1,10 +1,10 @@
-export module modules.window.CursorMode;
+export module ddge.modules.window.CursorMode;
 
-namespace modules::window {
+namespace ddge::window {
 
 export enum class CursorMode {
     eNormal,
     eDisabled,
 };
 
-}   // namespace modules::window
+}   // namespace ddge::window

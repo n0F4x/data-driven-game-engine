@@ -1,3 +1,3 @@
-export module modules.renderer.base.descriptor_pool;
+export module ddge.modules.renderer.base.descriptor_pool;
 
-export import modules.renderer.base.descriptor_pool.DescriptorPool;
+export import ddge.modules.renderer.base.descriptor_pool.DescriptorPool;

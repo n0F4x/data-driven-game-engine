@@ -5,9 +5,9 @@ module;
 
 #include <glm/gtc/quaternion.hpp>
 
-module modules.gltf.Model;
+module ddge.modules.gltf.Model;
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 auto Node::translation() const noexcept -> const glm::vec3&
 {
@@ -69,4 +69,4 @@ auto Node::mesh(const Model& model) const -> util::OptionalRef<const Mesh>
     });
 }
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

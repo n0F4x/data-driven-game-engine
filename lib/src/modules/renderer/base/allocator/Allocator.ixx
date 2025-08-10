@@ -6,18 +6,18 @@ module;
 
 #include <VkBootstrap.h>
 
-export module modules.renderer.base.allocator.Allocator;
+export module ddge.modules.renderer.base.allocator.Allocator;
 
 import vulkan_hpp;
 
-import modules.renderer.base.instance.Instance;
-import modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.instance.Instance;
+import ddge.modules.renderer.base.device.Device;
 
-import modules.renderer.base.resources.Allocation;
-import modules.renderer.base.resources.Buffer;
-import modules.renderer.base.resources.Image;
+import ddge.modules.renderer.base.resources.Allocation;
+import ddge.modules.renderer.base.resources.Buffer;
+import ddge.modules.renderer.base.resources.Image;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 export class Allocator {
 public:
@@ -79,4 +79,4 @@ public:
         -> void;
 };
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

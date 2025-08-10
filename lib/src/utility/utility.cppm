@@ -1,18 +1,18 @@
-export module utility;
+export module ddge.utility;
 
-export import utility.containers;
-export import utility.memory;
-export import utility.meta;
-export import utility.tuple;
+export import ddge.utility.containers;
+export import ddge.utility.memory;
+export import ddge.utility.meta;
+export import ddge.utility.tuple;
 
-export import utility.all_same;
-export import utility.contracts;
-export import utility.hashing;
-export import utility.not_fn;
-export import utility.Overloaded;
-export import utility.ScopeGuard;
-export import utility.Size;
-export import utility.Strong;
-export import utility.TypeList;
-export import utility.ValueSequence;
-export import utility.wrap_ref;
+export import ddge.utility.all_same;
+export import ddge.utility.contracts;
+export import ddge.utility.hashing;
+export import ddge.utility.not_fn;
+export import ddge.utility.Overloaded;
+export import ddge.utility.ScopeGuard;
+export import ddge.utility.Size;
+export import ddge.utility.Strong;
+export import ddge.utility.TypeList;
+export import ddge.utility.ValueSequence;
+export import ddge.utility.wrap_ref;

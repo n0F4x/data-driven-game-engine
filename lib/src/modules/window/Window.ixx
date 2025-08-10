@@ -10,14 +10,14 @@ module;
 
 #include <GLFW/glfw3.h>
 
-export module modules.window.Window;
+export module ddge.modules.window.Window;
 
-import utility.Size;
+import ddge.utility.Size;
 
-import modules.window.CursorMode;
-import modules.window.Key;
+import ddge.modules.window.CursorMode;
+import ddge.modules.window.Key;
 
-namespace modules::window {
+namespace ddge::window {
 
 export class Window {
 public:
@@ -82,10 +82,10 @@ private:
     std::function<void(util::Size2i)> m_framebuffer_resized;
 };
 
-}   // namespace modules::window
+}   // namespace ddge::window
 
-template <std::invocable<util::Size2i> Callback>
-auto modules::window::Window::set_framebuffer_size_callback(Callback&& callback) -> void
+template <std::invocable<ddge::util::Size2i> Callback>
+auto ddge::window::Window::set_framebuffer_size_callback(Callback&& callback) -> void
 {
     m_framebuffer_resized = std::forward<Callback>(callback);
 
@@ -99,7 +99,7 @@ auto modules::window::Window::set_framebuffer_size_callback(Callback&& callback)
 }
 
 template <typename Self>
-auto modules::window::Window::set_title(this Self&& self, const gsl_lite::czstring title)
+auto ddge::window::Window::set_title(this Self&& self, const gsl_lite::czstring title)
     -> Self
 {
     glfwSetWindowTitle(self.m_impl.get(), title);

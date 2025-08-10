@@ -1,3 +1,3 @@
-export module modules.scheduler.accessors.states;
+export module ddge.modules.scheduler.accessors.states;
 
-export import modules.scheduler.accessors.states.State;
+export import ddge.modules.scheduler.accessors.states.State;

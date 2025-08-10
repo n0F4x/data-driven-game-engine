@@ -4,14 +4,14 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module modules.messages.ErasedMessageBuffer;
+export module ddge.modules.messages.ErasedMessageBuffer;
 
-import modules.messages.MessageBuffer;
-import modules.messages.message_c;
+import ddge.modules.messages.MessageBuffer;
+import ddge.modules.messages.message_c;
 
-import utility.containers.Any;
+import ddge.utility.containers.Any;
 
-namespace modules::messages {
+namespace ddge::messages {
 
 export class ErasedMessageBuffer;
 
@@ -48,24 +48,24 @@ private:
     std::reference_wrapper<const ErasedMessageBufferOperations> m_operations;
 };
 
-}   // namespace modules::messages
+}   // namespace ddge::messages
 
-template <modules::messages::message_c Message_T>
-auto modules::messages::ErasedMessageBufferTraits<Message_T>::clear(ErasedMessageBuffer& that)
+template <ddge::messages::message_c Message_T>
+auto ddge::messages::ErasedMessageBufferTraits<Message_T>::clear(ErasedMessageBuffer& that)
     -> void
 {
     util::any_cast<MessageBuffer<Message_T>>(that).clear();
 }
 
-template <modules::messages::message_c Message_T>
-modules::messages::ErasedMessageBuffer::ErasedMessageBuffer(std::in_place_type_t<Message_T>)
+template <ddge::messages::message_c Message_T>
+ddge::messages::ErasedMessageBuffer::ErasedMessageBuffer(std::in_place_type_t<Message_T>)
     : Base{ std::in_place_type<MessageBuffer<Message_T>> },
       m_operations{ ErasedMessageBufferTraits<Message_T>::operations }
 {}
 
 module :private;
 
-auto modules::messages::ErasedMessageBuffer::clear() -> void
+auto ddge::messages::ErasedMessageBuffer::clear() -> void
 {
     m_operations.get().clear(*this);
 }

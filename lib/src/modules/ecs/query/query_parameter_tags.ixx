@@ -3,14 +3,14 @@ module;
 #include <optional>
 #include <type_traits>
 
-export module modules.ecs:query.query_parameter_tags;
+export module ddge.modules.ecs:query.query_parameter_tags;
 
-import utility.containers.OptionalRef;
+import ddge.utility.containers.OptionalRef;
 
 import :component_c;
 import :query.QueryParameterTagBase;
 
-namespace modules::ecs::inline query_parameter_tags {
+namespace ddge::ecs::inline query_parameter_tags {
 
 export template <component_c>
 struct With : ::QueryParameterTagBase {};
@@ -29,4 +29,4 @@ struct Optional : ::QueryParameterTagBase, util::OptionalRef<T> {
 template <typename T>
 Optional(T&) -> Optional<T>;
 
-}   // namespace modules::ecs::inline query_parameter_tags
+}   // namespace ddge::ecs::inline query_parameter_tags

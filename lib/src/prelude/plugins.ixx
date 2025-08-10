@@ -1,27 +1,27 @@
-export module prelude.plugins;
+export module ddge.prelude.plugins;
 
-import modules.app.extensions.AddonsPlugin;
-import modules.app.extensions.FunctionalPlugin;
-import modules.app.extensions.RunnablePlugin;
-import modules.assets.Plugin;
-import modules.ecs;
-import modules.events.Plugin;
-import modules.messages.Plugin;
-import modules.resources.Plugin;
-import modules.scheduler.Plugin;
-import modules.states.Plugin;
+import ddge.modules.app.extensions.AddonsPlugin;
+import ddge.modules.app.extensions.FunctionalPlugin;
+import ddge.modules.app.extensions.RunnablePlugin;
+import ddge.modules.assets.Plugin;
+import ddge.modules.ecs;
+import ddge.modules.events.Plugin;
+import ddge.modules.messages.Plugin;
+import ddge.modules.resources.Plugin;
+import ddge.modules.scheduler.Plugin;
+import ddge.modules.states.Plugin;
 
-namespace plugins {
+namespace ddge::plugins {
 
-export using Addons     = modules::app::extensions::AddonsPlugin;
-export using Assets     = modules::assets::Plugin;
-export using ECS        = modules::ecs::Plugin;
-export using Events     = modules::events::Plugin;
-export using Functional = modules::app::extensions::FunctionalPlugin;
-export using Messages   = modules::messages::Plugin;
-export using Resources  = modules::resources::Plugin;
-export using Runnable   = modules::app::extensions::RunnablePlugin;
-export using Scheduler  = modules::scheduler::Plugin;
-export using States     = modules::states::Plugin;
+export using Addons     = app::extensions::AddonsPlugin;
+export using Assets     = assets::Plugin;
+export using ECS        = ecs::Plugin;
+export using Events     = events::Plugin;
+export using Functional = app::extensions::FunctionalPlugin;
+export using Messages   = messages::Plugin;
+export using Resources  = resources::Plugin;
+export using Runnable   = app::extensions::RunnablePlugin;
+export using Scheduler  = scheduler::Plugin;
+export using States     = states::Plugin;
 
-}   // namespace plugins
+}   // namespace ddge::plugins

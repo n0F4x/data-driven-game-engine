@@ -1,7 +1,7 @@
 #include <memory>
 #include <vector>
 
-import utility.containers.StackedTuple;
+import ddge.utility.containers.StackedTuple;
 
 namespace {
 
@@ -42,7 +42,7 @@ struct MakeSecondFunctor {
 
 static_assert(
     [] {
-        util::StackedTuple<>{};
+        ddge::util::StackedTuple<>{};
 
         return true;
     }(),
@@ -51,7 +51,8 @@ static_assert(
 
 static_assert(
     [] {
-        util::StackedTuple<First, Second> stacked_tuple{ make_first, make_second_fn };
+        ddge::util::StackedTuple<First, Second> stacked_tuple{ make_first,
+                                                               make_second_fn };
 
         return stacked_tuple.get<First>().value == stacked_tuple.get<Second>().ref.get();
     }(),
@@ -60,7 +61,8 @@ static_assert(
 
 static_assert(
     [] {
-        util::StackedTuple<First, Second> stacked_tuple{ make_first, make_second_lambda };
+        ddge::util::StackedTuple<First, Second> stacked_tuple{ make_first,
+                                                               make_second_lambda };
 
         return stacked_tuple.get<First>().value == stacked_tuple.get<Second>().ref.get();
     }(),
@@ -69,7 +71,8 @@ static_assert(
 
 static_assert(
     [] {
-        util::StackedTuple<First, Second> stacked_tuple{ make_first, MakeSecondFunctor{} };
+        ddge::util::StackedTuple<First, Second> stacked_tuple{ make_first,
+                                                               MakeSecondFunctor{} };
 
         return stacked_tuple.get<First>().value == stacked_tuple.get<Second>().ref.get();
     }(),
@@ -91,8 +94,8 @@ static_assert(
             }
         };
 
-        auto stacked_tuple =
-            std::make_unique<util::StackedTuple<OrderWriter, OrderWriter, OrderWriter>>(
+        auto stacked_tuple = std::
+            make_unique<ddge::util::StackedTuple<OrderWriter, OrderWriter, OrderWriter>>(
                 [&order] { return OrderWriter{ .order = order, .number = 0 }; },
                 [&order] { return OrderWriter{ .order = order, .number = 1 }; },
                 [&order] { return OrderWriter{ .order = order, .number = 2 }; }

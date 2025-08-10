@@ -3,20 +3,20 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module modules.scheduler.Plugin;
+export module ddge.modules.scheduler.Plugin;
 
-import modules.app.builder_c;
-import modules.scheduler.converts_to_task_builder_c;
-import modules.scheduler.Nexus;
-import modules.scheduler.provider_c;
-import modules.scheduler.ProviderOf;
-import modules.scheduler.wrap_as_builder;
+import ddge.modules.app.builder_c;
+import ddge.modules.scheduler.converts_to_task_builder_c;
+import ddge.modules.scheduler.Nexus;
+import ddge.modules.scheduler.provider_c;
+import ddge.modules.scheduler.ProviderOf;
+import ddge.modules.scheduler.wrap_as_builder;
 
-import utility.meta.type_traits.type_list.type_list_filter;
-import utility.meta.type_traits.type_list.type_list_transform;
-import utility.TypeList;
+import ddge.utility.meta.type_traits.type_list.type_list_filter;
+import ddge.utility.meta.type_traits.type_list.type_list_transform;
+import ddge.utility.TypeList;
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 
 export class Plugin {
 public:
@@ -24,26 +24,24 @@ public:
     constexpr auto run(this Self_T&&, TaskBuilder_T&& task_builder);
 };
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler
 
 template <typename App_T>
 struct AddonTraits {
     template <typename Addon_T>
         struct HasAccessorProvider : std::bool_constant < requires {
-        modules::scheduler::provider_c<modules::scheduler::provider_of_t<Addon_T>, App_T>;
+        ddge::scheduler::provider_c<ddge::scheduler::provider_of_t<Addon_T>, App_T>;
     } > {};
 
     template <typename Addon_T>
     struct AccessorProvider {
-        using type = modules::scheduler::provider_of_t<Addon_T>;
+        using type = ddge::scheduler::provider_of_t<Addon_T>;
     };
 };
 
-template <
-    modules::app::builder_c                        Self_T,
-    modules::scheduler::converts_to_task_builder_c TaskBuilder_T>
+template <ddge::app::builder_c Self_T, ddge::scheduler::converts_to_task_builder_c TaskBuilder_T>
 constexpr auto
-    modules::scheduler::Plugin::run(this Self_T&& self, TaskBuilder_T&& task_builder)
+    ddge::scheduler::Plugin::run(this Self_T&& self, TaskBuilder_T&& task_builder)
 {
     auto app{ std::forward<Self_T>(self).build() };
     using App               = decltype(app);

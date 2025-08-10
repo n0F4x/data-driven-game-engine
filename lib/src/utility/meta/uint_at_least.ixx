@@ -3,9 +3,9 @@ module;
 #include <cstddef>
 #include <cstdint>
 
-export module utility.meta.uint_at_least;
+export module ddge.utility.meta.uint_at_least;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <std::size_t>
 struct uint_at_least;
@@ -37,4 +37,4 @@ struct uint_at_least<SizeInBits_V> {
 export template <std::size_t SizeInBits_V>
 using uint_at_least_t = typename uint_at_least<SizeInBits_V>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

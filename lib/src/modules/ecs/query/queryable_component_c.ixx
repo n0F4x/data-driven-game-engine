@@ -1,10 +1,10 @@
-export module modules.ecs:query.queryable_component_c;
+export module ddge.modules.ecs:query.queryable_component_c;
 
 import :component_c;
 
-namespace modules::ecs {
+namespace ddge::ecs {
 
 export template <typename T>
 concept queryable_component_c = component_c<T>;
 
-}   // namespace modules::ecs
+}   // namespace ddge::ecs

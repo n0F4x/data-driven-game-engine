@@ -2,22 +2,22 @@ module;
 
 #include <type_traits>
 
-export module modules.assets.loader_c;
+export module ddge.modules.assets.loader_c;
 
-import modules.assets.asset_c;
-import modules.store.item_c;
+import ddge.modules.assets.asset_c;
+import ddge.modules.store.item_c;
 
-import utility.meta.concepts.functional.unambiguously_invocable;
-import utility.meta.concepts.hashable;
-import utility.meta.concepts.type_list.type_list_all_of;
-import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.functional.result_of;
-import utility.meta.type_traits.type_list.type_list_transform;
+import ddge.utility.meta.concepts.functional.unambiguously_invocable;
+import ddge.utility.meta.concepts.hashable;
+import ddge.utility.meta.concepts.type_list.type_list_all_of;
+import ddge.utility.meta.type_traits.functional.arguments_of;
+import ddge.utility.meta.type_traits.functional.result_of;
+import ddge.utility.meta.type_traits.type_list.type_list_transform;
 
 template <typename T>
-struct Hashable : std::bool_constant<util::meta::hashable_c<T>> {};
+struct Hashable : std::bool_constant<ddge::util::meta::hashable_c<T>> {};
 
-namespace modules::assets {
+namespace ddge::assets {
 
 export template <typename T>
 concept loader_c =
@@ -27,4 +27,4 @@ concept loader_c =
         util::meta::type_list_transform_t<util::meta::arguments_of_t<T>, std::remove_cvref>,
         ::Hashable>;
 
-}   // namespace modules::assets
+}   // namespace ddge::assets

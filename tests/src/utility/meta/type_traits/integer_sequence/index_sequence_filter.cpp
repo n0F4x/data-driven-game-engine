@@ -1,21 +1,23 @@
 #include <type_traits>
 
-import utility.meta.type_traits.integer_sequence.index_sequence_filter;
+import ddge.utility.meta.type_traits.integer_sequence.index_sequence_filter;
 
 namespace {
+
 template <typename Integer, Integer...>
 struct IntegerSequence {};
-}   // namespace
 
 template <std::size_t I>
-struct Even {
+struct IsEven {
     constexpr static bool value = I % 2 == 0;
 };
 
+}   // namespace
+
 static_assert(std::is_same_v<
-              util::meta::index_sequence_filter_t<IntegerSequence<std::size_t>, Even>,
+              ddge::util::meta::index_sequence_filter_t<IntegerSequence<std::size_t>, IsEven>,
               IntegerSequence<std::size_t>>);
 static_assert(std::is_same_v<
-              util::meta::
-                  index_sequence_filter_t<IntegerSequence<std::size_t, 0, 1, 2, 3, 4>, Even>,
+              ddge::util::meta::
+                  index_sequence_filter_t<IntegerSequence<std::size_t, 0, 1, 2, 3, 4>, IsEven>,
               IntegerSequence<std::size_t, 0, 2, 4>>);

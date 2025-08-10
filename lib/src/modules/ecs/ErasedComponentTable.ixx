@@ -2,9 +2,9 @@ module;
 
 #include <functional>
 
-export module modules.ecs:ErasedComponentTable;
+export module ddge.modules.ecs:ErasedComponentTable;
 
-import utility.containers.Any;
+import ddge.utility.containers.Any;
 
 import :ArchetypeID;
 import :component_c;
@@ -27,7 +27,7 @@ struct ErasedComponentTableOperations {
     EmptyFunc           empty;
 };
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 struct ErasedComponentTableTraits {
     constexpr static auto remove_component(ErasedComponentTable&, ArchetypeID, RecordIndex)
         -> void;
@@ -47,12 +47,13 @@ struct ErasedComponentTableTraits {
 };
 
 class ErasedComponentTable
-    : public util::BasicAny<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)> {
+    : public ddge::util::
+          BasicAny<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)> {
     using Base =
-        util::BasicAny<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)>;
+        ddge::util::BasicAny<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)>;
 
 public:
-    template <modules::ecs::component_c Component_T>
+    template <ddge::ecs::component_c Component_T>
     constexpr explicit ErasedComponentTable(ComponentTag<Component_T>);
 
     auto remove_component(ArchetypeID archetype_id, RecordIndex record_index) -> void;
@@ -70,19 +71,19 @@ private:
     std::reference_wrapper<const ErasedComponentTableOperations> m_operations;
 };
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ErasedComponentTableTraits<Component_T>::remove_component(
     ErasedComponentTable& self,
     const ArchetypeID     archetype_id,
     const RecordIndex     record_index
 ) -> void
 {
-    util::any_cast<ComponentTable<Component_T>>(self).remove_component(
+    ddge::util::any_cast<ComponentTable<Component_T>>(self).remove_component(
         archetype_id, record_index
     );
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ErasedComponentTableTraits<Component_T>::move_component(
     ErasedComponentTable& self,
     const ArchetypeID     archetype_id,
@@ -90,20 +91,20 @@ constexpr auto ErasedComponentTableTraits<Component_T>::move_component(
     const ArchetypeID     new_archetype_id
 ) -> RecordIndex
 {
-    return util::any_cast<ComponentTable<Component_T>>(self).move_component(
+    return ddge::util::any_cast<ComponentTable<Component_T>>(self).move_component(
         archetype_id, record_index, new_archetype_id
     );
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ErasedComponentTableTraits<Component_T>::empty(
     const ErasedComponentTable& self
 ) noexcept -> bool
 {
-    return util::any_cast<ComponentTable<Component_T>>(self).empty();
+    return ddge::util::any_cast<ComponentTable<Component_T>>(self).empty();
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr ErasedComponentTable::ErasedComponentTable(ComponentTag<Component_T>)
     : Base{ std::in_place_type<ComponentTable<Component_T>> },
       m_operations{ ErasedComponentTableTraits<Component_T>::s_operations }

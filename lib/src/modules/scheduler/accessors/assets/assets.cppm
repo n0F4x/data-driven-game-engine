@@ -1,3 +1,3 @@
-export module modules.scheduler.accessors.assets;
+export module ddge.modules.scheduler.accessors.assets;
 
-export import modules.scheduler.accessors.assets.Cached;
+export import ddge.modules.scheduler.accessors.assets.Cached;

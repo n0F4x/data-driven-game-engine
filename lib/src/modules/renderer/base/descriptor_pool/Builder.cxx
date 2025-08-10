@@ -2,9 +2,9 @@ module;
 
 #include <cstdint>
 
-module modules.renderer.base.descriptor_pool.DescriptorPool;
+module ddge.modules.renderer.base.descriptor_pool.DescriptorPool;
 
-auto modules::renderer::base::DescriptorPool::Builder::build(const vk::Device device) noexcept
+auto ddge::renderer::base::DescriptorPool::Builder::build(const vk::Device device) noexcept
     -> DescriptorPool
 {
     const vk::DescriptorPoolCreateInfo descriptor_pool_create_info{

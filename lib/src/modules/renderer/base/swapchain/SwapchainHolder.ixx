@@ -5,15 +5,15 @@ module;
 #include <span>
 #include <vector>
 
-export module modules.renderer.base.swapchain.SwapchainHolder;
+export module ddge.modules.renderer.base.swapchain.SwapchainHolder;
 
 import vulkan_hpp;
 
-import modules.renderer.base.swapchain.Swapchain;
+import ddge.modules.renderer.base.swapchain.Swapchain;
 
-import modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.device.Device;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 export class SwapchainHolder {
 public:
@@ -73,4 +73,4 @@ private:
     auto recreate_swapchain() -> void;
 };
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

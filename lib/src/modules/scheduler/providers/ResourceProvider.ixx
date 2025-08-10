@@ -6,24 +6,24 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.scheduler.providers.ResourceProvider;
+export module ddge.modules.scheduler.providers.ResourceProvider;
 
-import modules.app;
-import modules.resources;
-import modules.scheduler.ProviderFor;
+import ddge.modules.app;
+import ddge.modules.resources;
+import ddge.modules.scheduler.ProviderFor;
 
-import modules.scheduler.accessors.resources;
-import modules.scheduler.ProviderOf;
+import ddge.modules.scheduler.accessors.resources;
+import ddge.modules.scheduler.ProviderOf;
 
-import utility.contracts;
-import utility.meta.concepts.specialization_of;
-import utility.meta.reflection.name_of;
+import ddge.utility.contracts;
+import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.meta.reflection.name_of;
 
-namespace modules::scheduler::providers {
+namespace ddge::scheduler::providers {
 
 export class ResourceProvider {
 public:
-    template <modules::app::has_addons_c<resources::Addon> App_T>
+    template <ddge::app::has_addons_c<resources::Addon> App_T>
     constexpr explicit ResourceProvider(App_T& app);
 
     template <util::meta::specialization_of_c<accessors::resources::Resource> Resource_T>
@@ -31,29 +31,28 @@ public:
     constexpr auto provide() const -> Resource_T;
 
 private:
-    std::reference_wrapper<modules::resources::ResourceManager> m_resource_manager_ref;
+    std::reference_wrapper<ddge::resources::ResourceManager> m_resource_manager_ref;
 };
 
-}   // namespace modules::scheduler::providers
+}   // namespace ddge::scheduler::providers
 
 template <>
-struct modules::scheduler::ProviderOf<modules::resources::Addon>
-    : std::type_identity<modules::scheduler::providers::ResourceProvider> {};
+struct ddge::scheduler::ProviderOf<ddge::resources::Addon>
+    : std::type_identity<ddge::scheduler::providers::ResourceProvider> {};
 
 template <typename Resource_T>
-struct modules::scheduler::
-    ProviderFor<modules::scheduler::accessors::resources::Resource<Resource_T>>
-    : std::type_identity<modules::scheduler::providers::ResourceProvider> {};
+struct ddge::scheduler::
+    ProviderFor<ddge::scheduler::accessors::resources::Resource<Resource_T>>
+    : std::type_identity<ddge::scheduler::providers::ResourceProvider> {};
 
-template <modules::app::has_addons_c<modules::resources::Addon> App_T>
-constexpr modules::scheduler::providers::ResourceProvider::ResourceProvider(App_T& app)
+template <ddge::app::has_addons_c<ddge::resources::Addon> App_T>
+constexpr ddge::scheduler::providers::ResourceProvider::ResourceProvider(App_T& app)
     : m_resource_manager_ref{ app.resource_manager }
 {}
 
-template <util::meta::specialization_of_c<
-    modules::scheduler::accessors::resources::Resource> Resource_T>
-constexpr auto modules::scheduler::providers::ResourceProvider::provide() const
-    -> Resource_T
+template <ddge::util::meta::specialization_of_c<
+    ddge::scheduler::accessors::resources::Resource> Resource_T>
+constexpr auto ddge::scheduler::providers::ResourceProvider::provide() const -> Resource_T
 {
     using Resource = std::remove_const_t<typename Resource_T::Underlying>;
 

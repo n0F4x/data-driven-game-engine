@@ -1,4 +1,4 @@
-export module modules.gfx;
+export module ddge.modules.gfx;
 
-export import modules.gfx.resources;
-export import modules.gfx.Camera;
+export import ddge.modules.gfx.resources;
+export import ddge.modules.gfx.Camera;

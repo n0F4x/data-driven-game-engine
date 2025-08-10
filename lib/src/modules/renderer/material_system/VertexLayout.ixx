@@ -4,11 +4,11 @@ module;
 #include <span>
 #include <vector>
 
-export module modules.renderer.material_system.VertexLayout;
+export module ddge.modules.renderer.material_system.VertexLayout;
 
 import vulkan_hpp;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 export struct VertexAttribute {   // NOLINT(*-member-init)
     uint32_t   location;
@@ -39,10 +39,10 @@ private:
     std::vector<VertexAttribute> m_attributes;
 };
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer
 
 template <typename Self>
-auto modules::renderer::VertexLayout::add_attribute(
+auto ddge::renderer::VertexLayout::add_attribute(
     this Self&&     self,
     VertexAttribute attribute
 ) -> Self

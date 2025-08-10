@@ -2,13 +2,13 @@ module;
 
 #include <tuple>
 
-export module utility.tuple.tuple_drop_nth;
+export module ddge.utility.tuple.tuple_drop_nth;
 
-import utility.meta.type_traits.integer_sequence.integer_sequence_concat;
-import utility.meta.type_traits.integer_sequence.integer_sequence_offset;
-import utility.tuple.tuple_select;
+import ddge.utility.meta.type_traits.integer_sequence.integer_sequence_concat;
+import ddge.utility.meta.type_traits.integer_sequence.integer_sequence_offset;
+import ddge.utility.tuple.tuple_select;
 
-namespace util {
+namespace ddge::util {
 
 export template <std::size_t N, typename Tuple_T>
 auto tuple_drop_nth(Tuple_T&& tuple)
@@ -21,4 +21,4 @@ auto tuple_drop_nth(Tuple_T&& tuple)
     return tuple_select(std::forward<Tuple_T>(tuple), Indices{});
 }
 
-}   // namespace util
+}   // namespace ddge::util

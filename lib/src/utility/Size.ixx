@@ -2,11 +2,11 @@ module;
 
 #include <glm/glm.hpp>
 
-export module utility.Size;
+export module ddge.utility.Size;
 
 import vulkan_hpp;
 
-namespace util {
+namespace ddge::util {
 
 export template <unsigned dimensions, typename T>
 struct Size;
@@ -56,4 +56,4 @@ export using Size2f = Size<2, float>;
 export using Size3i = Size<3, int>;
 export using Size3f = Size<3, float>;
 
-}   // namespace util
+}   // namespace ddge::util

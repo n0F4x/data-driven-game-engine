@@ -1,19 +1,19 @@
 #include <type_traits>
 
-import utility.meta.type_traits.type_list.type_list_chunk_sub;
+import ddge.utility.meta.type_traits.type_list.type_list_chunk_sub;
 
 namespace {
+
 template <typename...>
 struct TypeList {};
-}   // namespace
 
-namespace {
 template <typename...>
 struct SubTypeList {};
+
 }   // namespace
 
 static_assert(std::is_same_v<
-              util::meta::type_list_chunk_sub_t<
+              ddge::util::meta::type_list_chunk_sub_t<
                   TypeList<
                       int8_t,
                       TypeList<int16_t>,

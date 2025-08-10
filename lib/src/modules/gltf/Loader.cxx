@@ -12,16 +12,16 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-module modules.gltf.Model;
-import modules.gltf.Image;
-import modules.gltf.ImageLoader;
-import modules.gltf.Mesh;
-import modules.gltf.Texture;
+module ddge.modules.gltf.Model;
+import ddge.modules.gltf.Image;
+import ddge.modules.gltf.ImageLoader;
+import ddge.modules.gltf.Mesh;
+import ddge.modules.gltf.Texture;
 
-import modules.log;
+import ddge.modules.log;
 
-import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.type_list.type_list_front;
+import ddge.utility.meta.type_traits.functional.arguments_of;
+import ddge.utility.meta.type_traits.type_list.type_list_front;
 
 [[nodiscard]]
 static auto load_asset(const std::filesystem::path& filepath)
@@ -44,18 +44,18 @@ static auto load_image(
     const std::filesystem::path& filepath,
     const fastgltf::Asset&       asset,
     const fastgltf::Image&       image
-) -> std::optional<modules::gltf::Image>
+) -> std::optional<ddge::gltf::Image>
 {
     return image.data.visit(
         fastgltf::visitor{
-            [](std::monostate) -> std::optional<modules::gltf::Image> {
+            [](std::monostate) -> std::optional<ddge::gltf::Image> {
                 assert(false &&
                     "Got `std::monostate` while visiting fastgltf::DataSource, which is "
                     "an error in fastgltf."
                 );
                 std::unreachable();
             },
-            [](const auto&) -> std::optional<modules::gltf::Image> {
+            [](const auto&) -> std::optional<ddge::gltf::Image> {
                 assert(
                     false && "Got an unexpected glTF image data source. Can't load image."
                 );
@@ -69,20 +69,20 @@ static auto load_image(
 
                 return data.visit(
                     fastgltf::visitor{
-                        [](const auto&) -> std::optional<modules::gltf::Image> {
+                        [](const auto&) -> std::optional<ddge::gltf::Image> {
                             throw std::runtime_error(
                                 "Got an unexpected glTF image data source. "
                                 "Can't load image from buffer view."
                             );
                         },
                         [&](const fastgltf::sources::Array& array) {
-                            return modules::gltf::ImageLoader::load_from(
+                            return ddge::gltf::ImageLoader::load_from(
                                 std::span{ array.bytes }.subspan(byte_offset),
                                 buffer_view.mimeType
                             );
                         },
                         [&](const fastgltf::sources::Vector& vector) {
-                            return modules::gltf::ImageLoader::load_from(
+                            return ddge::gltf::ImageLoader::load_from(
                                 std::span{ vector.bytes }.subspan(byte_offset),
                                 buffer_view.mimeType
                             );
@@ -95,17 +95,17 @@ static auto load_image(
                 );   // TODO: Support offsets?
                 assert(uri.uri.isLocalPath());
 
-                return modules::gltf::ImageLoader::load_from(
+                return ddge::gltf::ImageLoader::load_from(
                     std::filesystem::absolute(filepath.parent_path() / uri.uri.fspath())
                 );
             },
             [&](const fastgltf::sources::Array& array) {
-                return modules::gltf::ImageLoader::load_from(
+                return ddge::gltf::ImageLoader::load_from(
                     std::span{ array.bytes }, array.mimeType
                 );
             },
             [&](const fastgltf::sources::Vector& vector) {
-                return modules::gltf::ImageLoader::load_from(
+                return ddge::gltf::ImageLoader::load_from(
                     std::span{ vector.bytes }, vector.mimeType
                 );
             },
@@ -115,9 +115,9 @@ static auto load_image(
 
 [[nodiscard]]
 static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> filter)
-    -> modules::gltf::Sampler::MagFilter
+    -> ddge::gltf::Sampler::MagFilter
 {
-    using enum modules::gltf::Sampler::MagFilter;
+    using enum ddge::gltf::Sampler::MagFilter;
 
     if (!filter.has_value()) {
         return eLinear;
@@ -133,9 +133,9 @@ static auto convert_to_mag_filter(fastgltf::Optional<fastgltf::Filter> filter)
 
 [[nodiscard]]
 static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> filter)
-    -> modules::gltf::Sampler::MinFilter
+    -> ddge::gltf::Sampler::MinFilter
 {
-    using enum modules::gltf::Sampler::MinFilter;
+    using enum ddge::gltf::Sampler::MinFilter;
 
     if (!filter.has_value()) {
         return eLinear;
@@ -154,10 +154,10 @@ static auto convert_to_min_filter(fastgltf::Optional<fastgltf::Filter> filter)
 }
 
 [[nodiscard]]
-static auto convert(const fastgltf::Wrap wrap) noexcept -> modules::gltf::Sampler::WrapMode
+static auto convert(const fastgltf::Wrap wrap) noexcept -> ddge::gltf::Sampler::WrapMode
 {
     using enum fastgltf::Wrap;
-    using enum modules::gltf::Sampler::WrapMode;
+    using enum ddge::gltf::Sampler::WrapMode;
     switch (wrap) {
         case ClampToEdge:    return eClampToEdge;
         case MirroredRepeat: return eMirroredRepeat;
@@ -167,9 +167,9 @@ static auto convert(const fastgltf::Wrap wrap) noexcept -> modules::gltf::Sample
 }
 
 [[nodiscard]]
-static auto create_sampler(const fastgltf::Sampler& sampler) -> modules::gltf::Sampler
+static auto create_sampler(const fastgltf::Sampler& sampler) -> ddge::gltf::Sampler
 {
-    return modules::gltf::Sampler{
+    return ddge::gltf::Sampler{
         .mag_filter = ::convert_to_mag_filter(sampler.magFilter),
         .min_filter = ::convert_to_min_filter(sampler.minFilter),
         .wrap_s     = ::convert(sampler.wrapS),
@@ -188,17 +188,17 @@ static auto convert(const fastgltf::Optional<T>& optional) noexcept
     return static_cast<ReturnType>(optional.value());
 }
 
-static auto create_texture(const fastgltf::Texture& texture) -> modules::gltf::Texture
+static auto create_texture(const fastgltf::Texture& texture) -> ddge::gltf::Texture
 {
     if (texture.basisuImageIndex.has_value()) {
-        return modules::gltf::Texture{
+        return ddge::gltf::Texture{
             .sampler_index = ::convert<std::size_t, uint32_t>(texture.samplerIndex),
             .image_index   = static_cast<uint32_t>(texture.basisuImageIndex.value()),
         };
     }
 
     if (texture.imageIndex.has_value()) {
-        return modules::gltf::Texture{
+        return ddge::gltf::Texture{
             .sampler_index = ::convert<std::size_t, uint32_t>(texture.samplerIndex),
             .image_index   = static_cast<uint32_t>(texture.imageIndex.value()),
         };
@@ -211,9 +211,9 @@ static auto create_texture(const fastgltf::Texture& texture) -> modules::gltf::T
 
 [[nodiscard]]
 static auto convert(const fastgltf::PrimitiveType topology) noexcept
-    -> modules::gltf::Mesh::Primitive::Topology
+    -> ddge::gltf::Mesh::Primitive::Topology
 {
-    using enum modules::gltf::Mesh::Primitive::Topology;
+    using enum ddge::gltf::Mesh::Primitive::Topology;
     switch (topology) {
         case fastgltf::PrimitiveType::Points:        return ePoints;
         case fastgltf::PrimitiveType::Lines:         return eLines;
@@ -239,7 +239,7 @@ static auto convert(fastgltf::Optional<std::size_t> optional) noexcept
 [[nodiscard]]
 static auto make_accessor_loader(
     const fastgltf::Asset&                  asset,
-    std::vector<modules::gltf::Model::Vertex>& vertices,
+    std::vector<ddge::gltf::Model::Vertex>& vertices,
     std::size_t                             first_vertex_index
 )
 {
@@ -248,10 +248,10 @@ static auto make_accessor_loader(
                Projection                project,
                Transformation&&          transform
            ) -> void {
-        using ElementType = std::remove_cvref_t<
-            util::meta::type_list_front_t<util::meta::arguments_of_t<Transformation>>>;
+        using ElementType   = std::remove_cvref_t<ddge::util::meta::type_list_front_t<
+              ddge::util::meta::arguments_of_t<Transformation>>>;
         using AttributeType = std::remove_cvref_t<
-            std::invoke_result_t<Projection, const modules::gltf::Model::Vertex&>>;
+            std::invoke_result_t<Projection, const ddge::gltf::Model::Vertex&>>;
 
         fastgltf::iterateAccessorWithIndex<ElementType>(
             asset,
@@ -267,7 +267,7 @@ static auto make_accessor_loader(
 [[nodiscard]]
 static auto make_identity_accessor_loader(
     const fastgltf::Asset&                  asset,
-    std::vector<modules::gltf::Model::Vertex>& vertices,
+    std::vector<ddge::gltf::Model::Vertex>& vertices,
     std::size_t                             first_vertex_index
 )
 {
@@ -275,7 +275,7 @@ static auto make_identity_accessor_loader(
                const fastgltf::Accessor& accessor, Projection project
            ) -> void {
         using AttributeType = std::remove_cvref_t<
-            std::invoke_result_t<Projection, const modules::gltf::Model::Vertex&>>;
+            std::invoke_result_t<Projection, const ddge::gltf::Model::Vertex&>>;
 
         fastgltf::iterateAccessorWithIndex<AttributeType>(
             asset,
@@ -288,7 +288,7 @@ static auto make_identity_accessor_loader(
     };
 }
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 auto Loader::load_from_file(const std::filesystem::path& filepath) -> std::optional<Model>
 {
@@ -608,4 +608,4 @@ auto Loader::adjust_node_indices(
     }
 }
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

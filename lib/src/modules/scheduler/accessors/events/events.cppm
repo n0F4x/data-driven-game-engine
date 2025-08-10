@@ -1,5 +1,5 @@
-export module modules.scheduler.accessors.events;
+export module ddge.modules.scheduler.accessors.events;
 
-export import modules.scheduler.accessors.events.Processor;
-export import modules.scheduler.accessors.events.Reader;
-export import modules.scheduler.accessors.events.Recorder;
+export import ddge.modules.scheduler.accessors.events.Processor;
+export import ddge.modules.scheduler.accessors.events.Reader;
+export import ddge.modules.scheduler.accessors.events.Recorder;

@@ -9,22 +9,22 @@ module;
 
 module demos.gltf.DemoApp;
 
-import modules.cache.Handle;
-import modules.gltf.Model;
-import modules.renderer.base.swapchain.Swapchain;
-import modules.renderer.base.swapchain.SwapchainHolder;
-import modules.renderer.scene.Scene;
-import modules.window.Window;
+import ddge.modules.cache.Handle;
+import ddge.modules.gltf.Model;
+import ddge.modules.renderer.base.swapchain.Swapchain;
+import ddge.modules.renderer.base.swapchain.SwapchainHolder;
+import ddge.modules.renderer.scene.Scene;
+import ddge.modules.window.Window;
 
 import examples.base.init;
 
 import demos.gltf.init;
 
 auto demo::DemoPlugin::operator()(
-    modules::cache::Cache&                    cache,
-    const modules::renderer::base::Device&    device,
-    const modules::renderer::base::Allocator& allocator,
-    modules::renderer::base::SwapchainHolder& swapchain_holder
+    ddge::cache::Cache&                    cache,
+    const ddge::renderer::base::Device&    device,
+    const ddge::renderer::base::Allocator& allocator,
+    ddge::renderer::base::SwapchainHolder& swapchain_holder
 ) const -> DemoApp
 {
     return DemoApp{ cache,          device,
@@ -34,7 +34,7 @@ auto demo::DemoPlugin::operator()(
 
 template <std::invocable<vk::CommandBuffer> Executor>
 static auto
-    execute_command(const modules::renderer::base::Device& device, Executor&& executor)
+    execute_command(const ddge::renderer::base::Device& device, Executor&& executor)
         -> void
 {
     const vk::UniqueCommandPool command_pool{ examples::base::init::create_command_pool(
@@ -70,17 +70,17 @@ static auto
 
 [[nodiscard]]
 static auto load_scene(
-    const modules::renderer::base::Device&    device,
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Device&    device,
+    const ddge::renderer::base::Allocator& allocator,
     const vk::RenderPass                   render_pass,
-    modules::gltf::Model&&                    model,
-    modules::cache::Cache&                    cache,
+    ddge::gltf::Model&&                    model,
+    ddge::cache::Cache&                    cache,
     const bool                             use_virtual_images
-) -> modules::renderer::Scene
+) -> ddge::renderer::Scene
 {
     auto packaged_scene{
-        modules::renderer::Scene::create()
-            .add_model(modules::cache::make_handle<const modules::gltf::Model>(std::move(model)))
+        ddge::renderer::Scene::create()
+            .add_model(ddge::cache::make_handle<const ddge::gltf::Model>(std::move(model)))
             .set_cache(cache)
             .build(device, allocator, render_pass, use_virtual_images)
     };
@@ -91,10 +91,10 @@ static auto load_scene(
 }
 
 demo::DemoApp::DemoApp(
-    modules::cache::Cache&                    cache,
-    const modules::renderer::base::Device&    device,
-    const modules::renderer::base::Allocator& allocator,
-    modules::renderer::base::SwapchainHolder& swapchain_holder,
+    ddge::cache::Cache&                    cache,
+    const ddge::renderer::base::Device&    device,
+    const ddge::renderer::base::Allocator& allocator,
+    ddge::renderer::base::SwapchainHolder& swapchain_holder,
     const std::filesystem::path&           model_filepath,
     const bool                             use_virtual_images
 )
@@ -120,25 +120,25 @@ demo::DemoApp::DemoApp(
           device,
           allocator,
           m_render_pass.get(),
-          modules::gltf::Loader::load_from_file(model_filepath).value(),
+          ddge::gltf::Loader::load_from_file(model_filepath).value(),
           cache,
           use_virtual_images
       ) }
 {
     swapchain_holder.on_swapchain_recreated(
-        [&](const modules::renderer::base::Swapchain& swapchain) {
+        [&](const ddge::renderer::base::Swapchain& swapchain) {
             m_depth_image.reset();
             m_depth_image = init::create_depth_image(
                 device.physical_device(), allocator, swapchain.extent()
             );
         }
     );
-    swapchain_holder.on_swapchain_recreated([&](const modules::renderer::base::Swapchain&) {
+    swapchain_holder.on_swapchain_recreated([&](const ddge::renderer::base::Swapchain&) {
         m_depth_image_view.reset();
         m_depth_image_view = init::create_depth_image_view(device, m_depth_image.get());
     });
     swapchain_holder.on_swapchain_recreated(
-        [&](const modules::renderer::base::Swapchain& swapchain) {
+        [&](const ddge::renderer::base::Swapchain& swapchain) {
             m_framebuffers.clear();
             m_framebuffers = init::create_framebuffers(
                 device.get(),
@@ -155,7 +155,7 @@ auto demo::DemoApp::record_command_buffer(
     const uint32_t           image_index,
     const vk::Extent2D       swapchain_extent,
     const vk::CommandBuffer  graphics_command_buffer,
-    const modules::gfx::Camera& camera
+    const ddge::gfx::Camera& camera
 ) -> void
 {
     constexpr static std::array clear_values{
@@ -177,7 +177,7 @@ auto demo::DemoApp::record_command_buffer(
     ::execute_command(
         m_device,
         std::bind_front(
-            &modules::renderer::Scene::update,
+            &ddge::renderer::Scene::update,
             std::ref(m_scene),
             std::cref(camera),
             m_allocator,

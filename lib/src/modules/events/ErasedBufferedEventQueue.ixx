@@ -4,14 +4,14 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module modules.events.ErasedBufferedEventQueue;
+export module ddge.modules.events.ErasedBufferedEventQueue;
 
-import modules.events.BufferedEventQueue;
-import modules.events.event_c;
+import ddge.modules.events.BufferedEventQueue;
+import ddge.modules.events.event_c;
 
-import utility.containers.Any;
+import ddge.utility.containers.Any;
 
-namespace modules::events {
+namespace ddge::events {
 
 export class ErasedBufferedEventQueue;
 
@@ -49,18 +49,18 @@ private:
     std::reference_wrapper<const ErasedBufferedEventQueueOperations> m_operations;
 };
 
-}   // namespace modules::events
+}   // namespace ddge::events
 
-template <modules::events::event_c Event_T>
-auto modules::events::ErasedBufferedEventQueueTraits<Event_T>::swap_buffers(
+template <ddge::events::event_c Event_T>
+auto ddge::events::ErasedBufferedEventQueueTraits<Event_T>::swap_buffers(
     ErasedBufferedEventQueue& that
 ) -> void
 {
     util::any_cast<BufferedEventQueue<Event_T>>(that).swap_buffers();
 }
 
-template <modules::events::event_c Event_T>
-modules::events::ErasedBufferedEventQueue::
+template <ddge::events::event_c Event_T>
+ddge::events::ErasedBufferedEventQueue::
     ErasedBufferedEventQueue(std::in_place_type_t<Event_T>)
     : Base{ std::in_place_type<BufferedEventQueue<Event_T>> },
       m_operations{ ErasedBufferedEventQueueTraits<Event_T>::operations }
@@ -68,7 +68,7 @@ modules::events::ErasedBufferedEventQueue::
 
 module :private;
 
-auto modules::events::ErasedBufferedEventQueue::swap_buffers() -> void
+auto ddge::events::ErasedBufferedEventQueue::swap_buffers() -> void
 {
     m_operations.get().swap_buffers(*this);
 }

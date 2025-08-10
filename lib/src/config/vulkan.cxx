@@ -6,9 +6,9 @@ import vulkan_hpp;
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
-module config.vulkan;
+module ddge.config.vulkan;
 
-namespace config::vulkan {
+namespace ddge::config::vulkan {
 
 auto init() -> void
 {
@@ -30,4 +30,4 @@ auto dispatcher() noexcept -> const vk::DispatchLoaderDynamic&
     return VULKAN_HPP_DEFAULT_DISPATCHER;
 }
 
-}   // namespace config::vulkan
+}   // namespace ddge::config::vulkan

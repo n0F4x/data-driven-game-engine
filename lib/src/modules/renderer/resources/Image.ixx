@@ -2,15 +2,15 @@ module;
 
 #include <vk_mem_alloc.h>
 
-export module modules.renderer.resources.Image;
+export module ddge.modules.renderer.resources.Image;
 
 import vulkan_hpp;
 
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.resources.Allocation;
-import modules.renderer.base.resources.Image;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.resources.Allocation;
+import ddge.modules.renderer.base.resources.Image;
 
-namespace modules::renderer::resources {
+namespace ddge::renderer::resources {
 
 export class Image : public base::Image {
 public:
@@ -38,4 +38,4 @@ private:
     Image(base::Image&& image, base::Allocation&& allocation) noexcept;
 };
 
-}   // namespace modules::renderer::resources
+}   // namespace ddge::renderer::resources

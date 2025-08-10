@@ -2,9 +2,9 @@ module;
 
 #include <functional>
 
-export module modules.ecs:ArchetypeID;
+export module ddge.modules.ecs:ArchetypeID;
 
-import utility.Strong;
+import ddge.utility.Strong;
 
 import :Archetype;
 import :ComponentID;

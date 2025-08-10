@@ -1,11 +1,11 @@
-export module modules.ecs:Addon;
+export module ddge.modules.ecs:Addon;
 
 import :Registry;
 
-namespace modules::ecs {
+namespace ddge::ecs {
 
 export struct Addon {
     Registry registry;
 };
 
-}   // namespace modules::ecs
+}   // namespace ddge::ecs

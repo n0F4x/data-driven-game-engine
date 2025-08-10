@@ -5,20 +5,20 @@ module;
 #include <utility>
 #include <vector>
 
-export module utility.containers.SlotMultiMap;
+export module ddge.utility.containers.SlotMultiMap;
 
-import utility.containers.SparseSet;
+import ddge.utility.containers.SparseSet;
 
-import utility.meta.concepts.nothrow_movable;
-import utility.meta.concepts.specialization_of;
-import utility.meta.type_traits.forward_like;
-import utility.ScopeGuard;
-import utility.Strong;
+import ddge.utility.meta.concepts.nothrow_movable;
+import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.meta.type_traits.forward_like;
+import ddge.utility.ScopeGuard;
+import ddge.utility.Strong;
 
 template <typename T>
-concept key_c = requires { util::SparseSet<T>{}; };
+concept key_c = requires { ddge::util::SparseSet<T>{}; };
 
-namespace util {
+namespace ddge::util {
 
 export template <
     ::key_c Key_T,
@@ -29,7 +29,7 @@ class SlotMultiMap;
 template <
     typename Key_T,
     template <typename...> typename TypeList_T,
-    ::util::meta::nothrow_movable_c... Ts,
+    ddge::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
 class SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T> {
 public:
@@ -56,18 +56,17 @@ private:
     std::tuple<std::vector<Ts>...>     m_value_containers;
 };
 
-}   // namespace util
+}   // namespace ddge::util
 
 template <
     typename Key_T,
     template <typename...> typename TypeList_T,
-    ::util::meta::nothrow_movable_c... Ts,
+    ddge::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
 template <typename... Us>
     requires(std::is_constructible_v<Ts, Us> && ...)
-constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::emplace(
-    Us&&... values
-) -> Key
+constexpr auto ddge::util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::
+    emplace(Us&&... values) -> Key
 {
     ScopeGuards _ = [this, &values...]<std::size_t... Is>(std::index_sequence<Is...>) {
         return std::make_tuple(ScopeGuard{ [this, &values...]<std::size_t I> {
@@ -82,11 +81,10 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 template <
     typename Key_T,
     template <typename...> typename TypeList_T,
-    ::util::meta::nothrow_movable_c... Ts,
+    ddge::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
-constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::erase(
-    const Key key
-) -> std::optional<std::tuple<Ts...>>
+constexpr auto ddge::util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::
+    erase(const Key key) -> std::optional<std::tuple<Ts...>>
 {
     return m_sparse_set.erase(key).transform([this](const auto index) {
         return [this, index]<std::size_t... Is>(std::index_sequence<Is...>) {
@@ -106,10 +104,10 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 template <
     typename Key_T,
     template <typename...> typename TypeList_T,
-    ::util::meta::nothrow_movable_c... Ts,
+    ddge::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
 template <typename Self_T>
-constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::get(
+constexpr auto ddge::util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::get(
     this Self_T&& self,
     const Key     key
 ) -> std::tuple<meta::forward_like_t<Ts, Self_T>...>
@@ -126,11 +124,10 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 template <
     typename Key_T,
     template <typename...> typename TypeList_T,
-    ::util::meta::nothrow_movable_c... Ts,
+    ddge::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
-constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::find(
-    const Key key
-) -> std::optional<std::tuple<Ts&...>>
+constexpr auto ddge::util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::
+    find(const Key key) -> std::optional<std::tuple<Ts&...>>
 {
     return m_sparse_set.find(key).transform([this](const auto index) {
         return [this, index]<std::size_t... Is>(std::index_sequence<Is...>) {
@@ -144,11 +141,10 @@ constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>:
 template <
     typename Key_T,
     template <typename...> typename TypeList_T,
-    ::util::meta::nothrow_movable_c... Ts,
+    ddge::util::meta::nothrow_movable_c... Ts,
     uint8_t version_bit_size_T>
-constexpr auto util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::find(
-    const Key key
-) const -> std::optional<std::tuple<const Ts&...>>
+constexpr auto ddge::util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::
+    find(const Key key) const -> std::optional<std::tuple<const Ts&...>>
 {
     return const_cast<SlotMultiMap&>(*this).find(key);
 }

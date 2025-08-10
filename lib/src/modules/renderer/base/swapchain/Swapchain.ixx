@@ -5,11 +5,11 @@ module;
 
 #include <VkBootstrap.h>
 
-export module modules.renderer.base.swapchain.Swapchain;
+export module ddge.modules.renderer.base.swapchain.Swapchain;
 
 import vulkan_hpp;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 export class Swapchain {
 public:
@@ -93,4 +93,4 @@ public:
         -> void;
 };
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

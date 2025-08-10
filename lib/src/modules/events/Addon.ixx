@@ -1,11 +1,11 @@
-export module modules.events.Addon;
+export module ddge.modules.events.Addon;
 
-import modules.events.EventManager;
+import ddge.modules.events.EventManager;
 
-namespace modules::events {
+namespace ddge::events {
 
 export struct Addon {
     EventManager event_manager;
 };
 
-}   // namespace modules::events
+}   // namespace ddge::events

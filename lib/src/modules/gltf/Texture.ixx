@@ -5,9 +5,9 @@ module;
 
 #include <fastgltf/types.hpp>
 
-export module modules.gltf.Texture;
+export module ddge.modules.gltf.Texture;
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 export struct Sampler {
     enum class MagFilter {
@@ -50,4 +50,4 @@ export struct TextureInfo {
     static auto create(const fastgltf::TextureInfo& source) -> TextureInfo;
 };
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

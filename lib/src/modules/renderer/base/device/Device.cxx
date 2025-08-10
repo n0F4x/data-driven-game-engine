@@ -3,9 +3,9 @@ module;
 
 #include <VkBootstrap.h>
 
-module modules.renderer.base.device.Device;
+module ddge.modules.renderer.base.device.Device;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 Device::Device(const vkb::Device& device) : m_device{ device } {}
 
@@ -50,4 +50,4 @@ auto Device::info() const -> vkb::Device
     return m_device;
 }
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

@@ -2,20 +2,20 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.type_traits.functional.arguments_of;
+export module ddge.utility.meta.type_traits.functional.arguments_of;
 
-import utility.meta.concepts.functional.function;
-import utility.meta.concepts.functional.function_pointer;
-import utility.meta.concepts.functional.function_reference;
-import utility.meta.concepts.functional.member_function_pointer;
-import utility.meta.concepts.functional.unambiguous_explicit_functor;
-import utility.meta.concepts.functional.unambiguous_implicit_functor;
-import utility.meta.concepts.functional.unambiguous_static_functor;
-import utility.meta.concepts.functional.unambiguously_invocable;
-import utility.meta.type_traits.functional.signature;
-import utility.meta.type_traits.type_list.type_list_drop_front;
+import ddge.utility.meta.concepts.functional.function;
+import ddge.utility.meta.concepts.functional.function_pointer;
+import ddge.utility.meta.concepts.functional.function_reference;
+import ddge.utility.meta.concepts.functional.member_function_pointer;
+import ddge.utility.meta.concepts.functional.unambiguous_explicit_functor;
+import ddge.utility.meta.concepts.functional.unambiguous_implicit_functor;
+import ddge.utility.meta.concepts.functional.unambiguous_static_functor;
+import ddge.utility.meta.concepts.functional.unambiguously_invocable;
+import ddge.utility.meta.type_traits.functional.signature;
+import ddge.utility.meta.type_traits.type_list.type_list_drop_front;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 template <unambiguously_invocable_c F>
 struct arguments_of;
@@ -63,4 +63,4 @@ struct arguments_of<F> {
 export template <typename F>
 using arguments_of_t = typename arguments_of<F>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

@@ -2,9 +2,9 @@ module;
 
 #include <cstddef>
 
-export module utility.meta.type_traits.type_list.type_list_size;
+export module ddge.utility.meta.type_traits.type_list.type_list_size;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T>
 struct type_list_size;
@@ -17,4 +17,4 @@ struct type_list_size<TypeList_T<Ts...>> {
 export template <typename TypeList_T>
 inline constexpr std::size_t type_list_size_v = type_list_size<TypeList_T>::value;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

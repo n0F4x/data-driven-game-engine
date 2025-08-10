@@ -6,24 +6,24 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.scheduler.providers.StateProvider;
+export module ddge.modules.scheduler.providers.StateProvider;
 
-import modules.app;
-import modules.states;
-import modules.scheduler.ProviderFor;
+import ddge.modules.app;
+import ddge.modules.states;
+import ddge.modules.scheduler.ProviderFor;
 
-import modules.scheduler.accessors.states;
-import modules.scheduler.ProviderOf;
+import ddge.modules.scheduler.accessors.states;
+import ddge.modules.scheduler.ProviderOf;
 
-import utility.contracts;
-import utility.meta.concepts.specialization_of;
-import utility.meta.reflection.name_of;
+import ddge.utility.contracts;
+import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.meta.reflection.name_of;
 
-namespace modules::scheduler::providers {
+namespace ddge::scheduler::providers {
 
 export class StateProvider {
 public:
-    template <modules::app::has_addons_c<states::Addon> App_T>
+    template <ddge::app::has_addons_c<states::Addon> App_T>
     constexpr explicit StateProvider(App_T& app);
 
     template <util::meta::specialization_of_c<accessors::states::State> State_T>
@@ -31,28 +31,27 @@ public:
     constexpr auto provide() const -> State_T;
 
 private:
-    std::reference_wrapper<modules::states::StateManager> m_state_manager_ref;
+    std::reference_wrapper<ddge::states::StateManager> m_state_manager_ref;
 };
 
-}   // namespace modules::scheduler::providers
+}   // namespace ddge::scheduler::providers
 
 template <>
-struct modules::scheduler::ProviderOf<modules::states::Addon>
-    : std::type_identity<modules::scheduler::providers::StateProvider> {};
+struct ddge::scheduler::ProviderOf<ddge::states::Addon>
+    : std::type_identity<ddge::scheduler::providers::StateProvider> {};
 
 template <typename State_T>
-struct modules::scheduler::
-    ProviderFor<modules::scheduler::accessors::states::State<State_T>>
-    : std::type_identity<modules::scheduler::providers::StateProvider> {};
+struct ddge::scheduler::ProviderFor<ddge::scheduler::accessors::states::State<State_T>>
+    : std::type_identity<ddge::scheduler::providers::StateProvider> {};
 
-template <modules::app::has_addons_c<modules::states::Addon> App_T>
-constexpr modules::scheduler::providers::StateProvider::StateProvider(App_T& app)
+template <ddge::app::has_addons_c<ddge::states::Addon> App_T>
+constexpr ddge::scheduler::providers::StateProvider::StateProvider(App_T& app)
     : m_state_manager_ref{ app.state_manager }
 {}
 
-template <
-    util::meta::specialization_of_c<modules::scheduler::accessors::states::State> State_T>
-constexpr auto modules::scheduler::providers::StateProvider::provide() const -> State_T
+template <ddge::util::meta::specialization_of_c<ddge::scheduler::accessors::states::State>
+              State_T>
+constexpr auto ddge::scheduler::providers::StateProvider::provide() const -> State_T
 {
     using State = std::remove_const_t<typename State_T::Underlying>;
 

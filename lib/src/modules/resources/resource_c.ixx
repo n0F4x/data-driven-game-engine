@@ -1,10 +1,10 @@
-export module modules.resources.resource_c;
+export module ddge.modules.resources.resource_c;
 
-import modules.store.item_c;
+import ddge.modules.store.item_c;
 
-namespace modules::resources {
+namespace ddge::resources {
 
 export template <typename T>
-concept resource_c = modules::store::item_c<T>;
+concept resource_c = ddge::store::item_c<T>;
 
-}   // namespace modules::resources
+}   // namespace ddge::resources

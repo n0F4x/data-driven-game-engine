@@ -2,14 +2,14 @@ module;
 
 #include <utility>
 
-export module utility.tuple.generate_tuple_from;
+export module ddge.utility.tuple.generate_tuple_from;
 
-import utility.meta.concepts.integer_sequence.integer_sequence;
-import utility.meta.concepts.type_list;
-import utility.meta.type_traits.integer_sequence.integer_sequence_size;
-import utility.meta.type_traits.type_list.type_list_size;
+import ddge.utility.meta.concepts.integer_sequence.integer_sequence;
+import ddge.utility.meta.concepts.type_list;
+import ddge.utility.meta.type_traits.integer_sequence.integer_sequence_size;
+import ddge.utility.meta.type_traits.type_list.type_list_size;
 
-namespace util {
+namespace ddge::util {
 
 template <template <typename...> typename TypeList_T, typename... Ts>
 auto make_tuple(Ts&&... args) -> TypeList_T<Ts...>
@@ -88,4 +88,4 @@ auto generate_tuple_from(Generator_T&& generator)
         std::make_index_sequence<size>>::operator()(std::forward<Generator_T>(generator));
 }
 
-}   // namespace util
+}   // namespace ddge::util

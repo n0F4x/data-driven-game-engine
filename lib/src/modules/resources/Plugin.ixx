@@ -9,21 +9,21 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.resources.Plugin;
+export module ddge.modules.resources.Plugin;
 
-import modules.app;
+import ddge.modules.app;
 
-import modules.resources.Addon;
-import modules.resources.resource_c;
-import modules.store.Store;
+import ddge.modules.resources.Addon;
+import ddge.modules.resources.resource_c;
+import ddge.modules.store.Store;
 
-import utility.contracts;
-import utility.meta.concepts.type_list.type_list_all_of;
-import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.functional.result_of;
-import utility.TypeList;
+import ddge.utility.contracts;
+import ddge.utility.meta.concepts.type_list.type_list_all_of;
+import ddge.utility.meta.type_traits.functional.arguments_of;
+import ddge.utility.meta.type_traits.functional.result_of;
+import ddge.utility.TypeList;
 
-namespace modules::resources {
+namespace ddge::resources {
 
 template <typename T>
 struct IsResourceDependency
@@ -63,11 +63,11 @@ private:
     std::vector<std::type_index> m_types;
 };
 
-}   // namespace modules::resources
+}   // namespace ddge::resources
 
 template <typename Self_T, typename Resource_T>
-    requires modules::resources::resource_c<std::remove_cvref_t<Resource_T>>
-auto modules::resources::Plugin::insert_resource(this Self_T&& self, Resource_T&& resource)
+    requires ddge::resources::resource_c<std::remove_cvref_t<Resource_T>>
+auto ddge::resources::Plugin::insert_resource(this Self_T&& self, Resource_T&& resource)
     -> Self_T
 {
     using Resource = std::remove_cvref_t<Resource_T>;
@@ -93,26 +93,26 @@ auto modules::resources::Plugin::insert_resource(this Self_T&& self, Resource_T&
 }
 
 template <typename Injection_T>
-auto call_injection(Injection_T&& injection, modules::store::Store& parameter_store)
-    -> util::meta::result_of_t<Injection_T>
+auto call_injection(Injection_T&& injection, ddge::store::Store& parameter_store)
+    -> ddge::util::meta::result_of_t<Injection_T>
 {
-    using Parameters = util::meta::arguments_of_t<Injection_T>;
-    static_assert(util::meta::type_list_all_of_c<Parameters, std::is_lvalue_reference>);
+    using Parameters = ddge::util::meta::arguments_of_t<Injection_T>;
+    static_assert(ddge::util::meta::
+                      type_list_all_of_c<Parameters, std::is_lvalue_reference>);
 
-    return [&injection,
-            &parameter_store]<typename... Parameters_T>(util::TypeList<Parameters_T...>) {
-        return std::invoke(
-            std::forward<Injection_T>(injection),
-            parameter_store.at<std::remove_cvref_t<Parameters_T>>()...
-        );
-    }(Parameters{});
+    return
+        [&injection,
+         &parameter_store]<typename... Parameters_T>(ddge::util::TypeList<Parameters_T...>) {
+            return std::invoke(
+                std::forward<Injection_T>(injection),
+                parameter_store.at<std::remove_cvref_t<Parameters_T>>()...
+            );
+        }(Parameters{});
 }
 
-template <typename Self_T, modules::resources::decays_to_resource_injection_c Injection_T>
-auto modules::resources::Plugin::inject_resource(
-    this Self_T&& self,
-    Injection_T&& injection
-) -> Self_T
+template <typename Self_T, ddge::resources::decays_to_resource_injection_c Injection_T>
+auto ddge::resources::Plugin::inject_resource(this Self_T&& self, Injection_T&& injection)
+    -> Self_T
 {
     using Resource  = std::remove_cvref_t<util::meta::result_of_t<Injection_T>>;
     using Injection = std::decay_t<Injection_T>;
@@ -147,8 +147,8 @@ auto modules::resources::Plugin::inject_resource(
     return std::forward<Self_T>(self);
 }
 
-template <modules::app::decays_to_app_c App_T>
-auto modules::resources::Plugin::build(App_T&& app) && -> app::add_on_t<App_T, Addon>
+template <ddge::app::decays_to_app_c App_T>
+auto ddge::resources::Plugin::build(App_T&& app) && -> app::add_on_t<App_T, Addon>
 {
     static_assert(!app::has_addons_c<App_T, Addon>);
 
@@ -164,8 +164,8 @@ auto modules::resources::Plugin::build(App_T&& app) && -> app::add_on_t<App_T, A
     );
 }
 
-template <modules::resources::resource_c Resource_T>
-auto modules::resources::Plugin::contains_resource() const -> bool
+template <ddge::resources::resource_c Resource_T>
+auto ddge::resources::Plugin::contains_resource() const -> bool
 {
     return std::ranges::contains(m_types, typeid(Resource_T));
 }

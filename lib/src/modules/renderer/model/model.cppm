@@ -1,4 +1,4 @@
-export module modules.renderer.model;
+export module ddge.modules.renderer.model;
 
-export import modules.renderer.model.Drawable;
-export import modules.renderer.model.ModelLayout;
+export import ddge.modules.renderer.model.Drawable;
+export import ddge.modules.renderer.model.ModelLayout;

@@ -4,10 +4,10 @@ module;
 
 module snake.game.create_update_task_builder;
 
-import modules.scheduler.TaskBuilder;
-import modules.time.FixedTimer;
+import ddge.modules.scheduler.TaskBuilder;
+import ddge.modules.time.FixedTimer;
 
-import modules.scheduler;
+import ddge.modules.scheduler;
 
 import snake.game.adjust_snake_speed;
 import snake.game.AppleSpawnTimer;
@@ -20,7 +20,7 @@ import snake.game.spawn_apple;
 import snake.game.trigger_world_update_message;
 import snake.game.WorldUpdate;
 
-using namespace modules::scheduler::accessors;
+using namespace ddge::scheduler::accessors;
 
 auto update_timers(
     const resources::Resource<game::AppleSpawnTimer> apple_spawn_timer,
@@ -48,19 +48,19 @@ auto world_update_message_received(
     return !message_receiver.receive().empty();
 }
 
-auto game::create_update_task_builder() -> modules::scheduler::TaskBuilder<void>
+auto game::create_update_task_builder() -> ddge::scheduler::TaskBuilder<void>
 {
-    return modules::scheduler::start_as(::update_timers)
+    return ddge::scheduler::start_as(::update_timers)
         .then(
-            modules::scheduler::run_if(
+            ddge::scheduler::run_if(
                 adjust_snake_speed,   //
                 ::apple_was_digested
             )
         )
         .then(
-            modules::scheduler::repeat(
-                modules::scheduler::group(
-                    modules::scheduler::start_as(move_snake)   //
+            ddge::scheduler::repeat(
+                ddge::scheduler::group(
+                    ddge::scheduler::start_as(move_snake)   //
                         .then(create_eat_apple_task_builder()),
                     trigger_world_update_message
                 ),
@@ -68,12 +68,12 @@ auto game::create_update_task_builder() -> modules::scheduler::TaskBuilder<void>
             )
         )
         .then(
-            modules::scheduler::at_fixed_rate<AppleSpawnTimer>(   //
-                modules::scheduler::group(
-                    spawn_apple,                                     //
+            ddge::scheduler::at_fixed_rate<AppleSpawnTimer>(   //
+                ddge::scheduler::group(
+                    spawn_apple,                               //
                     trigger_world_update_message
                 )
             )
         )
-        .then(modules::scheduler::run_if(color_cells, ::world_update_message_received));
+        .then(ddge::scheduler::run_if(color_cells, ::world_update_message_received));
 }

@@ -2,11 +2,11 @@ module;
 
 #include <VkBootstrap.h>
 
-export module modules.renderer.base.instance.Instance;
+export module ddge.modules.renderer.base.instance.Instance;
 
 import vulkan_hpp;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 export class Instance {
 public:
@@ -45,4 +45,4 @@ private:
     vkb::Instance m_instance;
 };
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

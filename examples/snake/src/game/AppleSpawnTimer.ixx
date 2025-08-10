@@ -4,13 +4,13 @@ module;
 
 export module snake.game.AppleSpawnTimer;
 
-import modules.time.FixedTimer;
+import ddge.modules.time.FixedTimer;
 
 import snake.game.apple_spawn_time;
 
 namespace game {
 
-export class AppleSpawnTimer : public modules::time::FixedTimer<
+export class AppleSpawnTimer : public ddge::time::FixedTimer<
                                    std::remove_cvref_t<decltype(apple_spawn_time)>,
                                    apple_spawn_time.count()> {};
 

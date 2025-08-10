@@ -8,21 +8,21 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.ecs:ComponentTable;
+export module ddge.modules.ecs:ComponentTable;
 
-import utility.containers.OptionalRef;
+import ddge.utility.containers.OptionalRef;
 
 import :ArchetypeID;
 import :component_c;
 import :ComponentContainer;
 import :RecordIndex;
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 class ComponentTable {
     using Underlying = std::unordered_map<ArchetypeID, ComponentContainer<Component_T>>;
 
 public:
-    template <util::meta::decays_to_c<Component_T> UComponent_T>
+    template <ddge::util::meta::decays_to_c<Component_T> UComponent_T>
     auto insert(ArchetypeID archetype_id, UComponent_T&& component) -> RecordIndex;
 
     auto remove_component(ArchetypeID archetype_id, RecordIndex record_index)
@@ -42,9 +42,9 @@ public:
         -> const ComponentContainer<Component_T>&;
 
     auto find_component_container(ArchetypeID archetype_id)
-        -> util::OptionalRef<ComponentContainer<Component_T>>;
+        -> ddge::util::OptionalRef<ComponentContainer<Component_T>>;
     auto find_component_container(ArchetypeID archetype_id) const
-        -> util::OptionalRef<const ComponentContainer<Component_T>>;
+        -> ddge::util::OptionalRef<const ComponentContainer<Component_T>>;
 
     [[nodiscard]]
     auto empty() const noexcept -> bool;
@@ -60,8 +60,8 @@ private:
     std::vector<ArchetypeID> m_archetype_ids;
 };
 
-template <modules::ecs::component_c Component_T>
-template <util::meta::decays_to_c<Component_T> UComponent_T>
+template <ddge::ecs::component_c Component_T>
+template <ddge::util::meta::decays_to_c<Component_T> UComponent_T>
 auto ComponentTable<Component_T>::insert(
     const ArchetypeID archetype_id,
     UComponent_T&&    component
@@ -74,7 +74,7 @@ auto ComponentTable<Component_T>::insert(
     return m_map[archetype_id].insert(std::forward<UComponent_T>(component));
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto ComponentTable<Component_T>::remove_component(
     const ArchetypeID archetype_id,
     const RecordIndex record_index
@@ -95,7 +95,7 @@ auto ComponentTable<Component_T>::remove_component(
     return result;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto ComponentTable<Component_T>::move_component(
     const ArchetypeID archetype_id,
     const RecordIndex record_index,
@@ -121,7 +121,7 @@ auto ComponentTable<Component_T>::move_component(
     return new_record_index;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto ComponentTable<Component_T>::get_component_container(const ArchetypeID archetype_id)
     -> ComponentContainer<Component_T>&
 {
@@ -131,7 +131,7 @@ auto ComponentTable<Component_T>::get_component_container(const ArchetypeID arch
     return component_container_iter->second;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto ComponentTable<Component_T>::get_component_container(
     const ArchetypeID archetype_id
 ) const -> const ComponentContainer<Component_T>&
@@ -139,9 +139,9 @@ auto ComponentTable<Component_T>::get_component_container(
     return const_cast<ComponentTable&>(*this).get_component_container(archetype_id);
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto ComponentTable<Component_T>::find_component_container(const ArchetypeID archetype_id)
-    -> util::OptionalRef<ComponentContainer<Component_T>>
+    -> ddge::util::OptionalRef<ComponentContainer<Component_T>>
 {
     const auto iterator{ m_map.find(archetype_id) };
     if (iterator == m_map.cend()) {
@@ -151,27 +151,27 @@ auto ComponentTable<Component_T>::find_component_container(const ArchetypeID arc
     return iterator->second;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto ComponentTable<Component_T>::find_component_container(
     const ArchetypeID archetype_id
-) const -> util::OptionalRef<const ComponentContainer<Component_T>>
+) const -> ddge::util::OptionalRef<const ComponentContainer<Component_T>>
 {
     return const_cast<ComponentTable&>(*this).find_component_container(archetype_id);
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto ComponentTable<Component_T>::empty() const noexcept -> bool
 {
     return m_map.empty();
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto ComponentTable<Component_T>::size() const noexcept -> std::size_t
 {
     return m_map.size();
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto ComponentTable<Component_T>::archetype_ids() const noexcept
     -> std::span<const ArchetypeID>
 {

@@ -1,3 +1,3 @@
-export module modules.cache;
+export module ddge.modules.cache;
 
-export import modules.cache.Cache;
+export import ddge.modules.cache.Cache;

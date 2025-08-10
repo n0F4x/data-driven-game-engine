@@ -5,11 +5,11 @@ module;
 
 #include <VkBootstrap.h>
 
-export module modules.renderer.model.ModelLayout;
+export module ddge.modules.renderer.model.ModelLayout;
 
 import vulkan_hpp;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 export class ModelLayout {
 public:
@@ -60,4 +60,4 @@ public:
         -> void;
 };
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer

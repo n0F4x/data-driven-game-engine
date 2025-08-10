@@ -4,7 +4,7 @@ module;
 #include <fstream>
 #include <vector>
 
-module modules.renderer.material_system.ShaderModule;
+module ddge.modules.renderer.material_system.ShaderModule;
 
 [[nodiscard]]
 static auto load_shader(const vk::Device device, const std::filesystem::path& filepath)
@@ -32,7 +32,7 @@ static auto load_shader(const vk::Device device, const std::filesystem::path& fi
     return device.createShaderModuleUnique(create_info);
 }
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 auto ShaderModule::hash(const std::filesystem::path& filepath) noexcept -> std::size_t
 {
@@ -69,10 +69,10 @@ auto hash_value(const ShaderModule& shader_module) noexcept -> std::size_t
     return std::filesystem::hash_value(shader_module.m_filepath);
 }
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer
 
-auto std::hash<modules::renderer::ShaderModule>::operator()(
-    const modules::renderer::ShaderModule& shader_module
+auto std::hash<ddge::renderer::ShaderModule>::operator()(
+    const ddge::renderer::ShaderModule& shader_module
 ) const noexcept -> std::size_t
 {
     return hash_value(shader_module);

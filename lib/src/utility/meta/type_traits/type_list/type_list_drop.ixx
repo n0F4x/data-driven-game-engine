@@ -2,9 +2,9 @@ module;
 
 #include <cstddef>
 
-export module utility.meta.type_traits.type_list.type_list_drop;
+export module ddge.utility.meta.type_traits.type_list.type_list_drop;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T, std::size_t N>
 struct type_list_drop;
@@ -22,4 +22,4 @@ struct type_list_drop<TypeList_T<T, Ts...>, N>
 export template <typename TypeList_T, std::size_t N>
 using type_list_drop_t = typename type_list_drop<TypeList_T, N>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

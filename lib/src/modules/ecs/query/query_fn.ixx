@@ -4,33 +4,34 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module modules.ecs:query.query;
+export module ddge.modules.ecs:query.query;
 
-import utility.meta.concepts.functional.unambiguously_invocable;
-import utility.meta.concepts.type_list.type_list_none_of;
-import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.meta.type_traits.type_list.type_list_index_of;
-import utility.meta.type_traits.type_list.type_list_to;
-import utility.meta.type_traits.type_list.type_list_transform;
-import utility.TypeList;
+import ddge.utility.meta.concepts.functional.unambiguously_invocable;
+import ddge.utility.meta.concepts.type_list.type_list_none_of;
+import ddge.utility.meta.type_traits.functional.arguments_of;
+import ddge.utility.meta.type_traits.type_list.type_list_contains;
+import ddge.utility.meta.type_traits.type_list.type_list_index_of;
+import ddge.utility.meta.type_traits.type_list.type_list_to;
+import ddge.utility.meta.type_traits.type_list.type_list_transform;
+import ddge.utility.TypeList;
 
 import :query.QueryClosure;
 import :Registry;
 
 template <typename F>
 concept deducable_query_function_c =
-    util::meta::unambiguously_invocable_c<F>
-    && util::meta::
-        type_list_none_of_c<util::meta::arguments_of_t<F>, std::is_rvalue_reference>
-    && requires(modules::ecs::Registry& registry) {
-           util::meta::type_list_to_t<
-               util::meta::
-                   type_list_transform_t<util::meta::arguments_of_t<F>, std::remove_reference>,
-               modules::ecs::Query>{ registry };
+    ddge::util::meta::unambiguously_invocable_c<F>
+    && ddge::util::meta::
+        type_list_none_of_c<ddge::util::meta::arguments_of_t<F>, std::is_rvalue_reference>
+    && requires(ddge::ecs::Registry& registry) {
+           ddge::util::meta::type_list_to_t<
+               ddge::util::meta::type_list_transform_t<
+                   ddge::util::meta::arguments_of_t<F>,
+                   std::remove_reference>,
+               ddge::ecs::Query>{ registry };
        };
 
-namespace modules::ecs {
+namespace ddge::ecs {
 
 /**
  * Do not directly alter the registry while querying!
@@ -49,17 +50,17 @@ export template <query_parameter_c... Parameters_T>
     requires(sizeof...(Parameters_T) != 0)
 auto count(Registry& registry) -> std::size_t;
 
-}   // namespace modules::ecs
+}   // namespace ddge::ecs
 
-template <modules::ecs::query_parameter_c... Parameters_T, typename F>
+template <ddge::ecs::query_parameter_c... Parameters_T, typename F>
     requires(sizeof...(Parameters_T) != 0)
-auto modules::ecs::query(Registry& registry, F&& func) -> F
+auto ddge::ecs::query(Registry& registry, F&& func) -> F
 {
     return Query<Parameters_T...>{ registry }(std::forward<F>(func));
 }
 
 template <deducable_query_function_c F>
-auto modules::ecs::query(Registry& registry, F&& func) -> F
+auto ddge::ecs::query(Registry& registry, F&& func) -> F
 {
     util::meta::apply<util::meta::arguments_of_t<F>>(
         [&registry, &func]<typename... QueryParameters_T> {
@@ -98,9 +99,9 @@ auto modules::ecs::query(Registry& registry, F&& func) -> F
     return std::forward<F>(func);
 }
 
-template <modules::ecs::query_parameter_c... Parameters_T>
+template <ddge::ecs::query_parameter_c... Parameters_T>
     requires(sizeof...(Parameters_T) != 0)
-auto modules::ecs::count(Registry& registry) -> std::size_t
+auto ddge::ecs::count(Registry& registry) -> std::size_t
 {
     return Query<Parameters_T...>{ registry }.count();
 }

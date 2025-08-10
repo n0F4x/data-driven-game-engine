@@ -1,8 +1,8 @@
-export module utility.meta.type_traits.functional.signature;
+export module ddge.utility.meta.type_traits.functional.signature;
 
-import utility.TypeList;
+import ddge.utility.TypeList;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename>
 struct signature;
@@ -85,4 +85,4 @@ struct signature<Result (Class::*)(Args...) const && noexcept> {
     using result_t    = Result;
 };
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

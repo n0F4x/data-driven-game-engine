@@ -2,11 +2,11 @@ module;
 
 #include <functional>
 
-export module modules.app.extensions.FunctionalPlugin;
+export module ddge.modules.app.extensions.FunctionalPlugin;
 
-import modules.app.decays_to_builder_c;
+import ddge.modules.app.decays_to_builder_c;
 
-namespace modules::app {
+namespace ddge::app {
 
 inline namespace extensions {
 
@@ -26,12 +26,12 @@ public:
 
 }   // namespace extensions
 
-}   // namespace modules::app
+}   // namespace ddge::app
 
 template <
-    modules::app::decays_to_builder_c            Self_T,
-    modules::app::extensions::modifier_c<Self_T> Modifier_T>
-constexpr auto modules::app::extensions::FunctionalPlugin::transform(
+    ddge::app::decays_to_builder_c            Self_T,
+    ddge::app::extensions::modifier_c<Self_T> Modifier_T>
+constexpr auto ddge::app::extensions::FunctionalPlugin::transform(
     this Self_T&& self,
     Modifier_T&&  modifier
 ) -> std::invoke_result_t<Modifier_T, Self_T&&>

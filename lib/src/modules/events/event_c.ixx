@@ -1,10 +1,10 @@
-export module modules.events.event_c;
+export module ddge.modules.events.event_c;
 
-import modules.store.item_c;
+import ddge.modules.store.item_c;
 
-namespace modules::events {
+namespace ddge::events {
 
 export template <typename T>
 concept event_c = store::item_c<T>;
 
-}   // namespace modules::events
+}   // namespace ddge::events

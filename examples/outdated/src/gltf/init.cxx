@@ -6,8 +6,8 @@ module;
 
 module demos.gltf.init;
 
-import modules.renderer.base.device.Device;
-import modules.renderer.resources.Image;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.resources.Image;
 
 [[nodiscard]]
 auto find_supported_format(
@@ -46,7 +46,7 @@ auto find_depth_format(const vk::PhysicalDevice physical_device) -> vk::Format
 
 auto demo::init::create_render_pass(
     const vk::Format                    color_format,
-    const modules::renderer::base::Device& device
+    const ddge::renderer::base::Device& device
 ) -> vk::UniqueRenderPass
 {
     const vk::AttachmentDescription color_attachment_description{
@@ -116,9 +116,9 @@ auto demo::init::create_render_pass(
 
 auto demo::init::create_depth_image(
     const vk::PhysicalDevice               physical_device,
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     const vk::Extent2D                     swapchain_extent
-) -> modules::renderer::resources::Image
+) -> ddge::renderer::resources::Image
 {
     const vk::ImageCreateInfo image_create_info = {
         .imageType   = vk::ImageType::e2D,
@@ -138,13 +138,13 @@ auto demo::init::create_depth_image(
         .priority = 1.f,
     };
 
-    return modules::renderer::resources::Image{ allocator,
+    return ddge::renderer::resources::Image{ allocator,
                                              image_create_info,
                                              allocation_create_info };
 }
 
 auto demo::init::create_depth_image_view(
-    const modules::renderer::base::Device& device,
+    const ddge::renderer::base::Device& device,
     const vk::Image                     depth_image
 ) -> vk::UniqueImageView
 {

@@ -6,17 +6,17 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module modules.scheduler.SchedulerBuilder;
+export module ddge.modules.scheduler.SchedulerBuilder;
 
-import modules.scheduler.Nexus;
-import modules.scheduler.provide_accessors_for;
-import modules.scheduler.raw_task_c;
-import modules.scheduler.Task;
-import modules.scheduler.TaskBuilder;
+import ddge.modules.scheduler.Nexus;
+import ddge.modules.scheduler.provide_accessors_for;
+import ddge.modules.scheduler.raw_task_c;
+import ddge.modules.scheduler.Task;
+import ddge.modules.scheduler.TaskBuilder;
 
-import utility.meta.type_traits.functional.result_of;
+import ddge.utility.meta.type_traits.functional.result_of;
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 
 export class SchedulerBuilder {
 public:
@@ -51,25 +51,25 @@ private:
     TaskBuilder<void> m_builder;
 };
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler
 
 template <typename TaskBuilder_T>
-    requires modules::scheduler::
+    requires ddge::scheduler::
                  specialization_of_TaskBuilder_c<std::remove_cvref_t<TaskBuilder_T>>
           && std::same_as<typename std::remove_cvref_t<TaskBuilder_T>::Result, void>
-modules::scheduler::SchedulerBuilder::SchedulerBuilder(TaskBuilder_T&& task_builder)
+ddge::scheduler::SchedulerBuilder::SchedulerBuilder(TaskBuilder_T&& task_builder)
     : m_builder{ std::forward<TaskBuilder_T>(task_builder) }
 {}
 
 template <typename Self_T>
-modules::scheduler::SchedulerBuilder::operator TaskBuilder<void>(this Self_T && self)
+ddge::scheduler::SchedulerBuilder::operator TaskBuilder<void>(this Self_T && self)
 {
     return std::forward_like<Self_T>(self.m_builder);
 }
 
-template <typename Self_T, modules::scheduler::raw_task_c F>
-    requires std::same_as<util::meta::result_of_t<F>, void>
-auto modules::scheduler::SchedulerBuilder::then(this Self_T&& self, F&& func)
+template <typename Self_T, ddge::scheduler::raw_task_c F>
+    requires std::same_as<ddge::util::meta::result_of_t<F>, void>
+auto ddge::scheduler::SchedulerBuilder::then(this Self_T&& self, F&& func)
     -> SchedulerBuilder
 {
     return std::forward<Self_T>(self).then(
@@ -87,10 +87,10 @@ auto modules::scheduler::SchedulerBuilder::then(this Self_T&& self, F&& func)
 }
 
 template <typename Self_T, typename TaskBuilder_T>
-    requires modules::scheduler::
+    requires ddge::scheduler::
                  specialization_of_TaskBuilder_c<std::remove_cvref_t<TaskBuilder_T>>
           && std::same_as<typename std::remove_cvref_t<TaskBuilder_T>::Result, void>
-auto modules::scheduler::SchedulerBuilder::then(
+auto ddge::scheduler::SchedulerBuilder::then(
     this Self_T&&   self,
     TaskBuilder_T&& task_builder
 ) -> SchedulerBuilder
@@ -109,8 +109,8 @@ auto modules::scheduler::SchedulerBuilder::then(
 
 template <typename Self_T, typename ScheduleBuilder_T>
     requires std::
-        same_as<std::remove_cvref_t<ScheduleBuilder_T>, modules::scheduler::SchedulerBuilder>
-    auto modules::scheduler::SchedulerBuilder::then(
+        same_as<std::remove_cvref_t<ScheduleBuilder_T>, ddge::scheduler::SchedulerBuilder>
+    auto ddge::scheduler::SchedulerBuilder::then(
         this Self_T&&       self,
         ScheduleBuilder_T&& schedule_builder
     ) -> SchedulerBuilder
@@ -120,7 +120,7 @@ template <typename Self_T, typename ScheduleBuilder_T>
     );
 }
 
-auto modules::scheduler::SchedulerBuilder::build(Nexus& nexus) const -> Task<void>
+auto ddge::scheduler::SchedulerBuilder::build(Nexus& nexus) const -> Task<void>
 {
     return m_builder.build(nexus);
 }

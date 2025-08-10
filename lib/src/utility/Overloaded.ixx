@@ -1,6 +1,6 @@
-export module utility.Overloaded;
+export module ddge.utility.Overloaded;
 
-namespace util {
+namespace ddge::util {
 
 export template <typename... Ts>
 struct Overloaded : Ts... {
@@ -9,4 +9,4 @@ struct Overloaded : Ts... {
     consteval static auto operator()(auto...) -> void = delete("unsupported type");
 };
 
-}   // namespace util
+}   // namespace ddge::util

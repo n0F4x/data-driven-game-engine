@@ -2,11 +2,11 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.concepts.functional.function;
+export module ddge.utility.meta.concepts.functional.function;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename F>
 concept function_c = std::is_function_v<F>;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

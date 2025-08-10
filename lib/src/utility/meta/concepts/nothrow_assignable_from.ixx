@@ -2,9 +2,9 @@ module;
 
 #include <concepts>
 
-export module utility.meta.concepts.nothrow_assignable_from;
+export module ddge.utility.meta.concepts.nothrow_assignable_from;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename LHS, typename RHS>
 concept nothrow_assignable_from_c = std::is_lvalue_reference_v<LHS>
@@ -17,4 +17,4 @@ concept nothrow_assignable_from_c = std::is_lvalue_reference_v<LHS>
                                         } noexcept -> std::same_as<LHS>;
                                     };
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

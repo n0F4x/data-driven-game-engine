@@ -1,11 +1,11 @@
 module;
 
 
-module modules.gfx.resources.image_helpers;
+module ddge.modules.gfx.resources.image_helpers;
 
-import modules.renderer.base.resources.Image;
+import ddge.modules.renderer.base.resources.Image;
 
-auto modules::gfx::resources::transition_image_layout(
+auto ddge::gfx::resources::transition_image_layout(
     const vk::CommandBuffer             command_buffer,
     renderer::base::Image&              image,
     const renderer::base::Image::State& new_state

@@ -2,30 +2,30 @@
 
 #include "utility/contracts_macros.hpp"
 
-import modules.ecs;
-import utility.containers.OptionalRef;
-import utility.contracts;
-import utility.meta.algorithms.apply;
-import utility.meta.algorithms.enumerate;
-import utility.meta.algorithms.for_each;
-import utility.meta.reflection.name_of;
-import utility.meta.type_traits.type_list.type_list_index_of;
-import utility.meta.type_traits.type_list.type_list_transform;
-import utility.meta.type_traits.type_list.type_list_size;
-import utility.meta.type_traits.const_like;
-import utility.meta.type_traits.forward_like;
-import utility.meta.type_traits.underlying;
-import utility.tuple.tuple_all_of;
-import utility.tuple.tuple_any_of;
-import utility.TypeList;
+import ddge.modules.ecs;
+import ddge.utility.containers.OptionalRef;
+import ddge.utility.contracts;
+import ddge.utility.meta.algorithms.apply;
+import ddge.utility.meta.algorithms.enumerate;
+import ddge.utility.meta.algorithms.for_each;
+import ddge.utility.meta.reflection.name_of;
+import ddge.utility.meta.type_traits.type_list.type_list_index_of;
+import ddge.utility.meta.type_traits.type_list.type_list_transform;
+import ddge.utility.meta.type_traits.type_list.type_list_size;
+import ddge.utility.meta.type_traits.const_like;
+import ddge.utility.meta.type_traits.forward_like;
+import ddge.utility.meta.type_traits.underlying;
+import ddge.utility.tuple.tuple_all_of;
+import ddge.utility.tuple.tuple_any_of;
+import ddge.utility.TypeList;
 
-using RegistryValueCategories = util::TypeList<
-    modules::ecs::Registry&,
-    const modules::ecs::Registry&,
-    modules::ecs::Registry&&,
-    const modules::ecs::Registry&&>;
+using RegistryValueCategories = ddge::util::TypeList<
+    ddge::ecs::Registry&,
+    const ddge::ecs::Registry&,
+    ddge::ecs::Registry&&,
+    const ddge::ecs::Registry&&>;
 
-using RegularComponents = util::
+using RegularComponents = ddge::util::
     TypeList<float, double, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t>;
 
 template <std::size_t>
@@ -37,32 +37,34 @@ struct Empty {
 
 template <typename T>
 struct ToEmpty {
-    using type = Empty<util::meta::type_list_index_of_v<RegularComponents, T>>;
+    using type = Empty<ddge::util::meta::type_list_index_of_v<RegularComponents, T>>;
 };
 
-using EmptyComponents = util::meta::type_list_transform_t<RegularComponents, ToEmpty>;
+using EmptyComponents =
+    ddge::util::meta::type_list_transform_t<RegularComponents, ToEmpty>;
 
-using ComponentGroups = util::TypeList<RegularComponents, EmptyComponents>;
+using ComponentGroups = ddge::util::TypeList<RegularComponents, EmptyComponents>;
 
-constexpr static std::array<const char*, util::meta::type_list_size_v<ComponentGroups>>
-    component_group_names{ "regular components", "empty components" };
+constexpr static std::
+    array<const char*, ddge::util::meta::type_list_size_v<ComponentGroups>>
+        component_group_names{ "regular components", "empty components" };
 
 using namespace std::literals;
 
-TEST_CASE("modules::ecs::Registry")
+TEST_CASE("ddge::ecs::Registry")
 {
-    modules::ecs::Registry registry;
+    ddge::ecs::Registry registry;
 
-    util::meta::enumerate<
+    ddge::util::meta::enumerate<
         ComponentGroups>([&registry]<std::size_t index_T, typename ComponentGroup_T> {
-        util::meta::apply<ComponentGroup_T>([&registry]<typename... Comps> {
+        ddge::util::meta::apply<ComponentGroup_T>([&registry]<typename... Comps> {
             SECTION(component_group_names[index_T])
             {
                 SECTION("create")
                 {
                     decltype(auto) id = registry.create(Comps...[0](1), Comps...[1](2));
 
-                    static_assert(std::is_same_v<decltype(id), modules::ecs::ID>);
+                    static_assert(std::is_same_v<decltype(id), ddge::ecs::ID>);
                 }
 
                 SECTION("destroy")
@@ -78,10 +80,11 @@ TEST_CASE("modules::ecs::Registry")
 
                 SECTION("get")
                 {
-                    util::meta::for_each<
+                    ddge::util::meta::for_each<
                         RegistryValueCategories>([&registry]<typename Registry_T> {
-                        const std::string section_name{ util::meta::name_of<Registry_T>(
-                        ) };
+                        const std::string section_name{
+                            ddge::util::meta::name_of<Registry_T>()
+                        };
                         SECTION(section_name.c_str())
                         {
                             constexpr static std::type_identity_t<Comps...[0]> comp_0 = 1;
@@ -99,11 +102,11 @@ TEST_CASE("modules::ecs::Registry")
                                                 .template get<Comps...[0]>(id) };
                             static_assert(std::is_same_v<
                                           decltype(comp_0_tuple),
-                                          std::tuple<util::meta::const_like_t<
+                                          std::tuple<ddge::util::meta::const_like_t<
                                               Comps...[0],
                                               std::remove_reference_t<Registry_T>>&>>);
                             REQUIRE(
-                                (std::get<util::meta::const_like_t<
+                                (std::get<ddge::util::meta::const_like_t<
                                      Comps...[0],
                                      std::remove_reference_t<Registry_T>>&>(comp_0_tuple)
                                  == comp_0)
@@ -114,11 +117,11 @@ TEST_CASE("modules::ecs::Registry")
                                                 .template get<Comps...[1]>(id) };
                             static_assert(std::is_same_v<
                                           decltype(comp_1_tuple),
-                                          std::tuple<util::meta::const_like_t<
+                                          std::tuple<ddge::util::meta::const_like_t<
                                               Comps...[1],
                                               std::remove_reference_t<Registry_T>>&>>);
                             REQUIRE(
-                                (std::get<util::meta::const_like_t<
+                                (std::get<ddge::util::meta::const_like_t<
                                      Comps...[1],
                                      std::remove_reference_t<Registry_T>>&>(comp_1_tuple)
                                  == comp_1)
@@ -131,10 +134,10 @@ TEST_CASE("modules::ecs::Registry")
                             static_assert(std::is_same_v<
                                           decltype(combined_tuple),
                                           std::tuple<
-                                              util::meta::const_like_t<
+                                              ddge::util::meta::const_like_t<
                                                   Comps...[0],
                                                   std::remove_reference_t<Registry_T>>&,
-                                              util::meta::const_like_t<
+                                              ddge::util::meta::const_like_t<
                                                   Comps...[1],
                                                   std::remove_reference_t<Registry_T>>&>>);
                             REQUIRE(combined_tuple == std::make_tuple(comp_0, comp_1));
@@ -146,32 +149,32 @@ TEST_CASE("modules::ecs::Registry")
                             static_assert(std::is_same_v<
                                           decltype(shuffled_tuple),
                                           std::tuple<
-                                              util::meta::const_like_t<
+                                              ddge::util::meta::const_like_t<
                                                   Comps...[1],
                                                   std::remove_reference_t<Registry_T>>&,
-                                              util::meta::const_like_t<
+                                              ddge::util::meta::const_like_t<
                                                   Comps...[0],
                                                   std::remove_reference_t<Registry_T>>&>>);
                             REQUIRE(shuffled_tuple == std::make_tuple(comp_1, comp_0));
 
                             REQUIRE_THROWS_AS(
                                 static_cast<Registry_T>(registry).template get<Comps...[0]>(
-                                    modules::ecs::Registry::null_id
+                                    ddge::ecs::Registry::null_id
                                 ),
-                                util::PreconditionViolation
+                                ddge::util::PreconditionViolation
                             );
 
                             REQUIRE_THROWS_AS(
                                 static_cast<Registry_T>(registry)
                                     .template get<Comps...[2]>(id),
-                                util::PreconditionViolation
+                                ddge::util::PreconditionViolation
                             );
 
                             REQUIRE_THROWS_AS(
                                 (static_cast<Registry_T>(registry)
                                      .template get<Comps...[0], Comps...[1], Comps...[2]>(id
                                      )),
-                                util::PreconditionViolation
+                                ddge::util::PreconditionViolation
                             );
 
                             static_assert(!requires {
@@ -184,10 +187,11 @@ TEST_CASE("modules::ecs::Registry")
 
                 SECTION("get_single")
                 {
-                    util::meta::for_each<
+                    ddge::util::meta::for_each<
                         RegistryValueCategories>([&registry]<typename Registry_T> {
-                        const std::string section_name{ util::meta::name_of<Registry_T>(
-                        ) };
+                        const std::string section_name{
+                            ddge::util::meta::name_of<Registry_T>()
+                        };
                         SECTION(section_name.c_str())
                         {
                             constexpr static std::type_identity_t<Comps...[0]> comp_0(1);
@@ -200,7 +204,7 @@ TEST_CASE("modules::ecs::Registry")
                                                  .template get_single<Comps...[0]>(id) };
                             static_assert(std::is_same_v<
                                           decltype(comp_0_result),
-                                          util::meta::const_like_t<
+                                          ddge::util::meta::const_like_t<
                                               Comps...[0],
                                               std::remove_reference_t<Registry_T>>&>);
                             REQUIRE(comp_0_result == comp_0);
@@ -210,7 +214,7 @@ TEST_CASE("modules::ecs::Registry")
                                                  .template get_single<Comps...[1]>(id) };
                             static_assert(std::is_same_v<
                                           decltype(comp_1_result),
-                                          util::meta::const_like_t<
+                                          ddge::util::meta::const_like_t<
                                               Comps...[1],
                                               std::remove_reference_t<Registry_T>>&>);
                             REQUIRE(comp_1_result == comp_1);
@@ -218,15 +222,15 @@ TEST_CASE("modules::ecs::Registry")
                             REQUIRE_THROWS_AS(
                                 static_cast<Registry_T>(registry)
                                     .template get_single<Comps...[0]>(
-                                        modules::ecs::Registry::null_id
+                                        ddge::ecs::Registry::null_id
                                     ),
-                                util::PreconditionViolation
+                                ddge::util::PreconditionViolation
                             );
 
                             REQUIRE_THROWS_AS(
                                 static_cast<Registry_T>(registry)
                                     .template get_single<Comps...[2]>(id),
-                                util::PreconditionViolation
+                                ddge::util::PreconditionViolation
                             );
 
                             static_assert(!requires {
@@ -244,10 +248,11 @@ TEST_CASE("modules::ecs::Registry")
 
                 SECTION("find")
                 {
-                    util::meta::for_each<
+                    ddge::util::meta::for_each<
                         RegistryValueCategories>([&registry]<typename Registry_T> {
-                        const std::string section_name{ util::meta::name_of<Registry_T>(
-                        ) };
+                        const std::string section_name{
+                            ddge::util::meta::name_of<Registry_T>()
+                        };
                         SECTION(section_name.c_str())
                         {
                             constexpr static std::type_identity_t<Comps...[0]> comp_0(1);
@@ -265,50 +270,54 @@ TEST_CASE("modules::ecs::Registry")
                                                          .template find<Comps...[0]>(id) };
                             static_assert(std::is_same_v<
                                           decltype(optional_comp_0_tuple),
-                                          std::tuple<util::OptionalRef<util::meta::const_like_t<
-                                              Comps...[0],
-                                              std::remove_reference_t<Registry_T>>>>>);
+                                          std::tuple<ddge::util::OptionalRef<
+                                              ddge::util::meta::const_like_t<
+                                                  Comps...[0],
+                                                  std::remove_reference_t<Registry_T>>>>>);
                             REQUIRE(
-                                util::tuple_all_of(
+                                ddge::util::tuple_all_of(
                                     optional_comp_0_tuple,
                                     []<typename Optional_T>(Optional_T optional) static {
                                         return optional.has_value();
                                     }
                                 )
                             );
-                            REQUIRE(
-                                (*std::get<util::OptionalRef<util::meta::const_like_t<
-                                     Comps...[0],
-                                     std::remove_reference_t<Registry_T>>>>(
-                                     optional_comp_0_tuple
-                                 )
-                                 == comp_0)
-                            );
+                            REQUIRE((
+                                *std::get<
+                                    ddge::util::OptionalRef<ddge::util::meta::const_like_t<
+                                        Comps...[0],
+                                        std::remove_reference_t<Registry_T>>>>(
+                                    optional_comp_0_tuple
+                                )
+                                == comp_0
+                            ));
 
                             decltype(auto
                             ) optional_comp_1_tuple{ static_cast<Registry_T>(registry)
                                                          .template find<Comps...[1]>(id) };
                             static_assert(std::is_same_v<
                                           decltype(optional_comp_1_tuple),
-                                          std::tuple<util::OptionalRef<util::meta::const_like_t<
-                                              Comps...[1],
-                                              std::remove_reference_t<Registry_T>>>>>);
+                                          std::tuple<ddge::util::OptionalRef<
+                                              ddge::util::meta::const_like_t<
+                                                  Comps...[1],
+                                                  std::remove_reference_t<Registry_T>>>>>);
                             REQUIRE(
-                                util::tuple_all_of(
+                                ddge::util::tuple_all_of(
                                     optional_comp_1_tuple,
                                     []<typename Optional_T>(Optional_T optional) static {
                                         return optional.has_value();
                                     }
                                 )
                             );
-                            REQUIRE(
-                                (*std::get<util::OptionalRef<util::meta::const_like_t<
-                                     Comps...[1],
-                                     std::remove_reference_t<Registry_T>>>>(
-                                     optional_comp_1_tuple
-                                 )
-                                 == comp_1)
-                            );
+                            REQUIRE((
+                                *std::get<
+                                    ddge::util::OptionalRef<ddge::util::meta::const_like_t<
+                                        Comps...[1],
+                                        std::remove_reference_t<Registry_T>>>>(
+                                    optional_comp_1_tuple
+                                )
+                                == comp_1
+                            ));
 
                             decltype(auto) optional_combined_tuple{
                                 static_cast<Registry_T>(registry)
@@ -317,14 +326,15 @@ TEST_CASE("modules::ecs::Registry")
                             static_assert(std::is_same_v<
                                           decltype(optional_combined_tuple),
                                           std::tuple<
-                                              util::OptionalRef<util::meta::const_like_t<
-                                                  Comps...[0],
-                                                  std::remove_reference_t<Registry_T>>>,
-                                              util::OptionalRef<util::meta::const_like_t<
+                                              ddge::util::OptionalRef<
+                                                  ddge::util::meta::const_like_t<
+                                                      Comps...[0],
+                                                      std::remove_reference_t<Registry_T>>>,
+                                              ddge::util::OptionalRef<ddge::util::meta::const_like_t<
                                                   Comps...[1],
                                                   std::remove_reference_t<Registry_T>>>>>);
                             REQUIRE(
-                                util::tuple_all_of(
+                                ddge::util::tuple_all_of(
                                     optional_combined_tuple,
                                     []<typename Optional_T>(Optional_T optional) static {
                                         return optional.has_value();
@@ -332,7 +342,7 @@ TEST_CASE("modules::ecs::Registry")
                                 )
                             );
                             REQUIRE(
-                                util::tuple_all_of(
+                                ddge::util::tuple_all_of(
                                     optional_combined_tuple,
                                     []<typename T>(T value) static {
                                         if constexpr (std::is_same_v<
@@ -361,14 +371,15 @@ TEST_CASE("modules::ecs::Registry")
                             static_assert(std::is_same_v<
                                           decltype(optional_shuffled_tuple),
                                           std::tuple<
-                                              util::OptionalRef<util::meta::const_like_t<
-                                                  Comps...[1],
-                                                  std::remove_reference_t<Registry_T>>>,
-                                              util::OptionalRef<util::meta::const_like_t<
+                                              ddge::util::OptionalRef<
+                                                  ddge::util::meta::const_like_t<
+                                                      Comps...[1],
+                                                      std::remove_reference_t<Registry_T>>>,
+                                              ddge::util::OptionalRef<ddge::util::meta::const_like_t<
                                                   Comps...[0],
                                                   std::remove_reference_t<Registry_T>>>>>);
                             REQUIRE(
-                                util::tuple_all_of(
+                                ddge::util::tuple_all_of(
                                     optional_shuffled_tuple,
                                     []<typename Optional_T>(Optional_T optional) static {
                                         return optional.has_value();
@@ -376,7 +387,7 @@ TEST_CASE("modules::ecs::Registry")
                                 )
                             );
                             REQUIRE(
-                                util::tuple_all_of(
+                                ddge::util::tuple_all_of(
                                     optional_shuffled_tuple,
                                     []<typename T>(T value) static {
                                         if constexpr (std::is_same_v<
@@ -399,10 +410,10 @@ TEST_CASE("modules::ecs::Registry")
                             );
 
                             REQUIRE_FALSE(
-                                util::tuple_any_of(
+                                ddge::util::tuple_any_of(
                                     static_cast<Registry_T>(registry)
                                         .template find<Comps...[0]>(
-                                            modules::ecs::Registry::null_id
+                                            ddge::ecs::Registry::null_id
                                         ),
                                     []<typename Optional_T>(Optional_T optional) static {
                                         return optional.has_value();
@@ -411,7 +422,7 @@ TEST_CASE("modules::ecs::Registry")
                             );
 
                             REQUIRE_FALSE(
-                                util::tuple_any_of(
+                                ddge::util::tuple_any_of(
                                     static_cast<Registry_T>(registry)
                                         .template find<Comps...[2]>(id),
                                     []<typename Optional_T>(Optional_T optional) static {
@@ -430,10 +441,11 @@ TEST_CASE("modules::ecs::Registry")
 
                 SECTION("find_all")
                 {
-                    util::meta::for_each<
+                    ddge::util::meta::for_each<
                         RegistryValueCategories>([&registry]<typename Registry_T> {
-                        const std::string section_name{ util::meta::name_of<Registry_T>(
-                        ) };
+                        const std::string section_name{
+                            ddge::util::meta::name_of<Registry_T>()
+                        };
                         SECTION(section_name.c_str())
                         {
                             constexpr static std::type_identity_t<Comps...[0]> comp_0(1);
@@ -454,12 +466,12 @@ TEST_CASE("modules::ecs::Registry")
                             };
                             static_assert(std::is_same_v<
                                           decltype(optional_comp_0_tuple),
-                                          std::optional<std::tuple<util::meta::const_like_t<
+                                          std::optional<std::tuple<ddge::util::meta::const_like_t<
                                               Comps...[0],
                                               std::remove_reference_t<Registry_T>>&>>>);
                             REQUIRE(optional_comp_0_tuple.has_value());
                             REQUIRE(
-                                (std::get<util::meta::const_like_t<
+                                (std::get<ddge::util::meta::const_like_t<
                                      Comps...[0],
                                      std::remove_reference_t<Registry_T>>&>(
                                      optional_comp_0_tuple.value()
@@ -473,12 +485,12 @@ TEST_CASE("modules::ecs::Registry")
                             };
                             static_assert(std::is_same_v<
                                           decltype(optional_comp_1_tuple),
-                                          std::optional<std::tuple<util::meta::const_like_t<
+                                          std::optional<std::tuple<ddge::util::meta::const_like_t<
                                               Comps...[1],
                                               std::remove_reference_t<Registry_T>>&>>>);
                             REQUIRE(optional_comp_1_tuple.has_value());
                             REQUIRE(
-                                (std::get<util::meta::const_like_t<
+                                (std::get<ddge::util::meta::const_like_t<
                                      Comps...[1],
                                      std::remove_reference_t<Registry_T>>&>(
                                      optional_comp_1_tuple.value()
@@ -493,10 +505,10 @@ TEST_CASE("modules::ecs::Registry")
                             static_assert(std::is_same_v<
                                           decltype(optional_combined_tuple),
                                           std::optional<std::tuple<
-                                              util::meta::const_like_t<
+                                              ddge::util::meta::const_like_t<
                                                   Comps...[0],
                                                   std::remove_reference_t<Registry_T>>&,
-                                              util::meta::const_like_t<
+                                              ddge::util::meta::const_like_t<
                                                   Comps...[1],
                                                   std::remove_reference_t<Registry_T>>&>>>);
                             REQUIRE(optional_combined_tuple.has_value());
@@ -512,10 +524,10 @@ TEST_CASE("modules::ecs::Registry")
                             static_assert(std::is_same_v<
                                           decltype(optional_shuffled_tuple),
                                           std::optional<std::tuple<
-                                              util::meta::const_like_t<
+                                              ddge::util::meta::const_like_t<
                                                   Comps...[1],
                                                   std::remove_reference_t<Registry_T>>&,
-                                              util::meta::const_like_t<
+                                              ddge::util::meta::const_like_t<
                                                   Comps...[0],
                                                   std::remove_reference_t<Registry_T>>&>>>);
                             REQUIRE(optional_shuffled_tuple.has_value());
@@ -527,7 +539,7 @@ TEST_CASE("modules::ecs::Registry")
                             REQUIRE_FALSE(
                                 static_cast<Registry_T>(registry)
                                     .template find_all<Comps...[0]>(
-                                        modules::ecs::Registry::null_id
+                                        ddge::ecs::Registry::null_id
                                     )
                                     .has_value()
                             );
@@ -556,10 +568,11 @@ TEST_CASE("modules::ecs::Registry")
 
                 SECTION("find_single")
                 {
-                    util::meta::for_each<
+                    ddge::util::meta::for_each<
                         RegistryValueCategories>([&registry]<typename Registry_T> {
-                        const std::string section_name{ util::meta::name_of<Registry_T>(
-                        ) };
+                        const std::string section_name{
+                            ddge::util::meta::name_of<Registry_T>()
+                        };
                         SECTION(section_name.c_str())
                         {
                             constexpr static std::type_identity_t<Comps...[0]> comp_0(1);
@@ -572,9 +585,10 @@ TEST_CASE("modules::ecs::Registry")
                                                  .template find_single<Comps...[0]>(id) };
                             static_assert(std::is_same_v<
                                           decltype(comp_0_result),
-                                          util::OptionalRef<util::meta::const_like_t<
-                                              Comps...[0],
-                                              std::remove_reference_t<Registry_T>>>>);
+                                          ddge::util::
+                                              OptionalRef<ddge::util::meta::const_like_t<
+                                                  Comps...[0],
+                                                  std::remove_reference_t<Registry_T>>>>);
                             REQUIRE(comp_0_result.has_value());
                             REQUIRE(comp_0_result.has_value());
                             REQUIRE(*comp_0_result == comp_0);
@@ -584,16 +598,17 @@ TEST_CASE("modules::ecs::Registry")
                                                  .template find_single<Comps...[1]>(id) };
                             static_assert(std::is_same_v<
                                           decltype(comp_1_result),
-                                          util::OptionalRef<util::meta::const_like_t<
-                                              Comps...[1],
-                                              std::remove_reference_t<Registry_T>>>>);
+                                          ddge::util::
+                                              OptionalRef<ddge::util::meta::const_like_t<
+                                                  Comps...[1],
+                                                  std::remove_reference_t<Registry_T>>>>);
                             REQUIRE(comp_1_result.has_value());
                             REQUIRE(*comp_1_result == comp_1);
 
                             REQUIRE_FALSE(
                                 static_cast<Registry_T>(registry)
                                     .template find_single<Comps...[0]>(
-                                        modules::ecs::Registry::null_id
+                                        ddge::ecs::Registry::null_id
                                     )
                                     .has_value()
                             );
@@ -631,11 +646,11 @@ TEST_CASE("modules::ecs::Registry")
                         registry.contains_all<Comps...[1], Comps...[0], Comps...[2]>(id)
                     );
                     REQUIRE_FALSE(registry.contains_all<Comps...[2]>(id));
-                    REQUIRE_FALSE(registry.contains_all<>(modules::ecs::Registry::null_id));
+                    REQUIRE_FALSE(registry.contains_all<>(ddge::ecs::Registry::null_id));
 
                     []<typename... Components_T>() {
                         static_assert(!requires(
-                            modules::ecs::Registry registry, modules::ecs::ID id
+                            ddge::ecs::Registry registry, ddge::ecs::ID id
                         ) { registry.contains_all<Components_T...>(id); });
                     }.template operator()<Comps...[0], Comps...[0]>();
                 }
@@ -655,8 +670,8 @@ TEST_CASE("modules::ecs::Registry")
                     );
 
                     REQUIRE_THROWS_AS(
-                        registry.insert(modules::ecs::Registry::null_id, Comps...[0](1)),
-                        util::PreconditionViolation
+                        registry.insert(ddge::ecs::Registry::null_id, Comps...[0](1)),
+                        ddge::util::PreconditionViolation
                     );
                     REQUIRE_THROWS_AS(
                         registry.insert(
@@ -666,7 +681,7 @@ TEST_CASE("modules::ecs::Registry")
                             Comps...[4](5),
                             Comps...[5](6)
                         ),
-                        util::PreconditionViolation
+                        ddge::util::PreconditionViolation
                     );
                 }
 
@@ -699,9 +714,9 @@ TEST_CASE("modules::ecs::Registry")
 
                     REQUIRE_THROWS_AS(
                         registry.insert_or_replace(
-                            modules::ecs::Registry::null_id, Comps...[0](1)
+                            ddge::ecs::Registry::null_id, Comps...[0](1)
                         ),
-                        util::PreconditionViolation
+                        ddge::util::PreconditionViolation
                     );
                 }
 
@@ -734,14 +749,14 @@ TEST_CASE("modules::ecs::Registry")
                     REQUIRE_FALSE(registry.contains_all<Comps...[5]>(id));
 
                     REQUIRE_THROWS_AS(
-                        registry.remove<Comps...[0]>(modules::ecs::Registry::null_id),
-                        util::PreconditionViolation
+                        registry.remove<Comps...[0]>(ddge::ecs::Registry::null_id),
+                        ddge::util::PreconditionViolation
                     );
                     REQUIRE_THROWS_AS(
-                        registry.remove<Comps...[4]>(id), util::PreconditionViolation
+                        registry.remove<Comps...[4]>(id), ddge::util::PreconditionViolation
                     );
                     REQUIRE_THROWS_AS(
-                        registry.remove<Comps...[5]>(id), util::PreconditionViolation
+                        registry.remove<Comps...[5]>(id), ddge::util::PreconditionViolation
                     );
                 }
 
@@ -767,12 +782,12 @@ TEST_CASE("modules::ecs::Registry")
                     REQUIRE_FALSE(registry.contains_all<Comps...[5]>(id));
 
                     REQUIRE_THROWS_AS(
-                        registry.remove_single<Comps...[0]>(modules::ecs::Registry::null_id),
-                        util::PreconditionViolation
+                        registry.remove_single<Comps...[0]>(ddge::ecs::Registry::null_id),
+                        ddge::util::PreconditionViolation
                     );
                     REQUIRE_THROWS_AS(
                         registry.remove_single<Comps...[5]>(id),
-                        util::PreconditionViolation
+                        ddge::util::PreconditionViolation
                     );
                 }
 
@@ -811,7 +826,7 @@ TEST_CASE("modules::ecs::Registry")
 
                     REQUIRE_FALSE(
                         std::get<std::optional<Comps...[0]>>(
-                            registry.erase<Comps...[0]>(modules::ecs::Registry::null_id)
+                            registry.erase<Comps...[0]>(ddge::ecs::Registry::null_id)
                         )
                             .has_value()
                     );
@@ -855,7 +870,7 @@ TEST_CASE("modules::ecs::Registry")
                     REQUIRE_FALSE(registry.contains_all<Comps...[5]>(id));
 
                     REQUIRE_FALSE(
-                        registry.erase_all<Comps...[0]>(modules::ecs::Registry::null_id)
+                        registry.erase_all<Comps...[0]>(ddge::ecs::Registry::null_id)
                             .has_value()
                     );
                     REQUIRE_FALSE(registry.erase_all<Comps...[4]>(id).has_value());
@@ -887,7 +902,7 @@ TEST_CASE("modules::ecs::Registry")
                     REQUIRE_FALSE(registry.contains_all<Comps...[5]>(id));
 
                     REQUIRE_FALSE(
-                        registry.erase_single<Comps...[0]>(modules::ecs::Registry::null_id)
+                        registry.erase_single<Comps...[0]>(ddge::ecs::Registry::null_id)
                             .has_value()
                     );
                     REQUIRE_FALSE(registry.erase_single<Comps...[5]>(id).has_value());

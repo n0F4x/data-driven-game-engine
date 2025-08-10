@@ -9,21 +9,21 @@ module;
 
 #include <glm/vec3.hpp>
 
-module modules.gfx.resources.virtual_image_helpers;
+module ddge.modules.gfx.resources.virtual_image_helpers;
 
-import modules.image.Image;
+import ddge.modules.image.Image;
 
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.resources.Allocation;
-import modules.renderer.base.resources.image_extensions;
-import modules.renderer.resources.SeqWriteBuffer;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.resources.Allocation;
+import ddge.modules.renderer.base.resources.image_extensions;
+import ddge.modules.renderer.resources.SeqWriteBuffer;
 
-auto modules::gfx::resources::sparse_color_requirements(
-    const modules::renderer::base::Image& image
+auto ddge::gfx::resources::sparse_color_requirements(
+    const ddge::renderer::base::Image& image
 ) -> vk::SparseImageMemoryRequirements
 {
     const std::vector<vk::SparseImageMemoryRequirements> sparse_image_memory_requirements{
-        modules::renderer::base::ext_sparse_memory_requirements(image)
+        ddge::renderer::base::ext_sparse_memory_requirements(image)
     };
 
     const auto result{ std::ranges::find_if(
@@ -97,7 +97,7 @@ static auto block_extent(
 
 [[nodiscard]]
 static auto create_block_source(
-    const modules::image::Image& source,
+    const ddge::image::Image& source,
     const vk::Offset3D&       offset,
     const vk::Extent3D&       extent,
     const uint32_t            mip_level_index
@@ -138,7 +138,7 @@ static auto create_block_source(
     return result;
 }
 
-auto modules::gfx::resources::create_sparse_blocks(
+auto ddge::gfx::resources::create_sparse_blocks(
     const image::Image&                      source,
     const vk::Extent3D&                      extent,
     [[maybe_unused]] const uint32_t          mip_level_count,
@@ -148,7 +148,7 @@ auto modules::gfx::resources::create_sparse_blocks(
 {
     assert(mip_level_count > sparse_requirements.imageMipTailFirstLod);
 
-    std::vector<modules::gfx::resources::VirtualImage::Block> result;
+    std::vector<ddge::gfx::resources::VirtualImage::Block> result;
 
     const vk::Extent3D& image_granularity{
         sparse_requirements.formatProperties.imageGranularity
@@ -188,7 +188,7 @@ auto modules::gfx::resources::create_sparse_blocks(
                     ) };
 
                     result.push_back(
-                        modules::gfx::resources::VirtualImage::Block{
+                        ddge::gfx::resources::VirtualImage::Block{
                             .m_source = ::create_block_source(
                                 source, offset, block_extent, mip_level_index
                             ),
@@ -206,8 +206,8 @@ auto modules::gfx::resources::create_sparse_blocks(
     return result;
 }
 
-auto modules::gfx::resources::create_mip_tail_region(
-    const modules::renderer::base::Allocator&   allocator,
+auto ddge::gfx::resources::create_mip_tail_region(
+    const ddge::renderer::base::Allocator&   allocator,
     const vk::MemoryRequirements&            memory_requirements,
     const vk::SparseImageMemoryRequirements& sparse_requirements
 ) -> VirtualImage::MipTailRegion
@@ -223,17 +223,17 @@ auto modules::gfx::resources::create_mip_tail_region(
     };
 
     return VirtualImage::MipTailRegion{
-        .m_memory = std::get<modules::renderer::base::Allocation>(
+        .m_memory = std::get<ddge::renderer::base::Allocation>(
             allocator.allocate(mip_tail_memory_requirements, allocation_create_info)
         ),
     };
 }
 
-auto modules::gfx::resources::stage_tail(
-    const modules::renderer::base::Allocator&   allocator,
-    const modules::image::Image&                source,
+auto ddge::gfx::resources::stage_tail(
+    const ddge::renderer::base::Allocator&   allocator,
+    const ddge::image::Image&                source,
     const vk::SparseImageMemoryRequirements& sparse_requirements
-) -> modules::renderer::resources::SeqWriteBuffer<>
+) -> ddge::renderer::resources::SeqWriteBuffer<>
 {
     const std::span<const std::byte> data{ source.data().subspan(
         source.offset_of(sparse_requirements.imageMipTailFirstLod, 0, 0)
@@ -244,15 +244,15 @@ auto modules::gfx::resources::stage_tail(
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
 
-    modules::renderer::resources::SeqWriteBuffer<> result{ allocator, create_info };
+    ddge::renderer::resources::SeqWriteBuffer<> result{ allocator, create_info };
 
     result.set(data);
 
     return result;
 }
 
-auto modules::gfx::resources::create_mip_tail_copy_regions(
-    const modules::image::Image&                source,
+auto ddge::gfx::resources::create_mip_tail_copy_regions(
+    const ddge::image::Image&                source,
     const vk::SparseImageMemoryRequirements& sparse_requirements
 ) -> std::vector<vk::BufferImageCopy>
 {

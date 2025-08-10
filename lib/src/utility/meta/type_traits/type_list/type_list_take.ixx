@@ -2,11 +2,11 @@ module;
 
 #include <cstddef>
 
-export module utility.meta.type_traits.type_list.type_list_take;
+export module ddge.utility.meta.type_traits.type_list.type_list_take;
 
-import utility.meta.type_traits.type_list.type_list_push_front;
+import ddge.utility.meta.type_traits.type_list.type_list_push_front;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T, std::size_t N>
 struct type_list_take;
@@ -24,4 +24,4 @@ struct type_list_take<TypeList_T<T, Ts...>, N>
 export template <typename TypeList_T, std::size_t N>
 using type_list_take_t = typename type_list_take<TypeList_T, N>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

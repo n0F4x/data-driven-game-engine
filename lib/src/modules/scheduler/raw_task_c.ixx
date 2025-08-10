@@ -3,11 +3,11 @@ module;
 #include <concepts>
 #include <type_traits>
 
-export module modules.scheduler.raw_task_c;
+export module ddge.modules.scheduler.raw_task_c;
 
-import utility.meta.concepts.functional.unambiguously_invocable;
-import utility.meta.concepts.type_list.type_list_all_of;
-import utility.meta.type_traits.functional.arguments_of;
+import ddge.utility.meta.concepts.functional.unambiguously_invocable;
+import ddge.utility.meta.concepts.type_list.type_list_all_of;
+import ddge.utility.meta.type_traits.functional.arguments_of;
 
 // TODO: remove anonimous namespace with better Clang
 namespace {
@@ -18,7 +18,7 @@ struct IsConstructibleFromReference
 
 }   // namespace
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 
 export template <typename T>
 concept raw_task_c =
@@ -26,4 +26,4 @@ concept raw_task_c =
     && util::meta::
         type_list_all_of_c<util::meta::arguments_of_t<T>, ::IsConstructibleFromReference>;
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler

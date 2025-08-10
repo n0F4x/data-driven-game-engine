@@ -2,13 +2,13 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.type_traits.type_list.type_list_filter;
+export module ddge.utility.meta.type_traits.type_list.type_list_filter;
 
-import utility.meta.type_traits.type_list.type_list_concat;
-import utility.meta.type_traits.type_list.type_list_drop;
-import utility.meta.type_traits.type_list.type_list_front;
+import ddge.utility.meta.type_traits.type_list.type_list_concat;
+import ddge.utility.meta.type_traits.type_list.type_list_drop;
+import ddge.utility.meta.type_traits.type_list.type_list_front;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 template <
     typename FilteredTypeList_T,
@@ -72,4 +72,4 @@ struct type_list_filter<TypeList_T<T, Ts...>, Predicate_T> {
 export template <typename TypeList_T, template <typename> typename Predicate_T>
 using type_list_filter_t = typename type_list_filter<TypeList_T, Predicate_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

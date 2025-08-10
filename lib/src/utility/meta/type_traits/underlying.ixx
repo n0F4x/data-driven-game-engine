@@ -2,7 +2,7 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.type_traits.underlying;
+export module ddge.utility.meta.type_traits.underlying;
 
 template <typename>
 struct helper;
@@ -10,7 +10,7 @@ struct helper;
 template <template <typename> typename Wrapper_T, typename T>
 struct helper<Wrapper_T<T>> : std::type_identity<T> {};
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename T>
 struct underlying
@@ -19,4 +19,4 @@ struct underlying
 export template <typename T>
 using underlying_t = typename underlying<T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

@@ -1,4 +1,4 @@
-export module utility.meta.reflection;
+export module ddge.utility.meta.reflection;
 
-export import utility.meta.reflection.hash;
-export import utility.meta.reflection.name_of;
+export import ddge.utility.meta.reflection.hash;
+export import ddge.utility.meta.reflection.name_of;

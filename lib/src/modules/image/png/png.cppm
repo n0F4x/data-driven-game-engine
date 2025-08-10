@@ -1,3 +1,3 @@
-export module modules.image.png;
+export module ddge.modules.image.png;
 
-export import modules.image.png.MimeType;
+export import ddge.modules.image.png.MimeType;

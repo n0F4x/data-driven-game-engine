@@ -2,7 +2,7 @@ module;
 
 #include <array>
 
-export module utility.meta.type_traits.type_list.type_list_index_of;
+export module ddge.utility.meta.type_traits.type_list.type_list_index_of;
 
 template <typename, typename>
 struct type_list_index_of_impl;
@@ -42,7 +42,7 @@ struct type_list_index_of_impl<TypeList_T<Ts...>, T> {
     static_assert(value != ambiguous, "type occurs more than once in type list");
 };
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 template <typename TypeList_T, typename T>
 struct type_list_index_of {
@@ -53,4 +53,4 @@ export template <typename TypeList_T, typename T>
 inline constexpr std::size_t type_list_index_of_v =
     type_list_index_of<TypeList_T, T>::value;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

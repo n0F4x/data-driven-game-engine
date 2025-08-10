@@ -1,9 +1,9 @@
-export module modules.gltf;
+export module ddge.modules.gltf;
 
-export import modules.gltf.Image;
-export import modules.gltf.ImageLoader;
-export import modules.gltf.Material;
-export import modules.gltf.Mesh;
-export import modules.gltf.Model;
-export import modules.gltf.RenderModel;
-export import modules.gltf.Texture;
+export import ddge.modules.gltf.Image;
+export import ddge.modules.gltf.ImageLoader;
+export import ddge.modules.gltf.Material;
+export import ddge.modules.gltf.Mesh;
+export import ddge.modules.gltf.Model;
+export import ddge.modules.gltf.RenderModel;
+export import ddge.modules.gltf.Texture;

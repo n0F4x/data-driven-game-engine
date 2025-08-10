@@ -4,12 +4,12 @@ module;
 
 #include <gsl-lite/gsl-lite.hpp>
 
-export module modules.gltf.Image;
+export module ddge.modules.gltf.Image;
 
-import modules.image.Image;
+import ddge.modules.image.Image;
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 export using Image = gsl_lite::not_null_ic<std::unique_ptr<image::Image>>;
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

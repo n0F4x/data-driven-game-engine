@@ -2,15 +2,15 @@ module;
 
 #include <utility>
 
-export module utility.meta.algorithms.for_each;
+export module ddge.utility.meta.algorithms.for_each;
 
-import utility.meta.algorithms.apply;
-import utility.meta.concepts.integer_sequence.index_sequence;
-import utility.meta.concepts.type_list.type_list;
-import utility.meta.type_traits.type_list.type_list_at;
-import utility.meta.type_traits.type_list.type_list_size;
+import ddge.utility.meta.algorithms.apply;
+import ddge.utility.meta.concepts.integer_sequence.index_sequence;
+import ddge.utility.meta.concepts.type_list.type_list;
+import ddge.utility.meta.type_traits.type_list.type_list_at;
+import ddge.utility.meta.type_traits.type_list.type_list_size;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <index_sequence_c IndexSequence_T, typename F>
 constexpr auto for_each(F&& func) -> F
@@ -34,4 +34,4 @@ constexpr auto for_each(F&& func) -> F
     return std::forward<F>(func);
 }
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

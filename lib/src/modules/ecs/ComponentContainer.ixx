@@ -7,16 +7,16 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.ecs:ComponentContainer;
+export module ddge.modules.ecs:ComponentContainer;
 
-import utility.contracts;
-import utility.meta.concepts.decays_to;
-import utility.meta.type_traits.maybe_const;
+import ddge.utility.contracts;
+import ddge.utility.meta.concepts.decays_to;
+import ddge.utility.meta.type_traits.maybe_const;
 
 import :component_c;
 import :RecordIndex;
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 class ComponentContainer {
     using Underlying = std::vector<Component_T>;
 
@@ -24,7 +24,7 @@ public:
     using Iterator      = typename Underlying::iterator;
     using ConstIterator = typename Underlying::const_iterator;
 
-    template <util::meta::decays_to_c<Component_T> UComponent_T>
+    template <ddge::util::meta::decays_to_c<Component_T> UComponent_T>
     constexpr auto insert(UComponent_T&& component) -> RecordIndex;
 
     constexpr auto remove(RecordIndex record_index) -> Component_T;
@@ -54,14 +54,14 @@ private:
     Underlying m_vector;
 };
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 class ComponentContainer<Component_T> {
 public:
     template <bool is_const_T>
     class Iterator;
 
-    template <util::meta::decays_to_c<Component_T> UComponent_T>
+    template <ddge::util::meta::decays_to_c<Component_T> UComponent_T>
     constexpr auto insert(UComponent_T&& component) -> RecordIndex;
 
     constexpr auto remove(RecordIndex record_index) -> Component_T;
@@ -92,7 +92,7 @@ private:
     std::size_t                m_size{};
 };
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 template <bool is_const_T>
 class ComponentContainer<Component_T>::Iterator {
@@ -103,8 +103,8 @@ public:
     Iterator() = default;
 
     constexpr Iterator(
-        util::meta::maybe_const_t<is_const_T, ComponentContainer>& container,
-        const std::size_t                                          index
+        ddge::util::meta::maybe_const_t<is_const_T, ComponentContainer>& container,
+        const std::size_t                                                index
     )
         : m_base{ &container },
           m_current{ index }
@@ -121,7 +121,7 @@ public:
 
     [[nodiscard]]
     constexpr auto operator*() const
-        -> util::meta::maybe_const_t<is_const_T, Component_T>&
+        -> ddge::util::meta::maybe_const_t<is_const_T, Component_T>&
     {
         return *m_base->m_optional;
     }
@@ -140,12 +140,12 @@ public:
     }
 
 private:
-    util::meta::maybe_const_t<is_const_T, ComponentContainer>* m_base{};
-    std::size_t                                                m_current{};
+    ddge::util::meta::maybe_const_t<is_const_T, ComponentContainer>* m_base{};
+    std::size_t                                                      m_current{};
 };
 
-template <modules::ecs::component_c Component_T>
-template <util::meta::decays_to_c<Component_T> UComponent_T>
+template <ddge::ecs::component_c Component_T>
+template <ddge::util::meta::decays_to_c<Component_T> UComponent_T>
 constexpr auto ComponentContainer<Component_T>::insert(UComponent_T&& component)
     -> RecordIndex
 {
@@ -154,7 +154,7 @@ constexpr auto ComponentContainer<Component_T>::insert(UComponent_T&& component)
     return RecordIndex{ static_cast<RecordIndex::Underlying>(m_vector.size() - 1uz) };
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ComponentContainer<Component_T>::remove(const RecordIndex record_index)
     -> Component_T
 {
@@ -168,7 +168,7 @@ constexpr auto ComponentContainer<Component_T>::remove(const RecordIndex record_
     return result;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ComponentContainer<Component_T>::erase(const RecordIndex record_index)
     -> std::optional<Component_T>
 {
@@ -184,59 +184,59 @@ constexpr auto ComponentContainer<Component_T>::erase(const RecordIndex record_i
     return result;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ComponentContainer<Component_T>::get(const RecordIndex record_index)
     -> Component_T&
 {
     return m_vector[record_index.underlying()];
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ComponentContainer<Component_T>::get(const RecordIndex record_index) const
     -> const Component_T&
 {
     return const_cast<ComponentContainer&>(*this).get(record_index);
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ComponentContainer<Component_T>::empty() const noexcept -> bool
 {
     return m_vector.empty();
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ComponentContainer<Component_T>::size() const noexcept -> std::size_t
 {
     return m_vector.size();
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ComponentContainer<Component_T>::begin() -> Iterator
 {
     return m_vector.begin();
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ComponentContainer<Component_T>::begin() const -> ConstIterator
 {
     return m_vector.begin();
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ComponentContainer<Component_T>::end() -> Iterator
 {
     return m_vector.end();
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 constexpr auto ComponentContainer<Component_T>::end() const -> ConstIterator
 {
     return m_vector.end();
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
-template <util::meta::decays_to_c<Component_T> UComponent_T>
+template <ddge::util::meta::decays_to_c<Component_T> UComponent_T>
 constexpr auto ComponentContainer<Component_T>::insert(UComponent_T&& component)
     -> RecordIndex
 {
@@ -246,7 +246,7 @@ constexpr auto ComponentContainer<Component_T>::insert(UComponent_T&& component)
     return RecordIndex{ static_cast<RecordIndex::Underlying>(m_size++) };
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 constexpr auto ComponentContainer<Component_T>::remove(const RecordIndex record_index)
     -> Component_T
@@ -258,7 +258,7 @@ constexpr auto ComponentContainer<Component_T>::remove(const RecordIndex record_
     return *m_optional;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 constexpr auto ComponentContainer<Component_T>::erase(const RecordIndex record_index)
     -> std::optional<Component_T>
@@ -272,7 +272,7 @@ constexpr auto ComponentContainer<Component_T>::erase(const RecordIndex record_i
     return *m_optional;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 constexpr auto ComponentContainer<Component_T>::get(const RecordIndex record_index)
     -> Component_T&
@@ -282,7 +282,7 @@ constexpr auto ComponentContainer<Component_T>::get(const RecordIndex record_ind
     return *m_optional;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 constexpr auto ComponentContainer<Component_T>::get(const RecordIndex record_index) const
     -> const Component_T&
@@ -290,42 +290,42 @@ constexpr auto ComponentContainer<Component_T>::get(const RecordIndex record_ind
     return const_cast<ComponentContainer&>(*this).get(record_index);
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 constexpr auto ComponentContainer<Component_T>::empty() const noexcept -> bool
 {
     return m_size == 0;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 constexpr auto ComponentContainer<Component_T>::size() const noexcept -> std::size_t
 {
     return m_size;
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 constexpr auto ComponentContainer<Component_T>::begin() -> Iterator<false>
 {
     return Iterator<false>{ *this, 0 };
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 constexpr auto ComponentContainer<Component_T>::begin() const -> Iterator<true>
 {
     return Iterator<true>{ *this, 0 };
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 constexpr auto ComponentContainer<Component_T>::end() -> Iterator<false>
 {
     return Iterator<false>{ *this, m_size };
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
 constexpr auto ComponentContainer<Component_T>::end() const -> Iterator<true>
 {

@@ -2,12 +2,12 @@ module;
 
 #include <tuple>
 
-export module utility.tuple.tuple_drop_front;
+export module ddge.utility.tuple.tuple_drop_front;
 
-import utility.meta.type_traits.integer_sequence.integer_sequence_offset;
-import utility.tuple.tuple_select;
+import ddge.utility.meta.type_traits.integer_sequence.integer_sequence_offset;
+import ddge.utility.tuple.tuple_select;
 
-namespace util {
+namespace ddge::util {
 
 export template <typename Tuple_T>
 auto tuple_drop_front(Tuple_T&& tuple)
@@ -17,4 +17,4 @@ auto tuple_drop_front(Tuple_T&& tuple)
     return tuple_select(std::forward<Tuple_T>(tuple), Indices{});
 }
 
-}   // namespace util
+}   // namespace ddge::util

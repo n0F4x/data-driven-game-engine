@@ -8,11 +8,11 @@ module;
 
 #include <vk_mem_alloc.h>
 
-module modules.renderer.base.resources.Allocation;
+module ddge.modules.renderer.base.resources.Allocation;
 
-import modules.renderer.base.resources.MemoryTypeIndex;
+import ddge.modules.renderer.base.resources.MemoryTypeIndex;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 Allocation::Allocation(Allocation&& other) noexcept
     : Allocation{ std::exchange(other.m_allocator, nullptr),
@@ -137,4 +137,4 @@ Allocation::Allocation(
       m_size{ size }
 {}
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

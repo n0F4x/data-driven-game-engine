@@ -1,8 +1,8 @@
 module;
 
-export module utility.meta.type_traits.type_list.type_list_push_back;
+export module ddge.utility.meta.type_traits.type_list.type_list_push_back;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T, typename T>
 struct type_list_push_back;
@@ -15,4 +15,4 @@ struct type_list_push_back<TypeList_T<Ts...>, T> {
 export template <typename TypeList_T, typename T>
 using type_list_push_back_t = typename type_list_push_back<TypeList_T, T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

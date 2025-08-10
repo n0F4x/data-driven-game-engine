@@ -1,6 +1,6 @@
-export module utility.meta.type_traits.type_list.type_list_single;
+export module ddge.utility.meta.type_traits.type_list.type_list_single;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename>
 struct type_list_single;
@@ -13,4 +13,4 @@ struct type_list_single<TypeList_T<T>> {
 export template <typename TypeList_T>
 using type_list_single_t = typename type_list_single<TypeList_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

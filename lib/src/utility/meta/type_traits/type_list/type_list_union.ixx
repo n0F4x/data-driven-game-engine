@@ -2,13 +2,13 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.type_traits.type_list.type_list_union;
+export module ddge.utility.meta.type_traits.type_list.type_list_union;
 
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.meta.type_traits.type_list.type_list_concat;
-import utility.meta.type_traits.type_list.type_list_filter;
+import ddge.utility.meta.type_traits.type_list.type_list_contains;
+import ddge.utility.meta.type_traits.type_list.type_list_concat;
+import ddge.utility.meta.type_traits.type_list.type_list_filter;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename...>
 struct type_list_union;
@@ -41,4 +41,4 @@ export template <typename... TypeLists_T>
     requires(sizeof...(TypeLists_T) != 0)
 using type_list_union_t = typename type_list_union<TypeLists_T...>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

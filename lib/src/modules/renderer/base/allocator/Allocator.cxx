@@ -10,16 +10,16 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-module modules.renderer.base.allocator.Allocator;
+module ddge.modules.renderer.base.allocator.Allocator;
 
-import modules.renderer.base.resources.Allocation;
-import modules.renderer.base.resources.Buffer;
-import modules.renderer.base.resources.Image;
+import ddge.modules.renderer.base.resources.Allocation;
+import ddge.modules.renderer.base.resources.Buffer;
+import ddge.modules.renderer.base.resources.Image;
 
-import config.vulkan;
+import ddge.config.vulkan;
 
-import modules.renderer.base.instance.Instance;
-import modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.instance.Instance;
+import ddge.modules.renderer.base.device.Device;
 
 [[nodiscard]]
 static auto vma_allocator_create_flags(
@@ -96,50 +96,50 @@ static auto vma_allocator_create_flags(
 static auto get_vulkan_functions() -> VmaVulkanFunctions
 {
     return VmaVulkanFunctions{
-        .vkGetInstanceProcAddr = config::vulkan::dispatcher().vkGetInstanceProcAddr,
-        .vkGetDeviceProcAddr   = config::vulkan::dispatcher().vkGetDeviceProcAddr,
+        .vkGetInstanceProcAddr = ddge::config::vulkan::dispatcher().vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr   = ddge::config::vulkan::dispatcher().vkGetDeviceProcAddr,
         .vkGetPhysicalDeviceProperties =
-            config::vulkan::dispatcher().vkGetPhysicalDeviceProperties,
+            ddge::config::vulkan::dispatcher().vkGetPhysicalDeviceProperties,
         .vkGetPhysicalDeviceMemoryProperties =
-            config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties,
-        .vkAllocateMemory = config::vulkan::dispatcher().vkAllocateMemory,
-        .vkFreeMemory     = config::vulkan::dispatcher().vkFreeMemory,
-        .vkMapMemory      = config::vulkan::dispatcher().vkMapMemory,
-        .vkUnmapMemory    = config::vulkan::dispatcher().vkUnmapMemory,
+            ddge::config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties,
+        .vkAllocateMemory = ddge::config::vulkan::dispatcher().vkAllocateMemory,
+        .vkFreeMemory     = ddge::config::vulkan::dispatcher().vkFreeMemory,
+        .vkMapMemory      = ddge::config::vulkan::dispatcher().vkMapMemory,
+        .vkUnmapMemory    = ddge::config::vulkan::dispatcher().vkUnmapMemory,
         .vkFlushMappedMemoryRanges =
-            config::vulkan::dispatcher().vkFlushMappedMemoryRanges,
+            ddge::config::vulkan::dispatcher().vkFlushMappedMemoryRanges,
         .vkInvalidateMappedMemoryRanges =
-            config::vulkan::dispatcher().vkInvalidateMappedMemoryRanges,
-        .vkBindBufferMemory = config::vulkan::dispatcher().vkBindBufferMemory,
-        .vkBindImageMemory  = config::vulkan::dispatcher().vkBindImageMemory,
+            ddge::config::vulkan::dispatcher().vkInvalidateMappedMemoryRanges,
+        .vkBindBufferMemory = ddge::config::vulkan::dispatcher().vkBindBufferMemory,
+        .vkBindImageMemory  = ddge::config::vulkan::dispatcher().vkBindImageMemory,
         .vkGetBufferMemoryRequirements =
-            config::vulkan::dispatcher().vkGetBufferMemoryRequirements,
+            ddge::config::vulkan::dispatcher().vkGetBufferMemoryRequirements,
         .vkGetImageMemoryRequirements =
-            config::vulkan::dispatcher().vkGetImageMemoryRequirements,
-        .vkCreateBuffer  = config::vulkan::dispatcher().vkCreateBuffer,
-        .vkDestroyBuffer = config::vulkan::dispatcher().vkDestroyBuffer,
-        .vkCreateImage   = config::vulkan::dispatcher().vkCreateImage,
-        .vkDestroyImage  = config::vulkan::dispatcher().vkDestroyImage,
-        .vkCmdCopyBuffer = config::vulkan::dispatcher().vkCmdCopyBuffer,
+            ddge::config::vulkan::dispatcher().vkGetImageMemoryRequirements,
+        .vkCreateBuffer  = ddge::config::vulkan::dispatcher().vkCreateBuffer,
+        .vkDestroyBuffer = ddge::config::vulkan::dispatcher().vkDestroyBuffer,
+        .vkCreateImage   = ddge::config::vulkan::dispatcher().vkCreateImage,
+        .vkDestroyImage  = ddge::config::vulkan::dispatcher().vkDestroyImage,
+        .vkCmdCopyBuffer = ddge::config::vulkan::dispatcher().vkCmdCopyBuffer,
         .vkGetBufferMemoryRequirements2KHR =
-            config::vulkan::dispatcher().vkGetBufferMemoryRequirements2,
+            ddge::config::vulkan::dispatcher().vkGetBufferMemoryRequirements2,
         .vkGetImageMemoryRequirements2KHR =
-            config::vulkan::dispatcher().vkGetImageMemoryRequirements2,
-        .vkBindBufferMemory2KHR = config::vulkan::dispatcher().vkBindBufferMemory2,
-        .vkBindImageMemory2KHR  = config::vulkan::dispatcher().vkBindImageMemory2,
+            ddge::config::vulkan::dispatcher().vkGetImageMemoryRequirements2,
+        .vkBindBufferMemory2KHR = ddge::config::vulkan::dispatcher().vkBindBufferMemory2,
+        .vkBindImageMemory2KHR  = ddge::config::vulkan::dispatcher().vkBindImageMemory2,
         .vkGetPhysicalDeviceMemoryProperties2KHR =
-            config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties2,
+            ddge::config::vulkan::dispatcher().vkGetPhysicalDeviceMemoryProperties2,
         .vkGetDeviceBufferMemoryRequirements =
-            config::vulkan::dispatcher().vkGetDeviceBufferMemoryRequirements,
+            ddge::config::vulkan::dispatcher().vkGetDeviceBufferMemoryRequirements,
         .vkGetDeviceImageMemoryRequirements =
-            config::vulkan::dispatcher().vkGetDeviceImageMemoryRequirements,
+            ddge::config::vulkan::dispatcher().vkGetDeviceImageMemoryRequirements,
     };
 }
 
 [[nodiscard]]
 static auto create_allocator(
-    const modules::renderer::base::Instance& instance,
-    const modules::renderer::base::Device&   device
+    const ddge::renderer::base::Instance& instance,
+    const ddge::renderer::base::Device&   device
 ) -> gsl_lite::
     not_null_ic<std::unique_ptr<VmaAllocator_T, decltype(&::vmaDestroyAllocator)>>
 {
@@ -161,11 +161,11 @@ static auto create_allocator(
     };
 }
 
-modules::renderer::base::Allocator::Allocator(const Instance& instance, const Device& device)
+ddge::renderer::base::Allocator::Allocator(const Instance& instance, const Device& device)
     : m_allocator{ ::create_allocator(instance, device) }
 {}
 
-auto modules::renderer::base::Allocator::allocate(
+auto ddge::renderer::base::Allocator::allocate(
     const vk::MemoryRequirements&  requirements,
     const VmaAllocationCreateInfo& allocation_create_info
 ) const -> std::tuple<Allocation, VmaAllocationInfo>
@@ -191,7 +191,7 @@ auto modules::renderer::base::Allocator::allocate(
     );
 }
 
-auto modules::renderer::base::Allocator::create_buffer(
+auto ddge::renderer::base::Allocator::create_buffer(
     const vk::BufferCreateInfo&    buffer_create_info,
     const VmaAllocationCreateInfo& allocation_create_info
 ) const -> std::tuple<Buffer, Allocation, VmaAllocationInfo>
@@ -224,7 +224,7 @@ auto modules::renderer::base::Allocator::create_buffer(
     );
 }
 
-auto modules::renderer::base::Allocator::create_image(
+auto ddge::renderer::base::Allocator::create_image(
     const vk::ImageCreateInfo&     image_create_info,
     const VmaAllocationCreateInfo& allocation_create_info
 ) const -> std::tuple<Image, Allocation, VmaAllocationInfo>
@@ -257,7 +257,7 @@ auto modules::renderer::base::Allocator::create_image(
     );
 }
 
-auto modules::renderer::base::Allocator::device() const -> vk::Device
+auto ddge::renderer::base::Allocator::device() const -> vk::Device
 {
     ::VmaAllocatorInfo allocator_info;
     ::vmaGetAllocatorInfo(m_allocator.get(), &allocator_info);

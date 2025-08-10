@@ -1,10 +1,10 @@
 module;
 
-module modules.image.Image;
+module ddge.modules.image.Image;
 
 import vulkan_hpp;
 
-auto modules::image::Image::extent() const noexcept -> vk::Extent3D
+auto ddge::image::Image::extent() const noexcept -> vk::Extent3D
 {
     return vk::Extent3D{
         .width  = width(),

@@ -1,18 +1,15 @@
 #include <print>
 #include <string>
 
-import prelude;
-
-import modules.ecs;
+import ddge.prelude;
+import ddge.modules.ecs;
+import ddge.modules.scheduler;
+import ddge.utility.containers.OptionalRef;
 
 import demo.Window;
 
-import modules.scheduler;
-
-import utility.containers.OptionalRef;
-
-using namespace modules::scheduler::accessors;
-using namespace modules::ecs::query_parameter_tags;
+using namespace ddge::scheduler::accessors;
+using namespace ddge::ecs::query_parameter_tags;
 
 struct WindowClosed {};
 
@@ -50,8 +47,8 @@ constexpr static auto update_world =   //
         Optional<const Collider>>& entities)   //
 {
     entities.for_each([](const Position,
-                         const util::OptionalRef<Renderable>,
-                         const util::OptionalRef<const Collider> optional_collider) {
+                         const ddge::util::OptionalRef<Renderable>,
+                         const ddge::util::OptionalRef<const Collider> optional_collider) {
         if (optional_collider.has_value()) {
             std::println("Collider says \"{}\"", optional_collider->message);
         }
@@ -68,9 +65,9 @@ constexpr static auto game_is_running =
         return window_closed_event_reader.read().size() == 0;
     };
 
-static const auto run_game_loop = modules::scheduler::loop_until(
-    modules::scheduler::start_as(
-        modules::scheduler::group(
+static const auto run_game_loop = ddge::scheduler::loop_until(
+    ddge::scheduler::start_as(
+        ddge::scheduler::group(
             update_world,   //
             record_window_events
         )
@@ -86,15 +83,15 @@ constexpr static auto shut_down =                    //
 
 auto main() -> int
 {
-    app::create()
-        .plug_in(plugins::Resources{})
+    ddge::app::create()
+        .plug_in(ddge::plugins::Resources{})
         .insert_resource(Window{})
-        .plug_in(plugins::Events{})
+        .plug_in(ddge::plugins::Events{})
         .register_event<WindowClosed>()
-        .plug_in(plugins::ECS{})
-        .plug_in(plugins::Scheduler{})
+        .plug_in(ddge::plugins::ECS{})
+        .plug_in(ddge::plugins::Scheduler{})
         .run(
-            modules::scheduler::start_as(initialize)   //
+            ddge::scheduler::start_as(initialize)   //
                 .then(run_game_loop)
                 .then(shut_down)
         );

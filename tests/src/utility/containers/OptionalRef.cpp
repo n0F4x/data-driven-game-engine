@@ -1,11 +1,11 @@
 #include <expected>
 #include <optional>
 
-import utility.containers.OptionalRef;
+import ddge.utility.containers.OptionalRef;
 
 static_assert(
     [] {
-        constexpr util::OptionalRef<int> optional_ref{};
+        constexpr ddge::util::OptionalRef<int> optional_ref{};
         [[maybe_unused]]
         auto optional{ optional_ref.transform([](int&) -> float { return {}; }) };
 
@@ -18,10 +18,10 @@ static_assert(
 
 static_assert(
     [] {
-        int                          value{ 2 };
-        const util::OptionalRef<int> optional_ref{ value };
-        constexpr static float       other_value{ 3.2f };
-        const auto                   optional{ optional_ref.transform([](int&) -> float {
+        int                                value{ 2 };
+        const ddge::util::OptionalRef<int> optional_ref{ value };
+        constexpr static float             other_value{ 3.2f };
+        const auto optional{ optional_ref.transform([](int&) -> float {
             return other_value;
         }) };
 
@@ -32,8 +32,8 @@ static_assert(
 
 static_assert(
     [] {
-        constexpr util::OptionalRef<int> optional_ref{};
-        constexpr static float           other_value{ 3.2f };
+        constexpr ddge::util::OptionalRef<int> optional_ref{};
+        constexpr static float                 other_value{ 3.2f };
         constexpr auto optional{ optional_ref.transform([](int&) -> float {
             return other_value;
         }) };
@@ -45,7 +45,7 @@ static_assert(
 
 static_assert(
     [] {
-        constexpr util::OptionalRef<int> optional{};
+        constexpr ddge::util::OptionalRef<int> optional{};
         [[maybe_unused]]
         auto expected{ optional.or_else([] -> std::expected<int, float> { return {}; }) };
 
@@ -58,8 +58,8 @@ static_assert(
 
 static_assert(
     [] {
-        int                          value{ 2 };
-        const util::OptionalRef<int> optional{ value };
+        int                                value{ 2 };
+        const ddge::util::OptionalRef<int> optional{ value };
         const auto expected{ optional.or_else([] -> std::expected<int, float> {
             return {};
         }) };
@@ -71,8 +71,8 @@ static_assert(
 
 static_assert(
     [] {
-        constexpr util::OptionalRef<int> optional{};
-        constexpr static float           error{ 6.7f };
+        constexpr ddge::util::OptionalRef<int> optional{};
+        constexpr static float                 error{ 6.7f };
         constexpr auto expected{ optional.or_else([] -> std::expected<int, float> {
             return std::unexpected<float>{ error };
         }) };

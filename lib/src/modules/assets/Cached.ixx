@@ -6,19 +6,19 @@ module;
 #include <type_traits>
 #include <unordered_map>
 
-export module modules.assets.Cached;
+export module ddge.modules.assets.Cached;
 
-import modules.assets.Handle;
-import modules.assets.loader_c;
-import modules.assets.WeakHandle;
+import ddge.modules.assets.Handle;
+import ddge.modules.assets.loader_c;
+import ddge.modules.assets.WeakHandle;
 
-import utility.containers.FunctionWrapper;
-import utility.hashing;
-import utility.meta.type_traits.const_like;
-import utility.meta.type_traits.functional.arguments_of;
-import utility.meta.type_traits.functional.result_of;
+import ddge.utility.containers.FunctionWrapper;
+import ddge.utility.hashing;
+import ddge.utility.meta.type_traits.const_like;
+import ddge.utility.meta.type_traits.functional.arguments_of;
+import ddge.utility.meta.type_traits.functional.result_of;
 
-namespace modules::assets {
+namespace ddge::assets {
 
 template <typename Loader_T, typename Asset_T, typename... Arguments_T>
 class CachedImpl {
@@ -80,17 +80,17 @@ public:
     using Base::Base;
 };
 
-}   // namespace modules::assets
+}   // namespace ddge::assets
 
 template <typename Loader_T, typename Asset_T, typename... Arguments_T>
 template <typename ULoader_T>
     requires(std::constructible_from<Loader_T, ULoader_T &&>)
-modules::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::CachedImpl(ULoader_T&& loader)
+ddge::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::CachedImpl(ULoader_T&& loader)
     : m_loader{ std::forward<ULoader_T>(loader) }
 {}
 
 template <typename Loader_T, typename Asset_T, typename... Arguments_T>
-auto modules::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::load(
+auto ddge::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::load(
     Arguments_T... arguments
 ) -> Handle<Asset_T>
 {
@@ -111,7 +111,7 @@ auto modules::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::load(
 
 template <typename Loader_T, typename Asset_T, typename... Arguments_T>
 template <typename Self_T>
-auto modules::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find(
+auto ddge::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find(
     this Self_T&& self,
     Arguments_T... arguments
 ) -> std::
@@ -122,7 +122,7 @@ auto modules::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find(
 
 template <typename Loader_T, typename Asset_T, typename... Arguments_T>
 template <typename Self_T>
-auto modules::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find_hash(
+auto ddge::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find_hash(
     this Self_T&&     self,
     const std::size_t hash
 ) -> std::
@@ -142,7 +142,7 @@ auto modules::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::find_hash(
 }
 
 template <typename Loader_T, typename Asset_T, typename... Arguments_T>
-constexpr auto modules::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::hash(
+constexpr auto ddge::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::hash(
     Arguments_T... arguments
 ) const -> std::size_t
 {

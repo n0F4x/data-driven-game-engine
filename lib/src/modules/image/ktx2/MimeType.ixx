@@ -3,18 +3,18 @@ module;
 #include <array>
 #include <span>
 
-export module modules.image.ktx2.MimeType;
+export module ddge.modules.image.ktx2.MimeType;
 
-namespace modules::image::ktx2 {
+namespace ddge::image::ktx2 {
 
 export struct MimeType {
     [[nodiscard]]
     constexpr static auto magic() noexcept -> std::span<const std::byte, 12>;
 };
 
-}   // namespace modules::image::ktx2
+}   // namespace ddge::image::ktx2
 
-constexpr auto modules::image::ktx2::MimeType::magic() noexcept
+constexpr auto ddge::image::ktx2::MimeType::magic() noexcept
     -> std::span<const std::byte, 12>
 {
     constexpr static std::array s_magic{

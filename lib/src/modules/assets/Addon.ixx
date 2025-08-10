@@ -1,11 +1,11 @@
-export module modules.assets.Addon;
+export module ddge.modules.assets.Addon;
 
-import modules.assets.AssetManager;
+import ddge.modules.assets.AssetManager;
 
-namespace modules::assets {
+namespace ddge::assets {
 
 export struct Addon {
     AssetManager asset_manager;
 };
 
-}   // namespace modules::assets
+}   // namespace ddge::assets

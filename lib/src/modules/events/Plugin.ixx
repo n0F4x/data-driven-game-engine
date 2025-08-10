@@ -6,39 +6,39 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.events.Plugin;
+export module ddge.modules.events.Plugin;
 
-import modules.app;
-import modules.events.Addon;
-import modules.events.event_c;
-import modules.events.ErasedBufferedEventQueue;
+import ddge.modules.app;
+import ddge.modules.events.Addon;
+import ddge.modules.events.event_c;
+import ddge.modules.events.ErasedBufferedEventQueue;
 
-import utility.contracts;
+import ddge.utility.contracts;
 
-namespace modules::events {
+namespace ddge::events {
 
 export class Plugin {
 public:
-    template <modules::events::event_c Event_T, typename Self_T>
+    template <ddge::events::event_c Event_T, typename Self_T>
     auto register_event(this Self_T&&) -> Self_T;
 
-    template <modules::app::decays_to_app_c App_T>
+    template <ddge::app::decays_to_app_c App_T>
     [[nodiscard]]
-    auto build(App_T&& app) && -> modules::app::add_on_t<App_T, Addon>;
+    auto build(App_T&& app) && -> ddge::app::add_on_t<App_T, Addon>;
 
-    template <modules::events::event_c Event_T>
+    template <ddge::events::event_c Event_T>
     [[nodiscard]]
     auto manages_event() const noexcept -> bool;
 
 private:
-    std::flat_map<std::type_index, modules::events::ErasedBufferedEventQueue>
+    std::flat_map<std::type_index, ddge::events::ErasedBufferedEventQueue>
         m_buffered_event_queues;
 };
 
-}   // namespace modules::events
+}   // namespace ddge::events
 
-template <modules::events::event_c Event_T, typename Self_T>
-auto modules::events::Plugin::register_event(this Self_T&& self) -> Self_T
+template <ddge::events::event_c Event_T, typename Self_T>
+auto ddge::events::Plugin::register_event(this Self_T&& self) -> Self_T
 {
     Plugin& this_self{ static_cast<Plugin&>(self) };
     PRECOND((!this_self.manages_event<Event_T>()));
@@ -47,16 +47,16 @@ auto modules::events::Plugin::register_event(this Self_T&& self) -> Self_T
     return std::forward<Self_T>(self);
 }
 
-template <modules::app::decays_to_app_c App_T>
-auto modules::events::Plugin::build(App_T&& app) && -> modules::app::add_on_t<App_T, Addon>
+template <ddge::app::decays_to_app_c App_T>
+auto ddge::events::Plugin::build(App_T&& app) && -> ddge::app::add_on_t<App_T, Addon>
 {
     return std::forward<App_T>(app).add_on(
         Addon{ .event_manager{ std::move(m_buffered_event_queues) } }
     );
 }
 
-template <modules::events::event_c Event_T>
-auto modules::events::Plugin::manages_event() const noexcept -> bool
+template <ddge::events::event_c Event_T>
+auto ddge::events::Plugin::manages_event() const noexcept -> bool
 {
     return m_buffered_event_queues.contains(typeid(Event_T));
 }

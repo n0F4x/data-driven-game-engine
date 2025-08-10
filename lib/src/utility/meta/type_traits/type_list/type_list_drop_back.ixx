@@ -1,8 +1,8 @@
-export module utility.meta.type_traits.type_list.type_list_drop_back;
+export module ddge.utility.meta.type_traits.type_list.type_list_drop_back;
 
-import utility.meta.type_traits.type_list.type_list_take;
+import ddge.utility.meta.type_traits.type_list.type_list_take;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T>
 struct type_list_drop_back;
@@ -15,4 +15,4 @@ struct type_list_drop_back<TypeList_T<Ts...>>
 export template <typename TypeList_T>
 using type_list_drop_back_t = typename type_list_drop_back<TypeList_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

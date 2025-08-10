@@ -1,3 +1,3 @@
-export module modules.renderer.base.allocator;
+export module ddge.modules.renderer.base.allocator;
 
-export import modules.renderer.base.allocator.Allocator;
+export import ddge.modules.renderer.base.allocator.Allocator;

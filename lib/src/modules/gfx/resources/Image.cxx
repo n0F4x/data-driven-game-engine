@@ -7,16 +7,16 @@ module;
 
 #include <VkBootstrap.h>
 
-module modules.gfx.resources.Image;
+module ddge.modules.gfx.resources.Image;
 
-import modules.image.Image;
+import ddge.modules.image.Image;
 
-import modules.gfx.resources.image_helpers;
+import ddge.modules.gfx.resources.image_helpers;
 
-import modules.renderer.base.resources.Image;
-import modules.renderer.base.resources.mipmap_generation;
-import modules.renderer.resources.Image;
-import modules.renderer.resources.SeqWriteBuffer;
+import ddge.modules.renderer.base.resources.Image;
+import ddge.modules.renderer.base.resources.mipmap_generation;
+import ddge.modules.renderer.resources.Image;
+import ddge.modules.renderer.resources.SeqWriteBuffer;
 
 [[nodiscard]]
 static auto image_usage_flags(const bool needs_to_blit_mipmaps) -> vk::ImageUsageFlags
@@ -41,9 +41,9 @@ static auto count_mip_levels(const uint32_t base_width, const uint32_t base_heig
 
 [[nodiscard]]
 static auto create_image(
-    const modules::renderer::base::Allocator& allocator,
-    const modules::image::Image&              source
-) -> modules::renderer::resources::Image
+    const ddge::renderer::base::Allocator& allocator,
+    const ddge::image::Image&              source
+) -> ddge::renderer::resources::Image
 {
     const uint32_t mip_level_count{ source.needs_mip_generation()
                                         ? count_mip_levels(source.width(), source.height())
@@ -66,7 +66,7 @@ static auto create_image(
         .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
     };
 
-    return modules::renderer::resources::Image{ allocator,
+    return ddge::renderer::resources::Image{ allocator,
                                              image_create_info,
                                              allocation_create_info };
 }
@@ -93,7 +93,7 @@ static auto create_image_view(
 }
 
 [[nodiscard]]
-static auto create_copy_regions(const modules::image::Image& source)
+static auto create_copy_regions(const ddge::image::Image& source)
     -> std::vector<vk::BufferImageCopy>
 {
     const uint32_t mip_level_count = std::max(source.mip_level_count(), 1u);
@@ -127,9 +127,9 @@ static auto create_copy_regions(const modules::image::Image& source)
 
 [[nodiscard]]
 static auto create_staging_buffer(
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     const std::span<const std::byte>       data
-) -> modules::renderer::resources::SeqWriteBuffer<>
+) -> ddge::renderer::resources::SeqWriteBuffer<>
 {
     assert(!data.empty() && "image must not be empty");
 
@@ -138,12 +138,12 @@ static auto create_staging_buffer(
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
 
-    return modules::renderer::resources::SeqWriteBuffer<>{ allocator,
+    return ddge::renderer::resources::SeqWriteBuffer<>{ allocator,
                                                         staging_buffer_create_info,
                                                         data.data() };
 }
 
-modules::gfx::resources::Image::Loader::Loader(
+ddge::gfx::resources::Image::Loader::Loader(
     const vk::Device                 device,
     const renderer::base::Allocator& allocator,
     const image::Image&              source
@@ -160,7 +160,7 @@ modules::gfx::resources::Image::Loader::Loader(
       m_needs_mip_generation{ source.needs_mip_generation() }
 {}
 
-auto modules::gfx::resources::Image::Loader::operator()(
+auto ddge::gfx::resources::Image::Loader::operator()(
     const vk::PhysicalDevice            physical_device,
     const vk::CommandBuffer             graphics_command_buffer,
     const renderer::base::Image::State& new_state
@@ -192,18 +192,18 @@ auto modules::gfx::resources::Image::Loader::operator()(
     return Image{ std::move(m_image), std::move(m_view) };
 }
 
-auto modules::gfx::resources::Image::Loader::image() const
+auto ddge::gfx::resources::Image::Loader::image() const
     -> const renderer::resources::Image&
 {
     return m_image;
 }
 
-auto modules::gfx::resources::Image::Loader::view() const -> vk::ImageView
+auto ddge::gfx::resources::Image::Loader::view() const -> vk::ImageView
 {
     return m_view.get();
 }
 
-auto modules::gfx::resources::Image::Requirements::require_device_settings(
+auto ddge::gfx::resources::Image::Requirements::require_device_settings(
     vkb::PhysicalDeviceSelector& physical_device_selector
 ) -> void
 {
@@ -213,12 +213,12 @@ auto modules::gfx::resources::Image::Requirements::require_device_settings(
     physical_device_selector.set_required_features(features);
 }
 
-auto modules::gfx::resources::Image::view() const -> vk::ImageView
+auto ddge::gfx::resources::Image::view() const -> vk::ImageView
 {
     return m_view.get();
 }
 
-modules::gfx::resources::Image::Image(
+ddge::gfx::resources::Image::Image(
     renderer::resources::Image&& image,
     vk::UniqueImageView&&        view
 ) noexcept

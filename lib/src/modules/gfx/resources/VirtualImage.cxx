@@ -16,19 +16,19 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-module modules.gfx.resources.VirtualImage;
+module ddge.modules.gfx.resources.VirtualImage;
 
-import modules.image.Image;
+import ddge.modules.image.Image;
 
-import modules.gfx.resources.image_helpers;
-import modules.gfx.resources.virtual_image_helpers;
+import ddge.modules.gfx.resources.image_helpers;
+import ddge.modules.gfx.resources.virtual_image_helpers;
 
-import modules.log;
+import ddge.modules.log;
 
-import modules.renderer.base.resources.Allocation;
-import modules.renderer.base.resources.image_extensions;
-import modules.renderer.base.resources.MemoryView;
-import modules.renderer.resources.SeqWriteBuffer;
+import ddge.modules.renderer.base.resources.Allocation;
+import ddge.modules.renderer.base.resources.image_extensions;
+import ddge.modules.renderer.base.resources.MemoryView;
+import ddge.modules.renderer.resources.SeqWriteBuffer;
 
 [[nodiscard]]
 static auto image_usage_flags() -> vk::ImageUsageFlags
@@ -40,9 +40,9 @@ static auto image_usage_flags() -> vk::ImageUsageFlags
 static auto create_image(
     const vk::PhysicalDevice  physical_device,
     const vk::Device          device,
-    const modules::image::Image& source,
+    const ddge::image::Image& source,
     const vk::ImageUsageFlags usage
-) -> modules::renderer::base::Image
+) -> ddge::renderer::base::Image
 {
     if (!vkuFormatIsColor(static_cast<VkFormat>(source.format()))) {
         ENGINE_LOG_ERROR(
@@ -88,12 +88,12 @@ static auto create_image(
         .initialLayout = vk::ImageLayout::eUndefined,
     };
 
-    return modules::renderer::base::Image{ device.createImageUnique(image_create_info),
+    return ddge::renderer::base::Image{ device.createImageUnique(image_create_info),
                                         image_create_info };
 }
 
 [[nodiscard]]
-static auto create_image_view(const modules::renderer::base::Image& image)
+static auto create_image_view(const ddge::renderer::base::Image& image)
     -> vk::UniqueImageView
 {
     const vk::ImageViewCreateInfo view_create_info{
@@ -109,14 +109,14 @@ static auto create_image_view(const modules::renderer::base::Image& image)
     return image.device().createImageViewUnique(view_create_info);
 }
 
-auto modules::gfx::resources::VirtualImage::Block::buffer_size(const vk::Format format) const
+auto ddge::gfx::resources::VirtualImage::Block::buffer_size(const vk::Format format) const
     -> uint64_t
 {
     return static_cast<uint64_t>(vk::blockSize(format)) * m_extent.width * m_extent.height
          * m_extent.depth;
 }
 
-modules::gfx::resources::VirtualImage::Loader::Loader(
+ddge::gfx::resources::VirtualImage::Loader::Loader(
     const vk::PhysicalDevice         physical_device,
     const vk::Device                 device,
     const renderer::base::Allocator& allocator,
@@ -168,7 +168,7 @@ modules::gfx::resources::VirtualImage::Loader::Loader(
     }
 }
 
-auto modules::gfx::resources::VirtualImage::Loader::bind_tail(
+auto ddge::gfx::resources::VirtualImage::Loader::bind_tail(
     const vk::Queue sparse_queue
 ) const -> void
 {
@@ -193,7 +193,7 @@ auto modules::gfx::resources::VirtualImage::Loader::bind_tail(
     sparse_queue.bindSparse(bind_sparse_info);
 }
 
-auto modules::gfx::resources::VirtualImage::Loader::operator()(
+auto ddge::gfx::resources::VirtualImage::Loader::operator()(
     const vk::PhysicalDevice            physical_device,
     const vk::Queue                     sparse_queue,
     const vk::CommandBuffer             transfer_command_buffer,
@@ -235,12 +235,12 @@ auto modules::gfx::resources::VirtualImage::Loader::operator()(
     return result;
 }
 
-auto modules::gfx::resources::VirtualImage::Loader::view() const -> vk::ImageView
+auto ddge::gfx::resources::VirtualImage::Loader::view() const -> vk::ImageView
 {
     return m_view.get();
 }
 
-auto modules::gfx::resources::VirtualImage::Requirements::require_device_settings(
+auto ddge::gfx::resources::VirtualImage::Requirements::require_device_settings(
     vkb::PhysicalDeviceSelector& physical_device_selector
 ) -> void
 {
@@ -255,10 +255,10 @@ auto modules::gfx::resources::VirtualImage::Requirements::require_device_setting
 
 [[nodiscard]]
 static auto allocate_block(
-    const modules::renderer::base::Allocator&           allocator,
+    const ddge::renderer::base::Allocator&           allocator,
     const vk::MemoryRequirements&                    memory_requirements,
-    const modules::gfx::resources::VirtualImage::Block& info
-) -> modules::renderer::base::Allocation
+    const ddge::gfx::resources::VirtualImage::Block& info
+) -> ddge::renderer::base::Allocation
 {
     const vk::MemoryRequirements mip_tail_memory_requirements{
         .size           = info.m_size,
@@ -270,12 +270,12 @@ static auto allocate_block(
         .preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
     };
 
-    return std::get<modules::renderer::base::Allocation>(
+    return std::get<ddge::renderer::base::Allocation>(
         allocator.allocate(mip_tail_memory_requirements, allocation_create_info)
     );
 }
 
-auto modules::gfx::resources::VirtualImage::update(
+auto ddge::gfx::resources::VirtualImage::update(
     const renderer::base::Allocator& allocator,
     const vk::Queue                  sparse_queue,
     const vk::CommandBuffer          transfer_command_buffer
@@ -307,44 +307,44 @@ auto modules::gfx::resources::VirtualImage::update(
     }
 }
 
-auto modules::gfx::resources::VirtualImage::clean_up_after_update() -> void
+auto ddge::gfx::resources::VirtualImage::clean_up_after_update() -> void
 {
     m_staging_buffer.reset();
 }
 
-auto modules::gfx::resources::VirtualImage::image() const -> const renderer::base::Image&
+auto ddge::gfx::resources::VirtualImage::image() const -> const renderer::base::Image&
 {
     return m_image;
 }
 
-auto modules::gfx::resources::VirtualImage::view() const -> vk::ImageView
+auto ddge::gfx::resources::VirtualImage::view() const -> vk::ImageView
 {
     return m_view.get();
 }
 
-auto modules::gfx::resources::VirtualImage::debug_image() const -> const Image&
+auto ddge::gfx::resources::VirtualImage::debug_image() const -> const Image&
 {
     return m_debug_image;
 }
 
-auto modules::gfx::resources::VirtualImage::sparse_properties() const
+auto ddge::gfx::resources::VirtualImage::sparse_properties() const
     -> const vk::SparseImageMemoryRequirements&
 {
     return m_sparse_requirements;
 }
 
-auto modules::gfx::resources::VirtualImage::blocks() const -> std::span<const Block>
+auto ddge::gfx::resources::VirtualImage::blocks() const -> std::span<const Block>
 {
     return m_blocks;
 }
 
-auto modules::gfx::resources::VirtualImage::request_block(const uint32_t block_index) -> void
+auto ddge::gfx::resources::VirtualImage::request_block(const uint32_t block_index) -> void
 {
     // ENGINE_LOG_DEBUG("Requested block at index {}", block_index);
     m_to_be_loaded_mask.at(block_index) = true;
 }
 
-auto modules::gfx::resources::VirtualImage::request_blocks_by_distance_from_camera(
+auto ddge::gfx::resources::VirtualImage::request_blocks_by_distance_from_camera(
     const double distance,
     const double map_scale
 ) -> void
@@ -373,7 +373,7 @@ auto modules::gfx::resources::VirtualImage::request_blocks_by_distance_from_came
     // }
 }
 
-auto modules::gfx::resources::VirtualImage::request_all_blocks() -> void
+auto ddge::gfx::resources::VirtualImage::request_all_blocks() -> void
 {
     std::ranges::for_each(
         std::views::iota(0u, m_to_be_loaded_mask.size()),
@@ -381,7 +381,7 @@ auto modules::gfx::resources::VirtualImage::request_all_blocks() -> void
     );
 }
 
-modules::gfx::resources::VirtualImage::VirtualImage(
+ddge::gfx::resources::VirtualImage::VirtualImage(
     renderer::base::Image&&                  image,
     vk::UniqueImageView&&                    view,
     const vk::MemoryRequirements&            memory_requirements,
@@ -401,7 +401,7 @@ modules::gfx::resources::VirtualImage::VirtualImage(
       m_debug_image{ std::move(debug_image) }
 {}
 
-auto modules::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue sparse_queue)
+auto ddge::gfx::resources::VirtualImage::bind_memory_blocks(const vk::Queue sparse_queue)
     -> void
 {
     // TODO: use enumerate
@@ -484,7 +484,7 @@ static auto create_copy_regions(
     return memory_blocks
          | std::views::transform(
                [offset = 0u, format](
-                   const modules::gfx::resources::VirtualImage::Block& block
+                   const ddge::gfx::resources::VirtualImage::Block& block
                ) mutable -> vk::BufferImageCopy {
                    const vk::BufferImageCopy result{
                        .bufferOffset = offset,
@@ -508,10 +508,10 @@ static auto create_copy_regions(
 
 [[nodiscard]]
 static auto create_staging_buffer(
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     const vk::Format                       format,
     std::ranges::forward_range auto        blocks
-) -> modules::renderer::resources::SeqWriteBuffer<>
+) -> ddge::renderer::resources::SeqWriteBuffer<>
 {
     const vk::BufferCreateInfo staging_buffer_create_info{
         // TODO: use std::ranges::fold_left_first
@@ -519,7 +519,7 @@ static auto create_staging_buffer(
             blocks
                 | std::views::transform(
                     std::bind_back(
-                        &modules::gfx::resources::VirtualImage::Block::buffer_size, format
+                        &ddge::gfx::resources::VirtualImage::Block::buffer_size, format
                     )
                 ),
             0u,
@@ -528,14 +528,14 @@ static auto create_staging_buffer(
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
 
-    modules::renderer::resources::SeqWriteBuffer<> result{ allocator,
+    ddge::renderer::resources::SeqWriteBuffer<> result{ allocator,
                                                         staging_buffer_create_info };
 
     std::ranges::for_each(
         blocks,
         [&result,
          format,
-         offset = 0u](const modules::gfx::resources::VirtualImage::Block& block) mutable {
+         offset = 0u](const ddge::gfx::resources::VirtualImage::Block& block) mutable {
             result.set(std::span{ block.m_source }, offset);
             offset += block.buffer_size(format);
         }
@@ -544,8 +544,8 @@ static auto create_staging_buffer(
     return result;
 }
 
-auto modules::gfx::resources::VirtualImage::upload_new_memory_blocks(
-    const modules::renderer::base::Allocator& allocator,
+auto ddge::gfx::resources::VirtualImage::upload_new_memory_blocks(
+    const ddge::renderer::base::Allocator& allocator,
     const vk::CommandBuffer                transfer_command_buffer
 ) -> void
 {

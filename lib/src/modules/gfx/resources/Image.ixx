@@ -2,18 +2,18 @@ module;
 
 #include <VkBootstrap.h>
 
-export module modules.gfx.resources.Image;
+export module ddge.modules.gfx.resources.Image;
 
 import vulkan_hpp;
 
-import modules.image.Image;
+import ddge.modules.image.Image;
 
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.resources.Image;
-import modules.renderer.resources.Image;
-import modules.renderer.resources.SeqWriteBuffer;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.resources.Image;
+import ddge.modules.renderer.resources.Image;
+import ddge.modules.renderer.resources.SeqWriteBuffer;
 
-namespace modules::gfx::resources {
+namespace ddge::gfx::resources {
 
 export class Image {
 public:
@@ -21,8 +21,8 @@ public:
     public:
         Loader(
             vk::Device                             device,
-            const modules::renderer::base::Allocator& allocator,
-            const modules::image::Image&              source
+            const ddge::renderer::base::Allocator& allocator,
+            const ddge::image::Image&              source
         );
 
         [[nodiscard]]
@@ -63,4 +63,4 @@ private:
     Image(renderer::resources::Image&& image, vk::UniqueImageView&& view) noexcept;
 };
 
-}   // namespace modules::gfx::resources
+}   // namespace ddge::gfx::resources

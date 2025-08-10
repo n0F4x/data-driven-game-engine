@@ -4,11 +4,11 @@ module;
 
 #include <vk_mem_alloc.h>
 
-module modules.renderer.resources.Image;
+module ddge.modules.renderer.resources.Image;
 
-import modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.allocator.Allocator;
 
-modules::renderer::resources::Image::Image(
+ddge::renderer::resources::Image::Image(
     const base::Allocator&         allocator,
     const vk::ImageCreateInfo&     image_create_info,
     const VmaAllocationCreateInfo& allocation_create_info
@@ -16,19 +16,19 @@ modules::renderer::resources::Image::Image(
     : Image{ make(allocator, image_create_info, allocation_create_info) }
 {}
 
-auto modules::renderer::resources::Image::reset() -> void
+auto ddge::renderer::resources::Image::reset() -> void
 {
     m_allocation.reset();
     base::Image::reset();
 }
 
-auto modules::renderer::resources::Image::allocation() const noexcept
+auto ddge::renderer::resources::Image::allocation() const noexcept
     -> const base::Allocation&
 {
     return m_allocation;
 }
 
-auto modules::renderer::resources::Image::make(
+auto ddge::renderer::resources::Image::make(
     const base::Allocator&         allocator,
     const vk::ImageCreateInfo&     image_create_info,
     const VmaAllocationCreateInfo& allocation_create_info
@@ -41,7 +41,7 @@ auto modules::renderer::resources::Image::make(
     return Image{ std::move(image), std::move(allocation) };
 }
 
-modules::renderer::resources::Image::Image(
+ddge::renderer::resources::Image::Image(
     base::Image&&      image,
     base::Allocation&& allocation
 ) noexcept

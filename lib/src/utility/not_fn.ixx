@@ -4,11 +4,25 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module utility.not_fn;
+export module ddge.utility.not_fn;
 
-import utility.meta.concepts.functional;
-import utility.meta.concepts.naked;
-import utility.meta.type_traits.functional;
+import ddge.utility.meta.concepts.functional;
+import ddge.utility.meta.concepts.naked;
+import ddge.utility.meta.type_traits.functional;
+
+template <typename Invocable_T>
+class NotFn;
+
+namespace ddge::util {
+
+export template <typename F>
+    requires requires { std::type_identity<::NotFn<std::remove_cvref_t<F>>>{}; }
+constexpr auto not_fn(F&& func) -> ::NotFn<std::remove_cvref_t<F>>
+{
+    return ::NotFn<std::remove_cvref_t<F>>{ std::forward<F>(func) };
+}
+
+}   // namespace ddge::util
 
 template <typename Derived_T, typename Signature_T>
 class NotFnInterface;
@@ -146,15 +160,12 @@ struct NotFnInterfaceFromImpl<Derived_T, Result_T, TypeList_T<Args_T...>> {
 };
 
 template <typename Invocable_T>
-class NotFn;
-
-template <typename Invocable_T>
 using not_fn_interface_from_t = typename NotFnInterfaceFromImpl<
     NotFn<Invocable_T>,
-    util::meta::result_of_t<Invocable_T>,
-    util::meta::arguments_of_t<Invocable_T>>::type;
+    ddge::util::meta::result_of_t<Invocable_T>,
+    ddge::util::meta::arguments_of_t<Invocable_T>>::type;
 
-template <util::meta::function_c Invocable_T>
+template <ddge::util::meta::function_c Invocable_T>
 class NotFn<Invocable_T> : public not_fn_interface_from_t<Invocable_T> {
     using Base = not_fn_interface_from_t<Invocable_T>;
 
@@ -167,7 +178,7 @@ private:
     std::reference_wrapper<Invocable_T> m_invocable;
 };
 
-template <util::meta::member_function_pointer_c Invocable_T>
+template <ddge::util::meta::member_function_pointer_c Invocable_T>
 class NotFn<Invocable_T> : public not_fn_interface_from_t<Invocable_T> {
     using Base = not_fn_interface_from_t<Invocable_T>;
 
@@ -180,8 +191,8 @@ private:
     Invocable_T m_invocable;
 };
 
-template <util::meta::unambiguous_functor_c Invocable_T>
-    requires util::meta::naked_c<Invocable_T>
+template <ddge::util::meta::unambiguous_functor_c Invocable_T>
+    requires ddge::util::meta::naked_c<Invocable_T>
 class NotFn<Invocable_T> : public not_fn_interface_from_t<Invocable_T> {
     using Base = not_fn_interface_from_t<Invocable_T>;
 
@@ -197,14 +208,3 @@ private:
 
     Invocable_T m_invocable;
 };
-
-namespace util {
-
-export template <typename F>
-    requires requires { std::type_identity<NotFn<std::remove_cvref_t<F>>>{}; }
-constexpr auto not_fn(F&& func) -> NotFn<std::remove_cvref_t<F>>
-{
-    return NotFn<std::remove_cvref_t<F>>{ std::forward<F>(func) };
-}
-
-}   // namespace util

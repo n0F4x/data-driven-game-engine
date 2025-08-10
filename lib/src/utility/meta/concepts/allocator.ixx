@@ -3,16 +3,16 @@ module;
 #include <concepts>
 #include <cstdint>
 
-export module utility.meta.concepts.allocator;
+export module ddge.utility.meta.concepts.allocator;
 
-import utility.meta.concepts.decayed;
-import utility.meta.concepts.nothrow_movable;
+import ddge.utility.meta.concepts.decayed;
+import ddge.utility.meta.concepts.nothrow_movable;
 
 struct Dummy {
     int dummy;
 };
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename T>
 concept allocator_c = decayed_c<T> && nothrow_movable_c<T> && requires {
@@ -37,4 +37,4 @@ concept generic_allocator_c = decayed_c<T> && nothrow_movable_c<T>
                                   };
                               };
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

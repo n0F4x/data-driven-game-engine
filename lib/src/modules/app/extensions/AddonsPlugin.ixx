@@ -5,14 +5,14 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module modules.app.extensions.AddonsPlugin;
+export module ddge.modules.app.extensions.AddonsPlugin;
 
-import modules.app.addon_c;
-import modules.app.decays_to_addon_c;
-import modules.app.decays_to_app_c;
-import modules.app.decays_to_builder_c;
+import ddge.modules.app.addon_c;
+import ddge.modules.app.decays_to_addon_c;
+import ddge.modules.app.decays_to_app_c;
+import ddge.modules.app.decays_to_builder_c;
 
-namespace modules::app {
+namespace ddge::app {
 
 inline namespace extensions {
 
@@ -47,27 +47,27 @@ public:
 
 }   // namespace extensions
 
-}   // namespace modules::app
+}   // namespace ddge::app
 
-template <modules::app::extensions::addon_maker AddonMaker_T>
+template <ddge::app::extensions::addon_maker AddonMaker_T>
 template <typename UAddonMaker_T>
     requires std::constructible_from<AddonMaker_T, UAddonMaker_T&&>
-constexpr modules::app::extensions::AddonBuilder<AddonMaker_T>::AddonBuilder(
+constexpr ddge::app::extensions::AddonBuilder<AddonMaker_T>::AddonBuilder(
     UAddonMaker_T&& injection
 )
     : m_injection{ std::forward<UAddonMaker_T>(injection) }
 {}
 
-template <modules::app::extensions::addon_maker AddonMaker_T>
-template <modules::app::decays_to_app_c App_T>
-constexpr auto modules::app::extensions::AddonBuilder<AddonMaker_T>::build(App_T&& app) &&
+template <ddge::app::extensions::addon_maker AddonMaker_T>
+template <ddge::app::decays_to_app_c App_T>
+constexpr auto ddge::app::extensions::AddonBuilder<AddonMaker_T>::build(App_T&& app) &&
 {
     return std::forward<App_T>(app).add_on(std::invoke(std::move(m_injection)));
 }
 
-template <modules::app::decays_to_builder_c Self_T, modules::app::decays_to_addon_c Addon_T>
+template <ddge::app::decays_to_builder_c Self_T, ddge::app::decays_to_addon_c Addon_T>
 constexpr auto
-    modules::app::extensions::AddonsPlugin::use_addon(this Self_T&& self, Addon_T&& addon)
+    ddge::app::extensions::AddonsPlugin::use_addon(this Self_T&& self, Addon_T&& addon)
 {
     struct AddonMaker {
         constexpr auto operator()() && -> std::decay_t<Addon_T>
@@ -84,9 +84,9 @@ constexpr auto
 }
 
 template <
-    modules::app::decays_to_builder_c               Self_T,
-    modules::app::extensions::decays_to_addon_maker AddonMaker_T>
-constexpr auto modules::app::extensions::AddonsPlugin::inject_addon(
+    ddge::app::decays_to_builder_c               Self_T,
+    ddge::app::extensions::decays_to_addon_maker AddonMaker_T>
+constexpr auto ddge::app::extensions::AddonsPlugin::inject_addon(
     this Self_T&&  self,
     AddonMaker_T&& addon
 )

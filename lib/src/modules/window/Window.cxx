@@ -12,13 +12,12 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-module modules.window.Window;
+module ddge.modules.window.Window;
 
-import modules.log;
+import ddge.config.vulkan;
+import ddge.modules.log;
 
-import config.vulkan;
-
-import utility.Size;
+import ddge.utility.Size;
 
 static auto init_glfw() -> void
 {
@@ -28,7 +27,7 @@ static auto init_glfw() -> void
         ENGINE_LOG_ERROR(description);
     });
 
-    glfwInitVulkanLoader(config::vulkan::dispatcher().vkGetInstanceProcAddr);
+    glfwInitVulkanLoader(ddge::config::vulkan::dispatcher().vkGetInstanceProcAddr);
 
     if (const int success{ glfwInit() }; success != GLFW_TRUE) {
         const char* description{};
@@ -44,7 +43,7 @@ static auto init_glfw() -> void
     }
 }
 
-namespace modules::window {
+namespace ddge::window {
 
 auto Window::vulkan_instance_extensions()
     -> const std::vector<gsl_lite::not_null<gsl_lite::czstring>>&
@@ -199,4 +198,4 @@ auto Window::cursor_position() const -> glm::dvec2
     return result;
 }
 
-}   // namespace modules::window
+}   // namespace ddge::window

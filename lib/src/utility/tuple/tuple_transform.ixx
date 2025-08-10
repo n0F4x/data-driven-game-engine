@@ -2,11 +2,11 @@ module;
 
 #include <functional>
 
-export module utility.tuple.tuple_transform;
+export module ddge.utility.tuple.tuple_transform;
 
-import utility.meta.concepts.tuple_like;
+import ddge.utility.meta.concepts.tuple_like;
 
-namespace util {
+namespace ddge::util {
 
 export template <meta::tuple_like_c Tuple_T, typename Transform_T>
 constexpr auto tuple_transform(Tuple_T&& tuple, Transform_T transform)
@@ -19,4 +19,4 @@ constexpr auto tuple_transform(Tuple_T&& tuple, Transform_T transform)
     );
 }
 
-}   // namespace util
+}   // namespace ddge::util

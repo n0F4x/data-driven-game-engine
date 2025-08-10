@@ -1,17 +1,17 @@
-export module utility.meta.type_traits.type_list.type_list_chunk_sub;
+export module ddge.utility.meta.type_traits.type_list.type_list_chunk_sub;
 
-import utility.meta.concepts.type_list.type_list_all_of;
+import ddge.utility.meta.concepts.type_list.type_list_all_of;
 
-import utility.meta.type_traits.type_list.type_list_disjoin;
-import utility.meta.type_traits.type_list.type_list_join;
-import utility.meta.type_traits.type_list.type_list_to;
-import utility.meta.type_traits.type_list.type_list_transform;
-import utility.meta.type_traits.is_specialization_of;
+import ddge.utility.meta.type_traits.type_list.type_list_disjoin;
+import ddge.utility.meta.type_traits.type_list.type_list_join;
+import ddge.utility.meta.type_traits.type_list.type_list_to;
+import ddge.utility.meta.type_traits.type_list.type_list_transform;
+import ddge.utility.meta.type_traits.is_specialization_of;
 
 template <template <typename> typename Wrapper_T>
 struct is_specialization_of_Wrapper {
     template <typename T>
-    struct trait : util::meta::is_specialization_of<T, Wrapper_T> {};
+    struct trait : ddge::util::meta::is_specialization_of<T, Wrapper_T> {};
 };
 
 template <
@@ -24,13 +24,13 @@ struct transform_join_if_list_of_subtype_lists {
     };
 
     template <template <typename...> typename TypeList_T, typename... Ts>
-        requires util::meta::type_list_all_of_c<
+        requires ddge::util::meta::type_list_all_of_c<
             TypeList_T<Ts...>,
             is_specialization_of_Wrapper<SubTypeList_T>::template trait>
     struct trait<TypeList_T<Ts...>>
-        : util::meta::type_list_to<
-              util::meta::type_list_transform_t<
-                  util::meta::type_list_join_t<TypeList_T<Ts...>>,
+        : ddge::util::meta::type_list_to<
+              ddge::util::meta::type_list_transform_t<
+                  ddge::util::meta::type_list_join_t<TypeList_T<Ts...>>,
                   Transform_T>,
               TypeList_T> {};
 };
@@ -51,14 +51,15 @@ template <
     typename... Ts,
     template <typename...> typename SubTypeList_T>
 struct type_list_chunk_sub_impl<TypeList_T<Ts...>, SubTypeList_T> {
-    using type = util::meta::type_list_join_t<util::meta::type_list_transform_t<
-        util::meta::type_list_disjoin_t<TypeList_T<Ts...>>,
-        transform_join_if_list_of_subtype_lists<
-            SubTypeList_T,
-            add_subtype_list<SubTypeList_T>::template trait>::template trait>>;
+    using type =
+        ddge::util::meta::type_list_join_t<ddge::util::meta::type_list_transform_t<
+            ddge::util::meta::type_list_disjoin_t<TypeList_T<Ts...>>,
+            transform_join_if_list_of_subtype_lists<
+                SubTypeList_T,
+                add_subtype_list<SubTypeList_T>::template trait>::template trait>>;
 };
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T, template <typename...> typename SubTypeList_T>
 struct type_list_chunk_sub {
@@ -69,4 +70,4 @@ export template <typename TypeList_T, template <typename...> typename SubTypeLis
 using type_list_chunk_sub_t =
     typename type_list_chunk_sub<TypeList_T, SubTypeList_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

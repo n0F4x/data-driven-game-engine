@@ -9,18 +9,18 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.store.Store;
+export module ddge.modules.store.Store;
 
-import modules.store.item_c;
+import ddge.modules.store.item_c;
 
-import utility.containers.MoveOnlyAny;
-import utility.containers.OptionalRef;
-import utility.contracts;
-import utility.meta.reflection.name_of;
-import utility.meta.type_traits.const_like;
-import utility.meta.type_traits.forward_like;
+import ddge.utility.containers.MoveOnlyAny;
+import ddge.utility.containers.OptionalRef;
+import ddge.utility.contracts;
+import ddge.utility.meta.reflection.name_of;
+import ddge.utility.meta.type_traits.const_like;
+import ddge.utility.meta.type_traits.forward_like;
 
-namespace modules::store {
+namespace ddge::store {
 
 export class Store {
 public:
@@ -52,10 +52,10 @@ private:
     tsl::ordered_map<std::type_index, util::BasicMoveOnlyAny<0>> m_map;
 };
 
-}   // namespace modules::store
+}   // namespace ddge::store
 
-template <modules::store::item_c Item_T, typename... Args_T>
-auto modules::store::Store::emplace(Args_T&&... args) -> Item_T&
+template <ddge::store::item_c Item_T, typename... Args_T>
+auto ddge::store::Store::emplace(Args_T&&... args) -> Item_T&
 {
     return util::any_cast<Item_T>(
         m_map
@@ -67,8 +67,8 @@ auto modules::store::Store::emplace(Args_T&&... args) -> Item_T&
     );
 }
 
-template <modules::store::item_c Item_T, typename Self_T>
-auto modules::store::Store::find(this Self_T& self) noexcept
+template <ddge::store::item_c Item_T, typename Self_T>
+auto ddge::store::Store::find(this Self_T& self) noexcept
     -> util::OptionalRef<util::meta::const_like_t<Item_T, Self_T>>
 {
     const auto iter{ self.m_map.find(typeid(Item_T)) };
@@ -79,8 +79,8 @@ auto modules::store::Store::find(this Self_T& self) noexcept
     return util::any_cast<Item_T>(*iter);
 }
 
-template <modules::store::item_c Item_T, typename Self_T>
-auto modules::store::Store::at(this Self_T&& self)
+template <ddge::store::item_c Item_T, typename Self_T>
+auto ddge::store::Store::at(this Self_T&& self)
     -> util::meta::forward_like_t<Item_T, Self_T>
 {
     PRECOND(
@@ -93,15 +93,15 @@ auto modules::store::Store::at(this Self_T&& self)
     );
 }
 
-template <modules::store::item_c Item_T>
-auto modules::store::Store::contains() const noexcept -> bool
+template <ddge::store::item_c Item_T>
+auto ddge::store::Store::contains() const noexcept -> bool
 {
     return m_map.contains(typeid(Item_T));
 }
 
 module :private;
 
-modules::store::Store::~Store()
+ddge::store::Store::~Store()
 {
     while (!m_map.empty()) {
         m_map.pop_back();

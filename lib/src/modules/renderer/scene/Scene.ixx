@@ -5,25 +5,25 @@ module;
 
 #include <glm/ext/matrix_float4x4.hpp>
 
-export module modules.renderer.scene.Scene;
+export module ddge.modules.renderer.scene.Scene;
 
 import vulkan_hpp;
 
-import utility.containers.OptionalRef;
+import ddge.utility.containers.OptionalRef;
 
-import modules.cache.Cache;
-import modules.cache.Handle;
+import ddge.modules.cache.Cache;
+import ddge.modules.cache.Handle;
 
-import modules.gfx.Camera;
-import modules.gltf.Model;
-import modules.gltf.RenderModel;
+import ddge.modules.gfx.Camera;
+import ddge.modules.gltf.Model;
+import ddge.modules.gltf.RenderModel;
 
-import modules.renderer.base.device.Device;
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.descriptor_pool.DescriptorPool;
-import modules.renderer.resources.RandomAccessBuffer;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.descriptor_pool.DescriptorPool;
+import ddge.modules.renderer.resources.RandomAccessBuffer;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 export class Scene {
 public:
@@ -96,4 +96,4 @@ private:
     std::vector<cache::Handle<const gltf::Model>> m_models;
 };
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer

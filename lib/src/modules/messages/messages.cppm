@@ -1,8 +1,8 @@
-export module modules.messages;
+export module ddge.modules.messages;
 
-export import modules.messages.Addon;
-export import modules.messages.ErasedMessageBuffer;
-export import modules.messages.message_c;
-export import modules.messages.MessageBuffer;
-export import modules.messages.MessageManager;
-export import modules.messages.Plugin;
+export import ddge.modules.messages.Addon;
+export import ddge.modules.messages.ErasedMessageBuffer;
+export import ddge.modules.messages.message_c;
+export import ddge.modules.messages.MessageBuffer;
+export import ddge.modules.messages.MessageManager;
+export import ddge.modules.messages.Plugin;

@@ -4,9 +4,9 @@ module;
 #include <ranges>
 #include <tuple>
 
-export module utility.meta.concepts.tuple_like;
+export module ddge.utility.meta.concepts.tuple_like;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 template <class T>
 inline constexpr bool is_tuple_like_v = false;
@@ -30,4 +30,4 @@ concept tuple_like_c = is_tuple_like_v<std::remove_cvref_t<T>>;
 export template <typename T>
 concept pair_like_c = tuple_like_c<T> && std::tuple_size_v<std::remove_cvref_t<T>> == 2;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

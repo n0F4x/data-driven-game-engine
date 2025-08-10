@@ -7,9 +7,9 @@ module;
 
 export module snake.window.setup;
 
-import prelude;
+import ddge.prelude;
 
-import modules.time.FixedTimer;
+import ddge.modules.time.FixedTimer;
 
 import snake.window.DisplayTimer;
 import snake.window.Settings;
@@ -18,7 +18,7 @@ import snake.window.Window;
 namespace window {
 
 export inline constexpr auto setup =
-    []<app::decays_to_builder_c Builder_T>(Builder_T&& builder) -> Builder_T   //
+    []<ddge::app::decays_to_builder_c Builder_T>(Builder_T&& builder) -> Builder_T   //
 {
     constexpr static Settings settings{
         .width  = 1'280,
@@ -26,8 +26,8 @@ export inline constexpr auto setup =
         .title{ "Snake" },
     };
 
-    static_assert(app::has_plugins_c<Builder_T, plugins::Resources>);
-    static_assert(app::has_plugins_c<Builder_T, plugins::Events>);
+    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::plugins::Resources>);
+    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::plugins::Events>);
 
     return std::forward<Builder_T>(builder)
         .insert_resource(settings)

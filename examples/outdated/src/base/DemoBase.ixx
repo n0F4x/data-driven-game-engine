@@ -6,10 +6,10 @@ module;
 
 export module examples.base.DemoBase;
 
-import modules.gfx.Camera;
-import modules.renderer.base.device.Device;
-import modules.renderer.base.swapchain.SwapchainHolder;
-import modules.window.Window;
+import ddge.modules.gfx.Camera;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.swapchain.SwapchainHolder;
+import ddge.modules.window.Window;
 
 import examples.base.Controller;
 import examples.base.Renderer;
@@ -23,25 +23,25 @@ export struct DemoBasePlugin {
 
     [[nodiscard]]
     auto operator()(
-        modules::window::Window&                  window,
-        const modules::renderer::base::Device&    device,
-        modules::renderer::base::SwapchainHolder& swapchain_holder
+        ddge::window::Window&                  window,
+        const ddge::renderer::base::Device&    device,
+        ddge::renderer::base::SwapchainHolder& swapchain_holder
     ) const -> DemoBase;
 };
 
 export class DemoBase {
 public:
     DemoBase(
-        modules::window::Window& window,
+        ddge::window::Window& window,
         const Controller&     controller,
         Renderer&&            renderer
     ) noexcept;
 
-    auto run(const std::function<void(Renderer&, vk::Extent2D, modules::gfx::Camera)>& render)
+    auto run(const std::function<void(Renderer&, vk::Extent2D, ddge::gfx::Camera)>& render)
         -> void;
 
 private:
-    std::reference_wrapper<modules::window::Window> m_window;
+    std::reference_wrapper<ddge::window::Window> m_window;
     Controller                                   m_controller;
     Renderer                                     m_renderer;
 };

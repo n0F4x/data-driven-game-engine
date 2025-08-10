@@ -7,28 +7,28 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.scheduler.providers.EventProvider;
+export module ddge.modules.scheduler.providers.EventProvider;
 
-import modules.app;
+import ddge.modules.app;
 
-import modules.events;
-import modules.scheduler.ProviderFor;
-import modules.store.Store;
+import ddge.modules.events;
+import ddge.modules.scheduler.ProviderFor;
+import ddge.modules.store.Store;
 
-import modules.scheduler.accessors.events;
-import modules.scheduler.ProviderOf;
+import ddge.modules.scheduler.accessors.events;
+import ddge.modules.scheduler.ProviderOf;
 
-import utility.contracts;
-import utility.meta.algorithms.apply;
-import utility.meta.algorithms.for_each;
-import utility.meta.concepts.specialization_of;
-import utility.meta.reflection.name_of;
+import ddge.utility.contracts;
+import ddge.utility.meta.algorithms.apply;
+import ddge.utility.meta.algorithms.for_each;
+import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.meta.reflection.name_of;
 
-namespace modules::scheduler::providers {
+namespace ddge::scheduler::providers {
 
 class EventProvider {
 public:
-    template <modules::app::has_addons_c<events::Addon> App_T>
+    template <ddge::app::has_addons_c<events::Addon> App_T>
     constexpr explicit EventProvider(App_T& app);
 
     template <std::same_as<accessors::events::Processor>>
@@ -44,44 +44,43 @@ public:
     constexpr auto provide() const -> Reader_T;
 
 private:
-    std::reference_wrapper<modules::events::EventManager> m_event_manager_ref;
+    std::reference_wrapper<ddge::events::EventManager> m_event_manager_ref;
 };
 
-}   // namespace modules::scheduler::providers
+}   // namespace ddge::scheduler::providers
 
 template <>
-struct modules::scheduler::ProviderOf<modules::events::Addon>
-    : std::type_identity<modules::scheduler::providers::EventProvider> {};
+struct ddge::scheduler::ProviderOf<ddge::events::Addon>
+    : std::type_identity<ddge::scheduler::providers::EventProvider> {};
 
 template <>
-struct modules::scheduler::ProviderFor<modules::scheduler::accessors::events::Processor>
-    : std::type_identity<modules::scheduler::providers::EventProvider> {};
+struct ddge::scheduler::ProviderFor<ddge::scheduler::accessors::events::Processor>
+    : std::type_identity<ddge::scheduler::providers::EventProvider> {};
 
 template <typename... Events_T>
-struct modules::scheduler::
-    ProviderFor<modules::scheduler::accessors::events::Recorder<Events_T...>>
-    : std::type_identity<modules::scheduler::providers::EventProvider> {};
+struct ddge::scheduler::
+    ProviderFor<ddge::scheduler::accessors::events::Recorder<Events_T...>>
+    : std::type_identity<ddge::scheduler::providers::EventProvider> {};
 
 template <typename Event_T>
-struct modules::scheduler::
-    ProviderFor<modules::scheduler::accessors::events::Reader<Event_T>>
-    : std::type_identity<modules::scheduler::providers::EventProvider> {};
+struct ddge::scheduler::ProviderFor<ddge::scheduler::accessors::events::Reader<Event_T>>
+    : std::type_identity<ddge::scheduler::providers::EventProvider> {};
 
-template <modules::app::has_addons_c<modules::events::Addon> App_T>
-constexpr modules::scheduler::providers::EventProvider::EventProvider(App_T& app)
+template <ddge::app::has_addons_c<ddge::events::Addon> App_T>
+constexpr ddge::scheduler::providers::EventProvider::EventProvider(App_T& app)
     : m_event_manager_ref{ app.event_manager }
 {}
 
-template <std::same_as<modules::scheduler::accessors::events::Processor> Accessor_T>
-auto modules::scheduler::providers::EventProvider::provide() const
-    -> modules::scheduler::accessors::events::Processor
+template <std::same_as<ddge::scheduler::accessors::events::Processor> Accessor_T>
+auto ddge::scheduler::providers::EventProvider::provide() const
+    -> ddge::scheduler::accessors::events::Processor
 {
-    return modules::scheduler::accessors::events::Processor{ m_event_manager_ref };
+    return ddge::scheduler::accessors::events::Processor{ m_event_manager_ref };
 }
 
-template <util::meta::specialization_of_c<modules::scheduler::accessors::events::Recorder>
-              Recorder_T>
-constexpr auto modules::scheduler::providers::EventProvider::provide() const -> Recorder_T
+template <ddge::util::meta::
+              specialization_of_c<ddge::scheduler::accessors::events::Recorder> Recorder_T>
+constexpr auto ddge::scheduler::providers::EventProvider::provide() const -> Recorder_T
 {
     using Events = typename Recorder_T::Events;
 
@@ -92,9 +91,9 @@ constexpr auto modules::scheduler::providers::EventProvider::provide() const -> 
     });
 }
 
-template <util::meta::specialization_of_c<modules::scheduler::accessors::events::Reader>
-              Reader_T>
-constexpr auto modules::scheduler::providers::EventProvider::provide() const -> Reader_T
+template <ddge::util::meta::
+              specialization_of_c<ddge::scheduler::accessors::events::Reader> Reader_T>
+constexpr auto ddge::scheduler::providers::EventProvider::provide() const -> Reader_T
 {
     using Event = typename Reader_T::Event;
 

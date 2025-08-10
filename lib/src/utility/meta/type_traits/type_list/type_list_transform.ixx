@@ -1,8 +1,8 @@
-export module utility.meta.type_traits.type_list.type_list_transform;
+export module ddge.utility.meta.type_traits.type_list.type_list_transform;
 
-import utility.meta.type_traits.type_list.type_list_front;
+import ddge.utility.meta.type_traits.type_list.type_list_front;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T, template <typename> typename Transform_T>
 struct type_list_transform;
@@ -18,4 +18,4 @@ struct type_list_transform<TypeList_T<Ts...>, Transform_T> {
 export template <typename TypeList_T, template <typename> typename Transform_T>
 using type_list_transform_t = typename type_list_transform<TypeList_T, Transform_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

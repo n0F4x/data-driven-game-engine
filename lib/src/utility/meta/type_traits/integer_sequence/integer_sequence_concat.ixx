@@ -1,8 +1,8 @@
-export module utility.meta.type_traits.integer_sequence.integer_sequence_concat;
+export module ddge.utility.meta.type_traits.integer_sequence.integer_sequence_concat;
 
-import utility.meta.concepts.integer_sequence.integer_sequence;
+import ddge.utility.meta.concepts.integer_sequence.integer_sequence;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 template <
     integer_sequence_c First_T,
@@ -32,4 +32,4 @@ export template <integer_sequence_c... IntegerSequencess_T>
 using integer_sequence_concat_t =
     typename integer_sequence_concat<IntegerSequencess_T...>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

@@ -4,7 +4,7 @@
 #include <tuple>
 #include <utility>
 
-import utility.containers.SlotMultiMap;
+import ddge.utility.containers.SlotMultiMap;
 
 namespace {
 

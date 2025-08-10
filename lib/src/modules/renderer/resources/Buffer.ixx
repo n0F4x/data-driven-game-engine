@@ -4,15 +4,15 @@ module;
 
 #include <vk_mem_alloc.h>
 
-export module modules.renderer.resources.Buffer;
+export module ddge.modules.renderer.resources.Buffer;
 
 import vulkan_hpp;
 
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.resources.Allocation;
-import modules.renderer.base.resources.Buffer;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.resources.Allocation;
+import ddge.modules.renderer.base.resources.Buffer;
 
-namespace modules::renderer::resources {
+namespace ddge::renderer::resources {
 
 export class Buffer {
 public:
@@ -41,4 +41,4 @@ private:
     Buffer(base::Buffer&& buffer, base::Allocation&& allocation) noexcept;
 };
 
-}   // namespace modules::renderer::resources
+}   // namespace ddge::renderer::resources

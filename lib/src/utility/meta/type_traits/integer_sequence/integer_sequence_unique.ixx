@@ -5,12 +5,12 @@ module;
 #include <iterator>
 #include <utility>
 
-export module utility.meta.type_traits.integer_sequence.integer_sequence_unique;
+export module ddge.utility.meta.type_traits.integer_sequence.integer_sequence_unique;
 
-import utility.meta.algorithms.apply;
-import utility.meta.concepts.integer_sequence.integer_sequence;
+import ddge.utility.meta.algorithms.apply;
+import ddge.utility.meta.concepts.integer_sequence.integer_sequence;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 template <integer_sequence_c IntegerSequence_T>
 struct integer_sequence_unique;
@@ -54,4 +54,4 @@ export template <integer_sequence_c IntegerSequence_T>
 using integer_sequence_unique_t =
     typename integer_sequence_unique<IntegerSequence_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

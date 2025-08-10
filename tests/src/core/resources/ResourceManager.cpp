@@ -1,6 +1,6 @@
 #include <functional>
 
-import modules.resources.ResourceManager;
+import ddge.modules.resources.ResourceManager;
 
 namespace {
 
@@ -28,7 +28,7 @@ constexpr auto make_second(const First& first) -> Second
 
 static_assert(
     [] {
-        modules::resource::ResourceManager<First, Second> resource_manager{ make_first,
+        ddge::resource::ResourceManager<First, Second> resource_manager{ make_first,
                                                                          make_second };
         auto moved_resource_manager{ std::move(resource_manager) };
 

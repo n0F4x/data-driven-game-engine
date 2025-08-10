@@ -2,13 +2,13 @@ module;
 
 #include <type_traits>
 
-export module modules.app.decays_to_app_c;
+export module ddge.modules.app.decays_to_app_c;
 
-import modules.app.app_c;
+import ddge.modules.app.app_c;
 
-namespace modules::app {
+namespace ddge::app {
 
 export template <typename T>
 concept decays_to_app_c = app_c<std::remove_cvref_t<T>>;
 
-}   // namespace app
+}   // namespace ddge::app

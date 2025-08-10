@@ -6,16 +6,16 @@ module;
 #include <utility>
 #include <vector>
 
-export module modules.events.BufferedEventQueue;
+export module ddge.modules.events.BufferedEventQueue;
 
-import modules.events.decays_to_event_c;
-import modules.events.event_c;
+import ddge.modules.events.decays_to_event_c;
+import ddge.modules.events.event_c;
 
-import utility.meta.type_traits.const_like;
-import utility.meta.type_traits.type_list.type_list_contains;
-import utility.TypeList;
+import ddge.utility.meta.type_traits.const_like;
+import ddge.utility.meta.type_traits.type_list.type_list_contains;
+import ddge.utility.TypeList;
 
-namespace modules::events {
+namespace ddge::events {
 
 export template <event_c Event_T>
 class BufferedEventQueue;
@@ -35,7 +35,7 @@ public:
     constexpr auto swap_buffers() -> void;
 
     template <event_c UEvent_T>
-    friend constexpr auto ::modules::events::view(const BufferedEventQueue<UEvent_T>& self)
+    friend constexpr auto ::ddge::events::view(const BufferedEventQueue<UEvent_T>& self)
         -> std::span<const UEvent_T>;
 
 private:
@@ -56,50 +56,50 @@ private:
     auto next_recording_buffer_index() const -> uint8_t;
 };
 
-}   // namespace modules::events
+}   // namespace ddge::events
 
-template <modules::events::event_c Event_T>
+template <ddge::events::event_c Event_T>
 template <typename... Args_T>
     requires std::constructible_from<Event_T, Args_T&&...>
-constexpr auto modules::events::BufferedEventQueue<Event_T>::emplace_back(Args_T&&... args)
+constexpr auto ddge::events::BufferedEventQueue<Event_T>::emplace_back(Args_T&&... args)
     -> void
 {
     recording_buffer().emplace_back(std::forward<Args_T>(args)...);
 }
 
-template <modules::events::event_c Event_T>
-constexpr auto modules::events::BufferedEventQueue<Event_T>::swap_buffers() -> void
+template <ddge::events::event_c Event_T>
+constexpr auto ddge::events::BufferedEventQueue<Event_T>::swap_buffers() -> void
 {
     recorded_buffer().clear();
     m_recording_buffer_index = next_recording_buffer_index();
 }
 
-template <modules::events::event_c Event_T>
-constexpr auto modules::events::view(
-    const modules::events::BufferedEventQueue<Event_T>& buffered_event_queue
+template <ddge::events::event_c Event_T>
+constexpr auto ddge::events::view(
+    const ddge::events::BufferedEventQueue<Event_T>& buffered_event_queue
 ) -> std::span<const Event_T>
 {
     return buffered_event_queue.recorded_buffer();
 }
 
-template <modules::events::event_c Event_T>
+template <ddge::events::event_c Event_T>
 template <typename Self_T>
-auto modules::events::BufferedEventQueue<Event_T>::recording_buffer(this Self_T& self)
+auto ddge::events::BufferedEventQueue<Event_T>::recording_buffer(this Self_T& self)
     -> util::meta::const_like_t<Queue, Self_T>&
 {
     return self.m_buffers[self.m_recording_buffer_index];
 }
 
-template <modules::events::event_c Event_T>
+template <ddge::events::event_c Event_T>
 template <typename Self_T>
-auto modules::events::BufferedEventQueue<Event_T>::recorded_buffer(this Self_T& self)
+auto ddge::events::BufferedEventQueue<Event_T>::recorded_buffer(this Self_T& self)
     -> util::meta::const_like_t<Queue, Self_T>&
 {
     return self.m_buffers[self.next_recording_buffer_index()];
 }
 
-template <modules::events::event_c Event_T>
-auto modules::events::BufferedEventQueue<Event_T>::next_recording_buffer_index() const
+template <ddge::events::event_c Event_T>
+auto ddge::events::BufferedEventQueue<Event_T>::next_recording_buffer_index() const
     -> uint8_t
 {
     return (m_recording_buffer_index + 1) % 2;

@@ -1,3 +1,3 @@
-export module modules.renderer.base.instance;
+export module ddge.modules.renderer.base.instance;
 
-export import modules.renderer.base.instance.Instance;
+export import ddge.modules.renderer.base.instance.Instance;

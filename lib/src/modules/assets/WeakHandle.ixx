@@ -3,17 +3,17 @@ module;
 #include <memory>
 #include <type_traits>
 
-export module modules.assets.WeakHandle;
+export module ddge.modules.assets.WeakHandle;
 
-import modules.assets.asset_c;
+import ddge.modules.assets.asset_c;
 
-import utility.containers.Any;
-import utility.contracts;
+import ddge.utility.containers.Any;
+import ddge.utility.contracts;
 
-namespace modules::assets {
+namespace ddge::assets {
 
 export template <typename Asset_T>
     requires asset_c<std::remove_const_t<Asset_T>>
 using WeakHandle = std::weak_ptr<Asset_T>;
 
-}   // namespace modules::assets
+}   // namespace ddge::assets

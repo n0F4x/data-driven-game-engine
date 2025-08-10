@@ -1,6 +1,6 @@
-export module modules.renderer.resources;
+export module ddge.modules.renderer.resources;
 
-export import modules.renderer.resources.Buffer;
-export import modules.renderer.resources.Image;
-export import modules.renderer.resources.RandomAccessBuffer;
-export import modules.renderer.resources.SeqWriteBuffer;
+export import ddge.modules.renderer.resources.Buffer;
+export import ddge.modules.renderer.resources.Image;
+export import ddge.modules.renderer.resources.RandomAccessBuffer;
+export import ddge.modules.renderer.resources.SeqWriteBuffer;

@@ -4,9 +4,9 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.ecs:LookupTableMap;
+export module ddge.modules.ecs:LookupTableMap;
 
-import utility.contracts;
+import ddge.utility.contracts;
 
 import :ArchetypeID;
 import :ID;
@@ -21,13 +21,13 @@ public:
     using Iterator = Container::iterator;
 
     [[nodiscard]]
-    auto insert(modules::ecs::ID id, ArchetypeID archetype_id)
+    auto insert(ddge::ecs::ID id, ArchetypeID archetype_id)
         -> std::pair<RecordID, RecordIndex>;
 
     auto remove(ArchetypeID archetype_id, RecordID record_id)
-        -> std::pair<modules::ecs::ID, RecordIndex>;
+        -> std::pair<ddge::ecs::ID, RecordIndex>;
     auto remove(Iterator iterator, RecordID record_id)
-        -> std::pair<modules::ecs::ID, RecordIndex>;
+        -> std::pair<ddge::ecs::ID, RecordIndex>;
 
     [[nodiscard]]
     auto get_lookup_table(ArchetypeID archetype_id) -> LookupTable&;
@@ -50,14 +50,14 @@ private:
     Container m_map;
 };
 
-auto LookupTableMap::insert(const modules::ecs::ID id, const ArchetypeID archetype_id)
+auto LookupTableMap::insert(const ddge::ecs::ID id, const ArchetypeID archetype_id)
     -> std::pair<RecordID, RecordIndex>
 {
     return m_map[archetype_id].emplace(id);
 }
 
 auto LookupTableMap::remove(const ArchetypeID archetype_id, const RecordID record_id)
-    -> std::pair<modules::ecs::ID, RecordIndex>
+    -> std::pair<ddge::ecs::ID, RecordIndex>
 {
     const auto iterator{ m_map.find(archetype_id) };
     PRECOND(iterator != m_map.cend());
@@ -66,9 +66,9 @@ auto LookupTableMap::remove(const ArchetypeID archetype_id, const RecordID recor
 }
 
 auto LookupTableMap::remove(const Iterator iterator, const RecordID record_id)
-    -> std::pair<modules::ecs::ID, RecordIndex>
+    -> std::pair<ddge::ecs::ID, RecordIndex>
 {
-    std::pair<modules::ecs::ID, RecordIndex> result = iterator->second.remove(record_id);
+    std::pair<ddge::ecs::ID, RecordIndex> result = iterator->second.remove(record_id);
 
     if (iterator->second.empty()) {
         m_map.erase(iterator);

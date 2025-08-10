@@ -1,11 +1,11 @@
-export module modules.states.Addon;
+export module ddge.modules.states.Addon;
 
-import modules.states.StateManager;
+import ddge.modules.states.StateManager;
 
-namespace modules::states {
+namespace ddge::states {
 
 export struct Addon {
     StateManager state_manager;
 };
 
-}   // namespace modules::states
+}   // namespace ddge::states

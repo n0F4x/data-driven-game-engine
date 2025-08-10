@@ -1,6 +1,6 @@
-export module modules.image;
+export module ddge.modules.image;
 
-export import modules.image.jpeg;
-export import modules.image.ktx2;
-export import modules.image.png;
-export import modules.image.Image;
+export import ddge.modules.image.jpeg;
+export import ddge.modules.image.ktx2;
+export import ddge.modules.image.png;
+export import ddge.modules.image.Image;

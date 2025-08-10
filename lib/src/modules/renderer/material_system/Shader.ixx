@@ -2,15 +2,15 @@ module;
 
 #include <filesystem>
 
-export module modules.renderer.material_system.Shader;
+export module ddge.modules.renderer.material_system.Shader;
 
 import vulkan_hpp;
 
-import modules.cache.Handle;
+import ddge.modules.cache.Handle;
 
-import modules.renderer.material_system.ShaderModule;
+import ddge.modules.renderer.material_system.ShaderModule;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 export class Shader {
 public:
@@ -33,10 +33,10 @@ private:
     friend auto hash_value(const Shader& shader) noexcept -> std::size_t;
 };
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer
 
 export template <>
-struct std::hash<modules::renderer::Shader> {
+struct std::hash<ddge::renderer::Shader> {
     [[nodiscard]]
-    auto operator()(const modules::renderer::Shader& shader) const noexcept -> std::size_t;
+    auto operator()(const ddge::renderer::Shader& shader) const noexcept -> std::size_t;
 };

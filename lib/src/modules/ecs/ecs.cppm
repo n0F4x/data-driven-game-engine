@@ -1,4 +1,4 @@
-export module modules.ecs;
+export module ddge.modules.ecs;
 
 export import :Addon;
 export import :Archetype;

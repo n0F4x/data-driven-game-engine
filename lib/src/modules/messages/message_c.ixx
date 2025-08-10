@@ -1,10 +1,10 @@
-export module modules.messages.message_c;
+export module ddge.modules.messages.message_c;
 
-import modules.store.item_c;
+import ddge.modules.store.item_c;
 
-namespace modules::messages {
+namespace ddge::messages {
 
 export template <typename T>
 concept message_c = store::item_c<T>;
 
-}   // namespace modules::messages
+}   // namespace ddge::messages

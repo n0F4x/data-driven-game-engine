@@ -6,10 +6,10 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.ecs:ComponentTableMap;
+export module ddge.modules.ecs:ComponentTableMap;
 
-import utility.containers.Any;
-import utility.containers.OptionalRef;
+import ddge.utility.containers.Any;
+import ddge.utility.containers.OptionalRef;
 
 import :ArchetypeID;
 import :component_c;
@@ -31,7 +31,7 @@ public:
         RecordIndex record_index,
         ComponentID component_id
     ) -> void;
-    template <modules::ecs::component_c Component_T>
+    template <ddge::ecs::component_c Component_T>
     auto remove_component(ArchetypeID archetype_id, RecordIndex record_index)
         -> Component_T;
 
@@ -47,9 +47,9 @@ public:
         -> const ErasedComponentTable&;
 
     auto find_component_table(ComponentID component_id)
-        -> util::OptionalRef<ErasedComponentTable>;
+        -> ddge::util::OptionalRef<ErasedComponentTable>;
     auto find_component_table(ComponentID component_id) const
-        -> util::OptionalRef<const ErasedComponentTable>;
+        -> ddge::util::OptionalRef<const ErasedComponentTable>;
 
 private:
     std::map<ComponentID, ErasedComponentTable> m_map;
@@ -59,7 +59,7 @@ template <decays_to_component_c Component_T>
 auto ComponentTableMap::insert(const ArchetypeID archetype_id, Component_T&& component)
     -> RecordIndex
 {
-    return util::any_cast<ComponentTable<std::decay_t<Component_T>>>(
+    return ddge::util::any_cast<ComponentTable<std::decay_t<Component_T>>>(
                m_map
                    .try_emplace(component_id_of<std::decay_t<Component_T>>(), component_tag<std::decay_t<Component_T>>)
                    .first->second
@@ -83,7 +83,7 @@ auto ComponentTableMap::remove_component(
     }
 }
 
-template <modules::ecs::component_c Component_T>
+template <ddge::ecs::component_c Component_T>
 auto ComponentTableMap::remove_component(
     const ArchetypeID archetype_id,
     const RecordIndex record_index
@@ -138,7 +138,7 @@ auto ComponentTableMap::get_component_table(const ComponentID component_id) cons
 }
 
 auto ComponentTableMap::find_component_table(const ComponentID component_id)
-    -> util::OptionalRef<ErasedComponentTable>
+    -> ddge::util::OptionalRef<ErasedComponentTable>
 {
     const auto iterator{ m_map.find(component_id) };
     if (iterator == m_map.cend()) {
@@ -149,7 +149,7 @@ auto ComponentTableMap::find_component_table(const ComponentID component_id)
 }
 
 auto ComponentTableMap::find_component_table(const ComponentID component_id) const
-    -> util::OptionalRef<const ErasedComponentTable>
+    -> ddge::util::OptionalRef<const ErasedComponentTable>
 {
     return const_cast<ComponentTableMap&>(*this).find_component_table(component_id);
 }

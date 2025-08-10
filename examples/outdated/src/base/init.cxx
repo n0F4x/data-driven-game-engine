@@ -6,10 +6,12 @@ module;
 
 module examples.base.init;
 
-import modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.device.Device;
 
-auto examples::base::init::create_command_pool(const vk::Device device, const uint32_t queue_family_index)
-    -> vk::UniqueCommandPool
+auto examples::base::init::create_command_pool(
+    const vk::Device device,
+    const uint32_t   queue_family_index
+) -> vk::UniqueCommandPool
 {
     const vk::CommandPoolCreateInfo command_pool_create_info{
         .flags            = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,

@@ -10,24 +10,24 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module modules.ecs:Registry;
+export module ddge.modules.ecs:Registry;
 
-import utility.containers.Any;
-import utility.containers.OptionalRef;
-import utility.containers.SlotMultiMap;
-import utility.containers.SlotMap;
-import utility.meta.algorithms.enumerate;
-import utility.meta.concepts.all_different;
-import utility.meta.concepts.nothrow_movable;
-import utility.meta.concepts.specialization_of;
-import utility.meta.type_traits.type_list.type_list_is_sorted;
-import utility.meta.type_traits.type_list.type_list_sort;
-import utility.meta.type_traits.type_list.type_list_to;
-import utility.meta.type_traits.const_like;
-import utility.all_same;
-import utility.hashing;
-import utility.ScopeGuard;
-import utility.TypeList;
+import ddge.utility.containers.Any;
+import ddge.utility.containers.OptionalRef;
+import ddge.utility.containers.SlotMultiMap;
+import ddge.utility.containers.SlotMap;
+import ddge.utility.meta.algorithms.enumerate;
+import ddge.utility.meta.concepts.all_different;
+import ddge.utility.meta.concepts.nothrow_movable;
+import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.meta.type_traits.type_list.type_list_is_sorted;
+import ddge.utility.meta.type_traits.type_list.type_list_sort;
+import ddge.utility.meta.type_traits.type_list.type_list_to;
+import ddge.utility.meta.type_traits.const_like;
+import ddge.utility.all_same;
+import ddge.utility.hashing;
+import ddge.utility.ScopeGuard;
+import ddge.utility.TypeList;
 
 import :Archetype;
 import :ArchetypeID;
@@ -48,84 +48,84 @@ struct Entity {
     RecordID    record_id;
 };
 
-namespace modules::ecs {
+namespace ddge::ecs {
 
 // TODO: constexpr when containers becomes constexpr
 // TODO: revise exception guarantees
 export class Registry {
 public:
-    constexpr static modules::ecs::ID null_id{
-        std::numeric_limits<modules::ecs::ID::Underlying>::max()
+    constexpr static ddge::ecs::ID null_id{
+        std::numeric_limits<ddge::ecs::ID::Underlying>::max()
     };
 
     template <::decays_to_component_c... Components_T>
         requires(sizeof...(Components_T) > 0)
              && util::meta::all_different_c<std::decay_t<Components_T>...>
-    auto create(Components_T&&... components) -> modules::ecs::ID;
+    auto create(Components_T&&... components) -> ddge::ecs::ID;
 
-    auto destroy(modules::ecs::ID id) -> bool;
+    auto destroy(ddge::ecs::ID id) -> bool;
 
     template <component_c... Components_T, typename Self_T>
         requires util::meta::all_different_c<Components_T...>
     [[nodiscard]]
-    auto get(this Self_T&&, modules::ecs::ID id) -> std::
+    auto get(this Self_T&&, ddge::ecs::ID id) -> std::
         tuple<util::meta::const_like_t<Components_T, std::remove_reference_t<Self_T>>&...>;
 
     template <component_c Component_T, typename Self_T>
     [[nodiscard]]
-    auto get_single(this Self_T&&, modules::ecs::ID id)
+    auto get_single(this Self_T&&, ddge::ecs::ID id)
         -> util::meta::const_like_t<Component_T, std::remove_reference_t<Self_T>>&;
 
     template <component_c... Components_T, typename Self_T>
         requires util::meta::all_different_c<Components_T...>
     [[nodiscard]]
-    auto find(this Self_T&&, modules::ecs::ID id) noexcept -> std::tuple<::util::OptionalRef<
+    auto find(this Self_T&&, ddge::ecs::ID id) noexcept -> std::tuple<util::OptionalRef<
         util::meta::const_like_t<Components_T, std::remove_reference_t<Self_T>>>...>;
 
     template <component_c... Components_T, typename Self_T>
         requires util::meta::all_different_c<Components_T...>
     [[nodiscard]]
-    auto find_all(this Self_T&&, modules::ecs::ID id) noexcept -> std::optional<std::tuple<
+    auto find_all(this Self_T&&, ddge::ecs::ID id) noexcept -> std::optional<std::tuple<
         util::meta::const_like_t<Components_T, std::remove_reference_t<Self_T>>&...>>;
 
     template <component_c Component_T, typename Self_T>
     [[nodiscard]]
-    auto find_single(this Self_T&&, modules::ecs::ID id) noexcept -> ::util::
+    auto find_single(this Self_T&&, ddge::ecs::ID id) noexcept -> util::
         OptionalRef<util::meta::const_like_t<Component_T, std::remove_reference_t<Self_T>>>;
 
     template <component_c... Components_T>
         requires util::meta::all_different_c<Components_T...>
     [[nodiscard]]
-    auto contains_all(modules::ecs::ID id) const noexcept -> bool;
+    auto contains_all(ddge::ecs::ID id) const noexcept -> bool;
 
     template <::decays_to_component_c... Components_T>
         requires util::meta::all_different_c<std::decay_t<Components_T>...>
-    auto insert(modules::ecs::ID id, Components_T&&... components) -> void;
+    auto insert(ddge::ecs::ID id, Components_T&&... components) -> void;
 
     template <::decays_to_component_c... Components_T>
         requires util::meta::all_different_c<std::decay_t<Components_T>...>
-    auto insert_or_replace(modules::ecs::ID id, Components_T&&... components) -> void;
+    auto insert_or_replace(ddge::ecs::ID id, Components_T&&... components) -> void;
 
     template <component_c... Components_T>
         requires util::meta::all_different_c<Components_T...>
-    auto remove(modules::ecs::ID id) -> std::tuple<Components_T...>;
+    auto remove(ddge::ecs::ID id) -> std::tuple<Components_T...>;
 
     template <component_c Component_T>
-    auto remove_single(modules::ecs::ID id) -> Component_T;
+    auto remove_single(ddge::ecs::ID id) -> Component_T;
 
     template <component_c... Components_T>
         requires util::meta::all_different_c<Components_T...>
-    auto erase(modules::ecs::ID id) -> std::tuple<std::optional<Components_T>...>;
+    auto erase(ddge::ecs::ID id) -> std::tuple<std::optional<Components_T>...>;
 
     template <component_c... Components_T>
         requires util::meta::all_different_c<Components_T...>
-    auto erase_all(modules::ecs::ID id) -> std::optional<std::tuple<Components_T...>>;
+    auto erase_all(ddge::ecs::ID id) -> std::optional<std::tuple<Components_T...>>;
 
     template <component_c Component_T>
-    auto erase_single(modules::ecs::ID id) -> std::optional<Component_T>;
+    auto erase_single(ddge::ecs::ID id) -> std::optional<Component_T>;
 
     [[nodiscard]]
-    auto exists(modules::ecs::ID id) const noexcept -> bool;
+    auto exists(ddge::ecs::ID id) const noexcept -> bool;
 
 private:
     template <query_parameter_c... Parameters_T>
@@ -135,17 +135,17 @@ private:
 
     ::ComponentTableMap                                m_component_tables;
     ::LookupTableMap                                   m_lookup_tables;
-    util::SlotMap<modules::ecs::ID::Underlying, ::Entity> m_entities;
+    util::SlotMap<ddge::ecs::ID::Underlying, ::Entity> m_entities;
 
 
     template <typename Self_T>
     [[nodiscard]]
-    auto get_entity(this Self_T&&, modules::ecs::ID id)
+    auto get_entity(this Self_T&&, ddge::ecs::ID id)
         -> util::meta::const_like_t<::Entity, std::remove_reference_t<Self_T>>&;
 
     template <typename Self_T>
     [[nodiscard]]
-    auto find_entity(this Self_T&&, modules::ecs::ID id) -> ::util::
+    auto find_entity(this Self_T&&, ddge::ecs::ID id) -> util::
         OptionalRef<util::meta::const_like_t<::Entity, std::remove_reference_t<Self_T>>>;
 
 
@@ -169,17 +169,17 @@ private:
     template <component_c... Components_T>
         requires(sizeof...(Components_T) > 0)
              && util::meta::all_different_c<Components_T...>
-    auto remove(modules::ecs::ID id, Entity& entity) -> std::tuple<Components_T...>;
+    auto remove(ddge::ecs::ID id, Entity& entity) -> std::tuple<Components_T...>;
 };
 
-}   // namespace modules::ecs
+}   // namespace ddge::ecs
 
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
-auto modules::ecs::Registry::create(Components_T&&... components) -> modules::ecs::ID
+         && ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
+auto ddge::ecs::Registry::create(Components_T&&... components) -> ddge::ecs::ID
 {
-    modules::ecs::ID id{ m_entities.next_key() };
+    ddge::ecs::ID id{ m_entities.next_key() };
 
     const ArchetypeID archetype_id{ archetype_from<std::decay_t<Components_T>...>() };
 
@@ -205,7 +205,7 @@ auto modules::ecs::Registry::create(Components_T&&... components) -> modules::ec
     return id;
 }
 
-auto modules::ecs::Registry::destroy(const modules::ecs::ID id) -> bool
+auto ddge::ecs::Registry::destroy(const ddge::ecs::ID id) -> bool
 {
     return m_entities.erase(id.underlying())
         .transform([](const auto entity_and_index) {
@@ -232,9 +232,9 @@ auto modules::ecs::Registry::destroy(const modules::ecs::ID id) -> bool
         .value_or(false);
 }
 
-template <modules::ecs::component_c... Components_T, typename Self_T>
-    requires util::meta::all_different_c<Components_T...>
-auto modules::ecs::Registry::get(this Self_T&& self, const modules::ecs::ID id) -> std::
+template <ddge::ecs::component_c... Components_T, typename Self_T>
+    requires ddge::util::meta::all_different_c<Components_T...>
+auto ddge::ecs::Registry::get(this Self_T&& self, const ddge::ecs::ID id) -> std::
     tuple<util::meta::const_like_t<Components_T, std::remove_reference_t<Self_T>>&...>
 {
     PRECOND(self.exists(id));
@@ -251,8 +251,8 @@ auto modules::ecs::Registry::get(this Self_T&& self, const modules::ecs::ID id) 
     );
 }
 
-template <modules::ecs::component_c Component_T, typename Self_T>
-auto modules::ecs::Registry::get_single(this Self_T&& self, const modules::ecs::ID id)
+template <ddge::ecs::component_c Component_T, typename Self_T>
+auto ddge::ecs::Registry::get_single(this Self_T&& self, const ddge::ecs::ID id)
     -> util::meta::const_like_t<Component_T, std::remove_reference_t<Self_T>>&
 {
     PRECOND(self.exists(id));
@@ -267,9 +267,9 @@ auto modules::ecs::Registry::get_single(this Self_T&& self, const modules::ecs::
     );
 }
 
-template <modules::ecs::component_c... Components_T, typename Self_T>
-    requires util::meta::all_different_c<Components_T...>
-auto modules::ecs::Registry::find(this Self_T&& self, const modules::ecs::ID id) noexcept
+template <ddge::ecs::component_c... Components_T, typename Self_T>
+    requires ddge::util::meta::all_different_c<Components_T...>
+auto ddge::ecs::Registry::find(this Self_T&& self, const ddge::ecs::ID id) noexcept
     -> std::tuple<util::OptionalRef<
         util::meta::const_like_t<Components_T, std::remove_reference_t<Self_T>>>...>
 {
@@ -289,9 +289,9 @@ auto modules::ecs::Registry::find(this Self_T&& self, const modules::ecs::ID id)
     );
 }
 
-template <modules::ecs::component_c... Components_T, typename Self_T>
-    requires util::meta::all_different_c<Components_T...>
-auto modules::ecs::Registry::find_all(this Self_T&& self, const modules::ecs::ID id) noexcept
+template <ddge::ecs::component_c... Components_T, typename Self_T>
+    requires ddge::util::meta::all_different_c<Components_T...>
+auto ddge::ecs::Registry::find_all(this Self_T&& self, const ddge::ecs::ID id) noexcept
     -> std::optional<std::tuple<
         util::meta::const_like_t<Components_T, std::remove_reference_t<Self_T>>&...>>
 {
@@ -316,8 +316,8 @@ auto modules::ecs::Registry::find_all(this Self_T&& self, const modules::ecs::ID
     );
 }
 
-template <modules::ecs::component_c Component_T, typename Self_T>
-auto modules::ecs::Registry::find_single(this Self_T&& self, const modules::ecs::ID id) noexcept
+template <ddge::ecs::component_c Component_T, typename Self_T>
+auto ddge::ecs::Registry::find_single(this Self_T&& self, const ddge::ecs::ID id) noexcept
     -> util::
         OptionalRef<util::meta::const_like_t<Component_T, std::remove_reference_t<Self_T>>>
 {
@@ -335,9 +335,9 @@ auto modules::ecs::Registry::find_single(this Self_T&& self, const modules::ecs:
     );
 }
 
-template <modules::ecs::component_c... Components_T>
-    requires util::meta::all_different_c<Components_T...>
-auto modules::ecs::Registry::contains_all(const modules::ecs::ID id) const noexcept -> bool
+template <ddge::ecs::component_c... Components_T>
+    requires ddge::util::meta::all_different_c<Components_T...>
+auto ddge::ecs::Registry::contains_all(const ddge::ecs::ID id) const noexcept -> bool
 {
     const auto optional_entity = find_entity(id);
     if (!optional_entity.has_value()) {
@@ -352,8 +352,8 @@ auto modules::ecs::Registry::contains_all(const modules::ecs::ID id) const noexc
 }
 
 template <::decays_to_component_c... Components_T>
-    requires util::meta::all_different_c<std::decay_t<Components_T>...>
-auto modules::ecs::Registry::insert(const modules::ecs::ID id, Components_T&&... components)
+    requires ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
+auto ddge::ecs::Registry::insert(const ddge::ecs::ID id, Components_T&&... components)
     -> void
 {
     PRECOND(exists(id));
@@ -366,9 +366,9 @@ auto modules::ecs::Registry::insert(const modules::ecs::ID id, Components_T&&...
 }
 
 template <::decays_to_component_c... Components_T>
-    requires util::meta::all_different_c<std::decay_t<Components_T>...>
-auto modules::ecs::Registry::insert_or_replace(
-    const modules::ecs::ID id,
+    requires ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
+auto ddge::ecs::Registry::insert_or_replace(
+    const ddge::ecs::ID id,
     Components_T&&... components
 ) -> void
 {
@@ -405,9 +405,9 @@ auto modules::ecs::Registry::insert_or_replace(
     }
 }
 
-template <modules::ecs::component_c... Components_T>
-    requires util::meta::all_different_c<Components_T...>
-auto modules::ecs::Registry::remove(const modules::ecs::ID id) -> std::tuple<Components_T...>
+template <ddge::ecs::component_c... Components_T>
+    requires ddge::util::meta::all_different_c<Components_T...>
+auto ddge::ecs::Registry::remove(const ddge::ecs::ID id) -> std::tuple<Components_T...>
 {
     PRECOND(exists(id));
     PRECOND((contains_all<Components_T...>(id)));
@@ -420,8 +420,8 @@ auto modules::ecs::Registry::remove(const modules::ecs::ID id) -> std::tuple<Com
     }
 }
 
-template <modules::ecs::component_c Component_T>
-auto modules::ecs::Registry::remove_single(const modules::ecs::ID id) -> Component_T
+template <ddge::ecs::component_c Component_T>
+auto ddge::ecs::Registry::remove_single(const ddge::ecs::ID id) -> Component_T
 {
     PRECOND(exists(id));
     PRECOND((contains_all<Component_T>(id)));
@@ -429,9 +429,9 @@ auto modules::ecs::Registry::remove_single(const modules::ecs::ID id) -> Compone
     return std::get<0>(remove<Component_T>(id, get_entity(id)));
 }
 
-template <modules::ecs::component_c... Components_T>
-    requires util::meta::all_different_c<Components_T...>
-auto modules::ecs::Registry::erase(const modules::ecs::ID id)
+template <ddge::ecs::component_c... Components_T>
+    requires ddge::util::meta::all_different_c<Components_T...>
+auto ddge::ecs::Registry::erase(const ddge::ecs::ID id)
     -> std::tuple<std::optional<Components_T>...>
 {
     if constexpr (sizeof...(Components_T) == 0) {
@@ -507,9 +507,9 @@ auto modules::ecs::Registry::erase(const modules::ecs::ID id)
     }
 }
 
-template <modules::ecs::component_c... Components_T>
-    requires util::meta::all_different_c<Components_T...>
-auto modules::ecs::Registry::erase_all(const modules::ecs::ID id)
+template <ddge::ecs::component_c... Components_T>
+    requires ddge::util::meta::all_different_c<Components_T...>
+auto ddge::ecs::Registry::erase_all(const ddge::ecs::ID id)
     -> std::optional<std::tuple<Components_T...>>
 {
     if constexpr (sizeof...(Components_T) == 0) {
@@ -528,8 +528,8 @@ auto modules::ecs::Registry::erase_all(const modules::ecs::ID id)
     }
 }
 
-template <modules::ecs::component_c Component_T>
-auto modules::ecs::Registry::erase_single(modules::ecs::ID id) -> std::optional<Component_T>
+template <ddge::ecs::component_c Component_T>
+auto ddge::ecs::Registry::erase_single(ddge::ecs::ID id) -> std::optional<Component_T>
 {
     return find_entity(id).and_then(
         [this, id](::Entity& entity) -> std::optional<Component_T> {
@@ -542,22 +542,22 @@ auto modules::ecs::Registry::erase_single(modules::ecs::ID id) -> std::optional<
     );
 }
 
-auto modules::ecs::Registry::exists(const modules::ecs::ID id) const noexcept -> bool
+auto ddge::ecs::Registry::exists(const ddge::ecs::ID id) const noexcept -> bool
 {
     return m_entities.contains(id.underlying());
 }
 
 template <typename Self_T>
-auto modules::ecs::Registry::get_entity(this Self_T&& self, const modules::ecs::ID id)
+auto ddge::ecs::Registry::get_entity(this Self_T&& self, const ddge::ecs::ID id)
     -> util::meta::const_like_t<::Entity, std::remove_reference_t<Self_T>>&
 {
     return self.m_entities.get(id.underlying());
 }
 
 template <typename Self_T>
-auto modules::ecs::Registry::find_entity(
+auto ddge::ecs::Registry::find_entity(
     this Self_T&&       self,
-    const modules::ecs::ID id
+    const ddge::ecs::ID id
 ) -> util::OptionalRef<util::meta::const_like_t<::Entity, std::remove_reference_t<Self_T>>>
 {
     return self.m_entities.find(id.underlying());
@@ -565,8 +565,8 @@ auto modules::ecs::Registry::find_entity(
 
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
-auto modules::ecs::Registry::insert(
+         && ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
+auto ddge::ecs::Registry::insert(
     const ID     id,
     const Entity entity,
     Components_T&&... components
@@ -610,8 +610,8 @@ auto modules::ecs::Registry::insert(
 
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
-         && util::meta::all_different_c<std::decay_t<Components_T>...>
-auto modules::ecs::Registry::forced_insert_or_replace(
+         && ddge::util::meta::all_different_c<std::decay_t<Components_T>...>
+auto ddge::ecs::Registry::forced_insert_or_replace(
     const ID                       id,
     const Entity&                  entity,
     const LookupTableMap::Iterator lookup_tables_iterator,
@@ -656,9 +656,10 @@ auto modules::ecs::Registry::forced_insert_or_replace(
     return Entity{ .archetype_id = new_archetype_id, .record_id = new_record_id };
 }
 
-template <modules::ecs::component_c... Components_T>
-    requires(sizeof...(Components_T) > 0) && util::meta::all_different_c<Components_T...>
-auto modules::ecs::Registry::remove(const modules::ecs::ID id, Entity& entity)
+template <ddge::ecs::component_c... Components_T>
+    requires(sizeof...(Components_T) > 0)
+         && ddge::util::meta::all_different_c<Components_T...>
+auto ddge::ecs::Registry::remove(const ddge::ecs::ID id, Entity& entity)
     -> std::tuple<Components_T...>
 {
     const auto [archetype_id, record_id]{ entity };

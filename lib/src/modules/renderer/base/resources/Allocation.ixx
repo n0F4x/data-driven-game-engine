@@ -6,14 +6,14 @@ module;
 
 #include "utility/lifetime_bound.hpp"
 
-export module modules.renderer.base.resources.Allocation;
+export module ddge.modules.renderer.base.resources.Allocation;
 
 import vulkan_hpp;
 
-import modules.renderer.base.resources.MemoryTypeIndex;
-import modules.renderer.base.resources.MemoryView;
+import ddge.modules.renderer.base.resources.MemoryTypeIndex;
+import ddge.modules.renderer.base.resources.MemoryView;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 export class Allocation {
 public:
@@ -72,4 +72,4 @@ private:
     vk::DeviceSize  m_size{};
 };
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

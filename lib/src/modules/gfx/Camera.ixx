@@ -2,9 +2,9 @@ module;
 
 #include <glm/glm.hpp>
 
-export module modules.gfx.Camera;
+export module ddge.modules.gfx.Camera;
 
-namespace modules::gfx {
+namespace ddge::gfx {
 
 export class Camera {
 public:
@@ -31,4 +31,4 @@ private:
     glm::mat4 m_projection{ 1.f };
 };
 
-}   // namespace modules::gfx
+}   // namespace ddge::gfx

@@ -4,9 +4,9 @@ module;
 
 export module snake.game.setup;
 
-import prelude;
+import ddge.prelude;
 
-import modules.time.FixedTimer;
+import ddge.modules.time.FixedTimer;
 
 import snake.assets.inject_loaders;
 import snake.game.AppleDigested;
@@ -20,7 +20,7 @@ import snake.game.WorldUpdate;
 namespace game {
 
 export inline constexpr auto setup =
-    []<app::decays_to_builder_c Builder_T>(Builder_T&& builder) -> Builder_T   //
+    []<ddge::app::decays_to_builder_c Builder_T>(Builder_T&& builder) -> Builder_T   //
 {
     constexpr Settings settings{
         .cells_per_row    = 20,
@@ -28,10 +28,10 @@ export inline constexpr auto setup =
         .cell_width       = 32,
     };
 
-    static_assert(app::has_plugins_c<Builder_T, plugins::States>);
-    static_assert(app::has_plugins_c<Builder_T, plugins::Events>);
-    static_assert(app::has_plugins_c<Builder_T, plugins::Messages>);
-    static_assert(app::has_plugins_c<Builder_T, plugins::Functional>);
+    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::plugins::States>);
+    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::plugins::Events>);
+    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::plugins::Messages>);
+    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::plugins::Functional>);
 
     return std::forward<Builder_T>(builder)
         .insert_resource(settings)

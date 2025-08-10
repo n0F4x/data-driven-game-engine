@@ -10,16 +10,16 @@ module;
 
 #include <fastgltf/core.hpp>
 
-export module modules.gltf.Model;
+export module ddge.modules.gltf.Model;
 
-import utility.containers.OptionalRef;
+import ddge.utility.containers.OptionalRef;
 
-import modules.gltf.Image;
-import modules.gltf.Material;
-import modules.gltf.Mesh;
-import modules.gltf.Texture;
+import ddge.modules.gltf.Image;
+import ddge.modules.gltf.Material;
+import ddge.modules.gltf.Mesh;
+import ddge.modules.gltf.Texture;
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 export class Loader;
 export class Node;
@@ -203,9 +203,9 @@ private:
     ) -> void;
 };
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf
 
-modules::gltf::Node::Node(
+ddge::gltf::Node::Node(
     const std::optional<std::size_t> parent_index,
     std::ranges::range auto&&        child_indices,
     const std::optional<std::size_t> mesh_index

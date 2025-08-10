@@ -2,9 +2,9 @@ module;
 
 #include <utility>
 
-module modules.renderer.base.descriptor_pool.DescriptorPool;
+module ddge.modules.renderer.base.descriptor_pool.DescriptorPool;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 auto DescriptorPool::create() noexcept -> Builder
 {
@@ -20,4 +20,4 @@ auto DescriptorPool::get() const noexcept -> vk::DescriptorPool
     return m_descriptor_pool.get();
 }
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

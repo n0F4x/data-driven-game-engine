@@ -9,13 +9,13 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-module modules.renderer.base.swapchain.Swapchain;
+module ddge.modules.renderer.base.swapchain.Swapchain;
 
 import vulkan_hpp;
 
-import modules.log;
+import ddge.modules.log;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 [[nodiscard]]
 static auto get_min_image_count(
@@ -235,4 +235,4 @@ Swapchain::Swapchain(
       m_image_views{ std::move(image_views) }
 {}
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

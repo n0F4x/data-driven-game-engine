@@ -4,15 +4,15 @@ module;
 #include <span>
 #include <vector>
 
-export module modules.scheduler.accessors.messages.Receiver;
+export module ddge.modules.scheduler.accessors.messages.Receiver;
 
-import modules.messages.message_c;
+import ddge.modules.messages.message_c;
 
-namespace modules::scheduler::accessors {
+namespace ddge::scheduler::accessors {
 
 inline namespace messages {
 
-export template <modules::messages::message_c Message_T>
+export template <ddge::messages::message_c Message_T>
 class Receiver {
 public:
     using Message = Message_T;
@@ -28,18 +28,18 @@ private:
 
 }   // namespace messages
 
-}   // namespace modules::scheduler::accessors
+}   // namespace ddge::scheduler::accessors
 
-template <modules::messages::message_c Message_T>
-constexpr modules::scheduler::accessors::messages::Receiver<Message_T>::Receiver(
+template <ddge::messages::message_c Message_T>
+constexpr ddge::scheduler::accessors::messages::Receiver<Message_T>::Receiver(
     const std::vector<Message_T>& message_buffer
 )
     : m_message_buffer_ref{ message_buffer }
 {}
 
-template <modules::messages::message_c Message_T>
-constexpr auto modules::scheduler::accessors::messages::Receiver<Message_T>::receive(
-) const -> std::span<const Message_T>
+template <ddge::messages::message_c Message_T>
+constexpr auto ddge::scheduler::accessors::messages::Receiver<Message_T>::receive() const
+    -> std::span<const Message_T>
 {
     return std::span{ m_message_buffer_ref.get() };
 }

@@ -3,9 +3,9 @@ module;
 
 #include <VkBootstrap.h>
 
-module modules.renderer.base.instance.Instance;
+module ddge.modules.renderer.base.instance.Instance;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 Instance::Instance(const vkb::Instance& instance) noexcept : m_instance{ instance } {}
 
@@ -43,4 +43,4 @@ Instance::operator vkb::Instance() const noexcept
     return m_instance;
 }
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

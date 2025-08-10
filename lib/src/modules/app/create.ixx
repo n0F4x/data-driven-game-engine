@@ -1,17 +1,17 @@
-export module modules.app.create;
+export module ddge.modules.app.create;
 
-import modules.app.Builder;
+import ddge.modules.app.Builder;
 
-namespace modules::app {
+namespace ddge::app {
 
 export [[nodiscard]]
 constexpr auto create() -> Builder<>;
 
-}   // namespace app
+}   // namespace ddge::app
 
 module :private;
 
-constexpr auto modules::app::create() -> Builder<>
+constexpr auto ddge::app::create() -> Builder<>
 {
     return Builder<>{};
 }

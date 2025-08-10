@@ -2,16 +2,16 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.concepts.functional.unambiguously_invocable;
+export module ddge.utility.meta.concepts.functional.unambiguously_invocable;
 
-import utility.meta.concepts.functional.function;
-import utility.meta.concepts.functional.function_pointer;
-import utility.meta.concepts.functional.function_reference;
-import utility.meta.concepts.functional.member_function_pointer;
-import utility.meta.concepts.functional.unambiguous_functor;
-import utility.meta.concepts.functional.unambiguous_explicit_functor;
+import ddge.utility.meta.concepts.functional.function;
+import ddge.utility.meta.concepts.functional.function_pointer;
+import ddge.utility.meta.concepts.functional.function_reference;
+import ddge.utility.meta.concepts.functional.member_function_pointer;
+import ddge.utility.meta.concepts.functional.unambiguous_functor;
+import ddge.utility.meta.concepts.functional.unambiguous_explicit_functor;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename T>
 concept unambiguously_invocable_c = function_c<T>                                    //
@@ -20,4 +20,4 @@ concept unambiguously_invocable_c = function_c<T>                               
                                  || member_function_pointer_c<T>
                                  || unambiguous_functor_c<T>;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

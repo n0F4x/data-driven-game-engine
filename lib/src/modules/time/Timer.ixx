@@ -2,9 +2,9 @@ module;
 
 #include <chrono>
 
-export module modules.time.Timer;
+export module ddge.modules.time.Timer;
 
-namespace modules::time {
+namespace ddge::time {
 
 export class Timer {
 public:
@@ -24,27 +24,27 @@ private:
     Delta             m_delta{};
 };
 
-}   // namespace modules::time
+}   // namespace ddge::time
 
 module :private;
 
-auto modules::time::Timer::delta() const -> Delta
+auto ddge::time::Timer::delta() const -> Delta
 {
     return m_delta;
 }
 
-auto modules::time::Timer::current() const -> Clock::time_point
+auto ddge::time::Timer::current() const -> Clock::time_point
 {
     return m_current;
 }
 
-auto modules::time::Timer::update(const Clock::time_point current) -> void
+auto ddge::time::Timer::update(const Clock::time_point current) -> void
 {
     m_delta   = current - m_current;
     m_current = current;
 }
 
-auto modules::time::Timer::reset(const Clock::time_point current) -> void
+auto ddge::time::Timer::reset(const Clock::time_point current) -> void
 {
     m_current = current;
     m_delta   = Delta{};

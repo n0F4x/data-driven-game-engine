@@ -6,9 +6,9 @@ module;
 
 export module examples.base.Controller;
 
-import modules.gfx.Camera;
-import modules.window.Key;
-import modules.window.Window;
+import ddge.modules.gfx.Camera;
+import ddge.modules.window.Key;
+import ddge.modules.window.Window;
 
 namespace examples::base {
 
@@ -17,21 +17,21 @@ public:
     explicit Controller(float movement_speed) noexcept;
 
     auto update(
-        const modules::window::Window&   window,
+        const ddge::window::Window&   window,
         std::chrono::duration<double> delta_time
     ) -> void;
 
     [[nodiscard]]
-    auto update_camera(modules::gfx::Camera camera) const noexcept -> modules::gfx::Camera;
+    auto update_camera(ddge::gfx::Camera camera) const noexcept -> ddge::gfx::Camera;
 
 private:
     struct MovementKeyMap {
-        modules::window::Key left     = modules::window::eA;
-        modules::window::Key right    = modules::window::eD;
-        modules::window::Key forward  = modules::window::eW;
-        modules::window::Key backward = modules::window::eS;
-        modules::window::Key up       = modules::window::eSpace;
-        modules::window::Key down     = modules::window::eLeftShift;
+        ddge::window::Key left     = ddge::window::eA;
+        ddge::window::Key right    = ddge::window::eD;
+        ddge::window::Key forward  = ddge::window::eW;
+        ddge::window::Key backward = ddge::window::eS;
+        ddge::window::Key up       = ddge::window::eSpace;
+        ddge::window::Key down     = ddge::window::eLeftShift;
     } m_movement_key_map;
 
     double m_movement_speed{ 5.f };

@@ -2,9 +2,9 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.type_traits.back;
+export module ddge.utility.meta.type_traits.back;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename... Ts>
     requires(sizeof...(Ts) != 0)
@@ -14,4 +14,4 @@ export template <typename... Ts>
     requires(sizeof...(Ts) != 0)
 using back_t = typename back<Ts...>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

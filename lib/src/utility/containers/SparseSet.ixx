@@ -9,13 +9,13 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module utility.containers.SparseSet;
+export module ddge.utility.containers.SparseSet;
 
-import utility.contracts;
-import utility.meta.uint_at_least;
-import utility.meta.concepts.specialization_of;
-import utility.ScopeGuard;
-import utility.Strong;
+import ddge.utility.contracts;
+import ddge.utility.meta.uint_at_least;
+import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.ScopeGuard;
+import ddge.utility.Strong;
 
 template <typename T>
 concept key_c = std::unsigned_integral<T> && !std::is_const_v<T>
@@ -29,7 +29,7 @@ public:
 
     constexpr static uint8_t version_bit_size{ version_bit_size_T };
     constexpr static uint8_t first_version_bit{};
-    using Version = util::meta::uint_at_least_t<version_bit_size>;
+    using Version = ddge::util::meta::uint_at_least_t<version_bit_size>;
     constexpr static Key version_mask{ [] {
         std::bitset<key_bit_size> mask{};
         for (const auto i : std::views::iota(
@@ -44,7 +44,7 @@ public:
 
     constexpr static uint8_t index_bit_size{ key_bit_size - version_bit_size };
     constexpr static uint8_t first_index_bit{ version_bit_size_T };
-    using Index = util::meta::uint_at_least_t<index_bit_size>;
+    using Index = ddge::util::meta::uint_at_least_t<index_bit_size>;
     constexpr static Key index_mask{ [] {
         std::bitset<key_bit_size> mask{};
         for (const auto i : std::views::iota(
@@ -347,7 +347,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id
         m_pointers.push_back(make_pointer(id, version));
 
         return std::make_tuple(
-            index, version, util::ScopeGuard{ PointersPopBackFunctor{ this } }
+            index, version, ddge::util::ScopeGuard{ PointersPopBackFunctor{ this } }
         );
     }
 
@@ -362,12 +362,14 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id
 
     m_pointers[index] = make_pointer(id, version);
 
-    return std::make_tuple(index, version, util::ScopeGuard{ PointersPopBackFunctor{} });
+    return std::make_tuple(
+        index, version, ddge::util::ScopeGuard{ PointersPopBackFunctor{} }
+    );
 }
 
-namespace util {
+namespace ddge::util {
 
 export template <key_c Key_T, uint8_t version_bit_size_T = sizeof(Key_T) * 2>
 using SparseSet = ::SparseSet<Key_T, version_bit_size_T>;
 
-}   // namespace util
+}   // namespace ddge::util

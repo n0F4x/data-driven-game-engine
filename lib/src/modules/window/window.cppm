@@ -1,5 +1,5 @@
-export module modules.window;
+export module ddge.modules.window;
 
-export import modules.window.events;
-export import modules.window.Key;
-export import modules.window.Window;
+export import ddge.modules.window.events;
+export import ddge.modules.window.Key;
+export import ddge.modules.window.Window;

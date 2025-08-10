@@ -1,10 +1,10 @@
 module;
 
-export module modules.renderer.model.Drawable;
+export module ddge.modules.renderer.model.Drawable;
 
 import vulkan_hpp;
 
-namespace modules::renderer {
+namespace ddge::renderer {
 
 export class Drawable {
 public:
@@ -16,4 +16,4 @@ public:
     ) const -> void = 0;
 };
 
-}   // namespace modules::renderer
+}   // namespace ddge::renderer

@@ -1,15 +1,15 @@
-export module modules.scheduler.accessors.ecs.Registry;
+export module ddge.modules.scheduler.accessors.ecs.Registry;
 
-import modules.ecs;
+import ddge.modules.ecs;
 
-import utility.containers.Ref;
+import ddge.utility.containers.Ref;
 
-namespace modules::scheduler::accessors {
+namespace ddge::scheduler::accessors {
 
 inline namespace ecs {
 
-export class Registry : public util::Ref<modules::ecs::Registry> {
-    using Base = util::Ref<modules::ecs::Registry>;
+export class Registry : public util::Ref<ddge::ecs::Registry> {
+    using Base = util::Ref<ddge::ecs::Registry>;
 
 public:
     using Base::Base;
@@ -17,4 +17,4 @@ public:
 
 }   // namespace ecs
 
-}   // namespace modules::scheduler::accessors
+}   // namespace ddge::scheduler::accessors

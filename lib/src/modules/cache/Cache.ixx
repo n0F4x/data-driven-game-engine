@@ -3,13 +3,13 @@ module;
 #include <memory>
 #include <unordered_map>
 
-export module modules.cache.Cache;
+export module ddge.modules.cache.Cache;
 
-import modules.store.Store;
+import ddge.modules.store.Store;
 
-import modules.cache.Handle;
+import ddge.modules.cache.Handle;
 
-namespace modules::cache {
+namespace ddge::cache {
 
 export template <typename IdType, template <typename...> typename ContainerTemplate>
 class BasicCache {
@@ -46,16 +46,16 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    modules::store::Store m_store;
+    ddge::store::Store m_store;
 };
 
 export using Cache = BasicCache<std::size_t, std::unordered_map>;
 
-}   // namespace modules::cache
+}   // namespace ddge::cache
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource, typename... Args>
-auto modules::cache::BasicCache<IdType, ContainerTemplate>::emplace(ID id, Args&&... args)
+auto ddge::cache::BasicCache<IdType, ContainerTemplate>::emplace(ID id, Args&&... args)
     -> Handle<Resource>
 {
     return lazy_emplace<Resource>(id, [&] {
@@ -65,7 +65,7 @@ auto modules::cache::BasicCache<IdType, ContainerTemplate>::emplace(ID id, Args&
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource, std::invocable Creator>
-auto modules::cache::BasicCache<IdType, ContainerTemplate>::lazy_emplace(
+auto ddge::cache::BasicCache<IdType, ContainerTemplate>::lazy_emplace(
     ID        id,
     Creator&& create
 ) -> Handle<Resource>
@@ -93,7 +93,7 @@ auto modules::cache::BasicCache<IdType, ContainerTemplate>::lazy_emplace(
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
-auto modules::cache::BasicCache<IdType, ContainerTemplate>::find(ID id) const noexcept
+auto ddge::cache::BasicCache<IdType, ContainerTemplate>::find(ID id) const noexcept
     -> std::optional<Handle<Resource>>
 {
     return m_store.find<ContainerType<Resource>>().and_then(
@@ -110,7 +110,7 @@ auto modules::cache::BasicCache<IdType, ContainerTemplate>::find(ID id) const no
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource>
-auto modules::cache::BasicCache<IdType, ContainerTemplate>::at(ID id) const
+auto ddge::cache::BasicCache<IdType, ContainerTemplate>::at(ID id) const
     -> Handle<Resource>
 {
     return m_store.at<ContainerType<Resource>>().at(id).lock();

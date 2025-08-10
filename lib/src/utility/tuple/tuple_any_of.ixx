@@ -2,12 +2,12 @@ module;
 
 #include <functional>
 
-export module utility.tuple.tuple_any_of;
+export module ddge.utility.tuple.tuple_any_of;
 
-import utility.tuple.tuple_select;
-import utility.meta.concepts.tuple_like;
+import ddge.utility.tuple.tuple_select;
+import ddge.utility.meta.concepts.tuple_like;
 
-namespace util {
+namespace ddge::util {
 
 export template <
     meta::tuple_like_c Tuple_T,
@@ -27,4 +27,4 @@ auto tuple_any_of(Tuple_T&& tuple, Predicate_T predicate, Projection_T projectio
     );
 }
 
-}   // namespace util
+}   // namespace ddge::util

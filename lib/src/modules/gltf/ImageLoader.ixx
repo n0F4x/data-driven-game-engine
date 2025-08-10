@@ -6,11 +6,11 @@ module;
 
 #include <fastgltf/core.hpp>
 
-export module modules.gltf.ImageLoader;
+export module ddge.modules.gltf.ImageLoader;
 
-import modules.gltf.Image;
+import ddge.modules.gltf.Image;
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 export class ImageLoader {
 public:
@@ -22,4 +22,4 @@ public:
         -> std::optional<Image>;
 };
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

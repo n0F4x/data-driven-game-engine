@@ -1,4 +1,4 @@
-export module modules.renderer.base.swapchain;
+export module ddge.modules.renderer.base.swapchain;
 
-export import modules.renderer.base.swapchain.Swapchain;
-export import modules.renderer.base.swapchain.SwapchainHolder;
+export import ddge.modules.renderer.base.swapchain.Swapchain;
+export import ddge.modules.renderer.base.swapchain.SwapchainHolder;

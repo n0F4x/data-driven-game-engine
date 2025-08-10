@@ -3,9 +3,9 @@ module;
 #include <optional>
 #include <vector>
 
-export module modules.gltf.Mesh;
+export module ddge.modules.gltf.Mesh;
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 export struct Mesh {
     struct Primitive {
@@ -29,4 +29,4 @@ export struct Mesh {
     std::vector<Primitive> primitives;
 };
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

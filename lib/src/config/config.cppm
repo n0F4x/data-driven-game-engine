@@ -1,3 +1,3 @@
-export module config;
+export module ddge.config;
 
-export import config.vulkan;
+export import ddge.config.vulkan;

@@ -1,5 +1,5 @@
-import utility.memory.Allocator;
+import ddge.utility.memory.Allocator;
 
-import utility.meta.concepts.allocator;
+import ddge.utility.meta.concepts.allocator;
 
-static_assert(util::meta::generic_allocator_c<util::Allocator>);
+static_assert(ddge::util::meta::generic_allocator_c<ddge::util::Allocator>);

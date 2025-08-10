@@ -2,9 +2,9 @@ module;
 
 #include "modules/log/log_level_definitions.hpp"
 
-export module modules.log.Level;
+export module ddge.modules.log.Level;
 
-namespace modules::log {
+namespace ddge::log {
 
 export enum struct Level {
     eOff      = ENGINE_LOG_LEVEL_OFF,
@@ -16,4 +16,4 @@ export enum struct Level {
     eTrace    = ENGINE_LOG_LEVEL_TRACE,
 };
 
-}   // namespace modules::log
+}   // namespace ddge::log

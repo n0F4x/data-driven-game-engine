@@ -6,10 +6,10 @@ module;
 
 export module demos.virtual_texture.VirtualTexture;
 
-import modules.gfx.resources.VirtualImage;
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.device.Device;
-import modules.renderer.resources.Buffer;
+import ddge.modules.gfx.resources.VirtualImage;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.resources.Buffer;
 
 import examples.base.init;
 
@@ -18,8 +18,8 @@ namespace demo {
 export class VirtualTexture {
 public:
     VirtualTexture(
-        const modules::renderer::base::Device&    device,
-        const modules::renderer::base::Allocator& allocator
+        const ddge::renderer::base::Device&    device,
+        const ddge::renderer::base::Allocator& allocator
     );
 
     [[nodiscard]]
@@ -28,9 +28,9 @@ public:
     auto debug_position() const noexcept -> const glm::vec3&;
 
     [[nodiscard]]
-    auto get() noexcept -> modules::gfx::resources::VirtualImage&;
+    auto get() noexcept -> ddge::gfx::resources::VirtualImage&;
     [[nodiscard]]
-    auto get() const noexcept -> const modules::gfx::resources::VirtualImage&;
+    auto get() const noexcept -> const ddge::gfx::resources::VirtualImage&;
 
     [[nodiscard]]
     auto view() const noexcept -> vk::ImageView;
@@ -46,14 +46,14 @@ public:
     auto draw_debug(vk::CommandBuffer command_buffer) const -> void;
 
 private:
-    std::reference_wrapper<const modules::renderer::base::Device>    m_device_ref;
-    std::reference_wrapper<const modules::renderer::base::Allocator> m_allocator_ref;
+    std::reference_wrapper<const ddge::renderer::base::Device>    m_device_ref;
+    std::reference_wrapper<const ddge::renderer::base::Allocator> m_allocator_ref;
     glm::vec3                                                     m_position;
     glm::vec3                                                     m_debug_position;
-    modules::renderer::resources::Buffer                             m_vertex_buffer;
-    modules::renderer::resources::Buffer                             m_debug_vertex_buffer;
-    modules::renderer::resources::Buffer                             m_index_buffer;
-    modules::gfx::resources::VirtualImage                            m_virtual_image;
+    ddge::renderer::resources::Buffer                             m_vertex_buffer;
+    ddge::renderer::resources::Buffer                             m_debug_vertex_buffer;
+    ddge::renderer::resources::Buffer                             m_index_buffer;
+    ddge::gfx::resources::VirtualImage                            m_virtual_image;
     vk::UniqueSampler                                             m_virtual_image_sampler;
     vk::UniqueSampler m_virtual_image_debug_sampler;
 };

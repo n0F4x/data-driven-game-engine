@@ -2,9 +2,9 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.type_traits.all_same;
+export module ddge.utility.meta.type_traits.all_same;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename...>
 struct all_same;
@@ -18,4 +18,4 @@ struct all_same<T, Ts...> : std::conjunction<std::is_same<T, Ts>...> {};
 export template <typename... Ts>
 inline constexpr bool all_same_v = all_same<Ts...>::value;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

@@ -3,16 +3,16 @@ module;
 #include <optional>
 #include <utility>
 
-export module modules.states.StateManager;
+export module ddge.modules.states.StateManager;
 
-import modules.states.state_c;
-import modules.store.Store;
+import ddge.modules.states.state_c;
+import ddge.modules.store.Store;
 
-import utility.containers.OptionalRef;
-import utility.meta.type_traits.const_like;
-import utility.TypeList;
+import ddge.utility.containers.OptionalRef;
+import ddge.utility.meta.type_traits.const_like;
+import ddge.utility.TypeList;
 
-namespace modules::states {
+namespace ddge::states {
 
 export class StateManager {
 public:
@@ -35,30 +35,30 @@ private:
     store::Store m_states;
 };
 
-}   // namespace modules::states
+}   // namespace ddge::states
 
-template <modules::states::state_c State_T, typename Self_T>
-auto modules::states::StateManager::find(this Self_T& self) noexcept
+template <ddge::states::state_c State_T, typename Self_T>
+auto ddge::states::StateManager::find(this Self_T& self) noexcept
     -> util::OptionalRef<util::meta::const_like_t<std::optional<State_T>, Self_T>>
 {
     return self.m_states.template find<std::optional<State_T>>();
 }
 
-template <modules::states::state_c State_T, typename Self_T>
-auto modules::states::StateManager::at(this Self_T& self)
+template <ddge::states::state_c State_T, typename Self_T>
+auto ddge::states::StateManager::at(this Self_T& self)
     -> util::meta::const_like_t<std::optional<State_T>, Self_T>&
 {
     return self.m_states.template at<std::optional<State_T>>();
 }
 
-template <modules::states::state_c State_T>
-auto modules::states::StateManager::contains() const noexcept -> bool
+template <ddge::states::state_c State_T>
+auto ddge::states::StateManager::contains() const noexcept -> bool
 {
     return m_states.contains<std::optional<State_T>>();
 }
 
 module :private;
 
-modules::states::StateManager::StateManager(store::Store&& states)
+ddge::states::StateManager::StateManager(store::Store&& states)
     : m_states{ std::move(states) }
 {}

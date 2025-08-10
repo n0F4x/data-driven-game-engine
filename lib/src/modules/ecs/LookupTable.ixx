@@ -5,15 +5,15 @@ module;
 #include <span>
 #include <vector>
 
-export module modules.ecs:LookupTable;
+export module ddge.modules.ecs:LookupTable;
 
-import utility.containers.Any;
-import utility.containers.SlotMap;
-import utility.meta.concepts.ranges.input_range_of;
-import utility.meta.concepts.specialization_of;
-import utility.ScopeGuard;
-import utility.TypeList;
-import utility.ValueSequence;
+import ddge.utility.containers.Any;
+import ddge.utility.containers.SlotMap;
+import ddge.utility.meta.concepts.ranges.input_range_of;
+import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.ScopeGuard;
+import ddge.utility.TypeList;
+import ddge.utility.ValueSequence;
 
 import :ComponentID;
 import :ID;
@@ -22,11 +22,11 @@ import :RecordID;
 
 class LookupTable {
 public:
-    constexpr auto emplace(modules::ecs::ID id) -> std::pair<RecordID, RecordIndex>;
+    constexpr auto emplace(ddge::ecs::ID id) -> std::pair<RecordID, RecordIndex>;
 
-    constexpr auto remove(RecordID record_id) -> std::pair<modules::ecs::ID, RecordIndex>;
+    constexpr auto remove(RecordID record_id) -> std::pair<ddge::ecs::ID, RecordIndex>;
     constexpr auto erase(RecordID record_id)
-        -> std::optional<std::pair<modules::ecs::ID, RecordIndex>>;
+        -> std::optional<std::pair<ddge::ecs::ID, RecordIndex>>;
 
     [[nodiscard]]
     constexpr auto get(RecordID record_id) const -> RecordIndex;
@@ -41,19 +41,19 @@ public:
     constexpr auto empty() const noexcept -> bool;
 
     [[nodiscard]]
-    constexpr auto ids() const noexcept -> std::span<const modules::ecs::ID>;
+    constexpr auto ids() const noexcept -> std::span<const ddge::ecs::ID>;
 
 private:
-    using SlotMap = util::SlotMap<
+    using SlotMap = ddge::util::SlotMap<
         RecordID::Underlying,
-        modules::ecs::ID,
+        ddge::ecs::ID,
         (sizeof(RecordID::Underlying) - sizeof(RecordIndex::Underlying)) * 8>;
     static_assert(sizeof(RecordIndex::Underlying) == sizeof(SlotMap::Index));
 
     SlotMap m_ids;
 };
 
-constexpr auto LookupTable::emplace(const modules::ecs::ID id)
+constexpr auto LookupTable::emplace(const ddge::ecs::ID id)
     -> std::pair<RecordID, RecordIndex>
 {
     const auto [record_id, record_index] = m_ids.emplace(id);
@@ -61,14 +61,14 @@ constexpr auto LookupTable::emplace(const modules::ecs::ID id)
 }
 
 constexpr auto LookupTable::remove(RecordID record_id)
-    -> std::pair<modules::ecs::ID, RecordIndex>
+    -> std::pair<ddge::ecs::ID, RecordIndex>
 {
     const auto [id, record_index] = m_ids.remove(record_id.underlying());
     return std::make_pair(id, RecordIndex{ record_index });
 }
 
 constexpr auto LookupTable::erase(const RecordID record_id)
-    -> std::optional<std::pair<modules::ecs::ID, RecordIndex>>
+    -> std::optional<std::pair<ddge::ecs::ID, RecordIndex>>
 {
     return m_ids.erase(record_id.underlying())
         .transform([](const auto id_and_record_index) static {
@@ -100,7 +100,7 @@ constexpr auto LookupTable::empty() const noexcept -> bool
     return m_ids.empty();
 }
 
-constexpr auto LookupTable::ids() const noexcept -> std::span<const modules::ecs::ID>
+constexpr auto LookupTable::ids() const noexcept -> std::span<const ddge::ecs::ID>
 {
     return m_ids.values();
 }

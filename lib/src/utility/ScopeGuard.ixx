@@ -4,13 +4,13 @@ module;
 #include <exception>
 #include <type_traits>
 
-export module utility.ScopeGuard;
+export module ddge.utility.ScopeGuard;
 
-import utility.meta.concepts.storable;
+import ddge.utility.meta.concepts.storable;
 
-namespace util {
+namespace ddge::util {
 
-export template <::util::meta::storable_c Rollback_T>
+export template <meta::storable_c Rollback_T>
     requires(std::is_nothrow_invocable_v<Rollback_T>)
 class [[nodiscard]]
 ScopeGuard {
@@ -33,14 +33,14 @@ private:
     }() };
 };
 
-export template <::util::meta::storable_c... Rollbacks_T>
+export template <meta::storable_c... Rollbacks_T>
 using ScopeGuards = std::tuple<ScopeGuard<Rollbacks_T>...>;
 
-}   // namespace util
+}   // namespace ddge::util
 
-template <util::meta::storable_c Rollback_T>
+template <ddge::util::meta::storable_c Rollback_T>
     requires(std::is_nothrow_invocable_v<Rollback_T>)
-constexpr util::ScopeGuard<Rollback_T>::~ScopeGuard<Rollback_T>() noexcept
+constexpr ddge::util::ScopeGuard<Rollback_T>::~ScopeGuard<Rollback_T>() noexcept
 {
 #ifdef __cpp_constexpr_exceptions
     static_assert(false, "FIXME: Exceptions are now constexpr");
@@ -52,16 +52,18 @@ constexpr util::ScopeGuard<Rollback_T>::~ScopeGuard<Rollback_T>() noexcept
     }
 }
 
-template <util::meta::storable_c Rollback_T>
+template <ddge::util::meta::storable_c Rollback_T>
     requires(std::is_nothrow_invocable_v<Rollback_T>)
-constexpr util::ScopeGuard<Rollback_T>::ScopeGuard(const Rollback_T& rollback) noexcept
+constexpr ddge::util::ScopeGuard<Rollback_T>::ScopeGuard(
+    const Rollback_T& rollback
+) noexcept
     requires(std::is_nothrow_constructible_v<Rollback_T, const Rollback_T&>)
     : m_rollback{ rollback }
 {}
 
-template <::util::meta::storable_c Rollback_T>
+template <ddge::util::meta::storable_c Rollback_T>
     requires(std::is_nothrow_invocable_v<Rollback_T>)
-constexpr util::ScopeGuard<Rollback_T>::ScopeGuard(Rollback_T&& rollback) noexcept
+constexpr ddge::util::ScopeGuard<Rollback_T>::ScopeGuard(Rollback_T&& rollback) noexcept
     requires(std::is_nothrow_constructible_v<Rollback_T, Rollback_T &&>)
     : m_rollback{ std::move(rollback) }
 {}

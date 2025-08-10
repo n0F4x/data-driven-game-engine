@@ -4,11 +4,11 @@ module;
 
 #include "utility/lifetime_bound.hpp"
 
-export module modules.renderer.base.resources.Image;
+export module ddge.modules.renderer.base.resources.Image;
 
 import vulkan_hpp;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 export class Image {
 public:
@@ -56,4 +56,4 @@ private:
     State m_state;
 };
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

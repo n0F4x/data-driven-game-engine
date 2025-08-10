@@ -1,6 +1,6 @@
-export module modules.states;
+export module ddge.modules.states;
 
-export import modules.states.Addon;
-export import modules.states.Plugin;
-export import modules.states.state_c;
-export import modules.states.StateManager;
+export import ddge.modules.states.Addon;
+export import ddge.modules.states.Plugin;
+export import ddge.modules.states.state_c;
+export import ddge.modules.states.StateManager;

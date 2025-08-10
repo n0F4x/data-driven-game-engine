@@ -1,3 +1,3 @@
-export module modules.ecs:query.QueryParameterTagBase;
+export module ddge.modules.ecs:query.QueryParameterTagBase;
 
 struct QueryParameterTagBase {};

@@ -9,16 +9,16 @@ module;
 
 #include "utility/lifetime_bound.hpp"
 
-export module modules.renderer.resources.SeqWriteBuffer;
+export module ddge.modules.renderer.resources.SeqWriteBuffer;
 
 import vulkan_hpp;
 
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.base.resources.Allocation;
-import modules.renderer.base.resources.Buffer;
-import modules.renderer.base.resources.copy_operations;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.base.resources.Allocation;
+import ddge.modules.renderer.base.resources.Buffer;
+import ddge.modules.renderer.base.resources.copy_operations;
 
-namespace modules::renderer::resources {
+namespace ddge::renderer::resources {
 
 export template <typename T = std::byte>
 class SeqWriteBuffer {
@@ -54,10 +54,10 @@ private:
     SeqWriteBuffer(base::Buffer&& buffer, base::Allocation&& allocation);
 };
 
-}   // namespace modules::renderer::resources
+}   // namespace ddge::renderer::resources
 
 template <typename T>
-modules::renderer::resources::SeqWriteBuffer<T>::SeqWriteBuffer(
+ddge::renderer::resources::SeqWriteBuffer<T>::SeqWriteBuffer(
     const base::Allocator&      allocator,
     const vk::BufferCreateInfo& buffer_create_info,
     const void*                 data
@@ -76,14 +76,14 @@ modules::renderer::resources::SeqWriteBuffer<T>::SeqWriteBuffer(
 {}
 
 template <typename T>
-auto modules::renderer::resources::SeqWriteBuffer<T>::get() const noexcept -> vk::Buffer
+auto ddge::renderer::resources::SeqWriteBuffer<T>::get() const noexcept -> vk::Buffer
 {
     return m_buffer.get();
 }
 
 template <typename T>
 template <std::size_t E>
-auto modules::renderer::resources::SeqWriteBuffer<T>::set(
+auto ddge::renderer::resources::SeqWriteBuffer<T>::set(
     std::span<const T, E> data,
     const std::size_t     offset
 ) const -> void
@@ -97,7 +97,7 @@ auto modules::renderer::resources::SeqWriteBuffer<T>::set(
 }
 
 template <typename T>
-auto modules::renderer::resources::SeqWriteBuffer<T>::set(
+auto ddge::renderer::resources::SeqWriteBuffer<T>::set(
     const T&          data,
     const std::size_t offset
 ) const -> void
@@ -111,20 +111,20 @@ auto modules::renderer::resources::SeqWriteBuffer<T>::set(
 }
 
 template <typename T>
-auto modules::renderer::resources::SeqWriteBuffer<T>::size() const noexcept -> std::size_t
+auto ddge::renderer::resources::SeqWriteBuffer<T>::size() const noexcept -> std::size_t
 {
     return size_bytes() / sizeof(T);
 }
 
 template <typename T>
-auto modules::renderer::resources::SeqWriteBuffer<T>::size_bytes() const noexcept
+auto ddge::renderer::resources::SeqWriteBuffer<T>::size_bytes() const noexcept
     -> std::size_t
 {
     return m_buffer.size();
 }
 
 template <typename T>
-auto modules::renderer::resources::SeqWriteBuffer<T>::make_from(
+auto ddge::renderer::resources::SeqWriteBuffer<T>::make_from(
     std::tuple<base::Buffer, base::Allocation, VmaAllocationInfo>&& tuple,
     const void*                                                     data
 ) noexcept -> SeqWriteBuffer
@@ -144,7 +144,7 @@ auto modules::renderer::resources::SeqWriteBuffer<T>::make_from(
 }
 
 template <typename T>
-modules::renderer::resources::SeqWriteBuffer<T>::SeqWriteBuffer(
+ddge::renderer::resources::SeqWriteBuffer<T>::SeqWriteBuffer(
     base::Buffer&&     buffer,
     base::Allocation&& allocation
 )

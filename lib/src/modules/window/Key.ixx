@@ -2,9 +2,9 @@ module;
 
 #include <GLFW/glfw3.h>
 
-export module modules.window.Key;
+export module ddge.modules.window.Key;
 
-namespace modules::window {
+namespace ddge::window {
 
 export enum Key {
     eSpace         = GLFW_KEY_SPACE,
@@ -136,4 +136,4 @@ export enum class KeyState {
     ePressed  = GLFW_PRESS,
 };
 
-}   // namespace modules::window
+}   // namespace ddge::window

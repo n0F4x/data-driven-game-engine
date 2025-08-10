@@ -11,14 +11,14 @@ module;
 
 module demos.virtual_texture.VirtualTexture;
 
-import modules.gfx.resources.VirtualImage;
+import ddge.modules.gfx.resources.VirtualImage;
 
-import modules.image.jpeg.Image;
+import ddge.modules.image.jpeg.Image;
 
-import modules.renderer.base.device.Device;
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.resources.Buffer;
-import modules.renderer.resources.SeqWriteBuffer;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.resources.Buffer;
+import ddge.modules.renderer.resources.SeqWriteBuffer;
 
 import demos.virtual_texture.init;
 import demos.virtual_texture.Vertex;
@@ -26,37 +26,37 @@ import demos.virtual_texture.Vertex;
 template <typename T>
 [[nodiscard]]
 static auto create_staging_buffer(
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     const std::span<const T>               data
-) -> modules::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>
+) -> ddge::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>
 {
     const vk::BufferCreateInfo staging_buffer_create_info{
         .size  = data.size_bytes(),
         .usage = vk::BufferUsageFlagBits::eTransferSrc,
     };
 
-    return modules::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{
+    return ddge::renderer::resources::SeqWriteBuffer<std::remove_const_t<T>>{
         allocator, staging_buffer_create_info, data.data()
     };
 }
 
 [[nodiscard]]
 static auto create_gpu_only_buffer(
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Allocator& allocator,
     const vk::BufferUsageFlags             usage_flags,
     const uint32_t                         size
-) -> modules::renderer::resources::Buffer
+) -> ddge::renderer::resources::Buffer
 {
     const vk::BufferCreateInfo buffer_create_info = {
         .size = size, .usage = usage_flags | vk::BufferUsageFlagBits::eTransferDst
     };
 
-    return modules::renderer::resources::Buffer{ allocator, buffer_create_info };
+    return ddge::renderer::resources::Buffer{ allocator, buffer_create_info };
 }
 
 template <std::invocable<vk::CommandBuffer> Executor>
 static auto
-    execute_command(const modules::renderer::base::Device& device, Executor&& executor)
+    execute_command(const ddge::renderer::base::Device& device, Executor&& executor)
         -> void
 {
     const vk::UniqueCommandPool command_pool{ examples::base::init::create_command_pool(
@@ -92,11 +92,11 @@ static auto
 
 [[nodiscard]]
 static auto create_vertex_buffer(
-    const modules::renderer::base::Device&    device,
-    const modules::renderer::base::Allocator& allocator,
+    const ddge::renderer::base::Device&    device,
+    const ddge::renderer::base::Allocator& allocator,
     const glm::vec3&                       center,
     const float                            scale = 1.f
-) -> modules::renderer::resources::Buffer
+) -> ddge::renderer::resources::Buffer
 {
     const float scale_divided_by_2{ scale / 2 };
 
@@ -119,12 +119,12 @@ static auto create_vertex_buffer(
                      .uv       = { 1.0f, 1.0f } }
     };
 
-    const modules::renderer::resources::SeqWriteBuffer staging_buffer{
+    const ddge::renderer::resources::SeqWriteBuffer staging_buffer{
         ::create_staging_buffer<demo::Vertex>(allocator, vertices)
     };
     staging_buffer.set(std::span{ vertices });
 
-    modules::renderer::resources::Buffer vertex_buffer{ ::create_gpu_only_buffer(
+    ddge::renderer::resources::Buffer vertex_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eVertexBuffer,
         static_cast<uint32_t>(staging_buffer.size_bytes())
@@ -144,19 +144,19 @@ static auto create_vertex_buffer(
 
 [[nodiscard]]
 static auto create_index_buffer(
-    const modules::renderer::base::Device&    device,
-    const modules::renderer::base::Allocator& allocator
-) -> modules::renderer::resources::Buffer
+    const ddge::renderer::base::Device&    device,
+    const ddge::renderer::base::Allocator& allocator
+) -> ddge::renderer::resources::Buffer
 {
     constexpr static std::array indices{ uint32_t{ 0 }, uint32_t{ 1 }, uint32_t{ 2 },
                                          uint32_t{ 2 }, uint32_t{ 3 }, uint32_t{ 0 } };
 
-    const modules::renderer::resources::SeqWriteBuffer staging_buffer{
+    const ddge::renderer::resources::SeqWriteBuffer staging_buffer{
         ::create_staging_buffer<uint32_t>(allocator, indices)
     };
     staging_buffer.set(std::span{ indices });
 
-    modules::renderer::resources::Buffer index_buffer{ ::create_gpu_only_buffer(
+    ddge::renderer::resources::Buffer index_buffer{ ::create_gpu_only_buffer(
         allocator,
         vk::BufferUsageFlagBits::eIndexBuffer,
         static_cast<uint32_t>(staging_buffer.size_bytes())
@@ -175,8 +175,8 @@ static auto create_index_buffer(
 }
 
 demo::VirtualTexture::VirtualTexture(
-    const modules::renderer::base::Device&    device,
-    const modules::renderer::base::Allocator& allocator
+    const ddge::renderer::base::Device&    device,
+    const ddge::renderer::base::Allocator& allocator
 )
     : m_device_ref{ device },
       m_allocator_ref{ allocator },
@@ -188,7 +188,7 @@ demo::VirtualTexture::VirtualTexture(
       m_virtual_image{ init::create_virtual_image(
           device,
           allocator,
-          std::make_unique<modules::image::jpeg::Image>(modules::image::jpeg::Image::load_from(
+          std::make_unique<ddge::image::jpeg::Image>(ddge::image::jpeg::Image::load_from(
               std::filesystem::path{ std::source_location::current().file_name() }
                   .parent_path()
                   .parent_path()
@@ -210,13 +210,13 @@ auto demo::VirtualTexture::debug_position() const noexcept -> const glm::vec3&
     return m_debug_position;
 }
 
-auto demo::VirtualTexture::get() noexcept -> modules::gfx::resources::VirtualImage&
+auto demo::VirtualTexture::get() noexcept -> ddge::gfx::resources::VirtualImage&
 {
     return m_virtual_image;
 }
 
 auto demo::VirtualTexture::get() const noexcept
-    -> const modules::gfx::resources::VirtualImage&
+    -> const ddge::gfx::resources::VirtualImage&
 {
     return m_virtual_image;
 }

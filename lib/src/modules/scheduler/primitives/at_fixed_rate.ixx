@@ -2,39 +2,36 @@ module;
 
 #include <utility>
 
-export module modules.scheduler.primitives.at_fixed_rate;
+export module ddge.modules.scheduler.primitives.at_fixed_rate;
 
-import modules.time.FixedTimer;
-import modules.time.VariableTimer;
+import ddge.modules.time.FixedTimer;
+import ddge.modules.time.VariableTimer;
 
-import modules.scheduler.converts_to_task_builder_c;
-import modules.scheduler.TaskBuilder;
+import ddge.modules.scheduler.converts_to_task_builder_c;
+import ddge.modules.scheduler.TaskBuilder;
 
-import modules.scheduler.accessors.resources;
-import modules.scheduler.primitives.repeat;
+import ddge.modules.scheduler.accessors.resources;
+import ddge.modules.scheduler.primitives.repeat;
 
-namespace modules::scheduler {
+namespace ddge::scheduler {
 
 /**
  * Requires resource of `Timer_T`
  **/
 export template <typename Timer_T, converts_to_task_builder_c TaskBuilder_T>
-    requires time::is_FixedTimer_c<Timer_T>
-          || time::is_VariableTimer_c<Timer_T>
+    requires time::is_FixedTimer_c<Timer_T> || time::is_VariableTimer_c<Timer_T>
 [[nodiscard]]
-constexpr auto at_fixed_rate(TaskBuilder_T&& task_builder)
-    -> TaskBuilder<void>;
+constexpr auto at_fixed_rate(TaskBuilder_T&& task_builder) -> TaskBuilder<void>;
 
-}   // namespace modules::scheduler
+}   // namespace ddge::scheduler
 
-template <typename Timer_T, modules::scheduler::converts_to_task_builder_c TaskBuilder_T>
-    requires modules::time::is_FixedTimer_c<Timer_T>
-          || modules::time::is_VariableTimer_c<Timer_T>
-constexpr auto modules::scheduler::at_fixed_rate(TaskBuilder_T&& task_builder)
+template <typename Timer_T, ddge::scheduler::converts_to_task_builder_c TaskBuilder_T>
+    requires ddge::time::is_FixedTimer_c<Timer_T>
+          || ddge::time::is_VariableTimer_c<Timer_T>
+constexpr auto ddge::scheduler::at_fixed_rate(TaskBuilder_T&& task_builder)
     -> TaskBuilder<void>
 {
-    using FixedTimerResource =
-        accessors::resources::Resource<Timer_T>;
+    using FixedTimerResource = accessors::resources::Resource<Timer_T>;
 
     return repeat(
         std::forward<TaskBuilder_T>(task_builder),

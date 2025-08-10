@@ -12,11 +12,11 @@ module;
 
 #include "modules/log/log_macros.hpp"
 
-module modules.renderer.base.swapchain.SwapchainHolder;
+module ddge.modules.renderer.base.swapchain.SwapchainHolder;
 
-import modules.log;
+import ddge.modules.log;
 
-namespace modules::renderer::base {
+namespace ddge::renderer::base {
 
 SwapchainHolder::SwapchainHolder(
     const vk::SurfaceKHR    surface,
@@ -63,42 +63,34 @@ auto SwapchainHolder::acquire_next_image(
 ) -> std::optional<uint32_t>
 {
     return m_swapchain.transform(&Swapchain::get)
-        .and_then(
-            [this,
-             semaphore,
-             fence](const vk::SwapchainKHR swapchain) -> std::optional<uint32_t> {
-                try {
-                    switch (const auto [result, image_index]{
-                        m_device.get()->acquireNextImageKHR(
-                            swapchain, std::numeric_limits<uint64_t>::max(), semaphore, fence
-                        ) };
-                            result)
-                    {
-                        case vk::Result::eSuccess:       [[fallthrough]];
-                        case vk::Result::eSuboptimalKHR: {
-                            m_image_index = image_index;
-                            return image_index;
-                        }
-                        default: {
-                            ENGINE_LOG_ERROR(
-                                std::format(
-                                    "vk::Device::acquireNextImage succeeded " "with " "un"
-                                                                                      "ex"
-                                                                                      "pe"
-                                                                                      "ct"
-                                                                                      "ed"
-                                                                                      " " "result: " "{}",
-                                    vk::to_string(result)
-                                )
-                            );
-                        }
+        .and_then([this, semaphore, fence](const vk::SwapchainKHR swapchain) -> std::optional<uint32_t> {
+            try {
+                switch (const auto [result, image_index]{
+                    m_device.get()->acquireNextImageKHR(
+                        swapchain, std::numeric_limits<uint64_t>::max(), semaphore, fence
+                    ) };
+                        result)
+                {
+                    case vk::Result::eSuccess:       [[fallthrough]];
+                    case vk::Result::eSuboptimalKHR: {
+                        m_image_index = image_index;
+                        return image_index;
                     }
-                } catch (const vk::OutOfDateKHRError&) {
-                    recreate_swapchain();
+                    default: {
+                        ENGINE_LOG_ERROR(
+                            std::format(
+                                "vk::Device::acquireNextImage succeeded " "with " "un" "e"
+                                                                                       "x" "pe" "ct" "ed" " " "result: " "{}",
+                                vk::to_string(result)
+                            )
+                        );
+                    }
                 }
-                return std::nullopt;
+            } catch (const vk::OutOfDateKHRError&) {
+                recreate_swapchain();
             }
-        );
+            return std::nullopt;
+        });
 }
 
 auto SwapchainHolder::present(const std::span<const vk::Semaphore> wait_semaphores)
@@ -182,4 +174,4 @@ auto SwapchainHolder::recreate_swapchain() -> void
     }
 }
 
-}   // namespace modules::renderer::base
+}   // namespace ddge::renderer::base

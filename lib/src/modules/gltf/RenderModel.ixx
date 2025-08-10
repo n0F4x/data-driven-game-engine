@@ -4,27 +4,27 @@ module;
 #include <future>
 #include <variant>
 
-export module modules.gltf.RenderModel;
+export module ddge.modules.gltf.RenderModel;
 
 import vulkan_hpp;
 
-import modules.cache.Cache;
-import modules.cache.Handle;
-import modules.gfx.Camera;
-import modules.gfx.resources.VirtualImage;
-import modules.gfx.resources.Image;
+import ddge.modules.cache.Cache;
+import ddge.modules.cache.Handle;
+import ddge.modules.gfx.Camera;
+import ddge.modules.gfx.resources.VirtualImage;
+import ddge.modules.gfx.resources.Image;
 
-import modules.gltf.Model;
+import ddge.modules.gltf.Model;
 
-import modules.renderer.base.device.Device;
-import modules.renderer.base.allocator.Allocator;
-import modules.renderer.model.Drawable;
-import modules.renderer.resources.Buffer;
-import modules.renderer.resources.RandomAccessBuffer;
+import ddge.modules.renderer.base.device.Device;
+import ddge.modules.renderer.base.allocator.Allocator;
+import ddge.modules.renderer.model.Drawable;
+import ddge.modules.renderer.resources.Buffer;
+import ddge.modules.renderer.resources.RandomAccessBuffer;
 
 struct ShaderMaterial;
 
-namespace modules::gltf {
+namespace ddge::gltf {
 
 export class RenderModel : public renderer::Drawable {
 public:
@@ -133,4 +133,4 @@ private:
     );
 };
 
-}   // namespace modules::gltf
+}   // namespace ddge::gltf

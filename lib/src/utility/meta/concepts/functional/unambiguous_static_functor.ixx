@@ -2,11 +2,11 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.concepts.functional.unambiguous_static_functor;
+export module ddge.utility.meta.concepts.functional.unambiguous_static_functor;
 
-import utility.meta.concepts.functional.unambiguous_explicit_functor;
+import ddge.utility.meta.concepts.functional.unambiguous_explicit_functor;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename T>
 concept unambiguous_static_functor_c =
@@ -15,4 +15,4 @@ concept unambiguous_static_functor_c =
     && !std::is_member_function_pointer_v<decltype(&std::remove_cvref_t<T>::operator())>
     && !unambiguous_explicit_functor_c<T>;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

@@ -1,10 +1,10 @@
-export module modules.assets;
+export module ddge.modules.assets;
 
-export import modules.assets.Addon;
-export import modules.assets.asset_c;
-export import modules.assets.AssetManager;
-export import modules.assets.Cached;
-export import modules.assets.Handle;
-export import modules.assets.loader_c;
-export import modules.assets.Plugin;
-export import modules.assets.WeakHandle;
+export import ddge.modules.assets.Addon;
+export import ddge.modules.assets.asset_c;
+export import ddge.modules.assets.AssetManager;
+export import ddge.modules.assets.Cached;
+export import ddge.modules.assets.Handle;
+export import ddge.modules.assets.loader_c;
+export import ddge.modules.assets.Plugin;
+export import ddge.modules.assets.WeakHandle;

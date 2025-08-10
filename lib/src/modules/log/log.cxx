@@ -9,9 +9,9 @@ module;
 
 #include "log_level_definitions.hpp"
 
-module modules.log.log;
+module ddge.modules.log.log;
 
-import modules.log.Level;
+import ddge.modules.log.Level;
 
 auto logger{ [] {
     auto result{ spdlog::stdout_color_mt("engine_internal") };
@@ -20,21 +20,21 @@ auto logger{ [] {
 }() };
 
 [[nodiscard]]
-constexpr auto convert(const modules::log::Level level) -> spdlog::level::level_enum
+constexpr auto convert(const ddge::log::Level level) -> spdlog::level::level_enum
 {
     switch (level) {
-        case modules::log::Level::eOff:      return spdlog::level::off;
-        case modules::log::Level::eCritical: return spdlog::level::critical;
-        case modules::log::Level::eError:    return spdlog::level::err;
-        case modules::log::Level::eWarning:  return spdlog::level::warn;
-        case modules::log::Level::eInfo:     return spdlog::level::info;
-        case modules::log::Level::eDebug:    return spdlog::level::debug;
-        case modules::log::Level::eTrace:    return spdlog::level::trace;
+        case ddge::log::Level::eOff:      return spdlog::level::off;
+        case ddge::log::Level::eCritical: return spdlog::level::critical;
+        case ddge::log::Level::eError:    return spdlog::level::err;
+        case ddge::log::Level::eWarning:  return spdlog::level::warn;
+        case ddge::log::Level::eInfo:     return spdlog::level::info;
+        case ddge::log::Level::eDebug:    return spdlog::level::debug;
+        case ddge::log::Level::eTrace:    return spdlog::level::trace;
         default:                          std::unreachable();
     }
 }
 
-auto modules::log::log(
+auto ddge::log::log(
     const std::source_location location,
     const Level                level,
     const std::string_view     message

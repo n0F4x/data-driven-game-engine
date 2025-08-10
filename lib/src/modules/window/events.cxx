@@ -4,9 +4,9 @@ module;
 
 #include <GLFW/glfw3.h>
 
-module modules.window.events;
+module ddge.modules.window.events;
 
-namespace modules::window {
+namespace ddge::window {
 
 auto poll_events() -> void
 {
@@ -23,4 +23,4 @@ auto wait_for_events(const std::chrono::duration<float> timeout) -> void
     glfwWaitEventsTimeout(timeout.count());
 }
 
-}   // namespace modules::window
+}   // namespace ddge::window

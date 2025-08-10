@@ -1,6 +1,6 @@
-export module utility.meta.type_traits.type_list.type_list_front;
+export module ddge.utility.meta.type_traits.type_list.type_list_front;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename>
 struct type_list_front;
@@ -13,4 +13,4 @@ struct type_list_front<TypeList_T<T, Ts...>> {
 export template <typename TypeList_T>
 using type_list_front_t = typename type_list_front<TypeList_T>::type;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

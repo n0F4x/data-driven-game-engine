@@ -7,13 +7,13 @@ module;
 
 #include <ktx.h>
 
-export module modules.image.ktx2.Image;
+export module ddge.modules.image.ktx2.Image;
 
 import vulkan_hpp;
 
-import modules.image.Image;
+import ddge.modules.image.Image;
 
-namespace modules::image::ktx2 {
+namespace ddge::image::ktx2 {
 
 export class Image : public image::Image {
 public:
@@ -61,4 +61,4 @@ private:
     explicit Image(gsl_lite::not_null<ktxTexture2*> texture) noexcept;
 };
 
-}   // namespace modules::image::ktx2
+}   // namespace ddge::image::ktx2

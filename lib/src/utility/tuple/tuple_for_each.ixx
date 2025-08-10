@@ -2,11 +2,11 @@ module;
 
 #include <functional>
 
-export module utility.tuple.tuple_for_each;
+export module ddge.utility.tuple.tuple_for_each;
 
-import utility.meta.concepts.tuple_like;
+import ddge.utility.meta.concepts.tuple_like;
 
-namespace util {
+namespace ddge::util {
 
 export template <meta::tuple_like_c Tuple_T, typename F>
 constexpr auto tuple_for_each(Tuple_T&& tuple, F func) -> void
@@ -19,4 +19,4 @@ constexpr auto tuple_for_each(Tuple_T&& tuple, F func) -> void
     );
 }
 
-}   // namespace util
+}   // namespace ddge::util

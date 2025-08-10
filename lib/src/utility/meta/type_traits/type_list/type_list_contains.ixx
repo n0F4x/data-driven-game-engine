@@ -2,11 +2,11 @@ module;
 
 #include <type_traits>
 
-export module utility.meta.type_traits.type_list.type_list_contains;
+export module ddge.utility.meta.type_traits.type_list.type_list_contains;
 
-import utility.meta.type_traits.type_list.type_list_push_back;
+import ddge.utility.meta.type_traits.type_list.type_list_push_back;
 
-namespace util::meta {
+namespace ddge::util::meta {
 
 export template <typename TypeList_T, typename T>
 struct type_list_contains;
@@ -18,4 +18,4 @@ struct type_list_contains<TypeList_T<Ts...>, T>
 export template <typename TypeList_T, typename T>
 inline constexpr bool type_list_contains_v = type_list_contains<TypeList_T, T>::value;
 
-}   // namespace util::meta
+}   // namespace ddge::util::meta

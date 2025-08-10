@@ -1,4 +1,4 @@
-export module utility.memory;
+export module ddge.utility.memory;
 
-export import utility.memory.Allocator;
-export import utility.memory.Deallocator;
+export import ddge.utility.memory.Allocator;
+export import ddge.utility.memory.Deallocator;

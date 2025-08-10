@@ -5,8 +5,8 @@ While an event will only be triggered for the next iteration, messages become ac
 
 [,c++]
 ----
-app::create()
-    .plug_in(plugins::Messages{})
+ddge::app::create()
+    .plug_in(ddge::plugins::Messages{})
     .register_message<WorldNeedsRedraw>();
 ----
 

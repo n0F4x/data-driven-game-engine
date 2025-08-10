@@ -9,8 +9,8 @@ Therefore, given the chaotic nature of asset creation, the framework offers one 
 
 [,c++]
 ----
-app::create()
-    .plug_in(plugins::Assets{})
+ddge::app::create()
+    .plug_in(ddge::plugins::Assets{})
     .insert_loader(MyAssetLoader{});
 ----
 
@@ -53,17 +53,17 @@ The recommended approach is to inject a reference to the texture loader into you
 class ModelLoader {
 public:
     explicit ModelLoader(
-        modules::assets::Cached<TextureLoader>& texture_loader
+        ddge::assets::Cached<TextureLoader>& texture_loader
     );
 
     // ...
 };
 
-app::create()
-    .plug_in(plugins::Assets{})
+ddge::app::create()
+    .plug_in(ddge::plugins::Assets{})
     .insert_loader(TextureLoader{});
     .inject_loader(
-        [](modules::assets::Cached<TextureLoader>& texture_loader) {
+        [](ddge::assets::Cached<TextureLoader>& texture_loader) {
             return ModelLoader{ texture_loader };
         }
     );
