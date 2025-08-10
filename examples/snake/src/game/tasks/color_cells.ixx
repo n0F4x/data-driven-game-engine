@@ -6,7 +6,7 @@ export module snake.game.color_cells;
 
 import ddge.modules.ecs;
 
-import ddge.modules.scheduler.accessors.ecs.Query;
+import ddge.modules.execution.accessors.ecs.Query;
 
 import ddge.utility.containers.OptionalRef;
 
@@ -15,7 +15,7 @@ import snake.game.Cell;
 import snake.game.Snake;
 import snake.game.SnakeHead;
 
-using namespace ddge::scheduler::accessors;
+using namespace ddge::exec::accessors;
 using namespace ddge::ecs::query_parameter_tags;
 
 namespace game {

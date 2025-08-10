@@ -1,10 +1,10 @@
 export module snake.window.close_window;
 
-import ddge.modules.scheduler.accessors.resources;
+import ddge.modules.execution.accessors.resources;
 
 import snake.window.Window;
 
-using namespace ddge::scheduler::accessors;
+using namespace ddge::exec::accessors;
 
 namespace window {
 

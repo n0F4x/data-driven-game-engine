@@ -10,8 +10,8 @@ import ddge.modules.assets.Handle;
 import ddge.modules.ecs;
 import ddge.modules.time.FixedTimer;
 
-import ddge.modules.scheduler.accessors.assets.Cached;
-import ddge.modules.scheduler.accessors.ecs.Registry;
+import ddge.modules.execution.accessors.assets.Cached;
+import ddge.modules.execution.accessors.ecs.Registry;
 
 import snake.assets.TextureLoader;
 import snake.game.Apple;
@@ -21,10 +21,10 @@ import snake.game.Snake;
 
 using namespace ddge::ecs::query_parameter_tags;
 
-using namespace ddge::scheduler::accessors::ecs;
+using namespace ddge::exec::accessors::ecs;
 
 using CachedTextureLoader =
-    ddge::scheduler::accessors::assets::Cached<assets::TextureLoader>;
+    ddge::exec::accessors::assets::Cached<assets::TextureLoader>;
 
 namespace game {
 

@@ -8,7 +8,7 @@ import ddge.modules.ecs;
 import ddge.modules.events.Plugin;
 import ddge.modules.messages.Plugin;
 import ddge.modules.resources.Plugin;
-import ddge.modules.scheduler.Plugin;
+import ddge.modules.execution.Plugin;
 import ddge.modules.states.Plugin;
 
 namespace ddge::plugins {
@@ -21,7 +21,7 @@ export using Functional = app::extensions::FunctionalPlugin;
 export using Messages   = messages::Plugin;
 export using Resources  = resources::Plugin;
 export using Runnable   = app::extensions::RunnablePlugin;
-export using Scheduler  = scheduler::Plugin;
+export using Scheduler  = exec::Plugin;
 export using States     = states::Plugin;
 
 }   // namespace ddge::plugins

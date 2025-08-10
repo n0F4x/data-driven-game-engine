@@ -4,10 +4,10 @@ module;
 
 module snake.game.create_update_task_builder;
 
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.modules.execution.TaskBuilder;
 import ddge.modules.time.FixedTimer;
 
-import ddge.modules.scheduler;
+import ddge.modules.execution;
 
 import snake.game.adjust_snake_speed;
 import snake.game.AppleSpawnTimer;
@@ -20,7 +20,7 @@ import snake.game.spawn_apple;
 import snake.game.trigger_world_update_message;
 import snake.game.WorldUpdate;
 
-using namespace ddge::scheduler::accessors;
+using namespace ddge::exec::accessors;
 
 auto update_timers(
     const resources::Resource<game::AppleSpawnTimer> apple_spawn_timer,
@@ -48,19 +48,19 @@ auto world_update_message_received(
     return !message_receiver.receive().empty();
 }
 
-auto game::create_update_task_builder() -> ddge::scheduler::TaskBuilder<void>
+auto game::create_update_task_builder() -> ddge::exec::TaskBuilder<void>
 {
-    return ddge::scheduler::start_as(::update_timers)
+    return ddge::exec::start_as(::update_timers)
         .then(
-            ddge::scheduler::run_if(
+            ddge::exec::run_if(
                 adjust_snake_speed,   //
                 ::apple_was_digested
             )
         )
         .then(
-            ddge::scheduler::repeat(
-                ddge::scheduler::group(
-                    ddge::scheduler::start_as(move_snake)   //
+            ddge::exec::repeat(
+                ddge::exec::group(
+                    ddge::exec::start_as(move_snake)   //
                         .then(create_eat_apple_task_builder()),
                     trigger_world_update_message
                 ),
@@ -68,12 +68,12 @@ auto game::create_update_task_builder() -> ddge::scheduler::TaskBuilder<void>
             )
         )
         .then(
-            ddge::scheduler::at_fixed_rate<AppleSpawnTimer>(   //
-                ddge::scheduler::group(
+            ddge::exec::at_fixed_rate<AppleSpawnTimer>(   //
+                ddge::exec::group(
                     spawn_apple,                               //
                     trigger_world_update_message
                 )
             )
         )
-        .then(ddge::scheduler::run_if(color_cells, ::world_update_message_received));
+        .then(ddge::exec::run_if(color_cells, ::world_update_message_received));
 }

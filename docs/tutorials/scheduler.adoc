@@ -25,7 +25,7 @@ auto say_hi() -> void {
 ddge::app::create()
     .plug_in(ddge::plugins::Scheduler{})
     .run(
-        ddge::scheduler::start_as(say_hello)
+        ddge::exec::start_as(say_hello)
             .then(say_hi)
     );
 ----
@@ -83,7 +83,7 @@ Where `+game_is_running+` may be defined as +
 
 [,c++]
 ----
-using namespace ddge::scheduler::accessors::resources;
+using namespace ddge::exec::accessors::resources;
 
 auto game_is_running(Resource<Window> window) -> bool
 {

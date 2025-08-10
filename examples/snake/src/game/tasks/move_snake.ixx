@@ -10,9 +10,9 @@ export module snake.game.move_snake;
 
 import ddge.modules.ecs;
 
-import ddge.modules.scheduler.accessors.ecs.Registry;
-import ddge.modules.scheduler.accessors.events.Recorder;
-import ddge.modules.scheduler.accessors.resources;
+import ddge.modules.execution.accessors.ecs.Registry;
+import ddge.modules.execution.accessors.events.Recorder;
+import ddge.modules.execution.accessors.resources;
 
 import snake.game.Cell;
 import snake.game.Direction;
@@ -22,7 +22,7 @@ import snake.game.Settings;
 import snake.game.Snake;
 import snake.game.SnakeHead;
 
-using namespace ddge::scheduler::accessors;
+using namespace ddge::exec::accessors;
 using namespace ddge::ecs::query_parameter_tags;
 
 namespace game {

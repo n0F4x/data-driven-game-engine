@@ -3,12 +3,12 @@
 
 import ddge.prelude;
 import ddge.modules.ecs;
-import ddge.modules.scheduler;
+import ddge.modules.execution;
 import ddge.utility.containers.OptionalRef;
 
 import demo.Window;
 
-using namespace ddge::scheduler::accessors;
+using namespace ddge::exec::accessors;
 using namespace ddge::ecs::query_parameter_tags;
 
 struct WindowClosed {};
@@ -65,9 +65,9 @@ constexpr static auto game_is_running =
         return window_closed_event_reader.read().size() == 0;
     };
 
-static const auto run_game_loop = ddge::scheduler::loop_until(
-    ddge::scheduler::start_as(
-        ddge::scheduler::group(
+static const auto run_game_loop = ddge::exec::loop_until(
+    ddge::exec::start_as(
+        ddge::exec::group(
             update_world,   //
             record_window_events
         )
@@ -91,7 +91,7 @@ auto main() -> int
         .plug_in(ddge::plugins::ECS{})
         .plug_in(ddge::plugins::Scheduler{})
         .run(
-            ddge::scheduler::start_as(initialize)   //
+            ddge::exec::start_as(initialize)   //
                 .then(run_game_loop)
                 .then(shut_down)
         );

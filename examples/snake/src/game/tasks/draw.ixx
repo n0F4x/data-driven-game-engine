@@ -6,13 +6,13 @@ export module snake.game.draw;
 
 import ddge.modules.ecs;
 
-import ddge.modules.scheduler.accessors.ecs.Query;
-import ddge.modules.scheduler.accessors.resources;
+import ddge.modules.execution.accessors.ecs.Query;
+import ddge.modules.execution.accessors.resources;
 
 import snake.game.Cell;
 import snake.window.Window;
 
-using namespace ddge::scheduler::accessors;
+using namespace ddge::exec::accessors;
 using namespace ddge::ecs::query_parameter_tags;
 
 namespace game {

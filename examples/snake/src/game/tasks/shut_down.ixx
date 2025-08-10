@@ -1,10 +1,10 @@
 export module snake.game.shut_down;
 
-import ddge.modules.scheduler.accessors.states.State;
+import ddge.modules.execution.accessors.states.State;
 
 import snake.game.GameState;
 
-using namespace ddge::scheduler::accessors;
+using namespace ddge::exec::accessors;
 
 namespace game {
 

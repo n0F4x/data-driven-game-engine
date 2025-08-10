@@ -1,10 +1,10 @@
 export module snake.game.trigger_world_update_message;
 
-import ddge.modules.scheduler.accessors.messages.Sender;
+import ddge.modules.execution.accessors.messages.Sender;
 
 import snake.game.WorldUpdate;
 
-using namespace ddge::scheduler::accessors;
+using namespace ddge::exec::accessors;
 
 namespace game {
 

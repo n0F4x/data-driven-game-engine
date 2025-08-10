@@ -49,7 +49,7 @@ Because of how common fixed systems are, there is a dedicated scheduling primiti
 [,c++]
 ----
 using namespace ddge::measurement::symbols;
-namespace sch = ddge::scheduler;
+namespace sch = ddge::exec;
 
 using DisplayTimer = ddge::time::FixedTimer<std::chrono::microseconds, 16'667>;
 

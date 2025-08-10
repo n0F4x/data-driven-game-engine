@@ -6,9 +6,9 @@ export module snake.game.adjust_snake_speed;
 
 import ddge.modules.ecs;
 
-import ddge.modules.scheduler.accessors.ecs.Query;
-import ddge.modules.scheduler.accessors.resources.Resource;
-import ddge.modules.scheduler.accessors.states.State;
+import ddge.modules.execution.accessors.ecs.Query;
+import ddge.modules.execution.accessors.resources.Resource;
+import ddge.modules.execution.accessors.states.State;
 
 import snake.game.GameState;
 import snake.game.Settings;
@@ -16,9 +16,9 @@ import snake.game.Snake;
 
 using namespace ddge::ecs::query_parameter_tags;
 
-using namespace ddge::scheduler::accessors::ecs;
-using namespace ddge::scheduler::accessors::resources;
-using namespace ddge::scheduler::accessors::states;
+using namespace ddge::exec::accessors::ecs;
+using namespace ddge::exec::accessors::resources;
+using namespace ddge::exec::accessors::states;
 
 namespace game {
 

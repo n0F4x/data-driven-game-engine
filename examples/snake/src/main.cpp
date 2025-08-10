@@ -1,14 +1,14 @@
 import ddge.prelude;
 import ddge.modules.time;
-import ddge.modules.scheduler;
+import ddge.modules.execution;
 import ddge.utility.not_fn;
 
 import snake;
 
-using namespace ddge::scheduler::accessors;
+using namespace ddge::exec::accessors;
 
-static const ddge::scheduler::TaskBuilder<void> initialize =   //
-    ddge::scheduler::group(
+static const ddge::exec::TaskBuilder<void> initialize =   //
+    ddge::exec::group(
         window::initialize,                                    //
         game::create_initialize_task_builder()
     );
@@ -23,34 +23,34 @@ auto clear_messages(const messages::Mailbox& mailbox) -> void
     mailbox.clear_messages();
 }
 
-static const ddge::scheduler::TaskBuilder<void> update =
-    ddge::scheduler::group(window::update, game::create_update_task_builder());
+static const ddge::exec::TaskBuilder<void> update =
+    ddge::exec::group(window::update, game::create_update_task_builder());
 
-static const ddge::scheduler::TaskBuilder<void> render =    //
-    ddge::scheduler::at_fixed_rate<window::DisplayTimer>(   //
-        ddge::scheduler::start_as(window::clear_window)     //
+static const ddge::exec::TaskBuilder<void> render =    //
+    ddge::exec::at_fixed_rate<window::DisplayTimer>(   //
+        ddge::exec::start_as(window::clear_window)     //
             .then(game::draw)
             .then(window::display)
     );
 
-static const ddge::scheduler::TaskBuilder<void> run_game_loop =
-    ddge::scheduler::loop_until(
-        ddge::scheduler::start_as(
-            ddge::scheduler::group(
+static const ddge::exec::TaskBuilder<void> run_game_loop =
+    ddge::exec::loop_until(
+        ddge::exec::start_as(
+            ddge::exec::group(
                 process_events,   //
                 clear_messages
             )
         )
             .then(update)
             .then(render),
-        ddge::scheduler::all_of(
+        ddge::exec::all_of(
             ddge::util::not_fn(window::window_should_close),   //
             game::game_is_running
         )
     );
 
-static const ddge::scheduler::TaskBuilder<void> shut_down =
-    ddge::scheduler::start_as(game::shut_down).then(window::close_window);
+static const ddge::exec::TaskBuilder<void> shut_down =
+    ddge::exec::start_as(game::shut_down).then(window::close_window);
 
 auto main() -> int
 {
@@ -66,7 +66,7 @@ auto main() -> int
         .transform(window::setup)
         .transform(game::setup)
         .run(
-            ddge::scheduler::start_as(initialize)   //
+            ddge::exec::start_as(initialize)   //
                 .then(run_game_loop)
                 .then(shut_down)
         );
