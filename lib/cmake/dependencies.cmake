@@ -8,6 +8,10 @@ find_package(gsl-lite CONFIG REQUIRED)
 target_compile_definitions(${PROJECT_NAME} PRIVATE gsl_CONFIG_DEFAULTS_VERSION=1)
 target_link_libraries(${PROJECT_NAME} PUBLIC gsl::gsl-lite)
 
+# tl-function-ref
+find_package(tl-function-ref REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC tl::function-ref)
+
 # function2
 find_package(function2 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC function2::function2)

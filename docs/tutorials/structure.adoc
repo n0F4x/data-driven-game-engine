@@ -6,5 +6,3 @@ The engine's code is structured around the following modules:
 * modules - the building blocks of the engine
 * utility - basic helper functionalities
 * config - configuration files for third-party
-
-Each module (except prelude) has its own namespace corresponding to the name of the module and submodules.

@@ -1,7 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "utility/contracts_macros.hpp"
-
 import ddge.modules.ecs;
 import ddge.utility.containers.OptionalRef;
 import ddge.utility.contracts;

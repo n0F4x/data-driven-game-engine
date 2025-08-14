@@ -1,6 +1,7 @@
 add_subdirectory(accessors)
 add_subdirectory(primitives)
 add_subdirectory(providers)
+add_subdirectory(scheduler)
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET public_cxx_modules
