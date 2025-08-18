@@ -1,0 +1,134 @@
+#include <array>
+#include <atomic>
+#include <expected>
+#include <memory>
+#include <ranges>
+#include <thread>
+#include <utility>
+#include <vector>
+
+#include <catch2/catch_test_macros.hpp>
+
+import ddge.modules.execution.scheduler.Work;
+import ddge.modules.execution.scheduler.WorkContinuation;
+import ddge.modules.execution.scheduler.WorkHub;
+
+import ddge.utility.no_op;
+
+TEST_CASE("ddge::exec::WorkHub")
+{
+    ddge::exec::WorkHub work_hub{ ddge::exec::SizeCategory::eDefault };
+
+    SECTION("empty")
+    {
+        const bool executed = work_hub.try_execute_one_work();
+        REQUIRE(executed == false);
+    }
+
+    SECTION("single work")
+    {
+        bool                                                    executed{};
+        std::expected<ddge::exec::WorkHandle, ddge::exec::Work> handle{
+            work_hub.reserve_slot([&executed] {
+                executed = true;
+                return ddge::exec::WorkContinuation::eRelease;
+            })
+        };
+
+        REQUIRE(work_hub.try_execute_one_work() == false);
+
+        handle->schedule();
+
+        REQUIRE(work_hub.try_execute_one_work() == true);
+        REQUIRE(executed == true);
+
+        REQUIRE(work_hub.try_execute_one_work() == true);
+        REQUIRE(work_hub.try_execute_one_work() == false);
+    }
+
+    SECTION("reschedule")
+    {
+        std::expected<ddge::exec::WorkHandle, ddge::exec::Work> handle{
+            work_hub.reserve_slot([rescheduled = false] mutable {
+                if (!rescheduled) {
+                    rescheduled = true;
+                    return ddge::exec::WorkContinuation::eReschedule;
+                }
+                return ddge::exec::WorkContinuation::eRelease;
+            })
+        };
+
+        REQUIRE(work_hub.try_execute_one_work() == false);
+
+        handle->schedule();
+
+        REQUIRE(work_hub.try_execute_one_work() == true);
+        REQUIRE(work_hub.try_execute_one_work() == true);
+
+        REQUIRE(work_hub.try_execute_one_work() == true);
+        REQUIRE(work_hub.try_execute_one_work() == false);
+    }
+
+    SECTION("release")
+    {
+        bool released{};
+        std::expected<
+            ddge::exec::WorkHandle,
+            std::pair<ddge::exec::Work, ddge::exec::ReleaseWorkContract>>
+            handle{ work_hub.reserve_slot(
+                [] { return ddge::exec::WorkContinuation::eRelease; },
+                [&released] { released = true; }
+            ) };
+
+        REQUIRE(work_hub.try_execute_one_work() == false);
+
+        handle->schedule();
+
+        REQUIRE(work_hub.try_execute_one_work() == true);
+        REQUIRE(released == false);
+
+        REQUIRE(work_hub.try_execute_one_work() == true);
+        REQUIRE(released == true);
+
+        REQUIRE(work_hub.try_execute_one_work() == false);
+    }
+
+    SECTION("simple multithreading")
+    {
+        constexpr static uint32_t work_count{ 256 };
+        constexpr static uint32_t per_work_count{ 4 };
+        constexpr static uint32_t goal{ work_count * per_work_count };
+        constexpr static uint32_t thread_count{ 8 };
+        std::atomic_uint32_t      counter;
+
+        const auto process_work = [&work_hub, &counter] {
+            while (counter < goal) {
+                work_hub.try_execute_one_work();
+            }
+        };
+
+        for (const auto _ : std::views::repeat(std::ignore, work_count)) {
+            work_hub
+                .reserve_slot([&counter, local_counter = 0u] mutable {
+                    if (local_counter++ < per_work_count) {
+                        ++counter;
+                        return ddge::exec::WorkContinuation::eReschedule;
+                    }
+                    return ddge::exec::WorkContinuation::eRelease;
+                })
+                ->schedule();
+        }
+
+        std::vector<std::jthread> threads;
+        threads.reserve(thread_count);
+        for (const auto _ : std::views::repeat(std::ignore, thread_count)) {
+            threads.emplace_back(process_work);
+        }
+
+        for (std::jthread& thread : threads) {
+            thread.join();
+        }
+
+        REQUIRE(counter.load() == goal);
+    }
+}

@@ -26,18 +26,18 @@ TEST_CASE("ddge::exec::SignalTree")
                 {
                     ddge::exec::SignalTree signal_tree{ number_of_levels };
 
-                    for (const auto index : std::views::iota(0u, signal_tree.size())) {
+                    for (const auto index : std::views::iota(0u, signal_tree.capacity())) {
                         signal_tree.set(index);
                     }
 
-                    std::vector<bool> index_checks(signal_tree.size());
-                    for (auto _ : std::views::repeat(std::ignore, signal_tree.size())) {
+                    std::vector<bool> index_checks(signal_tree.capacity());
+                    for (auto _ : std::views::repeat(std::ignore, signal_tree.capacity())) {
                         const std::optional<ddge::exec::SignalIndex> signal_index{
-                            signal_tree.unset_one(default_strategy)
+                            signal_tree.try_unset_one(default_strategy)
                         };
 
                         REQUIRE(signal_index.has_value());
-                        REQUIRE(signal_index.value() < signal_tree.size());
+                        REQUIRE(signal_index.value() < signal_tree.capacity());
 
                         index_checks.at(signal_index.value()) = true;
                     }
@@ -63,16 +63,16 @@ TEST_CASE("ddge::exec::SignalTree")
                 {
                     ddge::exec::SignalTree signal_tree{ number_of_levels };
 
-                    std::vector<std::atomic_int> index_checks(signal_tree.size());
+                    std::vector<std::atomic_int> index_checks(signal_tree.capacity());
 
-                    auto work = [&signal_tree,
-                                 &index_checks,
-                                 number_of_threads](const uint32_t id) {
+                    const auto work = [&signal_tree,
+                                       &index_checks,
+                                       number_of_threads](const uint32_t id) {
                         return [&signal_tree, &index_checks, id, number_of_threads] {
                             uint32_t number_of_signals{};
 
                             for (const auto index :
-                                 std::views::iota(0u, signal_tree.size()))
+                                 std::views::iota(0u, signal_tree.capacity()))
                             {
                                 if (index % number_of_threads == id) {
                                     signal_tree.set(index);
@@ -84,7 +84,7 @@ TEST_CASE("ddge::exec::SignalTree")
                                  std::views::repeat(std::ignore, number_of_signals))
                             {
                                 const std::optional<ddge::exec::SignalIndex> signal_index{
-                                    signal_tree.unset_one(default_strategy)
+                                    signal_tree.try_unset_one(default_strategy)
                                 };
 
                                 ++index_checks.at(signal_index.value());

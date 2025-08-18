@@ -1,3 +1,8 @@
+target_sources(${PROJECT_NAME} PRIVATE
+        SignalTree.cxx
+        WorkHub.cxx
+)
+
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET public_cxx_modules
         TYPE CXX_MODULES
@@ -5,4 +10,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         scheduler.cppm
         SignalTree.ixx
+        Work.ixx
+        WorkContinuation.ixx
+        WorkHub.ixx
 )
