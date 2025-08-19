@@ -8,6 +8,7 @@ check_required_components(@PROJECT_NAME@)
 include(CMakeFindDependencyMacro)
 
 find_dependency(gsl-lite)
+find_dependency(tl-function-ref)
 find_dependency(function2)
 find_dependency(tsl-ordered-map)
 find_dependency(fmt)
