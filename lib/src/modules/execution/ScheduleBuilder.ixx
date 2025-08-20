@@ -54,8 +54,7 @@ private:
 }   // namespace ddge::exec
 
 template <typename TaskBuilder_T>
-    requires ddge::exec::
-                 specialization_of_TaskBuilder_c<std::remove_cvref_t<TaskBuilder_T>>
+    requires ddge::exec::specialization_of_TaskBuilder_c<std::remove_cvref_t<TaskBuilder_T>>
           && std::same_as<typename std::remove_cvref_t<TaskBuilder_T>::Result, void>
 ddge::exec::SchedulerBuilder::SchedulerBuilder(TaskBuilder_T&& task_builder)
     : m_builder{ std::forward<TaskBuilder_T>(task_builder) }
@@ -69,8 +68,7 @@ ddge::exec::SchedulerBuilder::operator TaskBuilder<void>(this Self_T && self)
 
 template <typename Self_T, ddge::exec::raw_task_c F>
     requires std::same_as<ddge::util::meta::result_of_t<F>, void>
-auto ddge::exec::SchedulerBuilder::then(this Self_T&& self, F&& func)
-    -> SchedulerBuilder
+auto ddge::exec::SchedulerBuilder::then(this Self_T&& self, F&& func) -> SchedulerBuilder
 {
     return std::forward<Self_T>(self).then(
         TaskBuilder<util::meta::result_of_t<F>>{ [wrapped_func = std::forward<F>(func)](
@@ -87,13 +85,10 @@ auto ddge::exec::SchedulerBuilder::then(this Self_T&& self, F&& func)
 }
 
 template <typename Self_T, typename TaskBuilder_T>
-    requires ddge::exec::
-                 specialization_of_TaskBuilder_c<std::remove_cvref_t<TaskBuilder_T>>
+    requires ddge::exec::specialization_of_TaskBuilder_c<std::remove_cvref_t<TaskBuilder_T>>
           && std::same_as<typename std::remove_cvref_t<TaskBuilder_T>::Result, void>
-auto ddge::exec::SchedulerBuilder::then(
-    this Self_T&&   self,
-    TaskBuilder_T&& task_builder
-) -> SchedulerBuilder
+auto ddge::exec::SchedulerBuilder::then(this Self_T&& self, TaskBuilder_T&& task_builder)
+    -> SchedulerBuilder
 {
     return SchedulerBuilder{ TaskBuilder<void>{
         [wrapped_task_builder      = std::forward_like<Self_T>(self.m_builder),

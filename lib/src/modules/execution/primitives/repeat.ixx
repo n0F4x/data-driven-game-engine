@@ -36,9 +36,7 @@ auto repeat(
 template <
     ddge::exec::converts_to_task_builder_c TaskBuilder_T,
     ddge::exec::converts_to_task_builder_c RepetitionSpecifierTaskBuilder_T>
-    requires std::same_as<
-                 typename ddge::exec::as_task_builder_t<TaskBuilder_T>::Result,
-                 void>
+    requires std::same_as<typename ddge::exec::as_task_builder_t<TaskBuilder_T>::Result, void>
           && std::integral<typename ddge::exec::
                                as_task_builder_t<RepetitionSpecifierTaskBuilder_T>::Result>
 auto ddge::exec::repeat(

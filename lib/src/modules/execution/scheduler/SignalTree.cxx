@@ -62,20 +62,20 @@ auto ddge::exec::SignalTree::try_unset_one(
     const tl::function_ref<TravelsalBias(uint32_t)> strategy
 ) -> std::optional<SignalIndex>
 {
-    if (m_root_node.data.count.fetch_sub(1) <= 0) {
-        m_root_node.data.count.fetch_add(1);
+    if (m_root_node->data.count.fetch_sub(1) <= 0) {
+        m_root_node->data.count.fetch_add(1);
         return std::nullopt;
     }
 
     const TravelsalBias travelsal_bias{ strategy(0) };
 
     const NodeIndex preferred_child_index{ travelsal_bias == TravelsalBias::eLeft
-                                               ? m_root_node.left_index
-                                               : m_root_node.right_index };
+                                               ? m_root_node->left_index
+                                               : m_root_node->right_index };
     const NodeIndex less_preferred_child_index{ preferred_child_index
-                                                        == m_root_node.left_index
-                                                    ? m_root_node.right_index
-                                                    : m_root_node.left_index };
+                                                        == m_root_node->left_index
+                                                    ? m_root_node->right_index
+                                                    : m_root_node->left_index };
 
     std::optional<SignalIndex> result;
     NodeIndex                  visited_child_index{ preferred_child_index };
@@ -176,7 +176,7 @@ auto ddge::exec::SignalTree::set_branch(const NodeIndex node_index) -> void
 
 auto ddge::exec::SignalTree::set_root() -> void
 {
-    ++m_root_node.data.count;
+    ++m_root_node->data.count;
 }
 
 auto ddge::exec::SignalTree::unset_one_from_branch(

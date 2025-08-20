@@ -2,6 +2,7 @@ module;
 
 #include <atomic>
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -61,10 +62,11 @@ public:
     auto number_of_levels() const -> uint32_t;
 
 private:
-    uint32_t                m_number_of_levels;
-    RootNode                m_root_node;
-    std::vector<BranchNode> m_branch_nodes;
-    std::vector<LeafNode>   m_leaf_nodes;
+    uint32_t                  m_number_of_levels;
+    // TODO: use std::indirect
+    std::unique_ptr<RootNode> m_root_node{ std::make_unique<RootNode>() };
+    std::vector<BranchNode>   m_branch_nodes;
+    std::vector<LeafNode>     m_leaf_nodes;
 
     auto connect_nodes() -> void;
 

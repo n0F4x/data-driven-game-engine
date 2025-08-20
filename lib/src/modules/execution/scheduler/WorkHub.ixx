@@ -18,10 +18,6 @@ import ddge.modules.execution.scheduler.WorkContinuation;
 
 namespace ddge::exec {
 
-export enum struct SizeCategory : uint32_t {
-    eDefault = 12,
-};
-
 struct WorkFlags {
     using type = uint8_t;
 
@@ -60,7 +56,11 @@ export class WorkHandle;
 
 export class WorkHub {
 public:
-    explicit WorkHub(SizeCategory size_category);
+    enum struct SizeCategory : uint32_t {
+        eDefault = 12,
+    };
+
+    explicit WorkHub(SizeCategory size_category = SizeCategory::eDefault);
 
     [[nodiscard]]
     auto reserve_slot(Work&& work) -> std::expected<WorkHandle, Work>;
@@ -79,7 +79,8 @@ private:
 
     auto schedule(WorkIndex work_index) -> void;
     auto schedule_release(WorkIndex work_index) -> void;
-    auto handle_work_result(WorkIndex work_index, WorkContinuation work_continuation) -> void;
+    auto handle_work_result(WorkIndex work_index, WorkContinuation work_continuation)
+        -> void;
 };
 
 export class WorkHandle {
