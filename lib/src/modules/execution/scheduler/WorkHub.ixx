@@ -44,12 +44,14 @@ public:
     [[nodiscard]]
     auto schedule() -> bool;
     [[nodiscard]]
-    auto schedule_release() -> bool;
+    auto schedule_release() -> WorkContinuation;
 
 private:
     std::atomic<WorkFlags::type> m_flags;
     Work                         m_work;
     ReleaseWorkContract          m_release;
+
+    auto release() -> void;
 };
 
 using WorkIndex = SignalIndex;
@@ -77,6 +79,7 @@ private:
 
     auto schedule(WorkIndex work_index) -> void;
     auto schedule_release(WorkIndex work_index) -> void;
+    auto handle_work_result(WorkIndex work_index, WorkContinuation work_continuation) -> void;
 };
 
 export class WorkHandle {

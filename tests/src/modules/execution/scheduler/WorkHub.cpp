@@ -11,7 +11,7 @@ import ddge.modules.execution.scheduler.Work;
 import ddge.modules.execution.scheduler.WorkContinuation;
 import ddge.modules.execution.scheduler.WorkHub;
 
-import ddge.utility.no_op;
+import ddge.utility.contracts;
 
 TEST_CASE("ddge::exec::WorkHub")
 {
@@ -40,7 +40,6 @@ TEST_CASE("ddge::exec::WorkHub")
         REQUIRE(work_hub.try_execute_one_work() == true);
         REQUIRE(executed == true);
 
-        REQUIRE(work_hub.try_execute_one_work() == true);
         REQUIRE(work_hub.try_execute_one_work() == false);
     }
 
@@ -63,8 +62,14 @@ TEST_CASE("ddge::exec::WorkHub")
         REQUIRE(work_hub.try_execute_one_work() == true);
         REQUIRE(work_hub.try_execute_one_work() == true);
 
-        REQUIRE(work_hub.try_execute_one_work() == true);
         REQUIRE(work_hub.try_execute_one_work() == false);
+    }
+
+    SECTION("empty work is not allowed")
+    {
+        REQUIRE_THROWS_AS(
+            work_hub.reserve_slot(nullptr), ddge::util::PreconditionViolation
+        );
     }
 
     SECTION("release")
@@ -88,6 +93,24 @@ TEST_CASE("ddge::exec::WorkHub")
         REQUIRE(work_hub.try_execute_one_work() == true);
         REQUIRE(released == true);
 
+        REQUIRE(work_hub.try_execute_one_work() == false);
+    }
+
+    SECTION("empty release is not called")
+    {
+        std::expected<
+            ddge::exec::WorkHandle,
+            std::pair<ddge::exec::Work, ddge::exec::ReleaseWorkContract>>
+            handle{ work_hub.reserve_slot(
+                [] { return ddge::exec::WorkContinuation::eRelease; },   //
+                nullptr
+            ) };
+
+        REQUIRE(work_hub.try_execute_one_work() == false);
+
+        handle->schedule();
+
+        REQUIRE(work_hub.try_execute_one_work() == true);
         REQUIRE(work_hub.try_execute_one_work() == false);
     }
 
