@@ -1,8 +1,8 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <format>
 #include <optional>
-#include <print>
 #include <ranges>
 #include <thread>
 
@@ -26,12 +26,14 @@ TEST_CASE("ddge::exec::SignalTree")
                 {
                     ddge::exec::SignalTree signal_tree{ number_of_levels };
 
-                    for (const auto index : std::views::iota(0u, signal_tree.capacity())) {
+                    for (const auto index : std::views::iota(0u, signal_tree.capacity()))
+                    {
                         signal_tree.set(index);
                     }
 
                     std::vector<bool> index_checks(signal_tree.capacity());
-                    for (auto _ : std::views::repeat(std::ignore, signal_tree.capacity())) {
+                    for (auto _ : std::views::repeat(std::ignore, signal_tree.capacity()))
+                    {
                         const std::optional<ddge::exec::SignalIndex> signal_index{
                             signal_tree.try_unset_one(default_strategy)
                         };
@@ -57,9 +59,9 @@ TEST_CASE("ddge::exec::SignalTree")
 
         SECTION("multi-threaded")
         {
-            constexpr static auto test = [](uint32_t number_of_levels,
-                                            uint32_t number_of_threads) -> void {
-                SECTION(std::format({ "{} levels" }, number_of_levels))
+            constexpr static auto test = [](const uint32_t number_of_levels,
+                                            const uint32_t number_of_threads) -> void {
+                SECTION(std::format("{} levels", number_of_levels))
                 {
                     ddge::exec::SignalTree signal_tree{ number_of_levels };
 
@@ -114,7 +116,67 @@ TEST_CASE("ddge::exec::SignalTree")
             test(3, std::jthread::hardware_concurrency());
             test(7, std::jthread::hardware_concurrency());
             test(12, std::jthread::hardware_concurrency());
-            test(16, std::jthread::hardware_concurrency());
         }
+    }
+
+    SECTION("concurrent set and unset")
+    {
+        constexpr static auto test = [](const uint32_t number_of_threads) -> void {
+            SECTION(std::format("{} threads", number_of_threads))
+            {
+                constexpr static uint32_t work_per_thread{ 64 };
+                const uint32_t            goal{ number_of_threads * work_per_thread };
+                std::atomic_uint32_t      counter;
+
+                ddge::exec::SignalTree signal_tree{ [number_of_threads] {
+                    uint32_t           number_of_levels{ 3 };
+                    while ((0x1u << (number_of_levels - 1)) < number_of_threads) {
+                        ++number_of_levels;
+                    }
+                    return number_of_levels;
+                }() };
+
+                const auto set_work = [&signal_tree](const uint32_t id) {
+                    return [&signal_tree, id] {
+                        for (const auto _ :
+                             std::views::repeat(std::ignore, work_per_thread))
+                        {
+                            while (!signal_tree.set(id))
+                                ;
+                        }
+                    };
+                };
+
+                const auto work = [&signal_tree, &counter, goal] {
+                    while (counter < goal) {
+                        if (signal_tree.try_unset_one(default_strategy).has_value()) {
+                            ++counter;
+                        }
+                    }
+                };
+
+                std::vector<std::jthread> consumer_threads;
+                consumer_threads.reserve(number_of_threads);
+                for (const auto _ : std::views::repeat(std::ignore, number_of_threads)) {
+                    consumer_threads.emplace_back(work);
+                }
+
+                std::vector<std::jthread> producer_threads;
+                producer_threads.reserve(number_of_threads);
+                for (const auto id : std::views::iota(0u, number_of_threads)) {
+                    producer_threads.emplace_back(set_work(id));
+                }
+
+                for (auto& thread : consumer_threads) {
+                    thread.join();
+                }
+
+                REQUIRE(counter == goal);
+            }
+        };
+
+        test(3);
+        test(7);
+        test(12);
     }
 }

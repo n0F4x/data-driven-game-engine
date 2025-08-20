@@ -150,6 +150,6 @@ TEST_CASE("ddge::exec::WorkHub")
             thread.join();
         }
 
-        REQUIRE(counter.load() == goal);
+        REQUIRE(counter == goal);
     }
 }
