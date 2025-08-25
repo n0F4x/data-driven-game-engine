@@ -95,10 +95,6 @@ auto ComponentTableMap::remove_component(
     Component_T result =
         ::remove_component<Component_T>(iterator->second, archetype_id, record_index);
 
-    if (iterator->second.empty()) {
-        m_map.erase(iterator);
-    }
-
     return result;
 }
 
@@ -114,10 +110,6 @@ auto ComponentTableMap::move_component(
 
     const RecordIndex result =
         iterator->second.move_component(archetype_id, record_index, new_archetype_id);
-
-    if (iterator->second.empty()) {
-        m_map.erase(iterator);
-    }
 
     return result;
 }

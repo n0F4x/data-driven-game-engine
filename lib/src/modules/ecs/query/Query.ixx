@@ -12,8 +12,8 @@ module;
 export module ddge.modules.ecs:query.QueryClosure;
 
 import ddge.utility.meta.algorithms.apply;
-import ddge.utility.meta.algorithms.any_of;
 import ddge.utility.meta.algorithms.fold_left_first;
+import ddge.utility.meta.algorithms.for_each;
 import ddge.utility.containers.OptionalRef;
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
 import ddge.utility.meta.type_traits.type_list.type_list_filter;
@@ -185,12 +185,6 @@ public:
 
 private:
     [[nodiscard]]
-    static auto fill_included_optional_component_table_refs(
-        IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
-        ddge::ecs::Registry&                registry
-    ) -> bool;
-
-    [[nodiscard]]
     static auto smallest_group_of_required_archetype_ids_from(
         IncludedOptionalComponentTableRefs& included_optional_component_table_refs
     ) -> std::span<const ArchetypeID>;
@@ -238,6 +232,7 @@ private:
     std::reference_wrapper<Registry>   m_registry_ref;
     IncludedOptionalComponentTableRefs m_included_optional_component_table_refs;
     bool                               m_acquired_all_included_component_tables{};
+    bool                               m_acquired_all_required_component_tables{};
 
     auto cache_component_tables() -> void;
 };
@@ -273,7 +268,7 @@ template <::invocable_with_c<ddge::util::meta::type_list_transform_t<
 auto ddge::ecs::Query<Parameters_T...>::operator()(F&& func) -> F
 {
     cache_component_tables();
-    if (!m_acquired_all_included_component_tables) {
+    if (!m_acquired_all_required_component_tables) {
         return std::forward<F>(func);
     }
 
@@ -295,7 +290,7 @@ template <ddge::ecs::query_parameter_c... Parameters_T>
 auto ddge::ecs::Query<Parameters_T...>::count() -> std::size_t
 {
     cache_component_tables();
-    if (!m_acquired_all_included_component_tables) {
+    if (!m_acquired_all_required_component_tables) {
         return 0;
     }
 
@@ -319,41 +314,6 @@ auto ddge::ecs::Query<Parameters_T...>::count() -> std::size_t
         );
     }
     return result;
-}
-
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto ddge::ecs::Query<Parameters_T...>::fill_included_optional_component_table_refs(
-    IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
-    ddge::ecs::Registry&                registry
-) -> bool
-{
-    if (util::meta::any_of<IncludedComponents>(
-            [&registry, &included_optional_component_table_refs]<typename Component_T> {
-                OptionalComponentTableRef<Component_T>& optional_component_table_ref{
-                    std::get<OptionalComponentTableRef<Component_T>>(
-                        included_optional_component_table_refs
-                    )
-                };
-
-                if (optional_component_table_ref.has_value()) {
-                    return false;
-                }
-
-                optional_component_table_ref =
-                    find_component_table<std::remove_const_t<Component_T>>(
-                        registry.m_component_tables
-                    );
-
-                return util::meta::type_list_contains_v<RequiredComponents, Component_T>
-                    && !optional_component_table_ref.has_value();
-            }
-        ))
-    {
-        return false;
-    }
-
-    return true;
 }
 
 template <ddge::ecs::query_parameter_c... Parameters_T>
@@ -495,7 +455,31 @@ auto ddge::ecs::Query<Parameters_T...>::cache_component_tables() -> void
         return;
     }
 
-    m_acquired_all_included_component_tables = fill_included_optional_component_table_refs(
-        m_included_optional_component_table_refs, m_registry_ref
-    );
+    m_acquired_all_required_component_tables = true;
+    m_acquired_all_included_component_tables = true;
+
+    util::meta::for_each<IncludedComponents>([this]<typename Component_T> {
+        OptionalComponentTableRef<Component_T>& optional_component_table_ref{
+            std::get<OptionalComponentTableRef<Component_T>>(
+                m_included_optional_component_table_refs
+            )
+        };
+
+        if (optional_component_table_ref.has_value()) {
+            return;
+        }
+
+        optional_component_table_ref =
+            find_component_table<std::remove_const_t<Component_T>>(
+                m_registry_ref.get().m_component_tables
+            );
+
+        if (!optional_component_table_ref.has_value()) {
+            m_acquired_all_included_component_tables = false;
+
+            if (util::meta::type_list_contains_v<RequiredComponents, Component_T>) {
+                m_acquired_all_required_component_tables = false;
+            }
+        }
+    });
 }

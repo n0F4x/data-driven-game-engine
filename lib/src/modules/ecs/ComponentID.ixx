@@ -14,14 +14,9 @@ struct ComponentID : ddge::util::Strong<uint_least32_t, ComponentID> {
 };
 
 template <ddge::ecs::component_c Component_T>
-struct ComponentIDOfClosure {
+[[nodiscard]]
+consteval auto component_id_of() -> ComponentID
+{
     constexpr static ComponentID value{ ddge::util::meta::hash<Component_T>() };
-
-    consteval static auto operator()() -> ComponentID
-    {
-        return value;
-    }
-};
-
-template <ddge::ecs::component_c Component_T>
-inline constexpr ComponentIDOfClosure<Component_T> component_id_of;
+    return value;
+}
