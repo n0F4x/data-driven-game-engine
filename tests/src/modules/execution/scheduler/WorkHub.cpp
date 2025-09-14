@@ -25,8 +25,8 @@ TEST_CASE("ddge::exec::WorkHub")
 
     SECTION("single work")
     {
-        bool                                                    executed{};
-        std::expected<ddge::exec::WorkHandle, ddge::exec::Work> handle{
+        bool                                                   executed{};
+        std::expected<ddge::exec::WorkIndex, ddge::exec::Work> work_index{
             work_hub.reserve_slot([&executed] {
                 executed = true;
                 return ddge::exec::WorkContinuation::eRelease;
@@ -35,7 +35,7 @@ TEST_CASE("ddge::exec::WorkHub")
 
         REQUIRE(work_hub.try_execute_one_work() == false);
 
-        handle->schedule();
+        work_hub.schedule(*work_index);
 
         REQUIRE(work_hub.try_execute_one_work() == true);
         REQUIRE(executed == true);
@@ -45,7 +45,7 @@ TEST_CASE("ddge::exec::WorkHub")
 
     SECTION("reschedule")
     {
-        std::expected<ddge::exec::WorkHandle, ddge::exec::Work> handle{
+        std::expected<ddge::exec::WorkIndex, ddge::exec::Work> work_index{
             work_hub.reserve_slot([rescheduled = false] mutable {
                 if (!rescheduled) {
                     rescheduled = true;
@@ -57,7 +57,7 @@ TEST_CASE("ddge::exec::WorkHub")
 
         REQUIRE(work_hub.try_execute_one_work() == false);
 
-        handle->schedule();
+        work_hub.schedule(*work_index);
 
         REQUIRE(work_hub.try_execute_one_work() == true);
         REQUIRE(work_hub.try_execute_one_work() == true);
@@ -76,16 +76,16 @@ TEST_CASE("ddge::exec::WorkHub")
     {
         bool released{};
         std::expected<
-            ddge::exec::WorkHandle,
+            ddge::exec::WorkIndex,
             std::pair<ddge::exec::Work, ddge::exec::ReleaseWorkContract>>
-            handle{ work_hub.reserve_slot(
+            work_index{ work_hub.reserve_slot(
                 [] { return ddge::exec::WorkContinuation::eRelease; },
                 [&released] { released = true; }
             ) };
 
         REQUIRE(work_hub.try_execute_one_work() == false);
 
-        handle->schedule();
+        work_hub.schedule(*work_index);
 
         REQUIRE(work_hub.try_execute_one_work() == true);
         REQUIRE(released == false);
@@ -99,16 +99,16 @@ TEST_CASE("ddge::exec::WorkHub")
     SECTION("empty release is not called")
     {
         std::expected<
-            ddge::exec::WorkHandle,
+            ddge::exec::WorkIndex,
             std::pair<ddge::exec::Work, ddge::exec::ReleaseWorkContract>>
-            handle{ work_hub.reserve_slot(
+            work_index{ work_hub.reserve_slot(
                 [] { return ddge::exec::WorkContinuation::eRelease; },   //
                 nullptr
             ) };
 
         REQUIRE(work_hub.try_execute_one_work() == false);
 
-        handle->schedule();
+        work_hub.schedule(*work_index);
 
         REQUIRE(work_hub.try_execute_one_work() == true);
         REQUIRE(work_hub.try_execute_one_work() == false);
@@ -129,15 +129,16 @@ TEST_CASE("ddge::exec::WorkHub")
         };
 
         for (const auto _ : std::views::repeat(std::ignore, work_count)) {
-            work_hub
-                .reserve_slot([&counter, local_counter = 0u] mutable {
+            const ddge::exec::WorkIndex work_index =
+                *work_hub.reserve_slot([&counter, local_counter = 0u] mutable {
                     if (local_counter++ < per_work_count) {
                         ++counter;
                         return ddge::exec::WorkContinuation::eReschedule;
                     }
                     return ddge::exec::WorkContinuation::eRelease;
-                })
-                ->schedule();
+                });
+
+            work_hub.schedule(work_index);
         }
 
         std::vector<std::jthread> threads;

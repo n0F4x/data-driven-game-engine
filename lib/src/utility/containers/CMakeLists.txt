@@ -13,4 +13,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         SlotMap.ixx
         SparseSet.ixx
         StackedTuple.ixx
+        Strong.ixx
 )

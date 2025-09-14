@@ -12,7 +12,6 @@ export import ddge.utility.not_fn;
 export import ddge.utility.Overloaded;
 export import ddge.utility.ScopeGuard;
 export import ddge.utility.Size;
-export import ddge.utility.Strong;
 export import ddge.utility.TypeList;
 export import ddge.utility.ValueSequence;
 export import ddge.utility.wrap_ref;

@@ -4,7 +4,7 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module ddge.utility.Strong;
+export module ddge.utility.containers.Strong;
 
 import ddge.utility.meta.type_traits.forward_like;
 

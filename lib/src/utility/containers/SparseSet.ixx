@@ -15,7 +15,7 @@ import ddge.utility.contracts;
 import ddge.utility.meta.uint_at_least;
 import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.ScopeGuard;
-import ddge.utility.Strong;
+import ddge.utility.containers.Strong;
 
 template <typename T>
 concept key_c = std::unsigned_integral<T> && !std::is_const_v<T>

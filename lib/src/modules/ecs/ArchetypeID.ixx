@@ -4,7 +4,7 @@ module;
 
 export module ddge.modules.ecs:ArchetypeID;
 
-import ddge.utility.Strong;
+import ddge.utility.containers.Strong;
 
 import :Archetype;
 import :ComponentID;

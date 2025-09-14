@@ -16,6 +16,8 @@ import ddge.modules.execution.scheduler.SignalTree;
 import ddge.modules.execution.scheduler.Work;
 import ddge.modules.execution.scheduler.WorkContinuation;
 
+import ddge.utility.containers.Strong;
+
 namespace ddge::exec {
 
 struct WorkFlags {
@@ -50,9 +52,9 @@ private:
     auto release() -> void;
 };
 
-using WorkIndex = SignalIndex;
-
-export class WorkHandle;
+export struct WorkIndex : util::Strong<SignalIndex, WorkIndex> {
+    using Strong::Strong;
+};
 
 export class WorkHub {
 public:
@@ -63,36 +65,23 @@ public:
     explicit WorkHub(SizeCategory size_category = SizeCategory::eDefault);
 
     [[nodiscard]]
-    auto reserve_slot(Work&& work) -> std::expected<WorkHandle, Work>;
+    auto reserve_slot(Work&& work) -> std::expected<WorkIndex, Work>;
     [[nodiscard]]
     auto reserve_slot(Work&& work, ReleaseWorkContract&& release)
-        -> std::expected<WorkHandle, std::pair<Work, ReleaseWorkContract>>;
+        -> std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>;
 
     auto try_execute_one_work() -> bool;
 
-private:
-    friend WorkHandle;
+    auto schedule(WorkIndex work_index) -> void;
+    auto schedule_for_release(WorkIndex work_index) -> void;
 
+private:
     SignalTree                m_free_signals;
     SignalTree                m_contract_signals;
     std::vector<WorkContract> m_work_contracts;
 
-    auto schedule(WorkIndex work_index) -> void;
-    auto schedule_release(WorkIndex work_index) -> void;
     auto handle_work_result(WorkIndex work_index, WorkContinuation work_continuation)
         -> void;
-};
-
-export class WorkHandle {
-public:
-    explicit WorkHandle([[lifetime_bound]] WorkHub& work_hub, WorkIndex work_index);
-
-    auto schedule() const -> void;
-    auto release() const -> void;
-
-private:
-    std::reference_wrapper<WorkHub> m_work_hub_ref;
-    WorkIndex                       m_work_index;
 };
 
 }   // namespace ddge::exec

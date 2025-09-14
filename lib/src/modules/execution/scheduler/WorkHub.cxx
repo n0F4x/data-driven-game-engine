@@ -106,7 +106,7 @@ ddge::exec::WorkHub::WorkHub(const SizeCategory size_category)
     }
 }
 
-auto ddge::exec::WorkHub::reserve_slot(Work&& work) -> std::expected<WorkHandle, Work>
+auto ddge::exec::WorkHub::reserve_slot(Work&& work) -> std::expected<WorkIndex, Work>
 {
     return reserve_slot(std::move(work), nullptr)
         .transform_error([](std::pair<Work, ReleaseWorkContract>&& pair) -> Work {
@@ -121,7 +121,7 @@ constexpr auto default_strategy(uint32_t) -> ddge::exec::TravelsalBias
 }
 
 auto ddge::exec::WorkHub::reserve_slot(Work&& work, ReleaseWorkContract&& release)
-    -> std::expected<WorkHandle, std::pair<Work, ReleaseWorkContract>>
+    -> std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>
 {
     PRECOND(!work.empty());
 
@@ -131,14 +131,14 @@ auto ddge::exec::WorkHub::reserve_slot(Work&& work, ReleaseWorkContract&& releas
     };
 
     if (!work_index.has_value()) {
-        return std::expected<WorkHandle, std::pair<Work, ReleaseWorkContract>>{
+        return std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>{
             std::unexpect, std::move(work), std::move(release)
         };
     }
 
-    m_work_contracts[*work_index].assign(std::move(work), std::move(release));
+    m_work_contracts[work_index->underlying()].assign(std::move(work), std::move(release));
 
-    return WorkHandle{ *this, *work_index };
+    return *work_index;
 }
 
 auto ddge::exec::WorkHub::try_execute_one_work() -> bool
@@ -152,7 +152,8 @@ auto ddge::exec::WorkHub::try_execute_one_work() -> bool
         return false;
     }
 
-    const WorkContinuation continuation = m_work_contracts[*work_index].execute();
+    const WorkContinuation continuation =
+        m_work_contracts[work_index->underlying()].execute();
 
     handle_work_result(*work_index, continuation);
 
@@ -161,15 +162,15 @@ auto ddge::exec::WorkHub::try_execute_one_work() -> bool
 
 auto ddge::exec::WorkHub::schedule(const WorkIndex work_index) -> void
 {
-    if (m_work_contracts[work_index].schedule()) {
-        m_contract_signals.set(work_index);
+    if (m_work_contracts[work_index.underlying()].schedule()) {
+        m_contract_signals.set(work_index.underlying());
     }
 }
 
-auto ddge::exec::WorkHub::schedule_release(const WorkIndex work_index) -> void
+auto ddge::exec::WorkHub::schedule_for_release(const WorkIndex work_index) -> void
 {
     const WorkContinuation work_continuation{
-        m_work_contracts[work_index].schedule_release()
+        m_work_contracts[work_index.underlying()].schedule_release()
     };
 
     handle_work_result(work_index, work_continuation);
@@ -181,23 +182,12 @@ auto ddge::exec::WorkHub::handle_work_result(
 ) -> void
 {
     switch (work_continuation) {
-        case WorkContinuation::eDontCare:   break;
-        case WorkContinuation::eReschedule: m_contract_signals.set(work_index); break;
-        case WorkContinuation::eRelease:    m_free_signals.set(work_index); break;
+        case WorkContinuation::eDontCare: break;
+        case WorkContinuation::eReschedule:
+            m_contract_signals.set(work_index.underlying());
+            break;
+        case WorkContinuation::eRelease:
+            m_free_signals.set(work_index.underlying());
+            break;
     }
-}
-
-ddge::exec::WorkHandle::WorkHandle(WorkHub& work_hub, const WorkIndex work_index)
-    : m_work_hub_ref{ work_hub },
-      m_work_index{ work_index }
-{}
-
-auto ddge::exec::WorkHandle::schedule() const -> void
-{
-    m_work_hub_ref.get().schedule(m_work_index);
-}
-
-auto ddge::exec::WorkHandle::release() const -> void
-{
-    m_work_hub_ref.get().schedule_release(m_work_index);
 }

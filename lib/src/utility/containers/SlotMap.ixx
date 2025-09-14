@@ -18,7 +18,7 @@ import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.type_traits.forward_like;
 import ddge.utility.containers.OptionalRef;
 import ddge.utility.ScopeGuard;
-import ddge.utility.Strong;
+import ddge.utility.containers.Strong;
 
 template <typename T>
 concept key_c = requires { ddge::util::SparseSet<T>{}; };
