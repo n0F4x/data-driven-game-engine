@@ -58,11 +58,7 @@ export struct WorkIndex : util::Strong<SignalIndex, WorkIndex> {
 
 export class WorkHub {
 public:
-    enum struct SizeCategory : uint32_t {
-        eDefault = 12,
-    };
-
-    explicit WorkHub(SizeCategory size_category = SizeCategory::eDefault);
+    explicit WorkHub(uint32_t capacity);
 
     [[nodiscard]]
     auto reserve_slot(Work&& work) -> std::expected<WorkIndex, Work>;

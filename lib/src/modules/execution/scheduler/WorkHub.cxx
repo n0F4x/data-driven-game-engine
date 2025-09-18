@@ -1,5 +1,7 @@
 module;
 
+#include <algorithm>
+#include <bit>
 #include <expected>
 #include <ranges>
 #include <utility>
@@ -96,9 +98,20 @@ auto WorkContract::release() -> void
 
 }   // namespace ddge::exec
 
-ddge::exec::WorkHub::WorkHub(const SizeCategory size_category)
-    : m_free_signals{ std::to_underlying(size_category) },
-      m_contract_signals{ std::to_underlying(size_category) },
+[[nodiscard]]
+constexpr auto necessary_number_of_signal_tree_levels(
+    const uint32_t number_of_work_contracts
+) -> uint32_t
+{
+    return std::max(
+        static_cast<uint32_t>(std::bit_width(number_of_work_contracts)),
+        ddge::exec::SignalTree::minimum_number_of_levels()
+    );
+}
+
+ddge::exec::WorkHub::WorkHub(const uint32_t capacity)
+    : m_free_signals{ necessary_number_of_signal_tree_levels(capacity) },
+      m_contract_signals{ necessary_number_of_signal_tree_levels(capacity) },
       m_work_contracts(m_contract_signals.capacity())
 {
     for (const SignalIndex index : std::views::iota(0u, m_free_signals.capacity())) {

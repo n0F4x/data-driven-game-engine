@@ -10,7 +10,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         execution.cppm
         accessor_c.ixx
-        Addon.ixx
         as_task_builder_t.ixx
         converts_to_task_builder_c.ixx
         Nexus.ixx

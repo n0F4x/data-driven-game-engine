@@ -8,7 +8,6 @@ export module ddge.modules.execution.Plugin;
 import ddge.modules.app.add_on_t;
 import ddge.modules.app.builder_c;
 import ddge.modules.app.decays_to_app_c;
-import ddge.modules.execution.Addon;
 import ddge.modules.execution.as_task_builder_t;
 import ddge.modules.execution.converts_to_task_builder_c;
 import ddge.modules.execution.Nexus;
@@ -25,27 +24,12 @@ namespace ddge::exec {
 
 export class Plugin {
 public:
-    constexpr explicit Plugin(
-        WorkHub::SizeCategory work_hub_size = WorkHub::SizeCategory::eDefault
-    );
-
     template <app::builder_c Self_T, converts_to_task_builder_c TaskBuilder_T>
     auto run(this Self_T&&, TaskBuilder_T&& task_builder)
         -> as_task_builder_t<TaskBuilder_T>::Result;
-
-    template <ddge::app::decays_to_app_c App_T>
-    [[nodiscard]]
-    auto build(App_T&& app) -> app::add_on_t<App_T, Addon>;
-
-private:
-    WorkHub::SizeCategory m_work_hub_size;
 };
 
 }   // namespace ddge::exec
-
-constexpr ddge::exec::Plugin::Plugin(const WorkHub::SizeCategory work_hub_size)
-    : m_work_hub_size{ work_hub_size }
-{}
 
 template <typename App_T>
 struct AddonTraits {
@@ -79,10 +63,4 @@ auto ddge::exec::Plugin::run(this Self_T&& self, TaskBuilder_T&& task_builder)
 
             return wrap_as_builder(task_builder).build(nexus)();
         }(AccessorProviders{});
-}
-
-template <ddge::app::decays_to_app_c App_T>
-auto ddge::exec::Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
-{
-    return std::forward<App_T>(app).add_on(Addon{ .work_hub{ m_work_hub_size } });
 }

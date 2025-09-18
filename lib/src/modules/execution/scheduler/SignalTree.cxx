@@ -38,7 +38,7 @@ ddge::exec::SignalTree::SignalTree(const uint32_t number_of_levels)
       m_branch_nodes(::number_of_branches(number_of_levels)),
       m_leaf_nodes(::number_of_leaves(number_of_levels))
 {
-    PRECOND(number_of_levels >= 3);
+    PRECOND(number_of_levels >= minimum_number_of_levels());
 
     connect_nodes();
 }

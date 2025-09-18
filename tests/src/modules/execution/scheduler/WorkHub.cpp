@@ -15,7 +15,7 @@ import ddge.utility.contracts;
 
 TEST_CASE("ddge::exec::WorkHub")
 {
-    ddge::exec::WorkHub work_hub;
+    ddge::exec::WorkHub work_hub{ 256 };
 
     SECTION("empty")
     {
