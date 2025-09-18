@@ -2,13 +2,10 @@ module;
 
 #include <atomic>
 #include <expected>
-#include <functional>
 #include <utility>
 #include <vector>
 
 #include <function2/function2.hpp>
-
-#include "utility/lifetime_bound.hpp"
 
 export module ddge.modules.execution.scheduler.WorkHub;
 
@@ -52,13 +49,13 @@ private:
     auto release() -> void;
 };
 
-export struct WorkIndex : util::Strong<SignalIndex, WorkIndex> {
+export struct WorkIndex : util::Strong<uint64_t, WorkIndex> {
     using Strong::Strong;
 };
 
 export class WorkHub {
 public:
-    explicit WorkHub(uint32_t capacity);
+    WorkHub(uint32_t capacity, uint32_t number_of_threads);
 
     [[nodiscard]]
     auto reserve_slot(Work&& work) -> std::expected<WorkIndex, Work>;
@@ -66,15 +63,19 @@ public:
     auto reserve_slot(Work&& work, ReleaseWorkContract&& release)
         -> std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>;
 
-    auto try_execute_one_work() -> bool;
+    auto try_execute_one_work(uint32_t thread_id) -> bool;
 
     auto schedule(WorkIndex work_index) -> void;
     auto schedule_for_release(WorkIndex work_index) -> void;
 
+    [[nodiscard]]
+    auto optimized_for_thread_count() const noexcept -> uint32_t;
+
 private:
-    SignalTree                m_free_signals;
-    SignalTree                m_contract_signals;
+    std::vector<SignalTree>   m_free_signals;
+    std::vector<SignalTree>   m_contract_signals;
     std::vector<WorkContract> m_work_contracts;
+    std::atomic<uint64_t>     m_next_available_sub_tree_index{};
 
     auto handle_work_result(WorkIndex work_index, WorkContinuation work_continuation)
         -> void;

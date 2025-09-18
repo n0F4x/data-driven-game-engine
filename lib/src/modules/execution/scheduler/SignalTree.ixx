@@ -49,6 +49,9 @@ export enum struct TravelsalBias : std::int8_t {
 export class SignalTree {
 public:
     constexpr static std::integral_constant<uint32_t, 3> minimum_number_of_levels;
+    constexpr static std::
+        integral_constant<uint32_t, 0x1u << (minimum_number_of_levels - 1)>
+            minimum_capacity;
 
     explicit SignalTree(uint32_t number_of_levels);
 
@@ -59,9 +62,9 @@ public:
         -> std::optional<SignalIndex>;
 
     [[nodiscard]]
-    auto capacity() const -> uint32_t;
+    auto capacity() const noexcept -> uint32_t;
     [[nodiscard]]
-    auto number_of_levels() const -> uint32_t;
+    auto number_of_levels() const noexcept -> uint32_t;
 
 private:
     uint32_t                  m_number_of_levels;

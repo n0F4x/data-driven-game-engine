@@ -15,7 +15,6 @@ import ddge.modules.execution.scheduler.Work;
 import ddge.modules.execution.scheduler.WorkContinuation;
 
 import ddge.utility.contracts;
-import ddge.utility.no_op;
 
 // TODO: Clang can't recognize name "WorkContract" unless its in an open namespace
 namespace ddge::exec {
@@ -99,23 +98,57 @@ auto WorkContract::release() -> void
 }   // namespace ddge::exec
 
 [[nodiscard]]
-constexpr auto necessary_number_of_signal_tree_levels(
-    const uint32_t number_of_work_contracts
+constexpr auto real_capacity_per_sub_tree(
+    const uint32_t desired_capacity,
+    const uint32_t number_of_threads
 ) -> uint32_t
 {
     return std::max(
-        static_cast<uint32_t>(std::bit_width(number_of_work_contracts)),
+        desired_capacity / number_of_threads
+            + std::min(desired_capacity % number_of_threads, 1u),
         ddge::exec::SignalTree::minimum_number_of_levels()
     );
 }
 
-ddge::exec::WorkHub::WorkHub(const uint32_t capacity)
-    : m_free_signals{ necessary_number_of_signal_tree_levels(capacity) },
-      m_contract_signals{ necessary_number_of_signal_tree_levels(capacity) },
-      m_work_contracts(m_contract_signals.capacity())
+[[nodiscard]]
+constexpr auto necessary_number_of_signal_tree_levels(
+    const uint32_t number_of_work_contracts,
+    const uint32_t number_of_threads
+) -> uint32_t
 {
-    for (const SignalIndex index : std::views::iota(0u, m_free_signals.capacity())) {
-        m_free_signals.set(index);
+    const auto capacity{
+        real_capacity_per_sub_tree(number_of_work_contracts, number_of_threads)
+    };
+
+    return std::max(
+        static_cast<uint32_t>(
+            std::bit_width(capacity) + (std::has_single_bit(capacity) ? 0 : 1)
+        ),
+        ddge::exec::SignalTree::minimum_number_of_levels()
+    );
+}
+
+ddge::exec::WorkHub::WorkHub(const uint32_t capacity, const uint32_t number_of_threads)
+    : m_work_contracts{ real_capacity_per_sub_tree(capacity, number_of_threads)
+                        * number_of_threads }
+{
+    PRECOND(number_of_threads > 0);
+
+    m_free_signals.reserve(number_of_threads);
+    m_contract_signals.reserve(number_of_threads);
+    for (auto _ : std::views::repeat(std::ignore, number_of_threads)) {
+        m_free_signals.emplace_back(
+            necessary_number_of_signal_tree_levels(capacity, number_of_threads)
+        );
+        m_contract_signals.emplace_back(
+            necessary_number_of_signal_tree_levels(capacity, number_of_threads)
+        );
+    }
+
+    for (SignalTree& signal_tree : m_free_signals) {
+        for (const SignalIndex index : std::views::iota(0u, signal_tree.capacity())) {
+            signal_tree.set(index);
+        }
     }
 }
 
@@ -138,45 +171,77 @@ auto ddge::exec::WorkHub::reserve_slot(Work&& work, ReleaseWorkContract&& releas
 {
     PRECOND(!work.empty());
 
-    // TODO: try reserving latest
-    const std::optional<WorkIndex> work_index{
-        m_free_signals.try_unset_one(default_strategy)
-    };
+    for (auto _ : std::views::repeat(std::ignore, m_free_signals.size())) {
+        const auto sub_tree_index{ m_next_available_sub_tree_index++
+                                   % m_free_signals.size() };
 
-    if (!work_index.has_value()) {
-        return std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>{
-            std::unexpect, std::move(work), std::move(release)
+        const std::optional<WorkIndex> work_index{
+            m_free_signals[sub_tree_index]
+                // TODO: try reserving latest
+                .try_unset_one(default_strategy)
+                .transform([this, sub_tree_index](const SignalIndex signal_index) {
+                    return signal_index * m_free_signals.size() + sub_tree_index;
+                })
         };
+
+        if (!work_index.has_value()) {
+            continue;
+        }
+
+        m_work_contracts[work_index->underlying()].assign(
+            std::move(work), std::move(release)
+        );
+
+        return *work_index;
     }
 
-    m_work_contracts[work_index->underlying()].assign(std::move(work), std::move(release));
-
-    return *work_index;
+    return std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>{
+        std::unexpect, std::move(work), std::move(release)
+    };
 }
 
-auto ddge::exec::WorkHub::try_execute_one_work() -> bool
+auto ddge::exec::WorkHub::try_execute_one_work(const uint32_t thread_id) -> bool
 {
-    // TODO: use per thread strategy
-    const std::optional<WorkIndex> work_index{
-        m_contract_signals.try_unset_one(default_strategy)
-    };
+    PRECOND(
+        thread_id < m_contract_signals.size(),
+        "Thread id must be smaller than the number of threads the workhub is intended for"
+    );
 
-    if (!work_index.has_value()) {
-        return false;
+    for (const uint32_t offset : std::views::iota(0u, m_contract_signals.size())) {
+        const uint32_t sub_tree_index{
+            static_cast<uint32_t>((thread_id + offset) % m_contract_signals.size())
+        };
+
+        const std::optional<WorkIndex> work_index{
+            m_contract_signals[sub_tree_index]
+                // TODO: use per thread strategy
+                .try_unset_one(default_strategy)
+                .transform([this, sub_tree_index](const SignalIndex signal_index) {
+                    return signal_index * m_contract_signals.size() + sub_tree_index;
+                })
+        };
+
+        if (!work_index.has_value()) {
+            continue;
+        }
+
+        const WorkContinuation continuation =
+            m_work_contracts[work_index->underlying()].execute();
+
+        handle_work_result(*work_index, continuation);
+
+        return true;
     }
 
-    const WorkContinuation continuation =
-        m_work_contracts[work_index->underlying()].execute();
-
-    handle_work_result(*work_index, continuation);
-
-    return true;
+    return false;
 }
 
 auto ddge::exec::WorkHub::schedule(const WorkIndex work_index) -> void
 {
     if (m_work_contracts[work_index.underlying()].schedule()) {
-        m_contract_signals.set(work_index.underlying());
+        m_contract_signals[work_index.underlying() % m_contract_signals.size()].set(
+            static_cast<SignalIndex>(work_index.underlying() / m_contract_signals.size())
+        );
     }
 }
 
@@ -189,6 +254,11 @@ auto ddge::exec::WorkHub::schedule_for_release(const WorkIndex work_index) -> vo
     handle_work_result(work_index, work_continuation);
 }
 
+auto ddge::exec::WorkHub::optimized_for_thread_count() const noexcept -> uint32_t
+{
+    return static_cast<uint32_t>(m_contract_signals.size());
+}
+
 auto ddge::exec::WorkHub::handle_work_result(
     const WorkIndex        work_index,
     const WorkContinuation work_continuation
@@ -197,10 +267,16 @@ auto ddge::exec::WorkHub::handle_work_result(
     switch (work_continuation) {
         case WorkContinuation::eDontCare: break;
         case WorkContinuation::eReschedule:
-            m_contract_signals.set(work_index.underlying());
+            m_contract_signals[work_index.underlying() % m_contract_signals.size()].set(
+                static_cast<SignalIndex>(
+                    work_index.underlying() / m_contract_signals.size()
+                )
+            );
             break;
         case WorkContinuation::eRelease:
-            m_free_signals.set(work_index.underlying());
+            m_free_signals[work_index.underlying() % m_free_signals.size()].set(
+                static_cast<SignalIndex>(work_index.underlying() / m_free_signals.size())
+            );
             break;
     }
 }

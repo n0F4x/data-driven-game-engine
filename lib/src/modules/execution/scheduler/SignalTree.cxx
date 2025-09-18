@@ -88,12 +88,12 @@ auto ddge::exec::SignalTree::try_unset_one(
     return result;
 }
 
-auto ddge::exec::SignalTree::capacity() const -> uint32_t
+auto ddge::exec::SignalTree::capacity() const noexcept -> uint32_t
 {
     return static_cast<uint32_t>(m_leaf_nodes.size());
 }
 
-auto ddge::exec::SignalTree::number_of_levels() const -> uint32_t
+auto ddge::exec::SignalTree::number_of_levels() const noexcept -> uint32_t
 {
     return m_number_of_levels;
 }

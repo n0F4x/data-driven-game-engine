@@ -15,11 +15,11 @@ import ddge.utility.contracts;
 
 TEST_CASE("ddge::exec::WorkHub")
 {
-    ddge::exec::WorkHub work_hub{ 256 };
+    ddge::exec::WorkHub work_hub{ 256, 3 };
 
     SECTION("empty")
     {
-        const bool executed = work_hub.try_execute_one_work();
+        const bool executed = work_hub.try_execute_one_work(0);
         REQUIRE(executed == false);
     }
 
@@ -33,14 +33,14 @@ TEST_CASE("ddge::exec::WorkHub")
             })
         };
 
-        REQUIRE(work_hub.try_execute_one_work() == false);
+        REQUIRE(work_hub.try_execute_one_work(0) == false);
 
         work_hub.schedule(*work_index);
 
-        REQUIRE(work_hub.try_execute_one_work() == true);
+        REQUIRE(work_hub.try_execute_one_work(0) == true);
         REQUIRE(executed == true);
 
-        REQUIRE(work_hub.try_execute_one_work() == false);
+        REQUIRE(work_hub.try_execute_one_work(0) == false);
     }
 
     SECTION("reschedule")
@@ -55,14 +55,14 @@ TEST_CASE("ddge::exec::WorkHub")
             })
         };
 
-        REQUIRE(work_hub.try_execute_one_work() == false);
+        REQUIRE(work_hub.try_execute_one_work(0) == false);
 
         work_hub.schedule(*work_index);
 
-        REQUIRE(work_hub.try_execute_one_work() == true);
-        REQUIRE(work_hub.try_execute_one_work() == true);
+        REQUIRE(work_hub.try_execute_one_work(0) == true);
+        REQUIRE(work_hub.try_execute_one_work(0) == true);
 
-        REQUIRE(work_hub.try_execute_one_work() == false);
+        REQUIRE(work_hub.try_execute_one_work(0) == false);
     }
 
     SECTION("empty work is not allowed")
@@ -83,17 +83,17 @@ TEST_CASE("ddge::exec::WorkHub")
                 [&released] { released = true; }
             ) };
 
-        REQUIRE(work_hub.try_execute_one_work() == false);
+        REQUIRE(work_hub.try_execute_one_work(0) == false);
 
         work_hub.schedule(*work_index);
 
-        REQUIRE(work_hub.try_execute_one_work() == true);
+        REQUIRE(work_hub.try_execute_one_work(0) == true);
         REQUIRE(released == false);
 
-        REQUIRE(work_hub.try_execute_one_work() == true);
+        REQUIRE(work_hub.try_execute_one_work(0) == true);
         REQUIRE(released == true);
 
-        REQUIRE(work_hub.try_execute_one_work() == false);
+        REQUIRE(work_hub.try_execute_one_work(0) == false);
     }
 
     SECTION("empty release is not called")
@@ -106,12 +106,12 @@ TEST_CASE("ddge::exec::WorkHub")
                 nullptr
             ) };
 
-        REQUIRE(work_hub.try_execute_one_work() == false);
+        REQUIRE(work_hub.try_execute_one_work(0) == false);
 
         work_hub.schedule(*work_index);
 
-        REQUIRE(work_hub.try_execute_one_work() == true);
-        REQUIRE(work_hub.try_execute_one_work() == false);
+        REQUIRE(work_hub.try_execute_one_work(0) == true);
+        REQUIRE(work_hub.try_execute_one_work(0) == false);
     }
 
     SECTION("simple multithreading")
@@ -122,10 +122,14 @@ TEST_CASE("ddge::exec::WorkHub")
         constexpr static uint32_t thread_count{ 8 };
         std::atomic_uint32_t      counter;
 
-        const auto process_work = [&work_hub, &counter] {
-            while (counter < goal) {
-                work_hub.try_execute_one_work();
-            }
+        const auto process_work = [&work_hub, &counter](const uint32_t thread_id) {
+            return [&work_hub, &counter, thread_id] {
+                while (counter < goal) {
+                    work_hub.try_execute_one_work(
+                        thread_id % work_hub.optimized_for_thread_count()
+                    );
+                }
+            };
         };
 
         for (const auto _ : std::views::repeat(std::ignore, work_count)) {
@@ -143,8 +147,8 @@ TEST_CASE("ddge::exec::WorkHub")
 
         std::vector<std::jthread> threads;
         threads.reserve(thread_count);
-        for (const auto _ : std::views::repeat(std::ignore, thread_count)) {
-            threads.emplace_back(process_work);
+        for (const uint32_t thread_id : std::views::iota(0u, thread_count)) {
+            threads.emplace_back(process_work(thread_id));
         }
 
         for (std::jthread& thread : threads) {
