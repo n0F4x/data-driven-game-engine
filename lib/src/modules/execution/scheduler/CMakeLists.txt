@@ -1,6 +1,6 @@
 target_sources(${PROJECT_NAME} PRIVATE
         SignalTree.cxx
-        WorkHub.cxx
+        WorkTree.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC
@@ -12,5 +12,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         SignalTree.ixx
         Work.ixx
         WorkContinuation.ixx
-        WorkHub.ixx
+        WorkTree.ixx
 )

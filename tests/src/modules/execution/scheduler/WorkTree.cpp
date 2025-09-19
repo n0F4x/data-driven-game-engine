@@ -9,13 +9,13 @@
 
 import ddge.modules.execution.scheduler.Work;
 import ddge.modules.execution.scheduler.WorkContinuation;
-import ddge.modules.execution.scheduler.WorkHub;
+import ddge.modules.execution.scheduler.WorkTree;
 
 import ddge.utility.contracts;
 
 TEST_CASE("ddge::exec::WorkHub")
 {
-    ddge::exec::WorkHub work_hub{ 256, 3 };
+    ddge::exec::WorkTree work_hub{ 256, 3 };
 
     SECTION("empty")
     {

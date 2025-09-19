@@ -7,7 +7,7 @@ module;
 
 #include <function2/function2.hpp>
 
-export module ddge.modules.execution.scheduler.WorkHub;
+export module ddge.modules.execution.scheduler.WorkTree;
 
 import ddge.modules.execution.scheduler.SignalTree;
 import ddge.modules.execution.scheduler.Work;
@@ -53,9 +53,9 @@ export struct WorkIndex : util::Strong<uint64_t, WorkIndex> {
     using Strong::Strong;
 };
 
-export class WorkHub {
+export class WorkTree {
 public:
-    WorkHub(uint32_t capacity, uint32_t number_of_threads);
+    WorkTree(uint64_t capacity, uint32_t number_of_threads);
 
     [[nodiscard]]
     auto reserve_slot(Work&& work) -> std::expected<WorkIndex, Work>;
@@ -68,6 +68,8 @@ public:
     auto schedule(WorkIndex work_index) -> void;
     auto schedule_for_release(WorkIndex work_index) -> void;
 
+    [[nodiscard]]
+    auto capacity() const noexcept -> uint64_t;
     [[nodiscard]]
     auto optimized_for_thread_count() const noexcept -> uint32_t;
 

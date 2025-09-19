@@ -8,7 +8,7 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-module ddge.modules.execution.scheduler.WorkHub;
+module ddge.modules.execution.scheduler.WorkTree;
 
 import ddge.modules.execution.scheduler.SignalTree;
 import ddge.modules.execution.scheduler.Work;
@@ -99,20 +99,20 @@ auto WorkContract::release() -> void
 
 [[nodiscard]]
 constexpr auto real_capacity_per_sub_tree(
-    const uint32_t desired_capacity,
+    const uint64_t desired_capacity,
     const uint32_t number_of_threads
-) -> uint32_t
+) -> uint64_t
 {
     return std::max(
         desired_capacity / number_of_threads
-            + std::min(desired_capacity % number_of_threads, 1u),
-        ddge::exec::SignalTree::minimum_number_of_levels()
+            + std::min(desired_capacity % number_of_threads, uint64_t{ 1 }),
+        static_cast<uint64_t>(ddge::exec::SignalTree::minimum_number_of_levels())
     );
 }
 
 [[nodiscard]]
 constexpr auto necessary_number_of_signal_tree_levels(
-    const uint32_t number_of_work_contracts,
+    const uint64_t number_of_work_contracts,
     const uint32_t number_of_threads
 ) -> uint32_t
 {
@@ -128,7 +128,7 @@ constexpr auto necessary_number_of_signal_tree_levels(
     );
 }
 
-ddge::exec::WorkHub::WorkHub(const uint32_t capacity, const uint32_t number_of_threads)
+ddge::exec::WorkTree::WorkTree(const uint64_t capacity, const uint32_t number_of_threads)
     : m_work_contracts{ real_capacity_per_sub_tree(capacity, number_of_threads)
                         * number_of_threads }
 {
@@ -152,7 +152,7 @@ ddge::exec::WorkHub::WorkHub(const uint32_t capacity, const uint32_t number_of_t
     }
 }
 
-auto ddge::exec::WorkHub::reserve_slot(Work&& work) -> std::expected<WorkIndex, Work>
+auto ddge::exec::WorkTree::reserve_slot(Work&& work) -> std::expected<WorkIndex, Work>
 {
     return reserve_slot(std::move(work), nullptr)
         .transform_error([](std::pair<Work, ReleaseWorkContract>&& pair) -> Work {
@@ -166,7 +166,7 @@ constexpr auto default_strategy(uint32_t) -> ddge::exec::TravelsalBias
     return ddge::exec::TravelsalBias::eLeft;
 }
 
-auto ddge::exec::WorkHub::reserve_slot(Work&& work, ReleaseWorkContract&& release)
+auto ddge::exec::WorkTree::reserve_slot(Work&& work, ReleaseWorkContract&& release)
     -> std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>
 {
     PRECOND(!work.empty());
@@ -200,7 +200,7 @@ auto ddge::exec::WorkHub::reserve_slot(Work&& work, ReleaseWorkContract&& releas
     };
 }
 
-auto ddge::exec::WorkHub::try_execute_one_work(const uint32_t thread_id) -> bool
+auto ddge::exec::WorkTree::try_execute_one_work(const uint32_t thread_id) -> bool
 {
     PRECOND(
         thread_id < m_contract_signals.size(),
@@ -236,7 +236,7 @@ auto ddge::exec::WorkHub::try_execute_one_work(const uint32_t thread_id) -> bool
     return false;
 }
 
-auto ddge::exec::WorkHub::schedule(const WorkIndex work_index) -> void
+auto ddge::exec::WorkTree::schedule(const WorkIndex work_index) -> void
 {
     if (m_work_contracts[work_index.underlying()].schedule()) {
         m_contract_signals[work_index.underlying() % m_contract_signals.size()].set(
@@ -245,7 +245,7 @@ auto ddge::exec::WorkHub::schedule(const WorkIndex work_index) -> void
     }
 }
 
-auto ddge::exec::WorkHub::schedule_for_release(const WorkIndex work_index) -> void
+auto ddge::exec::WorkTree::schedule_for_release(const WorkIndex work_index) -> void
 {
     const WorkContinuation work_continuation{
         m_work_contracts[work_index.underlying()].schedule_release()
@@ -254,12 +254,17 @@ auto ddge::exec::WorkHub::schedule_for_release(const WorkIndex work_index) -> vo
     handle_work_result(work_index, work_continuation);
 }
 
-auto ddge::exec::WorkHub::optimized_for_thread_count() const noexcept -> uint32_t
+auto ddge::exec::WorkTree::capacity() const noexcept -> uint64_t
+{
+    return m_work_contracts.size();
+}
+
+auto ddge::exec::WorkTree::optimized_for_thread_count() const noexcept -> uint32_t
 {
     return static_cast<uint32_t>(m_contract_signals.size());
 }
 
-auto ddge::exec::WorkHub::handle_work_result(
+auto ddge::exec::WorkTree::handle_work_result(
     const WorkIndex        work_index,
     const WorkContinuation work_continuation
 ) -> void

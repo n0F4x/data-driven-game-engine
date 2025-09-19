@@ -11,7 +11,7 @@ import ddge.modules.app.decays_to_app_c;
 import ddge.modules.execution.as_task_builder_t;
 import ddge.modules.execution.converts_to_task_builder_c;
 import ddge.modules.execution.Nexus;
-import ddge.modules.execution.scheduler.WorkHub;
+import ddge.modules.execution.scheduler.WorkTree;
 import ddge.modules.execution.provider_c;
 import ddge.modules.execution.ProviderOf;
 import ddge.modules.execution.wrap_as_builder;
