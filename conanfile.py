@@ -68,12 +68,12 @@ class DataDrivenGameEngineRecipe(ConanFile):
             self.tool_requires("cmake/[>=3.30]")
 
     def requirements(self):
-        self.requires("gsl-lite/0.42.0", transitive_headers=True)
+        self.requires("gsl-lite/1.0.1", transitive_headers=True)
         self.requires("tl-function-ref/1.0.0", transitive_headers=True)
         self.requires("function2/4.2.5", transitive_headers=True)
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
-        self.requires("fmt/11.1.3", transitive_headers=True)
-        self.requires("spdlog/1.15.1")
+        self.requires("fmt/11.2.0", transitive_headers=True)
+        self.requires("spdlog/1.15.3")
         self.requires("glfw/3.4", transitive_headers=True)
         self.requires("vulkan-headers/1.3.296.0")
         self.requires("vulkan-memory-allocator/3.2.1", transitive_headers=True)
@@ -82,7 +82,7 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("ktx/4.3.2", transitive_headers=True, options={"tools": False})
         self.requires("stb/cci.20240531", transitive_headers=True)
         self.requires("fastgltf/0.9.0", transitive_headers=True)
-        self.requires("entt/3.14.0", transitive_headers=True)
+        self.requires("entt/3.15.0", transitive_headers=True)
 
         if self._enable_tests:
             self.test_requires("catch2/3.8.0")

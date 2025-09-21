@@ -3,6 +3,7 @@ module;
 #include <expected>
 #include <functional>
 #include <memory>
+#include <string_view>
 
 #include <gsl-lite/gsl-lite.hpp>
 
