@@ -55,6 +55,11 @@ auto ddge::exec::SignalTree::try_unset_one(const TravelsalTactic tactic)
     return try_unset_one(0, tactic);
 }
 
+auto ddge::exec::SignalTree::try_unset_one_at(const LeafIndex leaf_index) -> bool
+{
+    return try_unset_one_at(0, leaf_index + number_of_branches());
+}
+
 auto ddge::exec::SignalTree::number_of_levels() const noexcept -> uint32_t
 {
     return static_cast<uint32_t>(std::bit_width(m_nodes.size()));
@@ -123,7 +128,7 @@ auto ddge::exec::SignalTree::try_unset_one(
                                                       : right_child_index };
     std::optional<LeafIndex> result;
     while (!result.has_value()) {
-        result              = is_last_branch ? try_unset_one_leaf(visited_child_index)
+        result              = is_last_branch ? try_unset_leaf(visited_child_index)
                                              : try_unset_one(visited_child_index, strategy);
         visited_child_index = visited_child_index == left_child_index ? right_child_index
                                                                       : left_child_index;
@@ -131,9 +136,39 @@ auto ddge::exec::SignalTree::try_unset_one(
     return result;
 }
 
-auto ddge::exec::SignalTree::try_unset_one_leaf(const NodeIndex node_index)
+auto ddge::exec::SignalTree::try_unset_one_at(
+    const NodeIndex node_index,
+    const NodeIndex target_index
+) -> bool
+{
+    Counter::value_type counter{ m_nodes[node_index].counter.load() };
+    do {
+        if (counter == 0) {
+            return false;
+        }
+    } while (!m_nodes[node_index].counter.compare_exchange_weak(counter, counter - 1));
+
+    const uint32_t  level{ static_cast<uint32_t>(std::bit_width(node_index + 1)) - 1u };
+    const NodeIndex child_index{ ::left_child_index_of(node_index)
+                                 + ((target_index >> (number_of_levels() - level - 2))
+                                    & 1u) };
+
+    const bool result = is_leaf_index(child_index)
+                          ? try_unset_leaf(child_index).has_value()
+                          : try_unset_one_at(child_index, target_index);
+
+    if (!result) {
+        m_nodes[node_index].counter.fetch_add(1);
+    }
+
+    return result;
+}
+
+auto ddge::exec::SignalTree::try_unset_leaf(const NodeIndex node_index)
     -> std::optional<LeafIndex>
 {
+    PRECOND(is_leaf_index(node_index));
+
     if (Counter::value_type expected{ 1 };
         m_nodes[node_index].counter.compare_exchange_strong(expected, 0) == false)
     {

@@ -16,11 +16,11 @@ import ddge.utility.contracts;
 
 TEST_CASE("ddge::exec::WorkHub")
 {
-    ddge::exec::WorkTree work_hub{ 256, 3 };
+    ddge::exec::WorkTree work_tree{ 256, 3 };
 
     SECTION("empty")
     {
-        const bool executed = work_hub.try_execute_one_work(0);
+        const bool executed = work_tree.try_execute_one_work(0);
         REQUIRE(executed == false);
     }
 
@@ -28,26 +28,26 @@ TEST_CASE("ddge::exec::WorkHub")
     {
         bool                                                   executed{};
         std::expected<ddge::exec::WorkIndex, ddge::exec::Work> work_index{
-            work_hub.try_emplace([&executed] {
+            work_tree.try_emplace([&executed] {
                 executed = true;
                 return ddge::exec::WorkContinuation::eRelease;
             })
         };
 
-        REQUIRE(work_hub.try_execute_one_work(0) == false);
+        REQUIRE(work_tree.try_execute_one_work(0) == false);
 
-        work_hub.schedule(*work_index);
+        work_tree.schedule(*work_index);
 
-        REQUIRE(work_hub.try_execute_one_work(0) == true);
+        REQUIRE(work_tree.try_execute_one_work(0) == true);
         REQUIRE(executed == true);
 
-        REQUIRE(work_hub.try_execute_one_work(0) == false);
+        REQUIRE(work_tree.try_execute_one_work(0) == false);
     }
 
     SECTION("reschedule")
     {
         std::expected<ddge::exec::WorkIndex, ddge::exec::Work> work_index{
-            work_hub.try_emplace([rescheduled = false] mutable {
+            work_tree.try_emplace([rescheduled = false] mutable {
                 if (!rescheduled) {
                     rescheduled = true;
                     return ddge::exec::WorkContinuation::eReschedule;
@@ -56,20 +56,20 @@ TEST_CASE("ddge::exec::WorkHub")
             })
         };
 
-        REQUIRE(work_hub.try_execute_one_work(0) == false);
+        REQUIRE(work_tree.try_execute_one_work(0) == false);
 
-        work_hub.schedule(*work_index);
+        work_tree.schedule(*work_index);
 
-        REQUIRE(work_hub.try_execute_one_work(0) == true);
-        REQUIRE(work_hub.try_execute_one_work(0) == true);
+        REQUIRE(work_tree.try_execute_one_work(0) == true);
+        REQUIRE(work_tree.try_execute_one_work(0) == true);
 
-        REQUIRE(work_hub.try_execute_one_work(0) == false);
+        REQUIRE(work_tree.try_execute_one_work(0) == false);
     }
 
     SECTION("empty work is not allowed")
     {
         REQUIRE_THROWS_AS(
-            work_hub.try_emplace(nullptr), ddge::util::PreconditionViolation
+            work_tree.try_emplace(nullptr), ddge::util::PreconditionViolation
         );
     }
 
@@ -79,22 +79,22 @@ TEST_CASE("ddge::exec::WorkHub")
         std::expected<
             ddge::exec::WorkIndex,
             std::pair<ddge::exec::Work, ddge::exec::ReleaseWorkContract>>
-            work_index{ work_hub.try_emplace(
+            work_index{ work_tree.try_emplace(
                 [] { return ddge::exec::WorkContinuation::eRelease; },
                 [&released] { released = true; }
             ) };
 
-        REQUIRE(work_hub.try_execute_one_work(0) == false);
+        REQUIRE(work_tree.try_execute_one_work(0) == false);
 
-        work_hub.schedule(*work_index);
+        work_tree.schedule(*work_index);
 
-        REQUIRE(work_hub.try_execute_one_work(0) == true);
+        REQUIRE(work_tree.try_execute_one_work(0) == true);
         REQUIRE(released == false);
 
-        REQUIRE(work_hub.try_execute_one_work(0) == true);
+        REQUIRE(work_tree.try_execute_one_work(0) == true);
         REQUIRE(released == true);
 
-        REQUIRE(work_hub.try_execute_one_work(0) == false);
+        REQUIRE(work_tree.try_execute_one_work(0) == false);
     }
 
     SECTION("empty release is not called")
@@ -102,17 +102,17 @@ TEST_CASE("ddge::exec::WorkHub")
         std::expected<
             ddge::exec::WorkIndex,
             std::pair<ddge::exec::Work, ddge::exec::ReleaseWorkContract>>
-            work_index{ work_hub.try_emplace(
+            work_index{ work_tree.try_emplace(
                 [] { return ddge::exec::WorkContinuation::eRelease; },   //
                 nullptr
             ) };
 
-        REQUIRE(work_hub.try_execute_one_work(0) == false);
+        REQUIRE(work_tree.try_execute_one_work(0) == false);
 
-        work_hub.schedule(*work_index);
+        work_tree.schedule(*work_index);
 
-        REQUIRE(work_hub.try_execute_one_work(0) == true);
-        REQUIRE(work_hub.try_execute_one_work(0) == false);
+        REQUIRE(work_tree.try_execute_one_work(0) == true);
+        REQUIRE(work_tree.try_execute_one_work(0) == false);
     }
 
     SECTION("simple multithreading")
@@ -123,11 +123,11 @@ TEST_CASE("ddge::exec::WorkHub")
         constexpr static uint32_t thread_count{ 8 };
         std::atomic_uint32_t      counter;
 
-        const auto process_work = [&work_hub, &counter](const uint32_t thread_id) {
-            return [&work_hub, &counter, thread_id] {
+        const auto process_work = [&work_tree, &counter](const uint32_t thread_id) {
+            return [&work_tree, &counter, thread_id] {
                 while (counter < goal) {
-                    work_hub.try_execute_one_work(
-                        thread_id % work_hub.optimized_for_thread_count()
+                    work_tree.try_execute_one_work(
+                        thread_id % work_tree.optimized_for_thread_count()
                     );
                 }
             };
@@ -135,7 +135,7 @@ TEST_CASE("ddge::exec::WorkHub")
 
         for (const auto _ : std::views::repeat(std::ignore, work_count)) {
             const ddge::exec::WorkIndex work_index =
-                *work_hub.try_emplace([&counter, local_counter = 0u] mutable {
+                *work_tree.try_emplace([&counter, local_counter = 0u] mutable {
                     if (local_counter++ < per_work_count) {
                         ++counter;
                         return ddge::exec::WorkContinuation::eReschedule;
@@ -143,7 +143,7 @@ TEST_CASE("ddge::exec::WorkHub")
                     return ddge::exec::WorkContinuation::eRelease;
                 });
 
-            work_hub.schedule(work_index);
+            work_tree.schedule(work_index);
         }
 
         std::vector<std::jthread> threads;

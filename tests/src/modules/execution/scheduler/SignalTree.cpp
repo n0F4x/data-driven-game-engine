@@ -118,7 +118,101 @@ TEST_CASE("ddge::exec::SignalTree")
                 }
             };
 
+            test(2, std::jthread::hardware_concurrency());
             test(3, std::jthread::hardware_concurrency());
+            test(5, std::jthread::hardware_concurrency());
+            test(7, std::jthread::hardware_concurrency());
+            test(12, std::jthread::hardware_concurrency());
+        }
+    }
+
+    SECTION("explicitly unset all signals")
+    {
+        SECTION("single-threaded")
+        {
+            constexpr static auto test = [](uint32_t number_of_levels) -> void {
+                SECTION(std::format({ "{} levels" }, number_of_levels))
+                {
+                    ddge::exec::SignalTree signal_tree{ number_of_levels };
+
+                    for (const auto index :
+                         std::views::iota(0u, signal_tree.number_of_leaves()))
+                    {
+                        signal_tree.try_set_one(index);
+                    }
+
+                    for (const auto i :
+                         std::views::iota(0u, signal_tree.number_of_leaves()))
+                    {
+                        const bool success{ signal_tree.try_unset_one_at(i) };
+                        REQUIRE(success);
+                    }
+                }
+            };
+
+            test(2);
+            test(3);
+            test(5);
+            test(7);
+            test(12);
+        }
+
+        SECTION("multi-threaded")
+        {
+            constexpr static auto test = [](const uint32_t number_of_levels,
+                                            const uint32_t number_of_threads) -> void {
+                SECTION(std::format("{} levels", number_of_levels))
+                {
+                    ddge::exec::SignalTree signal_tree{ number_of_levels };
+
+                    for (const auto index :
+                         std::views::iota(0u, signal_tree.number_of_leaves()))
+                    {
+                        signal_tree.try_set_one(index);
+                    }
+
+                    std::vector<bool> index_checks(signal_tree.number_of_leaves());
+
+                    const auto work = [number_of_threads,
+                                       &signal_tree,
+                                       &index_checks](const uint32_t id) {
+                        return [number_of_threads, &signal_tree, &index_checks, id] {
+                            for (const auto i : std::views::iota(
+                                     0u, signal_tree.number_of_leaves() / number_of_threads
+                                 ))
+                            {
+                                const auto index{ i * number_of_threads + id };
+                                const bool success{ signal_tree.try_unset_one_at(index) };
+                                index_checks.at(index) = success;
+                            }
+                            if (signal_tree.number_of_leaves() % number_of_threads > id) {
+                                const auto index{ signal_tree.number_of_leaves()
+                                                      / number_of_threads
+                                                      * number_of_threads
+                                                  + id };
+                                const bool success{ signal_tree.try_unset_one_at(index) };
+                                index_checks.at(index) = success;
+                            }
+                        };
+                    };
+
+                    std::vector<std::jthread> threads;
+                    threads.reserve(number_of_threads);
+                    for (const auto id : std::views::iota(0u, number_of_threads)) {
+                        threads.emplace_back(work(id));
+                    }
+
+                    for (auto& thread : threads) {
+                        thread.join();
+                    }
+
+                    REQUIRE(std::ranges::all_of(index_checks, std::identity{}));
+                }
+            };
+
+            test(2, std::jthread::hardware_concurrency());
+            test(3, std::jthread::hardware_concurrency());
+            test(5, std::jthread::hardware_concurrency());
             test(7, std::jthread::hardware_concurrency());
             test(12, std::jthread::hardware_concurrency());
         }
@@ -180,7 +274,9 @@ TEST_CASE("ddge::exec::SignalTree")
             }
         };
 
+        test(2);
         test(3);
+        test(5);
         test(7);
         test(12);
     }

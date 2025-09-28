@@ -60,6 +60,13 @@ public:
     auto try_emplace(Work&& work, ReleaseWorkContract&& release)
         -> std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>;
 
+    [[nodiscard]]
+    auto try_emplace_at(WorkIndex work_index, Work&& work)
+        -> std::expected<void, Work>;
+    [[nodiscard]]
+    auto try_emplace_at(WorkIndex work_index, Work&& work, ReleaseWorkContract&& release)
+        -> std::expected<void, std::pair<Work, ReleaseWorkContract>>;
+
     auto try_execute_one_work(uint32_t thread_id) -> bool;
 
     auto schedule(WorkIndex work_index) -> void;

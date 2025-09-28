@@ -41,6 +41,8 @@ public:
     auto try_set_one(LeafIndex leaf_index) -> bool;
     [[nodiscard]]
     auto try_unset_one(TravelsalTactic tactic) -> std::optional<LeafIndex>;
+    [[nodiscard]]
+    auto try_unset_one_at(LeafIndex leaf_index) -> bool;
 
     [[nodiscard]]
     auto number_of_levels() const noexcept -> uint32_t;
@@ -66,7 +68,8 @@ private:
         NodeIndex                                 node_index,
         tl::function_ref<TravelsalBias(uint32_t)> strategy
     ) -> std::optional<LeafIndex>;
-    auto try_unset_one_leaf(NodeIndex node_index) -> std::optional<LeafIndex>;
+    auto try_unset_one_at(NodeIndex node_index, NodeIndex target_index) -> bool;
+    auto try_unset_leaf(NodeIndex node_index) -> std::optional<LeafIndex>;
 
     [[nodiscard]]
     auto is_leaf_index(NodeIndex node_index) const noexcept -> bool;
