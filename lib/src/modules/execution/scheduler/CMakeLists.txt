@@ -12,5 +12,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         SignalTree.ixx
         Work.ixx
         WorkContinuation.ixx
+        WorkIndex.ixx
         WorkTree.ixx
 )

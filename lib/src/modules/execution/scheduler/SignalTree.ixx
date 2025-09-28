@@ -2,7 +2,6 @@ module;
 
 #include <atomic>
 #include <cstdint>
-#include <memory>
 #include <optional>
 #include <vector>
 
@@ -12,33 +11,17 @@ export module ddge.modules.execution.scheduler.SignalTree;
 
 namespace ddge::exec {
 
-struct NodeData {
-    std::atomic_int32_t count{};
-};
-
 using NodeIndex = uint32_t;
 
-struct RootNode {
-    NodeIndex left_index{ 1 };
-    NodeIndex right_index{ 2 };
-    NodeData  data;
+using Counter = std::atomic<NodeIndex>;
+
+static_assert(Counter::is_always_lock_free);
+
+struct Node {
+    Counter counter{};
 };
 
-struct BranchNode {
-    NodeIndex parent_index{};
-    NodeIndex left_index{};
-    NodeIndex right_index{};
-    NodeData  data;
-};
-
-struct LeafNode {
-    NodeIndex parent_index{};
-    NodeData  data;
-};
-
-export using SignalIndex = NodeIndex;
-
-export enum struct TravelsalBias : std::int8_t {
+export enum struct TravelsalBias : std::uint8_t {
     eLeft,
     eRight,
 };
@@ -48,47 +31,45 @@ export enum struct TravelsalBias : std::int8_t {
  */
 export class SignalTree {
 public:
-    constexpr static std::integral_constant<uint32_t, 3> minimum_number_of_levels;
-    constexpr static std::
-        integral_constant<uint32_t, 0x1u << (minimum_number_of_levels - 1)>
-            minimum_capacity;
+    using LeafIndex       = NodeIndex;
+    using TravelsalTactic = tl::function_ref<TravelsalBias(uint32_t current_node_index)>;
+
+    constexpr static std::integral_constant<uint32_t, 2> minimum_number_of_levels;
 
     explicit SignalTree(uint32_t number_of_levels);
 
-    auto set(SignalIndex index) -> bool;
-
+    auto try_set_one(LeafIndex leaf_index) -> bool;
     [[nodiscard]]
-    auto try_unset_one(tl::function_ref<TravelsalBias(uint32_t level_index)> strategy)
-        -> std::optional<SignalIndex>;
+    auto try_unset_one(TravelsalTactic tactic) -> std::optional<LeafIndex>;
 
-    [[nodiscard]]
-    auto capacity() const noexcept -> uint32_t;
     [[nodiscard]]
     auto number_of_levels() const noexcept -> uint32_t;
+    [[nodiscard]]
+    auto number_of_leaves() const noexcept -> uint32_t;
+    [[nodiscard]]
+    auto number_of_branches() const noexcept -> uint32_t;
+    [[nodiscard]]
+    auto number_of_nodes() const noexcept -> uint32_t;
 
 private:
-    uint32_t                  m_number_of_levels;
-    // TODO: use std::indirect
-    std::unique_ptr<RootNode> m_root_node{ std::make_unique<RootNode>() };
-    std::vector<BranchNode>   m_branch_nodes;
-    std::vector<LeafNode>     m_leaf_nodes;
+    struct Precondition {
+        explicit Precondition(uint32_t number_of_levels);
+    };
 
-    auto connect_nodes() -> void;
-
-    [[nodiscard]]
-    auto first_leaf_index() const noexcept -> NodeIndex;
-    [[nodiscard]]
-    auto is_leaf_index(NodeIndex node_index) const noexcept -> bool;
+    [[no_unique_address]]
+    Precondition      m_precondition;
+    std::vector<Node> m_nodes;
 
     auto set_branch(NodeIndex node_index) -> void;
-    auto set_root() -> void;
 
-    auto unset_one_from_branch(
-        uint32_t                                  level_index,
+    auto try_unset_one(
         NodeIndex                                 node_index,
         tl::function_ref<TravelsalBias(uint32_t)> strategy
-    ) -> std::optional<SignalIndex>;
-    auto unset_one_from_leaf(NodeIndex node_index) -> std::optional<SignalIndex>;
+    ) -> std::optional<LeafIndex>;
+    auto try_unset_one_leaf(NodeIndex node_index) -> std::optional<LeafIndex>;
+
+    [[nodiscard]]
+    auto is_leaf_index(NodeIndex node_index) const noexcept -> bool;
 };
 
 }   // namespace ddge::exec

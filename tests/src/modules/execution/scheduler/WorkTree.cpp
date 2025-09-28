@@ -8,6 +8,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 import ddge.modules.execution.scheduler.Work;
+import ddge.modules.execution.scheduler.WorkIndex;
 import ddge.modules.execution.scheduler.WorkContinuation;
 import ddge.modules.execution.scheduler.WorkTree;
 
@@ -27,7 +28,7 @@ TEST_CASE("ddge::exec::WorkHub")
     {
         bool                                                   executed{};
         std::expected<ddge::exec::WorkIndex, ddge::exec::Work> work_index{
-            work_hub.reserve_slot([&executed] {
+            work_hub.try_emplace([&executed] {
                 executed = true;
                 return ddge::exec::WorkContinuation::eRelease;
             })
@@ -46,7 +47,7 @@ TEST_CASE("ddge::exec::WorkHub")
     SECTION("reschedule")
     {
         std::expected<ddge::exec::WorkIndex, ddge::exec::Work> work_index{
-            work_hub.reserve_slot([rescheduled = false] mutable {
+            work_hub.try_emplace([rescheduled = false] mutable {
                 if (!rescheduled) {
                     rescheduled = true;
                     return ddge::exec::WorkContinuation::eReschedule;
@@ -68,7 +69,7 @@ TEST_CASE("ddge::exec::WorkHub")
     SECTION("empty work is not allowed")
     {
         REQUIRE_THROWS_AS(
-            work_hub.reserve_slot(nullptr), ddge::util::PreconditionViolation
+            work_hub.try_emplace(nullptr), ddge::util::PreconditionViolation
         );
     }
 
@@ -78,7 +79,7 @@ TEST_CASE("ddge::exec::WorkHub")
         std::expected<
             ddge::exec::WorkIndex,
             std::pair<ddge::exec::Work, ddge::exec::ReleaseWorkContract>>
-            work_index{ work_hub.reserve_slot(
+            work_index{ work_hub.try_emplace(
                 [] { return ddge::exec::WorkContinuation::eRelease; },
                 [&released] { released = true; }
             ) };
@@ -101,7 +102,7 @@ TEST_CASE("ddge::exec::WorkHub")
         std::expected<
             ddge::exec::WorkIndex,
             std::pair<ddge::exec::Work, ddge::exec::ReleaseWorkContract>>
-            work_index{ work_hub.reserve_slot(
+            work_index{ work_hub.try_emplace(
                 [] { return ddge::exec::WorkContinuation::eRelease; },   //
                 nullptr
             ) };
@@ -134,7 +135,7 @@ TEST_CASE("ddge::exec::WorkHub")
 
         for (const auto _ : std::views::repeat(std::ignore, work_count)) {
             const ddge::exec::WorkIndex work_index =
-                *work_hub.reserve_slot([&counter, local_counter = 0u] mutable {
+                *work_hub.try_emplace([&counter, local_counter = 0u] mutable {
                     if (local_counter++ < per_work_count) {
                         ++counter;
                         return ddge::exec::WorkContinuation::eReschedule;

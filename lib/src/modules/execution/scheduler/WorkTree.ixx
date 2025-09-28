@@ -12,8 +12,7 @@ export module ddge.modules.execution.scheduler.WorkTree;
 import ddge.modules.execution.scheduler.SignalTree;
 import ddge.modules.execution.scheduler.Work;
 import ddge.modules.execution.scheduler.WorkContinuation;
-
-import ddge.utility.containers.Strong;
+import ddge.modules.execution.scheduler.WorkIndex;
 
 namespace ddge::exec {
 
@@ -47,10 +46,8 @@ private:
     ReleaseWorkContract          m_release;
 
     auto release() -> void;
-};
 
-export struct WorkIndex : util::Strong<uint64_t, WorkIndex> {
-    using Strong::Strong;
+    static_assert(std::remove_cvref_t<decltype(m_flags)>::is_always_lock_free);
 };
 
 export class WorkTree {
@@ -58,9 +55,9 @@ public:
     WorkTree(uint64_t capacity, uint32_t number_of_threads);
 
     [[nodiscard]]
-    auto reserve_slot(Work&& work) -> std::expected<WorkIndex, Work>;
+    auto try_emplace(Work&& work) -> std::expected<WorkIndex, Work>;
     [[nodiscard]]
-    auto reserve_slot(Work&& work, ReleaseWorkContract&& release)
+    auto try_emplace(Work&& work, ReleaseWorkContract&& release)
         -> std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>;
 
     auto try_execute_one_work(uint32_t thread_id) -> bool;
@@ -81,6 +78,10 @@ private:
 
     auto handle_work_result(WorkIndex work_index, WorkContinuation work_continuation)
         -> void;
+
+    static_assert(
+        std::remove_cvref_t<decltype(m_next_available_sub_tree_index)>::is_always_lock_free
+    );
 };
 
 }   // namespace ddge::exec

@@ -1,6 +1,7 @@
 module;
 
 #include <algorithm>
+#include <atomic>
 #include <bit>
 #include <expected>
 #include <ranges>
@@ -25,21 +26,22 @@ auto WorkContract::assign(Work&& work, ReleaseWorkContract&& release) -> WorkCon
 
     m_work    = std::move(work);
     m_release = std::move(release);
-    m_flags   = WorkFlags::eNone;
+    m_flags.store(WorkFlags::eNone);
 
     return *this;
 }
 
 auto WorkContract::execute() -> WorkContinuation
 {
-    if (const bool should_be_released{ (m_flags & WorkFlags::eShouldBeReleased) != 0 };
+    if (const bool should_be_released{ (m_flags.load() & WorkFlags::eShouldBeReleased)
+                                       != 0 };
         should_be_released)
     {
         release();
         return WorkContinuation::eRelease;
     }
 
-    m_flags &= (WorkFlags::eAll - WorkFlags::eShouldBeScheduled);
+    m_flags.fetch_and(WorkFlags::eAll - WorkFlags::eShouldBeScheduled);
 
     const WorkContinuation continuation = m_work();
 
@@ -56,7 +58,7 @@ auto WorkContract::execute() -> WorkContinuation
             return WorkContinuation::eReschedule;
         case WorkContinuation::eRelease:
             if (!m_release.empty()) {
-                m_flags |= WorkFlags::eShouldBeReleased;
+                m_flags.fetch_or(WorkFlags::eShouldBeReleased);
                 return WorkContinuation::eReschedule;
             }
             return WorkContinuation::eRelease;
@@ -84,7 +86,7 @@ auto WorkContract::schedule_release() -> WorkContinuation
         return WorkContinuation::eDontCare;
     }
 
-    m_flags |= WorkFlags::eShouldBeReleased;
+    m_flags.fetch_or(WorkFlags::eShouldBeReleased);
     return schedule() ? WorkContinuation::eReschedule : WorkContinuation::eDontCare;
 }
 
@@ -146,15 +148,16 @@ ddge::exec::WorkTree::WorkTree(const uint64_t capacity, const uint32_t number_of
     }
 
     for (SignalTree& signal_tree : m_free_signals) {
-        for (const SignalIndex index : std::views::iota(0u, signal_tree.capacity())) {
-            signal_tree.set(index);
+        for (const uint32_t index : std::views::iota(0u, signal_tree.number_of_leaves()))
+        {
+            signal_tree.try_set_one(index);
         }
     }
 }
 
-auto ddge::exec::WorkTree::reserve_slot(Work&& work) -> std::expected<WorkIndex, Work>
+auto ddge::exec::WorkTree::try_emplace(Work&& work) -> std::expected<WorkIndex, Work>
 {
-    return reserve_slot(std::move(work), nullptr)
+    return try_emplace(std::move(work), nullptr)
         .transform_error([](std::pair<Work, ReleaseWorkContract>&& pair) -> Work {
             return std::move(pair.first);
         });
@@ -166,20 +169,23 @@ constexpr auto default_strategy(uint32_t) -> ddge::exec::TravelsalBias
     return ddge::exec::TravelsalBias::eLeft;
 }
 
-auto ddge::exec::WorkTree::reserve_slot(Work&& work, ReleaseWorkContract&& release)
+auto ddge::exec::WorkTree::try_emplace(Work&& work, ReleaseWorkContract&& release)
     -> std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>
 {
     PRECOND(!work.empty());
 
     for (auto _ : std::views::repeat(std::ignore, m_free_signals.size())) {
-        const auto sub_tree_index{ m_next_available_sub_tree_index++
-                                   % m_free_signals.size() };
+        const auto sub_tree_index{
+            m_next_available_sub_tree_index.fetch_add(1, std::memory_order::relaxed)
+            % m_free_signals.size()
+        };
 
         const std::optional<WorkIndex> work_index{
             m_free_signals[sub_tree_index]
                 // TODO: try reserving latest
                 .try_unset_one(default_strategy)
-                .transform([this, sub_tree_index](const SignalIndex signal_index) {
+                .transform([this,
+                            sub_tree_index](const SignalTree::LeafIndex signal_index) {
                     return signal_index * m_free_signals.size() + sub_tree_index;
                 })
         };
@@ -216,7 +222,8 @@ auto ddge::exec::WorkTree::try_execute_one_work(const uint32_t thread_id) -> boo
             m_contract_signals[sub_tree_index]
                 // TODO: use per thread strategy
                 .try_unset_one(default_strategy)
-                .transform([this, sub_tree_index](const SignalIndex signal_index) {
+                .transform([this,
+                            sub_tree_index](const SignalTree::LeafIndex signal_index) {
                     return signal_index * m_contract_signals.size() + sub_tree_index;
                 })
         };
@@ -239,8 +246,10 @@ auto ddge::exec::WorkTree::try_execute_one_work(const uint32_t thread_id) -> boo
 auto ddge::exec::WorkTree::schedule(const WorkIndex work_index) -> void
 {
     if (m_work_contracts[work_index.underlying()].schedule()) {
-        m_contract_signals[work_index.underlying() % m_contract_signals.size()].set(
-            static_cast<SignalIndex>(work_index.underlying() / m_contract_signals.size())
+        m_contract_signals[work_index.underlying() % m_contract_signals.size()].try_set_one(
+            static_cast<SignalTree::LeafIndex>(
+                work_index.underlying() / m_contract_signals.size()
+            )
         );
     }
 }
@@ -272,15 +281,18 @@ auto ddge::exec::WorkTree::handle_work_result(
     switch (work_continuation) {
         case WorkContinuation::eDontCare: break;
         case WorkContinuation::eReschedule:
-            m_contract_signals[work_index.underlying() % m_contract_signals.size()].set(
-                static_cast<SignalIndex>(
-                    work_index.underlying() / m_contract_signals.size()
-                )
-            );
+            m_contract_signals[work_index.underlying() % m_contract_signals.size()]
+                .try_set_one(
+                    static_cast<SignalTree::LeafIndex>(
+                        work_index.underlying() / m_contract_signals.size()
+                    )
+                );
             break;
         case WorkContinuation::eRelease:
-            m_free_signals[work_index.underlying() % m_free_signals.size()].set(
-                static_cast<SignalIndex>(work_index.underlying() / m_free_signals.size())
+            m_free_signals[work_index.underlying() % m_free_signals.size()].try_set_one(
+                static_cast<SignalTree::LeafIndex>(
+                    work_index.underlying() / m_free_signals.size()
+                )
             );
             break;
     }
