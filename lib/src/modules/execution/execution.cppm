@@ -3,6 +3,8 @@ export module ddge.modules.execution;
 export import ddge.modules.execution.accessors;
 export import ddge.modules.execution.primitives;
 export import ddge.modules.execution.providers;
+export import ddge.modules.execution.scheduler;
+export import ddge.modules.execution.v2;
 
 export import ddge.modules.execution.accessor_c;
 export import ddge.modules.execution.as_task_builder_t;

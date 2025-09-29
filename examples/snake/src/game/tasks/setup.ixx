@@ -4,8 +4,12 @@ module;
 
 export module snake.game.setup;
 
-import ddge.prelude;
-
+import ddge.modules.app.decays_to_builder_c;
+import ddge.modules.app.extensions.FunctionalPlugin;
+import ddge.modules.app.has_plugins_c;
+import ddge.modules.events.Plugin;
+import ddge.modules.messages.Plugin;
+import ddge.modules.states.Plugin;
 import ddge.modules.time.FixedTimer;
 
 import snake.assets.inject_loaders;
@@ -28,10 +32,11 @@ export inline constexpr auto setup =
         .cell_width       = 32,
     };
 
-    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::plugins::States>);
-    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::plugins::Events>);
-    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::plugins::Messages>);
-    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::plugins::Functional>);
+    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::states::Plugin>);
+    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::events::Plugin>);
+    static_assert(ddge::app::has_plugins_c<Builder_T, ddge::messages::Plugin>);
+    static_assert(ddge::app::
+                      has_plugins_c<Builder_T, ddge::app::extensions::FunctionalPlugin>);
 
     return std::forward<Builder_T>(builder)
         .insert_resource(settings)

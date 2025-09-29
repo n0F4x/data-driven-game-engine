@@ -14,7 +14,7 @@ import ddge.modules.execution.scheduler.WorkTree;
 
 import ddge.utility.contracts;
 
-TEST_CASE("ddge::exec::WorkHub")
+TEST_CASE("ddge::exec::WorkTree")
 {
     ddge::exec::WorkTree work_tree{ 256, 3 };
 

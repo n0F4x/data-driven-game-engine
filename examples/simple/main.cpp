@@ -61,20 +61,25 @@ constexpr static auto record_window_events =
     };
 
 constexpr static auto game_is_running =
-    [](const events::Reader<WindowClosed>& window_closed_event_reader) {
-        return window_closed_event_reader.read().size() == 0;
-    };
+    [](const events::Reader<WindowClosed>& window_closed_event_reader) -> bool   //
+{                                                                                //
+    return window_closed_event_reader.read().size() == 0;
+};
 
-static const auto run_game_loop = ddge::exec::loop_until(
-    ddge::exec::start_as(
-        ddge::exec::group(
-            update_world,   //
-            record_window_events
+[[nodiscard]]
+auto run_game_loop() -> ddge::exec::v2::TaskBuilder<void>
+{
+    return ddge::exec::v2::loop_until(
+        ddge::exec::v2::start_as(
+            ddge::exec::v2::group(
+                ddge::exec::v2::as_task(update_world),   //
+                ddge::exec::v2::as_task(record_window_events)
+            )
         )
-    )
-        .then(process_events),
-    game_is_running
-);
+            .then(ddge::exec::v2::as_task(process_events)),
+        ddge::exec::v2::as_task(game_is_running)
+    );
+}
 
 constexpr static auto shut_down =                    //
     [](const resources::Resource<Window> window) {   //
@@ -91,8 +96,8 @@ auto main() -> int
         .plug_in(ddge::plugins::ECS{})
         .plug_in(ddge::plugins::Scheduler{})
         .run(
-            ddge::exec::start_as(initialize)   //
-                .then(run_game_loop)
-                .then(shut_down)
+            ddge::exec::v2::start_as(ddge::exec::v2::as_task(initialize))   //
+                .then(run_game_loop())
+                .then(ddge::exec::v2::as_task(shut_down))
         );
 }

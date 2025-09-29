@@ -31,10 +31,10 @@ template <typename Timer_T, ddge::exec::converts_to_task_builder_c TaskBuilder_T
 constexpr auto ddge::exec::at_fixed_rate(TaskBuilder_T&& task_builder)
     -> TaskBuilder<void>
 {
-    using FixedTimerResource = accessors::resources::Resource<Timer_T>;
+    using TimerResource = accessors::resources::Resource<Timer_T>;
 
     return repeat(
         std::forward<TaskBuilder_T>(task_builder),
-        [](const FixedTimerResource timer) { return timer->delta_ticks(); }
+        [](const TimerResource timer) { return timer->delta_ticks(); }
     );
 }
