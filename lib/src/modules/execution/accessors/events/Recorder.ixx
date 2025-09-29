@@ -9,10 +9,8 @@ import ddge.modules.events.event_c;
 import ddge.modules.events.BufferedEventQueue;
 import ddge.modules.events.EventManager;
 
-import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
 import ddge.utility.meta.type_traits.type_list.type_list_index_of;
-import ddge.utility.meta.type_traits.type_list.type_list_front;
 import ddge.utility.TypeList;
 
 namespace ddge::exec::accessors {
@@ -31,9 +29,7 @@ public:
 
     template <typename... Args_T>
         requires(sizeof...(Events_T) == 1)
-             && std::constructible_from<
-                    util::meta::type_list_front_t<util::TypeList<Events_T...>>,
-                    Args_T&&...>
+             && std::constructible_from<Events_T...[0], Args_T&&...>
     constexpr auto record(Args_T&&... args) const -> void;
 
     template <typename Event_T, typename... Args_T>
@@ -62,11 +58,7 @@ template <ddge::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)
 template <typename... Args_T>
     requires(sizeof...(Events_T) == 1)
-         // TODO: use `Events_T...[0]` -
-         // https://github.com/llvm/llvm-project/issues/138255
-         && std::constructible_from<
-                ddge::util::meta::type_list_front_t<ddge::util::TypeList<Events_T...>>,
-                Args_T&&...>
+         && std::constructible_from<Events_T...[0], Args_T&&...>
 constexpr auto ddge::exec::accessors::events::Recorder<Events_T...>::record(
     Args_T&&... args
 ) const -> void

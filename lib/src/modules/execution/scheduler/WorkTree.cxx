@@ -17,10 +17,8 @@ import ddge.modules.execution.scheduler.WorkContinuation;
 
 import ddge.utility.contracts;
 
-// TODO: Clang can't recognize name "WorkContract" unless its in an open namespace
-namespace ddge::exec {
-
-auto WorkContract::assign(Work&& work, ReleaseWorkContract&& release) -> WorkContract&
+auto ddge::exec::WorkContract::assign(Work&& work, ReleaseWorkContract&& release)
+    -> WorkContract&
 {
     PRECOND(!work.empty());
 
@@ -31,7 +29,7 @@ auto WorkContract::assign(Work&& work, ReleaseWorkContract&& release) -> WorkCon
     return *this;
 }
 
-auto WorkContract::execute() -> WorkContinuation
+auto ddge::exec::WorkContract::execute() -> WorkContinuation
 {
     if (const bool should_be_released{ (m_flags.load() & WorkFlags::eShouldBeReleased)
                                        != 0 };
@@ -65,14 +63,14 @@ auto WorkContract::execute() -> WorkContinuation
     }
 }
 
-auto WorkContract::schedule() -> bool
+auto ddge::exec::WorkContract::schedule() -> bool
 {
     return (m_flags.fetch_or(WorkFlags::eActive & WorkFlags::eShouldBeScheduled)
             & WorkFlags::eActive)
         == 0;
 }
 
-auto WorkContract::schedule_release() -> WorkContinuation
+auto ddge::exec::WorkContract::schedule_release() -> WorkContinuation
 {
     if (m_release.empty()) {
         const bool should_be_released =
@@ -90,14 +88,12 @@ auto WorkContract::schedule_release() -> WorkContinuation
     return schedule() ? WorkContinuation::eReschedule : WorkContinuation::eDontCare;
 }
 
-auto WorkContract::release() -> void
+auto ddge::exec::WorkContract::release() -> void
 {
     if (!m_release.empty()) {
         m_release();
     }
 }
-
-}   // namespace ddge::exec
 
 [[nodiscard]]
 constexpr auto real_capacity_per_sub_tree(
