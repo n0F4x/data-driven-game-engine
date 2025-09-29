@@ -54,13 +54,13 @@ auto grow_snake(
     }
 }
 
-auto game::create_eat_apple_task_builder() -> ddge::exec::TaskBuilder<void>
+auto game::eat_apple() -> ddge::exec::v2::TaskBuilder<void>
 {
-    return ddge::exec::start_as(check_apple_digestion)
+    return ddge::exec::v2::start_as(ddge::exec::v2::as_task(check_apple_digestion))
         .then(
-            ddge::exec::group(
-                despawn_digested_apple,   //
-                grow_snake
+            ddge::exec::v2::group(
+                ddge::exec::v2::as_task(despawn_digested_apple),   //
+                ddge::exec::v2::as_task(grow_snake)
             )
         );
 }

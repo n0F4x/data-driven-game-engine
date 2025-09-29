@@ -7,11 +7,14 @@ import snake;
 
 using namespace ddge::exec::accessors;
 
-static const ddge::exec::TaskBuilder<void> initialize =   //
-    ddge::exec::group(
-        window::initialize,                                    //
-        game::create_initialize_task_builder()
+[[nodiscard]]
+auto initialize() -> ddge::exec::v2::TaskBuilder<void>
+{
+    return ddge::exec::v2::group(
+        ddge::exec::v2::as_task(window::initialize),   //
+        game::initialize()
     );
+}
 
 auto process_events(const events::Processor& event_processor) -> void
 {
@@ -23,34 +26,50 @@ auto clear_messages(const messages::Mailbox& mailbox) -> void
     mailbox.clear_messages();
 }
 
-static const ddge::exec::TaskBuilder<void> update =
-    ddge::exec::group(window::update, game::create_update_task_builder());
-
-static const ddge::exec::TaskBuilder<void> render =    //
-    ddge::exec::at_fixed_rate<window::DisplayTimer>(   //
-        ddge::exec::start_as(window::clear_window)     //
-            .then(game::draw)
-            .then(window::display)
+[[nodiscard]]
+auto update() -> ddge::exec::v2::TaskBuilder<void>
+{
+    return ddge::exec::v2::group(
+        ddge::exec::v2::as_task(window::update),   //
+        game::update()
     );
+}
 
-static const ddge::exec::TaskBuilder<void> run_game_loop =
-    ddge::exec::loop_until(
-        ddge::exec::start_as(
-            ddge::exec::group(
-                process_events,   //
-                clear_messages
+[[nodiscard]]
+auto render() -> ddge::exec::v2::TaskBuilder<void>
+{
+    return ddge::exec::v2::at_fixed_rate<window::DisplayTimer>(                   //
+        ddge::exec::v2::start_as(ddge::exec::v2::as_task(window::clear_window))   //
+            .then(ddge::exec::v2::as_task(game::draw))
+            .then(ddge::exec::v2::as_task(window::display))
+    );
+}
+
+[[nodiscard]]
+auto run_game_loop() -> ddge::exec::v2::TaskBuilder<void>
+{
+    return ddge::exec::v2::loop_until(
+        ddge::exec::v2::start_as(
+            ddge::exec::v2::group(
+                ddge::exec::v2::as_task(process_events),   //
+                ddge::exec::v2::as_task(clear_messages)
             )
         )
-            .then(update)
-            .then(render),
-        ddge::exec::all_of(
-            ddge::util::not_fn(window::window_should_close),   //
-            game::game_is_running
+            .then(update())
+            .then(render()),
+        ddge::exec::v2::all_of(
+            ddge::exec::v2::as_task(ddge::util::not_fn(window::window_should_close)),   //
+            ddge::exec::v2::as_task(game::game_is_running)
         )
     );
+}
 
-static const ddge::exec::TaskBuilder<void> shut_down =
-    ddge::exec::start_as(game::shut_down).then(window::close_window);
+[[nodiscard]]
+auto shut_down() -> ddge::exec::v2::TaskBuilder<void>
+{
+    return ddge::exec::v2::start_as(ddge::exec::v2::as_task(game::shut_down))
+        .then(ddge::exec::v2::as_task(window::close_window));
+}
 
 auto main() -> int
 {
@@ -66,8 +85,8 @@ auto main() -> int
         .transform(window::setup)
         .transform(game::setup)
         .run(
-            ddge::exec::start_as(initialize)   //
-                .then(run_game_loop)
-                .then(shut_down)
+            ddge::exec::v2::start_as(initialize())   //
+                .then(run_game_loop())
+                .then(shut_down())
         );
 }

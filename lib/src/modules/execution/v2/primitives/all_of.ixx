@@ -21,9 +21,9 @@ auto all_of(TaskBuilder<Bools_T>&&... builders) -> TaskBuilder<bool>
 {
     return TaskBuilder<bool>{
         [... x_builders = std::move(builders)](
-            Nexus&                            nexus,
-            TaskHubBuilder&                   task_hub_builder,
-            const TaskFinishedCallback<bool>& callback
+            Nexus&                       nexus,
+            TaskHubBuilder&              task_hub_builder,
+            TaskFinishedCallback<bool>&& callback
         ) mutable -> Task   //
         {
             class Consumer {
@@ -56,19 +56,27 @@ auto all_of(TaskBuilder<Bools_T>&&... builders) -> TaskBuilder<bool>
                 TaskFinishedCallback<bool> m_callback;
             };
 
-            auto consumer = std::make_shared<Consumer>(sizeof...(Bools_T), callback);
+            const std::shared_ptr<Consumer> consumer{
+                std::make_shared<Consumer>(sizeof...(Bools_T), std::move(callback))
+            };
+
             return Task{
-                [... tasks = std::move(x_builders)
-                                 .build(
-                                     nexus,
-                                     task_hub_builder,
-                                     [consumer](
-                                         TaskHubProxy& task_hub_proxy, const bool result
-                                     ) { consumer->arrive(task_hub_proxy, result); }
-                                 )] {
-                    // TODO: account for shared resources
-                    (tasks.schedule(), ...);
-                }
+                task_hub_builder.emplace(
+                    [... tasks =   //
+                     std::move(x_builders)
+                         .build(
+                             nexus,
+                             task_hub_builder,
+                             [consumer](
+                                 const TaskHubProxy& task_hub_proxy, const bool result
+                             ) -> void { consumer->arrive(task_hub_proxy, result); }
+                         )]                                        //
+                    (const TaskHubProxy& task_hub_proxy) -> void   //
+                    {
+                        // TODO: account for shared resources
+                        (tasks.schedule(task_hub_proxy), ...);
+                    }
+                )   //
             };
         }
     };

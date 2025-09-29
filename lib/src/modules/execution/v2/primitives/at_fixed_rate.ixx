@@ -8,6 +8,7 @@ import ddge.modules.time.FixedTimer;
 import ddge.modules.time.VariableTimer;
 
 import ddge.modules.execution.accessors.resources;
+import ddge.modules.execution.v2.primitives.as_task;
 import ddge.modules.execution.v2.primitives.repeat;
 import ddge.modules.execution.v2.TaskBuilder;
 
@@ -23,9 +24,10 @@ constexpr auto at_fixed_rate(TaskBuilder<void>&& task_builder) -> TaskBuilder<vo
 {
     using TimerResource = accessors::resources::Resource<Timer_T>;
 
-    return repeat(std::move(task_builder), [](const TimerResource timer) {
-        return timer->delta_ticks();
-    });
+    return repeat(
+        std::move(task_builder),   //
+        as_task([](const TimerResource timer) { return timer->delta_ticks(); })
+    );
 }
 
 }   // namespace ddge::exec::v2

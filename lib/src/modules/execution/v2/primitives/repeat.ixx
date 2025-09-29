@@ -48,7 +48,7 @@ auto repeat(
                 {
                     if (m_repetition > 0) {
                         --*m_repetition;
-                        m_repetition->schedule(task_hub_proxy);
+                        m_looped_task->schedule(task_hub_proxy);
                     }
                     else {
                         m_callback(task_hub_proxy);
@@ -69,30 +69,35 @@ auto repeat(
                 std::make_shared<Looper>(std::move(callback))   //
             };
 
-            const Task main =
+            const Task main =   //
                 std::move(x_main_builder)
-                    .build(nexus, task_hub_builder, [looper](TaskHubProxy& task_hub_proxy) {
-                        looper->schedule_loop_back(task_hub_proxy);
-                    });
+                    .build(
+                        nexus,   //
+                        task_hub_builder,
+                        [looper](const TaskHubProxy& task_hub_proxy) -> void {
+                            looper->schedule_loop_back(task_hub_proxy);
+                        }
+                    );
             looper->set_looped_task(main);
 
-            Task repetition_task = std::move(x_repetition_specifier_builder)
-                                       .build(
-                                           nexus,   //
-                                           task_hub_builder,
-                                           [looper, main](
-                                               const TaskHubProxy& task_hub_proxy,
-                                               const Repetition_T  repetition
-                                           ) -> void {
-                                               if (repetition > 0) {
-                                                   looper->set_repetition(repetition - 1);
-                                                   main.schedule(task_hub_proxy);
-                                               }
-                                               else {
-                                                   looper->call_callback(task_hub_proxy);
-                                               }
-                                           }
-                                       );
+            Task repetition_task =   //
+                std::move(x_repetition_specifier_builder)
+                    .build(
+                        nexus,   //
+                        task_hub_builder,
+                        [looper, main](
+                            const TaskHubProxy& task_hub_proxy,
+                            const Repetition_T  repetition
+                        ) -> void {
+                            if (repetition > 0) {
+                                looper->set_repetition(repetition - 1);
+                                main.schedule(task_hub_proxy);
+                            }
+                            else {
+                                looper->call_callback(task_hub_proxy);
+                            }
+                        }
+                    );
 
             return repetition_task;
         }

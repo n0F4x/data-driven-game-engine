@@ -16,12 +16,12 @@ import ddge.modules.execution.v2.TaskHubProxy;
 
 namespace ddge::exec::v2 {
 
-export template <std::same_as<void>... Voids_T>
-auto group(TaskBuilder<Voids_T>... builders) -> TaskBuilder<void>
+export template <std::convertible_to<TaskBuilder<void>>... TaskBuilders_T>
+auto group(TaskBuilders_T&&... builders) -> TaskBuilder<void>
 {
     return TaskBuilder<void>{
-        [... x_builders = std::move(builders)]   //
-        (                                        //
+        [... x_builders = static_cast<TaskBuilder<void>>(std::move(builders))]   //
+        (                                                                        //
             Nexus & nexus,
             TaskHubBuilder & task_hub_builder,
             TaskFinishedCallback<void>&& callback
@@ -54,7 +54,7 @@ auto group(TaskBuilder<Voids_T>... builders) -> TaskBuilder<void>
             };
 
             const std::shared_ptr<Consumer> consumer{
-                std::make_shared<Consumer>(sizeof...(Voids_T), std::move(callback))
+                std::make_shared<Consumer>(sizeof...(TaskBuilders_T), std::move(callback))
             };
 
             return Task{

@@ -48,32 +48,37 @@ auto world_update_message_received(
     return !message_receiver.receive().empty();
 }
 
-auto game::create_update_task_builder() -> ddge::exec::TaskBuilder<void>
+auto game::update() -> ddge::exec::v2::TaskBuilder<void>
 {
-    return ddge::exec::start_as(::update_timers)
+    return ddge::exec::v2::start_as(ddge::exec::v2::as_task(::update_timers))
         .then(
-            ddge::exec::run_if(
-                adjust_snake_speed,   //
-                ::apple_was_digested
+            ddge::exec::v2::run_if(
+                ddge::exec::v2::as_task(adjust_snake_speed),   //
+                ddge::exec::v2::as_task(::apple_was_digested)
             )
         )
         .then(
-            ddge::exec::repeat(
-                ddge::exec::group(
-                    ddge::exec::start_as(move_snake)   //
-                        .then(create_eat_apple_task_builder()),
-                    trigger_world_update_message
+            ddge::exec::v2::repeat(
+                ddge::exec::v2::group(
+                    ddge::exec::v2::start_as(ddge::exec::v2::as_task(move_snake))   //
+                        .then(eat_apple()),
+                    ddge::exec::v2::as_task(trigger_world_update_message)
                 ),
-                ::number_of_snake_moves
+                ddge::exec::v2::as_task(::number_of_snake_moves)
             )
         )
         .then(
-            ddge::exec::at_fixed_rate<AppleSpawnTimer>(   //
-                ddge::exec::group(
-                    spawn_apple,                               //
-                    trigger_world_update_message
+            ddge::exec::v2::at_fixed_rate<AppleSpawnTimer>(   //
+                ddge::exec::v2::group(
+                    ddge::exec::v2::as_task(spawn_apple),     //
+                    ddge::exec::v2::as_task(trigger_world_update_message)
                 )
             )
         )
-        .then(ddge::exec::run_if(color_cells, ::world_update_message_received));
+        .then(
+            ddge::exec::v2::run_if(
+                ddge::exec::v2::as_task(color_cells),
+                ddge::exec::v2::as_task(::world_update_message_received)
+            )
+        );
 }

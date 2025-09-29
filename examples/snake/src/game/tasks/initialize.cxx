@@ -31,8 +31,7 @@ import snake.window.Window;
 using namespace ddge::exec::accessors;
 using namespace ddge::ecs::query_parameter_tags;
 
-using CachedTextureLoader =
-    ddge::exec::accessors::assets::Cached<::assets::TextureLoader>;
+using CachedTextureLoader = ddge::exec::accessors::assets::Cached<::assets::TextureLoader>;
 
 [[nodiscard]]
 auto make_shape(const uint16_t position_x, const uint16_t position_y, const uint8_t width)
@@ -152,11 +151,11 @@ auto reset_timers(
     game_state->snake_move_timer.reset();
 }
 
-auto game::create_initialize_task_builder() -> ddge::exec::TaskBuilder<void>
+auto game::initialize() -> ddge::exec::v2::TaskBuilder<void>
 {
-    return ddge::exec::start_as(::initialize_map)
-        .then(::initialize_snake)
-        .then(::load_apple_texture)
-        .then(color_cells)
-        .then(::reset_timers);
+    return ddge::exec::v2::start_as(ddge::exec::v2::as_task(::initialize_map))
+        .then(ddge::exec::v2::as_task(::initialize_snake))
+        .then(ddge::exec::v2::as_task(::load_apple_texture))
+        .then(ddge::exec::v2::as_task(color_cells))
+        .then(ddge::exec::v2::as_task(::reset_timers));
 }
