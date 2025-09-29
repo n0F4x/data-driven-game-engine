@@ -1,6 +1,7 @@
 module;
 
 #include <functional>
+#include <utility>
 
 export module ddge.utility.tuple.tuple_any_of;
 
@@ -16,14 +17,10 @@ export template <
 auto tuple_any_of(Tuple_T&& tuple, Predicate_T predicate, Projection_T projection = {})
     -> bool
 {
-    return std::apply(
-        [&]<typename... Ts>(Ts&&... values) {
-            return (
-                std::invoke(predicate, std::invoke(projection, std::forward<Ts>(values)))
-                || ...
-            );
-        },
-        std::forward<Tuple_T>(tuple)
+    auto&& [... elems]{ std::forward<Tuple_T>(tuple) };
+    return (
+        std::invoke(predicate, std::invoke(projection, std::forward_like<Tuple_T>(elems)))
+        || ...
     );
 }
 
