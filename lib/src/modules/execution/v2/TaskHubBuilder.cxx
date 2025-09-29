@@ -6,6 +6,7 @@ module;
 #include <ranges>
 #include <thread>
 #include <utility>
+#include <vector>
 
 #include <function2/function2.hpp>
 
@@ -58,7 +59,7 @@ auto ddge::exec::v2::TaskHubBuilder::build() && -> std::unique_ptr<TaskHub>
 
     for (auto&& [i, task] : std::views::zip(
              std::views::iota(0u, m_generic_work_factories.size()),
-             std::views::as_rvalue(m_generic_work_factories)
+             std::views::as_rvalue(std::move(m_generic_work_factories))
          ))
     {
         const std::expected expected = result->try_emplace_generic_at(
@@ -76,7 +77,7 @@ auto ddge::exec::v2::TaskHubBuilder::build() && -> std::unique_ptr<TaskHub>
 
     for (auto&& [i, task] : std::views::zip(
              std::views::iota(0u, m_main_only_work_factories.size()),
-             std::views::as_rvalue(m_main_only_work_factories)
+             std::views::as_rvalue(std::move(m_main_only_work_factories))
          ))
     {
         const std::expected expected = result->try_emplace_main_only_at(

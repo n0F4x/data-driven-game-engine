@@ -22,7 +22,7 @@
         "glfw/3.4#41cc24c744dc4c80571f5dd10dcd9cda%1732635892.515",
         "function2/4.2.5#20cd5f644e0f4ad53e2372eb472c5573%1753704543.825",
         "freetype/2.13.2#18656f7a6d52256a930f1cbd79f1509d%1756828316.696",
-        "fmt/11.2.0#579bb2cdf4a7607621beea4eb4651e0f%1746298708.362",
+        "fmt/12.0.0#dc7de7f3968e5d6b377f27b7d0f33916%1758262922.745",
         "flac/1.4.3#bc0ae2ef64d5b8796664725eabff4bff%1744100951.353",
         "fastgltf/0.9.0#af8b34e3a5ba67aebfafe33b189eaf62%1755516102.829",
         "entt/3.15.0#bbfeab95cf2cd68b637e8e9de719dccc%1744904892.297",
@@ -39,5 +39,10 @@
         "cmake/3.30.5#540068cc37f1d21b42b729c82d6bcb29%1728562547.207"
     ],
     "python_requires": [],
+    "overrides": {
+        "fmt/11.2.0": [
+            "fmt/12.0.0"
+        ]
+    },
     "config_requires": []
 }

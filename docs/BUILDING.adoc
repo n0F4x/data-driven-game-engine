@@ -2,7 +2,7 @@
 
 == Toolchain
 
-The project is required to work with *Clang 20* and *libc++*.
+The project is required to work with *Clang 21* and *libc++*.
 
 Support for other setups is not a priority until a planned release.
 

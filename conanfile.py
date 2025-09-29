@@ -44,9 +44,9 @@ class DataDrivenGameEngineRecipe(ConanFile):
         check_min_cppstd(self, "26")
 
         if (self.settings.compiler != "clang"
-                or self.settings.compiler.version != 20
+                or self.settings.compiler.version != 21
                 or self.settings.compiler.libcxx != "libc++"):
-            raise ConanInvalidConfiguration("Only Clang 20 with libc++ is supported")
+            raise ConanInvalidConfiguration("Only Clang 21 with libc++ is supported")
 
         if self.conf.get("tools.cmake.cmaketoolchain:generator") != "Ninja":
             raise ConanInvalidConfiguration("Ninja is required for CXX modules")
@@ -72,7 +72,7 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("tl-function-ref/1.0.0", transitive_headers=True)
         self.requires("function2/4.2.5", transitive_headers=True)
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
-        self.requires("fmt/11.2.0", transitive_headers=True)
+        self.requires("fmt/12.0.0", transitive_headers=True, force=True)
         self.requires("spdlog/1.15.3")
         self.requires("glfw/3.4", transitive_headers=True)
         self.requires("vulkan-headers/1.3.296.0")

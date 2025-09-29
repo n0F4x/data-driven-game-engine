@@ -46,11 +46,13 @@ struct Impl<IntegerSequence_T<std::size_t, I>, T> : Leaf<I, T> {
 template <
     template <typename T_, T_...> typename IntegerSequence_T,
     std::size_t I,
+    std::size_t J,
     std::size_t... Is,
     typename T,
+    typename U,
     typename... Ts>
-struct Impl<IntegerSequence_T<std::size_t, I, Is...>, T, Ts...>
-    : Leaf<I, T>, Impl<IntegerSequence_T<std::size_t, Is...>, Ts...> {
+struct Impl<IntegerSequence_T<std::size_t, I, J, Is...>, T, U, Ts...>
+    : Leaf<I, T>, Impl<IntegerSequence_T<std::size_t, J, Is...>, U, Ts...> {
     template <typename... Stacked_T, typename Factory_T, typename... Factories_T>
     constexpr Impl(
         std::tuple<Stacked_T&...> stack,
@@ -138,13 +140,15 @@ constexpr Impl<IntegerSequence_T<std::size_t, I>, T>::Impl(
 {}
 
 template <
-    template <typename T_, T_...> typename IntegerSequence_T,
+    template <typename T_, T_...> class IntegerSequence_T,
     std::size_t I,
+    std::size_t J,
     std::size_t... Is,
     typename T,
+    typename U,
     typename... Ts>
 template <typename... Stacked_T, typename Factory_T, typename... Factories_T>
-constexpr Impl<IntegerSequence_T<std::size_t, I, Is...>, T, Ts...>::Impl(
+constexpr ::Impl<IntegerSequence_T<unsigned long long, I, J, Is...>, T, U, Ts...>::Impl(
     std::tuple<Stacked_T&...> stack,
     Factory_T&&               factory,
     Factories_T&&... factories
@@ -153,7 +157,7 @@ constexpr Impl<IntegerSequence_T<std::size_t, I, Is...>, T, Ts...>::Impl(
           std::forward<Factory_T>(factory),
           gather_dependencies<Factory_T>(stack)
       ) } },
-      Impl<IntegerSequence_T<std::size_t, Is...>, Ts...>{
+      Impl<IntegerSequence_T<std::size_t, J, Is...>, U, Ts...>{
           std::tuple_cat(stack, std::tuple<T&>{ Leaf<I, T>::value }),
           std::forward<Factories_T>(factories)...
       }

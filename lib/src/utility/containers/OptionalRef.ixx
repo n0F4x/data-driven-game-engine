@@ -44,9 +44,9 @@ class OptionalRef {
 public:
     OptionalRef() = default;
     constexpr explicit(false) OptionalRef(std::nullopt_t) noexcept;
-    constexpr explicit(false
-    ) OptionalRef(OptionalRef<std::remove_const_t<T>> other) noexcept
-        requires(std::is_const_v<T>);
+    template <std::same_as<std::remove_const_t<T>> U>
+        requires(std::is_const_v<T>)
+    constexpr explicit(false) OptionalRef(OptionalRef<U> other) noexcept;
     constexpr explicit(false) OptionalRef(T& ref) noexcept;
     constexpr explicit(false) OptionalRef(
         const std::optional<std::reference_wrapper<T>>& optional_ref_wrapper
@@ -86,12 +86,14 @@ constexpr ddge::util::OptionalRef<T>::OptionalRef(std::nullopt_t) noexcept : Opt
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr ddge::util::OptionalRef<T>::OptionalRef(
-    OptionalRef<std::remove_const_t<T>> other
-) noexcept
+template <std::same_as<std::remove_const_t<T>> U>
     requires(std::is_const_v<T>)
-    : m_handle{ other.transform([](T& value) { return std::addressof(value); }
-      ).value_or(nullptr) }
+constexpr ddge::util::OptionalRef<T>::OptionalRef(const OptionalRef<U> other) noexcept
+    : m_handle{
+          other                    //
+              .transform([](T& value) -> T* { return std::addressof(value); })
+              .value_or(nullptr)   //
+      }
 {}
 
 template <typename T>
@@ -105,8 +107,11 @@ template <typename T>
 constexpr ddge::util::OptionalRef<T>::OptionalRef(
     const std::optional<std::reference_wrapper<T>>& optional_ref_wrapper
 ) noexcept
-    : m_handle{ optional_ref_wrapper.transform([](T& ref) { return std::addressof(ref); }
-      ).value_or(nullptr) }
+    : m_handle{
+          optional_ref_wrapper     //
+              .transform([](T& ref) -> T* { return std::addressof(ref); })
+              .value_or(nullptr)   //
+      }
 {}
 
 template <typename T>
