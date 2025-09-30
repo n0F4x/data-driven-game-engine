@@ -46,7 +46,7 @@ constexpr auto ddge::app::extensions::RunnablePlugin::run(
 {
     return std::invoke(
         std::forward<Runner_T>(runner),
-        [&] {
+        [&] -> decltype(std::forward<Self_T>(self).build()) {
             auto app{ std::forward<Self_T>(self).build() };
 
             if !consteval {

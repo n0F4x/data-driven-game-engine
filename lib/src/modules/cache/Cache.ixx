@@ -74,7 +74,7 @@ auto ddge::cache::BasicCache<IdType, ContainerTemplate>::lazy_emplace(
 
     if (const auto iter{ container.find(id) }; iter != container.end()) {
         WeakHandle<Resource>& weak_handle{ iter->second };
-        auto                  found_handle{ weak_handle.lock() };
+        Handle<Resource>      found_handle{ weak_handle.lock() };
         if (found_handle == nullptr) {
             const auto result{
                 make_handle<Resource>(std::invoke(std::forward<Creator>(create)))
@@ -83,10 +83,12 @@ auto ddge::cache::BasicCache<IdType, ContainerTemplate>::lazy_emplace(
             return result;
         }
 
-        return found_handle;
+        return std::move(found_handle);
     }
 
-    const auto result{ make_handle<Resource>(std::invoke(std::forward<Creator>(create))) };
+    Handle<Resource> result{
+        make_handle<Resource>(std::invoke(std::forward<Creator>(create)))
+    };
     container.try_emplace(id, result);
     return result;
 }

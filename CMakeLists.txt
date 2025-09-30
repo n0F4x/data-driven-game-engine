@@ -20,6 +20,7 @@ add_compile_options(
         -Wold-style-cast
         -Wcast-align
         -Wcast-qual
+        -Wnrvo
 
         # TODO: remove this when there is no '-c' unused warning while testing package
         -Wno-unused-command-line-argument

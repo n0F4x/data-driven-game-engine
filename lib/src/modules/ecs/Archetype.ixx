@@ -20,7 +20,9 @@ import :component_c;
 import :ComponentID;
 
 template <ddge::ecs::component_c... Components_T>
-constexpr auto component_id_set_from_impl = [] {
+constexpr std::array component_id_set_from_impl =
+    [] -> std::array<ComponentID, sizeof...(Components_T)>
+{
     std::array<ComponentID, sizeof...(Components_T)> result{
         component_id_of<Components_T>()...
     };
@@ -28,7 +30,8 @@ constexpr auto component_id_set_from_impl = [] {
     std::ranges::sort(result);
 
     return result;
-}();
+}
+();
 
 template <ddge::ecs::component_c... Components_T>
 [[nodiscard]]

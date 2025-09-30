@@ -171,7 +171,7 @@ auto ddge::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builder)
     -> Builder_T
 {
     return std::forward<Builder_T>(builder)
-        .inject_resource([this] {
+        .inject_resource([this] -> InstanceInjection {
             InstanceInjection instance_injection{};
             for (const Requirement& requirement : m_requirements) {
                 instance_injection.emplace_dependency(
@@ -181,7 +181,7 @@ auto ddge::renderer::Setup<SurfaceInjection_T>::operator()(Builder_T&& builder)
             return instance_injection;
         }())
         .inject_resource(m_surface_injection)
-        .inject_resource([this] {
+        .inject_resource([this] -> DeviceInjection {
             DeviceInjection device_injection{};
             for (const Requirement& requirement : m_requirements) {
                 device_injection.emplace_dependency(::to_device_dependency(requirement));

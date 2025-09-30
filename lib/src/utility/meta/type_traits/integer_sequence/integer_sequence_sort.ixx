@@ -19,11 +19,14 @@ template <
 struct integer_sequence_sort_impl<
     IntegerSequence_T<Integer_T, integers_T...>,
     std::index_sequence<indices_T...>> {
-    constexpr static std::array sorted_array = [] {
+    constexpr static std::array sorted_array =   //
+        [] -> std::array<Integer_T, sizeof...(integers_T)>
+    {
         std::array<Integer_T, sizeof...(integers_T)> result{ integers_T... };
         std::ranges::sort(result);
         return result;
-    }();
+    }
+    ();
 
     using type = IntegerSequence_T<Integer_T, sorted_array[indices_T]...>;
 };

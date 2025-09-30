@@ -93,14 +93,16 @@ template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_
 constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::erase(const Key key)
     -> std::optional<std::pair<Value, Index>>
 {
-    return m_sparse_set.erase(key).transform([this](const auto index) {
-        std::tuple result{ std::move(m_values[index]), index };
+    return m_sparse_set.erase(key).transform(
+        [this](const Index index) -> std::pair<Value, Index> {
+            std::pair<Value, Index> result{ std::move(m_values[index]), index };
 
-        m_values[index] = std::move(m_values.back());
-        m_values.pop_back();
+            m_values[index] = std::move(m_values.back());
+            m_values.pop_back();
 
-        return result;
-    });
+            return result;
+        }
+    );
 }
 
 template <::key_c Key_T, ddge::util::meta::nothrow_movable_c T, uint8_t version_bit_size_T>
