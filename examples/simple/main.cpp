@@ -9,7 +9,7 @@ import ddge.utility.containers.OptionalRef;
 import demo.Window;
 
 using namespace ddge::exec::accessors;
-using namespace ddge::ecs::query_parameter_tags;
+using namespace ddge::ecs::query_filter_tags;
 
 struct WindowClosed {};
 
@@ -38,22 +38,28 @@ constexpr static auto process_events =                //
         events_processor.process_events();
     };
 
-constexpr static auto update_world =   //
-    [](ecs::Query<
-        const Position,
-        Without<Health>,
-        With<EnemyTag>,
-        Optional<Renderable>,
-        Optional<const Collider>>& entities)   //
+[[nodiscard]]
+auto update_world() -> ddge::exec::v2::TaskBuilder<void>
 {
-    entities.for_each([](const Position,
-                         const ddge::util::OptionalRef<Renderable>,
-                         const ddge::util::OptionalRef<const Collider> optional_collider) {
-        if (optional_collider.has_value()) {
-            std::println("Collider says \"{}\"", optional_collider->message);
+    return ddge::exec::v2::query(
+        +[](   //
+            const ddge::ecs::ID id,
+            const Position position,
+            const Optional<const Collider> optional_collider,
+            With<EnemyTag>,
+            Without<Renderable>
+        ) -> void {
+            if (optional_collider.has_value()) {
+                std::println(
+                    "Collider #{} at position {} says \"{}\"",
+                    id.underlying(),
+                    position,
+                    optional_collider->message
+                );
+            }
         }
-    });
-};
+    );
+}
 
 constexpr static auto record_window_events =
     [](const events::Recorder<WindowClosed>& window_closed_event_recorder) {
@@ -72,7 +78,7 @@ auto run_game_loop() -> ddge::exec::v2::TaskBuilder<void>
     return ddge::exec::v2::loop_until(
         ddge::exec::v2::start_as(
             ddge::exec::v2::group(
-                ddge::exec::v2::as_task(update_world),   //
+                update_world(),   //
                 ddge::exec::v2::as_task(record_window_events)
             )
         )

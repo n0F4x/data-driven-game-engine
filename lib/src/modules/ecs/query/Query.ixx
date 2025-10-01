@@ -28,10 +28,11 @@ import :ComponentTableMap.extensions;
 import :ID;
 import :query.OptionalView;
 import :query.queryable_component_c;
+import :query.query_parameter_c;
 import :query.ToComponent;
 import :Registry;
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
 struct IsComponentOrIDOrOptional {
     constexpr static bool value =
         ddge::ecs::queryable_component_c<std::remove_const_t<T>>
@@ -39,14 +40,14 @@ struct IsComponentOrIDOrOptional {
         || ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>;
 };
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
 struct IsComponentOrWith {
     constexpr static bool value =
         ddge::ecs::queryable_component_c<std::remove_const_t<T>>
         || ddge::util::meta::specialization_of_c<T, ddge::ecs::With>;
 };
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
 struct IsComponentOrWithOrOptional {
     constexpr static bool value =
         ddge::ecs::queryable_component_c<std::remove_const_t<T>>
@@ -54,42 +55,44 @@ struct IsComponentOrWithOrOptional {
         || ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>;
 };
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
 struct IsWithout {
     constexpr static bool value =
         ddge::util::meta::specialization_of_c<T, ddge::ecs::Without>;
 };
 
-template <ddge::ecs::query_parameter_c T>
-struct IsQueriedParameter : IsComponentOrIDOrOptional<T> {};
+template <typename T>
+struct IsQueriedParameter {
+    constexpr static bool value = ddge::ecs::query_parameter_c<T>;
+};
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
 struct ToQueriedType;
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
     requires ddge::ecs::queryable_component_c<std::remove_const_t<T>>
 struct ToQueriedType<T> : std::type_identity<T> {};
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
     requires std::same_as<T, ddge::ecs::ID>
 struct ToQueriedType<T> : std::type_identity<T> {};
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
     requires ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>
 struct ToQueriedType<T> : std::type_identity<ddge::util::meta::underlying_t<T>> {};
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
 struct ToFunctionParameter;
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
     requires ddge::ecs::queryable_component_c<std::remove_const_t<T>>
 struct ToFunctionParameter<T> : std::type_identity<std::add_lvalue_reference_t<T>> {};
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
     requires std::same_as<T, ddge::ecs::ID>
 struct ToFunctionParameter<T> : std::type_identity<T> {};
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
     requires ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>
 struct ToFunctionParameter<T> : std::type_identity<T> {};
 
@@ -132,11 +135,11 @@ using ComponentContainerRef = typename ToComponentContainerRef<Component_T>::typ
 
 namespace ddge::ecs {
 
-export template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
+export template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
 class Query {
     using QueriedParameters =
-        util::meta::type_list_filter_t<util::TypeList<Parameters_T...>, IsQueriedParameter>;
+        util::meta::type_list_filter_t<util::TypeList<Filters_T...>, IsQueriedParameter>;
 
     static_assert(
         util::meta::type_list_size_v<QueriedParameters> != 0,
@@ -151,11 +154,11 @@ class Query {
 
     using IncludedComponents = util::meta::type_list_transform_t<
         util::meta::
-            type_list_filter_t<util::TypeList<Parameters_T...>, IsComponentOrWithOrOptional>,
+            type_list_filter_t<util::TypeList<Filters_T...>, IsComponentOrWithOrOptional>,
         ToComponent>;
 
     using RequiredComponents = util::meta::type_list_transform_t<
-        util::meta::type_list_filter_t<util::TypeList<Parameters_T...>, IsComponentOrWith>,
+        util::meta::type_list_filter_t<util::TypeList<Filters_T...>, IsComponentOrWith>,
         ToComponent>;
 
     static_assert(
@@ -164,7 +167,7 @@ class Query {
     );
 
     using ExcludedComponents = util::meta::type_list_transform_t<
-        util::meta::type_list_filter_t<util::TypeList<Parameters_T...>, IsWithout>,
+        util::meta::type_list_filter_t<util::TypeList<Filters_T...>, IsWithout>,
         ToComponent>;
 
     using IncludedOptionalComponentTableRefs = util::meta::type_list_to_t<
@@ -239,9 +242,9 @@ private:
 
 }   // namespace ddge::ecs
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-constexpr auto ddge::ecs::Query<Parameters_T...>::matches_archetype(
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
+constexpr auto ddge::ecs::Query<Filters_T...>::matches_archetype(
     const Archetype& archetype
 ) -> bool
 {
@@ -253,19 +256,18 @@ constexpr auto ddge::ecs::Query<Parameters_T...>::matches_archetype(
            });
 }
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-ddge::ecs::Query<Parameters_T...>::Query(ddge::ecs::Registry& registry)
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
+ddge::ecs::Query<Filters_T...>::Query(ddge::ecs::Registry& registry)
     : m_registry_ref{ registry }
 {}
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
 template <::invocable_with_c<ddge::util::meta::type_list_transform_t<
-    ddge::util::meta::
-        type_list_filter_t<ddge::util::TypeList<Parameters_T...>, IsQueriedParameter>,
+    ddge::util::meta::type_list_filter_t<ddge::util::TypeList<Filters_T...>, IsQueriedParameter>,
     ToFunctionParameter>> F>
-auto ddge::ecs::Query<Parameters_T...>::operator()(F&& func) -> F
+auto ddge::ecs::Query<Filters_T...>::operator()(F&& func) -> F
 {
     cache_component_tables();
     if (!m_acquired_all_required_component_tables) {
@@ -285,9 +287,9 @@ auto ddge::ecs::Query<Parameters_T...>::operator()(F&& func) -> F
     return std::forward<F>(func);
 }
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto ddge::ecs::Query<Parameters_T...>::count() -> std::size_t
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
+auto ddge::ecs::Query<Filters_T...>::count() -> std::size_t
 {
     cache_component_tables();
     if (!m_acquired_all_required_component_tables) {
@@ -316,9 +318,9 @@ auto ddge::ecs::Query<Parameters_T...>::count() -> std::size_t
     return result;
 }
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto ddge::ecs::Query<Parameters_T...>::smallest_group_of_required_archetype_ids_from(
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
+auto ddge::ecs::Query<Filters_T...>::smallest_group_of_required_archetype_ids_from(
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs
 ) -> std::span<const ArchetypeID>
 {
@@ -338,9 +340,9 @@ auto ddge::ecs::Query<Parameters_T...>::smallest_group_of_required_archetype_ids
     );
 }
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto ddge::ecs::Query<Parameters_T...>::matching_archetype_ids_from(
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
+auto ddge::ecs::Query<Filters_T...>::matching_archetype_ids_from(
     std::span<const ArchetypeID> archetype_ids
 )
 {
@@ -351,10 +353,10 @@ auto ddge::ecs::Query<Parameters_T...>::matching_archetype_ids_from(
            });
 }
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
 template <typename F>
-auto ddge::ecs::Query<Parameters_T...>::visit_archetype(
+auto ddge::ecs::Query<Filters_T...>::visit_archetype(
     ddge::ecs::Registry&                registry,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     const ArchetypeID                   archetype_id,
@@ -377,11 +379,11 @@ auto ddge::ecs::Query<Parameters_T...>::visit_archetype(
     });
 }
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
 template <typename QueriedParameter_T>
     requires(std::is_same_v<QueriedParameter_T, ddge::ecs::ID>)
-auto ddge::ecs::Query<Parameters_T...>::queried_type_view_from(
+auto ddge::ecs::Query<Filters_T...>::queried_type_view_from(
     ddge::ecs::Registry& registry,
     IncludedOptionalComponentTableRefs&,
     const ArchetypeID archetype_id
@@ -390,11 +392,11 @@ auto ddge::ecs::Query<Parameters_T...>::queried_type_view_from(
     return registry.m_lookup_tables.get_iterator(archetype_id)->second.ids();
 }
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
 template <typename QueriedParameter_T>
     requires(ddge::util::meta::specialization_of_c<QueriedParameter_T, ddge::ecs::Optional>)
-auto ddge::ecs::Query<Parameters_T...>::queried_type_view_from(
+auto ddge::ecs::Query<Filters_T...>::queried_type_view_from(
     ddge::ecs::Registry&,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     const ArchetypeID                   archetype_id
@@ -421,11 +423,11 @@ auto ddge::ecs::Query<Parameters_T...>::queried_type_view_from(
     };
 }
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
 template <typename QueriedParameter_T>
     requires ddge::ecs::queryable_component_c<std::remove_const_t<QueriedParameter_T>>
-auto ddge::ecs::Query<Parameters_T...>::queried_type_view_from(
+auto ddge::ecs::Query<Filters_T...>::queried_type_view_from(
     ddge::ecs::Registry&,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,
     const ArchetypeID                   archetype_id
@@ -447,9 +449,9 @@ auto ddge::ecs::Query<Parameters_T...>::queried_type_view_from(
             .value_or(std::ranges::ref_view{ empty_container });
 }
 
-template <ddge::ecs::query_parameter_c... Parameters_T>
-    requires ::query_parameter_components_are_all_different_c<Parameters_T...>
-auto ddge::ecs::Query<Parameters_T...>::cache_component_tables() -> void
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires ::query_filter_components_are_all_different_c<Filters_T...>
+auto ddge::ecs::Query<Filters_T...>::cache_component_tables() -> void
 {
     if (m_acquired_all_included_component_tables) {
         return;

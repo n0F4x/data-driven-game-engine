@@ -2,7 +2,7 @@ module;
 
 #include <span>
 
-module snake.game.create_eat_apple_task_builder;
+module snake.game.tasks.eat_apple;
 
 import ddge.modules.ecs;
 import ddge.modules.execution.TaskBuilder;
@@ -16,7 +16,7 @@ import snake.game.DigestedApple;
 import snake.game.Snake;
 import snake.game.SnakeHead;
 
-using namespace ddge::ecs::query_parameter_tags;
+using namespace ddge::ecs::query_filter_tags;
 using namespace ddge::exec::accessors::ecs;
 using namespace ddge::exec::accessors::events;
 using namespace ddge::exec::accessors::messages;

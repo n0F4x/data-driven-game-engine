@@ -9,13 +9,14 @@ target_sources(${PROJECT_NAME} PRIVATE
         FILES
         game.cppm
         Apple.ixx
-        apple_spawn_time.ixx
+        apple_spawn_duration.ixx
         AppleSpawnTimer.ixx
         Cell.ixx
         Direction.ixx
         GameState.ixx
         Position.ixx
         Settings.ixx
+        setup.ixx
         Snake.ixx
         SnakeHead.ixx
 )

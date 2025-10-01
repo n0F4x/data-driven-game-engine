@@ -11,7 +11,7 @@ using namespace ddge::exec::accessors;
 auto initialize() -> ddge::exec::v2::TaskBuilder<void>
 {
     return ddge::exec::v2::group(
-        ddge::exec::v2::as_task(window::initialize),   //
+        window::initialize(),   //
         game::initialize()
     );
 }
@@ -30,7 +30,7 @@ auto clear_messages(const messages::Mailbox& mailbox) -> void
 auto update() -> ddge::exec::v2::TaskBuilder<void>
 {
     return ddge::exec::v2::group(
-        ddge::exec::v2::as_task(window::update),   //
+        window::update(),   //
         game::update()
     );
 }
@@ -38,10 +38,10 @@ auto update() -> ddge::exec::v2::TaskBuilder<void>
 [[nodiscard]]
 auto render() -> ddge::exec::v2::TaskBuilder<void>
 {
-    return ddge::exec::v2::at_fixed_rate<window::DisplayTimer>(                   //
-        ddge::exec::v2::start_as(ddge::exec::v2::as_task(window::clear_window))   //
-            .then(ddge::exec::v2::as_task(game::draw))
-            .then(ddge::exec::v2::as_task(window::display))
+    return ddge::exec::v2::at_fixed_rate<window::DisplayTimer>(   //
+        ddge::exec::v2::start_as(window::clear_window())          //
+            .then(game::draw())
+            .then(window::display())
     );
 }
 
@@ -58,8 +58,8 @@ auto run_game_loop() -> ddge::exec::v2::TaskBuilder<void>
             .then(update())
             .then(render()),
         ddge::exec::v2::all_of(
-            ddge::exec::v2::as_task(ddge::util::not_fn(window::window_should_close)),   //
-            ddge::exec::v2::as_task(game::game_is_running)
+            ddge::exec::v2::not_fn(window::window_should_close()),   //
+            game::game_is_running()
         )
     );
 }
@@ -67,8 +67,8 @@ auto run_game_loop() -> ddge::exec::v2::TaskBuilder<void>
 [[nodiscard]]
 auto shut_down() -> ddge::exec::v2::TaskBuilder<void>
 {
-    return ddge::exec::v2::start_as(ddge::exec::v2::as_task(game::shut_down))
-        .then(ddge::exec::v2::as_task(window::close_window));
+    return ddge::exec::v2::start_as(game::shut_down())   //
+        .then(window::close_window());
 }
 
 auto main() -> int

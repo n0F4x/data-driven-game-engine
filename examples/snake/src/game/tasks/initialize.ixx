@@ -1,4 +1,4 @@
-export module snake.game.create_initialize_task_builder;
+export module snake.game.tasks.initialize;
 
 import ddge.modules.execution.v2.TaskBuilder;
 

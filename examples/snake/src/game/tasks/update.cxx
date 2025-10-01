@@ -2,22 +2,22 @@ module;
 
 #include <cstdint>
 
-module snake.game.create_update_task_builder;
+module snake.game.tasks.update;
 
 import ddge.modules.execution.TaskBuilder;
 import ddge.modules.time.FixedTimer;
 
 import ddge.modules.execution;
 
-import snake.game.adjust_snake_speed;
+import snake.game.tasks.adjust_snake_speed;
 import snake.game.AppleSpawnTimer;
 import snake.game.AppleDigested;
-import snake.game.color_cells;
-import snake.game.create_eat_apple_task_builder;
+import snake.game.tasks.color_cells;
+import snake.game.tasks.eat_apple;
 import snake.game.GameState;
-import snake.game.move_snake;
-import snake.game.spawn_apple;
-import snake.game.trigger_world_update_message;
+import snake.game.tasks.move_snake;
+import snake.game.tasks.spawn_apple;
+import snake.game.tasks.trigger_world_update_message;
 import snake.game.WorldUpdate;
 
 using namespace ddge::exec::accessors;
@@ -50,35 +50,33 @@ auto world_update_message_received(
 
 auto game::update() -> ddge::exec::v2::TaskBuilder<void>
 {
-    return ddge::exec::v2::start_as(ddge::exec::v2::as_task(::update_timers))
+    namespace sch = ddge::exec::v2;
+
+    return sch::start_as(sch::as_task(::update_timers))
         .then(
-            ddge::exec::v2::run_if(
-                ddge::exec::v2::as_task(adjust_snake_speed),   //
-                ddge::exec::v2::as_task(::apple_was_digested)
+            sch::run_if(
+                adjust_snake_speed(),   //
+                sch::as_task(::apple_was_digested)
             )
         )
         .then(
-            ddge::exec::v2::repeat(
-                ddge::exec::v2::group(
-                    ddge::exec::v2::start_as(ddge::exec::v2::as_task(move_snake))   //
-                        .then(eat_apple()),
-                    ddge::exec::v2::as_task(trigger_world_update_message)
-                ),
-                ddge::exec::v2::as_task(::number_of_snake_moves)
+            sch::repeat(
+                sch::start_as(move_snake())   //
+                    .then(eat_apple())
+                    .then(trigger_world_update_message()),
+                sch::as_task(::number_of_snake_moves)
             )
         )
         .then(
-            ddge::exec::v2::at_fixed_rate<AppleSpawnTimer>(   //
-                ddge::exec::v2::group(
-                    ddge::exec::v2::as_task(spawn_apple),     //
-                    ddge::exec::v2::as_task(trigger_world_update_message)
-                )
+            sch::at_fixed_rate<AppleSpawnTimer>(   //
+                sch::start_as(spawn_apple())       //
+                    .then(trigger_world_update_message())
             )
         )
         .then(
-            ddge::exec::v2::run_if(
-                ddge::exec::v2::as_task(color_cells),
-                ddge::exec::v2::as_task(::world_update_message_received)
+            sch::run_if(
+                color_cells(),   //
+                sch::as_task(::world_update_message_received)
             )
         );
 }

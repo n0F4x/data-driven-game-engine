@@ -30,7 +30,9 @@ auto ddge::exec::v2::TaskHubBuilder::emplace(
                 m_generic_work_factories.size()
                 < (std::numeric_limits<WorkIndex::Underlying>::max() >> 1)
             );
+
             m_generic_work_factories.push_back(std::move(task));
+
             return WorkIndex{ m_generic_work_factories.size() - 1 };
         }
         case ExecPolicy::eForceOnMain: {
@@ -38,10 +40,13 @@ auto ddge::exec::v2::TaskHubBuilder::emplace(
                 m_main_only_work_factories.size()
                 < (std::numeric_limits<WorkIndex::Underlying>::max() >> 2)
             );
+
             m_main_only_work_factories.push_back(std::move(task));
-            return WorkIndex{ (~(std::numeric_limits<WorkIndex::Underlying>::max() >> 2)
-                               - ~(std::numeric_limits<WorkIndex::Underlying>::max() >> 1))
-                              + m_main_only_work_factories.size() - 1 };
+
+            return WorkIndex{
+                (m_main_only_work_factories.size() - 1)
+                | TaskHub::IndexTags::main_only   //
+            };
         }
     }
 }

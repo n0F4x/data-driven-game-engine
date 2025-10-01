@@ -1,20 +1,10 @@
-export module snake.game.game_is_running;
+export module snake.game.tasks.game_is_running;
 
-import ddge.modules.execution.accessors.events.Reader;
-
-import snake.game.GameOver;
-
-using namespace ddge::exec::accessors;
+import ddge.modules.execution.v2.TaskBuilder;
 
 namespace game {
 
-export auto game_is_running(const ::events::Reader<GameOver>& game_over_reader) -> bool;
+export [[nodiscard]]
+auto game_is_running() -> ddge::exec::v2::TaskBuilder<bool>;
 
 }   // namespace game
-
-module :private;
-
-auto game::game_is_running(const events::Reader<GameOver>& game_over_reader) -> bool
-{
-    return game_over_reader.read().size() == 0;
-}

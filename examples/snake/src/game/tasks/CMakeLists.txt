@@ -1,6 +1,14 @@
 target_sources(${PROJECT_NAME} PRIVATE
+        adjust_snake_speed.cxx
+        color_cells.cxx
+        draw.cxx
         eat_apple.cxx
+        game_is_running.cxx
         initialize.cxx
+        move_snake.cxx
+        shut_down.cxx
+        spawn_apple.cxx
+        trigger_world_update_message.cxx
         update.cxx
 )
 
@@ -18,7 +26,6 @@ target_sources(${PROJECT_NAME} PRIVATE
         draw.ixx
         game_is_running.ixx
         move_snake.ixx
-        setup.ixx
         shut_down.ixx
         spawn_apple.ixx
         trigger_world_update_message.ixx

@@ -7,7 +7,7 @@ module;
 
 #include <SFML/Graphics.hpp>
 
-module snake.game.create_initialize_task_builder;
+module snake.game.tasks.initialize;
 
 import ddge.modules.ecs;
 import ddge.modules.execution.TaskBuilder;
@@ -18,7 +18,7 @@ import ddge.modules.execution;
 import snake.assets.TextureLoader;
 import snake.game.AppleSpawnTimer;
 import snake.game.Cell;
-import snake.game.color_cells;
+import snake.game.tasks.color_cells;
 import snake.game.Direction;
 import snake.game.GameOver;
 import snake.game.GameState;
@@ -29,7 +29,7 @@ import snake.game.SnakeHead;
 import snake.window.Window;
 
 using namespace ddge::exec::accessors;
-using namespace ddge::ecs::query_parameter_tags;
+using namespace ddge::ecs::query_filter_tags;
 
 using CachedTextureLoader = ddge::exec::accessors::assets::Cached<::assets::TextureLoader>;
 
@@ -156,6 +156,6 @@ auto game::initialize() -> ddge::exec::v2::TaskBuilder<void>
     return ddge::exec::v2::start_as(ddge::exec::v2::as_task(::initialize_map))
         .then(ddge::exec::v2::as_task(::initialize_snake))
         .then(ddge::exec::v2::as_task(::load_apple_texture))
-        .then(ddge::exec::v2::as_task(color_cells))
+        .then(color_cells())
         .then(ddge::exec::v2::as_task(::reset_timers));
 }

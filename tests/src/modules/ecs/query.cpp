@@ -23,25 +23,25 @@ struct Empty2 {
     constexpr explicit Empty2(Tag) {}
 };
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
 struct IsQueried {
     constexpr static bool value = ddge::ecs::queryable_component_c<std::remove_const_t<T>>
                                || std::same_as<T, ddge::ecs::ID>
                                || ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>;
 };
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
 struct ToFunctionParameter;
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
     requires ddge::ecs::queryable_component_c<std::remove_const_t<T>>
 struct ToFunctionParameter<T> : std::type_identity<std::add_lvalue_reference_t<T>> {};
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
     requires std::same_as<T, ddge::ecs::ID>
 struct ToFunctionParameter<T> : std::type_identity<T> {};
 
-template <ddge::ecs::query_parameter_c T>
+template <ddge::ecs::query_filter_c T>
     requires ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>
 struct ToFunctionParameter<T>
     : std::type_identity<ddge::util::OptionalRef<ddge::util::meta::underlying_t<T>>> {};
@@ -251,7 +251,7 @@ TEST_CASE("ddge::ecs::query")
 
     SECTION("query parameter tags")
     {
-        using namespace ddge::ecs::query_parameter_tags;
+        using namespace ddge::ecs::query_filter_tags;
 
         // Test that it compiles
         ddge::ecs::query<

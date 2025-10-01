@@ -13,7 +13,7 @@ import ddge.utility.meta.type_traits.const_like;
 
 import :component_c;
 import :ComponentContainer;
-import :query.query_parameter_tags;
+import :query.query_filter_tags;
 
 template <typename Container_T>
 [[nodiscard]]

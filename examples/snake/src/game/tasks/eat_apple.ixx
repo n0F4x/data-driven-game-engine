@@ -1,4 +1,4 @@
-export module snake.game.create_eat_apple_task_builder;
+export module snake.game.tasks.eat_apple;
 
 import ddge.modules.execution.v2.TaskBuilder;
 

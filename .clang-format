@@ -76,7 +76,7 @@ BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 BreakBeforeConceptDeclarations: Always
 BreakBeforeTernaryOperators: true
-#BreakBinaryOperations: RespectPrecedence
+# BreakBinaryOperations: RespectPrecedence
 BreakConstructorInitializers: BeforeColon
 BreakFunctionDefinitionParameters: false
 BreakInheritanceList: BeforeColon
@@ -92,6 +92,7 @@ DerivePointerAlignment: false
 DisableFormat: false
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: Always
+# EnumTrailingComma: Insert
 FixNamespaceComments: true
 ForEachMacros: [ 'RANGES_FOR', 'FOREACH' ]
 IfMacros: [ 'IF' ]

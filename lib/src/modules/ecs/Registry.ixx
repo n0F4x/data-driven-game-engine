@@ -128,8 +128,8 @@ public:
     auto exists(ddge::ecs::ID id) const noexcept -> bool;
 
 private:
-    template <query_parameter_c... Parameters_T>
-        requires ::query_parameter_components_are_all_different_c<Parameters_T...>
+    template <query_filter_c... Filters_T>
+        requires ::query_filter_components_are_all_different_c<Filters_T...>
     friend class Query;
 
 

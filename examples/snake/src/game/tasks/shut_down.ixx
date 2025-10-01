@@ -1,18 +1,10 @@
-export module snake.game.shut_down;
+export module snake.game.tasks.shut_down;
 
-import ddge.modules.execution.accessors.states.State;
-
-import snake.game.GameState;
-
-using namespace ddge::exec::accessors;
+import ddge.modules.execution.v2.TaskBuilder;
 
 namespace game {
 
-export auto shut_down(states::State<GameState> game_state) -> void;
+export [[nodiscard]]
+auto shut_down() -> ddge::exec::v2::TaskBuilder<void>;
 
 }   // namespace game
-
-auto game::shut_down(const states::State<GameState> game_state) -> void
-{
-    game_state.reset();
-}

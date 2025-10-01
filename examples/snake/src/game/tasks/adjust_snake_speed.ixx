@@ -1,54 +1,10 @@
-module;
+export module snake.game.tasks.adjust_snake_speed;
 
-#include <chrono>
-
-export module snake.game.adjust_snake_speed;
-
-import ddge.modules.ecs;
-
-import ddge.modules.execution.accessors.ecs.Query;
-import ddge.modules.execution.accessors.resources.Resource;
-import ddge.modules.execution.accessors.states.State;
-
-import snake.game.GameState;
-import snake.game.Settings;
-import snake.game.Snake;
-
-using namespace ddge::ecs::query_parameter_tags;
-
-using namespace ddge::exec::accessors::ecs;
-using namespace ddge::exec::accessors::resources;
-using namespace ddge::exec::accessors::states;
+import ddge.modules.execution.v2.TaskBuilder;
 
 namespace game {
 
-export auto adjust_snake_speed(
-    Resource<Settings>                 settings,
-    State<GameState>                   game_state,
-    Query<ddge::ecs::ID, With<Snake>>& snakes
-) -> void;
+export [[nodiscard]]
+auto adjust_snake_speed() -> ddge::exec::v2::TaskBuilder<void>;
 
 }   // namespace game
-
-module :private;
-
-auto game::adjust_snake_speed(
-    const Resource<Settings>           settings,
-    const State<GameState>             game_state,
-    Query<ddge::ecs::ID, With<Snake>>& snakes
-) -> void
-{
-    int number_of_snakes{};
-    snakes.for_each([&number_of_snakes](ddge::ecs::ID) { number_of_snakes++; });
-
-    const int number_of_cells{ settings->cells_per_row * settings->cells_per_column };
-
-    // lerp := a + t(b − a)
-    const auto snake_move_duration{
-        game_state->default_snake_move_duration
-        + (game_state->max_snake_move_duration - game_state->default_snake_move_duration)
-              * (number_of_snakes - 1) / (number_of_cells - 1)
-    };
-
-    game_state->snake_move_timer.adjust_tick_duration(snake_move_duration);
-}
