@@ -17,11 +17,11 @@ import ddge.modules.execution.scheduler.WorkTree;
 import ddge.modules.execution.provider_c;
 import ddge.modules.execution.ProviderOf;
 import ddge.modules.execution.wrap_as_builder;
-import ddge.modules.execution.v2.Task;
 import ddge.modules.execution.v2.TaskBuilder;
 import ddge.modules.execution.v2.TaskHub;
 import ddge.modules.execution.v2.TaskHubBuilder;
 import ddge.modules.execution.v2.TaskHubProxy;
+import ddge.modules.execution.v2.TaskIndex;
 
 import ddge.utility.meta.type_traits.type_list.type_list_filter;
 import ddge.utility.meta.type_traits.type_list.type_list_transform;
@@ -93,20 +93,19 @@ auto ddge::exec::Plugin::run(this Self_T&& self, v2::TaskBuilder<void>&& task_bu
         Nexus              nexus{ AccessorProviders_T{ app }... };
         v2::TaskHubBuilder task_hub_builder;
 
-        std::atomic_bool should_stop{};
-        const v2::Task   task =
+        std::atomic_bool    should_stop{};
+        const v2::TaskIndex root_task_index =
             std::move(task_builder)
                 .build(nexus, task_hub_builder, [&should_stop](const v2::TaskHubProxy&) {
                     should_stop = true;
                 });
 
         const std::unique_ptr<v2::TaskHub> task_hub{ std::move(task_hub_builder).build() };
-
-        task.schedule(v2::TaskHubProxy{ *task_hub });
+        task_hub->schedule(root_task_index);
 
         while (!should_stop.load()) {
-            if (!task_hub->try_execute_one_main_only_work()) {
-                task_hub->try_execute_one(0);
+            if (!task_hub->try_execute_a_main_only_task()) {
+                task_hub->try_execute_a_generic_task(0);
             }
         }
     }(AccessorProvidersTypeList{});

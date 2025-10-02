@@ -2,7 +2,6 @@ add_subdirectory(primitives)
 
 target_sources(${PROJECT_NAME} PRIVATE
         ScheduleBuilder.cxx
-        Task.cxx
         TaskHub.cxx
         TaskHubProxy.cxx
         TaskHubBuilder.cxx
@@ -22,4 +21,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         TaskHub.ixx
         TaskHubBuilder.ixx
         TaskHubProxy.ixx
+        TaskIndex.ixx
 )

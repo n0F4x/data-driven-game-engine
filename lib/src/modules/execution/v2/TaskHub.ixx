@@ -6,9 +6,9 @@ module;
 
 export module ddge.modules.execution.v2.TaskHub;
 
-import ddge.modules.execution.scheduler.Work;
-import ddge.modules.execution.scheduler.WorkIndex;
 import ddge.modules.execution.scheduler.WorkTree;
+import ddge.modules.execution.v2.Task;
+import ddge.modules.execution.v2.TaskIndex;
 
 import ddge.modules.execution.v2.ExecPolicy;
 
@@ -16,15 +16,17 @@ namespace ddge::exec::v2 {
 
 export class TaskHub {
 public:
-    constexpr static WorkIndex::Underlying work_index_tag_mask =
-        std::numeric_limits<WorkIndex::Underlying>::max()
-        - (std::numeric_limits<WorkIndex::Underlying>::max() >> 2);
+    constexpr static TaskIndex::Underlying task_index_value_mask =
+        std::numeric_limits<TaskIndex::Underlying>::max() >> 2;
+
+    constexpr static TaskIndex::Underlying task_index_tag_mask =
+        std::numeric_limits<TaskIndex::Underlying>::max() - task_index_value_mask;
 
     struct IndexTags {
-        constexpr static WorkIndex::Underlying generic = 0;
-        constexpr static WorkIndex::Underlying main_only =
-            std::numeric_limits<WorkIndex::Underlying>::max()
-            - (std::numeric_limits<WorkIndex::Underlying>::max() >> 1);
+        constexpr static TaskIndex::Underlying generic = 0;
+        constexpr static TaskIndex::Underlying main_only =
+            std::numeric_limits<TaskIndex::Underlying>::max()
+            - (std::numeric_limits<TaskIndex::Underlying>::max() >> 1);
     };
 
     explicit TaskHub(
@@ -34,16 +36,16 @@ public:
     );
 
     [[nodiscard]]
-    auto try_emplace_generic_at(Work&& work, WorkIndex work_index)
-        -> std::expected<void, Work>;
+    auto try_emplace_generic_at(Task&& task, TaskIndex task_index)
+        -> std::expected<void, Task>;
     [[nodiscard]]
-    auto try_emplace_main_only_at(Work&& work, WorkIndex work_index)
-        -> std::expected<void, Work>;
+    auto try_emplace_main_only_at(Task&& task, TaskIndex task_index)
+        -> std::expected<void, Task>;
 
-    auto schedule(WorkIndex work_index) -> void;
+    auto schedule(TaskIndex task_index) -> void;
 
-    auto try_execute_one(uint32_t thread_id) -> bool;
-    auto try_execute_one_main_only_work() -> bool;
+    auto try_execute_a_generic_task(uint32_t thread_id) -> bool;
+    auto try_execute_a_main_only_task() -> bool;
 
 private:
     WorkTree m_generic_work_tree;

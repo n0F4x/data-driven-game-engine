@@ -5,7 +5,7 @@ module;
 export module ddge.modules.execution.v2.TaskBuilder;
 
 import ddge.modules.execution.Nexus;
-import ddge.modules.execution.v2.Task;
+import ddge.modules.execution.v2.TaskIndex;
 import ddge.modules.execution.v2.TaskFinishedCallback;
 import ddge.modules.execution.v2.TaskHubBuilder;
 
@@ -16,7 +16,7 @@ class TaskBuilder {
 public:
     explicit TaskBuilder(
         fu2::unique_function<
-            Task(Nexus&, TaskHubBuilder&, TaskFinishedCallback<Result_T>&&)>&& build
+            TaskIndex(Nexus&, TaskHubBuilder&, TaskFinishedCallback<Result_T>&&)>&& build
     );
 
     [[nodiscard]]
@@ -24,10 +24,11 @@ public:
         Nexus&                           nexus,
         TaskHubBuilder&                  task_hub_builder,
         TaskFinishedCallback<Result_T>&& callback = nullptr
-    ) && -> Task;
+    ) && -> TaskIndex;
 
 private:
-    fu2::unique_function<Task(Nexus&, TaskHubBuilder&, TaskFinishedCallback<Result_T>&&)>
+    fu2::unique_function<
+        TaskIndex(Nexus&, TaskHubBuilder&, TaskFinishedCallback<Result_T>&&)>
         m_build;
 };
 
@@ -35,8 +36,8 @@ private:
 
 template <typename Result_T>
 ddge::exec::v2::TaskBuilder<Result_T>::TaskBuilder(
-    fu2::unique_function<Task(Nexus&, TaskHubBuilder&, TaskFinishedCallback<Result_T>&&)>&&
-        build
+    fu2::unique_function<
+        TaskIndex(Nexus&, TaskHubBuilder&, TaskFinishedCallback<Result_T>&&)>&& build
 )
     : m_build{ std::move(build) }
 {}
@@ -46,7 +47,7 @@ auto ddge::exec::v2::TaskBuilder<Result_T>::build(
     Nexus&                           nexus,
     TaskHubBuilder&                  task_hub_builder,
     TaskFinishedCallback<Result_T>&& callback
-) && -> Task
+) && -> TaskIndex
 {
     return std::move(*this).m_build(nexus, task_hub_builder, std::move(callback));
 }

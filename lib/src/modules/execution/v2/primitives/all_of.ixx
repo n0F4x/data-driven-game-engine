@@ -8,11 +8,11 @@ module;
 export module ddge.modules.execution.v2.primitives.all_of;
 
 import ddge.modules.execution.Nexus;
-import ddge.modules.execution.v2.Task;
 import ddge.modules.execution.v2.TaskBuilder;
 import ddge.modules.execution.v2.TaskFinishedCallback;
 import ddge.modules.execution.v2.TaskHubBuilder;
 import ddge.modules.execution.v2.TaskHubProxy;
+import ddge.modules.execution.v2.TaskIndex;
 
 namespace ddge::exec::v2 {
 
@@ -24,7 +24,7 @@ auto all_of(TaskBuilder<Bools_T>&&... builders) -> TaskBuilder<bool>
             Nexus&                       nexus,
             TaskHubBuilder&              task_hub_builder,
             TaskFinishedCallback<bool>&& callback
-        ) mutable -> Task   //
+        ) mutable -> TaskIndex   //
         {
             class Consumer {
             public:
@@ -60,24 +60,21 @@ auto all_of(TaskBuilder<Bools_T>&&... builders) -> TaskBuilder<bool>
                 std::make_shared<Consumer>(sizeof...(Bools_T), std::move(callback))
             };
 
-            return Task{
-                task_hub_builder.emplace(
-                    [... tasks =   //
-                     std::move(x_builders)
-                         .build(
-                             nexus,
-                             task_hub_builder,
-                             [consumer](
-                                 const TaskHubProxy& task_hub_proxy, const bool result
-                             ) -> void { consumer->arrive(task_hub_proxy, result); }
-                         )]                                        //
-                    (const TaskHubProxy& task_hub_proxy) -> void   //
-                    {
-                        // TODO: account for shared resources
-                        (tasks.schedule(task_hub_proxy), ...);
-                    }
-                )   //
-            };
+            return task_hub_builder.emplace(
+                [... task_indices =   //
+                 std::move(x_builders)
+                     .build(
+                         nexus,
+                         task_hub_builder,
+                         [consumer](const TaskHubProxy& task_hub_proxy, const bool result)
+                             -> void { consumer->arrive(task_hub_proxy, result); }
+                     )]                                        //
+                (const TaskHubProxy& task_hub_proxy) -> void   //
+                {
+                    // TODO: account for shared resources
+                    (task_hub_proxy.schedule(task_indices), ...);
+                }
+            );
         }
     };
 }

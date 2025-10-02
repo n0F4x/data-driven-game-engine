@@ -14,36 +14,35 @@ module;
 
 module ddge.modules.execution.v2.TaskHubBuilder;
 
-import ddge.modules.execution.scheduler.WorkContinuation;
 import ddge.modules.execution.v2.TaskHubProxy;
 
 import ddge.utility.contracts;
 
 auto ddge::exec::v2::TaskHubBuilder::emplace(
-    fu2::unique_function<void(TaskHubProxy&)>&& task,
-    const ExecPolicy                            execution_policy
-) -> WorkIndex
+    fu2::unique_function<void(const TaskHubProxy&)>&& task,
+    const ExecPolicy                                  execution_policy
+) -> TaskIndex
 {
     switch (execution_policy) {
         case ExecPolicy::eDefault: {
             PRECOND(
                 m_generic_work_factories.size()
-                < (std::numeric_limits<WorkIndex::Underlying>::max() >> 1)
+                < (std::numeric_limits<TaskIndex::Underlying>::max() >> 1)
             );
 
             m_generic_work_factories.push_back(std::move(task));
 
-            return WorkIndex{ m_generic_work_factories.size() - 1 };
+            return TaskIndex{ m_generic_work_factories.size() - 1 };
         }
         case ExecPolicy::eForceOnMain: {
             PRECOND(
                 m_main_only_work_factories.size()
-                < (std::numeric_limits<WorkIndex::Underlying>::max() >> 2)
+                < (std::numeric_limits<TaskIndex::Underlying>::max() >> 2)
             );
 
             m_main_only_work_factories.push_back(std::move(task));
 
-            return WorkIndex{
+            return TaskIndex{
                 (m_main_only_work_factories.size() - 1)
                 | TaskHub::IndexTags::main_only   //
             };
@@ -69,13 +68,12 @@ auto ddge::exec::v2::TaskHubBuilder::build() && -> std::unique_ptr<TaskHub>
     {
         const std::expected expected = result->try_emplace_generic_at(
             [task_hub_proxy = TaskHubProxy{ *result },
-             x_task         = std::move(task)]       //
-            () mutable -> WorkContinuation   //
-            {
+             x_task         = std::move(task)]   //
+            () mutable -> void           //
+            {                            //
                 x_task(task_hub_proxy);
-                return WorkContinuation::eDontCare;
             },
-            WorkIndex{ i }
+            TaskIndex{ i | TaskHub::IndexTags::generic }
         );
         assert(expected.has_value());
     }
@@ -87,13 +85,12 @@ auto ddge::exec::v2::TaskHubBuilder::build() && -> std::unique_ptr<TaskHub>
     {
         const std::expected expected = result->try_emplace_main_only_at(
             [task_hub_proxy = TaskHubProxy{ *result },
-             x_task         = std::move(task)]       //
-            () mutable -> WorkContinuation   //
-            {
+             x_task         = std::move(task)]   //
+            () mutable -> void           //
+            {                            //
                 x_task(task_hub_proxy);
-                return WorkContinuation::eDontCare;
             },
-            WorkIndex{ i }
+            TaskIndex{ i | TaskHub::IndexTags::main_only }
         );
         assert(expected.has_value());
     }

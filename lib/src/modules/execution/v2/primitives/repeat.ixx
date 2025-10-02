@@ -8,11 +8,11 @@ module;
 export module ddge.modules.execution.v2.primitives.repeat;
 
 import ddge.modules.execution.Nexus;
-import ddge.modules.execution.v2.Task;
 import ddge.modules.execution.v2.TaskBuilder;
 import ddge.modules.execution.v2.TaskFinishedCallback;
 import ddge.modules.execution.v2.TaskHubBuilder;
 import ddge.modules.execution.v2.TaskHubProxy;
+import ddge.modules.execution.v2.TaskIndex;
 
 namespace ddge::exec::v2 {
 
@@ -28,7 +28,7 @@ auto repeat(
             Nexus&                       nexus,
             TaskHubBuilder&              task_hub_builder,
             TaskFinishedCallback<void>&& callback
-        ) mutable -> Task   //
+        ) mutable -> TaskIndex   //
         {
             class Looper {
             public:
@@ -40,15 +40,15 @@ auto repeat(
                 {
                     m_repetition = repetition;
                 }
-                auto set_looped_task(Task looped_task) -> void
+                auto set_looped_task_index(TaskIndex looped_task_index) -> void
                 {
-                    m_looped_task = looped_task;
+                    m_looped_task_index = looped_task_index;
                 }
                 auto schedule_loop_back(const TaskHubProxy& task_hub_proxy) -> void
                 {
                     if (m_repetition > 0) {
                         --*m_repetition;
-                        m_looped_task->schedule(task_hub_proxy);
+                        task_hub_proxy.schedule(*m_looped_task_index);
                     }
                     else {
                         m_callback(task_hub_proxy);
@@ -61,7 +61,7 @@ auto repeat(
 
             private:
                 std::optional<Repetition_T> m_repetition;
-                std::optional<Task>         m_looped_task;
+                std::optional<TaskIndex>    m_looped_task_index;
                 TaskFinishedCallback<void>  m_callback;
             };
 
@@ -69,7 +69,7 @@ auto repeat(
                 std::make_shared<Looper>(std::move(callback))   //
             };
 
-            const Task main =   //
+            const TaskIndex main_task_index =   //
                 std::move(x_main_builder)
                     .build(
                         nexus,   //
@@ -78,20 +78,20 @@ auto repeat(
                             looper->schedule_loop_back(task_hub_proxy);
                         }
                     );
-            looper->set_looped_task(main);
+            looper->set_looped_task_index(main_task_index);
 
-            Task repetition_task =   //
+            const TaskIndex repetition_specifier_task_index =   //
                 std::move(x_repetition_specifier_builder)
                     .build(
                         nexus,   //
                         task_hub_builder,
-                        [looper, main](
+                        [looper, main_task_index](
                             const TaskHubProxy& task_hub_proxy,
                             const Repetition_T  repetition
                         ) -> void {
                             if (repetition > 0) {
                                 looper->set_repetition(repetition - 1);
-                                main.schedule(task_hub_proxy);
+                                task_hub_proxy.schedule(main_task_index);
                             }
                             else {
                                 looper->call_callback(task_hub_proxy);
@@ -99,7 +99,7 @@ auto repeat(
                         }
                     );
 
-            return repetition_task;
+            return repetition_specifier_task_index;
         }
     };
 }
