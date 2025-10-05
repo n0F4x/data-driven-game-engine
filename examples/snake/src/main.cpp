@@ -16,12 +16,12 @@ auto initialize() -> ddge::exec::v2::TaskBuilder<void>
     );
 }
 
-auto process_events(const events::Processor& event_processor) -> void
+auto process_events(const Processor& event_processor) -> void
 {
     event_processor.process_events();
 }
 
-auto clear_messages(const messages::Mailbox& mailbox) -> void
+auto clear_messages(const Mailbox& mailbox) -> void
 {
     mailbox.clear_messages();
 }

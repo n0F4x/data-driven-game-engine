@@ -27,7 +27,7 @@ auto check_apple_digestion(
     const Sender<game::DigestedApple>                               message_sender
 ) -> void
 {
-    eaten_apples.for_each([message_sender, event_recorder](const ddge::ecs::ID id) {
+    eaten_apples.for_each([message_sender, event_recorder](const ddge::ecs::ID id) -> void {
         event_recorder.record();
         message_sender.send(game::DigestedApple{ .id = id });
     });

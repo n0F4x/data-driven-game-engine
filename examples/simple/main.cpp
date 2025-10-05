@@ -10,6 +10,7 @@ import demo.Window;
 
 using namespace ddge::exec::accessors;
 using namespace ddge::ecs::query_filter_tags;
+using namespace ddge::exec::accessors;
 
 struct WindowClosed {};
 
@@ -26,17 +27,19 @@ struct Collider {
     std::string message{};
 };
 
-constexpr static auto initialize =                                                 //
-    [](const resources::Resource<Window> window, const ecs::Registry registry) {   //
-        window->open();
+constexpr static auto initialize =                                       //
+    [](const Resource<Window> window, const Registry registry) -> void   //
+{
+    window->open();
 
-        registry->create(Position{}, EnemyTag{}, Collider{ .message = "Hi! 👋" });
-    };
+    registry->create(Position{}, EnemyTag{}, Collider{ .message = "Hi! 👋" });
+};
 
-constexpr static auto process_events =                //
-    [](const events::Processor& events_processor) {   //
-        events_processor.process_events();
-    };
+constexpr static auto process_events =              //
+    [](const Processor& events_processor) -> void   //
+{                                                   //
+    events_processor.process_events();
+};
 
 [[nodiscard]]
 auto update_world() -> ddge::exec::v2::TaskBuilder<void>
@@ -62,13 +65,14 @@ auto update_world() -> ddge::exec::v2::TaskBuilder<void>
 }
 
 constexpr static auto record_window_events =
-    [](const events::Recorder<WindowClosed>& window_closed_event_recorder) {
-        window_closed_event_recorder.record();
-    };
+    [](const Recorder<WindowClosed>& window_closed_event_recorder) -> void   //
+{                                                                            //
+    window_closed_event_recorder.record();
+};
 
 constexpr static auto game_is_running =
-    [](const events::Reader<WindowClosed>& window_closed_event_reader) -> bool   //
-{                                                                                //
+    [](const Reader<WindowClosed>& window_closed_event_reader) -> bool   //
+{                                                                        //
     return window_closed_event_reader.read().size() == 0;
 };
 
@@ -87,10 +91,11 @@ auto run_game_loop() -> ddge::exec::v2::TaskBuilder<void>
     );
 }
 
-constexpr static auto shut_down =                    //
-    [](const resources::Resource<Window> window) {   //
-        window->close();
-    };
+constexpr static auto shut_down =               //
+    [](const Resource<Window> window) -> void   //
+{                                               //
+    window->close();
+};
 
 auto main() -> int
 {
