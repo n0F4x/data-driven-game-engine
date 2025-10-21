@@ -1,7 +1,7 @@
 {
     "version": "0.5",
     "requires": [
-        "zstd/1.5.5#8400bcba21d1b495dca55edf3f065246%1744114239.76",
+        "zstd/1.5.5#a4398ab5244b10fb081eeac217b5ef9f%1760955096.505",
         "zlib/1.3.1#b8bc2603263cf7eccbd6e17e66b0ed76%1733936244.862",
         "vulkan-memory-allocator/3.2.1",
         "vulkan-headers/1.3.296.0#d3016741798609ba9dfa100c7a80ad5b%1730049313.734",
@@ -10,7 +10,7 @@
         "tsl-ordered-map/1.1.0#8ddec55fa369456ef4319f42bcb9af49%1694770345.954",
         "tl-function-ref/1.0.0#8efcfa342c5169b3c260a290257d7eee%1685725656.215",
         "stb/cci.20240531#ede183dce303916dab0c1b835df3926a%1720366012.336",
-        "spdlog/1.15.3#3ca0e9e6b83af4d0151e26541d140c86%1748617970.519",
+        "spdlog/1.16.0#942c2c39562ae25ba575d9c8e2bdf3b6%1760375663.769",
         "simdjson/3.13.0#cb9047537c259c8d78e1c7a03d44e923%1755520675.22",
         "sfml/3.0.1",
         "opengl/system#7c02ea6ef926fd04844af53622a30541%1730805494.23",
@@ -34,15 +34,10 @@
         "pkgconf/2.2.0#4ac315b50ef734072b00ff3aacbf52bf%1755505628.021",
         "ninja/1.13.1#294f8721dbcde145674f7ba44994700e%1753400352.374",
         "meson/1.9.1#abbc783cd297bedce14581b4aec060b8%1758626166.349",
-        "cmake/4.1.1#23ee27eac0192593228fe8ced4680627%1756413041.241",
+        "cmake/4.1.2#71e7d1fe41e6c644d602c7e4bdbac291%1759423783.444",
         "cmake/3.31.9#2032c6471fe4f5a3e17f65fed518d545%1758832282.188",
         "cmake/3.30.5#540068cc37f1d21b42b729c82d6bcb29%1728562547.207"
     ],
     "python_requires": [],
-    "overrides": {
-        "fmt/11.2.0": [
-            "fmt/12.0.0"
-        ]
-    },
     "config_requires": []
 }
