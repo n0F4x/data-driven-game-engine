@@ -1,79 +1,48 @@
 module;
 
-#include <atomic>
 #include <concepts>
-#include <memory>
 #include <utility>
 
 export module ddge.modules.execution.v2.primitives.group;
 
-import ddge.modules.execution.Nexus;
-import ddge.modules.execution.v2.TaskBuilder;
-import ddge.modules.execution.v2.TaskFinishedCallback;
-import ddge.modules.execution.v2.TaskHubBuilder;
-import ddge.modules.execution.v2.TaskHubProxy;
-import ddge.modules.execution.v2.TaskIndex;
+import ddge.modules.execution.v2.as_task_blueprint;
+import ddge.modules.execution.v2.Cardinality;
+import ddge.modules.execution.v2.convertible_to_TaskBlueprint_c;
+import ddge.modules.execution.v2.TaskBlueprint;
+import ddge.modules.execution.v2.TaskBuilderBundle;
 
 namespace ddge::exec::v2 {
 
-export template <std::convertible_to<TaskBuilder<void>>... TaskBuilders_T>
-auto group(TaskBuilders_T&&... builders) -> TaskBuilder<void>
-{
-    return TaskBuilder<void>{
-        [... x_builders = static_cast<TaskBuilder<void>>(std::move(builders))]   //
-        (                                                                        //
-            Nexus & nexus,
-            TaskHubBuilder & task_hub_builder,
-            TaskFinishedCallback<void>&& callback
-        ) mutable -> TaskIndex   //
-        {
-            class Consumer {
-            public:
-                explicit Consumer(
-                    const uint32_t               producer_count,
-                    TaskFinishedCallback<void>&& callback
-                )
-                    : m_number_of_producers{ producer_count },
-                      m_counter{ producer_count },
-                      m_callback{ std::move(callback) }
-                {}
+template <typename... TaskBlueprints_T>
+inline constexpr ddge::exec::v2::Cardinality cardinality_result{
+    ((sizeof...(TaskBlueprints_T) == 1)
+     && TaskBlueprints_T...[0] ::cardinality() == ddge::exec::v2::Cardinality::eSingle)
+        ? ddge::exec::v2::Cardinality::eSingle
+        : ddge::exec::v2::Cardinality::eMulti   //
+};
 
-                auto arrive(const TaskHubProxy& task_hub_proxy) -> void
-                {
-                    if (m_counter.fetch_sub(1) - 1 == 0) {
-                        m_counter.store(m_number_of_producers);
-                        m_callback(task_hub_proxy);
-                    }
-                }
-
-            private:
-                uint32_t                   m_number_of_producers;
-                std::atomic_uint32_t       m_counter;
-                std::atomic_bool           m_result{ true };
-                TaskFinishedCallback<void> m_callback;
-            };
-
-            const std::shared_ptr<Consumer> consumer{
-                std::make_shared<Consumer>(sizeof...(TaskBuilders_T), std::move(callback))
-            };
-
-            return task_hub_builder.emplace(
-                [... task_indices = std::move(x_builders)
-                                        .build(
-                                            nexus,
-                                            task_hub_builder,
-                                            [consumer](const TaskHubProxy& task_hub_proxy) {
-                                                consumer->arrive(task_hub_proxy);
-                                            }
-                                        )]             //
-                (const TaskHubProxy& task_hub_proxy)   //
-                {
-                    // TODO: account for shared resources
-                    (task_hub_proxy.schedule(task_indices), ...);
-                }
-            );
-        }
-    };
-}
+export template <typename... TaskBlueprints_T>
+    requires(sizeof...(TaskBlueprints_T) > 0)
+         && (convertible_to_TaskBlueprint_c<TaskBlueprints_T, void> && ...)
+auto group(TaskBlueprints_T&&... blueprints)
+    -> TaskBlueprint<void, cardinality_result<TaskBlueprints_T...>>;
 
 }   // namespace ddge::exec::v2
+
+template <typename... TaskBlueprints_T>
+    requires(sizeof...(TaskBlueprints_T) > 0)
+         && (ddge::exec::v2::convertible_to_TaskBlueprint_c<TaskBlueprints_T, void> && ...)
+auto ddge::exec::v2::group(TaskBlueprints_T&&... blueprints)
+    -> TaskBlueprint<void, cardinality_result<TaskBlueprints_T...>>
+{
+    return TaskBlueprint<void, cardinality_result<TaskBlueprints_T...>>{
+        [... x_blueprints = as_task_blueprint<void>(std::move(blueprints)
+         )] mutable -> TaskBuilderBundle<void> {
+            TaskBuilderBundle<void> bundle;
+
+            (bundle.emplace(std::move(x_blueprints).materialize()), ...);
+
+            return bundle;
+        }   //
+    };
+}

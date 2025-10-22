@@ -8,8 +8,12 @@ export module ddge.modules.execution.v2.primitives.as_task;
 import ddge.modules.execution.Nexus;
 import ddge.modules.execution.provide_accessors_for;
 import ddge.modules.execution.raw_task_c;
+import ddge.modules.execution.v2.Cardinality;
 import ddge.modules.execution.v2.ExecPolicy;
+import ddge.modules.execution.v2.TaskBlueprint;
 import ddge.modules.execution.v2.TaskBuilder;
+import ddge.modules.execution.v2.TaskBuilderBundle;
+import ddge.modules.execution.v2.TaskBundle;
 import ddge.modules.execution.v2.TaskFinishedCallback;
 import ddge.modules.execution.v2.TaskHubBuilder;
 import ddge.modules.execution.v2.TaskHubProxy;
@@ -21,32 +25,41 @@ namespace ddge::exec::v2 {
 
 export template <ExecPolicy execution_policy_T = ExecPolicy::eDefault, raw_task_c F>
 [[nodiscard]]
-auto as_task(F&& func) -> TaskBuilder<util::meta::result_of_t<F>>
+auto as_task(F&& func) -> TaskBlueprint<util::meta::result_of_t<F>, Cardinality::eSingle>
 {
-    return TaskBuilder<util::meta::result_of_t<F>>{
-        [x_func = std::forward<F>(func)](
-            Nexus&                                             nexus,
-            TaskHubBuilder&                                    task_hub_builder,
-            TaskFinishedCallback<util::meta::result_of_t<F>>&& callback
-        ) mutable -> TaskIndex {
-            return task_hub_builder.emplace(
-                [body            = std::move(x_func),
-                 accessors_tuple = provide_accessors_for<F>(nexus),
-                 x_callback      = std::move(callback)](   //
-                    const TaskHubProxy& task_hub_proxy
-                ) mutable -> void                     //
-                {
-                    if constexpr (std::is_void_v<util::meta::result_of_t<F>>) {
-                        std::apply(body, accessors_tuple);
-                        x_callback(task_hub_proxy);
-                    }
-                    else {
-                        x_callback(task_hub_proxy, std::apply(body, accessors_tuple));
-                    }
-                },
-                execution_policy_T
-            );
-        }
+    using Result = util::meta::result_of_t<F>;
+
+    return TaskBlueprint<Result, Cardinality::eSingle>{
+        [x_func = std::forward<F>(func)]() mutable -> TaskBuilder<Result> {
+            return TaskBuilder<Result>{
+                [y_func = std::move(x_func)](
+                    Nexus&                                             nexus,
+                    TaskHubBuilder&                                    task_hub_builder,
+                    TaskFinishedCallback<util::meta::result_of_t<F>>&& callback
+                ) mutable -> TaskBundle {
+                    return TaskBundle{
+                        task_hub_builder.emplace(
+                            [body            = std::move(y_func),
+                             accessors_tuple = provide_accessors_for<F>(nexus),
+                             x_callback      = std::move(callback)]                     //
+                            (const TaskHubProxy& task_hub_proxy) mutable -> void   //
+                            {
+                                if constexpr (std::is_void_v<Result>) {
+                                    std::apply(body, accessors_tuple);
+                                    x_callback(task_hub_proxy);
+                                }
+                                else {
+                                    x_callback(
+                                        task_hub_proxy, std::apply(body, accessors_tuple)
+                                    );
+                                }
+                            },
+                            execution_policy_T
+                        )   //
+                    };
+                }   //
+            };
+        }   //
     };
 }
 

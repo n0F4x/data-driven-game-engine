@@ -10,7 +10,8 @@ import snake.window.DisplayTimer;
 
 using namespace ddge::exec::accessors;
 
-auto window::initialize() -> ddge::exec::v2::TaskBuilder<void>
+auto window::initialize()
+    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(
         +[](const resources::Resource<DisplayTimer> display_timer) -> void {

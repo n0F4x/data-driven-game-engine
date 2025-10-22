@@ -20,7 +20,8 @@ import snake.game.SnakeHead;
 using namespace ddge::exec::accessors;
 using namespace ddge::ecs::query_filter_tags;
 
-auto game::color_cells() -> ddge::exec::v2::TaskBuilder<void>
+auto game::color_cells()
+    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::query(
         [](const Optional<const SnakeHead> snake_head,

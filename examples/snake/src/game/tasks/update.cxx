@@ -2,6 +2,9 @@ module;
 
 #include <cstdint>
 
+// TODO: remove once Clang can mangle
+#include <function2/function2.hpp>
+
 module snake.game.tasks.update;
 
 import ddge.modules.execution.TaskBuilder;
@@ -48,7 +51,8 @@ auto world_update_message_received(
     return !message_receiver.receive().empty();
 }
 
-auto game::update() -> ddge::exec::v2::TaskBuilder<void>
+auto game::update()
+    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     namespace sch = ddge::exec::v2;
 

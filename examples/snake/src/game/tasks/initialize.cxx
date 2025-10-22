@@ -5,6 +5,9 @@ module;
 #include <random>
 #include <ranges>
 
+// TODO: remove once Clang can mangle
+#include <function2/function2.hpp>
+
 #include <SFML/Graphics.hpp>
 
 module snake.game.tasks.initialize;
@@ -151,7 +154,8 @@ auto reset_timers(
     game_state->snake_move_timer.reset();
 }
 
-auto game::initialize() -> ddge::exec::v2::TaskBuilder<void>
+auto game::initialize()
+    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::start_as(ddge::exec::v2::as_task(::initialize_map))
         .then(ddge::exec::v2::as_task(::initialize_snake))

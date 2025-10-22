@@ -10,9 +10,10 @@ import ddge.modules.ecs;
 
 import ddge.modules.execution.accessors.ecs.Query;
 import ddge.modules.execution.providers.ECSProvider;
+import ddge.modules.execution.v2.Cardinality;
 import ddge.modules.execution.v2.ExecPolicy;
 import ddge.modules.execution.v2.primitives.as_task;
-import ddge.modules.execution.v2.TaskBuilder;
+import ddge.modules.execution.v2.TaskBlueprint;
 
 import ddge.utility.meta.type_traits.functional.arguments_of;
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
@@ -28,7 +29,7 @@ export template <
     ExecPolicy                      execution_policy_T = ExecPolicy::eDefault,
     ecs::deducable_query_function_c F>
 [[nodiscard]]
-auto query(F&& func) -> TaskBuilder<void>
+auto query(F&& func) -> TaskBlueprint<void, Cardinality::eSingle>
 {
     using Query = util::meta::type_list_to_t<
         util::meta::

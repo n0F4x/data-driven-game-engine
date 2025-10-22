@@ -1,14 +1,21 @@
+// TODO: remove once Clang can mangle
+#include <function2/function2.hpp>
+
 import ddge.prelude;
 import ddge.modules.time;
 import ddge.modules.execution;
 import ddge.utility.not_fn;
 
-import snake;
+// TODO: import snake only once
+import snake.assets;
+import snake.game;
+import snake.window;
 
 using namespace ddge::exec::accessors;
 
 [[nodiscard]]
-auto initialize() -> ddge::exec::v2::TaskBuilder<void>
+auto initialize()
+    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eMulti>
 {
     return ddge::exec::v2::group(
         window::initialize(),   //
@@ -27,7 +34,7 @@ auto clear_messages(const Mailbox& mailbox) -> void
 }
 
 [[nodiscard]]
-auto update() -> ddge::exec::v2::TaskBuilder<void>
+auto update() -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eMulti>
 {
     return ddge::exec::v2::group(
         window::update(),   //
@@ -36,7 +43,7 @@ auto update() -> ddge::exec::v2::TaskBuilder<void>
 }
 
 [[nodiscard]]
-auto render() -> ddge::exec::v2::TaskBuilder<void>
+auto render() -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::at_fixed_rate<window::DisplayTimer>(   //
         ddge::exec::v2::start_as(window::clear_window())          //
@@ -46,7 +53,8 @@ auto render() -> ddge::exec::v2::TaskBuilder<void>
 }
 
 [[nodiscard]]
-auto run_game_loop() -> ddge::exec::v2::TaskBuilder<void>
+auto run_game_loop()
+    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::loop_until(
         ddge::exec::v2::start_as(
@@ -65,7 +73,8 @@ auto run_game_loop() -> ddge::exec::v2::TaskBuilder<void>
 }
 
 [[nodiscard]]
-auto shut_down() -> ddge::exec::v2::TaskBuilder<void>
+auto shut_down()
+    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::start_as(game::shut_down())   //
         .then(window::close_window());

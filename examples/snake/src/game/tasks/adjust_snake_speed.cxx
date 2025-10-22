@@ -24,7 +24,8 @@ using namespace ddge::exec::accessors::ecs;
 using namespace ddge::exec::accessors::resources;
 using namespace ddge::exec::accessors::states;
 
-auto game::adjust_snake_speed() -> ddge::exec::v2::TaskBuilder<void>
+auto game::adjust_snake_speed()
+    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(
         +[](   //

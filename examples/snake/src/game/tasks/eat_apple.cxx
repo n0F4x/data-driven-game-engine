@@ -2,6 +2,9 @@ module;
 
 #include <span>
 
+// TODO: remove once Clang can mangle
+#include <function2/function2.hpp>
+
 module snake.game.tasks.eat_apple;
 
 import ddge.modules.ecs;
@@ -54,7 +57,8 @@ auto grow_snake(
     }
 }
 
-auto game::eat_apple() -> ddge::exec::v2::TaskBuilder<void>
+auto game::eat_apple()
+    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::start_as(ddge::exec::v2::as_task(check_apple_digestion))
         .then(

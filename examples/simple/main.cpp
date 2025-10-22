@@ -1,6 +1,9 @@
 #include <print>
 #include <string>
 
+// TODO: remove once Clang can mangle
+#include <function2/function2.hpp>
+
 import ddge.prelude;
 import ddge.modules.ecs;
 import ddge.modules.execution;
@@ -42,7 +45,7 @@ constexpr static auto process_events =              //
 };
 
 [[nodiscard]]
-auto update_world() -> ddge::exec::v2::TaskBuilder<void>
+auto update_world()
 {
     return ddge::exec::v2::query(
         +[](   //
@@ -77,7 +80,7 @@ constexpr static auto game_is_running =
 };
 
 [[nodiscard]]
-auto run_game_loop() -> ddge::exec::v2::TaskBuilder<void>
+auto run_game_loop()
 {
     return ddge::exec::v2::loop_until(
         ddge::exec::v2::start_as(

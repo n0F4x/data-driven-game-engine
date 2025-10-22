@@ -5,6 +5,9 @@ module;
 #include <type_traits>
 #include <utility>
 
+// TODO: remove once Clang can mangle
+#include <function2/function2.hpp>
+
 export module ddge.modules.execution.Plugin;
 
 import ddge.modules.app.add_on_t;
@@ -17,11 +20,17 @@ import ddge.modules.execution.scheduler.WorkTree;
 import ddge.modules.execution.provider_c;
 import ddge.modules.execution.ProviderOf;
 import ddge.modules.execution.wrap_as_builder;
+import ddge.modules.execution.v2.as_task_blueprint;
+import ddge.modules.execution.v2.Cardinality;
+import ddge.modules.execution.v2.convertible_to_TaskBlueprint_c;
+import ddge.modules.execution.v2.gatherers.WaitAll;
+import ddge.modules.execution.v2.TaskBlueprint;
 import ddge.modules.execution.v2.TaskBuilder;
+import ddge.modules.execution.v2.TaskBuilderBundle;
+import ddge.modules.execution.v2.TaskBundle;
 import ddge.modules.execution.v2.TaskHub;
 import ddge.modules.execution.v2.TaskHubBuilder;
 import ddge.modules.execution.v2.TaskHubProxy;
-import ddge.modules.execution.v2.TaskIndex;
 
 import ddge.utility.meta.type_traits.type_list.type_list_filter;
 import ddge.utility.meta.type_traits.type_list.type_list_transform;
@@ -35,8 +44,8 @@ public:
     auto run(this Self_T&&, TaskBuilder_T&& task_builder)
         -> as_task_builder_t<TaskBuilder_T>::Result;
 
-    template <app::builder_c Self_T>
-    auto run(this Self_T&&, v2::TaskBuilder<void>&& task_builder) -> void;
+    template <app::builder_c Self_T, v2::convertible_to_TaskBlueprint_c<void> TaskBlueprint_T>
+    auto run(this Self_T&&, TaskBlueprint_T&& task_blueprint) -> void;
 };
 
 }   // namespace ddge::exec
@@ -75,9 +84,24 @@ auto ddge::exec::Plugin::run(this Self_T&& self, TaskBuilder_T&& task_builder)
         }(AccessorProviders{});
 }
 
-template <ddge::app::builder_c Self_T>
-auto ddge::exec::Plugin::run(this Self_T&& self, v2::TaskBuilder<void>&& task_builder)
-    -> void
+[[nodiscard]]
+auto sync(ddge::exec::v2::TaskBuilder<void>&& task_builder)
+    -> ddge::exec::v2::TaskBuilder<void>
+{
+    return std::move(task_builder);
+}
+
+[[nodiscard]]
+auto sync(ddge::exec::v2::TaskBuilderBundle<void>&& task_builder_bundle)
+    -> ddge::exec::v2::TaskBuilder<void>
+{
+    return std::move(task_builder_bundle).sync(ddge::exec::v2::WaitAllBuilder{});
+}
+
+template <
+    ddge::app::builder_c                                 Self_T,
+    ddge::exec::v2::convertible_to_TaskBlueprint_c<void> TaskBlueprint_T>
+auto ddge::exec::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprint) -> void
 {
     auto app{ std::forward<Self_T>(self).build() };
     using App                       = decltype(app);
@@ -87,21 +111,21 @@ auto ddge::exec::Plugin::run(this Self_T&& self, v2::TaskBuilder<void>&& task_bu
             type_list_filter_t<Addons, AddonTraits<App>::template HasAccessorProvider>,
         AddonTraits<App>::template AccessorProvider>;
 
-    [&task_builder, &app]<typename... AccessorProviders_T>   //
-        (util::TypeList<AccessorProviders_T...>)             //
+    [&task_blueprint, &app]<typename... AccessorProviders_T>   //
+        (util::TypeList<AccessorProviders_T...>)               //
     {
         Nexus              nexus{ AccessorProviders_T{ app }... };
         v2::TaskHubBuilder task_hub_builder;
 
-        std::atomic_bool    should_stop{};
-        const v2::TaskIndex root_task_index =
-            std::move(task_builder)
+        std::atomic_bool should_stop{};
+        v2::TaskBundle   root_task =
+            ::sync(v2::as_task_blueprint<void>(std::move(task_blueprint)).materialize())
                 .build(nexus, task_hub_builder, [&should_stop](const v2::TaskHubProxy&) {
                     should_stop = true;
                 });
 
         const std::unique_ptr<v2::TaskHub> task_hub{ std::move(task_hub_builder).build() };
-        task_hub->schedule(root_task_index);
+        root_task(v2::TaskHubProxy{ *task_hub });
 
         while (!should_stop.load()) {
             if (!task_hub->try_execute_a_main_only_task()) {

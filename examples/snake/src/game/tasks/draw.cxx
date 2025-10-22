@@ -17,7 +17,8 @@ import snake.window.Window;
 
 using namespace ddge::exec::accessors;
 
-auto game::draw() -> ddge::exec::v2::TaskBuilder<void>
+auto game::draw()
+    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(
         +[](Resource<window::Window> window, Query<const Cell>& cells) -> void {
