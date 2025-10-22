@@ -87,7 +87,7 @@ constexpr auto ddge::util::PreconditionViolation::format_what(
 {
     // TODO: constexpr std::format
     return fmt::format(
-        "{}\n    source: {}\n    message: {}",
+        "\n{}\n    source: {}\n    message: {}",
         headline(),
         format_location(location),
         message

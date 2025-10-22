@@ -7,7 +7,8 @@ export module ddge.modules.execution.v2.primitives.at_fixed_rate;
 import ddge.modules.time.FixedTimer;
 import ddge.modules.time.VariableTimer;
 
-import ddge.modules.execution.accessors.resources;
+import ddge.modules.execution.accessors.resources.Resource;
+import ddge.modules.execution.providers.ResourceProvider;
 import ddge.modules.execution.v2.convertible_to_TaskBlueprint_c;
 import ddge.modules.execution.v2.Cardinality;
 import ddge.modules.execution.v2.primitives.as_task;

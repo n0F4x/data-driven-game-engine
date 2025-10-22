@@ -1,6 +1,5 @@
 module;
 
-#include <concepts>
 #include <utility>
 
 export module ddge.modules.execution.v2.primitives.group;

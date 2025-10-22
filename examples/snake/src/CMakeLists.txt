@@ -7,6 +7,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE engine::engine)
 find_package(SFML CONFIG REQUIRED COMPONENTS Graphics)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
 
+add_subdirectory(app)
 add_subdirectory(assets)
 add_subdirectory(game)
 add_subdirectory(profiler)
