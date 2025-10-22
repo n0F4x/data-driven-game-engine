@@ -11,7 +11,7 @@ import snake.window.SecondTimer;
 
 using namespace ddge::exec::accessors;
 
-auto window::initialize()
+auto window::tasks::initialize()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(

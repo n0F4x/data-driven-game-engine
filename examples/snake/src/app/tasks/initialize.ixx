@@ -8,17 +8,17 @@ import snake.game.tasks.initialize;
 import snake.profiler.tasks.initialize;
 import snake.window.tasks.initialize;
 
-namespace app {
+namespace app::tasks {
 
 export [[nodiscard]]
 auto initialize()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eMulti>
 {
     return ddge::exec::v2::group(
-        window::initialize(),   //
-        game::initialize(),
-        profiler::initialize()
+        window::tasks::initialize(),   //
+        game::tasks::initialize(),
+        profiler::tasks::initialize()
     );
 }
 
-}   // namespace app
+}   // namespace app::tasks

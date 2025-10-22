@@ -51,7 +51,7 @@ auto world_update_message_received(
     return !message_receiver.receive().empty();
 }
 
-auto game::update()
+auto game::tasks::update()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     namespace sch = ddge::exec::v2;

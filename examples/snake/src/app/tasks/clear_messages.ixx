@@ -13,7 +13,7 @@ import ddge.modules.execution.v2.TaskBlueprint;
 
 using namespace ddge::exec::accessors;
 
-namespace app {
+namespace app::tasks {
 
 export [[nodiscard]]
 auto clear_messages()
@@ -24,4 +24,4 @@ auto clear_messages()
     });
 }
 
-}   // namespace app
+}   // namespace app::tasks

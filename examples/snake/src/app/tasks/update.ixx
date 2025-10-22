@@ -7,15 +7,15 @@ import ddge.modules.execution.v2.TaskBlueprint;
 import snake.game.tasks.update;
 import snake.window.tasks.update;
 
-namespace app {
+namespace app::tasks {
 
 export [[nodiscard]]
 auto update() -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eMulti>
 {
     return ddge::exec::v2::group(
-        window::update(),   //
-        game::update()
+        window::tasks::update(),   //
+        game::tasks::update()
     );
 }
 
-}   // namespace app
+}   // namespace app::tasks

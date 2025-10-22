@@ -17,7 +17,7 @@ import snake.window.Window;
 
 using namespace ddge::exec::accessors;
 
-auto game::draw()
+auto game::tasks::draw()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(

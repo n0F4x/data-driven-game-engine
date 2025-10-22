@@ -28,7 +28,7 @@ using namespace ddge::exec::accessors::ecs;
 
 using CachedTextureLoader = ddge::exec::accessors::assets::Cached<assets::TextureLoader>;
 
-auto game::spawn_apple()
+auto game::tasks::spawn_apple()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(

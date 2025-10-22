@@ -57,7 +57,7 @@ auto grow_snake(
     }
 }
 
-auto game::eat_apple()
+auto game::tasks::eat_apple()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::start_as(ddge::exec::v2::as_task(check_apple_digestion))

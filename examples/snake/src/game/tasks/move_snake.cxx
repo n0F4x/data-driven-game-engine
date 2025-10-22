@@ -182,7 +182,7 @@ auto decrease_charges(ddge::ecs::Registry& registry) -> void
     }
 }
 
-auto game::move_snake()
+auto game::tasks::move_snake()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(

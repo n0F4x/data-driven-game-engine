@@ -13,7 +13,7 @@ import snake.window.DisplayInfo;
 
 using namespace ddge::exec::accessors;
 
-auto profiler::update()
+auto profiler::tasks::update()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(

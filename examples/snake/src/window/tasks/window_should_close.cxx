@@ -13,7 +13,7 @@ import ddge.modules.execution.v2.primitives.as_task;
 
 using namespace ddge::exec::accessors;
 
-auto window::window_should_close()
+auto window::tasks::window_should_close()
     -> ddge::exec::v2::TaskBlueprint<bool, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(

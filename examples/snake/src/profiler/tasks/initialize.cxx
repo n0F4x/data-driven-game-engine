@@ -8,7 +8,7 @@ import snake.profiler.SecondTimer;
 
 using namespace ddge::exec::accessors;
 
-auto profiler::initialize()
+auto profiler::tasks::initialize()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(

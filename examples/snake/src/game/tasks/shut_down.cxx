@@ -8,7 +8,7 @@ import snake.game.GameState;
 
 using namespace ddge::exec::accessors;
 
-auto game::shut_down()
+auto game::tasks::shut_down()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(

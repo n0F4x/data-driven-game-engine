@@ -15,16 +15,16 @@ import snake.window.DisplayTimer;
 import snake.window.tasks.clear_window;
 import snake.window.tasks.display;
 
-namespace app {
+namespace app::tasks {
 
 export [[nodiscard]]
 auto render() -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::at_fixed_rate<window::DisplayTimer>(   //
-        ddge::exec::v2::start_as(window::clear_window())          //
-            .then(game::draw())
-            .then(window::display())
+        ddge::exec::v2::start_as(window::tasks::clear_window())          //
+            .then(game::tasks::draw())
+            .then(window::tasks::display())
     );
 }
 
-}   // namespace app
+}   // namespace app::tasks

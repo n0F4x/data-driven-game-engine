@@ -20,9 +20,9 @@ auto run(AppBuilder_T&& app_builder)
 {
     return std::forward<AppBuilder_T>(app_builder)
         .run(
-            ddge::exec::v2::start_as(initialize())   //
-                .then(run_game_loop())
-                .then(shut_down())
+            ddge::exec::v2::start_as(tasks::initialize())   //
+                .then(tasks::run_game_loop())
+                .then(tasks::shut_down())
         );
 }
 

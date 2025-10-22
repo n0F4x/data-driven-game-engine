@@ -21,7 +21,7 @@ import snake.game.tasks.game_is_running;
 import snake.profiler.tasks.update;
 import snake.window.tasks.window_should_close;
 
-namespace app {
+namespace app::tasks {
 
 export [[nodiscard]]
 auto run_game_loop()
@@ -36,12 +36,12 @@ auto run_game_loop()
         )
             .then(update())
             .then(render())
-            .then(profiler::update()),
+            .then(profiler::tasks::update()),
         ddge::exec::v2::all_of(
-            ddge::exec::v2::not_fn(window::window_should_close()),   //
-            game::game_is_running()
+            ddge::exec::v2::not_fn(window::tasks::window_should_close()),   //
+            game::tasks::game_is_running()
         )
     );
 }
 
-}   // namespace app
+}   // namespace app::tasks

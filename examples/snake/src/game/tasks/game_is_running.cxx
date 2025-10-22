@@ -13,7 +13,7 @@ import snake.game.GameOver;
 
 using namespace ddge::exec::accessors;
 
-auto game::game_is_running()
+auto game::tasks::game_is_running()
     -> ddge::exec::v2::TaskBlueprint<bool, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(

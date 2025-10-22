@@ -8,7 +8,7 @@ import snake.game.WorldUpdate;
 
 using namespace ddge::exec::accessors;
 
-auto game::trigger_world_update_message()
+auto game::tasks::trigger_world_update_message()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
     return ddge::exec::v2::as_task(
