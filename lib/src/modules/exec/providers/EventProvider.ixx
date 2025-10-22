@@ -26,7 +26,7 @@ import ddge.utility.meta.reflection.name_of;
 
 namespace ddge::exec::providers {
 
-class EventProvider {
+export class EventProvider {
 public:
     template <ddge::app::has_addons_c<events::Addon> App_T>
     constexpr explicit EventProvider(App_T& app);
@@ -50,20 +50,20 @@ private:
 }   // namespace ddge::exec::providers
 
 template <>
-struct ddge::exec::ProviderOf<ddge::events::Addon>
+struct ddge::exec::ProviderFor<ddge::events::Addon>
     : std::type_identity<ddge::exec::providers::EventProvider> {};
 
 template <>
-struct ddge::exec::ProviderFor<ddge::exec::accessors::events::Processor>
+struct ddge::exec::ProviderOf<ddge::exec::accessors::events::Processor>
     : std::type_identity<ddge::exec::providers::EventProvider> {};
 
 template <typename... Events_T>
 struct ddge::exec::
-    ProviderFor<ddge::exec::accessors::events::Recorder<Events_T...>>
+    ProviderOf<ddge::exec::accessors::events::Recorder<Events_T...>>
     : std::type_identity<ddge::exec::providers::EventProvider> {};
 
 template <typename Event_T>
-struct ddge::exec::ProviderFor<ddge::exec::accessors::events::Reader<Event_T>>
+struct ddge::exec::ProviderOf<ddge::exec::accessors::events::Reader<Event_T>>
     : std::type_identity<ddge::exec::providers::EventProvider> {};
 
 template <ddge::app::has_addons_c<ddge::events::Addon> App_T>

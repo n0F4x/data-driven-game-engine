@@ -54,12 +54,12 @@ template <typename App_T>
 struct AddonTraits {
     template <typename Addon_T>
         struct HasAccessorProvider : std::bool_constant < requires {
-        ddge::exec::provider_c<ddge::exec::provider_of_t<Addon_T>, App_T>;
+        ddge::exec::provider_c<ddge::exec::provider_for_t<Addon_T>, App_T>;
     } > {};
 
     template <typename Addon_T>
     struct AccessorProvider {
-        using type = ddge::exec::provider_of_t<Addon_T>;
+        using type = ddge::exec::provider_for_t<Addon_T>;
     };
 };
 

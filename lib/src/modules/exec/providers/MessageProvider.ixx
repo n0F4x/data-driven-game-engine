@@ -26,7 +26,7 @@ import ddge.utility.meta.reflection.name_of;
 
 namespace ddge::exec::providers {
 
-class MessageProvider {
+export class MessageProvider {
 public:
     template <ddge::app::has_addons_c<messages::Addon> App_T>
     constexpr explicit MessageProvider(App_T& app);
@@ -50,20 +50,20 @@ private:
 }   // namespace ddge::exec::providers
 
 template <>
-struct ddge::exec::ProviderOf<ddge::messages::Addon>
+struct ddge::exec::ProviderFor<ddge::messages::Addon>
     : std::type_identity<ddge::exec::providers::MessageProvider> {};
 
 template <>
-struct ddge::exec::ProviderFor<ddge::exec::accessors::messages::Mailbox>
+struct ddge::exec::ProviderOf<ddge::exec::accessors::messages::Mailbox>
     : std::type_identity<ddge::exec::providers::MessageProvider> {};
 
 template <typename Event_T>
-struct ddge::exec::ProviderFor<ddge::exec::accessors::messages::Receiver<Event_T>>
+struct ddge::exec::ProviderOf<ddge::exec::accessors::messages::Receiver<Event_T>>
     : std::type_identity<ddge::exec::providers::MessageProvider> {};
 
 template <typename... Events_T>
 struct ddge::exec::
-    ProviderFor<ddge::exec::accessors::messages::Sender<Events_T...>>
+    ProviderOf<ddge::exec::accessors::messages::Sender<Events_T...>>
     : std::type_identity<ddge::exec::providers::MessageProvider> {};
 
 template <ddge::app::has_addons_c<ddge::messages::Addon> App_T>

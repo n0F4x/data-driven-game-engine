@@ -36,11 +36,11 @@ private:
 }   // namespace ddge::exec::providers
 
 template <>
-struct ddge::exec::ProviderOf<ddge::assets::Addon>
+struct ddge::exec::ProviderFor<ddge::assets::Addon>
     : std::type_identity<ddge::exec::providers::AssetProvider> {};
 
 template <typename Loader_T>
-struct ddge::exec::ProviderFor<ddge::exec::accessors::assets::Cached<Loader_T>>
+struct ddge::exec::ProviderOf<ddge::exec::accessors::assets::Cached<Loader_T>>
     : std::type_identity<ddge::exec::providers::AssetProvider> {};
 
 template <ddge::app::has_addons_c<ddge::assets::Addon> App_T>

@@ -37,12 +37,12 @@ private:
 }   // namespace ddge::exec::providers
 
 template <>
-struct ddge::exec::ProviderOf<ddge::resources::Addon>
+struct ddge::exec::ProviderFor<ddge::resources::Addon>
     : std::type_identity<ddge::exec::providers::ResourceProvider> {};
 
 template <typename Resource_T>
 struct ddge::exec::
-    ProviderFor<ddge::exec::accessors::resources::Resource<Resource_T>>
+    ProviderOf<ddge::exec::accessors::resources::Resource<Resource_T>>
     : std::type_identity<ddge::exec::providers::ResourceProvider> {};
 
 template <ddge::app::has_addons_c<ddge::resources::Addon> App_T>

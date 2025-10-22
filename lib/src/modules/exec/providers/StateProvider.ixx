@@ -37,11 +37,11 @@ private:
 }   // namespace ddge::exec::providers
 
 template <>
-struct ddge::exec::ProviderOf<ddge::states::Addon>
+struct ddge::exec::ProviderFor<ddge::states::Addon>
     : std::type_identity<ddge::exec::providers::StateProvider> {};
 
 template <typename State_T>
-struct ddge::exec::ProviderFor<ddge::exec::accessors::states::State<State_T>>
+struct ddge::exec::ProviderOf<ddge::exec::accessors::states::State<State_T>>
     : std::type_identity<ddge::exec::providers::StateProvider> {};
 
 template <ddge::app::has_addons_c<ddge::states::Addon> App_T>

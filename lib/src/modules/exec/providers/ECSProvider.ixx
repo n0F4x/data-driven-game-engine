@@ -37,15 +37,15 @@ private:
 }   // namespace ddge::exec::providers
 
 template <>
-struct ddge::exec::ProviderOf<ddge::ecs::Addon>
+struct ddge::exec::ProviderFor<ddge::ecs::Addon>
     : std::type_identity<ddge::exec::providers::ECSProvider> {};
 
 template <>
-struct ddge::exec::ProviderFor<ddge::exec::accessors::ecs::Registry>
+struct ddge::exec::ProviderOf<ddge::exec::accessors::ecs::Registry>
     : std::type_identity<ddge::exec::providers::ECSProvider> {};
 
 template <typename... Filters_T>
-struct ddge::exec::ProviderFor<ddge::exec::accessors::ecs::Query<Filters_T...>>
+struct ddge::exec::ProviderOf<ddge::exec::accessors::ecs::Query<Filters_T...>>
     : std::type_identity<ddge::exec::providers::ECSProvider> {};
 
 template <ddge::app::has_addons_c<ddge::ecs::Addon> App_T>

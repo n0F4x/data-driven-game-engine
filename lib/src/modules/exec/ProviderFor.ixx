@@ -1,25 +1,13 @@
-module;
+export module ddge.modules.exec.ProviderOf;
 
-#include <string>
-
-export module ddge.modules.exec.ProviderFor;
-
-import ddge.modules.exec.accessor_c;
-
-import ddge.utility.meta.reflection.name_of;
-
-using namespace std::string_literals;
+import ddge.modules.app.addon_c;
 
 namespace ddge::exec {
-export template <accessor_c Accessor_T>
-struct ProviderFor {
-    static_assert(
-        false,
-        "No provider for accessor `"s + util::meta::name_of<Accessor_T>() + '`'
-    );
-};
 
-export template <accessor_c Accessor_T>
-using provider_for_t = typename ProviderFor<Accessor_T>::type;
+export template <ddge::app::addon_c Addon_T>
+struct ProviderFor;
+
+export template <ddge::app::addon_c Addon_T>
+using provider_for_t = typename ProviderFor<Addon_T>::type;
 
 }   // namespace ddge::exec

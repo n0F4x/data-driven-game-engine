@@ -52,7 +52,7 @@ ddge::exec::Nexus::Nexus(Providers_T&&... providers)
 template <ddge::exec::accessor_c Accessor_T>
 auto ddge::exec::Nexus::provide() -> Accessor_T
 {
-    using Provider = provider_for_t<Accessor_T>;
+    using Provider = provider_of_t<Accessor_T>;
 
     PRECOND(
         m_providers.contains<Provider>(),
