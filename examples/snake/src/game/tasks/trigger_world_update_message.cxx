@@ -1,7 +1,6 @@
 module snake.game.tasks.trigger_world_update_message;
 
-import ddge.modules.exec.accessors.messages.Sender;
-import ddge.modules.exec.providers.MessageProvider;
+import ddge.modules.exec.accessors.messages;
 import ddge.modules.exec.v2.primitives.as_task;
 
 import snake.game.WorldUpdate;

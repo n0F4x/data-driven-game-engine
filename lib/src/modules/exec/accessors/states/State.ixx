@@ -6,7 +6,7 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module ddge.modules.exec.accessors.states.State;
+export module ddge.modules.exec.accessors.states:State;
 
 import ddge.modules.states.state_c;
 

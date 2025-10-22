@@ -2,7 +2,7 @@ module;
 
 #include <functional>
 
-export module ddge.modules.exec.accessors.events.Processor;
+export module ddge.modules.exec.accessors.events:Processor;
 
 import ddge.modules.events.EventManager;
 

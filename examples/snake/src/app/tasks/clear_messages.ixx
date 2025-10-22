@@ -5,8 +5,7 @@ module;
 
 export module snake.app.tasks.clear_messages;
 
-import ddge.modules.exec.accessors.messages.Mailbox;
-import ddge.modules.exec.providers.MessageProvider;
+import ddge.modules.exec.accessors.messages;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.primitives.as_task;
 import ddge.modules.exec.v2.TaskBlueprint;

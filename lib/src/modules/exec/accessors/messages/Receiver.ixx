@@ -4,7 +4,7 @@ module;
 #include <span>
 #include <vector>
 
-export module ddge.modules.exec.accessors.messages.Receiver;
+export module ddge.modules.exec.accessors.messages:Receiver;
 
 import ddge.modules.messages.message_c;
 

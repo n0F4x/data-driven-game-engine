@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 #include <utility>
 
-export module ddge.modules.exec.accessors.ecs.Query;
+export module ddge.modules.exec.accessors.ecs:Query;
 
 import ddge.modules.ecs;
 

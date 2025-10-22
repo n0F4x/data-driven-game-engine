@@ -1,4 +1,4 @@
-export module ddge.modules.exec.accessors.assets.Cached;
+export module ddge.modules.exec.accessors.assets:Cached;
 
 import ddge.modules.assets;
 

@@ -1,5 +1,6 @@
 export module ddge.modules.exec.accessors.messages;
 
-export import ddge.modules.exec.accessors.messages.Mailbox;
-export import ddge.modules.exec.accessors.messages.Receiver;
-export import ddge.modules.exec.accessors.messages.Sender;
+export import :Mailbox;
+export import :Provider;
+export import :Receiver;
+export import :Sender;

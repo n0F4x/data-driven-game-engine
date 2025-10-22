@@ -6,7 +6,6 @@ export module snake.app.run;
 
 import ddge.modules.app.has_plugins_c;
 import ddge.modules.exec.Plugin;
-import ddge.modules.exec.providers;
 import ddge.modules.exec.v2.primitives.start_as;
 
 import snake.app.tasks.initialize;

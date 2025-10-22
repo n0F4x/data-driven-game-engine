@@ -2,7 +2,7 @@ module;
 
 #include <type_traits>
 
-export module ddge.modules.exec.accessors.resources.Resource;
+export module ddge.modules.exec.accessors.resources:Resource;
 
 import ddge.modules.resources.resource_c;
 

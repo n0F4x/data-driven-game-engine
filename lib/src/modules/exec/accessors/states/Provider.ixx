@@ -6,25 +6,27 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module ddge.modules.exec.providers.StateProvider;
+export module ddge.modules.exec.accessors.states:Provider;
+
+import :State;
 
 import ddge.modules.app;
-import ddge.modules.states;
 import ddge.modules.exec.ProviderFor;
-
-import ddge.modules.exec.accessors.states;
 import ddge.modules.exec.ProviderOf;
+import ddge.modules.states;
 
 import ddge.utility.contracts;
 import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.reflection.name_of;
 
-namespace ddge::exec::providers {
+namespace ddge::exec::accessors {
 
-export class StateProvider {
+inline namespace states {
+
+export class Provider {
 public:
-    template <ddge::app::has_addons_c<states::Addon> App_T>
-    constexpr explicit StateProvider(App_T& app);
+    template <ddge::app::has_addons_c<ddge::states::Addon> App_T>
+    constexpr explicit Provider(App_T& app);
 
     template <util::meta::specialization_of_c<accessors::states::State> State_T>
     [[nodiscard]]
@@ -34,24 +36,25 @@ private:
     std::reference_wrapper<ddge::states::StateManager> m_state_manager_ref;
 };
 
-}   // namespace ddge::exec::providers
+}   // namespace states
+
+}   // namespace ddge::exec::accessors
 
 template <>
 struct ddge::exec::ProviderFor<ddge::states::Addon>
-    : std::type_identity<ddge::exec::providers::StateProvider> {};
+    : std::type_identity<ddge::exec::accessors::states::Provider> {};
 
 template <typename State_T>
 struct ddge::exec::ProviderOf<ddge::exec::accessors::states::State<State_T>>
-    : std::type_identity<ddge::exec::providers::StateProvider> {};
+    : std::type_identity<ddge::exec::accessors::states::Provider> {};
 
 template <ddge::app::has_addons_c<ddge::states::Addon> App_T>
-constexpr ddge::exec::providers::StateProvider::StateProvider(App_T& app)
+constexpr ddge::exec::accessors::states::Provider::Provider(App_T& app)
     : m_state_manager_ref{ app.state_manager }
 {}
 
-template <ddge::util::meta::specialization_of_c<ddge::exec::accessors::states::State>
-              State_T>
-constexpr auto ddge::exec::providers::StateProvider::provide() const -> State_T
+template <ddge::util::meta::specialization_of_c<ddge::exec::accessors::states::State> State_T>
+constexpr auto ddge::exec::accessors::states::Provider::provide() const -> State_T
 {
     using State = std::remove_const_t<typename State_T::Underlying>;
 

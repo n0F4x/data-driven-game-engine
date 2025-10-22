@@ -2,7 +2,7 @@ module;
 
 #include <functional>
 
-export module ddge.modules.exec.accessors.messages.Mailbox;
+export module ddge.modules.exec.accessors.messages:Mailbox;
 
 import ddge.modules.messages.MessageManager;
 

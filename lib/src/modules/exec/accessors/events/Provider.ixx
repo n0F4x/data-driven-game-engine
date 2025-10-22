@@ -7,16 +7,17 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module ddge.modules.exec.providers.EventProvider;
+export module ddge.modules.exec.accessors.events:Provider;
+
+import :Processor;
+import :Reader;
+import :Recorder;
 
 import ddge.modules.app;
-
 import ddge.modules.events;
 import ddge.modules.exec.ProviderFor;
-import ddge.modules.store.Store;
-
-import ddge.modules.exec.accessors.events;
 import ddge.modules.exec.ProviderOf;
+import ddge.modules.store.Store;
 
 import ddge.utility.contracts;
 import ddge.utility.meta.algorithms.apply;
@@ -24,12 +25,14 @@ import ddge.utility.meta.algorithms.for_each;
 import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.reflection.name_of;
 
-namespace ddge::exec::providers {
+namespace ddge::exec::accessors {
 
-export class EventProvider {
+inline namespace events {
+
+export class Provider {
 public:
-    template <ddge::app::has_addons_c<events::Addon> App_T>
-    constexpr explicit EventProvider(App_T& app);
+    template <ddge::app::has_addons_c<ddge::events::Addon> App_T>
+    constexpr explicit Provider(App_T& app);
 
     template <std::same_as<accessors::events::Processor>>
     [[nodiscard]]
@@ -47,40 +50,41 @@ private:
     std::reference_wrapper<ddge::events::EventManager> m_event_manager_ref;
 };
 
-}   // namespace ddge::exec::providers
+}   // namespace events
+
+}   // namespace ddge::exec::accessors
 
 template <>
 struct ddge::exec::ProviderFor<ddge::events::Addon>
-    : std::type_identity<ddge::exec::providers::EventProvider> {};
+    : std::type_identity<ddge::exec::accessors::events::Provider> {};
 
 template <>
 struct ddge::exec::ProviderOf<ddge::exec::accessors::events::Processor>
-    : std::type_identity<ddge::exec::providers::EventProvider> {};
+    : std::type_identity<ddge::exec::accessors::events::Provider> {};
 
 template <typename... Events_T>
-struct ddge::exec::
-    ProviderOf<ddge::exec::accessors::events::Recorder<Events_T...>>
-    : std::type_identity<ddge::exec::providers::EventProvider> {};
+struct ddge::exec::ProviderOf<ddge::exec::accessors::events::Recorder<Events_T...>>
+    : std::type_identity<ddge::exec::accessors::events::Provider> {};
 
 template <typename Event_T>
 struct ddge::exec::ProviderOf<ddge::exec::accessors::events::Reader<Event_T>>
-    : std::type_identity<ddge::exec::providers::EventProvider> {};
+    : std::type_identity<ddge::exec::accessors::events::Provider> {};
 
 template <ddge::app::has_addons_c<ddge::events::Addon> App_T>
-constexpr ddge::exec::providers::EventProvider::EventProvider(App_T& app)
+constexpr ddge::exec::accessors::events::Provider::Provider(App_T& app)
     : m_event_manager_ref{ app.event_manager }
 {}
 
-template <std::same_as<ddge::exec::accessors::events::Processor> Accessor_T>
-auto ddge::exec::providers::EventProvider::provide() const
+template <std::same_as<ddge::exec::accessors::events::Processor>>
+auto ddge::exec::accessors::events::Provider::provide() const
     -> ddge::exec::accessors::events::Processor
 {
     return ddge::exec::accessors::events::Processor{ m_event_manager_ref };
 }
 
-template <ddge::util::meta::
-              specialization_of_c<ddge::exec::accessors::events::Recorder> Recorder_T>
-constexpr auto ddge::exec::providers::EventProvider::provide() const -> Recorder_T
+template <ddge::util::meta::specialization_of_c<ddge::exec::accessors::events::Recorder>
+              Recorder_T>
+constexpr auto ddge::exec::accessors::events::Provider::provide() const -> Recorder_T
 {
     using Events = typename Recorder_T::Events;
 
@@ -91,9 +95,9 @@ constexpr auto ddge::exec::providers::EventProvider::provide() const -> Recorder
     });
 }
 
-template <ddge::util::meta::
-              specialization_of_c<ddge::exec::accessors::events::Reader> Reader_T>
-constexpr auto ddge::exec::providers::EventProvider::provide() const -> Reader_T
+template <
+    ddge::util::meta::specialization_of_c<ddge::exec::accessors::events::Reader> Reader_T>
+constexpr auto ddge::exec::accessors::events::Provider::provide() const -> Reader_T
 {
     using Event = typename Reader_T::Event;
 

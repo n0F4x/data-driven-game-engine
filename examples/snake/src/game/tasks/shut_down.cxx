@@ -1,7 +1,6 @@
 module snake.game.tasks.shut_down;
 
-import ddge.modules.exec.accessors.states.State;
-import ddge.modules.exec.providers.StateProvider;
+import ddge.modules.exec.accessors.states;
 import ddge.modules.exec.v2.primitives.as_task;
 
 import snake.game.GameState;

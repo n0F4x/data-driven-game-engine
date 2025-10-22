@@ -1,4 +1,4 @@
-export module ddge.modules.exec.accessors.ecs.Registry;
+export module ddge.modules.exec.accessors.ecs:Registry;
 
 import ddge.modules.ecs;
 

@@ -5,4 +5,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         assets.cppm
         Cached.ixx
+        Provider.ixx
 )

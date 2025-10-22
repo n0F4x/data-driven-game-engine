@@ -10,10 +10,8 @@ import ddge.modules.assets.Handle;
 import ddge.modules.ecs;
 import ddge.modules.time.FixedTimer;
 
-import ddge.modules.exec.accessors.assets.Cached;
-import ddge.modules.exec.accessors.ecs.Registry;
-import ddge.modules.exec.providers.AssetProvider;
-import ddge.modules.exec.providers.ECSProvider;
+import ddge.modules.exec.accessors.assets;
+import ddge.modules.exec.accessors.ecs;
 import ddge.modules.exec.v2.primitives.as_task;
 
 import snake.assets.TextureLoader;

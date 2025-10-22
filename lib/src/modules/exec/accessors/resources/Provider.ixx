@@ -6,25 +6,27 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module ddge.modules.exec.providers.ResourceProvider;
+export module ddge.modules.exec.accessors.resources:Provider;
+
+import :Resource;
 
 import ddge.modules.app;
-import ddge.modules.resources;
 import ddge.modules.exec.ProviderFor;
-
-import ddge.modules.exec.accessors.resources;
 import ddge.modules.exec.ProviderOf;
+import ddge.modules.resources;
 
 import ddge.utility.contracts;
 import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.reflection.name_of;
 
-namespace ddge::exec::providers {
+namespace ddge::exec::accessors {
 
-export class ResourceProvider {
+inline namespace resources {
+
+export class Provider {
 public:
-    template <ddge::app::has_addons_c<resources::Addon> App_T>
-    constexpr explicit ResourceProvider(App_T& app);
+    template <ddge::app::has_addons_c<ddge::resources::Addon> App_T>
+    constexpr explicit Provider(App_T& app);
 
     template <util::meta::specialization_of_c<accessors::resources::Resource> Resource_T>
     [[nodiscard]]
@@ -34,25 +36,26 @@ private:
     std::reference_wrapper<ddge::resources::ResourceManager> m_resource_manager_ref;
 };
 
-}   // namespace ddge::exec::providers
+}   // namespace resources
+
+}   // namespace ddge::exec::accessors
 
 template <>
 struct ddge::exec::ProviderFor<ddge::resources::Addon>
-    : std::type_identity<ddge::exec::providers::ResourceProvider> {};
+    : std::type_identity<ddge::exec::accessors::resources::Provider> {};
 
 template <typename Resource_T>
-struct ddge::exec::
-    ProviderOf<ddge::exec::accessors::resources::Resource<Resource_T>>
-    : std::type_identity<ddge::exec::providers::ResourceProvider> {};
+struct ddge::exec::ProviderOf<ddge::exec::accessors::resources::Resource<Resource_T>>
+    : std::type_identity<ddge::exec::accessors::resources::Provider> {};
 
 template <ddge::app::has_addons_c<ddge::resources::Addon> App_T>
-constexpr ddge::exec::providers::ResourceProvider::ResourceProvider(App_T& app)
+constexpr ddge::exec::accessors::resources::Provider::Provider(App_T& app)
     : m_resource_manager_ref{ app.resource_manager }
 {}
 
-template <ddge::util::meta::specialization_of_c<
-    ddge::exec::accessors::resources::Resource> Resource_T>
-constexpr auto ddge::exec::providers::ResourceProvider::provide() const -> Resource_T
+template <ddge::util::meta::
+              specialization_of_c<ddge::exec::accessors::resources::Resource> Resource_T>
+constexpr auto ddge::exec::accessors::resources::Provider::provide() const -> Resource_T
 {
     using Resource = std::remove_const_t<typename Resource_T::Underlying>;
 

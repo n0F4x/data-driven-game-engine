@@ -8,8 +8,7 @@ export module ddge.modules.exec.v2.primitives.query;
 
 import ddge.modules.ecs;
 
-import ddge.modules.exec.accessors.ecs.Query;
-import ddge.modules.exec.providers.ECSProvider;
+import ddge.modules.exec.accessors.ecs;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.ExecPolicy;
 import ddge.modules.exec.v2.primitives.as_task;

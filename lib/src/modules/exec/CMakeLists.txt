@@ -1,6 +1,5 @@
 add_subdirectory(accessors)
 add_subdirectory(primitives)
-add_subdirectory(providers)
 add_subdirectory(scheduler)
 add_subdirectory(v2)
 

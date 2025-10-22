@@ -7,8 +7,7 @@ module;
 
 module snake.window.tasks.window_should_close;
 
-import ddge.modules.exec.accessors.events.Reader;
-import ddge.modules.exec.providers.EventProvider;
+import ddge.modules.exec.accessors.events;
 import ddge.modules.exec.v2.primitives.as_task;
 
 using namespace ddge::exec::accessors;

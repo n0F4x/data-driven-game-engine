@@ -5,6 +5,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         events.cppm
         Processor.ixx
+        Provider.ixx
         Reader.ixx
         Recorder.ixx
 )

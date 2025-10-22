@@ -13,6 +13,7 @@ export module ddge.modules.exec.Plugin;
 import ddge.modules.app.add_on_t;
 import ddge.modules.app.builder_c;
 import ddge.modules.app.decays_to_app_c;
+import ddge.modules.exec.accessors;
 import ddge.modules.exec.as_task_builder_t;
 import ddge.modules.exec.converts_to_task_builder_c;
 import ddge.modules.exec.Nexus;

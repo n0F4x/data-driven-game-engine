@@ -3,7 +3,7 @@ module;
 #include <concepts>
 #include <functional>
 
-export module ddge.modules.exec.accessors.events.Recorder;
+export module ddge.modules.exec.accessors.events:Recorder;
 
 import ddge.modules.events.event_c;
 import ddge.modules.events.BufferedEventQueue;

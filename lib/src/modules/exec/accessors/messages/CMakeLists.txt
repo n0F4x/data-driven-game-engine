@@ -5,6 +5,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         messages.cppm
         Mailbox.ixx
+        Provider.ixx
         Receiver.ixx
         Sender.ixx
 )

@@ -5,8 +5,7 @@ module;
 
 module snake.game.tasks.game_is_running;
 
-import ddge.modules.exec.accessors.events.Reader;
-import ddge.modules.exec.providers.EventProvider;
+import ddge.modules.exec.accessors.events;
 import ddge.modules.exec.v2.primitives.as_task;
 
 import snake.game.GameOver;

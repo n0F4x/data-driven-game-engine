@@ -10,12 +10,9 @@ module snake.game.tasks.move_snake;
 
 import ddge.modules.ecs;
 
-import ddge.modules.exec.accessors.ecs.Registry;
-import ddge.modules.exec.accessors.events.Recorder;
+import ddge.modules.exec.accessors.ecs;
+import ddge.modules.exec.accessors.events;
 import ddge.modules.exec.accessors.resources;
-import ddge.modules.exec.providers.ECSProvider;
-import ddge.modules.exec.providers.EventProvider;
-import ddge.modules.exec.providers.ResourceProvider;
 import ddge.modules.exec.v2.primitives.as_task;
 
 import snake.game.Cell;

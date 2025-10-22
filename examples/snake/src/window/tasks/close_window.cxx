@@ -1,7 +1,6 @@
 module snake.window.tasks.close_window;
 
 import ddge.modules.exec.accessors.resources;
-import ddge.modules.exec.providers.ResourceProvider;
 import ddge.modules.exec.v2.primitives.as_task;
 
 import snake.window.Window;
