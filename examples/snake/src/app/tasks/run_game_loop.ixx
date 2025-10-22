@@ -5,13 +5,13 @@ module;
 
 export module snake.app.tasks.run_game_loop;
 
-import ddge.modules.execution.v2.Cardinality;
-import ddge.modules.execution.v2.primitives.all_of;
-import ddge.modules.execution.v2.primitives.group;
-import ddge.modules.execution.v2.primitives.loop_until;
-import ddge.modules.execution.v2.primitives.not_fn;
-import ddge.modules.execution.v2.primitives.start_as;
-import ddge.modules.execution.v2.TaskBlueprint;
+import ddge.modules.exec.v2.Cardinality;
+import ddge.modules.exec.v2.primitives.all_of;
+import ddge.modules.exec.v2.primitives.group;
+import ddge.modules.exec.v2.primitives.loop_until;
+import ddge.modules.exec.v2.primitives.not_fn;
+import ddge.modules.exec.v2.primitives.start_as;
+import ddge.modules.exec.v2.TaskBlueprint;
 
 import snake.app.tasks.clear_messages;
 import snake.app.tasks.process_events;

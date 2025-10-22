@@ -8,9 +8,9 @@ module;
 module snake.game.tasks.eat_apple;
 
 import ddge.modules.ecs;
-import ddge.modules.execution.TaskBuilder;
+import ddge.modules.exec.TaskBuilder;
 
-import ddge.modules.execution;
+import ddge.modules.exec;
 
 import snake.game.Apple;
 import snake.game.AppleDigested;

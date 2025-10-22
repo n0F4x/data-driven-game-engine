@@ -13,10 +13,10 @@ module;
 module snake.game.tasks.initialize;
 
 import ddge.modules.ecs;
-import ddge.modules.execution.TaskBuilder;
+import ddge.modules.exec.TaskBuilder;
 import ddge.modules.time.FixedTimer;
 
-import ddge.modules.execution;
+import ddge.modules.exec;
 
 import snake.assets.TextureLoader;
 import snake.game.AppleSpawnTimer;

@@ -5,9 +5,9 @@ module;
 export module snake.app.run;
 
 import ddge.modules.app.has_plugins_c;
-import ddge.modules.execution.Plugin;
-import ddge.modules.execution.providers;
-import ddge.modules.execution.v2.primitives.start_as;
+import ddge.modules.exec.Plugin;
+import ddge.modules.exec.providers;
+import ddge.modules.exec.v2.primitives.start_as;
 
 import snake.app.tasks.initialize;
 import snake.app.tasks.run_game_loop;

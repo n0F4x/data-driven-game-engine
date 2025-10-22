@@ -5,8 +5,8 @@ module;
 
 export module snake.game.tasks.game_is_running;
 
-import ddge.modules.execution.v2.Cardinality;
-import ddge.modules.execution.v2.TaskBlueprint;
+import ddge.modules.exec.v2.Cardinality;
+import ddge.modules.exec.v2.TaskBlueprint;
 
 namespace game::tasks {
 

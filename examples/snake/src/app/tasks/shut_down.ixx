@@ -5,9 +5,9 @@ module;
 
 export module snake.app.tasks.shut_down;
 
-import ddge.modules.execution.v2.Cardinality;
-import ddge.modules.execution.v2.primitives.start_as;
-import ddge.modules.execution.v2.TaskBlueprint;
+import ddge.modules.exec.v2.Cardinality;
+import ddge.modules.exec.v2.primitives.start_as;
+import ddge.modules.exec.v2.TaskBlueprint;
 
 import snake.game.tasks.shut_down;
 import snake.window.tasks.close_window;

@@ -8,7 +8,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-import ddge.modules.execution.scheduler.SignalTree;
+import ddge.modules.exec.scheduler.SignalTree;
 
 auto default_strategy(uint32_t) -> ddge::exec::TravelsalBias
 {

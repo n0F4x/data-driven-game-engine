@@ -8,11 +8,11 @@ module snake.window.tasks.update;
 
 import ddge.modules.time.FixedTimer;
 
-import ddge.modules.execution.accessors.events.Recorder;
-import ddge.modules.execution.accessors.resources;
-import ddge.modules.execution.providers.EventProvider;
-import ddge.modules.execution.providers.ResourceProvider;
-import ddge.modules.execution.v2.primitives.force_on_main;
+import ddge.modules.exec.accessors.events.Recorder;
+import ddge.modules.exec.accessors.resources;
+import ddge.modules.exec.providers.EventProvider;
+import ddge.modules.exec.providers.ResourceProvider;
+import ddge.modules.exec.v2.primitives.force_on_main;
 
 import snake.window.DisplayInfo;
 import snake.window.DisplayTimer;

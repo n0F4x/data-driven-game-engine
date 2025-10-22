@@ -5,11 +5,11 @@ module;
 
 export module snake.app.tasks.process_events;
 
-import ddge.modules.execution.accessors.events.Processor;
-import ddge.modules.execution.providers.EventProvider;
-import ddge.modules.execution.v2.Cardinality;
-import ddge.modules.execution.v2.primitives.as_task;
-import ddge.modules.execution.v2.TaskBlueprint;
+import ddge.modules.exec.accessors.events.Processor;
+import ddge.modules.exec.providers.EventProvider;
+import ddge.modules.exec.v2.Cardinality;
+import ddge.modules.exec.v2.primitives.as_task;
+import ddge.modules.exec.v2.TaskBlueprint;
 
 using namespace ddge::exec::accessors;
 

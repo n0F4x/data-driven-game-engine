@@ -7,10 +7,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-import ddge.modules.execution.scheduler.Work;
-import ddge.modules.execution.scheduler.WorkIndex;
-import ddge.modules.execution.scheduler.WorkContinuation;
-import ddge.modules.execution.scheduler.WorkTree;
+import ddge.modules.exec.scheduler.Work;
+import ddge.modules.exec.scheduler.WorkIndex;
+import ddge.modules.exec.scheduler.WorkContinuation;
+import ddge.modules.exec.scheduler.WorkTree;
 
 import ddge.utility.contracts;
 

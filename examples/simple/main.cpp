@@ -6,7 +6,7 @@
 
 import ddge.prelude;
 import ddge.modules.ecs;
-import ddge.modules.execution;
+import ddge.modules.exec;
 import ddge.utility.containers.OptionalRef;
 
 import demo.Window;
@@ -108,7 +108,7 @@ auto main() -> int
         .plug_in(ddge::plugins::Events{})
         .register_event<WindowClosed>()
         .plug_in(ddge::plugins::ECS{})
-        .plug_in(ddge::plugins::Scheduler{})
+        .plug_in(ddge::plugins::Execution{})
         .run(
             ddge::exec::v2::start_as(ddge::exec::v2::as_task(initialize))   //
                 .then(run_game_loop())

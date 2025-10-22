@@ -6,13 +6,13 @@ module snake.game.tasks.adjust_snake_speed;
 
 import ddge.modules.ecs;
 
-import ddge.modules.execution.accessors.ecs.Query;
-import ddge.modules.execution.accessors.resources.Resource;
-import ddge.modules.execution.accessors.states.State;
-import ddge.modules.execution.providers.ECSProvider;
-import ddge.modules.execution.providers.ResourceProvider;
-import ddge.modules.execution.providers.StateProvider;
-import ddge.modules.execution.v2.primitives.as_task;
+import ddge.modules.exec.accessors.ecs.Query;
+import ddge.modules.exec.accessors.resources.Resource;
+import ddge.modules.exec.accessors.states.State;
+import ddge.modules.exec.providers.ECSProvider;
+import ddge.modules.exec.providers.ResourceProvider;
+import ddge.modules.exec.providers.StateProvider;
+import ddge.modules.exec.v2.primitives.as_task;
 
 import snake.game.GameState;
 import snake.game.Settings;

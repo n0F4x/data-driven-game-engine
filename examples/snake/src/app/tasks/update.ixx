@@ -1,8 +1,8 @@
 export module snake.app.tasks.update;
 
-import ddge.modules.execution.v2.Cardinality;
-import ddge.modules.execution.v2.primitives.group;
-import ddge.modules.execution.v2.TaskBlueprint;
+import ddge.modules.exec.v2.Cardinality;
+import ddge.modules.exec.v2.primitives.group;
+import ddge.modules.exec.v2.TaskBlueprint;
 
 import snake.game.tasks.update;
 import snake.window.tasks.update;

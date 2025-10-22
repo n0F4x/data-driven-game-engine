@@ -5,10 +5,10 @@ module;
 
 export module snake.app.tasks.render;
 
-import ddge.modules.execution.v2.Cardinality;
-import ddge.modules.execution.v2.primitives.at_fixed_rate;
-import ddge.modules.execution.v2.primitives.start_as;
-import ddge.modules.execution.v2.TaskBlueprint;
+import ddge.modules.exec.v2.Cardinality;
+import ddge.modules.exec.v2.primitives.at_fixed_rate;
+import ddge.modules.exec.v2.primitives.start_as;
+import ddge.modules.exec.v2.TaskBlueprint;
 
 import snake.game.tasks.draw;
 import snake.window.DisplayTimer;

@@ -6,11 +6,11 @@ module snake.game.tasks.draw;
 
 import ddge.modules.ecs;
 
-import ddge.modules.execution.accessors.ecs.Query;
-import ddge.modules.execution.accessors.resources;
-import ddge.modules.execution.providers.ECSProvider;
-import ddge.modules.execution.providers.ResourceProvider;
-import ddge.modules.execution.v2.primitives.as_task;
+import ddge.modules.exec.accessors.ecs.Query;
+import ddge.modules.exec.accessors.resources;
+import ddge.modules.exec.providers.ECSProvider;
+import ddge.modules.exec.providers.ResourceProvider;
+import ddge.modules.exec.v2.primitives.as_task;
 
 import snake.game.Cell;
 import snake.window.Window;

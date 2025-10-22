@@ -5,7 +5,7 @@ export import ddge.modules.assets;
 export import ddge.modules.cache;
 export import ddge.modules.ecs;
 export import ddge.modules.events;
-export import ddge.modules.execution;
+export import ddge.modules.exec;
 export import ddge.modules.gfx;
 export import ddge.modules.gltf;
 export import ddge.modules.image;

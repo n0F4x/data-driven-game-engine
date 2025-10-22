@@ -6,9 +6,9 @@ module snake.game.tasks.color_cells;
 
 import ddge.modules.ecs;
 
-import ddge.modules.execution.accessors.ecs.Query;
-import ddge.modules.execution.providers.ECSProvider;
-import ddge.modules.execution.v2.primitives.query;
+import ddge.modules.exec.accessors.ecs.Query;
+import ddge.modules.exec.providers.ECSProvider;
+import ddge.modules.exec.v2.primitives.query;
 
 import ddge.utility.containers.OptionalRef;
 

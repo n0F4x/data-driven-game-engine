@@ -6,7 +6,7 @@ import ddge.modules.app.extensions.FunctionalPlugin;
 import ddge.modules.assets.Plugin;
 import ddge.modules.ecs;
 import ddge.modules.events.Plugin;
-import ddge.modules.execution.Plugin;
+import ddge.modules.exec.Plugin;
 import ddge.modules.messages.Plugin;
 import ddge.modules.resources.Plugin;
 import ddge.modules.states.Plugin;

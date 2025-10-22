@@ -10,11 +10,11 @@ import ddge.modules.assets.Handle;
 import ddge.modules.ecs;
 import ddge.modules.time.FixedTimer;
 
-import ddge.modules.execution.accessors.assets.Cached;
-import ddge.modules.execution.accessors.ecs.Registry;
-import ddge.modules.execution.providers.AssetProvider;
-import ddge.modules.execution.providers.ECSProvider;
-import ddge.modules.execution.v2.primitives.as_task;
+import ddge.modules.exec.accessors.assets.Cached;
+import ddge.modules.exec.accessors.ecs.Registry;
+import ddge.modules.exec.providers.AssetProvider;
+import ddge.modules.exec.providers.ECSProvider;
+import ddge.modules.exec.v2.primitives.as_task;
 
 import snake.assets.TextureLoader;
 import snake.game.Apple;
