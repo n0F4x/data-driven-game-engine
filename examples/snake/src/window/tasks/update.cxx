@@ -14,7 +14,9 @@ import ddge.modules.execution.providers.EventProvider;
 import ddge.modules.execution.providers.ResourceProvider;
 import ddge.modules.execution.v2.primitives.force_on_main;
 
+import snake.window.DisplayInfo;
 import snake.window.DisplayTimer;
+import snake.window.Settings;
 import snake.window.Window;
 
 using namespace ddge::exec::accessors;
@@ -24,9 +26,11 @@ auto window::update()
 {
     return ddge::exec::v2::force_on_main(
         +[](   //
-             const resources::Resource<Window>                         window,
-             const ddge::exec::accessors::events::Recorder<sf::Event>& event_recorder,
-             const resources::Resource<DisplayTimer>                   display_timer
+             const Resource<const Settings>    settings,
+             const Resource<Window>            window,
+             const Recorder<sf::Event>&        event_recorder,
+             const Resource<DisplayTimer>      display_timer,
+             const Resource<const DisplayInfo> display_info
          ) -> void   //
         {
             window->handleEvents([&event_recorder]<typename Event>(Event&& event) -> void {
@@ -34,6 +38,18 @@ auto window::update()
             });
 
             display_timer->update();
+
+            window->setTitle(
+                std::format(
+                    "{}        "   //
+                    "FPS: {:05d},  UPS: {:05d},    FPS(avg): {:05d},  UPS(avg): {:05d}",
+                    settings->title,
+                    display_info->fps,
+                    display_info->ups,
+                    display_info->average_fps,
+                    display_info->average_ups
+                )
+            );
         }   //
     );
 }

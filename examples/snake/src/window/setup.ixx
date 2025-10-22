@@ -13,7 +13,9 @@ import ddge.modules.events.Plugin;
 import ddge.modules.resources.Plugin;
 import ddge.modules.time.FixedTimer;
 
+import snake.window.DisplayInfo;
 import snake.window.DisplayTimer;
+import snake.window.SecondTimer;
 import snake.window.Settings;
 import snake.window.Window;
 
@@ -37,7 +39,9 @@ export inline constexpr auto setup =
             Window{ sf::VideoMode{ sf::Vector2u{ settings.width, settings.height } },
                     std::string{ settings.title } }
         )
+        .insert_resource(DisplayInfo{})
         .insert_resource(DisplayTimer{})
+        .insert_resource(SecondTimer{})
         .template register_event<sf::Event>();
 };
 

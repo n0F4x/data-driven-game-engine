@@ -9,6 +9,7 @@ import ddge.utility.not_fn;
 // TODO: import snake only once
 import snake.assets;
 import snake.game;
+import snake.profiler;
 import snake.window;
 
 using namespace ddge::exec::accessors;
@@ -19,7 +20,8 @@ auto initialize()
 {
     return ddge::exec::v2::group(
         window::initialize(),   //
-        game::initialize()
+        game::initialize(),
+        profiler::initialize()
     );
 }
 
@@ -64,7 +66,8 @@ auto run_game_loop()
             )
         )
             .then(update())
-            .then(render()),
+            .then(render())
+            .then(profiler::update()),
         ddge::exec::v2::all_of(
             ddge::exec::v2::not_fn(window::window_should_close()),   //
             game::game_is_running()
@@ -93,6 +96,7 @@ auto main() -> int
         .plug_in(ddge::plugins::Functional{})
         .transform(window::setup)
         .transform(game::setup)
+        .transform(profiler::setup)
         .run(
             ddge::exec::v2::start_as(initialize())   //
                 .then(run_game_loop())

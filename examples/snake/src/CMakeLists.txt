@@ -9,6 +9,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
 
 add_subdirectory(assets)
 add_subdirectory(game)
+add_subdirectory(profiler)
 add_subdirectory(window)
 
 target_sources(${PROJECT_NAME} PRIVATE

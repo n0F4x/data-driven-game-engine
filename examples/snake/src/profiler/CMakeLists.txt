@@ -5,12 +5,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         TYPE CXX_MODULES
         BASE_DIRS ${PROJECT_SOURCE_DIR}
         FILES
-        window.cppm
-        display_refresh_duration.ixx
-        DisplayInfo.ixx
-        DisplayTimer.ixx
+        profiler.cppm
         SecondTimer.ixx
-        Settings.ixx
         setup.ixx
-        Window.ixx
 )
