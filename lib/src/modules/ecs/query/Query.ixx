@@ -138,11 +138,6 @@ class Query {
     using QueriedParameters =
         util::meta::type_list_filter_t<util::TypeList<Filters_T...>, IsQueriedParameter>;
 
-    static_assert(
-        util::meta::type_list_size_v<QueriedParameters> != 0,
-        "query must have actually queried types"
-    );
-
     using QueriedTypes =
         util::meta::type_list_transform_t<QueriedParameters, ToQueriedType>;
 
@@ -299,19 +294,13 @@ auto ddge::ecs::Query<Filters_T...>::count() -> std::size_t
              m_included_optional_component_table_refs
          )))
     {
-        util::meta::apply<QueriedParameters>(
-            [this, &result, archetype_id]<typename... QueriedParameter_T> {
-                result += std::views::zip(
-                              queried_type_view_from<QueriedParameter_T>(
-                                  m_registry_ref,
-                                  m_included_optional_component_table_refs,
-                                  archetype_id
-                              )...
-                )
-                              .size();
-            }
-        );
+        result +=
+            queried_type_view_from<ID>(
+                m_registry_ref, m_included_optional_component_table_refs, archetype_id
+            )
+                .size();
     }
+
     return result;
 }
 
@@ -362,6 +351,20 @@ auto ddge::ecs::Query<Filters_T...>::visit_archetype(
 {
     // TODO: Optional ranges produce a view that always checks availability
     //       Check it only once!
+
+    if constexpr (util::meta::type_list_size_v<QueriedParameters> == 0) {
+        for (auto _ : std::views::repeat(
+                 std::ignore,
+                 queried_type_view_from<ddge::ecs::ID>(
+                     registry, included_optional_component_table_refs, archetype_id
+                 )
+                     .size()
+             ))
+        {
+            std::invoke(func);
+        }
+        return;
+    }
 
     util::meta::apply<QueriedParameters>([&,
                                           archetype_id]<typename... QueriedParameter_T> {

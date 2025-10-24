@@ -385,6 +385,23 @@ TEST_CASE("ddge::ecs::query")
             REQUIRE(visit_count == 1);
         }
     }
+
+    SECTION("empty query")
+    {
+        registry.create(int{});
+
+        size_t count{};
+        count = ddge::ecs::Query<ddge::ecs::With<int>>{ registry }.count();
+        REQUIRE(count == 1);
+
+        count = 0;
+        ddge::ecs::Query<ddge::ecs::With<int>>{ registry }([&count] -> void { count++; });
+        REQUIRE(count == 1);
+
+        count = 0;
+        ddge::ecs::query(registry, [&count](ddge::ecs::With<int>) -> void { count++; });
+        REQUIRE(count == 1);
+    }
 }
 
 TEST_CASE("ddge::ecs::count")
