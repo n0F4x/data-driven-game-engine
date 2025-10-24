@@ -1,3 +1,5 @@
+add_subdirectory(locks)
+
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET public_cxx_modules
         TYPE CXX_MODULES

@@ -6,6 +6,9 @@ module;
 
 export module ddge.modules.exec.accessors.messages:Sender;
 
+import :locks.ExclusiveMessageLock;
+
+import ddge.modules.exec.locks.Lockable;
 import ddge.modules.messages;
 
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
@@ -18,7 +21,7 @@ inline namespace messages {
 
 export template <ddge::messages::message_c... Messages_T>
     requires(sizeof...(Messages_T) != 0)
-class Sender {
+class Sender : Lockable<ExclusiveMessageLock<Messages_T>...> {
 public:
     using Messages = util::TypeList<Messages_T...>;
 

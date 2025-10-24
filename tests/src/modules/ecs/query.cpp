@@ -11,23 +11,12 @@ import ddge.utility.TypeList;
 
 namespace {
 
-struct Empty {
-    struct Tag {};
-
-    constexpr explicit Empty(Tag) {}
-};
-
-struct Empty2 {
-    struct Tag {};
-
-    constexpr explicit Empty2(Tag) {}
-};
-
 template <ddge::ecs::query_filter_c T>
 struct IsQueried {
-    constexpr static bool value = ddge::ecs::queryable_component_c<std::remove_const_t<T>>
-                               || std::same_as<T, ddge::ecs::ID>
-                               || ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>;
+    constexpr static bool value =
+        ddge::ecs::queryable_component_c<std::remove_const_t<T>>
+        || std::same_as<T, ddge::ecs::ID>
+        || ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>;
 };
 
 template <ddge::ecs::query_filter_c T>
@@ -54,15 +43,15 @@ TEST_CASE("ddge::ecs::query")
 
     SECTION("empty component")
     {
-        registry.create(Empty{ Empty::Tag{} });
+        constexpr static auto check =
+            []<typename EmptyComponent_T>(std::type_identity<EmptyComponent_T>) static
+            -> bool {
+            return not requires { ddge::ecs::Query<int, EmptyComponent_T>{ registry }; };
+        };
 
-        int visit_count{};
+        struct Empty {};
 
-        ddge::ecs::query<Empty, ddge::ecs::Optional<Empty2>>(
-            registry, [&](Empty, ddge::util::OptionalRef<Empty2>) { ++visit_count; }
-        );
-
-        REQUIRE(visit_count == 1);
+        static_assert(check(std::type_identity<Empty>{}));
     }
 
     SECTION("each (without id)")
@@ -276,7 +265,8 @@ TEST_CASE("ddge::ecs::query")
                 ddge::util::TypeList<Ts...>, F func = +[] {}
             ) {
                 using QueryFunctionParameters = ddge::util::meta::type_list_transform_t<
-                    ddge::util::meta::type_list_filter_t<ddge::util::TypeList<Ts...>, IsQueried>,
+                    ddge::util::meta::
+                        type_list_filter_t<ddge::util::TypeList<Ts...>, IsQueried>,
                     ToFunctionParameter>;
 
                 [&registry, &func]<typename... Us>(ddge::util::TypeList<Us...>) {

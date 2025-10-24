@@ -9,6 +9,9 @@ module;
 export module ddge.modules.exec.accessors.states:State;
 
 import ddge.modules.states.state_c;
+import ddge.modules.exec.locks.Lockable;
+import ddge.modules.exec.locks.ReaderLock;
+import ddge.modules.exec.locks.WriterLock;
 
 import ddge.utility.meta.type_traits.const_like;
 import ddge.utility.contracts;
@@ -17,9 +20,15 @@ namespace ddge::exec::accessors {
 
 inline namespace states {
 
+template <typename State_T>
+struct StateLock : std::conditional_t<
+                       std::is_const_v<State_T>,
+                       ReaderLock<StateLock<std::remove_const_t<State_T>>>,
+                       WriterLock<StateLock<std::remove_const_t<State_T>>>> {};
+
 export template <typename State_T>
     requires ddge::states::state_c<std::remove_const_t<State_T>>
-class State {
+class State : public Lockable<StateLock<State_T>> {
 public:
     using Underlying = State_T;
 
@@ -80,8 +89,7 @@ constexpr auto ddge::exec::accessors::states::State<State_T>::operator*() const
 
 template <typename State_T>
     requires ddge::states::state_c<std::remove_const_t<State_T>>
-constexpr auto ddge::exec::accessors::states::State<State_T>::has_value() const
-    -> bool
+constexpr auto ddge::exec::accessors::states::State<State_T>::has_value() const -> bool
 {
     return m_state_ref.get().has_value();
 }

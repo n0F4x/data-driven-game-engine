@@ -1,4 +1,5 @@
 add_subdirectory(accessors)
+add_subdirectory(locks)
 add_subdirectory(primitives)
 add_subdirectory(scheduler)
 add_subdirectory(v2)

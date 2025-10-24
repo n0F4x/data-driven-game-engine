@@ -5,9 +5,12 @@ module;
 
 export module ddge.modules.exec.accessors.events:Recorder;
 
+import :locks.ExclusiveEventLock;
+
 import ddge.modules.events.event_c;
 import ddge.modules.events.BufferedEventQueue;
 import ddge.modules.events.EventManager;
+import ddge.modules.exec.locks.Lockable;
 
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
 import ddge.utility.meta.type_traits.type_list.type_list_index_of;
@@ -19,7 +22,7 @@ inline namespace events {
 
 export template <ddge::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)
-class Recorder {
+class Recorder : public Lockable<ExclusiveEventLock<Events_T>...> {
 public:
     using Events = util::TypeList<Events_T...>;
 

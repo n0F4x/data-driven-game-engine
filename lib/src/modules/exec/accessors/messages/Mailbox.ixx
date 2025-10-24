@@ -4,13 +4,16 @@ module;
 
 export module ddge.modules.exec.accessors.messages:Mailbox;
 
+import :locks.MessageManagerLock;
+
+import ddge.modules.exec.locks.Lockable;
 import ddge.modules.messages.MessageManager;
 
 namespace ddge::exec::accessors {
 
 inline namespace messages {
 
-export class Mailbox {
+export class Mailbox : public Lockable<MessageManagerLock> {
 public:
     explicit Mailbox(ddge::messages::MessageManager& message_manager);
 

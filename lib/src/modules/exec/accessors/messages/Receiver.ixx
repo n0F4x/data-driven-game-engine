@@ -6,6 +6,9 @@ module;
 
 export module ddge.modules.exec.accessors.messages:Receiver;
 
+import :locks.SharedMessageLock;
+
+import ddge.modules.exec.locks.Lockable;
 import ddge.modules.messages.message_c;
 
 namespace ddge::exec::accessors {
@@ -13,7 +16,7 @@ namespace ddge::exec::accessors {
 inline namespace messages {
 
 export template <ddge::messages::message_c Message_T>
-class Receiver {
+class Receiver : public Lockable<SharedMessageLock<Message_T>> {
 public:
     using Message = Message_T;
 

@@ -8,5 +8,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         type_list_all_different.ixx
         type_list_all_of.ixx
         type_list_all_same.ixx
+        type_list_contains.ixx
         type_list_none_of.ixx
 )

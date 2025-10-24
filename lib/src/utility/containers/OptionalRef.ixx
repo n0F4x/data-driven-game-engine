@@ -42,6 +42,8 @@ template <typename T>
     requires(!std::is_reference_v<T>)
 class OptionalRef {
 public:
+    using ValueType = T;
+
     OptionalRef() = default;
     constexpr explicit(false) OptionalRef(std::nullopt_t) noexcept;
     template <std::same_as<std::remove_const_t<T>> U>

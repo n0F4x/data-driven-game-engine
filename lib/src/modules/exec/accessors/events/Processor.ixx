@@ -4,13 +4,16 @@ module;
 
 export module ddge.modules.exec.accessors.events:Processor;
 
+import :locks.EventManagerLock;
+
 import ddge.modules.events.EventManager;
+import ddge.modules.exec.locks.Lockable;
 
 namespace ddge::exec::accessors {
 
 inline namespace events {
 
-export class Processor {
+export class Processor : public Lockable<EventManagerLock> {
 public:
     explicit Processor(ddge::events::EventManager& event_manager);
 

@@ -28,16 +28,15 @@ import :ComponentTableMap.extensions;
 import :ID;
 import :query.OptionalView;
 import :query.queryable_component_c;
-import :query.query_parameter_c;
 import :query.ToComponent;
 import :Registry;
 
 template <ddge::ecs::query_filter_c T>
-struct IsComponentOrIDOrOptional {
+struct IsIDOrComponentOrOptional {
     constexpr static bool value =
         ddge::ecs::queryable_component_c<std::remove_const_t<T>>
-        || std::same_as<T, ddge::ecs::ID>
-        || ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>;
+        || ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>
+        || std::same_as<T, ddge::ecs::ID>;
 };
 
 template <ddge::ecs::query_filter_c T>
@@ -62,9 +61,7 @@ struct IsWithout {
 };
 
 template <typename T>
-struct IsQueriedParameter {
-    constexpr static bool value = ddge::ecs::query_parameter_c<T>;
-};
+struct IsQueriedParameter : IsIDOrComponentOrOptional<T> {};
 
 template <ddge::ecs::query_filter_c T>
 struct ToQueriedType;

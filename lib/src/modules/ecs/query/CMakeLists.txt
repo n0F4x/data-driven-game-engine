@@ -11,7 +11,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         query_filter_tag_c.ixx
         query_filter_tags.ixx
         query_fn.ixx
-        query_parameter_c.ixx
         queryable_component_c.ixx
         Query.ixx
         Query-fwd.ixx

@@ -1,6 +1,7 @@
 export module ddge.modules.exec;
 
 export import ddge.modules.exec.accessors;
+export import ddge.modules.exec.locks;
 export import ddge.modules.exec.primitives;
 export import ddge.modules.exec.scheduler;
 export import ddge.modules.exec.v2;
