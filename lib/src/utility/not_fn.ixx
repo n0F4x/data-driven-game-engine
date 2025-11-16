@@ -1,5 +1,6 @@
 module;
 
+#include <concepts>
 #include <functional>
 #include <type_traits>
 #include <utility>
@@ -8,9 +9,12 @@ export module ddge.utility.not_fn;
 
 import ddge.utility.meta.concepts.functional;
 import ddge.utility.meta.concepts.naked;
+import ddge.utility.meta.concepts.functional.unambiguously_invocable;
 import ddge.utility.meta.type_traits.functional;
+import ddge.utility.meta.type_traits.functional.result_of;
 
-template <typename Invocable_T>
+template <ddge::util::meta::unambiguously_invocable_c Invocable_T>
+    requires std::same_as<ddge::util::meta::result_of_t<Invocable_T>, bool>
 class NotFn;
 
 namespace ddge::util {
@@ -166,6 +170,7 @@ using not_fn_interface_from_t = typename NotFnInterfaceFromImpl<
     ddge::util::meta::arguments_of_t<Invocable_T>>::type;
 
 template <ddge::util::meta::function_c Invocable_T>
+    requires std::same_as<ddge::util::meta::result_of_t<Invocable_T>, bool>
 class NotFn<Invocable_T> : public not_fn_interface_from_t<Invocable_T> {
     using Base = not_fn_interface_from_t<Invocable_T>;
 
@@ -179,6 +184,7 @@ private:
 };
 
 template <ddge::util::meta::member_function_pointer_c Invocable_T>
+    requires std::same_as<ddge::util::meta::result_of_t<Invocable_T>, bool>
 class NotFn<Invocable_T> : public not_fn_interface_from_t<Invocable_T> {
     using Base = not_fn_interface_from_t<Invocable_T>;
 
@@ -192,7 +198,8 @@ private:
 };
 
 template <ddge::util::meta::unambiguous_functor_c Invocable_T>
-    requires ddge::util::meta::naked_c<Invocable_T>
+    requires std::same_as<ddge::util::meta::result_of_t<Invocable_T>, bool>
+          && ddge::util::meta::naked_c<Invocable_T>
 class NotFn<Invocable_T> : public not_fn_interface_from_t<Invocable_T> {
     using Base = not_fn_interface_from_t<Invocable_T>;
 
