@@ -10,43 +10,49 @@ import ddge.utility.meta.concepts.naked;
 import ddge.utility.meta.concepts.functional.function;
 import ddge.utility.meta.concepts.functional.member_function_pointer;
 import ddge.utility.meta.concepts.functional.unambiguous_functor;
+import ddge.utility.meta.concepts.functional.unambiguously_invocable;
 import ddge.utility.meta.type_traits.functional.arguments_of;
 import ddge.utility.meta.type_traits.functional.result_of;
 import ddge.utility.meta.type_traits.type_list.type_list_push_front;
 import ddge.utility.meta.type_traits.type_list.type_list_to;
 
-template <typename>
+template <typename Derived_T, typename Signature_T>
 class FunctionWrapperInterface;
 
-template <typename Result_T, typename... Args_T>
-class FunctionWrapperInterface<Result_T(Args_T...)> {
+template <typename Derived_T, typename Result_T, typename... Args_T>
+class FunctionWrapperInterface<Derived_T, Result_T(Args_T...)> {
 public:
     template <typename Self_T>
     constexpr auto operator()(this Self_T&&, Args_T... args) -> Result_T;
 };
 
-template <typename, typename>
+template <typename Derived_T, typename Result_T, typename ArgList_T>
 struct FunctionWrapperInterfaceFromImpl;
 
-template <typename Result_T, template <typename...> typename TypeList_T, typename... Args_T>
-struct FunctionWrapperInterfaceFromImpl<Result_T, TypeList_T<Args_T...>> {
-    using type = FunctionWrapperInterface<Result_T(Args_T...)>;
+template <
+    typename Derived_T,
+    typename Result_T,
+    template <typename...> typename TypeList_T,
+    typename... Args_T>
+struct FunctionWrapperInterfaceFromImpl<Derived_T, Result_T, TypeList_T<Args_T...>> {
+    using type = FunctionWrapperInterface<Derived_T, Result_T(Args_T...)>;
 };
 
-template <typename Invocable_T>
-using function_wrapper_interface_from_t = typename FunctionWrapperInterfaceFromImpl<
+template <typename Derived_T, typename Invocable_T>
+using function_wrapper_interface_from_t = FunctionWrapperInterfaceFromImpl<
+    Derived_T,
     ddge::util::meta::result_of_t<Invocable_T>,
     ddge::util::meta::arguments_of_t<Invocable_T>>::type;
 
 namespace ddge::util {
 
-export template <typename Invocable_T>
+export template <util::meta::unambiguously_invocable_c Invocable_T>
 class FunctionWrapper;
 
-template <util::meta::function_c Invocable_T>
+export template <util::meta::function_c Invocable_T>
 class FunctionWrapper<Invocable_T>
-    : public function_wrapper_interface_from_t<Invocable_T> {
-    using Base = function_wrapper_interface_from_t<Invocable_T>;
+    : public function_wrapper_interface_from_t<FunctionWrapper<Invocable_T>, Invocable_T> {
+    using Base = function_wrapper_interface_from_t<FunctionWrapper, Invocable_T>;
 
 public:
     constexpr explicit FunctionWrapper(Invocable_T& invocable);
@@ -57,10 +63,10 @@ private:
     std::reference_wrapper<Invocable_T> m_invocable;
 };
 
-template <util::meta::member_function_pointer_c Invocable_T>
+export template <util::meta::member_function_pointer_c Invocable_T>
 class FunctionWrapper<Invocable_T>
-    : public function_wrapper_interface_from_t<Invocable_T> {
-    using Base = function_wrapper_interface_from_t<Invocable_T>;
+    : public function_wrapper_interface_from_t<FunctionWrapper<Invocable_T>, Invocable_T> {
+    using Base = function_wrapper_interface_from_t<FunctionWrapper, Invocable_T>;
 
 public:
     constexpr explicit FunctionWrapper(Invocable_T invocable);
@@ -71,11 +77,11 @@ private:
     Invocable_T m_invocable;
 };
 
-template <util::meta::unambiguous_functor_c Invocable_T>
+export template <util::meta::unambiguous_functor_c Invocable_T>
     requires util::meta::naked_c<Invocable_T>
 class FunctionWrapper<Invocable_T>
-    : public function_wrapper_interface_from_t<Invocable_T> {
-    using Base = function_wrapper_interface_from_t<Invocable_T>;
+    : public function_wrapper_interface_from_t<FunctionWrapper<Invocable_T>, Invocable_T> {
+    using Base = function_wrapper_interface_from_t<FunctionWrapper, Invocable_T>;
 
 public:
     FunctionWrapper()
@@ -94,15 +100,16 @@ private:
 
 }   // namespace ddge::util
 
-template <typename Result_T, typename... Args_T>
+template <typename Derived_T, typename Result_T, typename... Args_T>
 template <typename Self_T>
-constexpr auto FunctionWrapperInterface<Result_T(Args_T...)>::operator()(
+constexpr auto FunctionWrapperInterface<Derived_T, Result_T(Args_T...)>::operator()(
     this Self_T&& self,
     Args_T... args
 ) -> Result_T
 {
     return std::invoke(
-        std::forward_like<Self_T>(self.m_invocable), std::forward<Args_T>(args)...
+        std::forward_like<Self_T>(self.Derived_T::m_invocable),
+        std::forward<Args_T>(args)...
     );
 }
 
