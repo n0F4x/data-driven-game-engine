@@ -7,6 +7,7 @@ export import ddge.utility.tuple;
 
 export import ddge.utility.all_same;
 export import ddge.utility.contracts;
+export import ddge.utility.FunctionInterface;
 export import ddge.utility.hashing;
 export import ddge.utility.not_fn;
 export import ddge.utility.Overloaded;

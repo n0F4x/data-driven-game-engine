@@ -11,6 +11,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         utility.cppm
         all_same.ixx
         contracts.ixx
+        FunctionInterface.ixx
         hashing.ixx
         no_op.ixx
         not_fn.ixx
