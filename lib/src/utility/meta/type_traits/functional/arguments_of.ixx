@@ -12,7 +12,7 @@ import ddge.utility.meta.concepts.functional.unambiguous_explicit_functor;
 import ddge.utility.meta.concepts.functional.unambiguous_implicit_functor;
 import ddge.utility.meta.concepts.functional.unambiguous_static_functor;
 import ddge.utility.meta.concepts.functional.unambiguously_invocable;
-import ddge.utility.meta.type_traits.functional.signature;
+import ddge.utility.meta.type_traits.functional.Signature;
 import ddge.utility.meta.type_traits.type_list.type_list_drop_front;
 
 namespace ddge::util::meta {
@@ -22,24 +22,24 @@ struct arguments_of;
 
 template <function_c F>
 struct arguments_of<F> {
-    using type = typename signature<F>::arguments_t;
+    using type = typename Signature<F>::arguments_t;
 };
 
 template <typename F>
     requires function_pointer_c<std::remove_reference_t<F>>
 struct arguments_of<F> {
     using type =
-        typename signature<std::remove_pointer_t<std::remove_reference_t<F>>>::arguments_t;
+        typename Signature<std::remove_pointer_t<std::remove_reference_t<F>>>::arguments_t;
 };
 
 template <function_reference_c F>
 struct arguments_of<F> {
-    using type = typename signature<std::remove_reference_t<F>>::arguments_t;
+    using type = typename Signature<std::remove_reference_t<F>>::arguments_t;
 };
 
 template <member_function_pointer_c F>
 struct arguments_of<F> {
-    using type = typename signature<F>::arguments_t;
+    using type = typename Signature<F>::arguments_t;
 };
 
 template <unambiguous_explicit_functor_c F>

@@ -5,6 +5,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         functional.cppm
         arguments_of.ixx
+        is_noexcept.ixx
         result_of.ixx
-        signature.ixx
+        Signature.ixx
+        signature_of.ixx
 )

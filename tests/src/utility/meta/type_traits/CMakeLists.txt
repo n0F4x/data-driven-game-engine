@@ -4,4 +4,5 @@ add_subdirectory(type_list)
 
 target_sources(${PROJECT_NAME} PRIVATE
         back.cpp
+        mimic.cpp
 )

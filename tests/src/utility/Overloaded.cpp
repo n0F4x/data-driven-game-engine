@@ -9,7 +9,11 @@ static_assert(
     "construct from lambda"
 );
 
+namespace {
+
 auto function() -> void {}
+
+}   // namespace
 
 static_assert(
     [] {

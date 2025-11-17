@@ -9,6 +9,7 @@ export import ddge.utility.meta.concepts.all_different;
 export import ddge.utility.meta.concepts.allocator;
 export import ddge.utility.meta.concepts.decayed;
 export import ddge.utility.meta.concepts.decays_to;
+export import ddge.utility.meta.concepts.generic_allocator;
 export import ddge.utility.meta.concepts.hashable;
 export import ddge.utility.meta.concepts.naked;
 export import ddge.utility.meta.concepts.nothrow_assignable_from;

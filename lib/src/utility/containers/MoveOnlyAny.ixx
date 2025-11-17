@@ -13,12 +13,12 @@ module;
 export module ddge.utility.containers.MoveOnlyAny;
 
 import ddge.utility.contracts;
-import ddge.utility.memory.Allocator;
+import ddge.utility.memory.DefaultAllocator;
 import ddge.utility.memory.Deallocator;
-import ddge.utility.meta.concepts.allocator;
-import ddge.utility.meta.concepts.storable;
+import ddge.utility.meta.concepts.generic_allocator;
 import ddge.utility.meta.concepts.nothrow_movable;
 import ddge.utility.meta.concepts.specialization_of;
+import ddge.utility.meta.concepts.storable;
 import ddge.utility.meta.reflection.hash;
 import ddge.utility.meta.reflection.name_of;
 import ddge.utility.meta.type_traits.forward_like;
@@ -167,7 +167,7 @@ constexpr auto dynamic_any_cast(MoveOnlyAny_T&& any)
 export template <
     std::size_t               size_T      = 3 * sizeof(void*),
     std::size_t               alignment_T = sizeof(void*),
-    meta::generic_allocator_c Allocator_T = Allocator>
+    meta::generic_allocator_c Allocator_T = DefaultAllocator>
 class BasicMoveOnlyAny : public MoveOnlyAnyBase {
 public:
     constexpr static std::size_t size      = size_T;
@@ -523,7 +523,7 @@ constexpr auto ddge::util::dynamic_any_cast(MoveOnlyAny_T&& any)
         T,
         std::remove_cvref_t<MoveOnlyAny_T>::BasicMoveOnlyAny::size,
         std::remove_cvref_t<MoveOnlyAny_T>::BasicMoveOnlyAny::alignment,
-        Allocator>::
+        DefaultAllocator>::
         any_cast(std::forward_like<MoveOnlyAny_T>(any.BasicMoveOnlyAny::m_storage));
 }
 

@@ -4,7 +4,7 @@ module;
 
 export module ddge.utility.meta.concepts.functional.unambiguous_explicit_functor;
 
-import ddge.utility.meta.type_traits.functional.signature;
+import ddge.utility.meta.type_traits.functional.Signature;
 import ddge.utility.meta.type_traits.type_list.type_list_front;
 
 namespace ddge::util::meta {
@@ -15,7 +15,7 @@ concept unambiguous_explicit_functor_c =
     && requires { &std::remove_cvref_t<T>::operator(); }
     && !std::is_member_function_pointer_v<decltype(&std::remove_cvref_t<T>::operator())>
     && std::is_same_v<
-        std::remove_cvref_t<type_list_front_t<typename signature<std::remove_pointer_t<
+        std::remove_cvref_t<type_list_front_t<typename Signature<std::remove_pointer_t<
             decltype(&std::remove_cvref_t<T>::operator())>>::arguments_t>>,
         std::remove_cvref_t<T>>;
 

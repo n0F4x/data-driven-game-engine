@@ -6,6 +6,7 @@ module;
 export module ddge.utility.memory.Deallocator;
 
 import ddge.utility.meta.concepts.allocator;
+import ddge.utility.meta.concepts.generic_allocator;
 
 namespace ddge::util {
 
