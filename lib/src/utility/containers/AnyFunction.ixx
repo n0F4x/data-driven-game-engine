@@ -22,16 +22,6 @@ import ddge.utility.meta.type_traits.functional.is_noexcept;
 import ddge.utility.meta.type_traits.functional.result_of;
 import ddge.utility.meta.type_traits.functional.Signature;
 
-template <typename Implementation_T>
-struct Projection {
-    template <typename T>
-    [[nodiscard]]
-    constexpr static auto operator()(T&& that) noexcept -> decltype(auto)
-    {
-        return std::forward_like<T>(that.Implementation::m_func);
-    }
-};
-
 template <
     std::size_t                           size_T,
     std::size_t                           alignment_T,
@@ -43,7 +33,7 @@ class BasicAnyFunctionBase;
 namespace ddge::util {
 
 export template <
-    typename Signature_T,
+    meta::function_c                      Signature_T,
     std::size_t                           size_T      = 3 * sizeof(void*),
     std::size_t                           alignment_T = sizeof(void*),
     ddge::util::meta::generic_allocator_c Allocator_T = DefaultAllocator>
@@ -54,7 +44,7 @@ using BasicAnyFunction = BasicAnyFunctionBase<
     Signature_T,
     meta::arguments_of_t<Signature_T>>;
 
-export template <typename Signature_T>
+export template <meta::function_c Signature_T>
 using AnyFunction = BasicAnyFunction<Signature_T>;
 
 }   // namespace ddge::util

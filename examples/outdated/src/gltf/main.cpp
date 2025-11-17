@@ -32,11 +32,11 @@ try {
         / "assets"
         / "models"
         // / "BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
-        // / "Avocado/glTF-Binary/Avocado.glb",
+        // / "Avocado/glTF/Avocado.gltf",
         // / "PrimitiveModeNormalsTest/glTF/PrimitiveModeNormalsTest.gltf",
         // / "FlightHelmet/FlightHelmetUastc.gltf",
-        // / "DamagedHelmet.glb",
-        / "Sponza/glTF/Sponza.gltf"
+        / "DamagedHelmet.glb",
+        // / "Sponza/glTF/Sponza.gltf"
         // / "StainedGlassLamp/glTF-KTX-BasisU/StainedGlassLamp.gltf",
     };
     constexpr static float movement_speed{ 10 };
