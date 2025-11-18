@@ -26,11 +26,11 @@ public:
     using Asset = Asset_T;
 
     CachedImpl()
-        requires std::default_initializable<Loader_T>
+        requires std::default_initializable<std::decay_t<Loader_T>>
     = default;
 
     template <typename ULoader_T>
-        requires(std::constructible_from<Loader_T, ULoader_T &&>)
+        requires(std::constructible_from<std::decay_t<Loader_T>, ULoader_T &&>)
     explicit CachedImpl(ULoader_T&& loader);
 
     [[nodiscard("assets are not owned by Cached")]]
@@ -42,7 +42,7 @@ public:
         Handle<util::meta::const_like_t<Asset_T, std::remove_reference_t<Self_T>>>>;
 
 private:
-    util::FunctionWrapper<Loader_T>                                   m_loader;
+    std::decay_t<Loader_T>                                            m_loader;
     std::unordered_map<std::size_t, WeakHandle<Asset>, std::identity> m_asset_map;
 
     [[nodiscard]]
@@ -84,7 +84,7 @@ public:
 
 template <typename Loader_T, typename Asset_T, typename... Arguments_T>
 template <typename ULoader_T>
-    requires(std::constructible_from<Loader_T, ULoader_T &&>)
+    requires(std::constructible_from<std::decay_t<Loader_T>, ULoader_T &&>)
 ddge::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::CachedImpl(ULoader_T&& loader)
     : m_loader{ std::forward<ULoader_T>(loader) }
 {}
