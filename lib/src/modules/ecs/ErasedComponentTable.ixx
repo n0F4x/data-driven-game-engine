@@ -48,9 +48,9 @@ struct ErasedComponentTableTraits {
 
 class ErasedComponentTable
     : public ddge::util::
-          BasicAny<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)> {
-    using Base =
-        ddge::util::BasicAny<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)>;
+          BasicCopyableAny<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)> {
+    using Base = ddge::util::
+        BasicCopyableAny<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)>;
 
 public:
     template <ddge::ecs::component_c Component_T>

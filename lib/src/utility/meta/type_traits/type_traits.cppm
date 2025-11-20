@@ -6,6 +6,7 @@ export import ddge.utility.meta.type_traits.type_list;
 
 export import ddge.utility.meta.type_traits.add_wrapper;
 export import ddge.utility.meta.type_traits.all_same;
+export import ddge.utility.meta.type_traits.always_true;
 export import ddge.utility.meta.type_traits.const_like;
 export import ddge.utility.meta.type_traits.forward_like;
 export import ddge.utility.meta.type_traits.is_specialization_of;

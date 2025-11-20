@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         type_traits.cppm
         add_wrapper.ixx
         all_same.ixx
+        always_true.ixx
         back.ixx
         const_like.ixx
         forward_like.ixx

@@ -32,11 +32,12 @@ struct ErasedMessageBufferTraits {
 
 struct DummyMessage {};
 
-export class ErasedMessageBuffer : public util::BasicAny<
+export class ErasedMessageBuffer : public util::BasicCopyableAny<
                                        sizeof(MessageBuffer<DummyMessage>),
                                        alignof(MessageBuffer<DummyMessage>)> {
-    using Base = util::
-        BasicAny<sizeof(MessageBuffer<DummyMessage>), alignof(MessageBuffer<DummyMessage>)>;
+    using Base = util::BasicCopyableAny<
+        sizeof(MessageBuffer<DummyMessage>),
+        alignof(MessageBuffer<DummyMessage>)>;
 
 public:
     template <message_c Message_T>

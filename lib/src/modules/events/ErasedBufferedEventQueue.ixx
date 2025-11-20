@@ -32,10 +32,10 @@ struct ErasedBufferedEventQueueTraits {
 
 struct DummyEvent {};
 
-export class ErasedBufferedEventQueue : public util::BasicAny<
+export class ErasedBufferedEventQueue : public util::BasicCopyableAny<
                                             sizeof(BufferedEventQueue<DummyEvent>),
                                             alignof(BufferedEventQueue<DummyEvent>)> {
-    using Base = util::BasicAny<
+    using Base = util::BasicCopyableAny<
         sizeof(BufferedEventQueue<DummyEvent>),
         alignof(BufferedEventQueue<DummyEvent>)>;
 
