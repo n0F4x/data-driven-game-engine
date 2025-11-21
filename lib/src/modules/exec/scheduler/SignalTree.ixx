@@ -45,6 +45,9 @@ public:
     auto try_unset_one_at(LeafIndex leaf_index) -> bool;
 
     [[nodiscard]]
+    auto full() const noexcept -> bool;
+
+    [[nodiscard]]
     auto number_of_levels() const noexcept -> uint32_t;
     [[nodiscard]]
     auto number_of_leaves() const noexcept -> uint32_t;

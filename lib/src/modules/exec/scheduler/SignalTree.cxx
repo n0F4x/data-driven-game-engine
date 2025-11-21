@@ -1,6 +1,7 @@
 module;
 
 #include <bit>
+#include <cassert>
 #include <cstdint>
 #include <optional>
 
@@ -60,6 +61,11 @@ auto ddge::exec::SignalTree::try_unset_one_at(const LeafIndex leaf_index) -> boo
     return try_unset_one_at(0, leaf_index + number_of_branches());
 }
 
+auto ddge::exec::SignalTree::full() const noexcept -> bool
+{
+    return m_nodes[0].counter.load() == number_of_leaves();
+}
+
 auto ddge::exec::SignalTree::number_of_levels() const noexcept -> uint32_t
 {
     return static_cast<uint32_t>(std::bit_width(m_nodes.size()));
@@ -93,7 +99,7 @@ auto ddge::exec::SignalTree::is_leaf_index(const NodeIndex node_index) const noe
 
 auto ddge::exec::SignalTree::set_branch(const NodeIndex node_index) -> void
 {
-    PRECOND(node_index < (m_nodes.size() - number_of_leaves()));
+    PRECOND(node_index < (number_of_branches()));
 
     m_nodes[node_index].counter.fetch_add(1);
 
@@ -101,8 +107,7 @@ auto ddge::exec::SignalTree::set_branch(const NodeIndex node_index) -> void
         return;
     }
 
-    const uint32_t parent_index{ (node_index + 1) / 2 - 1 };
-    set_branch(parent_index);
+    set_branch(::parent_index_of(node_index));
 }
 
 auto ddge::exec::SignalTree::try_unset_one(
@@ -149,9 +154,11 @@ auto ddge::exec::SignalTree::try_unset_one_at(
     } while (!m_nodes[node_index].counter.compare_exchange_weak(counter, counter - 1));
 
     const uint32_t  level{ static_cast<uint32_t>(std::bit_width(node_index + 1)) - 1u };
-    const NodeIndex child_index{ ::left_child_index_of(node_index)
-                                 + (((target_index + 1) >> (number_of_levels() - level - 2))
-                                    & 1u) };
+    const NodeIndex child_index{
+        ::left_child_index_of(node_index)
+        + (((target_index + 1) >> (number_of_levels() - level - 2)) & 1u)
+    };
+    assert(!is_leaf_index(child_index) || child_index == target_index);
 
     const bool result = is_leaf_index(child_index)
                           ? try_unset_leaf(child_index).has_value()

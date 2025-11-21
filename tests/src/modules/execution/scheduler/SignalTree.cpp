@@ -123,6 +123,8 @@ TEST_CASE("ddge::exec::SignalTree")
             test(5, std::jthread::hardware_concurrency());
             test(7, std::jthread::hardware_concurrency());
             test(12, std::jthread::hardware_concurrency());
+            test(12, std::jthread::hardware_concurrency());
+            test(20, std::jthread::hardware_concurrency());
         }
     }
 
@@ -168,10 +170,14 @@ TEST_CASE("ddge::exec::SignalTree")
                     for (const auto index :
                          std::views::iota(0u, signal_tree.number_of_leaves()))
                     {
-                        signal_tree.try_set_one(index);
+                        const bool success = signal_tree.try_set_one(index);
+                        REQUIRE(success);
                     }
+                    REQUIRE(signal_tree.full());
 
-                    std::vector<bool> index_checks(signal_tree.number_of_leaves());
+                    std::vector<std::atomic_bool> index_checks(
+                        signal_tree.number_of_leaves()
+                    );
 
                     const auto work = [number_of_threads,
                                        &signal_tree,
@@ -183,7 +189,7 @@ TEST_CASE("ddge::exec::SignalTree")
                             {
                                 const auto index{ i * number_of_threads + id };
                                 const bool success{ signal_tree.try_unset_one_at(index) };
-                                index_checks.at(index) = success;
+                                index_checks[index] = success;
                             }
                             if (signal_tree.number_of_leaves() % number_of_threads > id) {
                                 const auto index{ signal_tree.number_of_leaves()
@@ -191,7 +197,7 @@ TEST_CASE("ddge::exec::SignalTree")
                                                       * number_of_threads
                                                   + id };
                                 const bool success{ signal_tree.try_unset_one_at(index) };
-                                index_checks.at(index) = success;
+                                index_checks[index] = success;
                             }
                         };
                     };
@@ -206,6 +212,7 @@ TEST_CASE("ddge::exec::SignalTree")
                         thread.join();
                     }
 
+                    REQUIRE_FALSE(signal_tree.try_unset_one(default_strategy).has_value());
                     REQUIRE(std::ranges::all_of(index_checks, std::identity{}));
                 }
             };
@@ -215,6 +222,7 @@ TEST_CASE("ddge::exec::SignalTree")
             test(5, std::jthread::hardware_concurrency());
             test(7, std::jthread::hardware_concurrency());
             test(12, std::jthread::hardware_concurrency());
+            test(20, std::jthread::hardware_concurrency());
         }
     }
 
@@ -279,5 +287,6 @@ TEST_CASE("ddge::exec::SignalTree")
         test(5);
         test(7);
         test(12);
+        test(20);
     }
 }
