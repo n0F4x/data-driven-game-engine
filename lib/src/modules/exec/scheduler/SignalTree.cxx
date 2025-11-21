@@ -150,7 +150,7 @@ auto ddge::exec::SignalTree::try_unset_one_at(
 
     const uint32_t  level{ static_cast<uint32_t>(std::bit_width(node_index + 1)) - 1u };
     const NodeIndex child_index{ ::left_child_index_of(node_index)
-                                 + ((target_index >> (number_of_levels() - level - 2))
+                                 + (((target_index + 1) >> (number_of_levels() - level - 2))
                                     & 1u) };
 
     const bool result = is_leaf_index(child_index)
