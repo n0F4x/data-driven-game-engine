@@ -49,7 +49,7 @@ export template <
     std::size_t                           size_T      = 3 * sizeof(void*),
     std::size_t                           alignment_T = sizeof(void*),
     ddge::util::meta::generic_allocator_c Allocator_T = DefaultAllocator>
-using CopyableAnyFunction = BasicAnyFunctionBase<
+using AnyCopyableFunction = BasicAnyFunctionBase<
     {},
     size_T,
     alignment_T,

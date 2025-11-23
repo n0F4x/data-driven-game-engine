@@ -16,7 +16,7 @@ constexpr auto noexcept_function() noexcept -> void {}
 
 static_assert(
     [] {
-        ddge::util::CopyableAnyFunction<void(), 0z>{ throwing_function };
+        ddge::util::AnyCopyableFunction<void(), 0z>{ throwing_function };
 
         return true;
     }(),
@@ -33,7 +33,7 @@ struct Dummy {
 
 static_assert(
     [] {
-        ddge::util::CopyableAnyFunction<void(Dummy), 0z>{ &Dummy::method };
+        ddge::util::AnyCopyableFunction<void(Dummy), 0z>{ &Dummy::method };
 
         return true;
     }(),
@@ -42,7 +42,7 @@ static_assert(
 
 static_assert(
     [] {
-        ddge::util::CopyableAnyFunction<void(), 0z>{ [] {} };
+        ddge::util::AnyCopyableFunction<void(), 0z>{ [] {} };
 
         return true;
     }(),
@@ -53,7 +53,7 @@ static_assert(std::is_same_v<ddge::util::meta::mimic_t<int, int>, int>);
 
 static_assert(
     [] {
-        ddge::util::CopyableAnyFunction<void(), 0z>{ [] static {} };
+        ddge::util::AnyCopyableFunction<void(), 0z>{ [] static {} };
 
         return true;
     }(),
@@ -62,17 +62,17 @@ static_assert(
 
 static_assert(
     std::constructible_from<
-        ddge::util::CopyableAnyFunction<void() noexcept, 0z>,
+        ddge::util::AnyCopyableFunction<void() noexcept, 0z>,
         decltype(noexcept_function)>
         && !std::constructible_from<
-            ddge::util::CopyableAnyFunction<void() noexcept, 0z>,
+            ddge::util::AnyCopyableFunction<void() noexcept, 0z>,
             decltype(throwing_function)>,
     "construct from throwing"
 );
 
 static_assert(
     [] {
-        ddge::util::CopyableAnyFunction<void(), 0z> any_function{ throwing_function };
+        ddge::util::AnyCopyableFunction<void(), 0z> any_function{ throwing_function };
 
         any_function();
         std::move(any_function)();
@@ -90,7 +90,7 @@ static_assert(
         static_assert(not requires { std::move(any_function)(); });
 
         return true;
-    }.operator()<ddge::util::CopyableAnyFunction<void() &, 0z>>(),
+    }.operator()<ddge::util::AnyCopyableFunction<void() &, 0z>>(),
     "& call"
 );
 
@@ -102,16 +102,16 @@ static_assert(
         std::move(any_function)();
 
         return true;
-    }.operator()<ddge::util::CopyableAnyFunction<void() &&, 0z>>(),
+    }.operator()<ddge::util::AnyCopyableFunction<void() &&, 0z>>(),
     "&& call"
 );
 
 static_assert(
-    std::is_nothrow_invocable_v<ddge::util::CopyableAnyFunction<void() noexcept, 0z>>,
+    std::is_nothrow_invocable_v<ddge::util::AnyCopyableFunction<void() noexcept, 0z>>,
     "noexcept call"
 );
 
 static_assert(
-    !std::is_nothrow_invocable_v<ddge::util::CopyableAnyFunction<void(), 0z>>,
+    !std::is_nothrow_invocable_v<ddge::util::AnyCopyableFunction<void(), 0z>>,
     "throwing call"
 );
