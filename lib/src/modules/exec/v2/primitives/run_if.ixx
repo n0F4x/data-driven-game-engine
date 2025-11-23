@@ -8,7 +8,6 @@ module;
 
 export module ddge.modules.exec.v2.primitives.run_if;
 
-import ddge.modules.exec.Nexus;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.gatherers.WaitAll;
 import ddge.modules.exec.v2.TaskBlueprint;
@@ -57,7 +56,6 @@ auto ddge::exec::v2::run_if(
             return TaskBuilder<void>{
                 [y_main_blueprint      = std::move(x_main_blueprint),
                  y_predicate_blueprint = std::move(x_predicate_blueprint)](
-                    Nexus&                       nexus,
                     TaskHubBuilder&              task_hub_builder,
                     TaskFinishedCallback<void>&& callback
                 ) mutable -> TaskBundle   //
@@ -69,12 +67,10 @@ auto ddge::exec::v2::run_if(
                     return std::move(y_predicate_blueprint)
                         .materialize()
                         .build(
-                            nexus,   //
                             task_hub_builder,
                             [main_task =
                                  ::sync(std::move(y_main_blueprint).materialize())
                                      .build(
-                                         nexus,
                                          task_hub_builder,
                                          [shared_callback](
                                              const TaskHubProxy& task_hub_proxy

@@ -31,9 +31,6 @@ public:
     auto provide() -> Accessor_T;
 
 private:
-    template <typename Accessor_T>
-    using Producer = std::function<Accessor_T()>;
-
     store::Store m_providers;
 };
 

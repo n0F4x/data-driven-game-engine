@@ -7,7 +7,6 @@ module;
 
 export module ddge.modules.exec.v2.primitives.not_fn;
 
-import ddge.modules.exec.Nexus;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
@@ -26,29 +25,25 @@ export auto not_fn(TaskBlueprint<bool, Cardinality::eSingle>&& task_blueprint)
             return TaskBuilder<bool>{
                 [y_blueprint = std::move(x_blueprint)]   //
                 (                                        //
-                    Nexus & nexus,
                     TaskHubBuilder & task_hub_builder,
                     TaskFinishedCallback<bool>&& callback
                 ) mutable -> TaskBundle   //
                 {
                     return TaskBundle{
-                        task_hub_builder.emplace(
-                            [task = std::move(y_blueprint)
-                                        .materialize()
-                                        .build(
-                                            nexus,
-                                            task_hub_builder,
-                                            [x_callback = std::move(callback)](
-                                                const TaskHubProxy& task_hub_proxy,
-                                                const bool          result
-                                            ) mutable -> void {   //
-                                                return x_callback(task_hub_proxy, !result);
-                                            }
-                                        )]   //
-                            (const TaskHubProxy& task_hub_proxy) mutable -> void {
-                                task(task_hub_proxy);
-                            }
-                        )   //
+                        [task = std::move(y_blueprint)
+                                    .materialize()
+                                    .build(
+                                        task_hub_builder,
+                                        [x_callback = std::move(callback)](
+                                            const TaskHubProxy& task_hub_proxy,
+                                            const bool          result
+                                        ) mutable -> void {   //
+                                            return x_callback(task_hub_proxy, !result);
+                                        }
+                                    )]   //
+                        (const TaskHubProxy& task_hub_proxy) mutable -> void {
+                            task(task_hub_proxy);
+                        }
                     };
                 }
             };

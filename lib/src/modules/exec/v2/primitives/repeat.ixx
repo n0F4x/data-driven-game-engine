@@ -10,7 +10,6 @@ module;
 
 export module ddge.modules.exec.v2.primitives.repeat;
 
-import ddge.modules.exec.Nexus;
 import ddge.modules.exec.v2.as_task_blueprint;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
@@ -66,7 +65,6 @@ auto ddge::exec::v2::repeat(
                  y_repetition_specifier_blueprint = std::move(
                      x_repetition_specifier_blueprint
                  )](   //
-                    Nexus&                       nexus,
                     TaskHubBuilder&              task_hub_builder,
                     TaskFinishedCallback<void>&& callback
                 ) mutable -> TaskBundle   //
@@ -114,7 +112,6 @@ auto ddge::exec::v2::repeat(
                     TaskBundle main_task =   //
                         ::sync(std::move(y_main_blueprint).materialize())
                             .build(
-                                nexus,   //
                                 task_hub_builder,
                                 [looper](const TaskHubProxy& task_hub_proxy) -> void {
                                     looper->schedule_next_iteration(task_hub_proxy);
@@ -126,7 +123,6 @@ auto ddge::exec::v2::repeat(
                         std::move(y_repetition_specifier_blueprint)
                             .materialize()
                             .build(
-                                nexus,   //
                                 task_hub_builder,
                                 [looper](
                                     const TaskHubProxy& task_hub_proxy,

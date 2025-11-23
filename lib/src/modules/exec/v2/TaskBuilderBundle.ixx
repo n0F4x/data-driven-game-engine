@@ -8,7 +8,6 @@ module;
 
 export module ddge.modules.exec.v2.TaskBuilderBundle;
 
-import ddge.modules.exec.Nexus;
 import ddge.modules.exec.v2.gatherers.gatherer_builder_of_c;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBundle;
@@ -64,7 +63,6 @@ auto ddge::exec::v2::TaskBuilderBundle<Result_T>::sync(
         [builders           = std::move(m_task_builders),
          x_gatherer_builder = std::move(gatherer_builder)]   //
         (                                                    //
-            Nexus & nexus,
             TaskHubBuilder & task_hub_builder,
             TaskFinishedCallback<NewResult>&& callback
         ) mutable -> TaskBundle   //
@@ -77,12 +75,10 @@ auto ddge::exec::v2::TaskBuilderBundle<Result_T>::sync(
             auto tasks =
                 std::move(builders) | std::views::as_rvalue
                 | std::views::transform(
-                    [&nexus,
-                     &task_hub_builder,
+                    [&task_hub_builder,
                      &gatherer]   //
                     (TaskBuilder<Result_T>&& builder) -> TaskBundle {
                         return std::move(builder).build(
-                            nexus,
                             task_hub_builder,
                             [gatherer]<typename... XInputs_T>(
                                 const TaskHubProxy&, XInputs_T&&... inputs

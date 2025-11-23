@@ -7,7 +7,6 @@ module;
 
 export module ddge.modules.exec.v2.ScheduleBuilder;
 
-import ddge.modules.exec.Nexus;
 import ddge.modules.exec.v2.as_task_blueprint;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
@@ -81,20 +80,19 @@ auto ddge::exec::v2::ScheduleBuilder::then(TaskBlueprint_T&& next) && -> Schedul
                 return TaskBuilder<void>{
                     [x_previous = std::move(previous),
                      y_next     = std::move(x_next)]   //
-                    (Nexus & nexus,
-                     TaskHubBuilder & task_hub_builder,
-                     TaskFinishedCallback<void>&& callback) mutable -> TaskBundle   //
+                    (                              //
+                        TaskHubBuilder & task_hub_builder,
+                        TaskFinishedCallback<void>&& callback
+                    ) mutable -> TaskBundle   //
                     {
                         return std::move(x_previous)
                             .materialize()
                             .build(
-                                nexus,
                                 task_hub_builder,
-                                [next_task =
-                                     ::sync(std::move(y_next).materialize())
-                                         .build(
-                                             nexus, task_hub_builder, std::move(callback)
-                                         )]                                            //
+                                [next_task = ::sync(std::move(y_next).materialize())
+                                                 .build(
+                                                     task_hub_builder, std::move(callback)
+                                                 )]                                    //
                                 (const TaskHubProxy& task_hub_proxy) mutable -> void   //
                                 {                                                      //
                                     next_task(task_hub_proxy);

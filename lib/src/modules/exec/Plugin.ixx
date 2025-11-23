@@ -116,12 +116,12 @@ auto ddge::exec::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprin
         (util::TypeList<AccessorProviders_T...>)               //
     {
         Nexus              nexus{ AccessorProviders_T{ app }... };
-        v2::TaskHubBuilder task_hub_builder;
+        v2::TaskHubBuilder task_hub_builder{ nexus };
 
         std::atomic_bool should_stop{};
         v2::TaskBundle   root_task =
             ::sync(v2::as_task_blueprint<void>(std::move(task_blueprint)).materialize())
-                .build(nexus, task_hub_builder, [&should_stop](const v2::TaskHubProxy&) {
+                .build(task_hub_builder, [&should_stop](const v2::TaskHubProxy&) {
                     should_stop = true;
                 });
 

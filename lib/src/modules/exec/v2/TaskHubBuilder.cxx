@@ -18,6 +18,8 @@ import ddge.modules.exec.v2.TaskHubProxy;
 
 import ddge.utility.contracts;
 
+ddge::exec::v2::TaskHubBuilder::TaskHubBuilder(Nexus& nexus) : m_nexus{ nexus } {}
+
 auto ddge::exec::v2::TaskHubBuilder::emplace(
     fu2::unique_function<void(const TaskHubProxy&)>&& task,
     const ExecPolicy                                  execution_policy

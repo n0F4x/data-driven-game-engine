@@ -9,7 +9,6 @@ module;
 
 export module ddge.modules.exec.v2.primitives.loop_until;
 
-import ddge.modules.exec.Nexus;
 import ddge.modules.exec.v2.as_task_blueprint;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
@@ -59,7 +58,6 @@ auto ddge::exec::v2::loop_until(
             return TaskBuilder<void>{
                 [y_main_blueprint      = std::move(x_main_blueprint),
                  y_predicate_blueprint = std::move(x_predicate_blueprint)](
-                    Nexus&                       nexus,
                     TaskHubBuilder&              task_hub_builder,
                     TaskFinishedCallback<void>&& callback
                 ) mutable -> TaskBundle   //
@@ -86,13 +84,11 @@ auto ddge::exec::v2::loop_until(
                         std::move(y_predicate_blueprint)
                             .materialize()
                             .build(
-                                nexus,   //
                                 task_hub_builder,
                                 [x_callback = std::move(callback),
                                  main_task =
                                      ::sync(std::move(y_main_blueprint).materialize())
                                          .build(
-                                             nexus,
                                              task_hub_builder,
                                              [looper](const TaskHubProxy& task_hub_proxy) {
                                                  looper->schedule_next_iteration(
