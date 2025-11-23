@@ -13,7 +13,7 @@ export module ddge.modules.store.Store;
 
 import ddge.modules.store.item_c;
 
-import ddge.utility.containers.MoveOnlyAny;
+import ddge.utility.containers.AnyMoveOnly;
 import ddge.utility.containers.OptionalRef;
 import ddge.utility.contracts;
 import ddge.utility.meta.reflection.name_of;
@@ -49,7 +49,7 @@ public:
     auto contains() const noexcept -> bool;
 
 private:
-    tsl::ordered_map<std::type_index, util::BasicMoveOnlyAny<0>> m_map;
+    tsl::ordered_map<std::type_index, util::BasicAnyMoveOnly<0>> m_map;
 };
 
 }   // namespace ddge::store

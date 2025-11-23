@@ -2,7 +2,7 @@ module;
 
 #include <cstddef>
 
-export module ddge.utility.containers.MoveOnlyAny;
+export module ddge.utility.containers.AnyMoveOnly;
 
 import ddge.utility.containers.Any;
 import ddge.utility.memory.DefaultAllocator;
@@ -15,13 +15,13 @@ export template <
     std::size_t               size_T      = 3 * sizeof(void*),
     std::size_t               alignment_T = sizeof(void*),
     meta::generic_allocator_c Allocator_T = DefaultAllocator>
-using BasicMoveOnlyAny = BasicAny<
+using BasicAnyMoveOnly = BasicAny<
     AnyProperties{ .copyable = false },
     meta::always_true,
     size_T,
     alignment_T,
     Allocator_T>;
 
-export using MoveOnlyAny = BasicMoveOnlyAny<>;
+export using AnyMoveOnly = BasicAnyMoveOnly<>;
 
 }   // namespace ddge::util
