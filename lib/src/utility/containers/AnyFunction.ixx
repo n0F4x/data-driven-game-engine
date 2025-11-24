@@ -75,6 +75,9 @@ struct ConceptPolicyHelper {
     };
 };
 
+template <typename T>
+using ensure_reference_t = std::conditional_t<std::is_reference_v<T>, T, T&>;
+
 template <
     ddge::util::AnyProperties             properties_T,
     std::size_t                           size_T,
@@ -109,6 +112,9 @@ class BasicAnyFunctionBase<
     constexpr static std::
         integral_constant<bool, ddge::util::meta::is_noexcept_v<Signature_T>>
             is_noexcept;
+
+    using InvokeQualifiedSelf = ::ensure_reference_t<
+        typename SignatureTraits::template mimic_t<BasicAnyFunctionBase>>;
 
 public:
     template <typename T, typename... Args_T>
@@ -156,36 +162,38 @@ public:
           m_call{ Traits<T>::call }
     {}
 
-    constexpr auto operator()(
-        this SignatureTraits::template mimic_t<BasicAnyFunctionBase> self,
-        FArgs_T... args
-    ) noexcept(is_noexcept()) -> Result
+    template <typename Self_T>
+        requires(SignatureTraits::template mimics_qualifiers<Self_T &&>)
+    constexpr auto operator()(this Self_T&& self, FArgs_T... args) noexcept(is_noexcept())
+        -> Result
     {
-        return self.m_call(
-            std::forward<decltype(self)>(self), std::forward<FArgs_T>(args)...
-        );
+        return self.template BasicAnyFunctionBase<
+            properties_T,
+            size_T,
+            alignment_T,
+            Allocator_T,
+            Signature_T,
+            ArgList_T<FArgs_T...>>::
+            m_call(static_cast<InvokeQualifiedSelf>(self), std::forward<FArgs_T>(args)...);
     }
 
 private:
     template <typename F>
     struct Traits {
-        constexpr static auto call(
-            SignatureTraits::template mimic_t<BasicAnyFunctionBase> that,
-            FArgs_T... args
-        ) noexcept(is_noexcept()) -> Result
+        constexpr static auto call(InvokeQualifiedSelf that, FArgs_T... args) noexcept(
+            is_noexcept()
+        ) -> Result
         {
             return std::invoke(
-                ddge::util::any_cast<std::decay_t<F>>(std::forward<decltype(that)>(that)),
+                ddge::util::any_cast<std::decay_t<F>>(
+                    std::forward<InvokeQualifiedSelf>(that)
+                ),
                 std::forward<FArgs_T>(args)...
             );
         }
     };
 
     std::reference_wrapper<
-        auto(
-            typename SignatureTraits::template mimic_t<BasicAnyFunctionBase>,
-            FArgs_T...
-        ) noexcept(is_noexcept())
-            ->Result>
+        auto(InvokeQualifiedSelf, FArgs_T...) noexcept(is_noexcept())->Result>
         m_call;
 };

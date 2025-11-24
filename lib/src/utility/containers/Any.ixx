@@ -124,7 +124,7 @@ public:
     ;
 
     template <typename T>
-        requires(!std::convertible_to<std::decay_t<T>, BasicAny>)
+        requires(!std::same_as<std::decay_t<T>, BasicAny>)
              && (!meta::specialization_of_c<std::decay_t<T>, std::in_place_type_t>)
              && std::constructible_from<std::decay_t<T>, T&&>
                 constexpr explicit BasicAny(T&& value)
@@ -527,7 +527,7 @@ template <
     std::size_t                           alignment_T,
     ddge::util::meta::generic_allocator_c Allocator_T>
 template <typename T>
-    requires(!std::convertible_to<
+    requires(!std::same_as<
                 std::decay_t<T>,
                 ddge::util::
                     BasicAny<properties_T, ConceptPolicy_T, size_T, alignment_T, Allocator_T>>)
