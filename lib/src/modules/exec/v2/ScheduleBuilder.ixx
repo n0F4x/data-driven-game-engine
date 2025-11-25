@@ -2,9 +2,6 @@ module;
 
 #include <utility>
 
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 export module ddge.modules.exec.v2.ScheduleBuilder;
 
 import ddge.modules.exec.v2.as_task_blueprint;
@@ -89,13 +86,17 @@ auto ddge::exec::v2::ScheduleBuilder::then(TaskBlueprint_T&& next) && -> Schedul
                             .materialize()
                             .build(
                                 task_hub_builder,
-                                [next_task = ::sync(std::move(y_next).materialize())
-                                                 .build(
-                                                     task_hub_builder, std::move(callback)
-                                                 )]                                    //
-                                (const TaskHubProxy& task_hub_proxy) mutable -> void   //
-                                {                                                      //
-                                    next_task(task_hub_proxy);
+                                TaskFinishedCallback<void>{
+                                    [next_task = ::sync(std::move(y_next).materialize())
+                                                     .build(
+                                                         task_hub_builder,
+                                                         std::move(callback)
+                                                     )]   //
+                                    (const TaskHubProxy& task_hub_proxy
+                                    ) mutable -> void     //
+                                    {                     //
+                                        next_task(task_hub_proxy);
+                                    }   //
                                 }
                             );
                     }   //

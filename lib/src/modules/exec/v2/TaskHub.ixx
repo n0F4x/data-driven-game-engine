@@ -61,6 +61,12 @@ public:
 private:
     WorkTree m_generic_work_tree;
     WorkTree m_main_only_work_tree;
+
+    [[nodiscard]]
+    auto try_emplace_at(Task&& task, TaskIndex task_index) -> std::expected<void, Task>;
+
+    [[nodiscard]]
+    auto select_work_tree(TaskIndex task_index) -> WorkTree&;
 };
 
 }   // namespace ddge::exec::v2

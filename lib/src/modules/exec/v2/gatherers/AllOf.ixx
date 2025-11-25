@@ -7,8 +7,6 @@ module;
 #include <optional>
 #include <utility>
 
-#include <function2/function2.hpp>
-
 #include "utility/contracts_macros.hpp"
 
 export module ddge.modules.exec.v2.gatherers.AllOf;

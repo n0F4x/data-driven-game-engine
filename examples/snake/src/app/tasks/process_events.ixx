@@ -1,8 +1,3 @@
-module;
-
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 export module snake.app.tasks.process_events;
 
 import ddge.modules.exec.accessors.events;

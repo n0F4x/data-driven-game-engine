@@ -5,9 +5,6 @@ module;
 #include <random>
 #include <ranges>
 
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 #include <SFML/Graphics.hpp>
 
 module snake.game.tasks.initialize;

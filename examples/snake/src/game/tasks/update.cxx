@@ -2,9 +2,6 @@ module;
 
 #include <cstdint>
 
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 module snake.game.tasks.update;
 
 import ddge.modules.exec.TaskBuilder;

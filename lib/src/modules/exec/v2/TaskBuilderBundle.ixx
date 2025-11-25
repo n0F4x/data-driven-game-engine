@@ -80,10 +80,12 @@ auto ddge::exec::v2::TaskBuilderBundle<Result_T>::sync(
                     (TaskBuilder<Result_T>&& builder) -> TaskBundle {
                         return std::move(builder).build(
                             task_hub_builder,
-                            [gatherer]<typename... XInputs_T>(
-                                const TaskHubProxy&, XInputs_T&&... inputs
-                            ) mutable -> void {
-                                gatherer->receive(std::forward<XInputs_T>(inputs)...);
+                            TaskFinishedCallback<Result_T>{
+                                [gatherer]<typename... XInputs_T>(
+                                    const TaskHubProxy&, XInputs_T&&... inputs
+                                ) mutable -> void {
+                                    gatherer->receive(std::forward<XInputs_T>(inputs)...);
+                                }   //
                             }
                         );
                     }

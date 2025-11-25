@@ -1,8 +1,3 @@
-module;
-
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 module snake.game.tasks.game_is_running;
 
 import ddge.modules.exec.accessors.events;

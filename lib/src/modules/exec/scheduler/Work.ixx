@@ -1,13 +1,11 @@
-module;
-
-#include <function2/function2.hpp>
-
 export module ddge.modules.exec.scheduler.Work;
 
 import ddge.modules.exec.scheduler.WorkContinuation;
 
+import ddge.utility.containers.AnyMoveOnlyFunction;
+
 namespace ddge::exec {
 
-export using Work = fu2::unique_function<WorkContinuation()>;
+export using Work = util::AnyMoveOnlyFunction<WorkContinuation()>;
 
 }   // namespace ddge::exec

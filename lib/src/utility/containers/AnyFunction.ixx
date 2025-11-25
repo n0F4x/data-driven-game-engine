@@ -184,12 +184,22 @@ private:
             is_noexcept()
         ) -> Result
         {
-            return std::invoke(
-                ddge::util::any_cast<std::decay_t<F>>(
-                    std::forward<InvokeQualifiedSelf>(that)
-                ),
-                std::forward<FArgs_T>(args)...
-            );
+            if constexpr (std::is_void_v<Result>) {
+                std::invoke(
+                    ddge::util::any_cast<std::decay_t<F>>(
+                        std::forward<InvokeQualifiedSelf>(that)
+                    ),
+                    std::forward<FArgs_T>(args)...
+                );
+            }
+            else {
+                return std::invoke(
+                    ddge::util::any_cast<std::decay_t<F>>(
+                        std::forward<InvokeQualifiedSelf>(that)
+                    ),
+                    std::forward<FArgs_T>(args)...
+                );
+            }
         }
     };
 

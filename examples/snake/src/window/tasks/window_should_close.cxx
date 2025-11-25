@@ -1,8 +1,5 @@
 module;
 
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 #include <SFML/Window/Event.hpp>
 
 module snake.window.tasks.window_should_close;

@@ -1,13 +1,10 @@
-module;
-
-#include <function2/function2.hpp>
-
 export module ddge.modules.exec.Task;
+
+import ddge.utility.containers.AnyMoveOnlyFunction;
 
 namespace ddge::exec {
 
-// TODO: use `std::move_only_function`
 export template <typename Result_T>
-using Task = fu2::unique_function<Result_T()>;
+using Task = util::AnyMoveOnlyFunction<Result_T()>;
 
 }   // namespace ddge::exec

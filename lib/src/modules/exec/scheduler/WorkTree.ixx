@@ -2,10 +2,9 @@ module;
 
 #include <atomic>
 #include <expected>
+#include <optional>
 #include <utility>
 #include <vector>
-
-#include <function2/function2.hpp>
 
 export module ddge.modules.exec.scheduler.WorkTree;
 
@@ -13,6 +12,8 @@ import ddge.modules.exec.scheduler.SignalTree;
 import ddge.modules.exec.scheduler.Work;
 import ddge.modules.exec.scheduler.WorkContinuation;
 import ddge.modules.exec.scheduler.WorkIndex;
+
+import ddge.utility.containers.AnyMoveOnlyFunction;
 
 namespace ddge::exec {
 
@@ -26,11 +27,12 @@ struct WorkFlags {
     constexpr static type eAll               = static_cast<type>(~eNone);
 };
 
-export using ReleaseWorkContract = fu2::unique_function<void()>;
+export using ReleaseWorkContract = util::AnyMoveOnlyFunction<void()>;
 
 class WorkContract {
 public:
-    auto assign(Work&& work, ReleaseWorkContract&& release) -> WorkContract&;
+    auto assign(Work&& work, std::optional<ReleaseWorkContract>&& release)
+        -> WorkContract&;
 
     [[nodiscard]]
     auto execute() -> WorkContinuation;
@@ -41,9 +43,9 @@ public:
     auto schedule_release() -> WorkContinuation;
 
 private:
-    std::atomic<WorkFlags::type> m_flags;
-    Work                         m_work;
-    ReleaseWorkContract          m_release;
+    std::atomic<WorkFlags::type>       m_flags;
+    std::optional<Work>                m_work;
+    std::optional<ReleaseWorkContract> m_release;
 
     auto release() -> void;
 
@@ -61,8 +63,7 @@ public:
         -> std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>;
 
     [[nodiscard]]
-    auto try_emplace_at(WorkIndex work_index, Work&& work)
-        -> std::expected<void, Work>;
+    auto try_emplace_at(WorkIndex work_index, Work&& work) -> std::expected<void, Work>;
     [[nodiscard]]
     auto try_emplace_at(WorkIndex work_index, Work&& work, ReleaseWorkContract&& release)
         -> std::expected<void, std::pair<Work, ReleaseWorkContract>>;
@@ -82,6 +83,16 @@ private:
     std::vector<SignalTree>   m_contract_signals;
     std::vector<WorkContract> m_work_contracts;
     std::atomic<uint64_t>     m_next_available_sub_tree_index{};
+
+    [[nodiscard]]
+    auto try_emplace(Work&& work, std::optional<ReleaseWorkContract>&& release)
+        -> std::expected<WorkIndex, std::pair<Work, std::optional<ReleaseWorkContract>>>;
+    [[nodiscard]]
+    auto try_emplace_at(
+        WorkIndex                            work_index,
+        Work&&                               work,
+        std::optional<ReleaseWorkContract>&& release
+    ) -> std::expected<void, std::pair<Work, std::optional<ReleaseWorkContract>>>;
 
     auto handle_work_result(WorkIndex work_index, WorkContinuation work_continuation)
         -> void;

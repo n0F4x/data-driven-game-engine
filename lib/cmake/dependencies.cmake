@@ -12,10 +12,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC gsl::gsl-lite)
 find_package(tl-function-ref REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC tl::function-ref)
 
-# function2
-find_package(function2 CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC function2::function2)
-
 # tsl-ordered_map
 find_package(tsl-ordered-map CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC tsl::ordered_map)

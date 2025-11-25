@@ -5,9 +5,6 @@ module;
 #include <type_traits>
 #include <utility>
 
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 export module ddge.modules.exec.Plugin;
 
 import ddge.modules.app.add_on_t;
@@ -29,6 +26,7 @@ import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBuilderBundle;
 import ddge.modules.exec.v2.TaskBundle;
+import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHub;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
@@ -121,9 +119,14 @@ auto ddge::exec::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprin
         std::atomic_bool should_stop{};
         v2::TaskBundle   root_task =
             ::sync(v2::as_task_blueprint<void>(std::move(task_blueprint)).materialize())
-                .build(task_hub_builder, [&should_stop](const v2::TaskHubProxy&) {
-                    should_stop = true;
-                });
+                .build(
+                    task_hub_builder,
+                    v2::TaskFinishedCallback<void>{
+                        [&should_stop](const v2::TaskHubProxy&) {
+                            should_stop = true;
+                        }   //
+                    }
+                );
 
         const std::unique_ptr<v2::TaskHub> task_hub{ std::move(task_hub_builder).build() };
         root_task(v2::TaskHubProxy{ *task_hub });

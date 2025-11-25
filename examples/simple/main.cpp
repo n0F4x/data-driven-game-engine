@@ -1,9 +1,6 @@
 #include <print>
 #include <string>
 
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 import ddge.prelude;
 import ddge.modules.ecs;
 import ddge.modules.exec;

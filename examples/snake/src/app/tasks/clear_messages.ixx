@@ -1,8 +1,3 @@
-module;
-
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 export module snake.app.tasks.clear_messages;
 
 import ddge.modules.exec.accessors.messages;

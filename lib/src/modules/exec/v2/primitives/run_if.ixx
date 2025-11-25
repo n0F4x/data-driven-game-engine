@@ -3,9 +3,6 @@ module;
 #include <memory>
 #include <utility>
 
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 export module ddge.modules.exec.v2.primitives.run_if;
 
 import ddge.modules.exec.v2.Cardinality;
@@ -68,24 +65,32 @@ auto ddge::exec::v2::run_if(
                         .materialize()
                         .build(
                             task_hub_builder,
-                            [main_task =
-                                 ::sync(std::move(y_main_blueprint).materialize())
-                                     .build(
-                                         task_hub_builder,
-                                         [shared_callback](
-                                             const TaskHubProxy& task_hub_proxy
-                                         ) { shared_callback->operator()(task_hub_proxy); }
-                                     ),
-                             shared_callback]                             //
-                            (const TaskHubProxy& task_hub_proxy,
-                             const bool          should_execute) mutable -> void   //
-                            {
-                                if (should_execute) {
-                                    main_task(task_hub_proxy);
-                                }
-                                else {
-                                    shared_callback->operator()(task_hub_proxy);
-                                }
+                            TaskFinishedCallback<bool>{
+                                [main_task =
+                                     ::sync(std::move(y_main_blueprint).materialize())
+                                         .build(
+                                             task_hub_builder,
+                                             TaskFinishedCallback<void>{
+                                                 [shared_callback](
+                                                     const TaskHubProxy& task_hub_proxy
+                                                 ) {
+                                                     shared_callback->operator()(
+                                                         task_hub_proxy
+                                                     );
+                                                 }   //
+                                             }
+                                         ),
+                                 shared_callback]                             //
+                                (const TaskHubProxy& task_hub_proxy,
+                                 const bool          should_execute) mutable -> void   //
+                                {
+                                    if (should_execute) {
+                                        main_task(task_hub_proxy);
+                                    }
+                                    else {
+                                        shared_callback->operator()(task_hub_proxy);
+                                    }
+                                }   //
                             }
                         );
                 }   //

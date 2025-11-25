@@ -3,7 +3,9 @@ module;
 #include <algorithm>
 #include <atomic>
 #include <bit>
+#include <cassert>
 #include <expected>
+#include <optional>
 #include <ranges>
 #include <utility>
 
@@ -17,11 +19,11 @@ import ddge.modules.exec.scheduler.WorkContinuation;
 
 import ddge.utility.contracts;
 
-auto ddge::exec::WorkContract::assign(Work&& work, ReleaseWorkContract&& release)
-    -> WorkContract&
+auto ddge::exec::WorkContract::assign(
+    Work&&                               work,
+    std::optional<ReleaseWorkContract>&& release
+) -> WorkContract&
 {
-    PRECOND(!work.empty());
-
     m_work    = std::move(work);
     m_release = std::move(release);
     m_flags.store(WorkFlags::eNone);
@@ -41,7 +43,8 @@ auto ddge::exec::WorkContract::execute() -> WorkContinuation
 
     m_flags.fetch_and(WorkFlags::eAll - WorkFlags::eShouldBeScheduled);
 
-    const WorkContinuation continuation = m_work();
+    assert(m_work.has_value());
+    const WorkContinuation continuation = m_work->operator()();
 
     switch (continuation) {
         case WorkContinuation::eDontCare:   //
@@ -55,7 +58,7 @@ auto ddge::exec::WorkContract::execute() -> WorkContinuation
         case WorkContinuation::eReschedule:   //
             return WorkContinuation::eReschedule;
         case WorkContinuation::eRelease:
-            if (!m_release.empty()) {
+            if (m_release.has_value()) {
                 m_flags.fetch_or(WorkFlags::eShouldBeReleased);
                 return WorkContinuation::eReschedule;
             }
@@ -72,7 +75,7 @@ auto ddge::exec::WorkContract::schedule() -> bool
 
 auto ddge::exec::WorkContract::schedule_release() -> WorkContinuation
 {
-    if (m_release.empty()) {
+    if (!m_release.has_value()) {
         const bool should_be_released =
             (m_flags.fetch_or(WorkFlags::eActive & WorkFlags::eShouldBeReleased)
              & WorkFlags::eActive)
@@ -90,8 +93,8 @@ auto ddge::exec::WorkContract::schedule_release() -> WorkContinuation
 
 auto ddge::exec::WorkContract::release() -> void
 {
-    if (!m_release.empty()) {
-        m_release();
+    if (m_release.has_value()) {
+        m_release->operator()();
     }
 }
 
@@ -153,62 +156,36 @@ ddge::exec::WorkTree::WorkTree(const uint64_t capacity, const uint32_t number_of
 
 auto ddge::exec::WorkTree::try_emplace(Work&& work) -> std::expected<WorkIndex, Work>
 {
-    return try_emplace(std::move(work), nullptr)
-        .transform_error([](std::pair<Work, ReleaseWorkContract>&& pair) -> Work {
-            return std::move(pair.first);
-        });
-}
-
-[[nodiscard]]
-constexpr auto default_strategy(uint32_t) -> ddge::exec::TravelsalBias
-{
-    return ddge::exec::TravelsalBias::eLeft;
+    return try_emplace(std::move(work), std::nullopt)
+        .transform_error(
+            [](std::pair<Work, std::optional<ReleaseWorkContract>>&& pair) -> Work {
+                return std::move(pair.first);
+            }
+        );
 }
 
 auto ddge::exec::WorkTree::try_emplace(Work&& work, ReleaseWorkContract&& release)
     -> std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>
 {
-    PRECOND(!work.empty());
-
-    for (auto _ : std::views::repeat(std::ignore, m_free_signals.size())) {
-        const auto sub_tree_index{
-            m_next_available_sub_tree_index.fetch_add(1, std::memory_order::relaxed)
-            % m_free_signals.size()
-        };
-
-        const std::optional<WorkIndex> work_index{
-            m_free_signals[sub_tree_index]
-                // TODO: try reserving latest
-                .try_unset_one(default_strategy)
-                .transform([this,
-                            sub_tree_index](const SignalTree::LeafIndex signal_index) {
-                    return signal_index * m_free_signals.size() + sub_tree_index;
-                })
-        };
-
-        if (!work_index.has_value()) {
-            continue;
-        }
-
-        m_work_contracts[work_index->underlying()].assign(
-            std::move(work), std::move(release)
+    return try_emplace(std::move(work), std::optional{ std::move(release) })
+        .transform_error(
+            [](std::pair<Work, std::optional<ReleaseWorkContract>>&& pair
+            ) -> std::pair<Work, ReleaseWorkContract> {
+                assert(pair.second.has_value());
+                return std::make_pair(std::move(pair.first), std::move(*pair.second));
+            }
         );
-
-        return *work_index;
-    }
-
-    return std::expected<WorkIndex, std::pair<Work, ReleaseWorkContract>>{
-        std::unexpect, std::move(work), std::move(release)
-    };
 }
 
 auto ddge::exec::WorkTree::try_emplace_at(const WorkIndex work_index, Work&& work)
     -> std::expected<void, Work>
 {
-    return try_emplace_at(work_index, std::move(work), nullptr)
-        .transform_error([](std::pair<Work, ReleaseWorkContract>&& pair) -> Work {
-            return std::move(pair.first);
-        });
+    return try_emplace_at(work_index, std::move(work), std::nullopt)
+        .transform_error(
+            [](std::pair<Work, std::optional<ReleaseWorkContract>>&& pair) -> Work {
+                return std::move(pair.first);
+            }
+        );
 }
 
 auto ddge::exec::WorkTree::try_emplace_at(
@@ -217,23 +194,20 @@ auto ddge::exec::WorkTree::try_emplace_at(
     ReleaseWorkContract&& release
 ) -> std::expected<void, std::pair<Work, ReleaseWorkContract>>
 {
-    PRECOND(!work.empty());
+    return try_emplace_at(work_index, std::move(work), std::optional{ std::move(release) })
+        .transform_error(
+            [](std::pair<Work, std::optional<ReleaseWorkContract>>&& pair
+            ) -> std::pair<Work, ReleaseWorkContract> {
+                assert(pair.second.has_value());
+                return std::make_pair(std::move(pair.first), std::move(*pair.second));
+            }
+        );
+}
 
-    const auto sub_tree_index{ work_index.underlying() % m_free_signals.size() };
-
-    const bool success{ m_free_signals[sub_tree_index].try_unset_one_at(
-        static_cast<SignalTree::LeafIndex>(work_index.underlying() / m_free_signals.size())
-    ) };
-
-    if (!success) {
-        return std::expected<void, std::pair<Work, ReleaseWorkContract>>{
-            std::unexpect, std::move(work), std::move(release)
-        };
-    }
-
-    m_work_contracts[work_index.underlying()].assign(std::move(work), std::move(release));
-
-    return std::expected<void, std::pair<Work, ReleaseWorkContract>>{};
+[[nodiscard]]
+constexpr auto default_strategy(uint32_t) -> ddge::exec::TravelsalBias
+{
+    return ddge::exec::TravelsalBias::eLeft;
 }
 
 auto ddge::exec::WorkTree::try_execute_one_work(const uint32_t thread_id) -> bool
@@ -301,6 +275,66 @@ auto ddge::exec::WorkTree::capacity() const noexcept -> uint64_t
 auto ddge::exec::WorkTree::optimized_for_thread_count() const noexcept -> uint32_t
 {
     return static_cast<uint32_t>(m_contract_signals.size());
+}
+
+auto ddge::exec::WorkTree::try_emplace(
+    Work&&                               work,
+    std::optional<ReleaseWorkContract>&& release
+) -> std::expected<WorkIndex, std::pair<Work, std::optional<ReleaseWorkContract>>>
+{
+    for (auto _ : std::views::repeat(std::ignore, m_free_signals.size())) {
+        const auto sub_tree_index{
+            m_next_available_sub_tree_index.fetch_add(1, std::memory_order::relaxed)
+            % m_free_signals.size()
+        };
+
+        const std::optional<WorkIndex> work_index{
+            m_free_signals[sub_tree_index]
+                // TODO: try reserving latest
+                .try_unset_one(default_strategy)
+                .transform([this,
+                            sub_tree_index](const SignalTree::LeafIndex signal_index) {
+                    return signal_index * m_free_signals.size() + sub_tree_index;
+                })
+        };
+
+        if (!work_index.has_value()) {
+            continue;
+        }
+
+        m_work_contracts[work_index->underlying()].assign(
+            std::move(work), std::move(release)
+        );
+
+        return *work_index;
+    }
+
+    return std::expected<WorkIndex, std::pair<Work, std::optional<ReleaseWorkContract>>>{
+        std::unexpect, std::move(work), std::move(release)
+    };
+}
+
+auto ddge::exec::WorkTree::try_emplace_at(
+    const WorkIndex                      work_index,
+    Work&&                               work,
+    std::optional<ReleaseWorkContract>&& release
+) -> std::expected<void, std::pair<Work, std::optional<ReleaseWorkContract>>>
+{
+    const auto sub_tree_index{ work_index.underlying() % m_free_signals.size() };
+
+    const bool success{ m_free_signals[sub_tree_index].try_unset_one_at(
+        static_cast<SignalTree::LeafIndex>(work_index.underlying() / m_free_signals.size())
+    ) };
+
+    if (!success) {
+        return std::expected<void, std::pair<Work, std::optional<ReleaseWorkContract>>>{
+            std::unexpect, std::move(work), std::move(release)
+        };
+    }
+
+    m_work_contracts[work_index.underlying()].assign(std::move(work), std::move(release));
+
+    return std::expected<void, std::pair<Work, std::optional<ReleaseWorkContract>>>{};
 }
 
 auto ddge::exec::WorkTree::handle_work_result(

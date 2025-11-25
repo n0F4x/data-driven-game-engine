@@ -28,10 +28,14 @@ TEST_CASE("ddge::exec::WorkTree")
     {
         bool                                                   executed{};
         std::expected<ddge::exec::WorkIndex, ddge::exec::Work> work_index{
-            work_tree.try_emplace([&executed] {
-                executed = true;
-                return ddge::exec::WorkContinuation::eRelease;
-            })
+            work_tree.try_emplace(
+                ddge::exec::Work{
+                    [&executed] {
+                        executed = true;
+                        return ddge::exec::WorkContinuation::eRelease;
+                    }   //
+                }
+            )
         };
 
         REQUIRE(work_tree.try_execute_one_work(0) == false);
@@ -47,13 +51,17 @@ TEST_CASE("ddge::exec::WorkTree")
     SECTION("reschedule")
     {
         std::expected<ddge::exec::WorkIndex, ddge::exec::Work> work_index{
-            work_tree.try_emplace([rescheduled = false] mutable {
-                if (!rescheduled) {
-                    rescheduled = true;
-                    return ddge::exec::WorkContinuation::eReschedule;
+            work_tree.try_emplace(
+                ddge::exec::Work{
+                    [rescheduled = false] mutable {
+                        if (!rescheduled) {
+                            rescheduled = true;
+                            return ddge::exec::WorkContinuation::eReschedule;
+                        }
+                        return ddge::exec::WorkContinuation::eRelease;
+                    }   //
                 }
-                return ddge::exec::WorkContinuation::eRelease;
-            })
+            )
         };
 
         REQUIRE(work_tree.try_execute_one_work(0) == false);
@@ -66,13 +74,6 @@ TEST_CASE("ddge::exec::WorkTree")
         REQUIRE(work_tree.try_execute_one_work(0) == false);
     }
 
-    SECTION("empty work is not allowed")
-    {
-        REQUIRE_THROWS_AS(
-            work_tree.try_emplace(nullptr), ddge::util::PreconditionViolation
-        );
-    }
-
     SECTION("release")
     {
         bool released{};
@@ -80,8 +81,8 @@ TEST_CASE("ddge::exec::WorkTree")
             ddge::exec::WorkIndex,
             std::pair<ddge::exec::Work, ddge::exec::ReleaseWorkContract>>
             work_index{ work_tree.try_emplace(
-                [] { return ddge::exec::WorkContinuation::eRelease; },
-                [&released] { released = true; }
+                ddge::exec::Work{ [] { return ddge::exec::WorkContinuation::eRelease; } },
+                ddge::exec::ReleaseWorkContract{ [&released] { released = true; } }
             ) };
 
         REQUIRE(work_tree.try_execute_one_work(0) == false);
@@ -94,24 +95,6 @@ TEST_CASE("ddge::exec::WorkTree")
         REQUIRE(work_tree.try_execute_one_work(0) == true);
         REQUIRE(released == true);
 
-        REQUIRE(work_tree.try_execute_one_work(0) == false);
-    }
-
-    SECTION("empty release is not called")
-    {
-        std::expected<
-            ddge::exec::WorkIndex,
-            std::pair<ddge::exec::Work, ddge::exec::ReleaseWorkContract>>
-            work_index{ work_tree.try_emplace(
-                [] { return ddge::exec::WorkContinuation::eRelease; },   //
-                nullptr
-            ) };
-
-        REQUIRE(work_tree.try_execute_one_work(0) == false);
-
-        work_tree.schedule(*work_index);
-
-        REQUIRE(work_tree.try_execute_one_work(0) == true);
         REQUIRE(work_tree.try_execute_one_work(0) == false);
     }
 
@@ -134,14 +117,17 @@ TEST_CASE("ddge::exec::WorkTree")
         };
 
         for (const auto _ : std::views::repeat(std::ignore, work_count)) {
-            const ddge::exec::WorkIndex work_index =
-                *work_tree.try_emplace([&counter, local_counter = 0u] mutable {
-                    if (local_counter++ < per_work_count) {
-                        ++counter;
-                        return ddge::exec::WorkContinuation::eReschedule;
-                    }
-                    return ddge::exec::WorkContinuation::eRelease;
-                });
+            const ddge::exec::WorkIndex work_index = *work_tree.try_emplace(
+                ddge::exec::Work{
+                    [&counter, local_counter = 0u] mutable {
+                        if (local_counter++ < per_work_count) {
+                            ++counter;
+                            return ddge::exec::WorkContinuation::eReschedule;
+                        }
+                        return ddge::exec::WorkContinuation::eRelease;
+                    }   //
+                }
+            );
 
             work_tree.schedule(work_index);
         }

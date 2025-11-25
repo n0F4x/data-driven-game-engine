@@ -2,9 +2,6 @@ module;
 
 #include <span>
 
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 module snake.game.tasks.eat_apple;
 
 import ddge.modules.ecs;

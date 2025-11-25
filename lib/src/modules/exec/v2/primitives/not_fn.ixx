@@ -2,9 +2,6 @@ module;
 
 #include <utility>
 
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 export module ddge.modules.exec.v2.primitives.not_fn;
 
 import ddge.modules.exec.v2.Cardinality;
@@ -34,11 +31,13 @@ export auto not_fn(TaskBlueprint<bool, Cardinality::eSingle>&& task_blueprint)
                                     .materialize()
                                     .build(
                                         task_hub_builder,
-                                        [x_callback = std::move(callback)](
-                                            const TaskHubProxy& task_hub_proxy,
-                                            const bool          result
-                                        ) mutable -> void {   //
-                                            return x_callback(task_hub_proxy, !result);
+                                        TaskFinishedCallback<bool>{
+                                            [x_callback = std::move(callback)](
+                                                const TaskHubProxy& task_hub_proxy,
+                                                const bool          result
+                                            ) mutable -> void {   //
+                                                return x_callback(task_hub_proxy, !result);
+                                            }   //
                                         }
                                     )]   //
                         (const TaskHubProxy& task_hub_proxy) mutable -> void {

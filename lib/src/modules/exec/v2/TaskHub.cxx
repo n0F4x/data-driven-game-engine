@@ -8,9 +8,11 @@ module;
 
 module ddge.modules.exec.v2.TaskHub;
 
+import ddge.modules.exec.scheduler.Work;
 import ddge.modules.exec.scheduler.WorkContinuation;
 import ddge.modules.exec.scheduler.WorkIndex;
 
+import ddge.utility.any_cast;
 import ddge.utility.contracts;
 
 ddge::exec::v2::TaskHub::TaskHub(
@@ -29,13 +31,7 @@ auto ddge::exec::v2::TaskHub::try_emplace_generic_at(
 {
     PRECOND((task_index.underlying() & task_index_tag_mask) == IndexTagMasks::generic);
 
-    return m_generic_work_tree.try_emplace_at(
-        WorkIndex{ task_index.underlying() & task_index_value_mask },
-        [x_task = std::move(task)] mutable -> WorkContinuation {
-            x_task();
-            return WorkContinuation::eDontCare;
-        }
-    );
+    return try_emplace_at(std::move(task), task_index);
 }
 
 auto ddge::exec::v2::TaskHub::try_emplace_main_only_at(
@@ -45,13 +41,7 @@ auto ddge::exec::v2::TaskHub::try_emplace_main_only_at(
 {
     PRECOND((task_index.underlying() & task_index_tag_mask) == IndexTagMasks::main_only);
 
-    return m_main_only_work_tree.try_emplace_at(
-        WorkIndex{ task_index.underlying() & task_index_value_mask },
-        [x_task = std::move(task)] mutable -> WorkContinuation {
-            x_task();
-            return WorkContinuation::eDontCare;
-        }
-    );
+    return try_emplace_at(std::move(task), task_index);
 }
 
 #define STRINGIFY(x) #x
@@ -84,4 +74,40 @@ auto ddge::exec::v2::TaskHub::try_execute_a_generic_task(const uint32_t thread_i
 auto ddge::exec::v2::TaskHub::try_execute_a_main_only_task() -> bool
 {
     return m_main_only_work_tree.try_execute_one_work(0);
+}
+
+auto ddge::exec::v2::TaskHub::try_emplace_at(Task&& task, const TaskIndex task_index)
+    -> std::expected<void, Task>
+{
+    WorkTree& work_tree{ select_work_tree(task_index) };
+
+    struct WorkTask {
+        Task task;
+
+        auto operator()() -> WorkContinuation
+        {
+            task();
+            return WorkContinuation::eDontCare;
+        }
+    };
+
+    return work_tree
+        .try_emplace_at(
+            WorkIndex{ task_index.underlying() & task_index_value_mask },
+            Work{ WorkTask{ .task = std::move(task) } }
+        )
+        .transform_error([](Work&& work) -> Task {
+            return util::any_cast<WorkTask>(std::move(work)).task;
+        });
+}
+
+auto ddge::exec::v2::TaskHub::select_work_tree(const TaskIndex task_index) -> WorkTree&
+{
+    if ((task_index.underlying() & task_index_tag_mask) == IndexTagMasks::generic) {
+        return m_generic_work_tree;
+    }
+    if ((task_index.underlying() & task_index_tag_mask) == IndexTagMasks::main_only) {
+        return m_main_only_work_tree;
+    }
+    std::unreachable();
 }

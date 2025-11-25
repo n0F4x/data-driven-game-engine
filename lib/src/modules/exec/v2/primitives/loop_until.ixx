@@ -4,9 +4,6 @@ module;
 #include <optional>
 #include <utility>
 
-// TODO: remove once Clang can mangle
-#include <function2/function2.hpp>
-
 export module ddge.modules.exec.v2.primitives.loop_until;
 
 import ddge.modules.exec.v2.as_task_blueprint;
@@ -85,26 +82,32 @@ auto ddge::exec::v2::loop_until(
                             .materialize()
                             .build(
                                 task_hub_builder,
-                                [x_callback = std::move(callback),
-                                 main_task =
-                                     ::sync(std::move(y_main_blueprint).materialize())
-                                         .build(
-                                             task_hub_builder,
-                                             [looper](const TaskHubProxy& task_hub_proxy) {
-                                                 looper->schedule_next_iteration(
-                                                     task_hub_proxy
-                                                 );
-                                             }
-                                         )]                                   //
-                                (const TaskHubProxy& task_hub_proxy,
-                                 const bool          should_execute) mutable -> void   //
-                                {
-                                    if (should_execute) {
-                                        main_task(task_hub_proxy);
-                                    }
-                                    else {
-                                        x_callback(task_hub_proxy);
-                                    }
+                                TaskFinishedCallback<bool>{
+                                    [x_callback = std::move(callback),
+                                     main_task =
+                                         ::sync(std::move(y_main_blueprint).materialize())
+                                             .build(
+                                                 task_hub_builder,
+                                                 TaskFinishedCallback<void>{
+                                                     [looper](
+                                                         const TaskHubProxy& task_hub_proxy
+                                                     ) {
+                                                         looper->schedule_next_iteration(
+                                                             task_hub_proxy
+                                                         );
+                                                     }   //
+                                                 }
+                                             )]                                   //
+                                    (const TaskHubProxy& task_hub_proxy,
+                                     const bool should_execute) mutable -> void   //
+                                    {
+                                        if (should_execute) {
+                                            main_task(task_hub_proxy);
+                                        }
+                                        else {
+                                            x_callback(task_hub_proxy);
+                                        }
+                                    }   //
                                 }
                             );
 
