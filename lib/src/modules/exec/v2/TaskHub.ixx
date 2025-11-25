@@ -22,11 +22,20 @@ public:
     constexpr static TaskIndex::Underlying task_index_tag_mask =
         std::numeric_limits<TaskIndex::Underlying>::max() - task_index_value_mask;
 
-    struct IndexTags {
+    struct IndexTagMasks {
         constexpr static TaskIndex::Underlying generic = 0;
         constexpr static TaskIndex::Underlying main_only =
             std::numeric_limits<TaskIndex::Underlying>::max()
             - (std::numeric_limits<TaskIndex::Underlying>::max() >> 1);
+
+        constexpr static auto get(const ExecPolicy execution_policy)
+            -> TaskIndex::Underlying
+        {
+            switch (execution_policy) {
+                case ExecPolicy::eDefault:     return generic;
+                case ExecPolicy::eForceOnMain: return main_only;
+            }
+        }
     };
 
     explicit TaskHub(
@@ -34,6 +43,8 @@ public:
         uint64_t main_only_capacity,
         uint32_t number_of_threads
     );
+    TaskHub(const TaskHub&) = delete;
+    TaskHub(TaskHub&&)      = delete;
 
     [[nodiscard]]
     auto try_emplace_generic_at(Task&& task, TaskIndex task_index)

@@ -2,24 +2,25 @@ module;
 
 #include <utility>
 
-#include <function2/function2.hpp>
-
 export module ddge.modules.exec.v2.TaskBuilder;
 
 import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskBundle;
 
+import ddge.utility.containers.AnyMoveOnlyFunction;
+
 namespace ddge::exec::v2 {
 
-template <typename Result_T>
-using UnderylingFunction =
-    fu2::unique_function<TaskBundle(TaskHubBuilder&, TaskFinishedCallback<Result_T>&&) &&>;
-
 export template <typename Result_T>
-class TaskBuilder : UnderylingFunction<Result_T> {
+class TaskBuilder {
+    using BuildFunc = util::AnyMoveOnlyFunction<
+        TaskBundle(TaskHubBuilder&, TaskFinishedCallback<Result_T>&&) &&>;
+
 public:
-    using UnderylingFunction<Result_T>::UnderylingFunction;
+    template <typename F>
+    explicit TaskBuilder(F&& build) : m_build{ std::forward<F>(build) }
+    {}
 
     [[nodiscard]]
     auto build(
@@ -27,8 +28,11 @@ public:
         TaskFinishedCallback<Result_T>&& callback
     ) && -> TaskBundle
     {
-        return std::move(*this)(task_hub_builder, std::move(callback));
+        return std::move(m_build)(task_hub_builder, std::move(callback));
     }
+
+private:
+    BuildFunc m_build;
 };
 
 }   // namespace ddge::exec::v2

@@ -6,6 +6,7 @@ export import ddge.utility.meta;
 export import ddge.utility.tuple;
 
 export import ddge.utility.all_same;
+export import ddge.utility.any_cast;
 export import ddge.utility.contracts;
 export import ddge.utility.FunctionInterface;
 export import ddge.utility.hashing;

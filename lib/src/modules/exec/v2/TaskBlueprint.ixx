@@ -1,8 +1,7 @@
 module;
 
 #include <type_traits>
-
-#include <function2/function2.hpp>
+#include <utility>
 
 export module ddge.modules.exec.v2.TaskBlueprint;
 
@@ -14,32 +13,35 @@ import ddge.modules.exec.v2.TaskHubProxy;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBuilderBundle;
 
+import ddge.utility.containers.AnyMoveOnlyFunction;
+
 namespace ddge::exec::v2 {
 
-template <typename Result_T, Cardinality cardinality_T>
-using TaskBlueprintUnderlyingFunctionResult = std::conditional_t<
-    cardinality_T == Cardinality::eSingle,
-    TaskBuilder<Result_T>,
-    TaskBuilderBundle<Result_T>>;
-
-template <typename Result_T, Cardinality cardinality_T>
-using TaskBlueprintUnderlyingFunction =
-    fu2::unique_function<auto()&&->TaskBlueprintUnderlyingFunctionResult<Result_T, cardinality_T>>;
-
 export template <typename Result_T, Cardinality cardinality_T>
-class TaskBlueprint : TaskBlueprintUnderlyingFunction<Result_T, cardinality_T> {
+class TaskBlueprint {
+    using Materialized = std::conditional_t<
+        cardinality_T == Cardinality::eSingle,
+        TaskBuilder<Result_T>,
+        TaskBuilderBundle<Result_T>>;
+
+    using MaterializeFunc = util::AnyMoveOnlyFunction<auto()&&->Materialized>;
+
 public:
     constexpr static std::integral_constant<Cardinality, cardinality_T> cardinality;
 
-    using Materialized = TaskBlueprintUnderlyingFunctionResult<Result_T, cardinality_T>;
-
-    using TaskBlueprintUnderlyingFunction<Result_T, cardinality_T>::TaskBlueprintUnderlyingFunction;
+    template <typename F>
+    explicit TaskBlueprint(F&& materialize)
+        : m_materialize{ std::forward<F>(materialize) }
+    {}
 
     [[nodiscard]]
     auto materialize() && -> Materialized
     {
-        return std::move(*this)();
+        return std::move(m_materialize)();
     }
+
+private:
+    MaterializeFunc m_materialize;
 };
 
 }   // namespace ddge::exec::v2

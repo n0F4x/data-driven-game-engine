@@ -27,7 +27,7 @@ auto ddge::exec::v2::TaskHub::try_emplace_generic_at(
     const TaskIndex task_index
 ) -> std::expected<void, Task>
 {
-    PRECOND((task_index.underlying() & task_index_tag_mask) == IndexTags::generic);
+    PRECOND((task_index.underlying() & task_index_tag_mask) == IndexTagMasks::generic);
 
     return m_generic_work_tree.try_emplace_at(
         WorkIndex{ task_index.underlying() & task_index_value_mask },
@@ -43,7 +43,7 @@ auto ddge::exec::v2::TaskHub::try_emplace_main_only_at(
     const TaskIndex task_index
 ) -> std::expected<void, Task>
 {
-    PRECOND((task_index.underlying() & task_index_tag_mask) == IndexTags::main_only);
+    PRECOND((task_index.underlying() & task_index_tag_mask) == IndexTagMasks::main_only);
 
     return m_main_only_work_tree.try_emplace_at(
         WorkIndex{ task_index.underlying() & task_index_value_mask },
@@ -59,13 +59,13 @@ auto ddge::exec::v2::TaskHub::try_emplace_main_only_at(
 auto ddge::exec::v2::TaskHub::schedule(const TaskIndex task_index) -> void
 {
     if (const TaskIndex::Underlying type{ task_index.underlying() & task_index_tag_mask };
-        type == IndexTags::generic)
+        type == IndexTagMasks::generic)
     {
         m_generic_work_tree.schedule(
             WorkIndex{ task_index.underlying() & task_index_value_mask }
         );
     }
-    else if (type == IndexTags::main_only) {
+    else if (type == IndexTagMasks::main_only) {
         m_main_only_work_tree.schedule(
             WorkIndex{ task_index.underlying() & task_index_value_mask }
         );

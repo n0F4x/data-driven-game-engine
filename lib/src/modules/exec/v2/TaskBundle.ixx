@@ -1,15 +1,13 @@
-module;
-
-#include <function2/function2.hpp>
-
 export module ddge.modules.exec.v2.TaskBundle;
 
 import ddge.modules.exec.v2.TaskHubProxy;
 import ddge.modules.exec.v2.TaskIndex;
 
+import ddge.utility.containers.AnyMoveOnlyFunction;
+
 namespace ddge::exec::v2 {
 
-using TaskBundleUnderylingFunction = fu2::unique_function<void(const TaskHubProxy&)>;
+using TaskBundleUnderylingFunction = util::AnyMoveOnlyFunction<void(const TaskHubProxy&)>;
 
 export class TaskBundle : public TaskBundleUnderylingFunction {
 public:

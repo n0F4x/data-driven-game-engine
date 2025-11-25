@@ -90,15 +90,17 @@ auto ddge::exec::v2::TaskBuilderBundle<Result_T>::sync(
                 )
                 | std::ranges::to<std::vector>();
 
-            return [gatherer, x_tasks = std::move(tasks)](
-                       const TaskHubProxy& task_hub_proxy
-                   ) mutable -> void   //
-            {
-                gatherer->set_task_hub_proxy(task_hub_proxy);
+            return TaskBundle{
+                [gatherer, x_tasks = std::move(tasks)](
+                    const TaskHubProxy& task_hub_proxy
+                ) mutable -> void   //
+                {
+                    gatherer->set_task_hub_proxy(task_hub_proxy);
 
-                for (auto& task : x_tasks) {
-                    task(task_hub_proxy);
-                }
+                    for (auto& task : x_tasks) {
+                        task(task_hub_proxy);
+                    }
+                }   //
             };
         }   //
     };

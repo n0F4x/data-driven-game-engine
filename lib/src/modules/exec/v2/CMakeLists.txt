@@ -16,6 +16,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         as_task_blueprint.ixx
         Cardinality.ixx
         convertible_to_TaskBlueprint_c.ixx
+        EmbeddedTaskBody.ixx
+        EmbeddedTaskFactory.ixx
+        ErasedTaskFactory.ixx
         ExecPolicy.ixx
         ScheduleBuilder.ixx
         Task.ixx
@@ -23,6 +26,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         TaskBuilder.ixx
         TaskBuilderBundle.ixx
         TaskBundle.ixx
+        TaskContinuation.ixx
+        TaskContinuationFactory.ixx
         TaskFinishedCallback.ixx
         TaskHub.ixx
         TaskHubBuilder.ixx
