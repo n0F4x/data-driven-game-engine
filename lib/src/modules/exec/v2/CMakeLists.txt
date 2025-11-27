@@ -28,6 +28,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         TaskBundle.ixx
         TaskContinuation.ixx
         TaskContinuationFactory.ixx
+        TaskFactory.ixx
         TaskFinishedCallback.ixx
         TaskHub.ixx
         TaskHubBuilder.ixx
