@@ -28,11 +28,6 @@ You can install Conan using pip https://docs.conan.io/2/installation.html[tutori
 After this, you would probably want to set up a
 _Conan https://docs.conan.io/2/reference/config_files/profiles.html=profiles[profile]_ to use with this project.
 
-Conan fetches third-party dependencies from a remote (https://conan.io/center[Conan Center] is the default).
-However, some libraries require custom configuration / patches.
-Add the provided local third-party repository to Conan remotes. +
-Run `+conan remote add local ./third-party+`
-
 Run `+conan install . -b=missing+` to set up all the third-party dependencies (or `+conan install . -b=missing --profile:host=customprofile --profile:build=customprofile+` to make sure it uses the right profile).
 This will create a _CMakeUserPresets.json_ file inside the working directory that can be used to build the project (with your IDE).
 

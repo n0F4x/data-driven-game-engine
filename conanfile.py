@@ -86,7 +86,7 @@ class DataDrivenGameEngineRecipe(ConanFile):
         if self._enable_tests:
             self.test_requires("catch2/3.10.0")
         if self._enable_examples:
-            self.requires("sfml/3.0.1")
+            self.requires("sfml/3.0.2", options={"audio": False, "network": False})
 
     def layout(self):
         cmake_layout(self)
