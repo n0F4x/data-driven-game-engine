@@ -2,14 +2,15 @@ module;
 
 #include <optional>
 #include <utility>
+#include <vector>
 
 export module ddge.modules.exec.v2.IndirectTaskFactory;
 
-import ddge.modules.exec.v2.IndirectTaskBody;
 import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 import ddge.modules.exec.v2.Task;
 import ddge.modules.exec.v2.TaskContinuationFactory;
 import ddge.modules.exec.v2.TaskHubProxy;
+import ddge.modules.exec.v2.TaskIndex;
 
 import ddge.utility.containers.AnyMoveOnlyFunction;
 
@@ -19,10 +20,18 @@ export template <typename Result_T>
 class IndirectTaskFactory {
 public:
     explicit IndirectTaskFactory(
-        IndirectTaskBody&&                         body,
+        const TaskIndex                            start_up_index,
         IndirectTaskContinuationSetter<Result_T>&& set_task_continuation
     )
-        : m_body{ std::move(body) },
+        : IndirectTaskFactory{ std::vector<TaskIndex>{ start_up_index },
+                               std::move(set_task_continuation) }
+    {}
+
+    explicit IndirectTaskFactory(
+        std::vector<TaskIndex>&&                   start_up_indices,
+        IndirectTaskContinuationSetter<Result_T>&& set_task_continuation
+    )
+        : m_start_up_indices{ std::move(start_up_indices) },
           m_set_task_continuation{ std::move(set_task_continuation) }
     {}
 
@@ -46,14 +55,18 @@ public:
         }
 
         return Task{
-            [body = std::move(m_body), task_hub_proxy] mutable -> void {
-                body(task_hub_proxy);
+            [start_up_indices = std::move(m_start_up_indices),
+             task_hub_proxy] mutable -> void {
+                for (const TaskIndex task_index : start_up_indices) {
+                    task_hub_proxy.schedule(task_index);
+                }
             }   //
         };
     }
 
 private:
-    IndirectTaskBody                                 m_body;
+    // TODO: use SBO
+    std::vector<TaskIndex>                           m_start_up_indices;
     IndirectTaskContinuationSetter<Result_T>         m_set_task_continuation;
     std::optional<TaskContinuationFactory<Result_T>> m_continuation_factory;
 };

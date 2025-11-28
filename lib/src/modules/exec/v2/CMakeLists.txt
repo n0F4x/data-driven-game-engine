@@ -20,7 +20,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         EmbeddedTaskFactory.ixx
         ErasedTaskFactory.ixx
         ExecPolicy.ixx
-        IndirectTaskBody.ixx
         IndirectTaskContinuationSetter.ixx
         IndirectTaskFactory.ixx
         ScheduleBuilder.ixx

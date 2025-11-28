@@ -8,7 +8,6 @@ export module ddge.modules.exec.v2.primitives.run_if;
 
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.gatherers.WaitAll;
-import ddge.modules.exec.v2.IndirectTaskBody;
 import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBlueprint;
@@ -117,10 +116,7 @@ auto ddge::exec::v2::run_if(
 
                     return task_hub_builder.emplace_indirect_task_factory(
                         IndirectTaskFactory<void>{
-                            IndirectTaskBody{
-                                [predicate_task_index](const TaskHubProxy& task_hub_proxy) {
-                                    task_hub_proxy.schedule(predicate_task_index);
-                                } },
+                            predicate_task_index,
                             IndirectTaskContinuationSetter<void>{
                                 [x_shared_continuation = std::move(shared_continuation)](
                                     TaskContinuation<void>&& continuation

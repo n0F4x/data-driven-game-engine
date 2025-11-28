@@ -9,7 +9,6 @@ module;
 export module ddge.modules.exec.v2.TaskBuilderBundle;
 
 import ddge.modules.exec.v2.gatherers.gatherer_builder_of_c;
-import ddge.modules.exec.v2.IndirectTaskBody;
 import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBuilder;
@@ -17,6 +16,7 @@ import ddge.modules.exec.v2.TaskContinuation;
 import ddge.modules.exec.v2.TaskContinuationFactory;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
+import ddge.modules.exec.v2.TaskIndex;
 import ddge.modules.exec.v2.TypedTaskIndex;
 
 namespace ddge::exec::v2 {
@@ -105,17 +105,12 @@ auto ddge::exec::v2::TaskBuilderBundle<Result_T>::sync(
 
             return task_hub_builder.emplace_indirect_task_factory(
                 IndirectTaskFactory<NewResult>{
-                    IndirectTaskBody{
-                        [x_task_indices = std::move(task_indices)](
-                            const TaskHubProxy& task_hub_proxy
-                        ) mutable -> void   //
-                        {
-                            for (const TypedTaskIndex<Result_T> task_index :
-                                 x_task_indices) {
-                                task_hub_proxy.schedule(task_index);
-                            }
-                        }   //
-                    },
+                    std::move(task_indices)
+                        | std::views::transform(
+                            [](const TypedTaskIndex<Result_T> typed_task_index)
+                                -> TaskIndex { return typed_task_index.untyped(); }
+                        )
+                        | std::ranges::to<std::vector>(),
                     IndirectTaskContinuationSetter<NewResult>{
                         [gatherer](TaskContinuation<Result_T>&& continuation) mutable
                             -> void {

@@ -10,7 +10,7 @@ export import ddge.modules.exec.v2.EmbeddedTaskBody;
 export import ddge.modules.exec.v2.EmbeddedTaskFactory;
 export import ddge.modules.exec.v2.ErasedTaskFactory;
 export import ddge.modules.exec.v2.ExecPolicy;
-export import ddge.modules.exec.v2.IndirectTaskBody;
+export import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 export import ddge.modules.exec.v2.IndirectTaskFactory;
 export import ddge.modules.exec.v2.ScheduleBuilder;
 export import ddge.modules.exec.v2.Task;

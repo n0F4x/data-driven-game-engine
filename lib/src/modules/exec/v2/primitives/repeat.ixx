@@ -11,7 +11,6 @@ import ddge.modules.exec.v2.as_task_blueprint;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
 import ddge.modules.exec.v2.gatherers.WaitAll;
-import ddge.modules.exec.v2.IndirectTaskBody;
 import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBlueprint;
@@ -147,15 +146,7 @@ auto ddge::exec::v2::repeat(
 
                     return task_hub_builder.emplace_indirect_task_factory(
                         IndirectTaskFactory<void>{
-                            IndirectTaskBody{
-                                [repetition_specifier_task_index](
-                                    const TaskHubProxy& task_hub_proxy
-                                ) -> void {
-                                    task_hub_proxy.schedule(
-                                        repetition_specifier_task_index
-                                    );
-                                }   //
-                            },
+                            repetition_specifier_task_index,
                             IndirectTaskContinuationSetter<void>{
                                 [looper](TaskContinuation<void>&& continuation) mutable
                                     -> void {

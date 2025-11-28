@@ -7,7 +7,6 @@ module;
 export module ddge.modules.exec.v2.primitives.not_fn;
 
 import ddge.modules.exec.v2.Cardinality;
-import ddge.modules.exec.v2.IndirectTaskBody;
 import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBlueprint;
@@ -59,13 +58,7 @@ export auto not_fn(TaskBlueprint<bool, Cardinality::eSingle>&& task_blueprint)
 
                     return task_hub_builder.emplace_indirect_task_factory(
                         IndirectTaskFactory<bool>{
-                            IndirectTaskBody{
-                                [inner_task_index](
-                                    const TaskHubProxy& task_hub_proxy
-                                ) mutable -> void {
-                                    task_hub_proxy.schedule(inner_task_index);
-                                }   //
-                            },
+                            inner_task_index,
                             IndirectTaskContinuationSetter<bool>{
                                 [x_shared_continuation = std::move(shared_continuation)](
                                     TaskContinuation<bool>&& continuation

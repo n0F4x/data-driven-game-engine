@@ -7,6 +7,12 @@ namespace ddge::exec::v2 {
 export template <typename Result_T>
 struct TypedTaskIndex : TaskIndex {
     using TaskIndex::TaskIndex;
+
+    [[nodiscard]]
+    auto untyped() const -> TaskIndex
+    {
+        return TaskIndex{ *this };
+    }
 };
 
 }   // namespace ddge::exec::v2

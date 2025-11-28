@@ -10,7 +10,6 @@ import ddge.modules.exec.v2.as_task_blueprint;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
 import ddge.modules.exec.v2.gatherers.WaitAll;
-import ddge.modules.exec.v2.IndirectTaskBody;
 import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBlueprint;
@@ -130,13 +129,7 @@ auto ddge::exec::v2::ScheduleBuilder::then(TaskBlueprint_T&& next) && -> Schedul
 
                         return task_hub_builder.emplace_indirect_task_factory(
                             IndirectTaskFactory<void>{
-                                IndirectTaskBody{
-                                    [previous_task_index](
-                                        const TaskHubProxy& task_hub_proxy
-                                    ) -> void {
-                                        task_hub_proxy.schedule(previous_task_index);
-                                    }   //
-                                },
+                                previous_task_index,
                                 IndirectTaskContinuationSetter<void>{
                                     [shared_continuation](
                                         TaskContinuation<void>&& continuation
