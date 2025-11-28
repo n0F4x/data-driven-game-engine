@@ -9,7 +9,6 @@ import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.ExecPolicy;
 import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
-import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TypedTaskIndex;
 
@@ -27,11 +26,10 @@ auto as_task(F&& func) -> TaskBlueprint<util::meta::result_of_t<F>, Cardinality:
         [x_func = std::forward<F>(func)]() mutable -> TaskBuilder<Result> {
             return TaskBuilder<Result>{
                 [y_func = std::move(x_func)](
-                    TaskHubBuilder&                                    task_hub_builder,
-                    TaskFinishedCallback<util::meta::result_of_t<F>>&& callback
+                    TaskHubBuilder& task_hub_builder
                 ) mutable -> TypedTaskIndex<Result> {
                     return task_hub_builder.emplace_embedded_task(
-                        std::move(y_func), std::move(callback), execution_policy_T
+                        std::move(y_func), execution_policy_T
                     );
                 }   //
             };

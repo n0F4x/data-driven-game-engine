@@ -18,7 +18,7 @@ import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBuilderBundle;
 import ddge.modules.exec.v2.TaskContinuation;
-import ddge.modules.exec.v2.TaskFinishedCallback;
+import ddge.modules.exec.v2.TaskContinuationFactory;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
 import ddge.modules.exec.v2.TypedTaskIndex;
@@ -62,33 +62,24 @@ auto ddge::exec::v2::repeat(
          x_repetition_specifier_blueprint = std::move(repetition_specifier_blueprint)]   //
         () mutable -> TaskBuilder<void> {
             return TaskBuilder<void>{
-                [y_main_blueprint                 = std::move(x_main_blueprint),
-                 y_repetition_specifier_blueprint = std::move(
-                     x_repetition_specifier_blueprint
-                 )](   //
-                    TaskHubBuilder&              task_hub_builder,
-                    TaskFinishedCallback<void>&& callback
-                ) mutable -> TypedTaskIndex<void>   //
+                [y_main_blueprint = std::move(x_main_blueprint),
+                 y_repetition_specifier_blueprint =
+                     std::move(x_repetition_specifier_blueprint)](   //
+                    TaskHubBuilder& task_hub_builder
+                ) mutable -> TypedTaskIndex<void>                    //
                 {
                     class Looper {
                     public:
-                        explicit Looper(TaskFinishedCallback<void>&& callback)
-                            : m_callback{ std::move(callback) }
+                        explicit Looper(const TypedTaskIndex<void> looped_task_index)
+                            : m_looped_task_index{ looped_task_index }
                         {}
-
-                        auto set_repetition(Repetition_T repetition) -> void
-                        {
-                            m_repetition = repetition;
-                        }
-                        auto set_looped_task_index(
-                            const TypedTaskIndex<void> looped_task_index
-                        ) -> void
-                        {
-                            m_looped_task_index = looped_task_index;
-                        }
                         auto set_continuation(TaskContinuation<void>&& continuation)
                         {
                             m_continuation = std::move(continuation);
+                        }
+                        auto set_repetition(Repetition_T repetition) -> void
+                        {
+                            m_repetition = repetition;
                         }
                         auto schedule_next_iteration(const TaskHubProxy& task_hub_proxy)
                             -> void
@@ -101,9 +92,6 @@ auto ddge::exec::v2::repeat(
                                 if (m_continuation.has_value()) {
                                     (*m_continuation)();
                                 }
-                                else {
-                                    m_callback(task_hub_proxy);
-                                }
                             }
                         }
 
@@ -111,40 +99,51 @@ auto ddge::exec::v2::repeat(
                         std::optional<Repetition_T>           m_repetition;
                         std::optional<TypedTaskIndex<void>>   m_looped_task_index;
                         std::optional<TaskContinuation<void>> m_continuation;
-                        TaskFinishedCallback<void>            m_callback;
-                    };
-
-                    std::shared_ptr<Looper> looper{
-                        std::make_shared<Looper>(std::move(callback))   //
                     };
 
                     const TypedTaskIndex<void> main_task_index =   //
                         ::sync(std::move(y_main_blueprint).materialize())
-                            .build(
-                                task_hub_builder,
-                                TaskFinishedCallback<void>{
-                                    [looper](const TaskHubProxy& task_hub_proxy) -> void {
+                            .build(task_hub_builder);
+
+                    std::shared_ptr<Looper> looper{
+                        std::make_shared<Looper>(main_task_index)   //
+                    };
+
+                    task_hub_builder.set_task_continuation_factory(
+                        main_task_index,
+                        TaskContinuationFactory<void>{
+                            [looper](const TaskHubProxy task_hub_proxy) mutable
+                                -> TaskContinuation<void> {
+                                return TaskContinuation<void>{
+                                    [looper, task_hub_proxy] mutable -> void {
                                         looper->schedule_next_iteration(task_hub_proxy);
                                     }   //
-                                }
-                            );
-                    looper->set_looped_task_index(main_task_index);
+                                };
+                            }   //
+                        }
+                    );
 
                     const TypedTaskIndex<Repetition_T> repetition_specifier_task_index =   //
                         std::move(y_repetition_specifier_blueprint)
                             .materialize()
-                            .build(
-                                task_hub_builder,
-                                TaskFinishedCallback<Repetition_T>{
-                                    [looper](
-                                        const TaskHubProxy& task_hub_proxy,
-                                        const Repetition_T  repetition
-                                    ) -> void {
+                            .build(task_hub_builder);
+
+                    task_hub_builder.set_task_continuation_factory(
+                        repetition_specifier_task_index,
+                        TaskContinuationFactory<Repetition_T>{
+                            [looper](const TaskHubProxy task_hub_proxy) mutable
+                                -> TaskContinuation<Repetition_T> {
+                                return TaskContinuation<Repetition_T>{
+                                    [looper, task_hub_proxy](
+                                        const Repetition_T repetition
+                                    ) mutable -> void {
                                         looper->set_repetition(repetition);
                                         looper->schedule_next_iteration(task_hub_proxy);
                                     }   //
-                                }
-                            );
+                                };
+                            }   //
+                        }
+                    );
 
                     return task_hub_builder.emplace_indirect_task_factory(
                         IndirectTaskFactory<void>{

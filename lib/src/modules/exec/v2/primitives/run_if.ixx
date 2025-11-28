@@ -15,7 +15,7 @@ import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBuilderBundle;
 import ddge.modules.exec.v2.TaskContinuation;
-import ddge.modules.exec.v2.TaskFinishedCallback;
+import ddge.modules.exec.v2.TaskContinuationFactory;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
 import ddge.modules.exec.v2.TypedTaskIndex;
@@ -58,49 +58,49 @@ auto ddge::exec::v2::run_if(
             return TaskBuilder<void>{
                 [y_main_blueprint      = std::move(x_main_blueprint),
                  y_predicate_blueprint = std::move(x_predicate_blueprint)](
-                    TaskHubBuilder&              task_hub_builder,
-                    TaskFinishedCallback<void>&& callback
+                    TaskHubBuilder& task_hub_builder
                 ) mutable -> TypedTaskIndex<void>   //
                 {
-                    const std::shared_ptr<TaskFinishedCallback<void>> shared_callback{
-                        std::make_shared<TaskFinishedCallback<void>>(std::move(callback))
-                    };
+                    const TypedTaskIndex<void> main_task_index =
+                        ::sync(std::move(y_main_blueprint).materialize())
+                            .build(task_hub_builder);
+
                     std::shared_ptr<std::optional<TaskContinuation<void>>>
                         shared_continuation{
                             std::make_shared<std::optional<TaskContinuation<void>>>()
                         };
 
+                    task_hub_builder.set_task_continuation_factory(
+                        main_task_index,
+                        TaskContinuationFactory<void>{
+                            [shared_continuation](const TaskHubProxy) mutable
+                                -> TaskContinuation<void> {
+                                return TaskContinuation<void>{
+                                    [shared_continuation] mutable -> void {
+                                        if (shared_continuation->has_value()) {
+                                            (**shared_continuation)();
+                                        }
+                                    }   //
+                                };
+                            }   //
+                        }
+                    );
+
                     const TypedTaskIndex<bool> predicate_task_index =
                         std::move(y_predicate_blueprint)
                             .materialize()
-                            .build(
-                                task_hub_builder,
-                                TaskFinishedCallback<bool>{
-                                    [main_task_index =
-                                         ::sync(std::move(y_main_blueprint).materialize())
-                                             .build(
-                                                 task_hub_builder,
-                                                 TaskFinishedCallback<void>{
-                                                     [shared_callback, shared_continuation](
-                                                         const TaskHubProxy& task_hub_proxy
-                                                     ) {
-                                                         if (shared_continuation
-                                                                 ->has_value()) {
-                                                             (**shared_continuation)();
-                                                         }
-                                                         else {
-                                                             shared_callback->operator()(
-                                                                 task_hub_proxy
-                                                             );
-                                                         }
-                                                     }   //
-                                                 }
-                                             ),
-                                     shared_callback,
-                                     shared_continuation]                         //
-                                    (const TaskHubProxy& task_hub_proxy,
-                                     const bool should_execute) mutable -> void   //
-                                    {
+                            .build(task_hub_builder);
+
+                    task_hub_builder.set_task_continuation_factory(
+                        predicate_task_index,
+                        TaskContinuationFactory<bool>{
+                            [main_task_index, shared_continuation](
+                                const TaskHubProxy task_hub_proxy
+                            ) mutable -> TaskContinuation<bool> {
+                                return TaskContinuation<bool>{
+                                    [main_task_index, shared_continuation, task_hub_proxy](
+                                        const bool should_execute
+                                    ) mutable -> void {
                                         if (should_execute) {
                                             task_hub_proxy.schedule(main_task_index);
                                         }
@@ -108,15 +108,12 @@ auto ddge::exec::v2::run_if(
                                             if (shared_continuation->has_value()) {
                                                 (**shared_continuation)();
                                             }
-                                            else {
-                                                shared_callback->operator()(
-                                                    task_hub_proxy
-                                                );
-                                            }
                                         }
                                     }   //
-                                }
-                            );
+                                };
+                            }   //
+                        }
+                    );
 
                     return task_hub_builder.emplace_indirect_task_factory(
                         IndirectTaskFactory<void>{

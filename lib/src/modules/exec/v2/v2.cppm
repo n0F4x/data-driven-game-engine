@@ -20,7 +20,6 @@ export import ddge.modules.exec.v2.TaskBuilderBundle;
 export import ddge.modules.exec.v2.TaskContinuation;
 export import ddge.modules.exec.v2.TaskContinuationFactory;
 export import ddge.modules.exec.v2.TaskFactory;
-export import ddge.modules.exec.v2.TaskFinishedCallback;
 export import ddge.modules.exec.v2.TaskHub;
 export import ddge.modules.exec.v2.TaskHubBuilder;
 export import ddge.modules.exec.v2.TaskHubProxy;

@@ -20,7 +20,6 @@ import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskContinuation;
 import ddge.modules.exec.v2.TaskContinuationFactory;
 import ddge.modules.exec.v2.TaskFactory;
-import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHub;
 import ddge.modules.exec.v2.TaskHubProxy;
 import ddge.modules.exec.v2.TaskIndex;
@@ -39,11 +38,8 @@ public:
 
     template <raw_task_c F>
     [[nodiscard]]
-    auto emplace_embedded_task(
-        F&&                                                task,
-        TaskFinishedCallback<util::meta::result_of_t<F>>&& callback,
-        ExecPolicy                                         execution_policy
-    ) -> TypedTaskIndex<util::meta::result_of_t<F>>;
+    auto emplace_embedded_task(F&& task, ExecPolicy execution_policy)
+        -> TypedTaskIndex<util::meta::result_of_t<F>>;
     template <typename Result_T>
     [[nodiscard]]
     auto emplace_indirect_task_factory(
@@ -76,20 +72,16 @@ private:
 
     template <typename Result_T>
     [[nodiscard]]
-    auto emplace(
-        EmbeddedTaskBody<Result_T>&&        task_body,
-        TaskContinuationFactory<Result_T>&& task_continuation_factory,
-        ExecPolicy                          execution_policy
-    ) -> TypedTaskIndex<Result_T>;
+    auto emplace(EmbeddedTaskBody<Result_T>&& task_body, ExecPolicy execution_policy)
+        -> TypedTaskIndex<Result_T>;
 };
 
 }   // namespace ddge::exec::v2
 
 template <ddge::exec::raw_task_c F>
 auto ddge::exec::v2::TaskHubBuilder::emplace_embedded_task(
-    F&&                                                task,
-    TaskFinishedCallback<util::meta::result_of_t<F>>&& callback,
-    ExecPolicy                                         execution_policy
+    F&&        task,
+    ExecPolicy execution_policy
 ) -> TypedTaskIndex<util::meta::result_of_t<F>>
 {
     using Result = util::meta::result_of_t<F>;
@@ -99,28 +91,6 @@ auto ddge::exec::v2::TaskHubBuilder::emplace_embedded_task(
             [body            = std::move(task),
              accessors_tuple = provide_accessors_for<F>(m_nexus)] mutable -> Result {
                 return std::apply(body, accessors_tuple);
-            } },
-        TaskContinuationFactory<Result>{
-            [x_callback = std::move(callback)](const TaskHubProxy task_hub_proxy) mutable
-                -> TaskContinuation<Result>   //
-            {
-                if constexpr (std::is_void_v<Result>) {
-                    return TaskContinuation<Result>{
-                        [y_callback       = std::move(x_callback),
-                         x_task_hub_proxy = task_hub_proxy] mutable -> void {
-                            y_callback(x_task_hub_proxy);
-                        }
-                    };
-                }
-                else {
-                    return TaskContinuation<Result>{
-                        [y_callback       = std::move(x_callback),
-                         x_task_hub_proxy = task_hub_proxy]   //
-                        (Result&& result) mutable -> void {
-                            y_callback(x_task_hub_proxy, std::move(result));
-                        }   //
-                    };
-                }
             }   //
         },
         execution_policy
@@ -192,9 +162,8 @@ auto ddge::exec::v2::TaskHubBuilder::get(this Self_T&& self, const TaskIndex tas
 
 template <typename Result_T>
 auto ddge::exec::v2::TaskHubBuilder::emplace(
-    EmbeddedTaskBody<Result_T>&&        task_body,
-    TaskContinuationFactory<Result_T>&& task_continuation_factory,
-    const ExecPolicy                    execution_policy
+    EmbeddedTaskBody<Result_T>&& task_body,
+    const ExecPolicy             execution_policy
 ) -> TypedTaskIndex<Result_T>
 {
     std::vector<ErasedTaskFactory>& task_factories{
@@ -212,10 +181,7 @@ auto ddge::exec::v2::TaskHubBuilder::emplace(
     PRECOND(task_factories.size() < TaskHub::task_index_value_mask);
 
     task_factories.push_back(
-        ErasedTaskFactory{
-            EmbeddedTaskFactory<Result_T>{ std::move(task_body) }
-                .set_continuation_factory(std::move(task_continuation_factory))   //
-        }
+        ErasedTaskFactory{ EmbeddedTaskFactory<Result_T>{ std::move(task_body) } }
     );
 
     return TypedTaskIndex<Result_T>{ (task_factories.size() - 1) | index_mask };

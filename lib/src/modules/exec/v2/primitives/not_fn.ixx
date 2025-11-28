@@ -13,7 +13,7 @@ import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskContinuation;
-import ddge.modules.exec.v2.TaskFinishedCallback;
+import ddge.modules.exec.v2.TaskContinuationFactory;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
 import ddge.modules.exec.v2.TypedTaskIndex;
@@ -28,42 +28,42 @@ export auto not_fn(TaskBlueprint<bool, Cardinality::eSingle>&& task_blueprint)
             return TaskBuilder<bool>{
                 [y_blueprint = std::move(x_blueprint)]   //
                 (                                        //
-                    TaskHubBuilder & task_hub_builder,
-                    TaskFinishedCallback<bool>&& callback
-                ) mutable -> TypedTaskIndex<bool>   //
+                    TaskHubBuilder & task_hub_builder
+                ) mutable -> TypedTaskIndex<bool>        //
                 {
+                    const TypedTaskIndex<bool> inner_task_index =
+                        std::move(y_blueprint).materialize().build(task_hub_builder);
+
                     std::shared_ptr<std::optional<TaskContinuation<bool>>>
                         shared_continuation{
                             std::make_shared<std::optional<TaskContinuation<bool>>>()
                         };
 
+                    task_hub_builder.set_task_continuation_factory(
+                        inner_task_index,
+                        TaskContinuationFactory<bool>{
+                            [shared_continuation](const TaskHubProxy) mutable
+                                -> TaskContinuation<bool> {
+                                return TaskContinuation<bool>{
+                                    [shared_continuation](
+                                        const bool result
+                                    ) mutable -> void {   //
+                                        if (shared_continuation->has_value()) {
+                                            (**shared_continuation)(!result);
+                                        }
+                                    }   //
+                                };
+                            }   //
+                        }
+                    );
+
                     return task_hub_builder.emplace_indirect_task_factory(
                         IndirectTaskFactory<bool>{
                             IndirectTaskBody{
-                                [task_index =
-                                     std::move(y_blueprint)
-                                         .materialize()
-                                         .build(
-                                             task_hub_builder,
-                                             TaskFinishedCallback<bool>{
-                                                 [x_callback = std::move(callback),
-                                                  shared_continuation](
-                                                     const TaskHubProxy& task_hub_proxy,
-                                                     const bool          result
-                                                 ) mutable -> void {   //
-                                                     if (shared_continuation->has_value()) {
-                                                         (**shared_continuation)(!result);
-                                                     }
-                                                     else {
-                                                         x_callback(
-                                                             task_hub_proxy, !result
-                                                         );
-                                                     }
-                                                 }   //
-                                             }
-                                         )]   //
-                                (const TaskHubProxy& task_hub_proxy) mutable -> void {
-                                    task_hub_proxy.schedule(task_index);
+                                [inner_task_index](
+                                    const TaskHubProxy& task_hub_proxy
+                                ) mutable -> void {
+                                    task_hub_proxy.schedule(inner_task_index);
                                 }   //
                             },
                             IndirectTaskContinuationSetter<bool>{

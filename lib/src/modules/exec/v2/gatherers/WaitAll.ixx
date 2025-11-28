@@ -14,7 +14,6 @@ export module ddge.modules.exec.v2.gatherers.WaitAll;
 import ddge.modules.exec.v2.gatherers.gatherer_of_c;
 import ddge.modules.exec.v2.gatherers.gatherer_builder_of_c;
 import ddge.modules.exec.v2.TaskContinuation;
-import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHubProxy;
 
 import ddge.utility.contracts;
@@ -26,10 +25,10 @@ public:
     using Output = void;
 
     struct Precondition {
-        Precondition(uint32_t capacity, const TaskFinishedCallback<void>& callback);
+        explicit Precondition(uint32_t capacity);
     };
 
-    WaitAll(uint32_t capacity, TaskFinishedCallback<void>&& callback);
+    explicit WaitAll(uint32_t capacity);
 
     auto set_continuation(TaskContinuation<void>&& continuation) -> void;
     auto set_task_hub_proxy(const TaskHubProxy& task_hub_proxy) -> void;
@@ -41,7 +40,6 @@ private:
 
     uint32_t                                                  m_capacity;
     std::atomic_uint32_t                                      m_flag;
-    TaskFinishedCallback<void>                                m_callback;
     std::optional<TaskContinuation<void>>                     m_continuation;
     std::optional<std::reference_wrapper<const TaskHubProxy>> m_task_hub_proxy_ref;
 
@@ -55,11 +53,9 @@ public:
     using Result = void;
 
     [[nodiscard]]
-    static auto
-        build(const uint32_t number_of_gathers, TaskFinishedCallback<void>&& callback)
-            -> std::shared_ptr<WaitAll>
+    static auto build(const uint32_t number_of_gathers) -> std::shared_ptr<WaitAll>
     {
-        return std::make_shared<WaitAll>(number_of_gathers, std::move(callback));
+        return std::make_shared<WaitAll>(number_of_gathers);
     }
 };
 
@@ -67,22 +63,15 @@ static_assert(gatherer_builder_of_c<WaitAllBuilder, void>);
 
 }   // namespace ddge::exec::v2
 
-ddge::exec::v2::WaitAll::Precondition::Precondition(
-    const uint32_t capacity,
-    const TaskFinishedCallback<void>&
-)
+ddge::exec::v2::WaitAll::Precondition::Precondition(const uint32_t capacity)
 {
     PRECOND(capacity > 0);
 }
 
-ddge::exec::v2::WaitAll::WaitAll(
-    const uint32_t               capacity,
-    TaskFinishedCallback<void>&& callback
-)
-    : m_precondition{ capacity, callback },
+ddge::exec::v2::WaitAll::WaitAll(const uint32_t capacity)
+    : m_precondition{ capacity },
       m_capacity{ capacity },
-      m_flag{ m_capacity },
-      m_callback{ std::move(callback) }
+      m_flag{ m_capacity }
 {}
 
 auto ddge::exec::v2::WaitAll::set_continuation(TaskContinuation<void>&& continuation)
@@ -114,8 +103,5 @@ auto ddge::exec::v2::WaitAll::call_callback() -> void
 {
     if (m_continuation.has_value()) {
         (*m_continuation)();
-    }
-    else {
-        m_callback(m_task_hub_proxy_ref->get());
     }
 }

@@ -7,7 +7,6 @@ export module ddge.modules.exec.v2.TaskBlueprint;
 
 import ddge.modules.exec.Nexus;
 import ddge.modules.exec.v2.Cardinality;
-import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
 import ddge.modules.exec.v2.TaskBuilder;

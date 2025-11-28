@@ -14,7 +14,7 @@ import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskContinuation;
-import ddge.modules.exec.v2.TaskFinishedCallback;
+import ddge.modules.exec.v2.TaskContinuationFactory;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
 import ddge.modules.exec.v2.TypedTaskIndex;
@@ -67,47 +67,49 @@ auto ddge::exec::v2::TaskBuilderBundle<Result_T>::sync(
         [builders           = std::move(m_task_builders),
          x_gatherer_builder = std::move(gatherer_builder)]   //
         (                                                    //
-            TaskHubBuilder & task_hub_builder,
-            TaskFinishedCallback<NewResult>&& callback
-        ) mutable -> TypedTaskIndex<NewResult>   //
+            TaskHubBuilder & task_hub_builder
+        ) mutable -> TypedTaskIndex<NewResult>               //
         {
             const std::shared_ptr gatherer{
-                std::move(x_gatherer_builder)
-                    .build(static_cast<uint32_t>(builders.size()), std::move(callback))
+                std::move(x_gatherer_builder).build(static_cast<uint32_t>(builders.size()))
             };
 
             std::vector<TypedTaskIndex<Result_T>> task_indices{
                 std::from_range,
                 std::move(builders) | std::views::as_rvalue
                     | std::views::transform(
-                        [&task_hub_builder,
-                         &gatherer]   //
+                        [&task_hub_builder]   //
                         (TaskBuilder<Result_T>&& builder) -> TypedTaskIndex<Result_T> {
-                            return std::move(builder).build(
-                                task_hub_builder,
-                                TaskFinishedCallback<Result_T>{
-                                    [gatherer]<typename... XInputs_T>(
-                                        const TaskHubProxy&, XInputs_T&&... inputs
-                                    ) mutable -> void {
-                                        gatherer->receive(
-                                            std::forward<XInputs_T>(inputs)...
-                                        );
-                                    }   //
-                                }
-                            );
+                            return std::move(builder).build(task_hub_builder);
                         }
                     )
             };
 
+            for (const TypedTaskIndex<Result_T> task_index : task_indices) {
+                task_hub_builder.set_task_continuation_factory(
+                    task_index,
+                    TaskContinuationFactory<Result_T>{
+                        [gatherer](const TaskHubProxy) mutable
+                            -> TaskContinuation<Result_T> {
+                            return TaskContinuation<Result_T>{
+                                [gatherer]<typename... XInputs_T>(
+                                    XInputs_T&&... inputs
+                                ) mutable -> void {
+                                    gatherer->receive(std::forward<XInputs_T>(inputs)...);
+                                }   //
+                            };
+                        }   //
+                    }
+                );
+            }
+
             return task_hub_builder.emplace_indirect_task_factory(
                 IndirectTaskFactory<NewResult>{
                     IndirectTaskBody{
-                        [gatherer, x_task_indices = std::move(task_indices)](
+                        [x_task_indices = std::move(task_indices)](
                             const TaskHubProxy& task_hub_proxy
                         ) mutable -> void   //
                         {
-                            gatherer->set_task_hub_proxy(task_hub_proxy);
-
                             for (const TypedTaskIndex<Result_T> task_index :
                                  x_task_indices) {
                                 task_hub_proxy.schedule(task_index);
@@ -115,9 +117,8 @@ auto ddge::exec::v2::TaskBuilderBundle<Result_T>::sync(
                         }   //
                     },
                     IndirectTaskContinuationSetter<NewResult>{
-                        [gatherer](
-                            TaskContinuation<Result_T>&& continuation
-                        ) mutable -> void {
+                        [gatherer](TaskContinuation<Result_T>&& continuation) mutable
+                            -> void {
                             gatherer->set_continuation(std::move(continuation));
                         }   //
                     }   //

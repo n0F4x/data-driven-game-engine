@@ -25,11 +25,12 @@ import ddge.modules.exec.v2.gatherers.WaitAll;
 import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBuilderBundle;
-import ddge.modules.exec.v2.TaskBundle;
-import ddge.modules.exec.v2.TaskFinishedCallback;
+import ddge.modules.exec.v2.TaskContinuation;
+import ddge.modules.exec.v2.TaskContinuationFactory;
 import ddge.modules.exec.v2.TaskHub;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
+import ddge.modules.exec.v2.TypedTaskIndex;
 
 import ddge.utility.meta.type_traits.type_list.type_list_filter;
 import ddge.utility.meta.type_traits.type_list.type_list_transform;
@@ -54,7 +55,7 @@ struct AddonTraits {
     template <typename Addon_T>
         struct HasAccessorProvider : std::bool_constant < requires {
         ddge::exec::provider_c<ddge::exec::provider_for_t<Addon_T>, App_T>;
-    } > {};
+    }>{};
 
     template <typename Addon_T>
     struct AccessorProvider {
@@ -116,20 +117,23 @@ auto ddge::exec::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprin
         Nexus              nexus{ AccessorProviders_T{ app }... };
         v2::TaskHubBuilder task_hub_builder{ nexus };
 
-        std::atomic_bool should_stop{};
-        v2::TaskBundle   root_task =
+        std::atomic_bool               should_stop{};
+        const v2::TypedTaskIndex<void> root_task_index =
             ::sync(v2::as_task_blueprint<void>(std::move(task_blueprint)).materialize())
-                .build(
-                    task_hub_builder,
-                    v2::TaskFinishedCallback<void>{
-                        [&should_stop](const v2::TaskHubProxy&) {
-                            should_stop = true;
-                        }   //
-                    }
-                );
+                .build(task_hub_builder);
+        task_hub_builder.set_task_continuation_factory(
+            root_task_index,
+            v2::TaskContinuationFactory<void>{
+                [&should_stop](const v2::TaskHubProxy) -> v2::TaskContinuation<void> {
+                    return v2::TaskContinuation<void>{
+                        [&should_stop] -> void { should_stop = true; }   //
+                    };
+                }   //
+            }
+        );
 
         const std::unique_ptr<v2::TaskHub> task_hub{ std::move(task_hub_builder).build() };
-        root_task(v2::TaskHubProxy{ *task_hub });
+        task_hub->schedule(root_task_index);
 
         while (!should_stop.load()) {
             if (!task_hub->try_execute_a_main_only_task()) {

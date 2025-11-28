@@ -4,7 +4,6 @@ module;
 
 export module ddge.modules.exec.v2.TaskBuilder;
 
-import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TypedTaskIndex;
 
@@ -14,8 +13,8 @@ namespace ddge::exec::v2 {
 
 export template <typename Result_T>
 class TaskBuilder {
-    using BuildFunc = util::AnyMoveOnlyFunction<
-        TypedTaskIndex<Result_T>(TaskHubBuilder&, TaskFinishedCallback<Result_T>&&) &&>;
+    using BuildFunc =
+        util::AnyMoveOnlyFunction<TypedTaskIndex<Result_T>(TaskHubBuilder&) &&>;
 
 public:
     template <typename F>
@@ -23,12 +22,9 @@ public:
     {}
 
     [[nodiscard]]
-    auto build(
-        TaskHubBuilder&                  task_hub_builder,
-        TaskFinishedCallback<Result_T>&& callback
-    ) && -> TypedTaskIndex<Result_T>
+    auto build(TaskHubBuilder& task_hub_builder) && -> TypedTaskIndex<Result_T>
     {
-        return std::move(m_build)(task_hub_builder, std::move(callback));
+        return std::move(m_build)(task_hub_builder);
     }
 
 private:

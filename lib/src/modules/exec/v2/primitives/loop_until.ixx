@@ -17,7 +17,7 @@ import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBuilderBundle;
 import ddge.modules.exec.v2.TaskContinuation;
-import ddge.modules.exec.v2.TaskFinishedCallback;
+import ddge.modules.exec.v2.TaskContinuationFactory;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
 import ddge.modules.exec.v2.TypedTaskIndex;
@@ -59,82 +59,66 @@ auto ddge::exec::v2::loop_until(
             return TaskBuilder<void>{
                 [y_main_blueprint      = std::move(x_main_blueprint),
                  y_predicate_blueprint = std::move(x_predicate_blueprint)](
-                    TaskHubBuilder&              task_hub_builder,
-                    TaskFinishedCallback<void>&& callback
+                    TaskHubBuilder& task_hub_builder
                 ) mutable -> TypedTaskIndex<void>   //
                 {
-                    class Looper {
-                    public:
-                        auto set_predicate_task_index(
-                            const TypedTaskIndex<bool> predicate_task_index
-                        ) -> void
-                        {
-                            m_predicate_task_index = predicate_task_index;
-                        }
-                        auto schedule_next_iteration(
-                            const TaskHubProxy& task_hub_proxy
-                        ) const -> void
-                        {
-                            task_hub_proxy.schedule(*m_predicate_task_index);
-                        }
+                    const TypedTaskIndex<void> main_task_index =
+                        ::sync(std::move(y_main_blueprint).materialize())
+                            .build(task_hub_builder);
 
-                    private:
-                        std::optional<TypedTaskIndex<bool>> m_predicate_task_index;
-                    };
+                    const TypedTaskIndex<bool> predicate_task_index =
+                        std::move(y_predicate_blueprint)
+                            .materialize()
+                            .build(task_hub_builder);
 
-                    std::shared_ptr<Looper> looper{ std::make_shared<Looper>() };
                     std::shared_ptr<std::optional<TaskContinuation<void>>>
                         shared_continuation{
                             std::make_shared<std::optional<TaskContinuation<void>>>()
                         };
 
-                    const TypedTaskIndex<bool> predicate_task_index =
-                        std::move(y_predicate_blueprint)
-                            .materialize()
-                            .build(
-                                task_hub_builder,
-                                TaskFinishedCallback<bool>{
-                                    [x_callback = std::move(callback),
-                                     main_task_index =
-                                         ::sync(std::move(y_main_blueprint).materialize())
-                                             .build(
-                                                 task_hub_builder,
-                                                 TaskFinishedCallback<void>{
-                                                     [looper](
-                                                         const TaskHubProxy& task_hub_proxy
-                                                     ) {
-                                                         looper->schedule_next_iteration(
-                                                             task_hub_proxy
-                                                         );
-                                                     }   //
-                                                 }
-                                             ),
-                                     shared_continuation]                         //
-                                    (const TaskHubProxy& task_hub_proxy,
-                                     const bool should_execute) mutable -> void   //
-                                    {
-                                        if (should_execute) {
+                    task_hub_builder.set_task_continuation_factory(
+                        predicate_task_index,
+                        TaskContinuationFactory<bool>{
+                            [main_task_index, shared_continuation](
+                                const TaskHubProxy task_hub_proxy
+                            ) mutable -> TaskContinuation<bool> {
+                                return TaskContinuation<bool>{
+                                    [main_task_index, shared_continuation, task_hub_proxy](
+                                        const bool predicate
+                                    ) mutable -> void {
+                                        if (predicate) {
                                             task_hub_proxy.schedule(main_task_index);
                                         }
                                         else {
                                             if (shared_continuation->has_value()) {
                                                 (**shared_continuation)();
                                             }
-                                            else {
-                                                x_callback(task_hub_proxy);
-                                            }
                                         }
                                     }   //
-                                }
-                            );
+                                };
+                            }   //
+                        }
+                    );
 
-                    looper->set_predicate_task_index(std::move(predicate_task_index));
+                    task_hub_builder.set_task_continuation_factory(
+                        main_task_index,
+                        TaskContinuationFactory<void>{
+                            [predicate_task_index](const TaskHubProxy task_hub_proxy)
+                                -> TaskContinuation<void> {
+                                return TaskContinuation<void>{
+                                    [predicate_task_index, task_hub_proxy] -> void {
+                                        task_hub_proxy.schedule(predicate_task_index);
+                                    }   //
+                                };
+                            }   //
+                        }
+                    );
 
                     return task_hub_builder.emplace_indirect_task_factory(
                         IndirectTaskFactory<void>{
                             IndirectTaskBody{
-                                [looper](const TaskHubProxy& task_hub_proxy) {
-                                    looper->schedule_next_iteration(task_hub_proxy);
+                                [predicate_task_index](const TaskHubProxy& task_hub_proxy) {
+                                    task_hub_proxy.schedule(predicate_task_index);
                                 }   //
                             },
                             IndirectTaskContinuationSetter<void>{

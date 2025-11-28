@@ -31,7 +31,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         TaskContinuation.ixx
         TaskContinuationFactory.ixx
         TaskFactory.ixx
-        TaskFinishedCallback.ixx
         TaskHub.ixx
         TaskHubBuilder.ixx
         TaskHubProxy.ixx
