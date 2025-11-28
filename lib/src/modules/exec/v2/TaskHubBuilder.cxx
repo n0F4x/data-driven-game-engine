@@ -9,6 +9,7 @@ module;
 
 module ddge.modules.exec.v2.TaskHubBuilder;
 
+import ddge.modules.exec.v2.ErasedTaskFactory;
 import ddge.modules.exec.v2.TaskHubProxy;
 
 ddge::exec::v2::TaskHubBuilder::TaskHubBuilder(Nexus& nexus) : m_nexus{ nexus } {}
@@ -47,6 +48,14 @@ auto ddge::exec::v2::TaskHubBuilder::build() && -> std::unique_ptr<TaskHub>
         );
         assert(expected.has_value());
     }
+
+    result->set_indirect_tasks(
+        std::views::as_rvalue(std::move(m_indirect_task_factories))
+        | std::views::transform(
+            std::bind_back(&ErasedTaskFactory::build, TaskHubProxy{ *result })
+        )
+        | std::ranges::to<std::vector>()
+    );
 
 
     return result;

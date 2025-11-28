@@ -16,13 +16,19 @@ import ddge.utility.any_cast;
 import ddge.utility.contracts;
 
 ddge::exec::v2::TaskHub::TaskHub(
-    const uint64_t generic_capacity,
-    const uint64_t main_only_capacity,
+    const uint64_t generic_task_capacity,
+    const uint64_t main_only_task_capacity,
     const uint32_t number_of_threads
 )
-    : m_generic_work_tree{ generic_capacity, number_of_threads },
-      m_main_only_work_tree{ main_only_capacity, 1 }
+    : m_generic_work_tree{ generic_task_capacity, number_of_threads },
+      m_main_only_work_tree{ main_only_task_capacity, 1 }
 {}
+
+auto ddge::exec::v2::TaskHub::set_indirect_tasks(std::vector<Task>&& indirect_tasks)
+    -> void
+{
+    m_indirect_tasks = std::move(indirect_tasks);
+}
 
 auto ddge::exec::v2::TaskHub::try_emplace_generic_at(
     Task&&          task,
@@ -31,7 +37,7 @@ auto ddge::exec::v2::TaskHub::try_emplace_generic_at(
 {
     PRECOND((task_index.underlying() & task_index_tag_mask) == IndexTagMasks::generic);
 
-    return try_emplace_at(std::move(task), task_index);
+    return try_emplace_embedded_task_at(std::move(task), task_index);
 }
 
 auto ddge::exec::v2::TaskHub::try_emplace_main_only_at(
@@ -41,27 +47,33 @@ auto ddge::exec::v2::TaskHub::try_emplace_main_only_at(
 {
     PRECOND((task_index.underlying() & task_index_tag_mask) == IndexTagMasks::main_only);
 
-    return try_emplace_at(std::move(task), task_index);
+    return try_emplace_embedded_task_at(std::move(task), task_index);
 }
 
 #define STRINGIFY(x) #x
 
 auto ddge::exec::v2::TaskHub::schedule(const TaskIndex task_index) -> void
 {
+    const TaskIndex::Underlying task_index_value{
+        task_index.underlying() & task_index_value_mask   //
+    };
+
     if (const TaskIndex::Underlying type{ task_index.underlying() & task_index_tag_mask };
         type == IndexTagMasks::generic)
     {
-        m_generic_work_tree.schedule(
-            WorkIndex{ task_index.underlying() & task_index_value_mask }
-        );
+        m_generic_work_tree.schedule(WorkIndex{ task_index_value });
     }
     else if (type == IndexTagMasks::main_only) {
-        m_main_only_work_tree.schedule(
-            WorkIndex{ task_index.underlying() & task_index_value_mask }
-        );
+        m_main_only_work_tree.schedule(WorkIndex{ task_index_value });
+    }
+    else if (type == IndexTagMasks::indirect) {
+        m_indirect_tasks[task_index_value]();
     }
     else {
-        PRECOND(false, std::format("invalid {}", STRINGIFY(task_index)));
+        PRECOND(
+            false,
+            std::format("invalid {} ({:b})", STRINGIFY(task_index), task_index.underlying())
+        );
         std::unreachable();
     }
 }
@@ -76,7 +88,7 @@ auto ddge::exec::v2::TaskHub::try_execute_a_main_only_task() -> bool
     return m_main_only_work_tree.try_execute_one_work(0);
 }
 
-auto ddge::exec::v2::TaskHub::try_emplace_at(Task&& task, const TaskIndex task_index)
+auto ddge::exec::v2::TaskHub::try_emplace_embedded_task_at(Task&& task, const TaskIndex task_index)
     -> std::expected<void, Task>
 {
     WorkTree& work_tree{ select_work_tree(task_index) };

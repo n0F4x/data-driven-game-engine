@@ -10,13 +10,17 @@ import ddge.modules.exec.v2.as_task_blueprint;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
 import ddge.modules.exec.v2.gatherers.WaitAll;
+import ddge.modules.exec.v2.IndirectTaskBody;
+import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
+import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBuilderBundle;
-import ddge.modules.exec.v2.TaskBundle;
+import ddge.modules.exec.v2.TaskContinuation;
 import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
+import ddge.modules.exec.v2.TypedTaskIndex;
 
 namespace ddge::exec::v2 {
 
@@ -57,34 +61,41 @@ auto ddge::exec::v2::loop_until(
                  y_predicate_blueprint = std::move(x_predicate_blueprint)](
                     TaskHubBuilder&              task_hub_builder,
                     TaskFinishedCallback<void>&& callback
-                ) mutable -> TaskBundle   //
+                ) mutable -> TypedTaskIndex<void>   //
                 {
                     class Looper {
                     public:
-                        auto set_task_predicate(TaskBundle&& predicate_task) -> void
+                        auto set_predicate_task_index(
+                            const TypedTaskIndex<bool> predicate_task_index
+                        ) -> void
                         {
-                            m_predicate_task = std::move(predicate_task);
+                            m_predicate_task_index = predicate_task_index;
                         }
-                        auto schedule_next_iteration(const TaskHubProxy& task_hub_proxy)
-                            -> void
+                        auto schedule_next_iteration(
+                            const TaskHubProxy& task_hub_proxy
+                        ) const -> void
                         {
-                            m_predicate_task->operator()(task_hub_proxy);
+                            task_hub_proxy.schedule(*m_predicate_task_index);
                         }
 
                     private:
-                        std::optional<TaskBundle> m_predicate_task;
+                        std::optional<TypedTaskIndex<bool>> m_predicate_task_index;
                     };
 
                     std::shared_ptr<Looper> looper{ std::make_shared<Looper>() };
+                    std::shared_ptr<std::optional<TaskContinuation<void>>>
+                        shared_continuation{
+                            std::make_shared<std::optional<TaskContinuation<void>>>()
+                        };
 
-                    TaskBundle predicate_task =
+                    const TypedTaskIndex<bool> predicate_task_index =
                         std::move(y_predicate_blueprint)
                             .materialize()
                             .build(
                                 task_hub_builder,
                                 TaskFinishedCallback<bool>{
                                     [x_callback = std::move(callback),
-                                     main_task =
+                                     main_task_index =
                                          ::sync(std::move(y_main_blueprint).materialize())
                                              .build(
                                                  task_hub_builder,
@@ -97,27 +108,44 @@ auto ddge::exec::v2::loop_until(
                                                          );
                                                      }   //
                                                  }
-                                             )]                                   //
+                                             ),
+                                     shared_continuation]                         //
                                     (const TaskHubProxy& task_hub_proxy,
                                      const bool should_execute) mutable -> void   //
                                     {
                                         if (should_execute) {
-                                            main_task(task_hub_proxy);
+                                            task_hub_proxy.schedule(main_task_index);
                                         }
                                         else {
-                                            x_callback(task_hub_proxy);
+                                            if (shared_continuation->has_value()) {
+                                                (**shared_continuation)();
+                                            }
+                                            else {
+                                                x_callback(task_hub_proxy);
+                                            }
                                         }
                                     }   //
                                 }
                             );
 
-                    looper->set_task_predicate(std::move(predicate_task));
+                    looper->set_predicate_task_index(std::move(predicate_task_index));
 
-                    return TaskBundle{
-                        [looper](const TaskHubProxy& task_hub_proxy) {
-                            looper->schedule_next_iteration(task_hub_proxy);
-                        }   //
-                    };
+                    return task_hub_builder.emplace_indirect_task_factory(
+                        IndirectTaskFactory<void>{
+                            IndirectTaskBody{
+                                [looper](const TaskHubProxy& task_hub_proxy) {
+                                    looper->schedule_next_iteration(task_hub_proxy);
+                                }   //
+                            },
+                            IndirectTaskContinuationSetter<void>{
+                                [shared_continuation](
+                                    TaskContinuation<void>&& continuation
+                                ) mutable -> void {
+                                    *shared_continuation = std::move(continuation);
+                                }   //
+                            }   //
+                        }
+                    );
                 }   //
             };
         }   //

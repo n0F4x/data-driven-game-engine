@@ -1,5 +1,7 @@
 module;
 
+#include <memory>
+#include <optional>
 #include <utility>
 
 export module ddge.modules.exec.v2.ScheduleBuilder;
@@ -8,13 +10,18 @@ import ddge.modules.exec.v2.as_task_blueprint;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
 import ddge.modules.exec.v2.gatherers.WaitAll;
+import ddge.modules.exec.v2.IndirectTaskBody;
+import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
+import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBuilderBundle;
-import ddge.modules.exec.v2.TaskBundle;
+import ddge.modules.exec.v2.TaskContinuation;
+import ddge.modules.exec.v2.TaskContinuationFactory;
 import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
+import ddge.modules.exec.v2.TypedTaskIndex;
 
 namespace ddge::exec::v2 {
 
@@ -80,25 +87,61 @@ auto ddge::exec::v2::ScheduleBuilder::then(TaskBlueprint_T&& next) && -> Schedul
                     (                              //
                         TaskHubBuilder & task_hub_builder,
                         TaskFinishedCallback<void>&& callback
-                    ) mutable -> TaskBundle   //
+                    ) mutable -> TypedTaskIndex<void>   //
                     {
-                        return std::move(x_previous)
-                            .materialize()
-                            .build(
-                                task_hub_builder,
-                                TaskFinishedCallback<void>{
-                                    [next_task = ::sync(std::move(y_next).materialize())
-                                                     .build(
-                                                         task_hub_builder,
-                                                         std::move(callback)
-                                                     )]   //
-                                    (const TaskHubProxy& task_hub_proxy
-                                    ) mutable -> void     //
-                                    {                     //
-                                        next_task(task_hub_proxy);
+                        std::shared_ptr<std::optional<TaskContinuation<void>>>
+                            shared_continuation{
+                                std::make_shared<std::optional<TaskContinuation<void>>>()
+                            };
+
+                        const TypedTaskIndex<void> next_task_index =
+                            ::sync(std::move(y_next).materialize())
+                                .build(
+                                    task_hub_builder,
+                                    TaskFinishedCallback<void>{
+                                        [x_callback = std::move(callback),
+                                         shared_continuation](
+                                            const TaskHubProxy& task_hub_proxy
+                                        ) mutable -> void {
+                                            if (shared_continuation->has_value()) {
+                                                (**shared_continuation)();
+                                            }
+                                            else {
+                                                x_callback(task_hub_proxy);
+                                            }
+                                        }   //
+                                    }
+                                );
+
+                        const TypedTaskIndex<void> previous_task_index =
+                            std::move(x_previous)
+                                .materialize()
+                                .build(
+                                    task_hub_builder,
+                                    TaskFinishedCallback<void>{
+                                        [next_task_index]                              //
+                                        (const TaskHubProxy& task_hub_proxy) -> void   //
+                                        {                                              //
+                                            task_hub_proxy.schedule(next_task_index);
+                                        }   //
+                                    }
+                                );
+
+                        return task_hub_builder.emplace_indirect_task_factory(
+                            IndirectTaskFactory<void>{
+                                IndirectTaskBody{
+                                    [previous_task_index](
+                                        const TaskHubProxy& task_hub_proxy
+                                    ) { task_hub_proxy.schedule(previous_task_index); } },
+                                IndirectTaskContinuationSetter<void>{
+                                    [shared_continuation](
+                                        TaskContinuation<void>&& continuation
+                                    ) -> void {
+                                        (*shared_continuation) = std::move(continuation);
                                     }   //
-                                }
-                            );
+                                }   //
+                            }
+                        );
                     }   //
                 };
             }   //

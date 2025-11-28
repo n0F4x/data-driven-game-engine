@@ -7,6 +7,7 @@ module;
 export module ddge.modules.exec.v2.ErasedTaskFactory;
 
 import ddge.modules.exec.v2.EmbeddedTaskFactory;
+import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.Task;
 import ddge.modules.exec.v2.TaskFactory;
 import ddge.modules.exec.v2.TaskHubProxy;
@@ -26,6 +27,9 @@ export class ErasedTaskFactory : public util::BasicAnyMoveOnly<
 public:
     template <typename Result_T>
     explicit ErasedTaskFactory(EmbeddedTaskFactory<Result_T>&& embedded_task_factory);
+
+    template <typename Result_T>
+    explicit ErasedTaskFactory(IndirectTaskFactory<Result_T>&& indirect_task_factory);
 
     [[nodiscard]]
     auto build(const TaskHubProxy task_hub_proxy) && -> Task
@@ -67,4 +71,12 @@ ddge::exec::v2::ErasedTaskFactory::ErasedTaskFactory(
 )
     : Base{ TaskFactory<Result_T>{ std::move(embedded_task_factory) } },
       m_build{ ErasedTaskFactoryTraits<EmbeddedTaskFactory<Result_T>>::build }
+{}
+
+template <typename Result_T>
+ddge::exec::v2::ErasedTaskFactory::ErasedTaskFactory(
+    IndirectTaskFactory<Result_T>&& indirect_task_factory
+)
+    : Base{ TaskFactory<Result_T>{ std::move(indirect_task_factory) } },
+      m_build{ ErasedTaskFactoryTraits<IndirectTaskFactory<Result_T>>::build }
 {}

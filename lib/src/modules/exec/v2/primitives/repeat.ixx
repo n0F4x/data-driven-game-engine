@@ -11,13 +11,17 @@ import ddge.modules.exec.v2.as_task_blueprint;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
 import ddge.modules.exec.v2.gatherers.WaitAll;
+import ddge.modules.exec.v2.IndirectTaskBody;
+import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
+import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBuilderBundle;
-import ddge.modules.exec.v2.TaskBundle;
+import ddge.modules.exec.v2.TaskContinuation;
 import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
+import ddge.modules.exec.v2.TypedTaskIndex;
 
 namespace ddge::exec::v2 {
 
@@ -64,7 +68,7 @@ auto ddge::exec::v2::repeat(
                  )](   //
                     TaskHubBuilder&              task_hub_builder,
                     TaskFinishedCallback<void>&& callback
-                ) mutable -> TaskBundle   //
+                ) mutable -> TypedTaskIndex<void>   //
                 {
                     class Looper {
                     public:
@@ -76,37 +80,45 @@ auto ddge::exec::v2::repeat(
                         {
                             m_repetition = repetition;
                         }
-                        auto set_looped_task(TaskBundle&& looped_task) -> void
+                        auto set_looped_task_index(
+                            const TypedTaskIndex<void> looped_task_index
+                        ) -> void
                         {
-                            m_looped_task = std::move(looped_task);
+                            m_looped_task_index = looped_task_index;
+                        }
+                        auto set_continuation(TaskContinuation<void>&& continuation)
+                        {
+                            m_continuation = std::move(continuation);
                         }
                         auto schedule_next_iteration(const TaskHubProxy& task_hub_proxy)
                             -> void
                         {
                             if (m_repetition > 0) {
                                 --*m_repetition;
-                                m_looped_task->operator()(task_hub_proxy);
+                                task_hub_proxy.schedule(*m_looped_task_index);
                             }
                             else {
-                                m_callback(task_hub_proxy);
+                                if (m_continuation.has_value()) {
+                                    (*m_continuation)();
+                                }
+                                else {
+                                    m_callback(task_hub_proxy);
+                                }
                             }
-                        }
-                        auto call_callback(const TaskHubProxy& task_hub_proxy) -> void
-                        {
-                            m_callback(task_hub_proxy);
                         }
 
                     private:
-                        std::optional<Repetition_T> m_repetition;
-                        std::optional<TaskBundle>   m_looped_task;
-                        TaskFinishedCallback<void>  m_callback;
+                        std::optional<Repetition_T>           m_repetition;
+                        std::optional<TypedTaskIndex<void>>   m_looped_task_index;
+                        std::optional<TaskContinuation<void>> m_continuation;
+                        TaskFinishedCallback<void>            m_callback;
                     };
 
                     std::shared_ptr<Looper> looper{
                         std::make_shared<Looper>(std::move(callback))   //
                     };
 
-                    TaskBundle main_task =   //
+                    const TypedTaskIndex<void> main_task_index =   //
                         ::sync(std::move(y_main_blueprint).materialize())
                             .build(
                                 task_hub_builder,
@@ -116,9 +128,9 @@ auto ddge::exec::v2::repeat(
                                     }   //
                                 }
                             );
-                    looper->set_looped_task(std::move(main_task));
+                    looper->set_looped_task_index(main_task_index);
 
-                    TaskBundle repetition_specifier_task =   //
+                    const TypedTaskIndex<Repetition_T> repetition_specifier_task_index =   //
                         std::move(y_repetition_specifier_blueprint)
                             .materialize()
                             .build(
@@ -134,7 +146,25 @@ auto ddge::exec::v2::repeat(
                                 }
                             );
 
-                    return repetition_specifier_task;
+                    return task_hub_builder.emplace_indirect_task_factory(
+                        IndirectTaskFactory<void>{
+                            IndirectTaskBody{
+                                [repetition_specifier_task_index](
+                                    const TaskHubProxy& task_hub_proxy
+                                ) -> void {
+                                    task_hub_proxy.schedule(
+                                        repetition_specifier_task_index
+                                    );
+                                }   //
+                            },
+                            IndirectTaskContinuationSetter<void>{
+                                [looper](TaskContinuation<void>&& continuation) mutable
+                                    -> void {
+                                    looper->set_continuation(std::move(continuation));
+                                }   //
+                            }   //
+                        }
+                    );
                 }
             };
         }   //

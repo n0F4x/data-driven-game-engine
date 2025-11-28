@@ -4,6 +4,7 @@ module;
 
 export module ddge.modules.exec.v2.gatherers.gatherer_of_c;
 
+import ddge.modules.exec.v2.TaskContinuation;
 import ddge.modules.exec.v2.TaskHubProxy;
 
 namespace ddge::exec::v2 {
@@ -19,8 +20,13 @@ inline constexpr bool can_receive_v<Gatherer_T, void> = requires(Gatherer_T gath
 };
 
 export template <typename T, typename Input_T>
-concept gatherer_of_c = can_receive_v<T, Input_T>
-                     && requires(T gatherer, const TaskHubProxy& task_hub_proxy) {
+concept gatherer_of_c = can_receive_v<T, Input_T> && requires { typename T::Output; }
+                     && requires(
+                            T                                      gatherer,
+                            TaskContinuation<typename T::Output>&& continuation,
+                            const TaskHubProxy&                    task_hub_proxy
+                     ) {
+                            gatherer.set_continuation(std::move(continuation));
                             gatherer.set_task_hub_proxy(task_hub_proxy);
                         };
 

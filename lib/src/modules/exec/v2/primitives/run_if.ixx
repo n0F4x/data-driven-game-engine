@@ -1,19 +1,24 @@
 module;
 
 #include <memory>
+#include <optional>
 #include <utility>
 
 export module ddge.modules.exec.v2.primitives.run_if;
 
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.gatherers.WaitAll;
+import ddge.modules.exec.v2.IndirectTaskBody;
+import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
+import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.TaskBlueprint;
 import ddge.modules.exec.v2.TaskBuilder;
 import ddge.modules.exec.v2.TaskBuilderBundle;
-import ddge.modules.exec.v2.TaskBundle;
+import ddge.modules.exec.v2.TaskContinuation;
 import ddge.modules.exec.v2.TaskFinishedCallback;
 import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
+import ddge.modules.exec.v2.TypedTaskIndex;
 
 namespace ddge::exec::v2 {
 
@@ -55,44 +60,79 @@ auto ddge::exec::v2::run_if(
                  y_predicate_blueprint = std::move(x_predicate_blueprint)](
                     TaskHubBuilder&              task_hub_builder,
                     TaskFinishedCallback<void>&& callback
-                ) mutable -> TaskBundle   //
+                ) mutable -> TypedTaskIndex<void>   //
                 {
                     const std::shared_ptr<TaskFinishedCallback<void>> shared_callback{
                         std::make_shared<TaskFinishedCallback<void>>(std::move(callback))
                     };
+                    std::shared_ptr<std::optional<TaskContinuation<void>>>
+                        shared_continuation{
+                            std::make_shared<std::optional<TaskContinuation<void>>>()
+                        };
 
-                    return std::move(y_predicate_blueprint)
-                        .materialize()
-                        .build(
-                            task_hub_builder,
-                            TaskFinishedCallback<bool>{
-                                [main_task =
-                                     ::sync(std::move(y_main_blueprint).materialize())
-                                         .build(
-                                             task_hub_builder,
-                                             TaskFinishedCallback<void>{
-                                                 [shared_callback](
-                                                     const TaskHubProxy& task_hub_proxy
-                                                 ) {
-                                                     shared_callback->operator()(
-                                                         task_hub_proxy
-                                                     );
-                                                 }   //
-                                             }
-                                         ),
-                                 shared_callback]                             //
-                                (const TaskHubProxy& task_hub_proxy,
-                                 const bool          should_execute) mutable -> void   //
-                                {
-                                    if (should_execute) {
-                                        main_task(task_hub_proxy);
-                                    }
-                                    else {
-                                        shared_callback->operator()(task_hub_proxy);
-                                    }
+                    const TypedTaskIndex<bool> predicate_task_index =
+                        std::move(y_predicate_blueprint)
+                            .materialize()
+                            .build(
+                                task_hub_builder,
+                                TaskFinishedCallback<bool>{
+                                    [main_task_index =
+                                         ::sync(std::move(y_main_blueprint).materialize())
+                                             .build(
+                                                 task_hub_builder,
+                                                 TaskFinishedCallback<void>{
+                                                     [shared_callback, shared_continuation](
+                                                         const TaskHubProxy& task_hub_proxy
+                                                     ) {
+                                                         if (shared_continuation
+                                                                 ->has_value()) {
+                                                             (**shared_continuation)();
+                                                         }
+                                                         else {
+                                                             shared_callback->operator()(
+                                                                 task_hub_proxy
+                                                             );
+                                                         }
+                                                     }   //
+                                                 }
+                                             ),
+                                     shared_callback,
+                                     shared_continuation]                         //
+                                    (const TaskHubProxy& task_hub_proxy,
+                                     const bool should_execute) mutable -> void   //
+                                    {
+                                        if (should_execute) {
+                                            task_hub_proxy.schedule(main_task_index);
+                                        }
+                                        else {
+                                            if (shared_continuation->has_value()) {
+                                                (**shared_continuation)();
+                                            }
+                                            else {
+                                                shared_callback->operator()(
+                                                    task_hub_proxy
+                                                );
+                                            }
+                                        }
+                                    }   //
+                                }
+                            );
+
+                    return task_hub_builder.emplace_indirect_task_factory(
+                        IndirectTaskFactory<void>{
+                            IndirectTaskBody{
+                                [predicate_task_index](const TaskHubProxy& task_hub_proxy) {
+                                    task_hub_proxy.schedule(predicate_task_index);
+                                } },
+                            IndirectTaskContinuationSetter<void>{
+                                [x_shared_continuation = std::move(shared_continuation)](
+                                    TaskContinuation<void>&& continuation
+                                ) mutable -> void {
+                                    *x_shared_continuation = std::move(continuation);
                                 }   //
-                            }
-                        );
+                            }   //
+                        }
+                    );
                 }   //
             };
         }   //

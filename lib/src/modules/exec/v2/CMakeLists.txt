@@ -20,12 +20,14 @@ target_sources(${PROJECT_NAME} PUBLIC
         EmbeddedTaskFactory.ixx
         ErasedTaskFactory.ixx
         ExecPolicy.ixx
+        IndirectTaskBody.ixx
+        IndirectTaskContinuationSetter.ixx
+        IndirectTaskFactory.ixx
         ScheduleBuilder.ixx
         Task.ixx
         TaskBlueprint.ixx
         TaskBuilder.ixx
         TaskBuilderBundle.ixx
-        TaskBundle.ixx
         TaskContinuation.ixx
         TaskContinuationFactory.ixx
         TaskFactory.ixx
@@ -34,4 +36,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         TaskHubBuilder.ixx
         TaskHubProxy.ixx
         TaskIndex.ixx
+        TypedTaskIndex.ixx
 )

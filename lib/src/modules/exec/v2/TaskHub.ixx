@@ -3,6 +3,7 @@ module;
 #include <bit>
 #include <expected>
 #include <limits>
+#include <vector>
 
 export module ddge.modules.exec.v2.TaskHub;
 
@@ -23,10 +24,13 @@ public:
         std::numeric_limits<TaskIndex::Underlying>::max() - task_index_value_mask;
 
     struct IndexTagMasks {
-        constexpr static TaskIndex::Underlying generic = 0;
+        constexpr static TaskIndex::Underlying generic =
+            std::numeric_limits<TaskIndex::Underlying>::max()
+            - (std::numeric_limits<TaskIndex::Underlying>::max() >> 2);
         constexpr static TaskIndex::Underlying main_only =
             std::numeric_limits<TaskIndex::Underlying>::max()
             - (std::numeric_limits<TaskIndex::Underlying>::max() >> 1);
+        constexpr static TaskIndex::Underlying indirect = 0;
 
         constexpr static auto get(const ExecPolicy execution_policy)
             -> TaskIndex::Underlying
@@ -39,12 +43,14 @@ public:
     };
 
     explicit TaskHub(
-        uint64_t generic_capacity,
-        uint64_t main_only_capacity,
+        uint64_t generic_task_capacity,
+        uint64_t main_only_task_capacity,
         uint32_t number_of_threads
     );
     TaskHub(const TaskHub&) = delete;
     TaskHub(TaskHub&&)      = delete;
+
+    auto set_indirect_tasks(std::vector<Task>&& indirect_tasks) -> void;
 
     [[nodiscard]]
     auto try_emplace_generic_at(Task&& task, TaskIndex task_index)
@@ -59,11 +65,13 @@ public:
     auto try_execute_a_main_only_task() -> bool;
 
 private:
-    WorkTree m_generic_work_tree;
-    WorkTree m_main_only_work_tree;
+    WorkTree          m_generic_work_tree;
+    WorkTree          m_main_only_work_tree;
+    std::vector<Task> m_indirect_tasks;
 
     [[nodiscard]]
-    auto try_emplace_at(Task&& task, TaskIndex task_index) -> std::expected<void, Task>;
+    auto try_emplace_embedded_task_at(Task&& task, TaskIndex task_index)
+        -> std::expected<void, Task>;
 
     [[nodiscard]]
     auto select_work_tree(TaskIndex task_index) -> WorkTree&;
