@@ -150,7 +150,8 @@ auto remove_components(
     const RecordIndex  record_index
 ) -> std::tuple<Components_T...>
 {
-    return std::make_tuple(it.remove_component<Components_T>(archetype_id, record_index)...
+    return std::make_tuple(
+        it.remove_component<Components_T>(archetype_id, record_index)...
     );
 }
 
@@ -224,7 +225,8 @@ auto find_component_table(ComponentTableMap& it)
 {
     return it.find_component_table(component_id_of<Component_T>())
         .transform([](ErasedComponentTable& erased_component_table) -> decltype(auto) {
-            return ddge::util::any_cast<ComponentTable<Component_T>>(erased_component_table
+            return ddge::util::any_cast<ComponentTable<Component_T>>(
+                erased_component_table
             );
         });
 }

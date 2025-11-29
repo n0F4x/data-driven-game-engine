@@ -129,7 +129,8 @@ auto ddge::image::ktx2::Image::offset_of(
     return offset;
 }
 
-auto ddge::image::ktx2::Image::Deleter::operator()(ktxTexture2* const texture
+auto ddge::image::ktx2::Image::Deleter::operator()(
+    ktxTexture2* const texture
 ) const noexcept -> void
 {
     ktxTexture_Destroy(ktxTexture(texture));

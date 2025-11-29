@@ -41,8 +41,8 @@ template <ddge::exec::raw_task_c F>
 auto ddge::exec::wrap_as_builder(F&& func) -> TaskBuilder<util::meta::result_of_t<F>>
 {
     return TaskBuilder<util::meta::result_of_t<F>>{
-        [wrapped_func = std::forward<F>(func
-         )](Nexus& nexus) -> Task<util::meta::result_of_t<F>> {
+        [wrapped_func =
+             std::forward<F>(func)](Nexus& nexus) -> Task<util::meta::result_of_t<F>> {
             return Task<util::meta::result_of_t<F>>{
                 [wrapped_func, accessors_tuple = provide_accessors_for<F>(nexus)] mutable
                     -> util::meta::result_of_t<F> {
@@ -54,10 +54,9 @@ auto ddge::exec::wrap_as_builder(F&& func) -> TaskBuilder<util::meta::result_of_
 }
 
 template <typename TaskBuilder_T>
-    requires ddge::exec::
-        specialization_of_TaskBuilder_c<std::remove_cvref_t<TaskBuilder_T>>
-    auto ddge::exec::wrap_as_builder(TaskBuilder_T&& task_builder)
-        -> std::remove_cvref_t<TaskBuilder_T>
+    requires ddge::exec::specialization_of_TaskBuilder_c<std::remove_cvref_t<TaskBuilder_T>>
+auto ddge::exec::wrap_as_builder(TaskBuilder_T&& task_builder)
+    -> std::remove_cvref_t<TaskBuilder_T>
 {
     return std::forward<TaskBuilder_T>(task_builder);
 }

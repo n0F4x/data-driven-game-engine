@@ -37,9 +37,9 @@ auto game::tasks::spawn_apple()
             std::vector<ddge::ecs::ID> empty_cell_ids;
             ddge::ecs::query(
                 registry.get(),
-                [&empty_cell_ids](const ddge::ecs::ID id, With<Cell>, Without<Snake>, Without<Apple>) {
-                    empty_cell_ids.push_back(id);
-                }
+                [&empty_cell_ids](
+                    const ddge::ecs::ID id, With<Cell>, Without<Snake>, Without<Apple>
+                ) -> void { empty_cell_ids.push_back(id); }
             );
 
             std::uniform_int_distribution distribution{ 0uz, empty_cell_ids.size() - 1uz };

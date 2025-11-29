@@ -395,7 +395,9 @@ auto ddge::ecs::Query<Filters_T...>::queried_type_view_from(
 template <ddge::ecs::query_filter_c... Filters_T>
     requires ::query_filter_components_are_all_different_c<Filters_T...>
 template <typename QueriedParameter_T>
-    requires(ddge::util::meta::specialization_of_c<QueriedParameter_T, ddge::ecs::Optional>)
+    requires(
+        ddge::util::meta::specialization_of_c<QueriedParameter_T, ddge::ecs::Optional>
+    )
 auto ddge::ecs::Query<Filters_T...>::queried_type_view_from(
     ddge::ecs::Registry&,
     IncludedOptionalComponentTableRefs& included_optional_component_table_refs,

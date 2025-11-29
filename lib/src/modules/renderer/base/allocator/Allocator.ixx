@@ -30,7 +30,7 @@ public:
 
     [[nodiscard]]
     auto allocate(
-        const vk::MemoryRequirements& requirements,
+        const vk::MemoryRequirements&  requirements,
         const VmaAllocationCreateInfo& allocation_create_info = {
             .usage = VMA_MEMORY_USAGE_AUTO,
         }

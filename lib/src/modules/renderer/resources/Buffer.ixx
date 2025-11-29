@@ -19,8 +19,8 @@ public:
     Buffer(
         const base::Allocator&         allocator,
         const vk::BufferCreateInfo&    buffer_create_info,
-        const VmaAllocationCreateInfo& allocation_create_info =
-            VmaAllocationCreateInfo{ .usage = VMA_MEMORY_USAGE_AUTO }
+        const VmaAllocationCreateInfo& allocation_create_info = VmaAllocationCreateInfo{
+            .usage = VMA_MEMORY_USAGE_AUTO }
     );
 
     [[nodiscard]]

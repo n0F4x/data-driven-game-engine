@@ -34,9 +34,7 @@ auto loop_until(
 template <
     ddge::exec::converts_to_task_builder_c TaskBuilder_T,
     ddge::exec::converts_to_task_builder_c PredicateTaskBuilder_T>
-    requires std::same_as<
-                 typename ddge::exec::as_task_builder_t<TaskBuilder_T>::Result,
-                 void>
+    requires std::same_as<typename ddge::exec::as_task_builder_t<TaskBuilder_T>::Result, void>
           && std::same_as<
                  typename ddge::exec::as_task_builder_t<PredicateTaskBuilder_T>::Result,
                  bool>

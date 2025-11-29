@@ -61,7 +61,7 @@ ddge::exec::SchedulerBuilder::SchedulerBuilder(TaskBuilder_T&& task_builder)
 {}
 
 template <typename Self_T>
-ddge::exec::SchedulerBuilder::operator TaskBuilder<void>(this Self_T && self)
+ddge::exec::SchedulerBuilder::operator TaskBuilder<void>(this Self_T&& self)
 {
     return std::forward_like<Self_T>(self.m_builder);
 }
@@ -91,9 +91,9 @@ auto ddge::exec::SchedulerBuilder::then(this Self_T&& self, TaskBuilder_T&& task
     -> SchedulerBuilder
 {
     return SchedulerBuilder{ TaskBuilder<void>{
-        [wrapped_task_builder      = std::forward_like<Self_T>(self.m_builder),
-         wrapped_next_task_builder = std::forward<TaskBuilder_T>(task_builder
-         )](Nexus& nexus) -> Task<void> {
+        [wrapped_task_builder = std::forward_like<Self_T>(self.m_builder),
+         wrapped_next_task_builder =
+             std::forward<TaskBuilder_T>(task_builder)](Nexus& nexus) -> Task<void> {
             return [task      = wrapped_task_builder.build(nexus),
                     next_task = wrapped_next_task_builder.build(nexus)] mutable -> void {
                 task();

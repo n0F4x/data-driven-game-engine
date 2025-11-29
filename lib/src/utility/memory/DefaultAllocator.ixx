@@ -25,8 +25,9 @@ constexpr auto ddge::util::DefaultAllocator::allocate(const std::size_t n) -> T*
 }
 
 template <typename T>
-constexpr auto ddge::util::DefaultAllocator::deallocate(T* const pointer, const std::size_t n)
-    -> void
+constexpr auto
+    ddge::util::DefaultAllocator::deallocate(T* const pointer, const std::size_t n)
+        -> void
 {
     std::allocator<T>{}.deallocate(pointer, n);
 }

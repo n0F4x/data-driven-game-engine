@@ -91,8 +91,8 @@ constexpr auto ddge::util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_si
             return std::make_tuple([this, index]<std::size_t I> {
                 auto value{ std::move(std::get<I>(m_value_containers)[index]) };
 
-                std::get<I>(m_value_containers
-                )[index] = std::move(std::get<I>(m_value_containers).back());
+                std::get<I>(m_value_containers)[index] =
+                    std::move(std::get<I>(m_value_containers).back());
                 std::get<I>(m_value_containers).pop_back();
 
                 return value;

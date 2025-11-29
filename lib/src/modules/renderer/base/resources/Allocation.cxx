@@ -119,7 +119,8 @@ auto Allocation::flush(const vk::DeviceSize offset, const vk::DeviceSize size) c
     -> void
 {
     vk::detail::resultCheck(
-        static_cast<vk::Result>(vmaFlushAllocation(m_allocator, m_allocation, offset, size)
+        static_cast<vk::Result>(
+            vmaFlushAllocation(m_allocator, m_allocation, offset, size)
         ),
         "vmaFlushAllocation failed"
     );

@@ -20,9 +20,7 @@ concept generic_allocator_c = decayed_c<T> && nothrow_movable_c<T>
                                   {
                                       allocator.template allocate<::Dummy>(n)
                                   } -> std::same_as<::Dummy*>;
-                                  {
-                                      allocator.deallocate(pointer, n)
-                                  };
+                                  { allocator.deallocate(pointer, n) };
                               };
 
 }   // namespace ddge::util::meta

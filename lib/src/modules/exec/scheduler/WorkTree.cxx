@@ -169,7 +169,8 @@ auto ddge::exec::WorkTree::try_emplace(Work&& work, ReleaseWorkContract&& releas
 {
     return try_emplace(std::move(work), std::optional{ std::move(release) })
         .transform_error(
-            [](std::pair<Work, std::optional<ReleaseWorkContract>>&& pair
+            [](
+                std::pair<Work, std::optional<ReleaseWorkContract>>&& pair
             ) -> std::pair<Work, ReleaseWorkContract> {
                 assert(pair.second.has_value());
                 return std::make_pair(std::move(pair.first), std::move(*pair.second));
@@ -196,7 +197,8 @@ auto ddge::exec::WorkTree::try_emplace_at(
 {
     return try_emplace_at(work_index, std::move(work), std::optional{ std::move(release) })
         .transform_error(
-            [](std::pair<Work, std::optional<ReleaseWorkContract>>&& pair
+            [](
+                std::pair<Work, std::optional<ReleaseWorkContract>>&& pair
             ) -> std::pair<Work, ReleaseWorkContract> {
                 assert(pair.second.has_value());
                 return std::make_pair(std::move(pair.first), std::move(*pair.second));

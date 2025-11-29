@@ -20,6 +20,5 @@ struct IsComponentFilter : std::bool_constant<component_query_filter_c<T>> {};
 template <typename... QueryFilters_T>
 concept query_filter_components_are_all_different_c =
     ddge::util::meta::type_list_all_different_c<ddge::util::meta::type_list_transform_t<
-        ddge::util::meta::
-            type_list_filter_t<std::tuple<QueryFilters_T...>, IsComponentFilter>,
+        ddge::util::meta::type_list_filter_t<std::tuple<QueryFilters_T...>, IsComponentFilter>,
         ToComponent>>;

@@ -471,11 +471,10 @@ auto ddge::ecs::Registry::erase(const ddge::ecs::ID id)
 
 
                     std::tuple<std::optional<Components_T>...> result = std::make_tuple(
-                        [this, archetype_id, record_index]<
-                            typename Component_T>(std::type_identity<Component_T>)
-                            -> std::optional<Component_T> {
-                            if (!archetype_id->contains_all_of_components<Component_T>())
-                            {
+                        [this, archetype_id, record_index]<typename Component_T>(
+                            std::type_identity<Component_T>
+                        ) -> std::optional<Component_T> {
+                            if (!archetype_id->contains_all_of_components<Component_T>()) {
                                 return std::nullopt;
                             }
 

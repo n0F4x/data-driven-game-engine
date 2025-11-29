@@ -65,8 +65,9 @@ struct generate_tuple_from_helper<
     template <typename Generator_T>
     static auto operator()(Generator_T&& generator)
     {
-        return make_tuple<Tuple_T>(generator.template operator(
-        )<integers_T...[indices_T]>()...);
+        return make_tuple<Tuple_T>(
+            generator.template operator()<integers_T...[indices_T]>()...
+        );
     }
 };
 

@@ -41,8 +41,9 @@ auto ddge::messages::Plugin::register_message(this Self_T&& self) -> Self_T
 {
     Plugin& this_self{ static_cast<Plugin&>(self) };
     PRECOND((!this_self.manages_message<Message_T>()));
-    this_self.m_message_buffers
-        .try_emplace(typeid(Message_T), std::in_place_type<Message_T>);
+    this_self.m_message_buffers.try_emplace(
+        typeid(Message_T), std::in_place_type<Message_T>
+    );
     return std::forward<Self_T>(self);
 }
 

@@ -244,8 +244,7 @@ auto demo::VirtualTexture::debug_sampler() const noexcept -> vk::Sampler
 auto demo::VirtualTexture::draw(const vk::CommandBuffer command_buffer) -> void
 {
     ::execute_command(
-        m_device_ref.get(),
-        [this](const vk::CommandBuffer transfer_command_buffer) {
+        m_device_ref.get(), [this](const vk::CommandBuffer transfer_command_buffer) {
             m_virtual_image.update(
                 m_allocator_ref.get(),
                 m_device_ref.get().info().get_queue(vkb::QueueType::graphics).value(),

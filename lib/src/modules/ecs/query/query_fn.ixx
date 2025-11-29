@@ -64,13 +64,13 @@ auto ddge::ecs::query(Registry& registry, F&& func) -> F
     util::meta::apply<util::meta::arguments_of_t<F>>(   //
         [&registry, &func]<typename... QueryFilters_T> {
             return query<std::remove_reference_t<QueryFilters_T>...>(
-                registry,
-                [&func]<typename... Args_T>(Args_T&&... args) {
+                registry, [&func]<typename... Args_T>(Args_T&&... args) {
                     using DecayedArgsTypeList = util::TypeList<std::decay_t<Args_T>...>;
                     std::invoke(
                         std::forward<F>(func),
-                        [&args...]<typename QueryFilter_T>(std::type_identity<QueryFilter_T>)
-                            -> decltype(auto) {
+                        [&args...]<typename QueryFilter_T>(
+                            std::type_identity<QueryFilter_T>
+                        ) -> decltype(auto) {
                             using DecayedQueryFilter = std::decay_t<QueryFilter_T>;
                             if constexpr (util::meta::type_list_contains_v<
                                               DecayedArgsTypeList,

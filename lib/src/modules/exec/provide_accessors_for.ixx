@@ -32,8 +32,9 @@ auto ddge::exec::provide_accessors_for(ddge::exec::Nexus& nexus)
     -> accessors_tuple_for_t<F>
 {
     return
-        [&nexus]<typename... Accessors_T>(util::TypeList<Accessors_T...>)
-            -> accessors_tuple_for_t<F> {
+        [&nexus]<typename... Accessors_T>(
+            util::TypeList<Accessors_T...>
+        ) -> accessors_tuple_for_t<F> {
             static_assert((accessor_c<Accessors_T> && ...));
             return accessors_tuple_for_t<F>{ nexus.provide<Accessors_T>()... };
         }   //

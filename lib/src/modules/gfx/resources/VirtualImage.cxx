@@ -283,7 +283,7 @@ auto ddge::gfx::resources::VirtualImage::update(
 {
     for (const uint32_t index : std::views::iota(0u, m_blocks.size())) {
         if (m_to_be_loaded_mask.at(index)) {
-            if (Block & block{ m_blocks.at(index) }; !block.m_allocation.has_value()) {
+            if (Block& block{ m_blocks.at(index) }; !block.m_allocation.has_value()) {
                 block.m_allocation =
                     ::allocate_block(allocator, m_memory_requirements, block);
                 assert(block.m_bound == false);

@@ -9,9 +9,7 @@ namespace ddge::util::meta {
 
 export template <typename T>
 concept hashable_c = requires(T a) {
-    {
-        std::hash<T>{}(a)
-    } -> std::convertible_to<std::size_t>;
+    { std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
 };
 
 }   // namespace ddge::util::meta

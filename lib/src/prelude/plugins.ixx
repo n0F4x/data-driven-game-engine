@@ -17,12 +17,12 @@ export using Addons     = app::extensions::AddonsPlugin;
 export using Functional = app::extensions::FunctionalPlugin;
 export using Runnable   = app::extensions::RunnablePlugin;
 
-export using Assets     = assets::Plugin;
-export using ECS        = ecs::Plugin;
-export using Events     = events::Plugin;
-export using Execution  = exec::Plugin;
-export using Messages   = messages::Plugin;
-export using Resources  = resources::Plugin;
-export using States     = states::Plugin;
+export using Assets    = assets::Plugin;
+export using ECS       = ecs::Plugin;
+export using Events    = events::Plugin;
+export using Execution = exec::Plugin;
+export using Messages  = messages::Plugin;
+export using Resources = resources::Plugin;
+export using States    = states::Plugin;
 
 }   // namespace ddge::plugins

@@ -77,8 +77,7 @@ constexpr auto ddge::app::Builder<Plugins_T...>::build(this Self_T&& self)
                            })
         {
             return func.template operator()<index_T + 1>(
-                static_cast<util::meta::forward_like_t<Plugins_T...[index_T], Self_T>>(self
-                )
+                static_cast<util::meta::forward_like_t<Plugins_T...[index_T], Self_T>>(self)
                     .build(std::forward<App_T>(app))
             );
         }

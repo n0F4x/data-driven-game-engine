@@ -63,34 +63,37 @@ auto SwapchainHolder::acquire_next_image(
 ) -> std::optional<uint32_t>
 {
     return m_swapchain.transform(&Swapchain::get)
-        .and_then([this, semaphore, fence](const vk::SwapchainKHR swapchain) -> std::optional<uint32_t> {
-            try {
-                switch (const auto [result, image_index]{
-                    m_device.get()->acquireNextImageKHR(
-                        swapchain, std::numeric_limits<uint64_t>::max(), semaphore, fence
-                    ) };
-                        result)
-                {
-                    case vk::Result::eSuccess:       [[fallthrough]];
-                    case vk::Result::eSuboptimalKHR: {
-                        m_image_index = image_index;
-                        return image_index;
+        .and_then(
+            [this,
+             semaphore,
+             fence](const vk::SwapchainKHR swapchain) -> std::optional<uint32_t> {
+                try {
+                    switch (const auto [result, image_index]{
+                        m_device.get()->acquireNextImageKHR(
+                            swapchain, std::numeric_limits<uint64_t>::max(), semaphore, fence
+                        ) };
+                            result)
+                    {
+                        case vk::Result::eSuccess:       [[fallthrough]];
+                        case vk::Result::eSuboptimalKHR: {
+                            m_image_index = image_index;
+                            return image_index;
+                        }
+                        default: {
+                            ENGINE_LOG_ERROR(
+                                std::format(
+                                    "vk::Device::acquireNextImage succeeded " "with " "un" "e" "x" "pe" "ct" "ed" " " "result: " "{}",
+                                    vk::to_string(result)
+                                )
+                            );
+                        }
                     }
-                    default: {
-                        ENGINE_LOG_ERROR(
-                            std::format(
-                                "vk::Device::acquireNextImage succeeded " "with " "un" "e"
-                                                                                       "x" "pe" "ct" "ed" " " "result: " "{}",
-                                vk::to_string(result)
-                            )
-                        );
-                    }
+                } catch (const vk::OutOfDateKHRError&) {
+                    recreate_swapchain();
                 }
-            } catch (const vk::OutOfDateKHRError&) {
-                recreate_swapchain();
+                return std::nullopt;
             }
-            return std::nullopt;
-        });
+        );
 }
 
 auto SwapchainHolder::present(const std::span<const vk::Semaphore> wait_semaphores)

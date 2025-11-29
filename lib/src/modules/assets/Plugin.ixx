@@ -99,17 +99,18 @@ auto call_injection(Injection_T&& injection, ddge::store::Store& parameter_store
     -> ddge::util::meta::result_of_t<Injection_T>
 {
     using Parameters = ddge::util::meta::arguments_of_t<Injection_T>;
-    static_assert(ddge::util::meta::
-                      type_list_all_of_c<Parameters, std::is_lvalue_reference>);
+    static_assert(
+        ddge::util::meta::type_list_all_of_c<Parameters, std::is_lvalue_reference>
+    );
 
-    return
-        [&injection,
-         &parameter_store]<typename... Parameters_T>(ddge::util::TypeList<Parameters_T...>) {
-            return std::invoke(
-                std::forward<Injection_T>(injection),
-                parameter_store.at<std::remove_cvref_t<Parameters_T>>()...
-            );
-        }(Parameters{});
+    return [&injection, &parameter_store]<typename... Parameters_T>(
+               ddge::util::TypeList<Parameters_T...>
+           ) {
+        return std::invoke(
+            std::forward<Injection_T>(injection),
+            parameter_store.at<std::remove_cvref_t<Parameters_T>>()...
+        );
+    }(Parameters{});
 }
 
 template <typename Self_T, ddge::assets::decays_to_loader_injection_c Injection_T>

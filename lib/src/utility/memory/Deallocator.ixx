@@ -28,7 +28,10 @@ private:
 }   // namespace ddge::util
 
 template <typename Allocator_T>
-    requires(ddge::util::meta::generic_allocator_c<Allocator_T> || ddge::util::meta::allocator_c<Allocator_T>)
+    requires(
+        ddge::util::meta::generic_allocator_c<Allocator_T>
+        || ddge::util::meta::allocator_c<Allocator_T>
+    )
 template <typename UAllocator_T>
     requires std::constructible_from<Allocator_T, UAllocator_T&&>
 constexpr ddge::util::Deallocator<Allocator_T>::Deallocator(UAllocator_T&& allocator)
@@ -36,7 +39,10 @@ constexpr ddge::util::Deallocator<Allocator_T>::Deallocator(UAllocator_T&& alloc
 {}
 
 template <typename Allocator_T>
-    requires(ddge::util::meta::generic_allocator_c<Allocator_T> || ddge::util::meta::allocator_c<Allocator_T>)
+    requires(
+        ddge::util::meta::generic_allocator_c<Allocator_T>
+        || ddge::util::meta::allocator_c<Allocator_T>
+    )
 template <typename T>
 constexpr auto ddge::util::Deallocator<Allocator_T>::operator()(
     T* const          pointer,

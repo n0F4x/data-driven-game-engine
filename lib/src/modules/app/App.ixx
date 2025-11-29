@@ -41,8 +41,9 @@ private:
 
 template <ddge::app::addon_c... Addons_T>
 template <typename Self_T, ddge::app::decays_to_addon_c Addon_T>
-    requires(!ddge::util::meta::
-                 type_list_contains_v<ddge::util::TypeList<Addons_T...>, Addon_T>)
+    requires(
+        !ddge::util::meta::type_list_contains_v<ddge::util::TypeList<Addons_T...>, Addon_T>
+    )
 constexpr auto ddge::app::App<Addons_T...>::add_on(this Self_T&& self, Addon_T&& addon)
     -> App<Addons_T..., std::remove_cvref_t<Addon_T>>
 {

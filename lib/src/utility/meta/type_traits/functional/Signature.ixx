@@ -45,7 +45,7 @@ struct Signature<Result_T(Args_T...) noexcept> {
 };
 
 export template <typename Result_T, typename... Args_T>
-struct Signature<Result_T(Args_T...)&> {
+struct Signature<Result_T(Args_T...) &> {
     using type        = Result_T(Args_T...) &;
     using arguments_t = TypeList<Args_T...>;
     using result_t    = Result_T;
@@ -237,7 +237,7 @@ struct Signature<Result_T (Class_T::*)(Args_T...) noexcept> {
 };
 
 export template <typename Result_T, typename Class_T, typename... Args_T>
-struct Signature<Result_T (Class_T::*)(Args_T...)&> {
+struct Signature<Result_T (Class_T::*)(Args_T...) &> {
     using type        = Result_T (Class_T::*)(Args_T...) &;
     using arguments_t = TypeList<Args_T...>;
     using result_t    = Result_T;

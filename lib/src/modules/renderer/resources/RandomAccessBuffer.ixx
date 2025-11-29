@@ -182,9 +182,10 @@ auto ddge::renderer::resources::RandomAccessBuffer<T>::make_from(
 
     using RValueTuple = std::tuple<base::Buffer, base::Allocation, VmaAllocationInfo>&&;
 
-    return RandomAccessBuffer{ std::get<base::Buffer>(static_cast<RValueTuple>(tuple)),
-                               std::get<base::Allocation>(static_cast<RValueTuple>(tuple)
-                               ) };
+    return RandomAccessBuffer{
+        std::get<base::Buffer>(static_cast<RValueTuple>(tuple)),
+        std::get<base::Allocation>(static_cast<RValueTuple>(tuple))
+    };
 }
 
 template <typename T>

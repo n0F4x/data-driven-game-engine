@@ -25,8 +25,7 @@ template <
         max({ ddge::image::png::MimeType::magic().size_bytes(),
               ddge::image::jpeg::MimeType::magic().size_bytes(),
               ddge::image::ktx2::MimeType::magic().size_bytes() })>
-[[nodiscard]]
-static auto read_n_from(const std::filesystem::path& filepath)
+[[nodiscard]] static auto read_n_from(const std::filesystem::path& filepath)
     -> std::array<std::ifstream::char_type, N>
 {
     std::ifstream file{ filepath, std::ios::binary | std::ios::in };
@@ -102,10 +101,12 @@ auto ddge::gltf::ImageLoader::load_from(
         case fastgltf::MimeType::PNG:
             return std::make_unique<image::png::Image>(image::png::Image::load_from(data));
         case fastgltf::MimeType::JPEG:
-            return std::make_unique<image::jpeg::Image>(image::jpeg::Image::load_from(data)
+            return std::make_unique<image::jpeg::Image>(
+                image::jpeg::Image::load_from(data)
             );
         case fastgltf::MimeType::KTX2:
-            return std::make_unique<image::ktx2::Image>(image::ktx2::Image::load_from(data)
+            return std::make_unique<image::ktx2::Image>(
+                image::ktx2::Image::load_from(data)
             );
         default: {
             ENGINE_LOG_WARNING(

@@ -119,7 +119,7 @@ auto move_snake_head(
 {
     std::optional<ddge::ecs::ID> snake_head_id;
     ddge::ecs::query(
-        registry,
+        registry,   //
         [&snake_head_id](const ddge::ecs::ID id, With<game::SnakeHead>) {
             assert(!snake_head_id.has_value());
             snake_head_id = id;
@@ -166,7 +166,9 @@ auto decrease_charges(ddge::ecs::Registry& registry) -> void
 
     ddge::ecs::query(
         registry,
-        [&lost_cells](const ddge::ecs::ID id, game::Snake& snake_body, Without<game::SnakeHead>) {
+        [&lost_cells](
+            const ddge::ecs::ID id, game::Snake& snake_body, Without<game::SnakeHead>
+        ) {
             snake_body.charge--;
             if (snake_body.charge == 0) {
                 lost_cells.push_back(id);

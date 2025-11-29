@@ -91,8 +91,7 @@ auto ddge::window::Window::set_framebuffer_size_callback(Callback&& callback) ->
     m_framebuffer_resized = std::forward<Callback>(callback);
 
     glfwSetFramebufferSizeCallback(
-        m_impl.get(),
-        [](GLFWwindow* window, const int width, const int height) {
+        m_impl.get(), [](GLFWwindow* window, const int width, const int height) {
             static_cast<Window*>(glfwGetWindowUserPointer(window))
                 ->m_framebuffer_resized(util::Size2i{ width, height });
         }

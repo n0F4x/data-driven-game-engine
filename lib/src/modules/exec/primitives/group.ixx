@@ -30,8 +30,7 @@ template <ddge::exec::converts_to_task_builder_c... TaskBuilders_T>
         std::same_as<typename ddge::exec::as_task_builder_t<TaskBuilders_T>::Result, void>
         && ...
     )
-auto ddge::exec::primitives::group(TaskBuilders_T&&... task_builders)
-    -> TaskBuilder<void>
+auto ddge::exec::primitives::group(TaskBuilders_T&&... task_builders) -> TaskBuilder<void>
 {
     return TaskBuilder<void>{ [... wrapped_task_builders = wrap_as_builder(
                                    std::forward<TaskBuilders_T>(task_builders)

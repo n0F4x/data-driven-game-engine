@@ -88,8 +88,10 @@ auto ddge::exec::v2::TaskHub::try_execute_a_main_only_task() -> bool
     return m_main_only_work_tree.try_execute_one_work(0);
 }
 
-auto ddge::exec::v2::TaskHub::try_emplace_embedded_task_at(Task&& task, const TaskIndex task_index)
-    -> std::expected<void, Task>
+auto ddge::exec::v2::TaskHub::try_emplace_embedded_task_at(
+    Task&&          task,
+    const TaskIndex task_index
+) -> std::expected<void, Task>
 {
     WorkTree& work_tree{ select_work_tree(task_index) };
 

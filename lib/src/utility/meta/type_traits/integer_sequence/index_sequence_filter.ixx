@@ -33,8 +33,10 @@ struct index_sequence_filter_impl<IndexSequence_T<std::size_t, indices_T...>, Pr
                 std::type_identity<IndexSequence_T<std::size_t, index_T>>,
                 std::type_identity<IndexSequence_T<std::size_t>>>{};
         },
-        []<typename Left_T,
-           typename Right_T>(std::type_identity<Left_T>, std::type_identity<Right_T>) {
+        []<typename Left_T, typename Right_T>(
+            std::type_identity<Left_T>,
+            std::type_identity<Right_T>
+        ) {
             return std::type_identity<
                 ddge::util::meta::integer_sequence_concat_t<Left_T, Right_T>>{};
         }

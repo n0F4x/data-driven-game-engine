@@ -46,8 +46,9 @@ constexpr auto ddge::util::ValueSequence<T, values_T...>::enumerate(
 }
 
 template <typename T, T... values_T>
-constexpr auto ddge::util::ValueSequence<T, values_T...>::realize(
-) noexcept(std::is_nothrow_copy_constructible_v<T>) -> std::array<T, sizeof...(values_T)>
+constexpr auto ddge::util::ValueSequence<T, values_T...>::realize() noexcept(
+    std::is_nothrow_copy_constructible_v<T>
+) -> std::array<T, sizeof...(values_T)>
 {
     return std::array<T, sizeof...(values_T)>{ values_T... };
 }

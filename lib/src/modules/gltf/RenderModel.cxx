@@ -146,67 +146,79 @@ static auto convert_material(const ddge::gltf::Material& material) noexcept
                                        .baseColorFactor = material.pbr_metallic_roughness.base_color_factor,
                                        .baseColorTexture =
                     ShaderTextureInfo{
-                        .index =
-                            material.pbr_metallic_roughness.base_color_texture_info
-                                .transform([](const ddge::gltf::TextureInfo& texture_info
-                                           ) { return texture_info.texture_index; })
-                                .value_or(std::numeric_limits<uint32_t>::max()),
+                        .index = material.pbr_metallic_roughness.base_color_texture_info
+                                     .transform(
+                                         [](const ddge::gltf::TextureInfo& texture_info) {
+                                             return texture_info.texture_index;
+                                         }
+                                     )
+                                     .value_or(std::numeric_limits<uint32_t>::max()),
                         .texCoord =
                             material.pbr_metallic_roughness.base_color_texture_info
-                                .transform([](const ddge::gltf::TextureInfo& texture_info
-                                           ) { return texture_info.tex_coord_index; })
+                                .transform([](const ddge::gltf::TextureInfo& texture_info) {
+                                    return texture_info.tex_coord_index;
+                                })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                     }, .metallicFactor  = material.pbr_metallic_roughness.metallic_factor,
                                        .roughnessFactor = material.pbr_metallic_roughness.roughness_factor,
                                        .metallicRoughnessTexture =
                     ShaderTextureInfo{
-                        .index =
-                            material.pbr_metallic_roughness
-                                .metallic_roughness_texture_info
-                                .transform([](const ddge::gltf::TextureInfo& texture_info
-                                           ) { return texture_info.texture_index; })
-                                .value_or(std::numeric_limits<uint32_t>::max()),
+                        .index = material.pbr_metallic_roughness
+                                     .metallic_roughness_texture_info
+                                     .transform(
+                                         [](const ddge::gltf::TextureInfo& texture_info) {
+                                             return texture_info.texture_index;
+                                         }
+                                     )
+                                     .value_or(std::numeric_limits<uint32_t>::max()),
                         .texCoord =
                             material.pbr_metallic_roughness
                                 .metallic_roughness_texture_info
-                                .transform([](const ddge::gltf::TextureInfo& texture_info
-                                           ) { return texture_info.tex_coord_index; })
+                                .transform([](const ddge::gltf::TextureInfo& texture_info) {
+                                    return texture_info.tex_coord_index;
+                                })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                     }, },
         .normalTexture =
             ShaderNormalTextureInfo{
                                        .index = material.normal_texture_info
                              .transform([](const ddge::gltf::Material::NormalTextureInfo&
-                                               texture_info
-                                        ) { return texture_info.texture_index; })
+                                               texture_info) {
+                                 return texture_info.texture_index;
+                             })
                              .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord = material.normal_texture_info
                                 .transform([](const ddge::gltf::Material::
-                                                  NormalTextureInfo& texture_info
-                                           ) { return texture_info.tex_coord_index; })
+                                                  NormalTextureInfo& texture_info) {
+                                    return texture_info.tex_coord_index;
+                                })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                                        .scale = material.normal_texture_info
                              .transform([](const ddge::gltf::Material::NormalTextureInfo&
-                                               texture_info
-                                        ) { return texture_info.scale; })
+                                               texture_info) {
+                                 return texture_info.scale;
+                             })
                              .value_or(1.f),
                                        },
         .occlusionTexture =
             ShaderOcclusionTextureInfo{
                                        .index = material.occlusion_texture_info
                              .transform([](const ddge::gltf::Material::
-                                               OcclusionTextureInfo& texture_info
-                                        ) { return texture_info.texture_index; })
+                                               OcclusionTextureInfo& texture_info) {
+                                 return texture_info.texture_index;
+                             })
                              .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord = material.occlusion_texture_info
                                 .transform([](const ddge::gltf::Material::
-                                                  OcclusionTextureInfo& texture_info
-                                           ) { return texture_info.tex_coord_index; })
+                                                  OcclusionTextureInfo& texture_info) {
+                                    return texture_info.tex_coord_index;
+                                })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                                        .strength = material.occlusion_texture_info
                                 .transform([](const ddge::gltf::Material::
-                                                  OcclusionTextureInfo& texture_info
-                                           ) { return texture_info.strength; })
+                                                  OcclusionTextureInfo& texture_info) {
+                                    return texture_info.strength;
+                                })
                                 .value_or(1.f),
                                        },
         .emissiveTexture =
@@ -217,8 +229,9 @@ static auto convert_material(const ddge::gltf::Material& material) noexcept
                              })
                              .value_or(std::numeric_limits<uint32_t>::max()),
                                        .texCoord = material.emissive_texture_info
-                                .transform([](const ddge::gltf::TextureInfo& texture_info
-                                           ) { return texture_info.tex_coord_index; })
+                                .transform([](const ddge::gltf::TextureInfo& texture_info) {
+                                    return texture_info.tex_coord_index;
+                                })
                                 .value_or(std::numeric_limits<uint32_t>::max()),
                                        },
         .emissiveFactor = material.emissive_factor,
@@ -827,15 +840,12 @@ auto ddge::gltf::RenderModel::create_loader(
                 if (material.pbrMetallicRoughness.baseColorTexture.index
                     != std::numeric_limits<uint32_t>::max())
                 {
-                    if (ImageVariant
-                            & image_variant{ images.at(
-                                textures
-                                    .at(material.pbrMetallicRoughness.baseColorTexture.index
-                                    )
-                                    .image_index
-                            ) };
-                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant
-                        ))
+                    if (ImageVariant& image_variant{ images.at(
+                            textures
+                                .at(material.pbrMetallicRoughness.baseColorTexture.index)
+                                .image_index
+                        ) };
+                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
                             .request_blocks_by_distance_from_camera(
@@ -847,15 +857,12 @@ auto ddge::gltf::RenderModel::create_loader(
                 if (material.pbrMetallicRoughness.metallicRoughnessTexture.index
                     != std::numeric_limits<uint32_t>::max())
                 {
-                    if (ImageVariant
-                            & image_variant{ images.at(
-                                textures
-                                    .at(material.pbrMetallicRoughness
-                                            .metallicRoughnessTexture.index)
-                                    .image_index
-                            ) };
-                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant
-                        ))
+                    if (ImageVariant& image_variant{
+                            images.at(textures
+                                          .at(material.pbrMetallicRoughness
+                                                  .metallicRoughnessTexture.index)
+                                          .image_index) };
+                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
                             .request_blocks_by_distance_from_camera(
@@ -864,14 +871,11 @@ auto ddge::gltf::RenderModel::create_loader(
                     }
                 }
 
-                if (material.normalTexture.index != std::numeric_limits<uint32_t>::max())
-                {
-                    if (ImageVariant
-                            & image_variant{ images.at(
-                                textures.at(material.normalTexture.index).image_index
-                            ) };
-                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant
-                        ))
+                if (material.normalTexture.index != std::numeric_limits<uint32_t>::max()) {
+                    if (ImageVariant& image_variant{ images.at(
+                            textures.at(material.normalTexture.index).image_index
+                        ) };
+                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
                             .request_blocks_by_distance_from_camera(
@@ -882,12 +886,10 @@ auto ddge::gltf::RenderModel::create_loader(
 
                 if (material.occlusionTexture.index
                     != std::numeric_limits<uint32_t>::max()) {
-                    if (ImageVariant
-                            & image_variant{ images.at(
-                                textures.at(material.occlusionTexture.index).image_index
-                            ) };
-                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant
-                        ))
+                    if (ImageVariant& image_variant{ images.at(
+                            textures.at(material.occlusionTexture.index).image_index
+                        ) };
+                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
                             .request_blocks_by_distance_from_camera(
@@ -898,12 +900,10 @@ auto ddge::gltf::RenderModel::create_loader(
 
                 if (material.emissiveTexture.index
                     != std::numeric_limits<uint32_t>::max()) {
-                    if (ImageVariant
-                            & image_variant{ images.at(
-                                textures.at(material.emissiveTexture.index).image_index
-                            ) };
-                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant
-                        ))
+                    if (ImageVariant& image_variant{ images.at(
+                            textures.at(material.emissiveTexture.index).image_index
+                        ) };
+                        std::holds_alternative<gfx::resources::VirtualImage>(image_variant))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
                             .request_blocks_by_distance_from_camera(

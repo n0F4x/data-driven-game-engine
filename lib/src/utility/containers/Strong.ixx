@@ -25,10 +25,9 @@ public:
     = default;
 
     template <typename... Args_T>
-    constexpr explicit Strong(
-        std::in_place_t,
-        Args_T&&... args
-    ) noexcept(std::is_nothrow_constructible_v<T, Args_T...>);
+    constexpr explicit Strong(std::in_place_t, Args_T&&... args) noexcept(
+        std::is_nothrow_constructible_v<T, Args_T...>
+    );
 
     template <typename U>
         requires std::constructible_from<T, U&&>
@@ -54,12 +53,13 @@ struct std::hash<Strong_T> {
     template <typename UStrong_T>
         requires std::same_as<std::remove_cvref_t<UStrong_T>, Strong_T>
     [[nodiscard]]
-    constexpr static auto operator()(UStrong_T&& strong
-    ) noexcept(noexcept(std::hash<typename Strong_T::Underlying>{}(strong.underlying())))
-        -> std::size_t
+    constexpr static auto operator()(UStrong_T&& strong) noexcept(
+        noexcept(std::hash<typename Strong_T::Underlying>{}(strong.underlying()))
+    ) -> std::size_t
     {
-        return std::hash<std::decay_t<decltype(strong.underlying())>>{}(strong.underlying(
-        ));
+        return std::hash<std::decay_t<decltype(strong.underlying())>>{}(
+            strong.underlying()
+        );
     }
 };
 

@@ -54,8 +54,9 @@ public:
         const std::optional<std::reference_wrapper<T>>& optional_ref_wrapper
     ) noexcept;
 
-    constexpr explicit(false) operator std::optional<std::remove_const_t<T>>(
-    ) noexcept(noexcept(T{ std::declval<T&>() }));
+    constexpr explicit(false) operator std::optional<std::remove_const_t<T>>() noexcept(
+        noexcept(T{ std::declval<T&>() })
+    );
 
     [[nodiscard]]
     constexpr auto operator->() const -> T*;
@@ -118,8 +119,8 @@ constexpr ddge::util::OptionalRef<T>::OptionalRef(
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr ddge::util::OptionalRef<T>::operator std::optional<std::remove_const_t<T>>(
-) noexcept(noexcept(T{ std::declval<T&>() }))
+constexpr ddge::util::OptionalRef<T>::operator std::
+    optional<std::remove_const_t<T>>() noexcept(noexcept(T{ std::declval<T&>() }))
 {
     if (has_value()) {
         return std::optional<T>{ *m_handle };

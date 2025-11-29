@@ -20,10 +20,11 @@ namespace demo {
 export constexpr auto run =
     []<ddge::app::has_addons_c<ddge::resources::Addon> App_T>(App_T&& app) -> void {
     app.resource_manager.template at<examples::base::DemoBase>().run(
-        [demo_app = std::ref(app.resource_manager.template at<DemoApp>()
-         )](examples::base::Renderer& renderer,
+        [demo_app = std::ref(app.resource_manager.template at<DemoApp>())](
+            examples::base::Renderer& renderer,
             const vk::Extent2D        framebuffer_size,
-            ddge::gfx::Camera         camera) {
+            ddge::gfx::Camera         camera
+        ) {
             renderer.render(
                 framebuffer_size,
                 camera,

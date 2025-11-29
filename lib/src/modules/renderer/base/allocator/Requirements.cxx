@@ -31,8 +31,9 @@ constexpr static auto optional_instance_extension_names()
     return s_extension_names;
 }
 
-auto Allocator::Requirements::
-    required_instance_settings_are_available(const vkb::SystemInfo&) -> bool
+auto Allocator::Requirements::required_instance_settings_are_available(
+    const vkb::SystemInfo&
+) -> bool
 {
     return true;
 }

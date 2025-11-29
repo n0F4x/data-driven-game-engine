@@ -60,8 +60,9 @@ auto ddge::events::ErasedBufferedEventQueueTraits<Event_T>::swap_buffers(
 }
 
 template <ddge::events::event_c Event_T>
-ddge::events::ErasedBufferedEventQueue::
-    ErasedBufferedEventQueue(std::in_place_type_t<Event_T>)
+ddge::events::ErasedBufferedEventQueue::ErasedBufferedEventQueue(
+    std::in_place_type_t<Event_T>
+)
     : Base{ std::in_place_type<BufferedEventQueue<Event_T>> },
       m_operations{ ErasedBufferedEventQueueTraits<Event_T>::operations }
 {}

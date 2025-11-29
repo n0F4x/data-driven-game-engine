@@ -42,8 +42,9 @@ auto ddge::events::Plugin::register_event(this Self_T&& self) -> Self_T
 {
     Plugin& this_self{ static_cast<Plugin&>(self) };
     PRECOND((!this_self.manages_event<Event_T>()));
-    this_self.m_buffered_event_queues
-        .try_emplace(typeid(Event_T), std::in_place_type<Event_T>);
+    this_self.m_buffered_event_queues.try_emplace(
+        typeid(Event_T), std::in_place_type<Event_T>
+    );
     return std::forward<Self_T>(self);
 }
 

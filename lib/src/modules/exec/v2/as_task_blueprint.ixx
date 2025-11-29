@@ -24,7 +24,8 @@ auto as_task_blueprint(T&& task_blueprint)
 {
     if constexpr (requires {
                       std::move(task_blueprint)
-                          .operator TaskBlueprint<Result_T, Cardinality::eMulti>();
+                          .
+                          operator TaskBlueprint<Result_T, Cardinality::eMulti>();
                   })
     {
         return std::move(task_blueprint)
@@ -32,7 +33,8 @@ auto as_task_blueprint(T&& task_blueprint)
     }
     else if constexpr (requires {
                            std::move(task_blueprint)
-                               .operator TaskBlueprint<Result_T, Cardinality::eSingle>();
+                               .
+                               operator TaskBlueprint<Result_T, Cardinality::eSingle>();
                        })
     {
         return std::move(task_blueprint)

@@ -22,7 +22,7 @@ public:
 
     using FunctionWrapper<Ts>::operator()...;
 
-    consteval static auto operator()(auto...) = delete("unsupported type");
+    consteval static auto operator()(auto...) = delete ("unsupported type");
 };
 
 export template <typename... Ts>

@@ -73,18 +73,18 @@ const vec3 LIGHT_COLOR = vec3(1, 1, 1) * 10;
 // of the shading terms, outlined in the Readme.MD Appendix.
 struct PBRInfo
 {
-    float NdotL;                  // cos angle between normal and light direction
-    float NdotV;                  // cos angle between normal and view direction
-    float NdotH;                  // cos angle between normal and half vector
-    float LdotH;                  // cos angle between light direction and half vector
-    float VdotH;                  // cos angle between view direction and half vector
-    float perceptualRoughness;    // roughness value, as authored by the model creator (input to shader)
-    float metalness;              // metallic value at the surface
-    vec3 reflectance0;            // full reflectance color (normal incidence angle)
-    vec3 reflectance90;           // reflectance color at grazing angle
-    float alphaRoughness;         // roughness mapped to a more linear change in the roughness (proposed by [2])
-    vec3 diffuseColor;            // color contribution from diffuse lighting
-    vec3 specularColor;           // color contribution from specular lighting
+    float NdotL;// cos angle between normal and light direction
+    float NdotV;// cos angle between normal and view direction
+    float NdotH;// cos angle between normal and half vector
+    float LdotH;// cos angle between light direction and half vector
+    float VdotH;// cos angle between view direction and half vector
+    float perceptualRoughness;// roughness value, as authored by the model creator (input to shader)
+    float metalness;// metallic value at the surface
+    vec3 reflectance0;// full reflectance color (normal incidence angle)
+    vec3 reflectance90;// reflectance color at grazing angle
+    float alphaRoughness;// roughness mapped to a more linear change in the roughness (proposed by [2])
+    vec3 diffuseColor;// color contribution from diffuse lighting
+    vec3 specularColor;// color contribution from specular lighting
 };
 
 
@@ -242,9 +242,9 @@ void main() {
 
     vec3 n = getNormal(material);
     n.y *= -1.0f;
-    vec3 v = normalize(camera.position.xyz - in_worldPosition); // Vector from surface point to camera
-    vec3 l = -normalize(LIGHT_DIR); // Vector from surface point to light
-    vec3 h = normalize(l + v); // Half vector between both l and v
+    vec3 v = normalize(camera.position.xyz - in_worldPosition);// Vector from surface point to camera
+    vec3 l = -normalize(LIGHT_DIR);// Vector from surface point to light
+    vec3 h = normalize(l + v);// Half vector between both l and v
 
     float NdotL = clamp(dot(n, l), 0.001, 1.0);
     float NdotV = clamp(abs(dot(n, v)), 0.001, 1.0);

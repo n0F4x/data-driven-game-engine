@@ -23,7 +23,7 @@ class TaskBlueprint {
         TaskBuilder<Result_T>,
         TaskBuilderBundle<Result_T>>;
 
-    using MaterializeFunc = util::AnyMoveOnlyFunction<auto()&&->Materialized>;
+    using MaterializeFunc = util::AnyMoveOnlyFunction<auto() &&->Materialized>;
 
 public:
     constexpr static std::integral_constant<Cardinality, cardinality_T> cardinality;

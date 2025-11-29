@@ -32,8 +32,8 @@ auto demo::DemoPlugin::setup(
 {
     instance_injection.emplace_dependency(
         ddge::renderer::InstanceInjection::Dependency{
-            .required_settings_are_available = [](const vkb::SystemInfo& system_info
-                                               ) -> bool {
+            .required_settings_are_available =
+                [](const vkb::SystemInfo& system_info) -> bool {
                 return system_info.is_extension_available(
                     vk::KHRGetPhysicalDeviceProperties2ExtensionName
                 );
@@ -49,32 +49,31 @@ auto demo::DemoPlugin::setup(
 
     device_injection.emplace_dependency(
         ddge::renderer::DeviceInjection::Dependency{
-            .require_settings =
-                [](vkb::PhysicalDeviceSelector& physical_device_selector) {
-                    physical_device_selector.add_required_extension(
-                        vk::KHRMaintenance2ExtensionName
-                    );
-                    physical_device_selector.add_required_extension(
-                        vk::KHRMultiviewExtensionName
-                    );
-                    physical_device_selector.add_required_extension(
-                        vk::KHRCreateRenderpass2ExtensionName
-                    );
-                    physical_device_selector.add_required_extension(
-                        vk::KHRDepthStencilResolveExtensionName
-                    );
-                    physical_device_selector.add_required_extension(
-                        vk::KHRDynamicRenderingExtensionName
-                    );
+            .require_settings = [](vkb::PhysicalDeviceSelector& physical_device_selector) {
+                physical_device_selector.add_required_extension(
+                    vk::KHRMaintenance2ExtensionName
+                );
+                physical_device_selector.add_required_extension(
+                    vk::KHRMultiviewExtensionName
+                );
+                physical_device_selector.add_required_extension(
+                    vk::KHRCreateRenderpass2ExtensionName
+                );
+                physical_device_selector.add_required_extension(
+                    vk::KHRDepthStencilResolveExtensionName
+                );
+                physical_device_selector.add_required_extension(
+                    vk::KHRDynamicRenderingExtensionName
+                );
 
-                    constexpr static vk::PhysicalDeviceDynamicRenderingFeatures
-                        dynamic_rendering_features{
-                            .dynamicRendering = vk::True,
-                        };
-                    physical_device_selector.add_required_extension_features(
-                        dynamic_rendering_features
-                    );
-                } }
+                constexpr static vk::PhysicalDeviceDynamicRenderingFeatures
+                    dynamic_rendering_features{
+                        .dynamicRendering = vk::True,
+                    };
+                physical_device_selector.add_required_extension_features(
+                    dynamic_rendering_features
+                );
+            } }
     );
 }
 
@@ -354,7 +353,8 @@ auto demo::DemoApp::draw(
     draw_debug(graphics_command_buffer);
 }
 
-auto demo::DemoApp::update_virtual_texture([[maybe_unused]] const ddge::gfx::Camera& camera
+auto demo::DemoApp::update_virtual_texture(
+    [[maybe_unused]] const ddge::gfx::Camera& camera
 ) -> void
 {
     // Update based on feedback from shader

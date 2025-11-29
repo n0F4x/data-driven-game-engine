@@ -18,8 +18,9 @@ namespace ddge::util::meta {
 export template <index_sequence_c IndexSequence_T, typename F>
 constexpr auto apply(F&& func) -> decltype(auto)
 {
-    return [&func]<std::size_t... indices_T>(ValueSequence<std::size_t, indices_T...>)
-               -> decltype(auto) {
+    return [&func]<std::size_t... indices_T>(
+               ValueSequence<std::size_t, indices_T...>
+           ) -> decltype(auto) {
         return std::forward<F>(func).template operator()<indices_T...>();
     }(integer_sequence_to_t<IndexSequence_T, ValueSequence>{});
 }

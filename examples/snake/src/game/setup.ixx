@@ -35,8 +35,9 @@ export inline constexpr auto setup =
     static_assert(ddge::app::has_plugins_c<Builder_T, ddge::states::Plugin>);
     static_assert(ddge::app::has_plugins_c<Builder_T, ddge::events::Plugin>);
     static_assert(ddge::app::has_plugins_c<Builder_T, ddge::messages::Plugin>);
-    static_assert(ddge::app::
-                      has_plugins_c<Builder_T, ddge::app::extensions::FunctionalPlugin>);
+    static_assert(
+        ddge::app::has_plugins_c<Builder_T, ddge::app::extensions::FunctionalPlugin>
+    );
 
     return std::forward<Builder_T>(builder)
         .insert_resource(settings)

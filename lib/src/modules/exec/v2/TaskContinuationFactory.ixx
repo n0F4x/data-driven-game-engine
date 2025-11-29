@@ -8,6 +8,6 @@ namespace ddge::exec::v2 {
 
 export template <typename Result_T>
 using TaskContinuationFactory =
-    util::AnyMoveOnlyFunction<auto(TaskHubProxy)&&->TaskContinuation<Result_T>>;
+    util::AnyMoveOnlyFunction<auto(TaskHubProxy) &&->TaskContinuation<Result_T>>;
 
 }   // namespace ddge::exec::v2

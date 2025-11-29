@@ -46,12 +46,12 @@ auto update_world()
 {
     return ddge::exec::v2::query(
         +[](   //
-            const ddge::ecs::ID id,
-            const Position position,
-            const Optional<const Collider> optional_collider,
-            With<EnemyTag>,
-            Without<Renderable>
-        ) -> void {
+             const ddge::ecs::ID            id,
+             const Position                 position,
+             const Optional<const Collider> optional_collider,
+             With<EnemyTag>,
+             Without<Renderable>
+         ) -> void {
             if (optional_collider.has_value()) {
                 std::println(
                     "Collider #{} at position {} says \"{}\"",
