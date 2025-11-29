@@ -8,6 +8,8 @@ module;
 #include <utility>
 #include <variant>
 
+#include <fmt/compile.h>
+
 #include "utility/contracts_macros.hpp"
 
 export module ddge.utility.containers.Any;
@@ -137,8 +139,8 @@ public:
                     requires std::same_as<std::decay_t<UAllocator_T>, Allocator>
                           && (is_storable<std::decay_t<T>>());
 
-    constexpr auto operator=(const BasicAny&)
-        -> BasicAny& requires(properties_T.copyable);
+    constexpr auto operator=(const BasicAny&) -> BasicAny&
+        requires(properties_T.copyable);
     constexpr auto operator=(BasicAny&&) noexcept -> BasicAny&;
 
     template <typename T, typename Any_T>
@@ -397,13 +399,16 @@ template <typename T, typename Any_T>
           && (std::remove_cvref_t<Any_T>::template is_storable<T>())
 constexpr auto ddge::util::any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
 {
-    using namespace std::literals;
+    using namespace fmt::literals;
 
     PRECOND(
         any.BasicAny::m_operations->types_match(util::meta::hash<T>()),
         // TODO: use constexpr std::format
-        "`Any` has type "s + any.BasicAny::m_operations->type_name()
-            + ", but requested type is " + util::meta::name_of<T>()
+        fmt::format(
+            "`Any` has type {}, but requested type is {}"_cf,
+            any.BasicAny::m_operations->type_name(),
+            util::meta::name_of<T>()
+        )
     );
     return dynamic_any_cast<T>(std::forward<Any_T>(any));
 }
@@ -568,7 +573,8 @@ template <
 constexpr auto ddge::util::
     BasicAny<properties_T, ConceptPolicy_T, size_T, alignment_T, Allocator_T>::operator=(
         const BasicAny& other
-    ) -> BasicAny& requires(properties_T.copyable)   //
+    ) -> BasicAny&
+    requires(properties_T.copyable)   //
 {
     if (&other == this) {
         return *this;

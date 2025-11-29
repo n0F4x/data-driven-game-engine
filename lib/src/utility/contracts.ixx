@@ -6,6 +6,7 @@ module;
 #include <string_view>
 
 #include <fmt/color.h>
+#include <fmt/compile.h>
 
 export module ddge.utility.contracts;
 
@@ -70,9 +71,11 @@ constexpr auto ddge::util::PreconditionViolation::format_location(
     const std::source_location location
 ) -> std::string
 {
+    using namespace fmt::literals;
+
     // TODO: constexpr std::format
     return fmt::format(
-        "{} ({}:{}) `{}`",
+        "{} ({}:{}) `{}`"_cf,
         location.file_name(),
         location.line(),
         location.column(),
@@ -85,9 +88,11 @@ constexpr auto ddge::util::PreconditionViolation::format_what(
     const std::string_view     message
 ) -> std::string
 {
+    using namespace fmt::literals;
+
     // TODO: constexpr std::format
     return fmt::format(
-        "\n{}\n    source: {}\n    message: {}",
+        "\n{}\n    source: {}\n    message: {}"_cf,
         headline(),
         format_location(location),
         message
@@ -100,12 +105,14 @@ constexpr auto ddge::util::assert_precondition(
     [[maybe_unused]] const std::source_location location
 ) -> void
 {
+    using namespace fmt::literals;
+
     if (!condition) [[unlikely]] {
         using std::string_literals::operator""s;
         util::PreconditionViolation precondition_violation{
             location,
             // TODO: constexpr std::format
-            fmt::format("`{}`", condition_as_string)
+            fmt::format("`{}`"_cf, condition_as_string)
         };
 #ifdef ENGINE_ENABLE_UNIT_TESTS
         throw precondition_violation;
@@ -124,12 +131,14 @@ constexpr auto ddge::util::assert_precondition(
     [[maybe_unused]] const std::string_view     message
 ) -> void
 {
+    using namespace fmt::literals;
+
     if (!condition) [[unlikely]] {
         using std::string_literals::operator""s;
         util::PreconditionViolation precondition_violation{
             location,
             // TODO: constexpr std::format
-            fmt::format("`{}`, \"{}\"", condition_as_string, message)
+            fmt::format("`{}`, \"{}\""_cf, condition_as_string, message)
         };
 #ifdef ENGINE_ENABLE_UNIT_TESTS
         throw precondition_violation;

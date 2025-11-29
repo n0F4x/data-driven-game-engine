@@ -6,6 +6,8 @@ module;
 #include <type_traits>
 #include <utility>
 
+#include <fmt/compile.h>
+
 export module ddge.utility.containers.StackedTuple;
 
 import ddge.utility.meta.algorithms.for_each;
@@ -108,7 +110,7 @@ struct gather_dependencies_helper<TypeList_T<SelectedTypes_T...>> {
 template <typename Callable_T, typename... Ts>
 constexpr auto gather_dependencies(std::tuple<Ts...>& stack)
 {
-    using namespace std::literals::string_literals;
+    using namespace fmt::literals;
 
     using RequiredResourcesTuple_T = ddge::util::meta::arguments_of_t<Callable_T>;
 
@@ -118,9 +120,11 @@ constexpr auto gather_dependencies(std::tuple<Ts...>& stack)
                 ddge::util::TypeList<Ts...>,
                 std::remove_cvref_t<Dependency_T>&>,
             // TODO: constexpr std::format
-            "Dependency `"s
-                + ddge::util::meta::name_of<std::remove_cvref_t<Dependency_T>>()
-                + "` not found for `" + ddge::util::meta::name_of<Callable_T>() + "`"
+            fmt::format(
+                "Dependency `{}` not found for `{}`"_cf,
+                ddge::util::meta::name_of<std::remove_cvref_t<Dependency_T>>(),
+                ddge::util::meta::name_of<Callable_T>()
+            )
         );
     });
 
