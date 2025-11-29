@@ -1,6 +1,7 @@
 module;
 
 #include <functional>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -8,6 +9,8 @@ module;
 
 export module ddge.modules.exec.v2.TaskHubBuilder;
 
+import ddge.modules.exec.locks.create_lock_group;
+import ddge.modules.exec.locks.LockGroup;
 import ddge.modules.exec.Nexus;
 import ddge.modules.exec.provide_accessors_for;
 import ddge.modules.exec.raw_task_c;
@@ -28,7 +31,9 @@ import ddge.modules.exec.v2.TypedTaskIndex;
 import ddge.utility.any_cast;
 import ddge.utility.contracts;
 import ddge.utility.meta.type_traits.forward_like;
+import ddge.utility.meta.type_traits.functional.arguments_of;
 import ddge.utility.meta.type_traits.functional.result_of;
+import ddge.utility.meta.type_traits.type_list.type_list_transform;
 
 namespace ddge::exec::v2 {
 
@@ -52,6 +57,8 @@ public:
         TaskContinuationFactory<Result_T>&& task_continuation_factory
     ) -> void;
 
+    auto locks_of(TaskIndex task_index) const -> const LockGroup&;
+
     auto build() && -> std::unique_ptr<TaskHub>;
 
 private:
@@ -72,8 +79,10 @@ private:
 
     template <typename Result_T>
     [[nodiscard]]
-    auto emplace(EmbeddedTaskBody<Result_T>&& task_body, ExecPolicy execution_policy)
-        -> TypedTaskIndex<Result_T>;
+    auto emplace(
+        EmbeddedTaskFactory<Result_T>&& embedded_task_factory,
+        ExecPolicy                      execution_policy
+    ) -> TypedTaskIndex<Result_T>;
 };
 
 }   // namespace ddge::exec::v2
@@ -87,11 +96,16 @@ auto ddge::exec::v2::TaskHubBuilder::emplace_embedded_task(
     using Result = util::meta::result_of_t<F>;
 
     return emplace(
-        EmbeddedTaskBody<Result>{
-            [body            = std::move(task),
-             accessors_tuple = provide_accessors_for<F>(m_nexus)] mutable -> Result {
-                return std::apply(body, accessors_tuple);
-            }   //
+        EmbeddedTaskFactory<Result>{
+            EmbeddedTaskBody<Result>{
+                [body            = std::move(task),
+                 accessors_tuple = provide_accessors_for<F>(m_nexus)] mutable -> Result {
+                    return std::apply(body, accessors_tuple);
+                }   //
+            },
+            create_lock_group<util::meta::type_list_transform_t<
+                util::meta::arguments_of_t<F>,
+                std::remove_cvref>>()   //
         },
         execution_policy
     );
@@ -162,8 +176,8 @@ auto ddge::exec::v2::TaskHubBuilder::get(this Self_T&& self, const TaskIndex tas
 
 template <typename Result_T>
 auto ddge::exec::v2::TaskHubBuilder::emplace(
-    EmbeddedTaskBody<Result_T>&& task_body,
-    const ExecPolicy             execution_policy
+    EmbeddedTaskFactory<Result_T>&& embedded_task_factory,
+    const ExecPolicy                execution_policy
 ) -> TypedTaskIndex<Result_T>
 {
     std::vector<ErasedTaskFactory>& task_factories{
@@ -180,9 +194,7 @@ auto ddge::exec::v2::TaskHubBuilder::emplace(
 
     PRECOND(task_factories.size() < TaskHub::task_index_value_mask);
 
-    task_factories.push_back(
-        ErasedTaskFactory{ EmbeddedTaskFactory<Result_T>{ std::move(task_body) } }
-    );
+    task_factories.push_back(ErasedTaskFactory{ std::move(embedded_task_factory) });
 
     return TypedTaskIndex<Result_T>{ (task_factories.size() - 1) | index_mask };
 }

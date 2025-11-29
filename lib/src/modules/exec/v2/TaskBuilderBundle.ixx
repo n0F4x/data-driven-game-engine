@@ -8,6 +8,7 @@ module;
 
 export module ddge.modules.exec.v2.TaskBuilderBundle;
 
+import ddge.modules.exec.locks.LockGroup;
 import ddge.modules.exec.v2.gatherers.gatherer_builder_of_c;
 import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 import ddge.modules.exec.v2.IndirectTaskFactory;
@@ -103,6 +104,11 @@ auto ddge::exec::v2::TaskBuilderBundle<Result_T>::sync(
                 );
             }
 
+            LockGroup locks;
+            for (const TypedTaskIndex<Result_T> task_index : task_indices) {
+                locks.expand(task_hub_builder.locks_of(task_index));
+            }
+
             return task_hub_builder.emplace_indirect_task_factory(
                 IndirectTaskFactory<NewResult>{
                     std::move(task_indices)
@@ -116,7 +122,8 @@ auto ddge::exec::v2::TaskBuilderBundle<Result_T>::sync(
                             -> void {
                             gatherer->set_continuation(std::move(continuation));
                         }   //
-                    }   //
+                    },
+                    std::move(locks)   //
                 }
             );
         }   //

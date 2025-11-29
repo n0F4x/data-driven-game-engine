@@ -5,6 +5,7 @@ module;
 
 export module ddge.modules.exec.v2.EmbeddedTaskFactory;
 
+import ddge.modules.exec.locks.LockGroup;
 import ddge.modules.exec.v2.EmbeddedTaskBody;
 import ddge.modules.exec.v2.Task;
 import ddge.modules.exec.v2.TaskContinuationFactory;
@@ -15,8 +16,9 @@ namespace ddge::exec::v2 {
 export template <typename Result_T>
 class EmbeddedTaskFactory {
 public:
-    explicit EmbeddedTaskFactory(EmbeddedTaskBody<Result_T>&& body)
-        : m_body{ std::move(body) }
+    explicit EmbeddedTaskFactory(EmbeddedTaskBody<Result_T>&& body, LockGroup&& locks)
+        : m_body{ std::move(body) },
+          m_locks{ std::move(locks) }
     {}
 
     template <typename Self_T>
@@ -30,11 +32,18 @@ public:
     }
 
     [[nodiscard]]
+    auto locks() const noexcept -> const LockGroup&
+    {
+        return m_locks;
+    }
+
+    [[nodiscard]]
     auto build(const TaskHubProxy task_hub_proxy) && -> Task
     {
         return m_continuation_factory.has_value()
                  ? Task{ [body         = std::move(m_body),
-                          continuation = std::move(*m_continuation_factory)(task_hub_proxy
+                          continuation = std::move(*m_continuation_factory)(
+                              task_hub_proxy
                           )] mutable -> void   //
                          {
                              if constexpr (std::is_void_v<Result_T>) {
@@ -50,6 +59,7 @@ public:
 
 private:
     EmbeddedTaskBody<Result_T>                       m_body;
+    LockGroup                                        m_locks;
     std::optional<TaskContinuationFactory<Result_T>> m_continuation_factory;
 };
 

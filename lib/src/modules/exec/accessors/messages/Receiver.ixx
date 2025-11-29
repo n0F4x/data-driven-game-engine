@@ -4,11 +4,13 @@ module;
 #include <span>
 #include <vector>
 
-export module ddge.modules.exec.accessors.messages:Receiver;
+export module ddge.modules.exec.accessors.messages.Receiver;
 
-import :locks.SharedMessageLock;
-
-import ddge.modules.exec.locks.Lockable;
+import ddge.modules.exec.accessors.messages.Message;
+import ddge.modules.exec.accessors.messages.MessageManager;
+import ddge.modules.exec.locks.CriticalSectionType;
+import ddge.modules.exec.locks.Lock;
+import ddge.modules.exec.locks.LockGroup;
 import ddge.modules.messages.message_c;
 
 namespace ddge::exec::accessors {
@@ -16,9 +18,11 @@ namespace ddge::exec::accessors {
 inline namespace messages {
 
 export template <ddge::messages::message_c Message_T>
-class Receiver : public Lockable<SharedMessageLock<Message_T>> {
+class Receiver {
 public:
     using Message = Message_T;
+
+    constexpr static auto lock_group() -> LockGroup;
 
     constexpr explicit Receiver(const std::vector<Message_T>& message_buffer);
 
@@ -32,6 +36,18 @@ private:
 }   // namespace messages
 
 }   // namespace ddge::exec::accessors
+
+template <ddge::messages::message_c Message_T>
+constexpr auto ddge::exec::accessors::messages::Receiver<Message_T>::lock_group()
+    -> LockGroup
+{
+    LockGroup lock_group;
+    lock_group.expand<::ddge::exec::accessors::messages::Message<Message>>(
+        Lock{ CriticalSectionType::eShared }   //
+    );
+    lock_group.expand<MessageManager>(Lock{ CriticalSectionType::eShared });
+    return lock_group;
+}
 
 template <ddge::messages::message_c Message_T>
 constexpr ddge::exec::accessors::messages::Receiver<Message_T>::Receiver(

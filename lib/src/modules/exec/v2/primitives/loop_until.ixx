@@ -6,6 +6,7 @@ module;
 
 export module ddge.modules.exec.v2.primitives.loop_until;
 
+import ddge.modules.exec.locks.LockGroup;
 import ddge.modules.exec.v2.as_task_blueprint;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
@@ -113,6 +114,10 @@ auto ddge::exec::v2::loop_until(
                         }
                     );
 
+                    LockGroup locks;
+                    locks.expand(task_hub_builder.locks_of(main_task_index));
+                    locks.expand(task_hub_builder.locks_of(predicate_task_index));
+
                     return task_hub_builder.emplace_indirect_task_factory(
                         IndirectTaskFactory<void>{
                             predicate_task_index,
@@ -122,7 +127,8 @@ auto ddge::exec::v2::loop_until(
                                 ) mutable -> void {
                                     *shared_continuation = std::move(continuation);
                                 }   //
-                            }   //
+                            },
+                            std::move(locks)   //
                         }
                     );
                 }   //

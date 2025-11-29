@@ -4,13 +4,16 @@ module;
 #include <functional>
 #include <vector>
 
-export module ddge.modules.exec.accessors.messages:Sender;
+export module ddge.modules.exec.accessors.messages.Sender;
 
-import :locks.ExclusiveMessageLock;
-
-import ddge.modules.exec.locks.Lockable;
+import ddge.modules.exec.accessors.messages.Message;
+import ddge.modules.exec.accessors.messages.MessageManager;
+import ddge.modules.exec.locks.CriticalSectionType;
+import ddge.modules.exec.locks.Lock;
+import ddge.modules.exec.locks.LockGroup;
 import ddge.modules.messages;
 
+import ddge.utility.meta.algorithms.for_each;
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
 import ddge.utility.meta.type_traits.type_list.type_list_index_of;
 import ddge.utility.TypeList;
@@ -21,9 +24,11 @@ inline namespace messages {
 
 export template <ddge::messages::message_c... Messages_T>
     requires(sizeof...(Messages_T) != 0)
-class Sender : Lockable<ExclusiveMessageLock<Messages_T>...> {
+class Sender {
 public:
     using Messages = util::TypeList<Messages_T...>;
+
+    constexpr static auto lock_group() -> LockGroup;
 
     constexpr explicit Sender(
         ddge::messages::MessageBuffer<Messages_T>&... message_buffers
@@ -47,6 +52,19 @@ private:
 }   // namespace messages
 
 }   // namespace ddge::exec::accessors
+
+template <ddge::messages::message_c... Messages_T>
+    requires(sizeof...(Messages_T) != 0)
+constexpr auto ddge::exec::accessors::messages::Sender<Messages_T...>::lock_group()
+    -> LockGroup
+{
+    LockGroup lock_group;
+    util::meta::for_each<Messages>([&lock_group]<typename Message_T> -> void {
+        lock_group.expand<Message_T>(Lock{ CriticalSectionType::eExclusive });
+    });
+    lock_group.expand<MessageManager>(Lock{ CriticalSectionType::eShared });
+    return lock_group;
+}
 
 template <ddge::messages::message_c... Messages_T>
     requires(sizeof...(Messages_T) != 0)

@@ -9,9 +9,9 @@ module;
 export module ddge.modules.exec.accessors.states:State;
 
 import ddge.modules.states.state_c;
-import ddge.modules.exec.locks.Lockable;
-import ddge.modules.exec.locks.ReaderLock;
-import ddge.modules.exec.locks.WriterLock;
+import ddge.modules.exec.locks.CriticalSectionType;
+import ddge.modules.exec.locks.Lock;
+import ddge.modules.exec.locks.LockGroup;
 
 import ddge.utility.meta.type_traits.const_like;
 import ddge.utility.contracts;
@@ -20,17 +20,13 @@ namespace ddge::exec::accessors {
 
 inline namespace states {
 
-template <typename State_T>
-struct StateLock : std::conditional_t<
-                       std::is_const_v<State_T>,
-                       ReaderLock<StateLock<std::remove_const_t<State_T>>>,
-                       WriterLock<StateLock<std::remove_const_t<State_T>>>> {};
-
 export template <typename State_T>
     requires ddge::states::state_c<std::remove_const_t<State_T>>
-class State : public Lockable<StateLock<State_T>> {
+class State {
 public:
     using Underlying = State_T;
+
+    constexpr static auto lock_group() -> LockGroup;
 
     constexpr explicit State(
         util::meta::const_like_t<std::optional<std::remove_const_t<State_T>>, State_T>& state
@@ -43,8 +39,8 @@ public:
     constexpr auto has_value() const -> bool;
 
     template <typename... Args_T>
-    constexpr auto emplace(Args_T&&... args) const
-        -> State_T& requires(!std::is_const_v<State_T>);
+    constexpr auto emplace(Args_T&&... args) const -> State_T&
+        requires(!std::is_const_v<State_T>);
 
     constexpr auto reset() const -> void
         requires(!std::is_const_v<State_T>);
@@ -58,6 +54,20 @@ private:
 }   // namespace states
 
 }   // namespace ddge::exec::accessors
+
+template <typename State_T>
+    requires ddge::states::state_c<std::remove_const_t<State_T>>
+constexpr auto ddge::exec::accessors::states::State<State_T>::lock_group() -> LockGroup
+{
+    constexpr Lock lock{
+        std::is_const_v<State_T> ? CriticalSectionType::eShared
+                                 : CriticalSectionType::eExclusive   //
+    };
+
+    LockGroup lock_group;
+    lock_group.expand<State<std::remove_const_t<State_T>>>(auto{ lock });
+    return lock_group;
+}
 
 template <typename State_T>
     requires ddge::states::state_c<std::remove_const_t<State_T>>
@@ -99,7 +109,9 @@ template <typename State_T>
 template <typename... Args_T>
 constexpr auto ddge::exec::accessors::states::State<State_T>::emplace(
     Args_T&&... args
-) const -> State_T& requires(!std::is_const_v<State_T>) {
+) const -> State_T&
+    requires(!std::is_const_v<State_T>)
+{
     return m_state_ref.get().emplace(std::forward<Args_T>(args)...);
 }
 

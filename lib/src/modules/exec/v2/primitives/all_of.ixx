@@ -29,8 +29,8 @@ auto ddge::exec::v2::all_of(TaskBlueprints_T&&... blueprints)
     -> TaskBlueprint<bool, Cardinality::eSingle>
 {
     return TaskBlueprint<bool, Cardinality::eSingle>{
-        [... x_blueprints = as_task_blueprint<bool>(std::move(blueprints)
-         )] mutable -> TaskBuilder<bool> {
+        [... x_blueprints = as_task_blueprint<bool>(std::move(blueprints))] mutable
+            -> TaskBuilder<bool> {
             TaskBuilderBundle<bool> bundle;
 
             (bundle.emplace(std::move(x_blueprints).materialize()), ...);

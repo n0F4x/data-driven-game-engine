@@ -45,9 +45,9 @@ auto query(F&& func) -> TaskBlueprint<void, Cardinality::eSingle>
                                 util::TypeList<std::decay_t<Args_T>...>;
                             std::invoke(
                                 x_func,
-                                [&args...]<
-                                    typename QueryFilter_T>(std::type_identity<QueryFilter_T>)
-                                    -> decltype(auto) {
+                                [&args...]<typename QueryFilter_T>(
+                                    std::type_identity<QueryFilter_T>
+                                ) -> decltype(auto) {
                                     using DecayedQueryFilter = std::decay_t<QueryFilter_T>;
                                     if constexpr (util::meta::type_list_contains_v<
                                                       DecayedArgsTypeList,

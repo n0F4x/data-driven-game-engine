@@ -3,22 +3,26 @@ module;
 #include <functional>
 #include <span>
 
-export module ddge.modules.exec.accessors.events:Reader;
-
-import :locks.SharedEventLock;
+export module ddge.modules.exec.accessors.events.Reader;
 
 import ddge.modules.events.event_c;
 import ddge.modules.events.BufferedEventQueue;
-import ddge.modules.exec.locks.Lockable;
+import ddge.modules.exec.accessors.events.Event;
+import ddge.modules.exec.accessors.events.EventManager;
+import ddge.modules.exec.locks.CriticalSectionType;
+import ddge.modules.exec.locks.Lock;
+import ddge.modules.exec.locks.LockGroup;
 
 namespace ddge::exec::accessors {
 
 inline namespace events {
 
 export template <ddge::events::event_c Event_T>
-class Reader : public Lockable<SharedEventLock<Event_T>> {
+class Reader {
 public:
     using Event = Event_T;
+
+    constexpr static auto lock_group() -> LockGroup;
 
     constexpr explicit Reader(
         const ddge::events::BufferedEventQueue<Event_T>& buffered_event_queue
@@ -35,6 +39,17 @@ private:
 }   // namespace events
 
 }   // namespace ddge::exec::accessors
+
+template <ddge::events::event_c Event_T>
+constexpr auto ddge::exec::accessors::events::Reader<Event_T>::lock_group() -> LockGroup
+{
+    LockGroup lock_group;
+    lock_group.expand<::ddge::exec::accessors::events::Event<Event>>(
+        Lock{ CriticalSectionType::eShared }   //
+    );
+    lock_group.expand<EventManager>(Lock{ CriticalSectionType::eShared });
+    return lock_group;
+}
 
 template <ddge::events::event_c Event_T>
 constexpr ddge::exec::accessors::events::Reader<Event_T>::Reader(

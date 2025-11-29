@@ -35,8 +35,8 @@ auto ddge::exec::v2::group(TaskBlueprints_T&&... blueprints)
     -> TaskBlueprint<void, cardinality_result<TaskBlueprints_T...>>
 {
     return TaskBlueprint<void, cardinality_result<TaskBlueprints_T...>>{
-        [... x_blueprints = as_task_blueprint<void>(std::move(blueprints)
-         )] mutable -> TaskBuilderBundle<void> {
+        [... x_blueprints = as_task_blueprint<void>(std::move(blueprints))] mutable
+            -> TaskBuilderBundle<void> {
             TaskBuilderBundle<void> bundle;
 
             (bundle.emplace(std::move(x_blueprints).materialize()), ...);

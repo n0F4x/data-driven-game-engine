@@ -7,14 +7,13 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module ddge.modules.exec.accessors.events:Provider;
-
-import :Processor;
-import :Reader;
-import :Recorder;
+export module ddge.modules.exec.accessors.events.Provider;
 
 import ddge.modules.app;
 import ddge.modules.events;
+import ddge.modules.exec.accessors.events.Processor;
+import ddge.modules.exec.accessors.events.Reader;
+import ddge.modules.exec.accessors.events.Recorder;
 import ddge.modules.exec.ProviderFor;
 import ddge.modules.exec.ProviderOf;
 import ddge.modules.store.Store;

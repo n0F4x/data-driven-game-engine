@@ -14,6 +14,12 @@ import ddge.modules.exec.v2.TaskHubProxy;
 
 ddge::exec::v2::TaskHubBuilder::TaskHubBuilder(Nexus& nexus) : m_nexus{ nexus } {}
 
+auto ddge::exec::v2::TaskHubBuilder::locks_of(const TaskIndex task_index) const
+    -> const LockGroup&
+{
+    return get(task_index).locks();
+}
+
 auto ddge::exec::v2::TaskHubBuilder::build() && -> std::unique_ptr<TaskHub>
 {
     std::unique_ptr<TaskHub> result{

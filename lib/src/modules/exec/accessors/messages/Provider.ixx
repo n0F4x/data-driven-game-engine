@@ -7,14 +7,13 @@ module;
 
 #include "utility/contracts_macros.hpp"
 
-export module ddge.modules.exec.accessors.messages:Provider;
-
-import :Mailbox;
-import :Receiver;
-import :Sender;
+export module ddge.modules.exec.accessors.messages.Provider;
 
 import ddge.modules.app;
 import ddge.modules.messages;
+import ddge.modules.exec.accessors.messages.Mailbox;
+import ddge.modules.exec.accessors.messages.Receiver;
+import ddge.modules.exec.accessors.messages.Sender;
 import ddge.modules.exec.ProviderFor;
 import ddge.modules.exec.ProviderOf;
 import ddge.modules.store.Store;
@@ -50,7 +49,7 @@ private:
     std::reference_wrapper<ddge::messages::MessageManager> m_message_manager_ref;
 };
 
-}
+}   // namespace messages
 
 }   // namespace ddge::exec::accessors
 
@@ -67,8 +66,7 @@ struct ddge::exec::ProviderOf<ddge::exec::accessors::messages::Receiver<Event_T>
     : std::type_identity<ddge::exec::accessors::messages::Provider> {};
 
 template <typename... Events_T>
-struct ddge::exec::
-    ProviderOf<ddge::exec::accessors::messages::Sender<Events_T...>>
+struct ddge::exec::ProviderOf<ddge::exec::accessors::messages::Sender<Events_T...>>
     : std::type_identity<ddge::exec::accessors::messages::Provider> {};
 
 template <ddge::app::has_addons_c<ddge::messages::Addon> App_T>
@@ -83,8 +81,8 @@ auto ddge::exec::accessors::messages::Provider::provide() const
     return ddge::exec::accessors::messages::Mailbox{ m_message_manager_ref };
 }
 
-template <ddge::util::meta::specialization_of_c<
-    ddge::exec::accessors::messages::Receiver> Receiver_T>
+template <ddge::util::meta::specialization_of_c<ddge::exec::accessors::messages::Receiver>
+              Receiver_T>
 constexpr auto ddge::exec::accessors::messages::Provider::provide() const -> Receiver_T
 {
     using Message = typename Receiver_T::Message;
@@ -97,8 +95,8 @@ constexpr auto ddge::exec::accessors::messages::Provider::provide() const -> Rec
     return Receiver_T{ m_message_manager_ref.get().message_buffer<Message>() };
 }
 
-template <ddge::util::meta::
-              specialization_of_c<ddge::exec::accessors::messages::Sender> Sender_T>
+template <ddge::util::meta::specialization_of_c<ddge::exec::accessors::messages::Sender>
+              Sender_T>
 constexpr auto ddge::exec::accessors::messages::Provider::provide() const -> Sender_T
 {
     using Messages = typename Sender_T::Messages;

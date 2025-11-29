@@ -3,15 +3,18 @@ module;
 #include <concepts>
 #include <functional>
 
-export module ddge.modules.exec.accessors.events:Recorder;
-
-import :locks.ExclusiveEventLock;
+export module ddge.modules.exec.accessors.events.Recorder;
 
 import ddge.modules.events.event_c;
 import ddge.modules.events.BufferedEventQueue;
 import ddge.modules.events.EventManager;
-import ddge.modules.exec.locks.Lockable;
+import ddge.modules.exec.accessors.events.Event;
+import ddge.modules.exec.accessors.events.EventManager;
+import ddge.modules.exec.locks.CriticalSectionType;
+import ddge.modules.exec.locks.Lock;
+import ddge.modules.exec.locks.LockGroup;
 
+import ddge.utility.meta.algorithms.for_each;
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
 import ddge.utility.meta.type_traits.type_list.type_list_index_of;
 import ddge.utility.TypeList;
@@ -22,9 +25,11 @@ inline namespace events {
 
 export template <ddge::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)
-class Recorder : public Lockable<ExclusiveEventLock<Events_T>...> {
+class Recorder {
 public:
     using Events = util::TypeList<Events_T...>;
+
+    constexpr static auto lock_group() -> LockGroup;
 
     constexpr explicit Recorder(
         ddge::events::BufferedEventQueue<Events_T>&... buffered_event_queues
@@ -48,6 +53,19 @@ private:
 }   // namespace events
 
 }   // namespace ddge::exec::accessors
+
+template <ddge::events::event_c... Events_T>
+    requires(sizeof...(Events_T) != 0)
+constexpr auto ddge::exec::accessors::events::Recorder<Events_T...>::lock_group()
+    -> LockGroup
+{
+    LockGroup lock_group;
+    util::meta::for_each<Events>([&lock_group]<typename Event_T> -> void {
+        lock_group.expand<Event_T>(Lock{ CriticalSectionType::eExclusive });
+    });
+    lock_group.expand<EventManager>(Lock{ CriticalSectionType::eShared });
+    return lock_group;
+}
 
 template <ddge::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)

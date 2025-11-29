@@ -6,6 +6,7 @@ module;
 
 export module ddge.modules.exec.v2.IndirectTaskFactory;
 
+import ddge.modules.exec.locks.LockGroup;
 import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 import ddge.modules.exec.v2.Task;
 import ddge.modules.exec.v2.TaskContinuationFactory;
@@ -21,18 +22,22 @@ class IndirectTaskFactory {
 public:
     explicit IndirectTaskFactory(
         const TaskIndex                            start_up_index,
-        IndirectTaskContinuationSetter<Result_T>&& set_task_continuation
+        IndirectTaskContinuationSetter<Result_T>&& set_task_continuation,
+        LockGroup&&                                locks
     )
         : IndirectTaskFactory{ std::vector<TaskIndex>{ start_up_index },
-                               std::move(set_task_continuation) }
+                               std::move(set_task_continuation),
+                               std::move(locks) }
     {}
 
     explicit IndirectTaskFactory(
         std::vector<TaskIndex>&&                   start_up_indices,
-        IndirectTaskContinuationSetter<Result_T>&& set_task_continuation
+        IndirectTaskContinuationSetter<Result_T>&& set_task_continuation,
+        LockGroup&&                                locks
     )
         : m_start_up_indices{ std::move(start_up_indices) },
-          m_set_task_continuation{ std::move(set_task_continuation) }
+          m_set_task_continuation{ std::move(set_task_continuation) },
+          m_locks{ std::move(locks) }
     {}
 
     template <typename Self_T>
@@ -43,6 +48,12 @@ public:
     {
         self.m_continuation_factory = std::move(continuation_factory);
         return std::forward<Self_T>(self);
+    }
+
+    [[nodiscard]]
+    auto locks() const noexcept -> const LockGroup&
+    {
+        return m_locks;
     }
 
     [[nodiscard]]
@@ -68,6 +79,7 @@ private:
     // TODO: use SBO
     std::vector<TaskIndex>                           m_start_up_indices;
     IndirectTaskContinuationSetter<Result_T>         m_set_task_continuation;
+    LockGroup                                        m_locks;
     std::optional<TaskContinuationFactory<Result_T>> m_continuation_factory;
 };
 

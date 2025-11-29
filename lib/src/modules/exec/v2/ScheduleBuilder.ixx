@@ -6,6 +6,7 @@ module;
 
 export module ddge.modules.exec.v2.ScheduleBuilder;
 
+import ddge.modules.exec.locks.LockGroup;
 import ddge.modules.exec.v2.as_task_blueprint;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
@@ -127,6 +128,10 @@ auto ddge::exec::v2::ScheduleBuilder::then(TaskBlueprint_T&& next) && -> Schedul
                             }
                         );
 
+                        LockGroup locks;
+                        locks.expand(task_hub_builder.locks_of(previous_task_index));
+                        locks.expand(task_hub_builder.locks_of(next_task_index));
+
                         return task_hub_builder.emplace_indirect_task_factory(
                             IndirectTaskFactory<void>{
                                 previous_task_index,
@@ -136,7 +141,8 @@ auto ddge::exec::v2::ScheduleBuilder::then(TaskBlueprint_T&& next) && -> Schedul
                                     ) -> void {
                                         (*shared_continuation) = std::move(continuation);
                                     }   //
-                                }   //
+                                },
+                                std::move(locks)   //
                             }
                         );
                     }   //

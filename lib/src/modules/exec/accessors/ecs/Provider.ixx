@@ -3,16 +3,14 @@ module;
 #include <functional>
 #include <type_traits>
 
-export module ddge.modules.exec.accessors.ecs:Provider;
-
-import :Query;
-import :Registry;
+export module ddge.modules.exec.accessors.ecs.Provider;
 
 import ddge.modules.app;
 
 import ddge.modules.ecs;
+import ddge.modules.exec.accessors.ecs.Query;
+import ddge.modules.exec.accessors.ecs.Registry;
 import ddge.modules.exec.ProviderFor;
-
 import ddge.modules.exec.ProviderOf;
 
 import ddge.utility.meta.concepts.specialization_of;

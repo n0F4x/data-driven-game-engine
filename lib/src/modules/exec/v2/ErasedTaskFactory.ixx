@@ -6,6 +6,7 @@ module;
 
 export module ddge.modules.exec.v2.ErasedTaskFactory;
 
+import ddge.modules.exec.locks.LockGroup;
 import ddge.modules.exec.v2.EmbeddedTaskFactory;
 import ddge.modules.exec.v2.IndirectTaskFactory;
 import ddge.modules.exec.v2.Task;
@@ -32,13 +33,20 @@ public:
     explicit ErasedTaskFactory(IndirectTaskFactory<Result_T>&& indirect_task_factory);
 
     [[nodiscard]]
+    auto locks() const noexcept -> const LockGroup&
+    {
+        return m_locks(*this);
+    }
+
+    [[nodiscard]]
     auto build(const TaskHubProxy task_hub_proxy) && -> Task
     {
         return m_build(std::move(*this), task_hub_proxy);
     }
 
 private:
-    std::reference_wrapper<auto(ErasedTaskFactory&&, TaskHubProxy)->Task> m_build;
+    std::reference_wrapper<auto(ErasedTaskFactory&&, TaskHubProxy)->Task>    m_build;
+    std::reference_wrapper<auto(const ErasedTaskFactory&)->const LockGroup&> m_locks;
 };
 
 }   // namespace ddge::exec::v2
@@ -48,6 +56,17 @@ struct ErasedTaskFactoryTraits;
 
 template <template <typename> typename SpecificTaskFactory_T, typename Result_T>
 struct ErasedTaskFactoryTraits<SpecificTaskFactory_T<Result_T>> {
+    [[nodiscard]]
+    static auto locks(const ddge::exec::v2::ErasedTaskFactory& that)
+        -> const ddge::exec::LockGroup&
+    {
+        return ddge::util::any_cast<ddge::exec::v2::TaskFactory<Result_T>>(that).visit(
+            [](const auto& task_factory) -> const ddge::exec::LockGroup& {
+                return task_factory.locks();
+            }
+        );
+    }
+
     [[nodiscard]]
     static auto build(
         ddge::exec::v2::ErasedTaskFactory&& that,
@@ -70,7 +89,8 @@ ddge::exec::v2::ErasedTaskFactory::ErasedTaskFactory(
     EmbeddedTaskFactory<Result_T>&& embedded_task_factory
 )
     : Base{ TaskFactory<Result_T>{ std::move(embedded_task_factory) } },
-      m_build{ ErasedTaskFactoryTraits<EmbeddedTaskFactory<Result_T>>::build }
+      m_build{ ErasedTaskFactoryTraits<EmbeddedTaskFactory<Result_T>>::build },
+      m_locks{ ErasedTaskFactoryTraits<EmbeddedTaskFactory<Result_T>>::locks }
 {}
 
 template <typename Result_T>
@@ -78,5 +98,6 @@ ddge::exec::v2::ErasedTaskFactory::ErasedTaskFactory(
     IndirectTaskFactory<Result_T>&& indirect_task_factory
 )
     : Base{ TaskFactory<Result_T>{ std::move(indirect_task_factory) } },
-      m_build{ ErasedTaskFactoryTraits<IndirectTaskFactory<Result_T>>::build }
+      m_build{ ErasedTaskFactoryTraits<IndirectTaskFactory<Result_T>>::build },
+      m_locks{ ErasedTaskFactoryTraits<IndirectTaskFactory<Result_T>>::locks }
 {}

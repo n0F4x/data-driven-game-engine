@@ -1,7 +1,6 @@
 export module ddge.modules.exec.accessors.ecs;
 
-export import :locks;
-
-export import :Provider;
-export import :Query;
-export import :Registry;
+export import ddge.modules.exec.accessors.ecs.Component;
+export import ddge.modules.exec.accessors.ecs.Provider;
+export import ddge.modules.exec.accessors.ecs.Query;
+export import ddge.modules.exec.accessors.ecs.Registry;

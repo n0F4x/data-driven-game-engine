@@ -6,6 +6,7 @@ module;
 
 export module ddge.modules.exec.v2.primitives.not_fn;
 
+import ddge.modules.exec.locks.LockGroup;
 import ddge.modules.exec.v2.Cardinality;
 import ddge.modules.exec.v2.IndirectTaskContinuationSetter;
 import ddge.modules.exec.v2.IndirectTaskFactory;
@@ -65,8 +66,8 @@ export auto not_fn(TaskBlueprint<bool, Cardinality::eSingle>&& task_blueprint)
                                 ) mutable -> void {
                                     *x_shared_continuation = std::move(continuation);
                                 }   //
-                            }   //
-                        }
+                            },
+                            LockGroup{ task_hub_builder.locks_of(inner_task_index) } }
                     );
                 }
             };

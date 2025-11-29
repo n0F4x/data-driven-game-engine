@@ -1,5 +1,3 @@
-add_subdirectory(locks)
-
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET public_cxx_modules
         TYPE CXX_MODULES
@@ -7,6 +5,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         messages.cppm
         Mailbox.ixx
+        Message.ixx
+        MessageManager.ixx
         Provider.ixx
         Receiver.ixx
         Sender.ixx

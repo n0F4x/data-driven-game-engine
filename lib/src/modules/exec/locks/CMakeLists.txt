@@ -4,9 +4,15 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         locks.cppm
-        CompositeLock.ixx
+        create_lock_group.ixx
+        CriticalSection.ixx
+        CriticalSectionType.ixx
+        ExclusiveCriticalSection.ixx
+        has_lock_group_c.ixx
         Lock.ixx
-        ReaderLock.ixx
-        Lockable.ixx
-        WriterLock.ixx
+        LockedResourceID.ixx
+        LockGroup.ixx
+        LockOwnerIndex.ixx
+        SharedCriticalSection.ixx
+        TopOfLockStack.ixx
 )
