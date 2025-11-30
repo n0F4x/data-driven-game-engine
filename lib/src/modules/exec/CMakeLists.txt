@@ -3,6 +3,7 @@ add_subdirectory(locks)
 add_subdirectory(primitives)
 add_subdirectory(scheduler)
 add_subdirectory(v2)
+#add_subdirectory(v3)
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET public_cxx_modules

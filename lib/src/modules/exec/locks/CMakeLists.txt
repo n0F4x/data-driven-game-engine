@@ -7,6 +7,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         create_lock_group.ixx
         CriticalSection.ixx
         CriticalSectionType.ixx
+        DependencyStack.ixx
         ExclusiveCriticalSection.ixx
         has_lock_group_c.ixx
         Lock.ixx

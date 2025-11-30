@@ -10,7 +10,6 @@ import demo.Window;
 
 using namespace ddge::exec::accessors;
 using namespace ddge::ecs::query_filter_tags;
-using namespace ddge::exec::accessors;
 
 struct WindowClosed {};
 

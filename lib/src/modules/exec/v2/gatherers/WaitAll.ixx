@@ -31,7 +31,6 @@ public:
     explicit WaitAll(uint32_t capacity);
 
     auto set_continuation(TaskContinuation<void>&& continuation) -> void;
-    auto set_task_hub_proxy(const TaskHubProxy& task_hub_proxy) -> void;
     auto receive() -> void;
 
 private:
@@ -41,7 +40,6 @@ private:
     uint32_t                                                  m_capacity;
     std::atomic_uint32_t                                      m_flag;
     std::optional<TaskContinuation<void>>                     m_continuation;
-    std::optional<std::reference_wrapper<const TaskHubProxy>> m_task_hub_proxy_ref;
 
     auto call_callback() -> void;
 };
@@ -78,12 +76,6 @@ auto ddge::exec::v2::WaitAll::set_continuation(TaskContinuation<void>&& continua
     -> void
 {
     m_continuation = std::move(continuation);
-}
-
-auto ddge::exec::v2::WaitAll::set_task_hub_proxy(const TaskHubProxy& task_hub_proxy)
-    -> void
-{
-    m_task_hub_proxy_ref = task_hub_proxy;
 }
 
 auto ddge::exec::v2::WaitAll::receive() -> void

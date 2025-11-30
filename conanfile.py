@@ -68,6 +68,7 @@ class DataDrivenGameEngineRecipe(ConanFile):
             self.tool_requires("cmake/[>=3.30]")
 
     def requirements(self):
+        self.requires("magic_enum/0.9.7", transitive_headers=True)
         self.requires("gsl-lite/1.0.1", transitive_headers=True)
         self.requires("tl-function-ref/1.0.0", transitive_headers=True)
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)

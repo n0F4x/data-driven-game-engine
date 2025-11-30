@@ -3,6 +3,7 @@ export module ddge.modules.exec.locks;
 export import ddge.modules.exec.locks.create_lock_group;
 export import ddge.modules.exec.locks.CriticalSection;
 export import ddge.modules.exec.locks.CriticalSectionType;
+export import ddge.modules.exec.locks.DependencyStack;
 export import ddge.modules.exec.locks.ExclusiveCriticalSection;
 export import ddge.modules.exec.locks.has_lock_group_c;
 export import ddge.modules.exec.locks.Lock;

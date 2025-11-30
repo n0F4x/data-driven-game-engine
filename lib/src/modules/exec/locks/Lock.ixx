@@ -25,7 +25,7 @@ public:
     constexpr auto overwrite(Lock&& other) const -> Lock;
 
     [[nodiscard]]
-    auto waits_for(
+    auto dependencies(
         const TopOfLockStack& top_of_lock_stack,
         LockedResourceID      resource_id
     ) const -> std::vector<LockOwnerIndex>;
@@ -60,7 +60,7 @@ auto exclusive_owner_to_vector(
     return std::vector<ddge::exec::LockOwnerIndex>{ critical_section.owner() };
 }
 
-auto ddge::exec::Lock::waits_for(
+auto ddge::exec::Lock::dependencies(
     const TopOfLockStack&  top_of_lock_stack,
     const LockedResourceID resource_id
 ) const -> std::vector<LockOwnerIndex>
@@ -131,6 +131,22 @@ auto ddge::exec::Lock::transform_top_of_lock_stack(
                         },
                     },
                     std::move(top_critical_section)
+                );
+                break;
+        }
+    }
+    else {
+        switch (m_type) {
+            case CriticalSectionType::eExclusive:
+                top_of_lock_stack.try_emplace(
+                    resource_id, ExclusiveCriticalSection{ owner }
+                );
+                break;
+            case CriticalSectionType::eShared:
+                SharedCriticalSection new_shared_critical_section;
+                new_shared_critical_section.expand(owner);
+                top_of_lock_stack.try_emplace(
+                    resource_id, std::move(new_shared_critical_section)
                 );
                 break;
         }

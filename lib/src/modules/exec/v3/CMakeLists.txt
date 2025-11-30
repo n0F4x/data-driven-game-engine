@@ -3,8 +3,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         TYPE CXX_MODULES
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
-        locks.cppm
-        ExclusiveEventLock.ixx
-        EventManagerLock.ixx
-        SharedEventLock.ixx
+        v3.cppm
+        TaskBuilder.ixx
 )

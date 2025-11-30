@@ -2,8 +2,11 @@ module;
 
 #include <atomic>
 #include <memory>
+#include <ranges>
+#include <thread>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 export module ddge.modules.exec.Plugin;
 
@@ -135,10 +138,25 @@ auto ddge::exec::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprin
         const std::unique_ptr<v2::TaskHub> task_hub{ std::move(task_hub_builder).build() };
         task_hub->schedule(root_task_index);
 
+        // TODO: use jthread when it is no longer experimental in libc++
+        //       (or when it comes with no linker errors)
+        std::vector<std::thread> worker_threads(std::thread::hardware_concurrency() - 1);
+        for (auto index : std::views::iota(0u, worker_threads.size())) {
+            worker_threads[index] = std::thread{ [&should_stop, &task_hub, index] {
+                while (!should_stop.load()) {
+                    task_hub->try_execute_a_generic_task(index + 1);
+                }
+            } };
+        }
+
         while (!should_stop.load()) {
             if (!task_hub->try_execute_a_main_only_task()) {
                 task_hub->try_execute_a_generic_task(0);
             }
+        }
+
+        for (auto& worker_thread : worker_threads) {
+            worker_thread.join();
         }
     }(AccessorProvidersTypeList{});
 }

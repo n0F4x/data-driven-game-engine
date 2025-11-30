@@ -25,7 +25,7 @@ public:
     constexpr auto expand(const LockGroup& lock_group) -> void;
 
     [[nodiscard]]
-    auto waits_for(const TopOfLockStack& top_of_lock_stack) const
+    auto dependencies(const TopOfLockStack& top_of_lock_stack) const
         -> std::vector<LockOwnerIndex>;
 
     [[nodiscard]]
@@ -55,13 +55,13 @@ constexpr auto ddge::exec::LockGroup::expand(const LockGroup& lock_group) -> voi
     }
 }
 
-auto ddge::exec::LockGroup::waits_for(const TopOfLockStack& top_of_lock_stack) const
+auto ddge::exec::LockGroup::dependencies(const TopOfLockStack& top_of_lock_stack) const
     -> std::vector<LockOwnerIndex>
 {
     return m_locks
          | std::views::transform([&top_of_lock_stack](auto&& resource_id_and_lock) {
                auto&& [resource_id, lock]{ resource_id_and_lock };
-               return lock.waits_for(top_of_lock_stack, resource_id);
+               return lock.dependencies(top_of_lock_stack, resource_id);
            })
          | std::views::join   //
          | std::ranges::to<std::vector<LockOwnerIndex>>();

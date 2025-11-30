@@ -2,6 +2,9 @@ if (DEFINED CMAKE_TOOLCHAIN_FILE)
     message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
 endif ()
 
+# magic_enum
+find_package(magic_enum CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC magic_enum::magic_enum)
 
 # gsl-lite
 find_package(gsl-lite CONFIG REQUIRED)
