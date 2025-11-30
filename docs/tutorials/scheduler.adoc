@@ -40,9 +40,11 @@ Tasks within the group may run in parallel.
 
 * `+group+` - puts the given tasks in a group +
 Tasks within the group that don't share conflicting parameters may run in parallel.
+When two tasks have conflicting parameters, the task that is listed later within the group will run after its contender.
+Groups merge efficiently without a strict synchronization wall. +
+Users are incentivized to always use groups, unless they require specific ordering between otherwise non-conflicting tasks.
 
-With these, one may describe any form of schedule.
-There are also a lot more primitives that serve some sort of logic, but they are not essential.
+There are also a lot more primitives offered by the library, and you can also make your own.
 
 == Accessors
 
