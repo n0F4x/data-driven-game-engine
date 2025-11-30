@@ -6,10 +6,10 @@ module;
 
 export module demos.virtual_texture.VirtualTexture;
 
-import ddge.modules.gfx.resources.VirtualImage;
-import ddge.modules.renderer.base.allocator.Allocator;
-import ddge.modules.renderer.base.device.Device;
-import ddge.modules.renderer.resources.Buffer;
+import ddge.deprecated.gfx.resources.VirtualImage;
+import ddge.deprecated.renderer.base.allocator.Allocator;
+import ddge.deprecated.renderer.base.device.Device;
+import ddge.deprecated.renderer.resources.Buffer;
 
 import examples.base.init;
 

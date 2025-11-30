@@ -6,9 +6,9 @@ module;
 
 export module examples.base.Controller;
 
-import ddge.modules.gfx.Camera;
-import ddge.modules.window.Key;
-import ddge.modules.window.Window;
+import ddge.deprecated.gfx.Camera;
+import ddge.deprecated.window.Key;
+import ddge.deprecated.window.Window;
 
 namespace examples::base {
 

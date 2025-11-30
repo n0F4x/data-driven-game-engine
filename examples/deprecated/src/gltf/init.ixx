@@ -6,9 +6,9 @@ module;
 
 export module demos.gltf.init;
 
-import ddge.modules.renderer.base.device.Device;
-import ddge.modules.renderer.base.allocator.Allocator;
-import ddge.modules.renderer.resources.Image;
+import ddge.deprecated.renderer.base.device.Device;
+import ddge.deprecated.renderer.base.allocator.Allocator;
+import ddge.deprecated.renderer.resources.Image;
 
 namespace demo::init {
 

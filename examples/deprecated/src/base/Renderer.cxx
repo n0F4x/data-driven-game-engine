@@ -6,10 +6,10 @@ module;
 
 module examples.base.Renderer;
 
-import ddge.modules.renderer.base.swapchain.SwapchainHolder;
-import ddge.modules.renderer.scene.Scene;
+import ddge.deprecated.renderer.base.swapchain.SwapchainHolder;
+import ddge.deprecated.renderer.scene.Scene;
 
-import ddge.modules.window.Window;
+import ddge.deprecated.window.Window;
 
 import examples.base.init;
 

@@ -9,12 +9,12 @@ export module examples.base.Renderer;
 
 import vulkan_hpp;
 
-import ddge.modules.gfx.Camera;
-import ddge.modules.renderer.base.device.Device;
-import ddge.modules.renderer.base.swapchain.SwapchainHolder;
-import ddge.modules.renderer.scene.Scene;
+import ddge.deprecated.gfx.Camera;
+import ddge.deprecated.renderer.base.device.Device;
+import ddge.deprecated.renderer.base.swapchain.SwapchainHolder;
+import ddge.deprecated.renderer.scene.Scene;
 
-import ddge.modules.window.Window;
+import ddge.deprecated.window.Window;
 
 namespace examples::base {
 

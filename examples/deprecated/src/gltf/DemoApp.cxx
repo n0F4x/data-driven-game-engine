@@ -9,12 +9,12 @@ module;
 
 module demos.gltf.DemoApp;
 
-import ddge.modules.cache.Handle;
-import ddge.modules.gltf.Model;
-import ddge.modules.renderer.base.swapchain.Swapchain;
-import ddge.modules.renderer.base.swapchain.SwapchainHolder;
-import ddge.modules.renderer.scene.Scene;
-import ddge.modules.window.Window;
+import ddge.deprecated.cache.Handle;
+import ddge.deprecated.gltf.Model;
+import ddge.deprecated.renderer.base.swapchain.Swapchain;
+import ddge.deprecated.renderer.base.swapchain.SwapchainHolder;
+import ddge.deprecated.renderer.scene.Scene;
+import ddge.deprecated.window.Window;
 
 import examples.base.init;
 

@@ -6,7 +6,7 @@ module;
 
 export module examples.base.init;
 
-import ddge.modules.renderer.resources.Image;
+import ddge.deprecated.renderer.resources.Image;
 
 namespace examples::base::init {
 

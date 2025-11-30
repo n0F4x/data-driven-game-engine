@@ -2,7 +2,11 @@
 
 The engine's code is structured around the following modules:
 
-* prelude - frequently used functionality when initiating the library
+* prelude - frequently used functionalities for initiating the library
+** exports part of the engine
+** carries no additional logic
 * modules - the building blocks of the engine
-* utility - basic helper functionalities
-* config - configuration files for third-party
+** inter-module dependencies are allowed
+** depends on utility
+* utility - basic helper functionalities +
+** utility is prohibited from depending on engine modules

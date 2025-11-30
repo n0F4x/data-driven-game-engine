@@ -12,14 +12,14 @@ module;
 
 module examples.base.DemoBase;
 
-import ddge.modules.gfx.Camera;
-import ddge.modules.renderer.base.device.Device;
-import ddge.modules.renderer.base.swapchain.SwapchainHolder;
+import ddge.deprecated.gfx.Camera;
+import ddge.deprecated.renderer.base.device.Device;
+import ddge.deprecated.renderer.base.swapchain.SwapchainHolder;
 import ddge.utility.Size;
-import ddge.modules.window.CursorMode;
-import ddge.modules.window.events;
-import ddge.modules.window.Key;
-import ddge.modules.window.Window;
+import ddge.deprecated.window.CursorMode;
+import ddge.deprecated.window.events;
+import ddge.deprecated.window.Key;
+import ddge.deprecated.window.Window;
 
 auto examples::base::DemoBasePlugin::operator()(
     ddge::window::Window&                  window,

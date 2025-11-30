@@ -13,24 +13,24 @@ module;
 
 module demos.virtual_texture.init;
 
-import ddge.modules.cache.Handle;
+import ddge.deprecated.cache.Handle;
 
-import ddge.modules.image.Image;
+import ddge.deprecated.image.Image;
 
-import ddge.modules.gfx.resources.VirtualImage;
+import ddge.deprecated.gfx.resources.VirtualImage;
 
-import ddge.modules.renderer.base.device.Device;
-import ddge.modules.renderer.material_system.GraphicsPipelineBuilder;
-import ddge.modules.renderer.material_system.Program;
-import ddge.modules.renderer.material_system.Shader;
-import ddge.modules.renderer.material_system.ShaderModule;
-import ddge.modules.renderer.material_system.VertexLayout;
-import ddge.modules.renderer.base.allocator.Allocator;
-import ddge.modules.renderer.base.resources.copy_operations;
-import ddge.modules.renderer.base.resources.Image;
-import ddge.modules.renderer.resources.Buffer;
-import ddge.modules.renderer.resources.Image;
-import ddge.modules.renderer.resources.RandomAccessBuffer;
+import ddge.deprecated.renderer.base.device.Device;
+import ddge.deprecated.renderer.material_system.GraphicsPipelineBuilder;
+import ddge.deprecated.renderer.material_system.Program;
+import ddge.deprecated.renderer.material_system.Shader;
+import ddge.deprecated.renderer.material_system.ShaderModule;
+import ddge.deprecated.renderer.material_system.VertexLayout;
+import ddge.deprecated.renderer.base.allocator.Allocator;
+import ddge.deprecated.renderer.base.resources.copy_operations;
+import ddge.deprecated.renderer.base.resources.Image;
+import ddge.deprecated.renderer.resources.Buffer;
+import ddge.deprecated.renderer.resources.Image;
+import ddge.deprecated.renderer.resources.RandomAccessBuffer;
 
 import examples.base.init;
 

@@ -7,8 +7,8 @@ module;
 
 module examples.base.Controller;
 
-import ddge.modules.gfx.Camera;
-import ddge.modules.window.Window;
+import ddge.deprecated.gfx.Camera;
+import ddge.deprecated.window.Window;
 
 examples::base::Controller::Controller(const float movement_speed) noexcept
     : m_movement_speed{ movement_speed }

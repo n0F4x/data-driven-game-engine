@@ -6,10 +6,10 @@ module;
 
 export module examples.base.DemoBase;
 
-import ddge.modules.gfx.Camera;
-import ddge.modules.renderer.base.device.Device;
-import ddge.modules.renderer.base.swapchain.SwapchainHolder;
-import ddge.modules.window.Window;
+import ddge.deprecated.gfx.Camera;
+import ddge.deprecated.renderer.base.device.Device;
+import ddge.deprecated.renderer.base.swapchain.SwapchainHolder;
+import ddge.deprecated.window.Window;
 
 import examples.base.Controller;
 import examples.base.Renderer;

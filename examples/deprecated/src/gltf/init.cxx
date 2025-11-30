@@ -6,8 +6,8 @@ module;
 
 module demos.gltf.init;
 
-import ddge.modules.renderer.base.device.Device;
-import ddge.modules.renderer.resources.Image;
+import ddge.deprecated.renderer.base.device.Device;
+import ddge.deprecated.renderer.resources.Image;
 
 [[nodiscard]]
 auto find_supported_format(

@@ -6,7 +6,7 @@ module;
 
 module examples.base.init;
 
-import ddge.modules.renderer.base.device.Device;
+import ddge.deprecated.renderer.base.device.Device;
 
 auto examples::base::init::create_command_pool(
     const vk::Device device,

@@ -10,17 +10,17 @@ module;
 
 module demos.virtual_texture.DemoApp;
 
-import ddge.modules.gfx.Camera;
-import ddge.modules.gfx.resources.image_helpers;
-import ddge.modules.renderer.base.device.Device;
-import ddge.modules.renderer.base.allocator.Allocator;
-import ddge.modules.renderer.base.resources.copy_operations;
-import ddge.modules.renderer.base.resources.Image;
-import ddge.modules.renderer.base.swapchain.Swapchain;
-import ddge.modules.renderer.base.swapchain.SwapchainHolder;
+import ddge.deprecated.gfx.Camera;
+import ddge.deprecated.gfx.resources.image_helpers;
+import ddge.deprecated.renderer.base.device.Device;
+import ddge.deprecated.renderer.base.allocator.Allocator;
+import ddge.deprecated.renderer.base.resources.copy_operations;
+import ddge.deprecated.renderer.base.resources.Image;
+import ddge.deprecated.renderer.base.swapchain.Swapchain;
+import ddge.deprecated.renderer.base.swapchain.SwapchainHolder;
 
-import ddge.modules.renderer.DeviceInjection;
-import ddge.modules.renderer.InstanceInjection;
+import ddge.deprecated.renderer.DeviceInjection;
+import ddge.deprecated.renderer.InstanceInjection;
 
 import demos.virtual_texture.init;
 import demos.virtual_texture.Camera;

@@ -6,15 +6,15 @@ module;
 
 export module demos.gltf.DemoApp;
 
-import ddge.modules.cache.Cache;
+import ddge.deprecated.cache.Cache;
 
-import ddge.modules.gfx.Camera;
+import ddge.deprecated.gfx.Camera;
 
-import ddge.modules.renderer.base.device.Device;
-import ddge.modules.renderer.base.allocator.Allocator;
-import ddge.modules.renderer.base.swapchain.SwapchainHolder;
-import ddge.modules.renderer.resources.Image;
-import ddge.modules.renderer.scene.Scene;
+import ddge.deprecated.renderer.base.device.Device;
+import ddge.deprecated.renderer.base.allocator.Allocator;
+import ddge.deprecated.renderer.base.swapchain.SwapchainHolder;
+import ddge.deprecated.renderer.resources.Image;
+import ddge.deprecated.renderer.scene.Scene;
 
 namespace demo {
 
