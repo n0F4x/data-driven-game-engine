@@ -1,4 +1,4 @@
-project(constexpr)
+project(dependency_injection)
 
 add_executable(${PROJECT_NAME})
 

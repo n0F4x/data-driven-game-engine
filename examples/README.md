@@ -2,15 +2,15 @@
 
 ## From simple to more complicated
 
-### [constexpr](./constexpr)
+### [dependency_injection](dependency_injection)
 
 Displays a glimpse of the app builder's power in constant evaluated context.
 
-### [simple](./simple)
+### [simple](simple)
 
 Demonstrates how a simple game loop can be organized using scheduling primitives and events.
 
-### [snake](./snake)
+### [snake](snake)
 
 A snake game - made with [SFML](https://www.sfml-dev.org/).
 
