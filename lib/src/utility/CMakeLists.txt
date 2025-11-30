@@ -30,5 +30,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         lifetime_bound.hpp
-        contracts_macros.hpp
+        contract_macros.hpp
 )

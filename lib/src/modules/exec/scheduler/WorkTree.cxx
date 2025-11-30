@@ -9,7 +9,7 @@ module;
 #include <ranges>
 #include <utility>
 
-#include "utility/contracts_macros.hpp"
+#include "utility/contract_macros.hpp"
 
 module ddge.modules.exec.scheduler.WorkTree;
 

@@ -7,7 +7,7 @@ module;
 
 #include <tsl/ordered_map.h>
 
-#include "utility/contracts_macros.hpp"
+#include "utility/contract_macros.hpp"
 
 export module ddge.modules.store.Store;
 

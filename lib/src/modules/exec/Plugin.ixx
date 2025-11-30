@@ -1,12 +1,15 @@
 module;
 
 #include <atomic>
+#include <cstdint>
 #include <memory>
 #include <ranges>
 #include <thread>
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+#include "utility/contract_macros.hpp"
 
 export module ddge.modules.exec.Plugin;
 
@@ -35,6 +38,7 @@ import ddge.modules.exec.v2.TaskHubBuilder;
 import ddge.modules.exec.v2.TaskHubProxy;
 import ddge.modules.exec.v2.TypedTaskIndex;
 
+import ddge.utility.contracts;
 import ddge.utility.meta.type_traits.type_list.type_list_filter;
 import ddge.utility.meta.type_traits.type_list.type_list_transform;
 import ddge.utility.TypeList;
@@ -43,12 +47,24 @@ namespace ddge::exec {
 
 export class Plugin {
 public:
+    explicit Plugin(uint32_t number_of_threads = std::jthread::hardware_concurrency());
+
     template <app::builder_c Self_T, converts_to_task_builder_c TaskBuilder_T>
     auto run(this Self_T&&, TaskBuilder_T&& task_builder)
         -> as_task_builder_t<TaskBuilder_T>::Result;
 
     template <app::builder_c Self_T, v2::convertible_to_TaskBlueprint_c<void> TaskBlueprint_T>
     auto run(this Self_T&&, TaskBlueprint_T&& task_blueprint) -> void;
+
+private:
+    [[no_unique_address]]
+    struct Precondition {
+        Precondition(uint32_t number_of_threads);
+    } m_precondition;
+
+    // TODO: remove this maybe_unused - it is actually used inside `run`
+    [[maybe_unused]]
+    uint32_t m_number_of_threads;
 };
 
 }   // namespace ddge::exec
@@ -65,6 +81,15 @@ struct AddonTraits {
         using type = ddge::exec::provider_for_t<Addon_T>;
     };
 };
+
+ddge::exec::Plugin::Precondition::Precondition(const uint32_t number_of_threads)
+{
+    PRECOND(number_of_threads > 0, "Number of threads must be greater than zero!");
+}
+
+ddge::exec::Plugin::Plugin(const uint32_t number_of_threads)
+    : m_precondition{number_of_threads}, m_number_of_threads{ number_of_threads }
+{}
 
 template <ddge::app::builder_c Self_T, ddge::exec::converts_to_task_builder_c TaskBuilder_T>
 auto ddge::exec::Plugin::run(this Self_T&& self, TaskBuilder_T&& task_builder)
@@ -106,6 +131,8 @@ template <
     ddge::exec::v2::convertible_to_TaskBlueprint_c<void> TaskBlueprint_T>
 auto ddge::exec::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprint) -> void
 {
+    const uint32_t number_of_threads{ self.ddge::exec::Plugin::m_number_of_threads };
+
     auto app{ std::forward<Self_T>(self).build() };
     using App                       = decltype(app);
     using Addons                    = App::Addons;
@@ -114,8 +141,8 @@ auto ddge::exec::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprin
             type_list_filter_t<Addons, AddonTraits<App>::template HasAccessorProvider>,
         AddonTraits<App>::template AccessorProvider>;
 
-    [&task_blueprint, &app]<typename... AccessorProviders_T>   //
-        (util::TypeList<AccessorProviders_T...>)               //
+    [number_of_threads, &task_blueprint, &app]<typename... AccessorProviders_T>   //
+        (util::TypeList<AccessorProviders_T...>)                                  //
     {
         Nexus              nexus{ AccessorProviders_T{ app }... };
         v2::TaskHubBuilder task_hub_builder{ nexus };
@@ -135,12 +162,14 @@ auto ddge::exec::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprin
             }
         );
 
-        const std::unique_ptr<v2::TaskHub> task_hub{ std::move(task_hub_builder).build() };
+        const std::unique_ptr<v2::TaskHub> task_hub{
+            std::move(task_hub_builder).build(number_of_threads)
+        };
         task_hub->schedule(root_task_index);
 
         // TODO: use jthread when it is no longer experimental in libc++
         //       (or when it comes with no linker errors)
-        std::vector<std::thread> worker_threads(std::thread::hardware_concurrency() - 1);
+        std::vector<std::thread> worker_threads(number_of_threads - 1);
         for (auto index : std::views::iota(0u, worker_threads.size())) {
             worker_threads[index] = std::thread{ [&should_stop, &task_hub, index] {
                 while (!should_stop.load()) {

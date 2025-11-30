@@ -34,7 +34,9 @@ auto contend_for_resource_second(Resource<ContendedResource>) -> void
 
 auto print_join_message() -> void
 {
-    std::println("-- Threads joined (current thread id is #{})", std::this_thread::get_id());
+    std::println(
+        "-- Threads joined (current thread id is #{})", std::this_thread::get_id()
+    );
 }
 
 [[nodiscard]]
@@ -50,7 +52,7 @@ auto main() -> int
     ddge::app::create()
         .plug_in(ddge::plugins::Resources{})
         .insert_resource(ContendedResource{})
-        .plug_in(ddge::plugins::Execution{})
+        .plug_in(ddge::plugins::Execution{ 4 })
         .run(
             sch::repeat(
                 sch::start_as(

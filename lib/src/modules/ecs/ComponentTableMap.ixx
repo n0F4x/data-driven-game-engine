@@ -4,7 +4,7 @@ module;
 #include <type_traits>
 #include <utility>
 
-#include "utility/contracts_macros.hpp"
+#include "utility/contract_macros.hpp"
 
 export module ddge.modules.ecs:ComponentTableMap;
 

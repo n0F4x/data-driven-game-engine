@@ -1,11 +1,13 @@
 module;
 
+#include <cstdint>
 #include <functional>
+#include <thread>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
-#include "utility/contracts_macros.hpp"
+#include "utility/contract_macros.hpp"
 
 export module ddge.modules.exec.v2.TaskHubBuilder;
 
@@ -59,7 +61,9 @@ public:
 
     auto locks_of(TaskIndex task_index) const -> const LockGroup&;
 
-    auto build() && -> std::unique_ptr<TaskHub>;
+    auto build(
+        uint32_t number_of_threads = std::jthread::hardware_concurrency()
+    ) && -> std::unique_ptr<TaskHub>;
 
 private:
     std::reference_wrapper<Nexus>  m_nexus;

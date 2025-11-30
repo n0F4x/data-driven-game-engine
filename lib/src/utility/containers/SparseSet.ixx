@@ -7,7 +7,7 @@ module;
 #include <type_traits>
 #include <vector>
 
-#include "utility/contracts_macros.hpp"
+#include "utility/contract_macros.hpp"
 
 export module ddge.utility.containers.SparseSet;
 

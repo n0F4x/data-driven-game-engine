@@ -20,13 +20,15 @@ auto ddge::exec::v2::TaskHubBuilder::locks_of(const TaskIndex task_index) const
     return get(task_index).locks();
 }
 
-auto ddge::exec::v2::TaskHubBuilder::build() && -> std::unique_ptr<TaskHub>
+auto ddge::exec::v2::TaskHubBuilder::build(
+    const uint32_t number_of_threads
+) && -> std::unique_ptr<TaskHub>
 {
     std::unique_ptr<TaskHub> result{
         std::make_unique<TaskHub>(
             m_generic_task_factories.size(),
             m_main_only_task_factories.size(),
-            std::jthread::hardware_concurrency()
+            number_of_threads
         )   //
     };
 

@@ -7,7 +7,7 @@ module;
 
 #include <tl/function_ref.hpp>
 
-#include "utility/contracts_macros.hpp"
+#include "utility/contract_macros.hpp"
 
 module ddge.modules.exec.scheduler.SignalTree;
 

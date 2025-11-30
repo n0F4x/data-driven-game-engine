@@ -4,7 +4,7 @@ module;
 #include <format>
 #include <utility>
 
-#include "utility/contracts_macros.hpp"
+#include "utility/contract_macros.hpp"
 
 module ddge.modules.exec.v2.TaskHub;
 
