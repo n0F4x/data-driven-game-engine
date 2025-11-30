@@ -14,12 +14,12 @@ Demonstrates how a simple game loop can be organized using scheduling primitives
 
 A snake game - made with [SFML](https://www.sfml-dev.org/).
 
-## Outdated demos
+## Deprecated demos
 
-### [glTF loader](./outdated/src/gltf)
+### [glTF loader](deprecated/src/gltf)
 
 glTF loader capable of loading basic glTF files.
 
-### [Virtual texturing](./outdated/src/virtual_texture)
+### [Virtual texturing](deprecated/src/virtual_texture)
 
 Poor performing program to show the difference between a casual and a virtual texture.
