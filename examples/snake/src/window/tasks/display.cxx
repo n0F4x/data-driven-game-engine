@@ -5,7 +5,7 @@ module;
 module snake.window.tasks.display;
 
 import ddge.modules.exec.accessors.resources;
-import ddge.modules.exec.v2.primitives.as_task;
+import ddge.modules.exec.v2.primitives.force_on_main;
 
 import snake.window.SecondTimer;
 import snake.window.DisplayInfo;
@@ -16,7 +16,7 @@ using namespace ddge::exec::accessors;
 auto window::tasks::display()
     -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
 {
-    return ddge::exec::v2::as_task(
+    return ddge::exec::v2::force_on_main(
         [last_time = std::chrono::steady_clock::time_point{}, delta_frame_count = 0u](
             const Resource<Window>      window,
             const Resource<DisplayInfo> display_info,
