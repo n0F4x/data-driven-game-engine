@@ -1,19 +1,18 @@
 export module snake.app.tasks.process_events;
 
 import ddge.modules.exec.accessors.events;
-import ddge.modules.exec.v2.Cardinality;
-import ddge.modules.exec.v2.primitives.as_task;
-import ddge.modules.exec.v2.TaskBlueprint;
+import ddge.modules.exec.Cardinality;
+import ddge.modules.exec.primitives.as_task;
+import ddge.modules.exec.TaskBlueprint;
 
 using namespace ddge::exec::accessors;
 
 namespace app::tasks {
 
 export [[nodiscard]]
-auto process_events()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
+auto process_events() -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
 {
-    return ddge::exec::v2::as_task(+[](const Processor& event_processor) -> void {
+    return ddge::exec::as_task(+[](const Processor& event_processor) -> void {
         event_processor.process_events();
     });
 }

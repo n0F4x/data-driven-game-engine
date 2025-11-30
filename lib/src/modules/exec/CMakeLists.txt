@@ -1,9 +1,14 @@
 add_subdirectory(accessors)
+add_subdirectory(gatherers)
 add_subdirectory(locks)
 add_subdirectory(primitives)
 add_subdirectory(scheduler)
-add_subdirectory(v2)
-#add_subdirectory(v3)
+
+target_sources(${PROJECT_NAME} PRIVATE
+        TaskHub.cxx
+        TaskHubProxy.cxx
+        TaskHubBuilder.cxx
+)
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET public_cxx_modules
@@ -12,8 +17,15 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         exec.cppm
         accessor_c.ixx
-        as_task_builder_t.ixx
-        converts_to_task_builder_c.ixx
+        as_task_blueprint.ixx
+        Cardinality.ixx
+        convertible_to_TaskBlueprint_c.ixx
+        EmbeddedTaskBody.ixx
+        EmbeddedTaskFactory.ixx
+        ErasedTaskFactory.ixx
+        ExecPolicy.ixx
+        IndirectTaskContinuationSetter.ixx
+        IndirectTaskFactory.ixx
         Nexus.ixx
         Plugin.ixx
         provide_accessors_for.ixx
@@ -24,6 +36,15 @@ target_sources(${PROJECT_NAME} PUBLIC
         raw_task_c.ixx
         ScheduleBuilder.ixx
         Task.ixx
+        TaskBlueprint.ixx
         TaskBuilder.ixx
-        wrap_as_builder.ixx
+        TaskBuilderBundle.ixx
+        TaskContinuation.ixx
+        TaskContinuationFactory.ixx
+        TaskFactory.ixx
+        TaskHub.ixx
+        TaskHubBuilder.ixx
+        TaskHubProxy.ixx
+        TaskIndex.ixx
+        TypedTaskIndex.ixx
 )

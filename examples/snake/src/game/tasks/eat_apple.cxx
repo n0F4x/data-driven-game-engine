@@ -5,7 +5,6 @@ module;
 module snake.game.tasks.eat_apple;
 
 import ddge.modules.ecs;
-import ddge.modules.exec.TaskBuilder;
 
 import ddge.modules.exec;
 
@@ -55,13 +54,13 @@ auto grow_snake(
 }
 
 auto game::tasks::eat_apple()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
+    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
 {
-    return ddge::exec::v2::start_as(ddge::exec::v2::as_task(check_apple_digestion))
+    return ddge::exec::start_as(ddge::exec::as_task(check_apple_digestion))
         .then(
-            ddge::exec::v2::group(
-                ddge::exec::v2::as_task(despawn_digested_apple),   //
-                ddge::exec::v2::as_task(grow_snake)
+            ddge::exec::group(
+                ddge::exec::as_task(despawn_digested_apple),   //
+                ddge::exec::as_task(grow_snake)
             )
         );
 }

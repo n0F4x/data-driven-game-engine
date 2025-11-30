@@ -7,7 +7,7 @@ module snake.game.tasks.color_cells;
 import ddge.modules.ecs;
 
 import ddge.modules.exec.accessors.ecs;
-import ddge.modules.exec.v2.primitives.query;
+import ddge.modules.exec.primitives.query;
 
 import ddge.utility.containers.OptionalRef;
 
@@ -20,9 +20,9 @@ using namespace ddge::exec::accessors;
 using namespace ddge::ecs::query_filter_tags;
 
 auto game::tasks::color_cells()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
+    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
 {
-    return ddge::exec::v2::query(
+    return ddge::exec::query(
         [](const Optional<const SnakeHead> snake_head,
            const Optional<const Snake>     snake_body,
            const Optional<const Apple>     apple,

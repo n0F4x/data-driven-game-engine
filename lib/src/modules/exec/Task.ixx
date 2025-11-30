@@ -4,7 +4,6 @@ import ddge.utility.containers.AnyMoveOnlyFunction;
 
 namespace ddge::exec {
 
-export template <typename Result_T>
-using Task = util::AnyMoveOnlyFunction<Result_T()>;
+export using Task = util::AnyMoveOnlyFunction<void()>;
 
 }   // namespace ddge::exec

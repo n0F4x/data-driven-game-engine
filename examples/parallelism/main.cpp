@@ -47,7 +47,7 @@ constexpr auto always_4() noexcept -> int
 
 auto main() -> int
 {
-    namespace sch = ddge::exec::v2;
+    namespace sch = ddge::exec;
 
     ddge::app::create()
         .plug_in(ddge::plugins::Resources{})

@@ -6,9 +6,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         primitives.cppm
         all_of.ixx
         at_fixed_rate.ixx
+        as_task.ixx
+        force_on_main.ixx
         group.ixx
-        in_parallel.ixx
         loop_until.ixx
+        not_fn.ixx
+        query.ixx
         repeat.ixx
         run_if.ixx
         start_as.ixx

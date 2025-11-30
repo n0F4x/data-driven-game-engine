@@ -6,7 +6,7 @@ export module snake.app.run;
 
 import ddge.modules.app.has_plugins_c;
 import ddge.modules.exec.Plugin;
-import ddge.modules.exec.v2.primitives.start_as;
+import ddge.modules.exec.primitives.start_as;
 
 import snake.app.tasks.initialize;
 import snake.app.tasks.run_game_loop;
@@ -19,7 +19,7 @@ auto run(AppBuilder_T&& app_builder)
 {
     return std::forward<AppBuilder_T>(app_builder)
         .run(
-            ddge::exec::v2::start_as(tasks::initialize())   //
+            ddge::exec::start_as(tasks::initialize())   //
                 .then(tasks::run_game_loop())
                 .then(tasks::shut_down())
         );

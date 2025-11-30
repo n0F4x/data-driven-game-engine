@@ -43,9 +43,9 @@ TEST_CASE("ddge::ecs::query")
 
     SECTION("empty component")
     {
-        constexpr static auto check =
-            []<typename EmptyComponent_T>(std::type_identity<EmptyComponent_T>) static
-            -> bool {
+        constexpr static auto check = []<typename EmptyComponent_T>(
+                                          std::type_identity<EmptyComponent_T>
+                                      ) static -> bool {
             return not requires { ddge::ecs::Query<int, EmptyComponent_T>{ registry }; };
         };
 
@@ -261,7 +261,7 @@ TEST_CASE("ddge::ecs::query")
         );
 
         const auto test_query_parameters =
-            [&registry]<typename... Ts, typename F = void(*)()>(
+            [&registry]<typename... Ts, typename F = void (*)()>(
                 ddge::util::TypeList<Ts...>, F func = +[] {}
             ) {
                 using QueryFunctionParameters = ddge::util::meta::type_list_transform_t<
@@ -370,16 +370,15 @@ TEST_CASE("ddge::ecs::query")
             ddge::ecs::query(
                 registry,
                 [&visit_count](
-                    ddge::ecs::ID,                                              //
-                    float&,                                                     //
-                    const double&,                                              //
-                    Without<int8_t>,                                            //
-                    With<int16_t>,                                              //
-                    With<int32_t>,                                              //
-                    Optional<uint8_t>,                                          //
-                    Optional<const uint16_t>) {
-                    visit_count++;
-                }
+                    ddge::ecs::ID,       //
+                    float&,              //
+                    const double&,       //
+                    Without<int8_t>,     //
+                    With<int16_t>,       //
+                    With<int32_t>,       //
+                    Optional<uint8_t>,   //
+                    Optional<const uint16_t>
+                ) { visit_count++; }
             );
 
             REQUIRE(visit_count == 1);

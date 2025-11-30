@@ -5,7 +5,7 @@ module;
 module snake.profiler.tasks.update;
 
 import ddge.modules.exec.accessors.resources;
-import ddge.modules.exec.v2.primitives.as_task;
+import ddge.modules.exec.primitives.as_task;
 
 import snake.profiler.SecondTimer;
 import snake.window.DisplayInfo;
@@ -13,9 +13,9 @@ import snake.window.DisplayInfo;
 using namespace ddge::exec::accessors;
 
 auto profiler::tasks::update()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
+    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
 {
-    return ddge::exec::v2::as_task(
+    return ddge::exec::as_task(
         [last_time = std::chrono::steady_clock::time_point{}, delta_update_count = 0u](
             const Resource<window::DisplayInfo> display_info,
             const Resource<SecondTimer>         second_timer

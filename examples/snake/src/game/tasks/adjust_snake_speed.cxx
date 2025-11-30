@@ -9,7 +9,7 @@ import ddge.modules.ecs;
 import ddge.modules.exec.accessors.ecs;
 import ddge.modules.exec.accessors.resources;
 import ddge.modules.exec.accessors.states;
-import ddge.modules.exec.v2.primitives.as_task;
+import ddge.modules.exec.primitives.as_task;
 
 import snake.game.GameState;
 import snake.game.Settings;
@@ -22,9 +22,9 @@ using namespace ddge::exec::accessors::resources;
 using namespace ddge::exec::accessors::states;
 
 auto game::tasks::adjust_snake_speed()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
+    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
 {
-    return ddge::exec::v2::as_task(
+    return ddge::exec::as_task(
         +[](   //
              const Resource<Settings>           settings,
              const State<GameState>             game_state,

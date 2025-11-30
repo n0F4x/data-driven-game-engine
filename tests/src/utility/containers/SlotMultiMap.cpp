@@ -66,7 +66,9 @@ static_assert(
         ) };
         auto                            result = std::move(multi_sparse_set).get(key);
 
-        static_assert(std::is_same_v<decltype(result), std::tuple<int&&, float&&, Dummy&&>>);
+        static_assert(
+            std::is_same_v<decltype(result), std::tuple<int&&, float&&, Dummy&&>>
+        );
 
         return result == values;
     }(),
@@ -98,9 +100,9 @@ static_assert(
         );
         auto result = multi_sparse_set.find(key);
 
-        static_assert(std::is_same_v<
-                      decltype(result),
-                      std::optional<std::tuple<int&, float&, Dummy&>>>);
+        static_assert(
+            std::is_same_v<decltype(result), std::optional<std::tuple<int&, float&, Dummy&>>>
+        );
 
         return result.value() == values;
     }(),

@@ -17,26 +17,23 @@ import ddge.modules.app.add_on_t;
 import ddge.modules.app.builder_c;
 import ddge.modules.app.decays_to_app_c;
 import ddge.modules.exec.accessors;
-import ddge.modules.exec.as_task_builder_t;
-import ddge.modules.exec.converts_to_task_builder_c;
 import ddge.modules.exec.Nexus;
 import ddge.modules.exec.scheduler.WorkTree;
 import ddge.modules.exec.provider_c;
 import ddge.modules.exec.ProviderOf;
-import ddge.modules.exec.wrap_as_builder;
-import ddge.modules.exec.v2.as_task_blueprint;
-import ddge.modules.exec.v2.Cardinality;
-import ddge.modules.exec.v2.convertible_to_TaskBlueprint_c;
-import ddge.modules.exec.v2.gatherers.WaitAll;
-import ddge.modules.exec.v2.TaskBlueprint;
-import ddge.modules.exec.v2.TaskBuilder;
-import ddge.modules.exec.v2.TaskBuilderBundle;
-import ddge.modules.exec.v2.TaskContinuation;
-import ddge.modules.exec.v2.TaskContinuationFactory;
-import ddge.modules.exec.v2.TaskHub;
-import ddge.modules.exec.v2.TaskHubBuilder;
-import ddge.modules.exec.v2.TaskHubProxy;
-import ddge.modules.exec.v2.TypedTaskIndex;
+import ddge.modules.exec.as_task_blueprint;
+import ddge.modules.exec.Cardinality;
+import ddge.modules.exec.convertible_to_TaskBlueprint_c;
+import ddge.modules.exec.gatherers.WaitAll;
+import ddge.modules.exec.TaskBlueprint;
+import ddge.modules.exec.TaskBuilder;
+import ddge.modules.exec.TaskBuilderBundle;
+import ddge.modules.exec.TaskContinuation;
+import ddge.modules.exec.TaskContinuationFactory;
+import ddge.modules.exec.TaskHub;
+import ddge.modules.exec.TaskHubBuilder;
+import ddge.modules.exec.TaskHubProxy;
+import ddge.modules.exec.TypedTaskIndex;
 
 import ddge.utility.contracts;
 import ddge.utility.meta.type_traits.type_list.type_list_filter;
@@ -49,17 +46,12 @@ export class Plugin {
 public:
     explicit Plugin(uint32_t number_of_threads = std::jthread::hardware_concurrency());
 
-    template <app::builder_c Self_T, converts_to_task_builder_c TaskBuilder_T>
-    auto run(this Self_T&&, TaskBuilder_T&& task_builder)
-        -> as_task_builder_t<TaskBuilder_T>::Result;
-
-    template <app::builder_c Self_T, v2::convertible_to_TaskBlueprint_c<void> TaskBlueprint_T>
+    template <app::builder_c Self_T, convertible_to_TaskBlueprint_c<void> TaskBlueprint_T>
     auto run(this Self_T&&, TaskBlueprint_T&& task_blueprint) -> void;
 
 private:
-    [[no_unique_address]]
-    struct Precondition {
-        Precondition(uint32_t number_of_threads);
+    [[no_unique_address]] struct Precondition {
+        explicit Precondition(uint32_t number_of_threads);
     } m_precondition;
 
     // TODO: remove this maybe_unused - it is actually used inside `run`
@@ -88,47 +80,26 @@ ddge::exec::Plugin::Precondition::Precondition(const uint32_t number_of_threads)
 }
 
 ddge::exec::Plugin::Plugin(const uint32_t number_of_threads)
-    : m_precondition{number_of_threads}, m_number_of_threads{ number_of_threads }
+    : m_precondition{ number_of_threads },
+      m_number_of_threads{ number_of_threads }
 {}
 
-template <ddge::app::builder_c Self_T, ddge::exec::converts_to_task_builder_c TaskBuilder_T>
-auto ddge::exec::Plugin::run(this Self_T&& self, TaskBuilder_T&& task_builder)
-    -> as_task_builder_t<TaskBuilder_T>::Result
-{
-    auto app{ std::forward<Self_T>(self).build() };
-    using App               = decltype(app);
-    using Addons            = App::Addons;
-    using AccessorProviders = util::meta::type_list_transform_t<
-        util::meta::
-            type_list_filter_t<Addons, AddonTraits<App>::template HasAccessorProvider>,
-        AddonTraits<App>::template AccessorProvider>;
-
-    return
-        [&task_builder,
-         &app]<typename... AccessorProviders_T>(util::TypeList<AccessorProviders_T...>) {
-            Nexus nexus{ AccessorProviders_T{ app }... };
-
-            return wrap_as_builder(task_builder).build(nexus)();
-        }(AccessorProviders{});
-}
-
 [[nodiscard]]
-auto sync(ddge::exec::v2::TaskBuilder<void>&& task_builder)
-    -> ddge::exec::v2::TaskBuilder<void>
+auto sync(ddge::exec::TaskBuilder<void>&& task_builder) -> ddge::exec::TaskBuilder<void>
 {
     return std::move(task_builder);
 }
 
 [[nodiscard]]
-auto sync(ddge::exec::v2::TaskBuilderBundle<void>&& task_builder_bundle)
-    -> ddge::exec::v2::TaskBuilder<void>
+auto sync(ddge::exec::TaskBuilderBundle<void>&& task_builder_bundle)
+    -> ddge::exec::TaskBuilder<void>
 {
-    return std::move(task_builder_bundle).sync(ddge::exec::v2::WaitAllBuilder{});
+    return std::move(task_builder_bundle).sync(ddge::exec::WaitAllBuilder{});
 }
 
 template <
-    ddge::app::builder_c                                 Self_T,
-    ddge::exec::v2::convertible_to_TaskBlueprint_c<void> TaskBlueprint_T>
+    ddge::app::builder_c                             Self_T,
+    ddge::exec::convertible_to_TaskBlueprint_c<void> TaskBlueprint_T>
 auto ddge::exec::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprint) -> void
 {
     const uint32_t number_of_threads{ self.ddge::exec::Plugin::m_number_of_threads };
@@ -144,25 +115,25 @@ auto ddge::exec::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprin
     [number_of_threads, &task_blueprint, &app]<typename... AccessorProviders_T>   //
         (util::TypeList<AccessorProviders_T...>)                                  //
     {
-        Nexus              nexus{ AccessorProviders_T{ app }... };
-        v2::TaskHubBuilder task_hub_builder{ nexus };
+        Nexus          nexus{ AccessorProviders_T{ app }... };
+        TaskHubBuilder task_hub_builder{ nexus };
 
-        std::atomic_bool               should_stop{};
-        const v2::TypedTaskIndex<void> root_task_index =
-            ::sync(v2::as_task_blueprint<void>(std::move(task_blueprint)).materialize())
+        std::atomic_bool           should_stop{};
+        const TypedTaskIndex<void> root_task_index =
+            ::sync(as_task_blueprint<void>(std::move(task_blueprint)).materialize())
                 .build(task_hub_builder);
         task_hub_builder.set_task_continuation_factory(
             root_task_index,
-            v2::TaskContinuationFactory<void>{
-                [&should_stop](const v2::TaskHubProxy) -> v2::TaskContinuation<void> {
-                    return v2::TaskContinuation<void>{
+            TaskContinuationFactory<void>{
+                [&should_stop](const TaskHubProxy) -> TaskContinuation<void> {
+                    return TaskContinuation<void>{
                         [&should_stop] -> void { should_stop = true; }   //
                     };
                 }   //
             }
         );
 
-        const std::unique_ptr<v2::TaskHub> task_hub{
+        const std::unique_ptr<TaskHub> task_hub{
             std::move(task_hub_builder).build(number_of_threads)
         };
         task_hub->schedule(root_task_index);

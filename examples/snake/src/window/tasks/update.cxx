@@ -10,7 +10,7 @@ import ddge.modules.time.FixedTimer;
 
 import ddge.modules.exec.accessors.events;
 import ddge.modules.exec.accessors.resources;
-import ddge.modules.exec.v2.primitives.force_on_main;
+import ddge.modules.exec.primitives.force_on_main;
 
 import snake.window.DisplayInfo;
 import snake.window.DisplayTimer;
@@ -20,9 +20,9 @@ import snake.window.Window;
 using namespace ddge::exec::accessors;
 
 auto window::tasks::update()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
+    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
 {
-    return ddge::exec::v2::force_on_main(
+    return ddge::exec::force_on_main(
         +[](   //
              const Resource<const Settings>    settings,
              const Resource<Window>            window,

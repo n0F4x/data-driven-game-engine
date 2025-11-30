@@ -15,6 +15,8 @@ static_assert(std::is_same_v<
 static_assert(std::is_same_v<
               ddge::util::meta::type_list_filter_t<TypeList<int, float>, std::is_integral>,
               TypeList<int>>);
-static_assert(std::is_same_v<
-              ddge::util::meta::type_list_filter_t<TypeList<int, float, long>, std::is_integral>,
-              TypeList<int, long>>);
+static_assert(
+    std::is_same_v<
+        ddge::util::meta::type_list_filter_t<TypeList<int, float, long>, std::is_integral>,
+        TypeList<int, long>>
+);

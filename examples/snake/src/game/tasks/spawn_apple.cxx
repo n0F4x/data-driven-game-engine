@@ -12,7 +12,7 @@ import ddge.modules.time.FixedTimer;
 
 import ddge.modules.exec.accessors.assets;
 import ddge.modules.exec.accessors.ecs;
-import ddge.modules.exec.v2.primitives.as_task;
+import ddge.modules.exec.primitives.as_task;
 
 import snake.assets.TextureLoader;
 import snake.game.Apple;
@@ -27,9 +27,9 @@ using namespace ddge::exec::accessors::ecs;
 using CachedTextureLoader = ddge::exec::accessors::assets::Cached<assets::TextureLoader>;
 
 auto game::tasks::spawn_apple()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
+    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
 {
-    return ddge::exec::v2::as_task(
+    return ddge::exec::as_task(
         +[](const CachedTextureLoader texture_loader, const Registry registry) -> void {
             static std::random_device random_device;
             static std::mt19937       random_engine{ random_device() };

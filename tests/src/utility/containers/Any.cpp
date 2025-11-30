@@ -42,7 +42,8 @@ TEST_CASE("util::Any")
 
     static_assert(
         [] {
-            ddge::util::BasicCopyableAny<0> any{ std::in_place_type<Value>, value.value() };
+            ddge::util::BasicCopyableAny<0> any{ std::in_place_type<Value>,
+                                                 value.value() };
             assert(any_cast<Value>(any) == value);
 
             return true;
@@ -52,9 +53,11 @@ TEST_CASE("util::Any")
 
     static_assert(
         [] {
-            const ddge::util::BasicCopyableAny<0> any{ ddge::util::BasicCopyableAny<0>::Allocator{},
-                                                  std::in_place_type<Value>,
-                                                  value.value() };
+            const ddge::util::BasicCopyableAny<0> any{
+                ddge::util::BasicCopyableAny<0>::Allocator{},
+                std::in_place_type<Value>,
+                value.value()
+            };
             assert(any_cast<Value>(any) == value);
 
             return true;
@@ -74,8 +77,9 @@ TEST_CASE("util::Any")
 
     static_assert(
         [] {
-            const ddge::util::BasicCopyableAny<0> any{ ddge::util::BasicCopyableAny<0>::Allocator{},
-                                                  value };
+            const ddge::util::BasicCopyableAny<0> any{
+                ddge::util::BasicCopyableAny<0>::Allocator{}, value
+            };
             assert(any_cast<Value>(any) == value);
 
             return true;

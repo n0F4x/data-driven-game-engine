@@ -9,7 +9,9 @@ struct TypeList {};
 
 }   // namespace
 
-static_assert(std::is_same_v<ddge::util::meta::type_list_concat_t<TypeList<int>>, TypeList<int>>);
+static_assert(
+    std::is_same_v<ddge::util::meta::type_list_concat_t<TypeList<int>>, TypeList<int>>
+);
 
 static_assert(std::is_same_v<
               ddge::util::meta::type_list_concat_t<TypeList<int>, TypeList<float>>,

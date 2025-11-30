@@ -14,10 +14,14 @@ struct IsEven {
 
 }   // namespace
 
-static_assert(std::is_same_v<
-              ddge::util::meta::index_sequence_filter_t<IntegerSequence<std::size_t>, IsEven>,
-              IntegerSequence<std::size_t>>);
-static_assert(std::is_same_v<
-              ddge::util::meta::
-                  index_sequence_filter_t<IntegerSequence<std::size_t, 0, 1, 2, 3, 4>, IsEven>,
-              IntegerSequence<std::size_t, 0, 2, 4>>);
+static_assert(
+    std::is_same_v<
+        ddge::util::meta::index_sequence_filter_t<IntegerSequence<std::size_t>, IsEven>,
+        IntegerSequence<std::size_t>>
+);
+static_assert(
+    std::is_same_v<
+        ddge::util::meta::
+            index_sequence_filter_t<IntegerSequence<std::size_t, 0, 1, 2, 3, 4>, IsEven>,
+        IntegerSequence<std::size_t, 0, 2, 4>>
+);

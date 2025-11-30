@@ -10,7 +10,6 @@ module;
 module snake.game.tasks.initialize;
 
 import ddge.modules.ecs;
-import ddge.modules.exec.TaskBuilder;
 import ddge.modules.time.FixedTimer;
 
 import ddge.modules.exec;
@@ -152,11 +151,11 @@ auto reset_timers(
 }
 
 auto game::tasks::initialize()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
+    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
 {
-    return ddge::exec::v2::start_as(ddge::exec::v2::as_task(::initialize_map))
-        .then(ddge::exec::v2::as_task(::initialize_snake))
-        .then(ddge::exec::v2::as_task(::load_apple_texture))
+    return ddge::exec::start_as(ddge::exec::as_task(::initialize_map))
+        .then(ddge::exec::as_task(::initialize_snake))
+        .then(ddge::exec::as_task(::load_apple_texture))
         .then(color_cells())
-        .then(ddge::exec::v2::as_task(::reset_timers));
+        .then(ddge::exec::as_task(::reset_timers));
 }

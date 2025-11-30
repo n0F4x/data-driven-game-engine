@@ -10,7 +10,8 @@ namespace {
 constexpr auto throwing_function() -> void {}
 
 [[maybe_unused]]
-constexpr auto noexcept_function() noexcept -> void {}
+constexpr auto noexcept_function() noexcept -> void
+{}
 
 }   // namespace
 

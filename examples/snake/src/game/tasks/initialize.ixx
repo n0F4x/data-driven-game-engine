@@ -1,12 +1,11 @@
 export module snake.game.tasks.initialize;
 
-import ddge.modules.exec.v2.Cardinality;
-import ddge.modules.exec.v2.TaskBlueprint;
+import ddge.modules.exec.Cardinality;
+import ddge.modules.exec.TaskBlueprint;
 
 namespace game::tasks {
 
 export [[nodiscard]]
-auto initialize()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>;
+auto initialize() -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>;
 
 }   // namespace game::tasks

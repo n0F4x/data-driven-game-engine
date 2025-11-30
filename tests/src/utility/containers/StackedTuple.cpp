@@ -25,10 +25,9 @@ constexpr auto make_second_fn(First& first) -> Second
     return Second{ .ref = first.value };
 }
 
-auto make_second_lambda{ [] [[nodiscard]]
-                         (const First& first) -> Second {
-                             return Second{ .ref = first.value };
-                         } };
+auto make_second_lambda{ [] [[nodiscard]] (const First& first) -> Second {
+    return Second{ .ref = first.value };
+} };
 
 struct MakeSecondFunctor {
     [[nodiscard]]

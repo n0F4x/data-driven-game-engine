@@ -95,9 +95,10 @@ TEST_CASE("ddge::ecs::Registry")
                             };
                             static_assert(std::is_same_v<decltype(empty), std::tuple<>>);
 
-                            decltype(auto
-                            ) comp_0_tuple{ static_cast<Registry_T>(registry)
-                                                .template get<Comps...[0]>(id) };
+                            decltype(auto) comp_0_tuple{
+                                static_cast<Registry_T>(registry)
+                                    .template get<Comps...[0]>(id)
+                            };
                             static_assert(std::is_same_v<
                                           decltype(comp_0_tuple),
                                           std::tuple<ddge::util::meta::const_like_t<
@@ -110,9 +111,10 @@ TEST_CASE("ddge::ecs::Registry")
                                  == comp_0)
                             );
 
-                            decltype(auto
-                            ) comp_1_tuple{ static_cast<Registry_T>(registry)
-                                                .template get<Comps...[1]>(id) };
+                            decltype(auto) comp_1_tuple{
+                                static_cast<Registry_T>(registry)
+                                    .template get<Comps...[1]>(id)
+                            };
                             static_assert(std::is_same_v<
                                           decltype(comp_1_tuple),
                                           std::tuple<ddge::util::meta::const_like_t<
@@ -170,7 +172,8 @@ TEST_CASE("ddge::ecs::Registry")
 
                             REQUIRE_THROWS_AS(
                                 (static_cast<Registry_T>(registry)
-                                     .template get<Comps...[0], Comps...[1], Comps...[2]>(id
+                                     .template get<Comps...[0], Comps...[1], Comps...[2]>(
+                                         id
                                      )),
                                 ddge::util::PreconditionViolation
                             );
@@ -197,9 +200,10 @@ TEST_CASE("ddge::ecs::Registry")
 
                             const auto id = registry.create(comp_0, comp_1);
 
-                            decltype(auto
-                            ) comp_0_result{ static_cast<Registry_T>(registry)
-                                                 .template get_single<Comps...[0]>(id) };
+                            decltype(auto) comp_0_result{
+                                static_cast<Registry_T>(registry)
+                                    .template get_single<Comps...[0]>(id)
+                            };
                             static_assert(std::is_same_v<
                                           decltype(comp_0_result),
                                           ddge::util::meta::const_like_t<
@@ -207,9 +211,10 @@ TEST_CASE("ddge::ecs::Registry")
                                               std::remove_reference_t<Registry_T>>&>);
                             REQUIRE(comp_0_result == comp_0);
 
-                            decltype(auto
-                            ) comp_1_result{ static_cast<Registry_T>(registry)
-                                                 .template get_single<Comps...[1]>(id) };
+                            decltype(auto) comp_1_result{
+                                static_cast<Registry_T>(registry)
+                                    .template get_single<Comps...[1]>(id)
+                            };
                             static_assert(std::is_same_v<
                                           decltype(comp_1_result),
                                           ddge::util::meta::const_like_t<
@@ -232,7 +237,8 @@ TEST_CASE("ddge::ecs::Registry")
                             );
 
                             static_assert(!requires {
-                                static_cast<Registry_T>(registry).template get_single<>(id
+                                static_cast<Registry_T>(registry).template get_single<>(
+                                    id
                                 );
                             });
 
@@ -263,9 +269,10 @@ TEST_CASE("ddge::ecs::Registry")
                             };
                             static_assert(std::is_same_v<decltype(empty), std::tuple<>>);
 
-                            decltype(auto
-                            ) optional_comp_0_tuple{ static_cast<Registry_T>(registry)
-                                                         .template find<Comps...[0]>(id) };
+                            decltype(auto) optional_comp_0_tuple{
+                                static_cast<Registry_T>(registry)
+                                    .template find<Comps...[0]>(id)
+                            };
                             static_assert(std::is_same_v<
                                           decltype(optional_comp_0_tuple),
                                           std::tuple<ddge::util::OptionalRef<
@@ -290,9 +297,10 @@ TEST_CASE("ddge::ecs::Registry")
                                 == comp_0
                             ));
 
-                            decltype(auto
-                            ) optional_comp_1_tuple{ static_cast<Registry_T>(registry)
-                                                         .template find<Comps...[1]>(id) };
+                            decltype(auto) optional_comp_1_tuple{
+                                static_cast<Registry_T>(registry)
+                                    .template find<Comps...[1]>(id)
+                            };
                             static_assert(std::is_same_v<
                                           decltype(optional_comp_1_tuple),
                                           std::tuple<ddge::util::OptionalRef<
@@ -321,16 +329,17 @@ TEST_CASE("ddge::ecs::Registry")
                                 static_cast<Registry_T>(registry)
                                     .template find<Comps...[0], Comps...[1]>(id)
                             };
-                            static_assert(std::is_same_v<
-                                          decltype(optional_combined_tuple),
-                                          std::tuple<
-                                              ddge::util::OptionalRef<
-                                                  ddge::util::meta::const_like_t<
-                                                      Comps...[0],
-                                                      std::remove_reference_t<Registry_T>>>,
-                                              ddge::util::OptionalRef<ddge::util::meta::const_like_t<
-                                                  Comps...[1],
-                                                  std::remove_reference_t<Registry_T>>>>>);
+                            static_assert(
+                                std::is_same_v<
+                                    decltype(optional_combined_tuple),
+                                    std::tuple<
+                                        ddge::util::OptionalRef<ddge::util::meta::const_like_t<
+                                            Comps...[0],
+                                            std::remove_reference_t<Registry_T>>>,
+                                        ddge::util::OptionalRef<ddge::util::meta::const_like_t<
+                                            Comps...[1],
+                                            std::remove_reference_t<Registry_T>>>>>
+                            );
                             REQUIRE(
                                 ddge::util::tuple_all_of(
                                     optional_combined_tuple,
@@ -366,16 +375,17 @@ TEST_CASE("ddge::ecs::Registry")
                                 static_cast<Registry_T>(registry)
                                     .template find<Comps...[1], Comps...[0]>(id)
                             };
-                            static_assert(std::is_same_v<
-                                          decltype(optional_shuffled_tuple),
-                                          std::tuple<
-                                              ddge::util::OptionalRef<
-                                                  ddge::util::meta::const_like_t<
-                                                      Comps...[1],
-                                                      std::remove_reference_t<Registry_T>>>,
-                                              ddge::util::OptionalRef<ddge::util::meta::const_like_t<
-                                                  Comps...[0],
-                                                  std::remove_reference_t<Registry_T>>>>>);
+                            static_assert(
+                                std::is_same_v<
+                                    decltype(optional_shuffled_tuple),
+                                    std::tuple<
+                                        ddge::util::OptionalRef<ddge::util::meta::const_like_t<
+                                            Comps...[1],
+                                            std::remove_reference_t<Registry_T>>>,
+                                        ddge::util::OptionalRef<ddge::util::meta::const_like_t<
+                                            Comps...[0],
+                                            std::remove_reference_t<Registry_T>>>>>
+                            );
                             REQUIRE(
                                 ddge::util::tuple_all_of(
                                     optional_shuffled_tuple,
@@ -454,19 +464,21 @@ TEST_CASE("ddge::ecs::Registry")
                             decltype(auto) empty{
                                 static_cast<Registry_T>(registry).template find_all<>(id)
                             };
-                            static_assert(std::is_same_v<
-                                          decltype(empty),
-                                          std::optional<std::tuple<>>>);
+                            static_assert(
+                                std::is_same_v<decltype(empty), std::optional<std::tuple<>>>
+                            );
 
                             decltype(auto) optional_comp_0_tuple{
                                 static_cast<Registry_T>(registry)
                                     .template find_all<Comps...[0]>(id)
                             };
-                            static_assert(std::is_same_v<
-                                          decltype(optional_comp_0_tuple),
-                                          std::optional<std::tuple<ddge::util::meta::const_like_t<
-                                              Comps...[0],
-                                              std::remove_reference_t<Registry_T>>&>>>);
+                            static_assert(
+                                std::is_same_v<
+                                    decltype(optional_comp_0_tuple),
+                                    std::optional<std::tuple<ddge::util::meta::const_like_t<
+                                        Comps...[0],
+                                        std::remove_reference_t<Registry_T>>&>>>
+                            );
                             REQUIRE(optional_comp_0_tuple.has_value());
                             REQUIRE(
                                 (std::get<ddge::util::meta::const_like_t<
@@ -481,11 +493,13 @@ TEST_CASE("ddge::ecs::Registry")
                                 static_cast<Registry_T>(registry)
                                     .template find_all<Comps...[1]>(id)
                             };
-                            static_assert(std::is_same_v<
-                                          decltype(optional_comp_1_tuple),
-                                          std::optional<std::tuple<ddge::util::meta::const_like_t<
-                                              Comps...[1],
-                                              std::remove_reference_t<Registry_T>>&>>>);
+                            static_assert(
+                                std::is_same_v<
+                                    decltype(optional_comp_1_tuple),
+                                    std::optional<std::tuple<ddge::util::meta::const_like_t<
+                                        Comps...[1],
+                                        std::remove_reference_t<Registry_T>>&>>>
+                            );
                             REQUIRE(optional_comp_1_tuple.has_value());
                             REQUIRE(
                                 (std::get<ddge::util::meta::const_like_t<
@@ -500,15 +514,17 @@ TEST_CASE("ddge::ecs::Registry")
                                 static_cast<Registry_T>(registry)
                                     .template find_all<Comps...[0], Comps...[1]>(id)
                             };
-                            static_assert(std::is_same_v<
-                                          decltype(optional_combined_tuple),
-                                          std::optional<std::tuple<
-                                              ddge::util::meta::const_like_t<
-                                                  Comps...[0],
-                                                  std::remove_reference_t<Registry_T>>&,
-                                              ddge::util::meta::const_like_t<
-                                                  Comps...[1],
-                                                  std::remove_reference_t<Registry_T>>&>>>);
+                            static_assert(
+                                std::is_same_v<
+                                    decltype(optional_combined_tuple),
+                                    std::optional<std::tuple<
+                                        ddge::util::meta::const_like_t<
+                                            Comps...[0],
+                                            std::remove_reference_t<Registry_T>>&,
+                                        ddge::util::meta::const_like_t<
+                                            Comps...[1],
+                                            std::remove_reference_t<Registry_T>>&>>>
+                            );
                             REQUIRE(optional_combined_tuple.has_value());
                             REQUIRE(
                                 optional_combined_tuple.value()
@@ -519,15 +535,17 @@ TEST_CASE("ddge::ecs::Registry")
                                 static_cast<Registry_T>(registry)
                                     .template find_all<Comps...[1], Comps...[0]>(id)
                             };
-                            static_assert(std::is_same_v<
-                                          decltype(optional_shuffled_tuple),
-                                          std::optional<std::tuple<
-                                              ddge::util::meta::const_like_t<
-                                                  Comps...[1],
-                                                  std::remove_reference_t<Registry_T>>&,
-                                              ddge::util::meta::const_like_t<
-                                                  Comps...[0],
-                                                  std::remove_reference_t<Registry_T>>&>>>);
+                            static_assert(
+                                std::is_same_v<
+                                    decltype(optional_shuffled_tuple),
+                                    std::optional<std::tuple<
+                                        ddge::util::meta::const_like_t<
+                                            Comps...[1],
+                                            std::remove_reference_t<Registry_T>>&,
+                                        ddge::util::meta::const_like_t<
+                                            Comps...[0],
+                                            std::remove_reference_t<Registry_T>>&>>>
+                            );
                             REQUIRE(optional_shuffled_tuple.has_value());
                             REQUIRE(
                                 optional_shuffled_tuple.value()
@@ -578,28 +596,32 @@ TEST_CASE("ddge::ecs::Registry")
 
                             const auto id = registry.create(comp_0, comp_1);
 
-                            decltype(auto
-                            ) comp_0_result{ static_cast<Registry_T>(registry)
-                                                 .template find_single<Comps...[0]>(id) };
-                            static_assert(std::is_same_v<
-                                          decltype(comp_0_result),
-                                          ddge::util::
-                                              OptionalRef<ddge::util::meta::const_like_t<
-                                                  Comps...[0],
-                                                  std::remove_reference_t<Registry_T>>>>);
+                            decltype(auto) comp_0_result{
+                                static_cast<Registry_T>(registry)
+                                    .template find_single<Comps...[0]>(id)
+                            };
+                            static_assert(
+                                std::is_same_v<
+                                    decltype(comp_0_result),
+                                    ddge::util::OptionalRef<ddge::util::meta::const_like_t<
+                                        Comps...[0],
+                                        std::remove_reference_t<Registry_T>>>>
+                            );
                             REQUIRE(comp_0_result.has_value());
                             REQUIRE(comp_0_result.has_value());
                             REQUIRE(*comp_0_result == comp_0);
 
-                            decltype(auto
-                            ) comp_1_result{ static_cast<Registry_T>(registry)
-                                                 .template find_single<Comps...[1]>(id) };
-                            static_assert(std::is_same_v<
-                                          decltype(comp_1_result),
-                                          ddge::util::
-                                              OptionalRef<ddge::util::meta::const_like_t<
-                                                  Comps...[1],
-                                                  std::remove_reference_t<Registry_T>>>>);
+                            decltype(auto) comp_1_result{
+                                static_cast<Registry_T>(registry)
+                                    .template find_single<Comps...[1]>(id)
+                            };
+                            static_assert(
+                                std::is_same_v<
+                                    decltype(comp_1_result),
+                                    ddge::util::OptionalRef<ddge::util::meta::const_like_t<
+                                        Comps...[1],
+                                        std::remove_reference_t<Registry_T>>>>
+                            );
                             REQUIRE(comp_1_result.has_value());
                             REQUIRE(*comp_1_result == comp_1);
 
@@ -618,7 +640,8 @@ TEST_CASE("ddge::ecs::Registry")
                             );
 
                             static_assert(!requires {
-                                static_cast<Registry_T>(registry).template find_single<>(id
+                                static_cast<Registry_T>(registry).template find_single<>(
+                                    id
                                 );
                             });
 
@@ -732,8 +755,8 @@ TEST_CASE("ddge::ecs::Registry")
                     decltype(auto) result_0 = registry.remove(id);
                     static_assert(std::is_same_v<decltype(result_0), std::tuple<>>);
 
-                    decltype(auto) result_1 = registry.remove<Comps...[4], Comps...[5]>(id
-                    );
+                    decltype(auto) result_1 =
+                        registry.remove<Comps...[4], Comps...[5]>(id);
                     static_assert(std::is_same_v<
                                   decltype(result_1),
                                   std::tuple<Comps...[4], Comps...[5]>>);
@@ -804,11 +827,11 @@ TEST_CASE("ddge::ecs::Registry")
                     static_assert(std::is_same_v<decltype(result_0), std::tuple<>>);
 
                     decltype(auto) result_1 = registry.erase<Comps...[5], Comps...[6]>(id);
-                    static_assert(std::is_same_v<
-                                  decltype(result_1),
-                                  std::tuple<
-                                      std::optional<Comps...[5]>,
-                                      std::optional<Comps...[6]>>>);
+                    static_assert(
+                        std::is_same_v<
+                            decltype(result_1),
+                            std::tuple<std::optional<Comps...[5]>, std::optional<Comps...[6]>>>
+                    );
                     REQUIRE(std::get<std::optional<Comps...[5]>>(result_1).has_value());
                     REQUIRE_FALSE(
                         std::get<std::optional<Comps...[6]>>(result_1).has_value()
@@ -829,8 +852,9 @@ TEST_CASE("ddge::ecs::Registry")
                             .has_value()
                     );
                     REQUIRE_FALSE(
-                        std::get<std::optional<Comps...[5]>>(registry.erase<Comps...[5]>(id
-                                                             ))
+                        std::get<std::optional<Comps...[5]>>(
+                            registry.erase<Comps...[5]>(id)
+                        )
                             .has_value()
                     );
                 }
@@ -847,13 +871,13 @@ TEST_CASE("ddge::ecs::Registry")
                     );
 
                     decltype(auto) result_0 = registry.erase_all(id);
-                    static_assert(std::is_same_v<
-                                  decltype(result_0),
-                                  std::optional<std::tuple<>>>);
+                    static_assert(
+                        std::is_same_v<decltype(result_0), std::optional<std::tuple<>>>
+                    );
                     REQUIRE(result_0.has_value());
 
-                    decltype(auto
-                    ) result_1 = registry.erase_all<Comps...[4], Comps...[5]>(id);
+                    decltype(auto) result_1 =
+                        registry.erase_all<Comps...[4], Comps...[5]>(id);
                     static_assert(std::is_same_v<
                                   decltype(result_1),
                                   std::optional<std::tuple<Comps...[4], Comps...[5]>>>);
@@ -887,9 +911,9 @@ TEST_CASE("ddge::ecs::Registry")
                     );
 
                     decltype(auto) result = registry.erase_single<Comps...[5]>(id);
-                    static_assert(std::is_same_v<
-                                  decltype(result),
-                                  std::optional<Comps...[5]>>);
+                    static_assert(
+                        std::is_same_v<decltype(result), std::optional<Comps...[5]>>
+                    );
                     REQUIRE(result.has_value());
                     REQUIRE(registry.contains_all<
                             Comps...[0],

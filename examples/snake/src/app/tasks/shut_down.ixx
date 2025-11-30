@@ -1,8 +1,8 @@
 export module snake.app.tasks.shut_down;
 
-import ddge.modules.exec.v2.Cardinality;
-import ddge.modules.exec.v2.primitives.start_as;
-import ddge.modules.exec.v2.TaskBlueprint;
+import ddge.modules.exec.Cardinality;
+import ddge.modules.exec.primitives.start_as;
+import ddge.modules.exec.TaskBlueprint;
 
 import snake.game.tasks.shut_down;
 import snake.window.tasks.close_window;
@@ -10,10 +10,9 @@ import snake.window.tasks.close_window;
 namespace app::tasks {
 
 export [[nodiscard]]
-auto shut_down()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
+auto shut_down() -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
 {
-    return ddge::exec::v2::start_as(game::tasks::shut_down())   //
+    return ddge::exec::start_as(game::tasks::shut_down())   //
         .then(window::tasks::close_window());
 }
 

@@ -4,7 +4,6 @@ module;
 
 module snake.game.tasks.update;
 
-import ddge.modules.exec.TaskBuilder;
 import ddge.modules.time.FixedTimer;
 
 import ddge.modules.exec;
@@ -49,9 +48,9 @@ auto world_update_message_received(
 }
 
 auto game::tasks::update()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>
+    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
 {
-    namespace sch = ddge::exec::v2;
+    namespace sch = ddge::exec;
 
     return sch::start_as(sch::as_task(::update_timers))
         .then(

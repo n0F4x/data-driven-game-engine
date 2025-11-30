@@ -43,7 +43,7 @@ constexpr static auto process_events =              //
 [[nodiscard]]
 auto update_world()
 {
-    return ddge::exec::v2::query(
+    return ddge::exec::query(
         +[](   //
              const ddge::ecs::ID            id,
              const Position                 position,
@@ -78,15 +78,15 @@ constexpr static auto game_is_running =
 [[nodiscard]]
 auto run_game_loop()
 {
-    return ddge::exec::v2::loop_until(
-        ddge::exec::v2::start_as(
-            ddge::exec::v2::group(
+    return ddge::exec::loop_until(
+        ddge::exec::start_as(
+            ddge::exec::group(
                 update_world(),   //
-                ddge::exec::v2::as_task(record_window_events)
+                ddge::exec::as_task(record_window_events)
             )
         )
-            .then(ddge::exec::v2::as_task(process_events)),
-        ddge::exec::v2::as_task(game_is_running)
+            .then(ddge::exec::as_task(process_events)),
+        ddge::exec::as_task(game_is_running)
     );
 }
 
@@ -106,8 +106,8 @@ auto main() -> int
         .plug_in(ddge::plugins::ECS{})
         .plug_in(ddge::plugins::Execution{})
         .run(
-            ddge::exec::v2::start_as(ddge::exec::v2::as_task(initialize))   //
+            ddge::exec::start_as(ddge::exec::as_task(initialize))   //
                 .then(run_game_loop())
-                .then(ddge::exec::v2::as_task(shut_down))
+                .then(ddge::exec::as_task(shut_down))
         );
 }

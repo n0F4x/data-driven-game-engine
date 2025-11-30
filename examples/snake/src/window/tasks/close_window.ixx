@@ -1,12 +1,11 @@
 export module snake.window.tasks.close_window;
 
-import ddge.modules.exec.v2.Cardinality;
-import ddge.modules.exec.v2.TaskBlueprint;
+import ddge.modules.exec.Cardinality;
+import ddge.modules.exec.TaskBlueprint;
 
 namespace window::tasks {
 
 export [[nodiscard]]
-auto close_window()
-    -> ddge::exec::v2::TaskBlueprint<void, ddge::exec::v2::Cardinality::eSingle>;
+auto close_window() -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>;
 
 }   // namespace window::tasks

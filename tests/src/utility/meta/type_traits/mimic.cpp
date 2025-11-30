@@ -13,21 +13,25 @@ consteval auto check_type() -> bool
     static_assert(std::is_same_v<ddge::util::meta::mimic_t<T, float&>, Naked&>);
     static_assert(std::is_same_v<ddge::util::meta::mimic_t<T, float&&>, Naked&&>);
     static_assert(std::is_same_v<ddge::util::meta::mimic_t<T, const float>, const Naked>);
-    static_assert(std::is_same_v<ddge::util::meta::mimic_t<T, const float&>, const Naked&>);
-    static_assert(std::is_same_v<ddge::util::meta::mimic_t<T, const float&&>, const Naked&&>);
+    static_assert(
+        std::is_same_v<ddge::util::meta::mimic_t<T, const float&>, const Naked&>
+    );
+    static_assert(
+        std::is_same_v<ddge::util::meta::mimic_t<T, const float&&>, const Naked&&>
+    );
 
-    static_assert(std::is_same_v<
-                  ddge::util::meta::mimic_t<T, volatile float>,
-                  volatile Naked>);
-    static_assert(std::is_same_v<
-                  ddge::util::meta::mimic_t<T, volatile float&>,
-                  volatile Naked&>);
-    static_assert(std::is_same_v<
-                  ddge::util::meta::mimic_t<T, volatile float&&>,
-                  volatile Naked&&>);
-    static_assert(std::is_same_v<
-                  ddge::util::meta::mimic_t<T, const volatile float>,
-                  const volatile Naked>);
+    static_assert(
+        std::is_same_v<ddge::util::meta::mimic_t<T, volatile float>, volatile Naked>
+    );
+    static_assert(
+        std::is_same_v<ddge::util::meta::mimic_t<T, volatile float&>, volatile Naked&>
+    );
+    static_assert(
+        std::is_same_v<ddge::util::meta::mimic_t<T, volatile float&&>, volatile Naked&&>
+    );
+    static_assert(
+        std::is_same_v<ddge::util::meta::mimic_t<T, const volatile float>, const volatile Naked>
+    );
     static_assert(std::is_same_v<
                   ddge::util::meta::mimic_t<T, const volatile float&>,
                   const volatile Naked&>);
