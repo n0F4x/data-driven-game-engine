@@ -47,26 +47,26 @@ constexpr auto always_4() noexcept -> int
 
 auto main() -> int
 {
-    namespace sch = ddge::exec;
+    using namespace ddge;
 
-    ddge::app::create()
-        .plug_in(ddge::plugins::Resources{})
+    app::create()
+        .plug_in(plugins::Resources{})
         .insert_resource(ContendedResource{})
-        .plug_in(ddge::plugins::Execution{ 4 })
+        .plug_in(plugins::Execution{ 4 })
         .run(
-            sch::repeat(
-                sch::start_as(
-                    sch::group(
-                        sch::as_task(say_hello_from_thread),         //
-                        sch::as_task(contend_for_resource_first),    //
-                        sch::as_task(say_hello_from_thread),         //
-                        sch::as_task(say_hello_from_thread),         //
-                        sch::as_task(contend_for_resource_second),   //
-                        sch::as_task(say_hello_from_thread)          //
+            exec::repeat(
+                exec::start_as(
+                    exec::group(
+                        exec::as_task(say_hello_from_thread),         //
+                        exec::as_task(contend_for_resource_first),    //
+                        exec::as_task(say_hello_from_thread),         //
+                        exec::as_task(say_hello_from_thread),         //
+                        exec::as_task(contend_for_resource_second),   //
+                        exec::as_task(say_hello_from_thread)          //
                     )
                 )
-                    .then(sch::as_task(print_join_message)),
-                sch::as_task(always_4)   //
-            )                            //
+                    .then(exec::as_task(print_join_message)),
+                exec::as_task(always_4)   //
+            )                             //
         );
 }

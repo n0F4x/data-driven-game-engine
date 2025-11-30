@@ -7,7 +7,7 @@ Welcome to our tutorial section!
 * xref:app.adoc[The app and the builder]
 * xref:resources.adoc[Resource management]
 * xref:ecs.adoc[Entity Component System]
-* xref:scheduler.adoc[Scheduling]
+* xref:execution.adoc[Execution]
 * xref:events.adoc[Event system]
 * xref:states.adoc[States]
 * xref:messages.adoc[Messaging]

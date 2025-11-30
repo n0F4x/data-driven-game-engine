@@ -1,16 +1,16 @@
-= Scheduling
+= Execution
 
 The base of an application is the scheduler, which is responsible for running the different systems.
 
 [,c++]
-."Hello World!" using the scheduler
+."Hello World!" using the execution plugin
 ----
 ddge::app::create()
-    .plug_in(ddge::plugins::Scheduler{})
-    .run([] { std::println("Hello World!"); });
+    .plug_in(ddge::plugins::Execution{})
+    .run(ddge::exec::as_task([] { std::println("Hello World!"); }));
 ----
 
-We can also describe more complicated logic using scheduling primitives.
+We can also describe more complicated logic using execution primitives.
 
 [,c++]
 ----
@@ -23,16 +23,16 @@ auto say_hi() -> void {
 }
 
 ddge::app::create()
-    .plug_in(ddge::plugins::Scheduler{})
+    .plug_in(ddge::plugins::Execution{})
     .run(
-        ddge::exec::start_as(say_hello)
-            .then(say_hi)
+        ddge::exec::start_as(ddge::exec::as_task(say_hello))
+            .then(ddge::exec::as_task(say_hi))
     );
 ----
 
 == Scheduling primitives
 
-.Core scheduling primitives
+.Core execution primitives
 * `+start_as+` - begins a schedule that can be chained using `+.then()+`
 
 * `+in_parallel+` - puts the given tasks in a group +
@@ -62,18 +62,18 @@ Most accessors store only a reference, so it is fine to take them by value; howe
 [,c++]
 .Example of a more complicated schedule
 ----
-namespace sch = ddge::schedule;
+namespace ex = ddge::exec;
 
 auto schedule =
-    sch::start_as(initialize_app)
+    ex::start_as(initialize_app)
         .then(
-            sch::loop_until(
-                sch::group(
-                    process_events,
-                    update,
-                    render
+            ex::loop_until(
+                ex::group(
+                    ex::as_task(process_events),
+                    ex::as_task(update),
+                    ex::as_task(render)
                 ),
-                game_is_running
+                ex::as_task(game_is_running)
             )
         )
         .then(shut_down);
