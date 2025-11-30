@@ -1,10 +1,14 @@
+module;
+
+#include <optional>
+
 export module ddge.modules.states.state_c;
 
-import ddge.modules.store.item_c;
+import ddge.utility.containers.store.item_c;
 
 namespace ddge::states {
 
 export template <typename T>
-concept state_c = store::item_c<T>;
+concept state_c = utility::store::item_c<std::optional<T>>;
 
 }   // namespace ddge::states

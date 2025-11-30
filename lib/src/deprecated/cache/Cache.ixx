@@ -5,7 +5,7 @@ module;
 
 export module ddge.deprecated.cache.Cache;
 
-import ddge.modules.store.Store;
+import ddge.utility.containers.store.Store;
 
 import ddge.deprecated.cache.Handle;
 
@@ -46,7 +46,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    ddge::store::Store m_store;
+    ddge::utility::store::Store m_store;
 };
 
 export using Cache = BasicCache<std::size_t, std::unordered_map>;

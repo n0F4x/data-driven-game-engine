@@ -9,9 +9,9 @@ module;
 
 #include "utility/contract_macros.hpp"
 
-export module ddge.modules.store.Store;
+export module ddge.utility.containers.store.Store;
 
-import ddge.modules.store.item_c;
+import ddge.utility.containers.store.item_c;
 
 import ddge.utility.any_cast;
 import ddge.utility.containers.AnyMoveOnly;
@@ -21,7 +21,7 @@ import ddge.utility.meta.reflection.name_of;
 import ddge.utility.meta.type_traits.const_like;
 import ddge.utility.meta.type_traits.forward_like;
 
-namespace ddge::store {
+namespace ddge::utility::store {
 
 export class Store {
 public:
@@ -53,10 +53,10 @@ private:
     tsl::ordered_map<std::type_index, util::BasicAnyMoveOnly<0>> m_map;
 };
 
-}   // namespace ddge::store
+}   // namespace ddge::utility::store
 
-template <ddge::store::item_c Item_T, typename... Args_T>
-auto ddge::store::Store::emplace(Args_T&&... args) -> Item_T&
+template <ddge::utility::store::item_c Item_T, typename... Args_T>
+auto ddge::utility::store::Store::emplace(Args_T&&... args) -> Item_T&
 {
     return util::any_cast<Item_T>(
         m_map
@@ -68,8 +68,8 @@ auto ddge::store::Store::emplace(Args_T&&... args) -> Item_T&
     );
 }
 
-template <ddge::store::item_c Item_T, typename Self_T>
-auto ddge::store::Store::find(this Self_T& self) noexcept
+template <ddge::utility::store::item_c Item_T, typename Self_T>
+auto ddge::utility::store::Store::find(this Self_T& self) noexcept
     -> util::OptionalRef<util::meta::const_like_t<Item_T, Self_T>>
 {
     const auto iter{ self.m_map.find(typeid(Item_T)) };
@@ -80,8 +80,8 @@ auto ddge::store::Store::find(this Self_T& self) noexcept
     return util::any_cast<Item_T>(*iter);
 }
 
-template <ddge::store::item_c Item_T, typename Self_T>
-auto ddge::store::Store::at(this Self_T&& self)
+template <ddge::utility::store::item_c Item_T, typename Self_T>
+auto ddge::utility::store::Store::at(this Self_T&& self)
     -> util::meta::forward_like_t<Item_T, Self_T>
 {
     PRECOND(
@@ -94,15 +94,15 @@ auto ddge::store::Store::at(this Self_T&& self)
     );
 }
 
-template <ddge::store::item_c Item_T>
-auto ddge::store::Store::contains() const noexcept -> bool
+template <ddge::utility::store::item_c Item_T>
+auto ddge::utility::store::Store::contains() const noexcept -> bool
 {
     return m_map.contains(typeid(Item_T));
 }
 
 module :private;
 
-ddge::store::Store::~Store()
+ddge::utility::store::Store::~Store()
 {
     while (!m_map.empty()) {
         m_map.pop_back();

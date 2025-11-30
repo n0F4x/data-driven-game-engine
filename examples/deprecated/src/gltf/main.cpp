@@ -5,6 +5,7 @@
 #include <VkBootstrap.h>
 
 import ddge.prelude;
+import ddge.deprecated;
 import ddge.modules;
 import ddge.utility.Size;
 

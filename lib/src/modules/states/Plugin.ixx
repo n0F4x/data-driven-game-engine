@@ -10,7 +10,7 @@ export module ddge.modules.states.Plugin;
 import ddge.modules.app;
 import ddge.modules.states.Addon;
 import ddge.modules.states.state_c;
-import ddge.modules.store.Store;
+import ddge.utility.containers.store.Store;
 
 import ddge.utility.contracts;
 
@@ -30,7 +30,7 @@ public:
     auto contains_state() const noexcept -> bool;
 
 private:
-    store::Store m_states;
+    utility::store::Store m_states;
 };
 
 }   // namespace ddge::states

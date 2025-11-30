@@ -16,7 +16,7 @@ import ddge.modules.scheduler.accessors.messages.Receiver;
 import ddge.modules.scheduler.accessors.messages.Sender;
 import ddge.modules.scheduler.ProviderFor;
 import ddge.modules.scheduler.ProviderOf;
-import ddge.modules.store.Store;
+import ddge.utility.containers.store.Store;
 
 import ddge.utility.contracts;
 import ddge.utility.meta.algorithms.apply;

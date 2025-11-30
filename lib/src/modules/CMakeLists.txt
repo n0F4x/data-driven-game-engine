@@ -7,7 +7,6 @@ add_subdirectory(messages)
 add_subdirectory(resources)
 add_subdirectory(scheduler)
 add_subdirectory(states)
-add_subdirectory(store)
 add_subdirectory(time)
 
 target_sources(${PROJECT_NAME} PUBLIC

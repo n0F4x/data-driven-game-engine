@@ -1,5 +1,7 @@
 export module ddge.utility.containers;
 
+export import ddge.utility.containers.store;
+
 export import ddge.utility.containers.Any;
 export import ddge.utility.containers.AnyFunction;
 export import ddge.utility.containers.AnyMoveOnly;

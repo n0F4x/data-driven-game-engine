@@ -5,7 +5,7 @@ module;
 export module ddge.modules.resources.ResourceManager;
 
 import ddge.modules.resources.resource_c;
-import ddge.modules.store.Store;
+import ddge.utility.containers.store.Store;
 
 import ddge.utility.containers.OptionalRef;
 import ddge.utility.meta.type_traits.const_like;
@@ -16,7 +16,7 @@ namespace ddge::resources {
 export class ResourceManager {
 public:
     ResourceManager() = default;
-    explicit ResourceManager(store::Store&& store);
+    explicit ResourceManager(utility::store::Store&& store);
 
     template <resource_c Resource_T, typename Self_T>
     [[nodiscard]]
@@ -32,12 +32,12 @@ public:
     auto contains() const noexcept -> bool;
 
 private:
-    ddge::store::Store m_store;
+    ddge::utility::store::Store m_store;
 };
 
 }   // namespace ddge::resources
 
-ddge::resources::ResourceManager::ResourceManager(store::Store&& store)
+ddge::resources::ResourceManager::ResourceManager(utility::store::Store&& store)
     : m_store{ std::move(store) }
 {}
 

@@ -1,6 +1,7 @@
 #include <print>
 
 import ddge.prelude;
+import ddge.deprecated;
 import ddge.modules;
 import ddge.utility.Size;
 

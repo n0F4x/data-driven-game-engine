@@ -11,7 +11,7 @@ export module ddge.modules.scheduler.Nexus;
 import ddge.modules.scheduler.accessor_c;
 import ddge.modules.scheduler.ProviderFor;
 
-import ddge.modules.store;
+import ddge.utility.containers.store;
 
 import ddge.utility.contracts;
 import ddge.utility.meta.algorithms.for_each;
@@ -31,7 +31,7 @@ public:
     auto provide() -> Accessor_T;
 
 private:
-    store::Store m_providers;
+    utility::store::Store m_providers;
 };
 
 }   // namespace ddge::scheduler
