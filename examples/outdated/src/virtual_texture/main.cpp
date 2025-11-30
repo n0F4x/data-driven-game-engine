@@ -13,9 +13,9 @@ import demos.virtual_texture.DemoApp;
 auto main() -> int
 try {
     ddge::app::create()
-        .plug_in(ddge::plugins::Functional{})
-        .plug_in(ddge::plugins::Resources{})
-        .plug_in(ddge::plugins::Runnable{})
+        .plug_in(ddge::app::FunctionalPlugin{})
+        .plug_in(ddge::resources::Plugin{})
+        .plug_in(ddge::app::RunnablePlugin{})
         .insert_resource(
             ddge::window::Window(ddge::util::Size2i{ 1'280, 720 }, "Virtual texturing demo")
         )

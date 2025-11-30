@@ -99,12 +99,12 @@ constexpr static auto shut_down =               //
 auto main() -> int
 {
     ddge::app::create()
-        .plug_in(ddge::plugins::Resources{})
+        .plug_in(ddge::resources::Plugin{})
         .insert_resource(Window{})
-        .plug_in(ddge::plugins::Events{})
+        .plug_in(ddge::events::Plugin{})
         .register_event<WindowClosed>()
-        .plug_in(ddge::plugins::ECS{})
-        .plug_in(ddge::plugins::Scheduler{})
+        .plug_in(ddge::ecs::Plugin{})
+        .plug_in(ddge::scheduler::Plugin{})
         .run(
             ddge::scheduler::start_as(ddge::scheduler::as_task(initialize))   //
                 .then(run_game_loop())

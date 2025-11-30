@@ -13,13 +13,13 @@ struct Second {
 auto main() -> int
 {
     // ordered_map is not constexpr 😢
-    int result = ddge::app::create()
-                     .plug_in(ddge::plugins::Resources{})
+    const int result = ddge::app::create()
+                     .plug_in(ddge::resources::Plugin{})
                      .insert_resource(First{})
                      .inject_resource([](const First& first) -> Second {
                          return Second{ .ref = first.value };
                      })
-                     .plug_in(ddge::plugins::Runnable{})
+                     .plug_in(ddge::app::RunnablePlugin{})
                      .run([](auto app) {
                          return app.resource_manager.template at<Second>().ref.get();
                      });

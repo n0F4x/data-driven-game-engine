@@ -5,7 +5,7 @@
 import ddge.prelude;
 import ddge.modules.scheduler;
 
-using namespace ddge::scheduler::accessors;
+using namespace ddge::scheduler;
 
 auto say_hello_from_thread() -> void
 {
@@ -14,7 +14,7 @@ auto say_hello_from_thread() -> void
 
 struct ContendedResource {};
 
-auto contend_for_resource_first(Resource<ContendedResource>) -> void
+auto contend_for_resource_first(accessors::Resource<ContendedResource>) -> void
 {
     using namespace std::chrono_literals;
     std::println(
@@ -23,7 +23,7 @@ auto contend_for_resource_first(Resource<ContendedResource>) -> void
     std::this_thread::sleep_for(3s);
 }
 
-auto contend_for_resource_second(Resource<ContendedResource>) -> void
+auto contend_for_resource_second(accessors::Resource<ContendedResource>) -> void
 {
     using namespace std::chrono_literals;
     std::println(
@@ -50,9 +50,9 @@ auto main() -> int
     using namespace ddge;
 
     app::create()
-        .plug_in(plugins::Resources{})
+        .plug_in(resources::Plugin{})
         .insert_resource(ContendedResource{})
-        .plug_in(plugins::Scheduler{ 4 })
+        .plug_in(scheduler::Plugin{ 4 })
         .run(
             scheduler::repeat(
                 scheduler::start_as(

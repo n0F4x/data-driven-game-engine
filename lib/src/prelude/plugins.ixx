@@ -1,28 +1,18 @@
 export module ddge.prelude.plugins;
 
-import ddge.modules.app.extensions.AddonsPlugin;
-import ddge.modules.app.extensions.FunctionalPlugin;
-import ddge.modules.app.extensions.RunnablePlugin;
-import ddge.modules.assets.Plugin;
+export import ddge.modules.app.extensions.AddonsPlugin;
+export import ddge.modules.app.extensions.FunctionalPlugin;
+export import ddge.modules.app.extensions.RunnablePlugin;
+export import ddge.modules.assets.Plugin;
 import ddge.modules.ecs;
-import ddge.modules.events.Plugin;
-import ddge.modules.messages.Plugin;
-import ddge.modules.resources.Plugin;
-import ddge.modules.scheduler.Plugin;
-import ddge.modules.states.Plugin;
+export import ddge.modules.events.Plugin;
+export import ddge.modules.messages.Plugin;
+export import ddge.modules.resources.Plugin;
+export import ddge.modules.scheduler.Plugin;
+export import ddge.modules.states.Plugin;
 
-namespace ddge::plugins {
+namespace ddge::ecs {
 
-export using Addons     = app::extensions::AddonsPlugin;
-export using Functional = app::extensions::FunctionalPlugin;
-export using Runnable   = app::extensions::RunnablePlugin;
+export using ecs::Plugin;
 
-export using Assets    = assets::Plugin;
-export using ECS       = ecs::Plugin;
-export using Events    = events::Plugin;
-export using Scheduler = scheduler::Plugin;
-export using Messages  = messages::Plugin;
-export using Resources = resources::Plugin;
-export using States    = states::Plugin;
-
-}   // namespace ddge::plugins
+}   // namespace ddge::ecs
