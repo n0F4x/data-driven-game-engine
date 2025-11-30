@@ -170,10 +170,10 @@ export template <
     std::size_t                           size_T      = 3 * sizeof(void*),
     std::size_t                           alignment_T = sizeof(void*),
     ddge::util::meta::generic_allocator_c Allocator_T = DefaultAllocator>
-using BasicCopyableAny =
+using BasicAnyCopyable =
     BasicAny<{}, ::PermissiveConceptPolicy, size_T, alignment_T, Allocator_T>;
 
-export using CopyableAny = BasicCopyableAny<>;
+export using AnyCopyable = BasicAnyCopyable<>;
 
 }   // namespace ddge::util
 

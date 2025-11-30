@@ -13,6 +13,7 @@ export module ddge.modules.store.Store;
 
 import ddge.modules.store.item_c;
 
+import ddge.utility.any_cast;
 import ddge.utility.containers.AnyMoveOnly;
 import ddge.utility.containers.OptionalRef;
 import ddge.utility.contracts;
