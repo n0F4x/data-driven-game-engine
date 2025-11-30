@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         concepts.cppm
         all_different.ixx
+        all_same.ixx
         allocator.ixx
         decayed.ixx
         decays_to.ixx

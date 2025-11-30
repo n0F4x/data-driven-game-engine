@@ -42,5 +42,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         TaskHubBuilder.ixx
         TaskHubProxy.ixx
         TaskIndex.ixx
+        TaskResultTrait.ixx
         TypedTaskIndex.ixx
 )

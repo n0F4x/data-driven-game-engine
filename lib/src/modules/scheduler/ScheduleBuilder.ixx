@@ -16,6 +16,7 @@ import ddge.modules.scheduler.TaskContinuation;
 import ddge.modules.scheduler.TaskContinuationFactory;
 import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TaskHubProxy;
+import ddge.modules.scheduler.TaskResultTrait;
 import ddge.modules.scheduler.TypedTaskIndex;
 
 namespace ddge::scheduler {
@@ -32,6 +33,11 @@ public:
 
 private:
     std::vector<TaskBuilder<void>> m_task_builders;
+};
+
+export template <>
+struct TaskResultTrait<ScheduleBuilder> {
+    using type = void;
 };
 
 }   // namespace ddge::scheduler

@@ -5,6 +5,7 @@ module;
 export module ddge.modules.scheduler.TaskBuilder;
 
 import ddge.modules.scheduler.TaskHubBuilder;
+import ddge.modules.scheduler.TaskResultTrait;
 import ddge.modules.scheduler.TypedTaskIndex;
 
 import ddge.utility.containers.AnyMoveOnlyFunction;
@@ -29,6 +30,11 @@ public:
 
 private:
     BuildFunc m_build;
+};
+
+export template <typename Result_T>
+struct TaskResultTrait<TaskBuilder<Result_T>> {
+    using type = Result_T;
 };
 
 }   // namespace ddge::scheduler

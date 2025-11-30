@@ -6,6 +6,7 @@ export import ddge.utility.meta.concepts.ranges;
 export import ddge.utility.meta.concepts.type_list;
 
 export import ddge.utility.meta.concepts.all_different;
+export import ddge.utility.meta.concepts.all_same;
 export import ddge.utility.meta.concepts.allocator;
 export import ddge.utility.meta.concepts.decayed;
 export import ddge.utility.meta.concepts.decays_to;

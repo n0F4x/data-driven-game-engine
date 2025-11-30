@@ -32,4 +32,5 @@ export import ddge.modules.scheduler.TaskHub;
 export import ddge.modules.scheduler.TaskHubBuilder;
 export import ddge.modules.scheduler.TaskHubProxy;
 export import ddge.modules.scheduler.TaskIndex;
+export import ddge.modules.scheduler.TaskResultTrait;
 export import ddge.modules.scheduler.TypedTaskIndex;
