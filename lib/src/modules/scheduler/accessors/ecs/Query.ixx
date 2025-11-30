@@ -29,7 +29,7 @@ export template <ddge::ecs::query_filter_c... Filters_T>
     requires(sizeof...(Filters_T) != 0)
 class Query {
 public:
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     explicit Query(ddge::ecs::Registry& registry);
     Query(const Query&) = delete ("Queries should be taken by reference");
@@ -81,24 +81,28 @@ struct ToComponent {
 template <ddge::ecs::query_filter_c... Filters_T>
     requires(sizeof...(Filters_T) != 0)
 constexpr auto ddge::scheduler::accessors::ecs::Query<Filters_T...>::lock_group()
-    -> LockGroup
+    -> const LockGroup&
 {
     using Components = util::meta::type_list_transform_t<
         util::meta::
             type_list_filter_t<util::TypeList<Filters_T...>, IsQueryableComponentOrOptional>,
         ToComponent>;
 
-    LockGroup lock_group;
-    util::meta::for_each<Components>([&lock_group]<typename Component_T> -> void {
-        if constexpr (std::is_const_v<Component_T>) {
-            lock_group.expand<std::remove_const_t<Component_T>>(Lock{
-                CriticalSectionType::eShared });
-        }
-        else {
-            lock_group.expand<Component_T>(Lock{ CriticalSectionType::eExclusive });
-        }
-    });
-    lock_group.expand<Registry>(Lock{ CriticalSectionType::eShared });
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        util::meta::for_each<Components>([&result]<typename Component_T> -> void {
+            if constexpr (std::is_const_v<Component_T>) {
+                result.expand<std::remove_const_t<Component_T>>(Lock{
+                    CriticalSectionType::eShared });
+            }
+            else {
+                result.expand<Component_T>(Lock{ CriticalSectionType::eExclusive });
+            }
+        });
+        result.expand<Registry>(Lock{ CriticalSectionType::eShared });
+        return result;
+    }() };
+
     return lock_group;
 }
 

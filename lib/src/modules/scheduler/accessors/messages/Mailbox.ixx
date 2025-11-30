@@ -16,7 +16,7 @@ inline namespace messages {
 
 export class Mailbox {
 public:
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     explicit Mailbox(ddge::messages::MessageManager& message_manager);
 
@@ -30,10 +30,15 @@ private:
 
 }   // namespace ddge::scheduler::accessors
 
-constexpr auto ddge::scheduler::accessors::messages::Mailbox::lock_group() -> LockGroup
+constexpr auto ddge::scheduler::accessors::messages::Mailbox::lock_group()
+    -> const LockGroup&
 {
-    LockGroup lock_group;
-    lock_group.expand<MessageManager>(Lock{ CriticalSectionType::eExclusive });
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        result.expand<MessageManager>(Lock{ CriticalSectionType::eExclusive });
+        return result;
+    }() };
+
     return lock_group;
 }
 

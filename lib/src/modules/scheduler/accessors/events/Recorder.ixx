@@ -29,7 +29,7 @@ class Recorder {
 public:
     using Events = util::TypeList<Events_T...>;
 
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     constexpr explicit Recorder(
         ddge::events::BufferedEventQueue<Events_T>&... buffered_event_queues
@@ -57,13 +57,17 @@ private:
 template <ddge::events::event_c... Events_T>
     requires(sizeof...(Events_T) != 0)
 constexpr auto ddge::scheduler::accessors::events::Recorder<Events_T...>::lock_group()
-    -> LockGroup
+    -> const LockGroup&
 {
-    LockGroup lock_group;
-    util::meta::for_each<Events>([&lock_group]<typename Event_T> -> void {
-        lock_group.expand<Event_T>(Lock{ CriticalSectionType::eExclusive });
-    });
-    lock_group.expand<EventManager>(Lock{ CriticalSectionType::eShared });
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        util::meta::for_each<Events>([&result]<typename Event_T> -> void {
+            result.expand<Event_T>(Lock{ CriticalSectionType::eExclusive });
+        });
+        result.expand<EventManager>(Lock{ CriticalSectionType::eShared });
+        return result;
+    }() };
+
     return lock_group;
 }
 

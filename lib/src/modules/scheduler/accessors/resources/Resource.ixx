@@ -24,7 +24,7 @@ class Resource : public util::Ref<Resource_T> {
 public:
     using Underlying = Resource_T;
 
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     using Base::Base;
 };
@@ -36,14 +36,18 @@ public:
 template <typename Resource_T>
     requires ddge::resources::resource_c<std::remove_const_t<Resource_T>>
 constexpr auto ddge::scheduler::accessors::resources::Resource<Resource_T>::lock_group()
-    -> LockGroup
+    -> const LockGroup&
 {
-    constexpr Lock lock{
-        std::is_const_v<Resource_T> ? CriticalSectionType::eShared
-                                    : CriticalSectionType::eExclusive   //
-    };
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        result.expand<Resource<std::remove_const_t<Resource_T>>>(
+            Lock{
+                std::is_const_v<Resource_T> ? CriticalSectionType::eShared
+                                            : CriticalSectionType::eExclusive   //
+            }   //
+        );
+        return result;
+    }() };
 
-    LockGroup lock_group;
-    lock_group.expand<Resource<std::remove_const_t<Resource_T>>>(auto{ lock });
     return lock_group;
 }

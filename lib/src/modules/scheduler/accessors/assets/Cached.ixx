@@ -18,7 +18,7 @@ class Cached : public util::Ref<ddge::assets::Cached<Loader_T>> {
 public:
     using Loader = Loader_T;
 
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     using Base::Base;
 };
@@ -29,9 +29,13 @@ public:
 
 template <ddge::assets::loader_c Loader_T>
 constexpr auto ddge::scheduler::accessors::assets::Cached<Loader_T>::lock_group()
-    -> LockGroup
+    -> const LockGroup&
 {
-    LockGroup lock_group;
-    lock_group.expand<Cached>(Lock{ CriticalSectionType::eExclusive });
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        result.expand<Cached>(Lock{ CriticalSectionType::eExclusive });
+        return result;
+    }() };
+
     return lock_group;
 }

@@ -22,7 +22,7 @@ class Reader {
 public:
     using Event = Event_T;
 
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     constexpr explicit Reader(
         const ddge::events::BufferedEventQueue<Event_T>& buffered_event_queue
@@ -42,13 +42,17 @@ private:
 
 template <ddge::events::event_c Event_T>
 constexpr auto ddge::scheduler::accessors::events::Reader<Event_T>::lock_group()
-    -> LockGroup
+    -> const LockGroup&
 {
-    LockGroup lock_group;
-    lock_group.expand<::ddge::scheduler::accessors::events::Event<Event>>(
-        Lock{ CriticalSectionType::eShared }   //
-    );
-    lock_group.expand<EventManager>(Lock{ CriticalSectionType::eShared });
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        result.expand<::ddge::scheduler::accessors::events::Event<Event>>(
+            Lock{ CriticalSectionType::eShared }   //
+        );
+        result.expand<EventManager>(Lock{ CriticalSectionType::eShared });
+        return result;
+    }() };
+
     return lock_group;
 }
 

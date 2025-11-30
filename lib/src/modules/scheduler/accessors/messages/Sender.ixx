@@ -28,7 +28,7 @@ class Sender {
 public:
     using Messages = util::TypeList<Messages_T...>;
 
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     constexpr explicit Sender(
         ddge::messages::MessageBuffer<Messages_T>&... message_buffers
@@ -56,13 +56,17 @@ private:
 template <ddge::messages::message_c... Messages_T>
     requires(sizeof...(Messages_T) != 0)
 constexpr auto ddge::scheduler::accessors::messages::Sender<Messages_T...>::lock_group()
-    -> LockGroup
+    -> const LockGroup&
 {
-    LockGroup lock_group;
-    util::meta::for_each<Messages>([&lock_group]<typename Message_T> -> void {
-        lock_group.expand<Message_T>(Lock{ CriticalSectionType::eExclusive });
-    });
-    lock_group.expand<MessageManager>(Lock{ CriticalSectionType::eShared });
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        util::meta::for_each<Messages>([&result]<typename Message_T> -> void {
+            result.expand<Message_T>(Lock{ CriticalSectionType::eExclusive });
+        });
+        result.expand<MessageManager>(Lock{ CriticalSectionType::eShared });
+        return result;
+    }() };
+
     return lock_group;
 }
 

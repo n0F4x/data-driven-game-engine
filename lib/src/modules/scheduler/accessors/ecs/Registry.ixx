@@ -15,7 +15,7 @@ export class Registry : public util::Ref<ddge::ecs::Registry> {
     using Base = util::Ref<ddge::ecs::Registry>;
 
 public:
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     using Base::Base;
 };
@@ -24,9 +24,13 @@ public:
 
 }   // namespace ddge::scheduler::accessors
 
-constexpr auto ddge::scheduler::accessors::ecs::Registry::lock_group() -> LockGroup
+constexpr auto ddge::scheduler::accessors::ecs::Registry::lock_group() -> const LockGroup&
 {
-    LockGroup lock_group;
-    lock_group.expand<Registry>(Lock{ CriticalSectionType::eExclusive });
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        result.expand<Registry>(Lock{ CriticalSectionType::eExclusive });
+        return result;
+    }() };
+
     return lock_group;
 }

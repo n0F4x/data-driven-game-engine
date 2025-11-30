@@ -16,7 +16,7 @@ inline namespace events {
 
 export class Processor {
 public:
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     explicit Processor(ddge::events::EventManager& event_manager);
 
@@ -30,10 +30,15 @@ private:
 
 }   // namespace ddge::scheduler::accessors
 
-constexpr auto ddge::scheduler::accessors::events::Processor::lock_group() -> LockGroup
+constexpr auto ddge::scheduler::accessors::events::Processor::lock_group()
+    -> const LockGroup&
 {
-    LockGroup lock_group;
-    lock_group.expand<EventManager>(Lock{ CriticalSectionType::eExclusive });
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        result.expand<EventManager>(Lock{ CriticalSectionType::eExclusive });
+        return result;
+    }() };
+
     return lock_group;
 }
 

@@ -22,7 +22,7 @@ class Receiver {
 public:
     using Message = Message_T;
 
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     constexpr explicit Receiver(const std::vector<Message_T>& message_buffer);
 
@@ -39,13 +39,17 @@ private:
 
 template <ddge::messages::message_c Message_T>
 constexpr auto ddge::scheduler::accessors::messages::Receiver<Message_T>::lock_group()
-    -> LockGroup
+    -> const LockGroup&
 {
-    LockGroup lock_group;
-    lock_group.expand<::ddge::scheduler::accessors::messages::Message<Message>>(
-        Lock{ CriticalSectionType::eShared }   //
-    );
-    lock_group.expand<MessageManager>(Lock{ CriticalSectionType::eShared });
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        result.expand<::ddge::scheduler::accessors::messages::Message<Message>>(
+            Lock{ CriticalSectionType::eShared }   //
+        );
+        result.expand<MessageManager>(Lock{ CriticalSectionType::eShared });
+        return result;
+    }() };
+
     return lock_group;
 }
 

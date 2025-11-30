@@ -26,7 +26,7 @@ class State {
 public:
     using Underlying = State_T;
 
-    constexpr static auto lock_group() -> LockGroup;
+    constexpr static auto lock_group() -> const LockGroup&;
 
     constexpr explicit State(
         util::meta::const_like_t<std::optional<std::remove_const_t<State_T>>, State_T>& state
@@ -58,15 +58,19 @@ private:
 template <typename State_T>
     requires ddge::states::state_c<std::remove_const_t<State_T>>
 constexpr auto ddge::scheduler::accessors::states::State<State_T>::lock_group()
-    -> LockGroup
+    -> const LockGroup&
 {
-    constexpr Lock lock{
-        std::is_const_v<State_T> ? CriticalSectionType::eShared
-                                 : CriticalSectionType::eExclusive   //
-    };
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        result.expand<State<std::remove_const_t<State_T>>>(
+            Lock{
+                std::is_const_v<State_T> ? CriticalSectionType::eShared
+                                         : CriticalSectionType::eExclusive   //
+            }   //
+        );
+        return result;
+    }() };
 
-    LockGroup lock_group;
-    lock_group.expand<State<std::remove_const_t<State_T>>>(auto{ lock });
     return lock_group;
 }
 
