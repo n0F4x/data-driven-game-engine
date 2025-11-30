@@ -27,8 +27,7 @@ using namespace ddge::scheduler::accessors::ecs;
 using CachedTextureLoader =
     ddge::scheduler::accessors::assets::Cached<assets::TextureLoader>;
 
-auto game::tasks::spawn_apple()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::spawn_apple() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::as_task(
         +[](const CachedTextureLoader texture_loader, const Registry registry) -> void {

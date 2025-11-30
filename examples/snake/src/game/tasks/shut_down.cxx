@@ -7,8 +7,7 @@ import snake.game.GameState;
 
 using namespace ddge::scheduler::accessors;
 
-auto game::tasks::shut_down()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::shut_down() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::as_task(
         +[](const states::State<GameState> game_state) -> void {   //

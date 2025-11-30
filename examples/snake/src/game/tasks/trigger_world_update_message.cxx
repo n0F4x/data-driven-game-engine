@@ -7,8 +7,7 @@ import snake.game.WorldUpdate;
 
 using namespace ddge::scheduler::accessors;
 
-auto game::tasks::trigger_world_update_message()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::trigger_world_update_message() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::as_task(
         +[](const messages::Sender<WorldUpdate>& sender) -> void {   //

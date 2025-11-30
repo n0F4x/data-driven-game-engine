@@ -19,8 +19,7 @@ import snake.game.SnakeHead;
 using namespace ddge::scheduler::accessors;
 using namespace ddge::ecs::query_filter_tags;
 
-auto game::tasks::color_cells()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::color_cells() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::query(
         [](const Optional<const SnakeHead> snake_head,

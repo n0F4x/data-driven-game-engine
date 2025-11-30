@@ -1,12 +1,10 @@
 export module snake.profiler.tasks.update;
 
-import ddge.modules.scheduler.Cardinality;
-import ddge.modules.scheduler.TaskBlueprint;
+import ddge.modules.scheduler.TaskBuilder;
 
 namespace profiler::tasks {
 
 export [[nodiscard]]
-auto update()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>;
+auto update() -> ddge::scheduler::TaskBuilder<void>;
 
 }   // namespace profiler::tasks

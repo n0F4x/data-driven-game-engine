@@ -151,8 +151,7 @@ auto reset_timers(
     game_state->snake_move_timer.reset();
 }
 
-auto game::tasks::initialize()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::initialize() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::start_as(ddge::scheduler::as_task(::initialize_map))
         .then(ddge::scheduler::as_task(::initialize_snake))

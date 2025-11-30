@@ -7,9 +7,6 @@ export import ddge.modules.scheduler.primitives;
 export import ddge.modules.scheduler.data_structures;
 
 export import ddge.modules.scheduler.accessor_c;
-export import ddge.modules.scheduler.as_task_blueprint;
-export import ddge.modules.scheduler.Cardinality;
-export import ddge.modules.scheduler.convertible_to_TaskBlueprint_c;
 export import ddge.modules.scheduler.EmbeddedTaskBody;
 export import ddge.modules.scheduler.EmbeddedTaskFactory;
 export import ddge.modules.scheduler.ErasedTaskFactory;
@@ -26,7 +23,6 @@ export import ddge.modules.scheduler.provides_c;
 export import ddge.modules.scheduler.raw_task_c;
 export import ddge.modules.scheduler.ScheduleBuilder;
 export import ddge.modules.scheduler.Task;
-export import ddge.modules.scheduler.TaskBlueprint;
 export import ddge.modules.scheduler.TaskBuilder;
 export import ddge.modules.scheduler.TaskBuilderBundle;
 export import ddge.modules.scheduler.TaskContinuation;

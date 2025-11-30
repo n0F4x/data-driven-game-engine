@@ -19,8 +19,7 @@ import snake.window.Window;
 
 using namespace ddge::scheduler::accessors;
 
-auto window::tasks::update()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto window::tasks::update() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::force_on_main(
         +[](   //

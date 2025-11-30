@@ -21,11 +21,6 @@ import ddge.modules.scheduler.Nexus;
 import ddge.modules.scheduler.data_structures.WorkTree;
 import ddge.modules.scheduler.provider_c;
 import ddge.modules.scheduler.ProviderOf;
-import ddge.modules.scheduler.as_task_blueprint;
-import ddge.modules.scheduler.Cardinality;
-import ddge.modules.scheduler.convertible_to_TaskBlueprint_c;
-import ddge.modules.scheduler.gatherers.WaitAll;
-import ddge.modules.scheduler.TaskBlueprint;
 import ddge.modules.scheduler.TaskBuilder;
 import ddge.modules.scheduler.TaskBuilderBundle;
 import ddge.modules.scheduler.TaskContinuation;
@@ -46,8 +41,8 @@ export class Plugin {
 public:
     explicit Plugin(uint32_t number_of_threads = std::jthread::hardware_concurrency());
 
-    template <app::builder_c Self_T, convertible_to_TaskBlueprint_c<void> TaskBlueprint_T>
-    auto run(this Self_T&&, TaskBlueprint_T&& task_blueprint) -> void;
+    template <app::builder_c Self_T>
+    auto run(this Self_T&&, TaskBuilder<void>&& task_builder) -> void;
 
 private:
     [[no_unique_address]] struct Precondition {
@@ -84,24 +79,8 @@ ddge::scheduler::Plugin::Plugin(const uint32_t number_of_threads)
       m_number_of_threads{ number_of_threads }
 {}
 
-[[nodiscard]]
-auto sync(ddge::scheduler::TaskBuilder<void>&& task_builder)
-    -> ddge::scheduler::TaskBuilder<void>
-{
-    return std::move(task_builder);
-}
-
-[[nodiscard]]
-auto sync(ddge::scheduler::TaskBuilderBundle<void>&& task_builder_bundle)
-    -> ddge::scheduler::TaskBuilder<void>
-{
-    return std::move(task_builder_bundle).sync(ddge::scheduler::WaitAllBuilder{});
-}
-
-template <
-    ddge::app::builder_c                                  Self_T,
-    ddge::scheduler::convertible_to_TaskBlueprint_c<void> TaskBlueprint_T>
-auto ddge::scheduler::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blueprint)
+template <ddge::app::builder_c Self_T>
+auto ddge::scheduler::Plugin::run(this Self_T&& self, TaskBuilder<void>&& task_builder)
     -> void
 {
     const uint32_t number_of_threads{ self.ddge::scheduler::Plugin::m_number_of_threads };
@@ -114,16 +93,15 @@ auto ddge::scheduler::Plugin::run(this Self_T&& self, TaskBlueprint_T&& task_blu
             type_list_filter_t<Addons, AddonTraits<App>::template HasAccessorProvider>,
         AddonTraits<App>::template AccessorProvider>;
 
-    [number_of_threads, &task_blueprint, &app]<typename... AccessorProviders_T>   //
-        (util::TypeList<AccessorProviders_T...>)                                  //
+    [number_of_threads, &task_builder, &app]<typename... AccessorProviders_T>   //
+        (util::TypeList<AccessorProviders_T...>)                                //
     {
         Nexus          nexus{ AccessorProviders_T{ app }... };
         TaskHubBuilder task_hub_builder{ nexus };
 
         std::atomic_bool           should_stop{};
         const TypedTaskIndex<void> root_task_index =
-            ::sync(as_task_blueprint<void>(std::move(task_blueprint)).materialize())
-                .build(task_hub_builder);
+            std::move(task_builder).build(task_hub_builder);
         task_hub_builder.set_task_continuation_factory(
             root_task_index,
             TaskContinuationFactory<void>{

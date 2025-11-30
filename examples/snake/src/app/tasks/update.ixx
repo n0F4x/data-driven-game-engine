@@ -1,8 +1,7 @@
 export module snake.app.tasks.update;
 
-import ddge.modules.scheduler.Cardinality;
 import ddge.modules.scheduler.primitives.group;
-import ddge.modules.scheduler.TaskBlueprint;
+import ddge.modules.scheduler.TaskBuilderBundle;
 
 import snake.game.tasks.update;
 import snake.window.tasks.update;
@@ -10,8 +9,7 @@ import snake.window.tasks.update;
 namespace app::tasks {
 
 export [[nodiscard]]
-auto update()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eMulti>
+auto update() -> ddge::scheduler::TaskBuilderBundle<void>
 {
     return ddge::scheduler::group(
         window::tasks::update(),   //

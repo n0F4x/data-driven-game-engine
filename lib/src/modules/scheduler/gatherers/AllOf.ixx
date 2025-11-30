@@ -39,7 +39,7 @@ private:
 
     uint32_t                              m_capacity;
     std::atomic_uint32_t                  m_flag;
-    std::atomic_bool                      m_accumulated_result;
+    std::atomic_bool                      m_accumulated_result{ true };
     std::optional<TaskContinuation<bool>> m_continuation;
 
     auto call_callback(bool output) -> void;
@@ -70,8 +70,7 @@ ddge::scheduler::AllOf::Precondition::Precondition(const uint32_t capacity)
 ddge::scheduler::AllOf::AllOf(const uint32_t capacity)
     : m_precondition{ capacity },
       m_capacity{ capacity },
-      m_flag{ m_capacity },
-      m_accumulated_result{ true }
+      m_flag{ m_capacity }
 {}
 
 auto ddge::scheduler::AllOf::set_continuation(TaskContinuation<bool>&& continuation)

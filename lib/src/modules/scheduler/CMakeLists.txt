@@ -17,9 +17,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         scheduler.cppm
         accessor_c.ixx
-        as_task_blueprint.ixx
-        Cardinality.ixx
-        convertible_to_TaskBlueprint_c.ixx
         EmbeddedTaskBody.ixx
         EmbeddedTaskFactory.ixx
         ErasedTaskFactory.ixx
@@ -36,7 +33,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         raw_task_c.ixx
         ScheduleBuilder.ixx
         Task.ixx
-        TaskBlueprint.ixx
         TaskBuilder.ixx
         TaskBuilderBundle.ixx
         TaskContinuation.ixx

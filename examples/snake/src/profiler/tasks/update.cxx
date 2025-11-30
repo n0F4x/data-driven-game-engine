@@ -12,8 +12,7 @@ import snake.window.DisplayInfo;
 
 using namespace ddge::scheduler::accessors;
 
-auto profiler::tasks::update()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto profiler::tasks::update() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::as_task(
         [last_time = std::chrono::steady_clock::time_point{}, delta_update_count = 0u](

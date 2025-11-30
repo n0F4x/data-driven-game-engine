@@ -18,4 +18,6 @@ export import ddge.utility.meta.concepts.nothrow_convertible_to;
 export import ddge.utility.meta.concepts.nothrow_movable;
 export import ddge.utility.meta.concepts.nothrow_move_constructible;
 export import ddge.utility.meta.concepts.specialization_of;
+export import ddge.utility.meta.concepts.storable;
+export import ddge.utility.meta.concepts.strips_to;
 export import ddge.utility.meta.concepts.tuple_like;

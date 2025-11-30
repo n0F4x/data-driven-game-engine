@@ -1,12 +1,10 @@
 export module snake.game.tasks.game_is_running;
 
-import ddge.modules.scheduler.Cardinality;
-import ddge.modules.scheduler.TaskBlueprint;
+import ddge.modules.scheduler.TaskBuilder;
 
 namespace game::tasks {
 
 export [[nodiscard]]
-auto game_is_running()
-    -> ddge::scheduler::TaskBlueprint<bool, ddge::scheduler::Cardinality::eSingle>;
+auto game_is_running() -> ddge::scheduler::TaskBuilder<bool>;
 
 }   // namespace game::tasks

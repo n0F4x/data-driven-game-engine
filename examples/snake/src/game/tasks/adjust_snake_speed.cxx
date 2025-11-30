@@ -21,8 +21,7 @@ using namespace ddge::scheduler::accessors::ecs;
 using namespace ddge::scheduler::accessors::resources;
 using namespace ddge::scheduler::accessors::states;
 
-auto game::tasks::adjust_snake_speed()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::adjust_snake_speed() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::as_task(
         +[](   //

@@ -47,8 +47,7 @@ auto world_update_message_received(
     return !message_receiver.receive().empty();
 }
 
-auto game::tasks::update()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::update() -> ddge::scheduler::TaskBuilder<void>
 {
     namespace sch = ddge::scheduler;
 

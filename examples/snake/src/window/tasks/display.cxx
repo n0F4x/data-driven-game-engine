@@ -13,8 +13,7 @@ import snake.window.Window;
 
 using namespace ddge::scheduler::accessors;
 
-auto window::tasks::display()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto window::tasks::display() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::force_on_main(
         [last_time = std::chrono::steady_clock::time_point{}, delta_frame_count = 0u](

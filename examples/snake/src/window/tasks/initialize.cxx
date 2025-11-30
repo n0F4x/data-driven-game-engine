@@ -10,8 +10,7 @@ import snake.window.SecondTimer;
 
 using namespace ddge::scheduler::accessors;
 
-auto window::tasks::initialize()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto window::tasks::initialize() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::as_task(
         +[](const resources::Resource<DisplayTimer> display_timer,

@@ -181,8 +181,7 @@ auto decrease_charges(ddge::ecs::Registry& registry) -> void
     }
 }
 
-auto game::tasks::move_snake()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::move_snake() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::as_task(
         +[](   //

@@ -7,8 +7,7 @@ import snake.game.GameOver;
 
 using namespace ddge::scheduler::accessors;
 
-auto game::tasks::game_is_running()
-    -> ddge::scheduler::TaskBlueprint<bool, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::game_is_running() -> ddge::scheduler::TaskBuilder<bool>
 {
     return ddge::scheduler::as_task(
         +[](const events::Reader<GameOver>& game_over_reader) -> bool {

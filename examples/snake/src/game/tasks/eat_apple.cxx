@@ -53,8 +53,7 @@ auto grow_snake(
     }
 }
 
-auto game::tasks::eat_apple()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::eat_apple() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::start_as(ddge::scheduler::as_task(check_apple_digestion))
         .then(

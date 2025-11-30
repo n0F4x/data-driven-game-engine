@@ -24,11 +24,25 @@ import ddge.modules.scheduler.TaskHubProxy;
 import ddge.modules.scheduler.TaskIndex;
 import ddge.modules.scheduler.TypedTaskIndex;
 
+import ddge.utility.meta.concepts.strips_to;
+
 namespace ddge::scheduler {
 
 export template <typename Result_T>
 class TaskBuilderBundle {
 public:
+    TaskBuilderBundle() = default;
+
+    template <typename... TaskBuildersOrBundles_T>
+    explicit TaskBuilderBundle(TaskBuildersOrBundles_T&&... task_builders_or_bundles)
+        requires((util::meta::strips_to_c<TaskBuildersOrBundles_T, TaskBuilder<Result_T>>
+                  || util::meta::strips_to_c<TaskBuildersOrBundles_T, TaskBuilderBundle>)
+                 && ...)
+             && (!(
+                 sizeof...(TaskBuildersOrBundles_T) == 1
+                 && util::meta::strips_to_c<TaskBuildersOrBundles_T...[0], TaskBuilderBundle>
+             ));
+
     auto emplace(TaskBuilder<Result_T>&& task_builder) -> void;
     auto emplace(TaskBuilderBundle&& task_builder_bundle) -> void;
 
@@ -38,11 +52,52 @@ public:
         GathererBuilder_T&& gatherer_builder
     ) && -> TaskBuilder<typename GathererBuilder_T::Result>;
 
+    [[nodiscard]]
+    explicit(false) operator TaskBuilder<void>() &&
+        requires std::same_as<Result_T, void>;
+
+    [[nodiscard]]
+    auto size() const noexcept -> uint32_t;
+
 private:
     std::vector<TaskBuilder<Result_T>> m_task_builders;
 };
 
 }   // namespace ddge::scheduler
+
+template <typename Result_T>
+[[nodiscard]]
+auto count_task_builders(const ddge::scheduler::TaskBuilder<Result_T>&) noexcept
+    -> uint32_t
+{
+    return 1;
+}
+
+template <typename Result_T>
+[[nodiscard]]
+auto count_task_builders(
+    const ddge::scheduler::TaskBuilderBundle<Result_T>& task_builder_bundle
+) noexcept -> uint32_t
+{
+    return task_builder_bundle.size();
+}
+
+template <typename Result_T>
+template <typename... TaskBuildersOrBundles_T>
+ddge::scheduler::TaskBuilderBundle<Result_T>::TaskBuilderBundle(
+    TaskBuildersOrBundles_T&&... task_builders_or_bundles
+)
+    requires((util::meta::strips_to_c<TaskBuildersOrBundles_T, TaskBuilder<Result_T>>
+              || util::meta::strips_to_c<TaskBuildersOrBundles_T, TaskBuilderBundle>)
+             && ...)
+         && (!(
+             sizeof...(TaskBuildersOrBundles_T) == 1
+             && util::meta::strips_to_c<TaskBuildersOrBundles_T...[0], TaskBuilderBundle>
+         ))
+{
+    m_task_builders.reserve((::count_task_builders(task_builders_or_bundles) + ...));
+    (emplace(std::move(task_builders_or_bundles)), ...);
+}
 
 template <typename Result_T>
 auto ddge::scheduler::TaskBuilderBundle<Result_T>::emplace(
@@ -199,4 +254,17 @@ auto ddge::scheduler::TaskBuilderBundle<Result_T>::sync(
             );
         }   //
     };
+}
+
+template <typename Result_T>
+ddge::scheduler::TaskBuilderBundle<Result_T>::operator TaskBuilder<void>() &&
+    requires std::same_as<Result_T, void>
+{
+    return std::move(*this).sync(WaitAllBuilder{});
+}
+
+template <typename Result_T>
+auto ddge::scheduler::TaskBuilderBundle<Result_T>::size() const noexcept -> uint32_t
+{
+    return m_task_builders.size();
 }

@@ -9,8 +9,7 @@ import ddge.modules.scheduler.primitives.as_task;
 
 using namespace ddge::scheduler::accessors;
 
-auto window::tasks::window_should_close()
-    -> ddge::scheduler::TaskBlueprint<bool, ddge::scheduler::Cardinality::eSingle>
+auto window::tasks::window_should_close() -> ddge::scheduler::TaskBuilder<bool>
 {
     return ddge::scheduler::as_task(
         +[](const events::Reader<sf::Event>& closed_event_reader) -> bool   //

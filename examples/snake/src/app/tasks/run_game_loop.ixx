@@ -1,12 +1,11 @@
 export module snake.app.tasks.run_game_loop;
 
-import ddge.modules.scheduler.Cardinality;
 import ddge.modules.scheduler.primitives.all_of;
 import ddge.modules.scheduler.primitives.group;
 import ddge.modules.scheduler.primitives.loop_until;
 import ddge.modules.scheduler.primitives.not_fn;
 import ddge.modules.scheduler.primitives.start_as;
-import ddge.modules.scheduler.TaskBlueprint;
+import ddge.modules.scheduler.TaskBuilder;
 
 import snake.app.tasks.clear_messages;
 import snake.app.tasks.process_events;
@@ -19,8 +18,7 @@ import snake.window.tasks.window_should_close;
 namespace app::tasks {
 
 export [[nodiscard]]
-auto run_game_loop()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto run_game_loop() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::loop_until(
         ddge::scheduler::start_as(

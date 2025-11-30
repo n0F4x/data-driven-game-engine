@@ -9,10 +9,9 @@ export module ddge.modules.scheduler.primitives.query;
 import ddge.modules.ecs;
 
 import ddge.modules.scheduler.accessors.ecs;
-import ddge.modules.scheduler.Cardinality;
 import ddge.modules.scheduler.ExecPolicy;
 import ddge.modules.scheduler.primitives.as_task;
-import ddge.modules.scheduler.TaskBlueprint;
+import ddge.modules.scheduler.TaskBuilder;
 
 import ddge.utility.meta.type_traits.functional.arguments_of;
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
@@ -28,7 +27,7 @@ export template <
     ExecPolicy                      execution_policy_T = ExecPolicy::eDefault,
     ecs::deducable_query_function_c F>
 [[nodiscard]]
-auto query(F&& func) -> TaskBlueprint<void, Cardinality::eSingle>
+auto query(F&& func) -> TaskBuilder<void>
 {
     using Query = util::meta::type_list_to_t<
         util::meta::

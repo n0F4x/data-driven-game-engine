@@ -15,8 +15,7 @@ import snake.window.Window;
 
 using namespace ddge::scheduler::accessors;
 
-auto game::tasks::draw()
-    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
+auto game::tasks::draw() -> ddge::scheduler::TaskBuilder<void>
 {
     return ddge::scheduler::force_on_main(
         +[](Resource<window::Window> window, Query<const Cell>& cells) -> void {
