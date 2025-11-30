@@ -34,7 +34,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ScheduleBuilder.ixx
         Task.ixx
         TaskBuilder.ixx
-        TaskBuilderBundle.ixx
+        TaskBuilderGroup.ixx
         TaskContinuation.ixx
         TaskContinuationFactory.ixx
         TaskFactory.ixx

@@ -24,7 +24,7 @@ export import ddge.modules.scheduler.raw_task_c;
 export import ddge.modules.scheduler.ScheduleBuilder;
 export import ddge.modules.scheduler.Task;
 export import ddge.modules.scheduler.TaskBuilder;
-export import ddge.modules.scheduler.TaskBuilderBundle;
+export import ddge.modules.scheduler.TaskBuilderGroup;
 export import ddge.modules.scheduler.TaskContinuation;
 export import ddge.modules.scheduler.TaskContinuationFactory;
 export import ddge.modules.scheduler.TaskFactory;

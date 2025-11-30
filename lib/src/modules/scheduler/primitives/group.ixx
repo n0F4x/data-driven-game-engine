@@ -5,16 +5,16 @@ module;
 
 export module ddge.modules.scheduler.primitives.group;
 
-import ddge.modules.scheduler.TaskBuilderBundle;
+import ddge.modules.scheduler.TaskBuilderGroup;
 
 namespace ddge::scheduler {
 
-export template <typename... TaskBuildersOrBundles_T>
-    requires std::constructible_from<TaskBuilderBundle<void>, TaskBuildersOrBundles_T&&...>
+export template <typename... TaskBuilderGroups_T>
+    requires std::constructible_from<TaskBuilderGroup<void>, TaskBuilderGroups_T&&...>
 [[nodiscard]]
-auto group(TaskBuildersOrBundles_T&&... builders) -> TaskBuilderBundle<void>
+auto group(TaskBuilderGroups_T&&... builders) -> TaskBuilderGroup<void>
 {
-    return TaskBuilderBundle<void>{ std::forward<TaskBuildersOrBundles_T>(builders)... };
+    return TaskBuilderGroup<void>{ std::forward<TaskBuilderGroups_T>(builders)... };
 }
 
 }   // namespace ddge::scheduler

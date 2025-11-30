@@ -7,7 +7,7 @@ module;
 #include <span>
 #include <vector>
 
-export module ddge.modules.scheduler.TaskBuilderBundle;
+export module ddge.modules.scheduler.TaskBuilderGroup;
 
 import ddge.modules.scheduler.locks.DependencyStack;
 import ddge.modules.scheduler.locks.LockGroup;
@@ -29,22 +29,22 @@ import ddge.utility.meta.concepts.strips_to;
 namespace ddge::scheduler {
 
 export template <typename Result_T>
-class TaskBuilderBundle {
+class TaskBuilderGroup {
 public:
-    TaskBuilderBundle() = default;
+    TaskBuilderGroup() = default;
 
-    template <typename... TaskBuildersOrBundles_T>
-    explicit TaskBuilderBundle(TaskBuildersOrBundles_T&&... task_builders_or_bundles)
-        requires((util::meta::strips_to_c<TaskBuildersOrBundles_T, TaskBuilder<Result_T>>
-                  || util::meta::strips_to_c<TaskBuildersOrBundles_T, TaskBuilderBundle>)
+    template <typename... TaskBuilderGroups_T>
+    explicit TaskBuilderGroup(TaskBuilderGroups_T&&... task_builder_groups)
+        requires((util::meta::strips_to_c<TaskBuilderGroups_T, TaskBuilder<Result_T>>
+                  || util::meta::strips_to_c<TaskBuilderGroups_T, TaskBuilderGroup>)
                  && ...)
              && (!(
-                 sizeof...(TaskBuildersOrBundles_T) == 1
-                 && util::meta::strips_to_c<TaskBuildersOrBundles_T...[0], TaskBuilderBundle>
+                 sizeof...(TaskBuilderGroups_T) == 1
+                 && util::meta::strips_to_c<TaskBuilderGroups_T...[0], TaskBuilderGroup>
              ));
 
     auto emplace(TaskBuilder<Result_T>&& task_builder) -> void;
-    auto emplace(TaskBuilderBundle&& task_builder_bundle) -> void;
+    auto emplace(TaskBuilderGroup&& task_builder_group) -> void;
 
     template <gatherer_builder_of_c<Result_T> GathererBuilder_T>
     [[nodiscard]]
@@ -76,31 +76,31 @@ auto count_task_builders(const ddge::scheduler::TaskBuilder<Result_T>&) noexcept
 template <typename Result_T>
 [[nodiscard]]
 auto count_task_builders(
-    const ddge::scheduler::TaskBuilderBundle<Result_T>& task_builder_bundle
+    const ddge::scheduler::TaskBuilderGroup<Result_T>& task_builder_group
 ) noexcept -> uint32_t
 {
-    return task_builder_bundle.size();
+    return task_builder_group.size();
 }
 
 template <typename Result_T>
-template <typename... TaskBuildersOrBundles_T>
-ddge::scheduler::TaskBuilderBundle<Result_T>::TaskBuilderBundle(
-    TaskBuildersOrBundles_T&&... task_builders_or_bundles
+template <typename... TaskBuilderGroups_T>
+ddge::scheduler::TaskBuilderGroup<Result_T>::TaskBuilderGroup(
+    TaskBuilderGroups_T&&... task_builder_groups
 )
-    requires((util::meta::strips_to_c<TaskBuildersOrBundles_T, TaskBuilder<Result_T>>
-              || util::meta::strips_to_c<TaskBuildersOrBundles_T, TaskBuilderBundle>)
+    requires((util::meta::strips_to_c<TaskBuilderGroups_T, TaskBuilder<Result_T>>
+              || util::meta::strips_to_c<TaskBuilderGroups_T, TaskBuilderGroup>)
              && ...)
          && (!(
-             sizeof...(TaskBuildersOrBundles_T) == 1
-             && util::meta::strips_to_c<TaskBuildersOrBundles_T...[0], TaskBuilderBundle>
+             sizeof...(TaskBuilderGroups_T) == 1
+             && util::meta::strips_to_c<TaskBuilderGroups_T...[0], TaskBuilderGroup>
          ))
 {
-    m_task_builders.reserve((::count_task_builders(task_builders_or_bundles) + ...));
-    (emplace(std::move(task_builders_or_bundles)), ...);
+    m_task_builders.reserve((::count_task_builders(task_builder_groups) + ...));
+    (emplace(std::move(task_builder_groups)), ...);
 }
 
 template <typename Result_T>
-auto ddge::scheduler::TaskBuilderBundle<Result_T>::emplace(
+auto ddge::scheduler::TaskBuilderGroup<Result_T>::emplace(
     TaskBuilder<Result_T>&& task_builder
 ) -> void
 {
@@ -108,16 +108,16 @@ auto ddge::scheduler::TaskBuilderBundle<Result_T>::emplace(
 }
 
 template <typename Result_T>
-auto ddge::scheduler::TaskBuilderBundle<Result_T>::emplace(
-    TaskBuilderBundle&& task_builder_bundle
+auto ddge::scheduler::TaskBuilderGroup<Result_T>::emplace(
+    TaskBuilderGroup&& task_builder_group
 ) -> void
 {
-    m_task_builders.append_range(std::move(task_builder_bundle).m_task_builders);
+    m_task_builders.append_range(std::move(task_builder_group).m_task_builders);
 }
 
 template <typename Result_T>
 template <ddge::scheduler::gatherer_builder_of_c<Result_T> GathererBuilder_T>
-auto ddge::scheduler::TaskBuilderBundle<Result_T>::sync(
+auto ddge::scheduler::TaskBuilderGroup<Result_T>::sync(
     GathererBuilder_T&& gatherer_builder
 ) && -> TaskBuilder<typename GathererBuilder_T::Result>
 {
@@ -257,14 +257,14 @@ auto ddge::scheduler::TaskBuilderBundle<Result_T>::sync(
 }
 
 template <typename Result_T>
-ddge::scheduler::TaskBuilderBundle<Result_T>::operator TaskBuilder<void>() &&
+ddge::scheduler::TaskBuilderGroup<Result_T>::operator TaskBuilder<void>() &&
     requires std::same_as<Result_T, void>
 {
     return std::move(*this).sync(WaitAllBuilder{});
 }
 
 template <typename Result_T>
-auto ddge::scheduler::TaskBuilderBundle<Result_T>::size() const noexcept -> uint32_t
+auto ddge::scheduler::TaskBuilderGroup<Result_T>::size() const noexcept -> uint32_t
 {
     return m_task_builders.size();
 }

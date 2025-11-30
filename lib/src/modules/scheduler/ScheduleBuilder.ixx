@@ -12,7 +12,6 @@ import ddge.modules.scheduler.locks.LockGroup;
 import ddge.modules.scheduler.IndirectTaskContinuationSetter;
 import ddge.modules.scheduler.IndirectTaskFactory;
 import ddge.modules.scheduler.TaskBuilder;
-import ddge.modules.scheduler.TaskBuilderBundle;
 import ddge.modules.scheduler.TaskContinuation;
 import ddge.modules.scheduler.TaskContinuationFactory;
 import ddge.modules.scheduler.TaskHubBuilder;

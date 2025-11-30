@@ -22,7 +22,6 @@ import ddge.modules.scheduler.data_structures.WorkTree;
 import ddge.modules.scheduler.provider_c;
 import ddge.modules.scheduler.ProviderOf;
 import ddge.modules.scheduler.TaskBuilder;
-import ddge.modules.scheduler.TaskBuilderBundle;
 import ddge.modules.scheduler.TaskContinuation;
 import ddge.modules.scheduler.TaskContinuationFactory;
 import ddge.modules.scheduler.TaskHub;
