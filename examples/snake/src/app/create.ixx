@@ -6,7 +6,7 @@ import ddge.modules.app.extensions.FunctionalPlugin;
 import ddge.modules.assets.Plugin;
 import ddge.modules.ecs;
 import ddge.modules.events.Plugin;
-import ddge.modules.exec.Plugin;
+import ddge.modules.scheduler.Plugin;
 import ddge.modules.messages.Plugin;
 import ddge.modules.resources.Plugin;
 import ddge.modules.states.Plugin;
@@ -23,7 +23,7 @@ auto create()
         .plug_in(ddge::assets::Plugin{})
         .plug_in(ddge::ecs::Plugin{})
         .plug_in(ddge::events::Plugin{})
-        .plug_in(ddge::exec::Plugin{ 2 })
+        .plug_in(ddge::scheduler::Plugin{ 2 })
         .plug_in(ddge::messages::Plugin{})
         .plug_in(ddge::resources::Plugin{})
         .plug_in(ddge::states::Plugin{})

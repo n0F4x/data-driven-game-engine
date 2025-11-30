@@ -1,11 +1,12 @@
 export module snake.window.tasks.initialize;
 
-import ddge.modules.exec.Cardinality;
-import ddge.modules.exec.TaskBlueprint;
+import ddge.modules.scheduler.Cardinality;
+import ddge.modules.scheduler.TaskBlueprint;
 
 namespace window::tasks {
 
 export [[nodiscard]]
-auto initialize() -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>;
+auto initialize()
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>;
 
 }   // namespace window::tasks

@@ -6,7 +6,7 @@ module snake.game.tasks.eat_apple;
 
 import ddge.modules.ecs;
 
-import ddge.modules.exec;
+import ddge.modules.scheduler;
 
 import snake.game.Apple;
 import snake.game.AppleDigested;
@@ -16,9 +16,9 @@ import snake.game.Snake;
 import snake.game.SnakeHead;
 
 using namespace ddge::ecs::query_filter_tags;
-using namespace ddge::exec::accessors::ecs;
-using namespace ddge::exec::accessors::events;
-using namespace ddge::exec::accessors::messages;
+using namespace ddge::scheduler::accessors::ecs;
+using namespace ddge::scheduler::accessors::events;
+using namespace ddge::scheduler::accessors::messages;
 
 auto check_apple_digestion(
     Query<ddge::ecs::ID, With<game::SnakeHead>, With<game::Apple>>& eaten_apples,
@@ -54,13 +54,13 @@ auto grow_snake(
 }
 
 auto game::tasks::eat_apple()
-    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
 {
-    return ddge::exec::start_as(ddge::exec::as_task(check_apple_digestion))
+    return ddge::scheduler::start_as(ddge::scheduler::as_task(check_apple_digestion))
         .then(
-            ddge::exec::group(
-                ddge::exec::as_task(despawn_digested_apple),   //
-                ddge::exec::as_task(grow_snake)
+            ddge::scheduler::group(
+                ddge::scheduler::as_task(despawn_digested_apple),   //
+                ddge::scheduler::as_task(grow_snake)
             )
         );
 }

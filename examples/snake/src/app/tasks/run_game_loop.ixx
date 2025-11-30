@@ -1,12 +1,12 @@
 export module snake.app.tasks.run_game_loop;
 
-import ddge.modules.exec.Cardinality;
-import ddge.modules.exec.primitives.all_of;
-import ddge.modules.exec.primitives.group;
-import ddge.modules.exec.primitives.loop_until;
-import ddge.modules.exec.primitives.not_fn;
-import ddge.modules.exec.primitives.start_as;
-import ddge.modules.exec.TaskBlueprint;
+import ddge.modules.scheduler.Cardinality;
+import ddge.modules.scheduler.primitives.all_of;
+import ddge.modules.scheduler.primitives.group;
+import ddge.modules.scheduler.primitives.loop_until;
+import ddge.modules.scheduler.primitives.not_fn;
+import ddge.modules.scheduler.primitives.start_as;
+import ddge.modules.scheduler.TaskBlueprint;
 
 import snake.app.tasks.clear_messages;
 import snake.app.tasks.process_events;
@@ -19,11 +19,12 @@ import snake.window.tasks.window_should_close;
 namespace app::tasks {
 
 export [[nodiscard]]
-auto run_game_loop() -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
+auto run_game_loop()
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
 {
-    return ddge::exec::loop_until(
-        ddge::exec::start_as(
-            ddge::exec::group(
+    return ddge::scheduler::loop_until(
+        ddge::scheduler::start_as(
+            ddge::scheduler::group(
                 process_events(),   //
                 clear_messages()
             )
@@ -31,8 +32,8 @@ auto run_game_loop() -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality:
             .then(update())
             .then(render())
             .then(profiler::tasks::update()),
-        ddge::exec::all_of(
-            ddge::exec::not_fn(window::tasks::window_should_close()),   //
+        ddge::scheduler::all_of(
+            ddge::scheduler::not_fn(window::tasks::window_should_close()),   //
             game::tasks::game_is_running()
         )
     );

@@ -10,10 +10,10 @@ module snake.game.tasks.move_snake;
 
 import ddge.modules.ecs;
 
-import ddge.modules.exec.accessors.ecs;
-import ddge.modules.exec.accessors.events;
-import ddge.modules.exec.accessors.resources;
-import ddge.modules.exec.primitives.as_task;
+import ddge.modules.scheduler.accessors.ecs;
+import ddge.modules.scheduler.accessors.events;
+import ddge.modules.scheduler.accessors.resources;
+import ddge.modules.scheduler.primitives.as_task;
 
 import snake.game.Cell;
 import snake.game.Direction;
@@ -23,7 +23,7 @@ import snake.game.Settings;
 import snake.game.Snake;
 import snake.game.SnakeHead;
 
-using namespace ddge::exec::accessors;
+using namespace ddge::scheduler::accessors;
 using namespace ddge::ecs::query_filter_tags;
 
 [[nodiscard]]
@@ -182,9 +182,9 @@ auto decrease_charges(ddge::ecs::Registry& registry) -> void
 }
 
 auto game::tasks::move_snake()
-    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
 {
-    return ddge::exec::as_task(
+    return ddge::scheduler::as_task(
         +[](   //
              const resources::Resource<const Settings> settings,
              const events::Recorder<GameOver>&         game_over_recorder,

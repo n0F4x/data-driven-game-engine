@@ -6,10 +6,10 @@ module snake.game.tasks.adjust_snake_speed;
 
 import ddge.modules.ecs;
 
-import ddge.modules.exec.accessors.ecs;
-import ddge.modules.exec.accessors.resources;
-import ddge.modules.exec.accessors.states;
-import ddge.modules.exec.primitives.as_task;
+import ddge.modules.scheduler.accessors.ecs;
+import ddge.modules.scheduler.accessors.resources;
+import ddge.modules.scheduler.accessors.states;
+import ddge.modules.scheduler.primitives.as_task;
 
 import snake.game.GameState;
 import snake.game.Settings;
@@ -17,14 +17,14 @@ import snake.game.Snake;
 
 using namespace ddge::ecs::query_filter_tags;
 
-using namespace ddge::exec::accessors::ecs;
-using namespace ddge::exec::accessors::resources;
-using namespace ddge::exec::accessors::states;
+using namespace ddge::scheduler::accessors::ecs;
+using namespace ddge::scheduler::accessors::resources;
+using namespace ddge::scheduler::accessors::states;
 
 auto game::tasks::adjust_snake_speed()
-    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
 {
-    return ddge::exec::as_task(
+    return ddge::scheduler::as_task(
         +[](   //
              const Resource<Settings>           settings,
              const State<GameState>             game_state,

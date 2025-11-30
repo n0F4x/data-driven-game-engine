@@ -1,11 +1,11 @@
 export module snake.window.tasks.window_should_close;
 
-import ddge.modules.exec.Cardinality;
-import ddge.modules.exec.TaskBlueprint;
+import ddge.modules.scheduler.Cardinality;
+import ddge.modules.scheduler.TaskBlueprint;
 
 namespace window::tasks {
 
 export auto window_should_close()
-    -> ddge::exec::TaskBlueprint<bool, ddge::exec::Cardinality::eSingle>;
+    -> ddge::scheduler::TaskBlueprint<bool, ddge::scheduler::Cardinality::eSingle>;
 
 }   // namespace window::tasks

@@ -6,7 +6,7 @@ module snake.game.tasks.update;
 
 import ddge.modules.time.FixedTimer;
 
-import ddge.modules.exec;
+import ddge.modules.scheduler;
 
 import snake.game.tasks.adjust_snake_speed;
 import snake.game.AppleSpawnTimer;
@@ -19,7 +19,7 @@ import snake.game.tasks.spawn_apple;
 import snake.game.tasks.trigger_world_update_message;
 import snake.game.WorldUpdate;
 
-using namespace ddge::exec::accessors;
+using namespace ddge::scheduler::accessors;
 
 auto update_timers(
     const resources::Resource<game::AppleSpawnTimer> apple_spawn_timer,
@@ -48,9 +48,9 @@ auto world_update_message_received(
 }
 
 auto game::tasks::update()
-    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
 {
-    namespace sch = ddge::exec;
+    namespace sch = ddge::scheduler;
 
     return sch::start_as(sch::as_task(::update_timers))
         .then(

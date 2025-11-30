@@ -3,12 +3,12 @@
 
 import ddge.prelude;
 import ddge.modules.ecs;
-import ddge.modules.exec;
+import ddge.modules.scheduler;
 import ddge.utility.containers.OptionalRef;
 
 import demo.Window;
 
-using namespace ddge::exec::accessors;
+using namespace ddge::scheduler::accessors;
 using namespace ddge::ecs::query_filter_tags;
 
 struct WindowClosed {};
@@ -43,7 +43,7 @@ constexpr static auto process_events =              //
 [[nodiscard]]
 auto update_world()
 {
-    return ddge::exec::query(
+    return ddge::scheduler::query(
         +[](   //
              const ddge::ecs::ID            id,
              const Position                 position,
@@ -78,15 +78,15 @@ constexpr static auto game_is_running =
 [[nodiscard]]
 auto run_game_loop()
 {
-    return ddge::exec::loop_until(
-        ddge::exec::start_as(
-            ddge::exec::group(
+    return ddge::scheduler::loop_until(
+        ddge::scheduler::start_as(
+            ddge::scheduler::group(
                 update_world(),   //
-                ddge::exec::as_task(record_window_events)
+                ddge::scheduler::as_task(record_window_events)
             )
         )
-            .then(ddge::exec::as_task(process_events)),
-        ddge::exec::as_task(game_is_running)
+            .then(ddge::scheduler::as_task(process_events)),
+        ddge::scheduler::as_task(game_is_running)
     );
 }
 
@@ -104,10 +104,10 @@ auto main() -> int
         .plug_in(ddge::plugins::Events{})
         .register_event<WindowClosed>()
         .plug_in(ddge::plugins::ECS{})
-        .plug_in(ddge::plugins::Execution{})
+        .plug_in(ddge::plugins::Scheduler{})
         .run(
-            ddge::exec::start_as(ddge::exec::as_task(initialize))   //
+            ddge::scheduler::start_as(ddge::scheduler::as_task(initialize))   //
                 .then(run_game_loop())
-                .then(ddge::exec::as_task(shut_down))
+                .then(ddge::scheduler::as_task(shut_down))
         );
 }

@@ -10,9 +10,9 @@ import ddge.modules.assets.Handle;
 import ddge.modules.ecs;
 import ddge.modules.time.FixedTimer;
 
-import ddge.modules.exec.accessors.assets;
-import ddge.modules.exec.accessors.ecs;
-import ddge.modules.exec.primitives.as_task;
+import ddge.modules.scheduler.accessors.assets;
+import ddge.modules.scheduler.accessors.ecs;
+import ddge.modules.scheduler.primitives.as_task;
 
 import snake.assets.TextureLoader;
 import snake.game.Apple;
@@ -22,14 +22,15 @@ import snake.game.Snake;
 
 using namespace ddge::ecs::query_filter_tags;
 
-using namespace ddge::exec::accessors::ecs;
+using namespace ddge::scheduler::accessors::ecs;
 
-using CachedTextureLoader = ddge::exec::accessors::assets::Cached<assets::TextureLoader>;
+using CachedTextureLoader =
+    ddge::scheduler::accessors::assets::Cached<assets::TextureLoader>;
 
 auto game::tasks::spawn_apple()
-    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
 {
-    return ddge::exec::as_task(
+    return ddge::scheduler::as_task(
         +[](const CachedTextureLoader texture_loader, const Registry registry) -> void {
             static std::random_device random_device;
             static std::mt19937       random_engine{ random_device() };

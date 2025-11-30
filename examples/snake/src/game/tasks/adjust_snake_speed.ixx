@@ -1,12 +1,12 @@
 export module snake.game.tasks.adjust_snake_speed;
 
-import ddge.modules.exec.Cardinality;
-import ddge.modules.exec.TaskBlueprint;
+import ddge.modules.scheduler.Cardinality;
+import ddge.modules.scheduler.TaskBlueprint;
 
 namespace game::tasks {
 
 export [[nodiscard]]
 auto adjust_snake_speed()
-    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>;
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>;
 
 }   // namespace game::tasks

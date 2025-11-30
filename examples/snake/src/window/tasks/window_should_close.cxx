@@ -4,15 +4,15 @@ module;
 
 module snake.window.tasks.window_should_close;
 
-import ddge.modules.exec.accessors.events;
-import ddge.modules.exec.primitives.as_task;
+import ddge.modules.scheduler.accessors.events;
+import ddge.modules.scheduler.primitives.as_task;
 
-using namespace ddge::exec::accessors;
+using namespace ddge::scheduler::accessors;
 
 auto window::tasks::window_should_close()
-    -> ddge::exec::TaskBlueprint<bool, ddge::exec::Cardinality::eSingle>
+    -> ddge::scheduler::TaskBlueprint<bool, ddge::scheduler::Cardinality::eSingle>
 {
-    return ddge::exec::as_task(
+    return ddge::scheduler::as_task(
         +[](const events::Reader<sf::Event>& closed_event_reader) -> bool   //
         {
             for (const sf::Event& event : closed_event_reader.read()) {

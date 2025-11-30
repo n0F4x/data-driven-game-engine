@@ -3,9 +3,9 @@
 #include <thread>
 
 import ddge.prelude;
-import ddge.modules.exec;
+import ddge.modules.scheduler;
 
-using namespace ddge::exec::accessors;
+using namespace ddge::scheduler::accessors;
 
 auto say_hello_from_thread() -> void
 {
@@ -52,21 +52,21 @@ auto main() -> int
     app::create()
         .plug_in(plugins::Resources{})
         .insert_resource(ContendedResource{})
-        .plug_in(plugins::Execution{ 4 })
+        .plug_in(plugins::Scheduler{ 4 })
         .run(
-            exec::repeat(
-                exec::start_as(
-                    exec::group(
-                        exec::as_task(say_hello_from_thread),         //
-                        exec::as_task(contend_for_resource_first),    //
-                        exec::as_task(say_hello_from_thread),         //
-                        exec::as_task(say_hello_from_thread),         //
-                        exec::as_task(contend_for_resource_second),   //
-                        exec::as_task(say_hello_from_thread)          //
+            scheduler::repeat(
+                scheduler::start_as(
+                    scheduler::group(
+                        scheduler::as_task(say_hello_from_thread),
+                        scheduler::as_task(contend_for_resource_first),
+                        scheduler::as_task(say_hello_from_thread),
+                        scheduler::as_task(say_hello_from_thread),
+                        scheduler::as_task(contend_for_resource_second),
+                        scheduler::as_task(say_hello_from_thread)
                     )
                 )
-                    .then(exec::as_task(print_join_message)),
-                exec::as_task(always_4)   //
-            )                             //
+                    .then(scheduler::as_task(print_join_message)),
+                scheduler::as_task(always_4)
+            )
         );
 }

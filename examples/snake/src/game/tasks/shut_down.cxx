@@ -1,16 +1,18 @@
 module snake.game.tasks.shut_down;
 
-import ddge.modules.exec.accessors.states;
-import ddge.modules.exec.primitives.as_task;
+import ddge.modules.scheduler.accessors.states;
+import ddge.modules.scheduler.primitives.as_task;
 
 import snake.game.GameState;
 
-using namespace ddge::exec::accessors;
+using namespace ddge::scheduler::accessors;
 
 auto game::tasks::shut_down()
-    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
 {
-    return ddge::exec::as_task(+[](const states::State<GameState> game_state) -> void {   //
-        game_state.reset();
-    });
+    return ddge::scheduler::as_task(
+        +[](const states::State<GameState> game_state) -> void {   //
+            game_state.reset();
+        }
+    );
 }

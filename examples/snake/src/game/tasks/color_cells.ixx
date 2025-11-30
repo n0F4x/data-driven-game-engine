@@ -1,11 +1,12 @@
 export module snake.game.tasks.color_cells;
 
-import ddge.modules.exec.Cardinality;
-import ddge.modules.exec.TaskBlueprint;
+import ddge.modules.scheduler.Cardinality;
+import ddge.modules.scheduler.TaskBlueprint;
 
 namespace game::tasks {
 
 export [[nodiscard]]
-auto color_cells() -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>;
+auto color_cells()
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>;
 
 }   // namespace game::tasks

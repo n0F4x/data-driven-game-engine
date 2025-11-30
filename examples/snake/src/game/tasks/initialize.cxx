@@ -12,7 +12,7 @@ module snake.game.tasks.initialize;
 import ddge.modules.ecs;
 import ddge.modules.time.FixedTimer;
 
-import ddge.modules.exec;
+import ddge.modules.scheduler;
 
 import snake.assets.TextureLoader;
 import snake.game.AppleSpawnTimer;
@@ -27,10 +27,11 @@ import snake.game.Snake;
 import snake.game.SnakeHead;
 import snake.window.Window;
 
-using namespace ddge::exec::accessors;
+using namespace ddge::scheduler::accessors;
 using namespace ddge::ecs::query_filter_tags;
 
-using CachedTextureLoader = ddge::exec::accessors::assets::Cached<::assets::TextureLoader>;
+using CachedTextureLoader =
+    ddge::scheduler::accessors::assets::Cached<::assets::TextureLoader>;
 
 [[nodiscard]]
 auto make_shape(const uint16_t position_x, const uint16_t position_y, const uint8_t width)
@@ -151,11 +152,11 @@ auto reset_timers(
 }
 
 auto game::tasks::initialize()
-    -> ddge::exec::TaskBlueprint<void, ddge::exec::Cardinality::eSingle>
+    -> ddge::scheduler::TaskBlueprint<void, ddge::scheduler::Cardinality::eSingle>
 {
-    return ddge::exec::start_as(ddge::exec::as_task(::initialize_map))
-        .then(ddge::exec::as_task(::initialize_snake))
-        .then(ddge::exec::as_task(::load_apple_texture))
+    return ddge::scheduler::start_as(ddge::scheduler::as_task(::initialize_map))
+        .then(ddge::scheduler::as_task(::initialize_snake))
+        .then(ddge::scheduler::as_task(::load_apple_texture))
         .then(color_cells())
-        .then(ddge::exec::as_task(::reset_timers));
+        .then(ddge::scheduler::as_task(::reset_timers));
 }

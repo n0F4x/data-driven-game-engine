@@ -1,0 +1,92 @@
+= Scheduler
+
+The base of an application is the scheduler, which is responsible for running the different systems.
+
+[,c++]
+."Hello World!" using the scheduler
+----
+ddge::app::create()
+    .plug_in(ddge::plugins::Execution{})
+    .run(ddge::scheduler::as_task([] { std::println("Hello World!"); }));
+----
+
+We can also describe more complicated logic using scheduling primitives.
+
+[,c++]
+----
+auto say_hello() -> void {
+    std::println("Hello World!");
+}
+
+auto say_hi() -> void {
+    std::println("Hi! 👋");
+}
+
+ddge::app::create()
+    .plug_in(ddge::plugins::Execution{})
+    .run(
+        ddge::scheduler::start_as(ddge::scheduler::as_task(say_hello))
+            .then(ddge::scheduler::as_task(say_hi))
+    );
+----
+
+== Scheduling primitives
+
+.Core scheduling primitives
+* `+start_as+` - begins a schedule that can be chained using `+.then()+`
+
+* `+in_parallel+` - puts the given tasks in a group +
+Tasks within the group may run in parallel.
+
+* `+group+` - puts the given tasks in a group +
+Tasks within the group that don't share conflicting parameters may run in parallel.
+
+With these, one may describe any form of schedule.
+There are also a lot more primitives that serve some sort of logic, but they are not essential.
+
+== Accessors
+
+Tasks may take accessors as parameters.
+Accessors come in all sorts of shapes.
+Here are a few examples:
+
+* `+Resource<Resource>+` - reference to a resource
+* `+Registry+` - reference to the registry
+* `+State<State>+` - reference to a state
+
+Accessors are stored with their associated task.
+Most accessors store only a reference, so it is fine to take them by value; however, a few of them (like `+Query+`) are more complicated and should be taken by reference.
+
+'''
+
+[,c++]
+.Example of a more complicated schedule
+----
+namespace sch = ddge::scheduler;
+
+auto schedule =
+    sch::start_as(initialize_app)
+        .then(
+            sch::loop_until(
+                sch::group(
+                    sch::as_task(process_events),
+                    sch::as_task(update),
+                    sch::as_task(render)
+                ),
+                sch::as_task(game_is_running)
+            )
+        )
+        .then(shut_down);
+----
+
+Where `+game_is_running+` may be defined as +
+
+[,c++]
+----
+using namespace ddge::scheduler::accessors::resources;
+
+auto game_is_running(Resource<Window> window) -> bool
+{
+    return window->is_open();
+}
+----
