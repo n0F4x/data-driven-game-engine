@@ -38,10 +38,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         TaskContinuation.ixx
         TaskContinuationFactory.ixx
         TaskFactory.ixx
+        TaskFactoryProxy.ixx
         TaskHub.ixx
         TaskHubBuilder.ixx
         TaskHubProxy.ixx
         TaskIndex.ixx
         TaskResultTrait.ixx
+        TypedTaskFactoryHandle.ixx
         TypedTaskIndex.ixx
 )

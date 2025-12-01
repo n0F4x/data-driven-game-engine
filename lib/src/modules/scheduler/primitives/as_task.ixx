@@ -8,7 +8,7 @@ import ddge.modules.scheduler.raw_task_c;
 import ddge.modules.scheduler.ExecPolicy;
 import ddge.modules.scheduler.TaskBuilder;
 import ddge.modules.scheduler.TaskHubBuilder;
-import ddge.modules.scheduler.TypedTaskIndex;
+import ddge.modules.scheduler.TypedTaskFactoryHandle;
 
 import ddge.utility.meta.type_traits.functional.result_of;
 
@@ -23,7 +23,7 @@ auto as_task(F&& func) -> TaskBuilder<util::meta::result_of_t<F>>
     return TaskBuilder<Result>{
         [x_func = std::move(func)](
             TaskHubBuilder& task_hub_builder
-        ) mutable -> TypedTaskIndex<Result> {
+        ) mutable -> TypedTaskFactoryHandle<Result> {
             return task_hub_builder.emplace_embedded_task(
                 std::move(x_func), execution_policy_T
             );

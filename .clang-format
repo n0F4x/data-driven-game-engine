@@ -100,44 +100,46 @@ IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '^<windows\.h>'
     Priority: 2
-  - Regex: '^<gsl/'
+  - Regex: '^<magic_enum/'
     Priority: 3
-  - Regex: '^<gsl-lite/'
+  - Regex: '^<gsl/'
     Priority: 4
-  - Regex: '^<boost/'
+  - Regex: '^<gsl-lite/'
     Priority: 5
-  - Regex: '^<tl/'
+  - Regex: '^<boost/'
     Priority: 6
-  - Regex: '^<function2/'
+  - Regex: '^<tl/'
     Priority: 7
-  - Regex: '^<tsl/'
+  - Regex: '^<function2/'
     Priority: 8
-  - Regex: '^<frozen/'
+  - Regex: '^<tsl/'
     Priority: 9
-  - Regex: '^<plf_.+\.h>'
+  - Regex: '^<frozen/'
     Priority: 10
-  - Regex: '^<fmt/'
+  - Regex: '^<plf_.+\.h>'
     Priority: 11
-  - Regex: '^<spdlog/'
+  - Regex: '^<fmt/'
     Priority: 12
-  - Regex: '^<vulkan/'
+  - Regex: '^<spdlog/'
     Priority: 13
-  - Regex: '<vk_mem_alloc\.h>'
+  - Regex: '^<vulkan/'
     Priority: 14
-  - Regex: '<VkBootstrap\.h>'
+  - Regex: '<vk_mem_alloc\.h>'
     Priority: 15
-  - Regex: '^<glm/'
+  - Regex: '<VkBootstrap\.h>'
     Priority: 16
-  - Regex: '^<glfw/'
+  - Regex: '^<glm/'
     Priority: 17
-  - Regex: '^<SFML/'
+  - Regex: '^<glfw/'
     Priority: 18
-  - Regex: '^<stb_.+\.h>'
+  - Regex: '^<SFML/'
     Priority: 19
-  - Regex: '^<ktx*\.h>'
+  - Regex: '^<stb_.+\.h>'
     Priority: 20
-  - Regex: '^<entt/'
+  - Regex: '^<ktx*\.h>'
     Priority: 21
+  - Regex: '^<entt/'
+    Priority: 22
   - Regex: '^<.*\..*'
     Priority: 998
   - Regex: '^<.*'

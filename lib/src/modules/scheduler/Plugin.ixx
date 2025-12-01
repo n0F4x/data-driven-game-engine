@@ -27,7 +27,7 @@ import ddge.modules.scheduler.TaskContinuationFactory;
 import ddge.modules.scheduler.TaskHub;
 import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TaskHubProxy;
-import ddge.modules.scheduler.TypedTaskIndex;
+import ddge.modules.scheduler.TypedTaskFactoryHandle;
 
 import ddge.utility.contracts;
 import ddge.utility.meta.type_traits.type_list.type_list_filter;
@@ -98,11 +98,10 @@ auto ddge::scheduler::Plugin::run(this Self_T&& self, TaskBuilder<void>&& task_b
         Nexus          nexus{ AccessorProviders_T{ app }... };
         TaskHubBuilder task_hub_builder{ nexus };
 
-        std::atomic_bool           should_stop{};
-        const TypedTaskIndex<void> root_task_index =
+        std::atomic_bool                   should_stop{};
+        const TypedTaskFactoryHandle<void> root_task_handle =
             std::move(task_builder).build(task_hub_builder);
-        task_hub_builder.set_task_continuation_factory(
-            root_task_index,
+        root_task_handle->set_continuation_factory(
             TaskContinuationFactory<void>{
                 [&should_stop](const TaskHubProxy) -> TaskContinuation<void> {
                     return TaskContinuation<void>{
@@ -115,7 +114,7 @@ auto ddge::scheduler::Plugin::run(this Self_T&& self, TaskBuilder<void>&& task_b
         const std::unique_ptr<TaskHub> task_hub{
             std::move(task_hub_builder).build(number_of_threads)
         };
-        task_hub->schedule(root_task_index);
+        task_hub->schedule(root_task_handle.index());
 
         // TODO: use jthread when it is no longer experimental in libc++
         //       (or when it comes with no linker errors)

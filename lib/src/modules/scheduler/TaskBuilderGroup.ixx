@@ -23,6 +23,7 @@ import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TaskHubProxy;
 import ddge.modules.scheduler.TaskIndex;
 import ddge.modules.scheduler.TaskResultTrait;
+import ddge.modules.scheduler.TypedTaskFactoryHandle;
 import ddge.modules.scheduler.TypedTaskIndex;
 
 import ddge.utility.meta.concepts.strips_to;
@@ -134,28 +135,29 @@ auto ddge::scheduler::TaskBuilderGroup<Result_T>::sync(
          x_gatherer_builder = std::move(gatherer_builder)]   //
         (                                                    //
             TaskHubBuilder & task_hub_builder
-        ) mutable -> TypedTaskIndex<NewResult>               //
+        ) mutable -> TypedTaskFactoryHandle<NewResult>       //
         {
             const std::shared_ptr gatherer{
                 std::move(x_gatherer_builder).build(static_cast<uint32_t>(builders.size()))
             };
 
-            std::vector<TypedTaskIndex<Result_T>> task_indices{
+            std::vector<TypedTaskFactoryHandle<Result_T>> task_handles{
                 std::from_range,
                 std::move(builders) | std::views::as_rvalue
                     | std::views::transform(
                         [&task_hub_builder]   //
-                        (TaskBuilder<Result_T>&& builder) -> TypedTaskIndex<Result_T> {
+                        (TaskBuilder<Result_T>&& builder)
+                            -> TypedTaskFactoryHandle<Result_T> {
                             return std::move(builder).build(task_hub_builder);
                         }
                     )
             };
 
             DependencyStack                       dependency_stack;
-            std::vector<std::shared_ptr<WaitAll>> intermediate_waits(task_indices.size());
-            for (const TypedTaskIndex<Result_T> task_index : task_indices) {
+            std::vector<std::shared_ptr<WaitAll>> intermediate_waits(task_handles.size());
+            for (const TypedTaskFactoryHandle<Result_T> task_handle : task_handles) {
                 const LockOwnerIndex lock_owner_index =
-                    dependency_stack.emplace(task_hub_builder.locks_of(task_index));
+                    dependency_stack.emplace(task_handle->locks());
 
                 if (const std::span<const LockOwnerIndex> dependencies{
                         dependency_stack.dependencies_of(lock_owner_index) };
@@ -172,9 +174,11 @@ auto ddge::scheduler::TaskBuilderGroup<Result_T>::sync(
                 std::vector<TypedTaskIndex<Result_T>> dependent_task_indices{
                     std::from_range,
                     dependency_stack.dependees_of(lock_owner_index)
-                        | std::views::transform([&task_indices](
-                                                    const LockOwnerIndex dependee_index
-                                                ) { return task_indices[dependee_index]; })
+                        | std::views::transform(
+                            [&task_handles](const LockOwnerIndex dependee_index)
+                                -> TypedTaskIndex<Result_T>   //
+                            { return task_handles[dependee_index].index(); }
+                        )
                 };
 
                 std::vector<std::shared_ptr<WaitAll>> dependent_intermediate_waits{
@@ -214,8 +218,7 @@ auto ddge::scheduler::TaskBuilderGroup<Result_T>::sync(
                     }
                 };
 
-                task_hub_builder.set_task_continuation_factory(
-                    task_indices[lock_owner_index],
+                task_handles[lock_owner_index]->set_continuation_factory(
                     TaskContinuationFactory<Result_T>{
                         [gatherer,
                          x_schedule_dependent_continuations_factory =
@@ -243,9 +246,9 @@ auto ddge::scheduler::TaskBuilderGroup<Result_T>::sync(
                 IndirectTaskFactory<NewResult>{
                     dependency_stack.bottom()
                         | std::views::transform(
-                            [&task_indices](const LockOwnerIndex lock_owner_index)
+                            [&task_handles](const LockOwnerIndex lock_owner_index)
                                 -> TaskIndex {
-                                return task_indices[lock_owner_index].untyped();
+                                return task_handles[lock_owner_index].index().untyped();
                             }
                         )
                         | std::ranges::to<std::vector>(),

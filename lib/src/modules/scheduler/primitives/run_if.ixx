@@ -14,7 +14,7 @@ import ddge.modules.scheduler.TaskContinuation;
 import ddge.modules.scheduler.TaskContinuationFactory;
 import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TaskHubProxy;
-import ddge.modules.scheduler.TypedTaskIndex;
+import ddge.modules.scheduler.TypedTaskFactoryHandle;
 
 namespace ddge::scheduler {
 
@@ -33,17 +33,16 @@ auto ddge::scheduler::run_if(
         [x_body_builder      = std::move(body_builder),
          x_predicate_builder = std::move(predicate_builder)](
             TaskHubBuilder& task_hub_builder
-        ) mutable -> TypedTaskIndex<void>   //
+        ) mutable -> TypedTaskFactoryHandle<void>   //
         {
-            const TypedTaskIndex<void> body_task_index =
+            const TypedTaskFactoryHandle<void> body_task_handle =
                 std::move(x_body_builder).build(task_hub_builder);
 
             std::shared_ptr<std::optional<TaskContinuation<void>>> shared_continuation{
                 std::make_shared<std::optional<TaskContinuation<void>>>()
             };
 
-            task_hub_builder.set_task_continuation_factory(
-                body_task_index,
+            body_task_handle->set_continuation_factory(
                 TaskContinuationFactory<void>{
                     [shared_continuation](const TaskHubProxy) mutable
                         -> TaskContinuation<void> {
@@ -58,13 +57,12 @@ auto ddge::scheduler::run_if(
                 }
             );
 
-            const TypedTaskIndex<bool> predicate_task_index =
+            const TypedTaskFactoryHandle<bool> predicate_task_handle =
                 std::move(x_predicate_builder).build(task_hub_builder);
 
-            task_hub_builder.set_task_continuation_factory(
-                predicate_task_index,
+            predicate_task_handle->set_continuation_factory(
                 TaskContinuationFactory<bool>{
-                    [body_task_index, shared_continuation](
+                    [body_task_index = body_task_handle.index(), shared_continuation](
                         const TaskHubProxy task_hub_proxy
                     ) mutable -> TaskContinuation<bool> {
                         return TaskContinuation<bool>{
@@ -86,12 +84,12 @@ auto ddge::scheduler::run_if(
             );
 
             LockGroup locks;
-            locks.expand(task_hub_builder.locks_of(body_task_index));
-            locks.expand(task_hub_builder.locks_of(predicate_task_index));
+            locks.expand(body_task_handle->locks());
+            locks.expand(predicate_task_handle->locks());
 
             return task_hub_builder.emplace_indirect_task_factory(
                 IndirectTaskFactory<void>{
-                    predicate_task_index,
+                    predicate_task_handle.index(),
                     IndirectTaskContinuationSetter<void>{
                         [x_shared_continuation = std::move(shared_continuation)](
                             TaskContinuation<void>&& continuation

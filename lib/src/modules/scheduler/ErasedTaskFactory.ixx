@@ -18,12 +18,9 @@ import ddge.utility.containers.AnyMoveOnly;
 
 namespace ddge::scheduler {
 
-export class ErasedTaskFactory : public util::BasicAnyMoveOnly<
-                                     sizeof(TaskFactory<void>),
-                                     alignof(TaskFactory<void>)>   //
+export class ErasedTaskFactory : public util::BasicAnyMoveOnly<0>   //
 {
-    using Base =
-        util::BasicAnyMoveOnly<sizeof(TaskFactory<void>), alignof(TaskFactory<void>)>;
+    using Base = util::BasicAnyMoveOnly<0>;
 
 public:
     template <typename Result_T>

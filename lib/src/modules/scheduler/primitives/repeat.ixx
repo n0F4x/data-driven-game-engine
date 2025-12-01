@@ -15,6 +15,7 @@ import ddge.modules.scheduler.TaskContinuation;
 import ddge.modules.scheduler.TaskContinuationFactory;
 import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TaskHubProxy;
+import ddge.modules.scheduler.TypedTaskFactoryHandle;
 import ddge.modules.scheduler.TypedTaskIndex;
 
 namespace ddge::scheduler {
@@ -38,7 +39,7 @@ auto ddge::scheduler::repeat(
         [x_body_builder                 = std::move(body_builder),
          x_repetition_specifier_builder = std::move(repetition_specifier_builder)](
             TaskHubBuilder& task_hub_builder
-        ) mutable -> TypedTaskIndex<void>   //
+        ) mutable -> TypedTaskFactoryHandle<void>   //
         {
             class Looper {
             public:
@@ -72,15 +73,14 @@ auto ddge::scheduler::repeat(
                 std::optional<TaskContinuation<void>> m_continuation;
             };
 
-            const TypedTaskIndex<void> body_task_index =   //
+            const TypedTaskFactoryHandle<void> body_task_handle =   //
                 std::move(x_body_builder).build(task_hub_builder);
 
             std::shared_ptr<Looper> looper{
-                std::make_shared<Looper>(body_task_index)   //
+                std::make_shared<Looper>(body_task_handle.index())   //
             };
 
-            task_hub_builder.set_task_continuation_factory(
-                body_task_index,
+            body_task_handle->set_continuation_factory(
                 TaskContinuationFactory<void>{
                     [looper](const TaskHubProxy task_hub_proxy) mutable
                         -> TaskContinuation<void> {
@@ -93,11 +93,10 @@ auto ddge::scheduler::repeat(
                 }
             );
 
-            const TypedTaskIndex<Repetition_T> repetition_specifier_task_index =   //
+            const TypedTaskFactoryHandle<Repetition_T> repetition_specifier_task_handle =
                 std::move(x_repetition_specifier_builder).build(task_hub_builder);
 
-            task_hub_builder.set_task_continuation_factory(
-                repetition_specifier_task_index,
+            repetition_specifier_task_handle->set_continuation_factory(
                 TaskContinuationFactory<Repetition_T>{
                     [looper](const TaskHubProxy task_hub_proxy) mutable
                         -> TaskContinuation<Repetition_T> {
@@ -114,12 +113,12 @@ auto ddge::scheduler::repeat(
             );
 
             LockGroup locks;
-            locks.expand(task_hub_builder.locks_of(body_task_index));
-            locks.expand(task_hub_builder.locks_of(repetition_specifier_task_index));
+            locks.expand(body_task_handle->locks());
+            locks.expand(repetition_specifier_task_handle->locks());
 
             return task_hub_builder.emplace_indirect_task_factory(
                 IndirectTaskFactory<void>{
-                    repetition_specifier_task_index,
+                    repetition_specifier_task_handle.index(),
                     IndirectTaskContinuationSetter<void>{
                         [looper](TaskContinuation<void>&& continuation) mutable -> void {
                             looper->set_continuation(std::move(continuation));

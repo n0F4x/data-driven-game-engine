@@ -1,7 +1,5 @@
 module;
 
-#include <memory>
-#include <optional>
 #include <ranges>
 #include <utility>
 #include <vector>
@@ -17,7 +15,7 @@ import ddge.modules.scheduler.TaskContinuationFactory;
 import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TaskHubProxy;
 import ddge.modules.scheduler.TaskResultTrait;
-import ddge.modules.scheduler.TypedTaskIndex;
+import ddge.modules.scheduler.TypedTaskFactoryHandle;
 
 namespace ddge::scheduler {
 
@@ -59,28 +57,28 @@ ddge::scheduler::ScheduleBuilder::operator TaskBuilder<void>() &&
     return TaskBuilder<void>{
         [task_builders = std::move(m_task_builders)](
             TaskHubBuilder& task_hub_builder
-        ) mutable -> TypedTaskIndex<void>   //
+        ) mutable -> TypedTaskFactoryHandle<void>   //
         {
-            std::vector<TypedTaskIndex<void>> task_indices{
+            std::vector<TypedTaskFactoryHandle<void>> task_handles{
                 std::from_range,
                 std::move(task_builders) | std::views::as_rvalue
                     | std::views::transform(
                         [&task_hub_builder](TaskBuilder<void>&& builder)
-                            -> TypedTaskIndex<void>   //
-                        {                             //
+                            -> TypedTaskFactoryHandle<void>   //
+                        {                                     //
                             return std::move(builder).build(task_hub_builder);
                         }
                     )
             };
 
             // TODO: use std::views::adjacent
-            for (const std::size_t previous_task_index_index :
-                 std::views::iota(0uz, task_indices.size() - 1))
+            for (const std::size_t previous_task_handle_index :
+                 std::views::iota(0uz, task_handles.size() - 1))
             {
-                task_hub_builder.set_task_continuation_factory(
-                    task_indices[previous_task_index_index],
+                task_handles[previous_task_handle_index]->set_continuation_factory(
                     TaskContinuationFactory<void>{
-                        [next_task_index = task_indices[previous_task_index_index + 1]](
+                        [next_task_index =
+                             task_handles[previous_task_handle_index + 1].index()](
                             const TaskHubProxy task_hub_proxy
                         ) -> TaskContinuation<void> {
                             return TaskContinuation<void>{
@@ -93,38 +91,27 @@ ddge::scheduler::ScheduleBuilder::operator TaskBuilder<void>() &&
                 );
             }
 
-            std::shared_ptr<std::optional<TaskContinuation<void>>> shared_continuation{
-                std::make_shared<std::optional<TaskContinuation<void>>>()
-            };
-
-            task_hub_builder.set_task_continuation_factory(
-                task_indices.back(),
-                TaskContinuationFactory<void>{
-                    [shared_continuation](const TaskHubProxy) mutable
-                        -> TaskContinuation<void> {
-                        return TaskContinuation<void>{
-                            [shared_continuation] mutable -> void {
-                                if (shared_continuation->has_value()) {
-                                    (**shared_continuation)();
-                                }
-                            }
-                        };
-                    }   //
-                }
-            );
-
             LockGroup locks;
-            for (const TypedTaskIndex<void> task_index : task_indices) {
-                locks.expand(task_hub_builder.locks_of(task_index));
+            for (const TypedTaskFactoryHandle<void> task_handle : task_handles) {
+                locks.expand(task_handle->locks());
             }
 
             return task_hub_builder.emplace_indirect_task_factory(
                 IndirectTaskFactory<void>{
-                    task_indices.front(),
+                    task_handles.front().index(),
                     IndirectTaskContinuationSetter<void>{
-                        [shared_continuation](TaskContinuation<void>&& continuation)
-                            -> void {
-                            (*shared_continuation) = std::move(continuation);
+                        [last_task_handle = task_handles.back()](
+                            TaskContinuation<void>&& continuation
+                        ) -> void {
+                            last_task_handle->set_continuation_factory(
+                                TaskContinuationFactory<void>{
+                                    [x_continuation = std::move(continuation)](
+                                        const TaskHubProxy
+                                    ) mutable -> TaskContinuation<void> {
+                                        return std::move(x_continuation);
+                                    }   //
+                                }
+                            );
                         }   //
                     },
                     std::move(locks)   //

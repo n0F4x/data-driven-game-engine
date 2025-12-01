@@ -1,11 +1,11 @@
 module;
 
 #include <cstdint>
+#include <deque>
 #include <functional>
 #include <thread>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
 #include "utility/contract_macros.hpp"
 
@@ -25,9 +25,11 @@ import ddge.modules.scheduler.IndirectTaskFactory;
 import ddge.modules.scheduler.TaskContinuation;
 import ddge.modules.scheduler.TaskContinuationFactory;
 import ddge.modules.scheduler.TaskFactory;
+import ddge.modules.scheduler.TaskFactoryProxy;
 import ddge.modules.scheduler.TaskHub;
 import ddge.modules.scheduler.TaskHubProxy;
 import ddge.modules.scheduler.TaskIndex;
+import ddge.modules.scheduler.TypedTaskFactoryHandle;
 import ddge.modules.scheduler.TypedTaskIndex;
 
 import ddge.utility.any_cast;
@@ -46,12 +48,12 @@ public:
     template <raw_task_c F>
     [[nodiscard]]
     auto emplace_embedded_task(F&& task, ExecPolicy execution_policy)
-        -> TypedTaskIndex<util::meta::result_of_t<F>>;
+        -> TypedTaskFactoryHandle<util::meta::result_of_t<F>>;
     template <typename Result_T>
     [[nodiscard]]
     auto emplace_indirect_task_factory(
         IndirectTaskFactory<Result_T>&& indirect_task_factory
-    ) -> TypedTaskIndex<Result_T>;
+    ) -> TypedTaskFactoryHandle<Result_T>;
 
     template <typename Result_T>
     auto set_task_continuation_factory(
@@ -66,15 +68,15 @@ public:
     ) && -> std::unique_ptr<TaskHub>;
 
 private:
-    std::reference_wrapper<Nexus>  m_nexus;
-    std::vector<ErasedTaskFactory> m_generic_task_factories;
-    std::vector<ErasedTaskFactory> m_main_only_task_factories;
-    std::vector<ErasedTaskFactory> m_indirect_task_factories;
+    std::reference_wrapper<Nexus> m_nexus;
+    std::deque<ErasedTaskFactory> m_generic_task_factories;
+    std::deque<ErasedTaskFactory> m_main_only_task_factories;
+    std::deque<ErasedTaskFactory> m_indirect_task_factories;
 
     template <typename Self_T>
     [[nodiscard]]
     auto select_task_factories(this Self_T&&, TaskIndex task_index)
-        -> util::meta::forward_like_t<std::vector<ErasedTaskFactory>, Self_T>;
+        -> util::meta::forward_like_t<std::deque<ErasedTaskFactory>, Self_T>;
 
     template <typename Self_T>
     [[nodiscard]]
@@ -86,7 +88,7 @@ private:
     auto emplace(
         EmbeddedTaskFactory<Result_T>&& embedded_task_factory,
         ExecPolicy                      execution_policy
-    ) -> TypedTaskIndex<Result_T>;
+    ) -> TypedTaskFactoryHandle<Result_T>;
 };
 
 }   // namespace ddge::scheduler
@@ -95,7 +97,7 @@ template <ddge::scheduler::raw_task_c F>
 auto ddge::scheduler::TaskHubBuilder::emplace_embedded_task(
     F&&        task,
     ExecPolicy execution_policy
-) -> TypedTaskIndex<util::meta::result_of_t<F>>
+) -> TypedTaskFactoryHandle<util::meta::result_of_t<F>>
 {
     using Result = util::meta::result_of_t<F>;
 
@@ -118,7 +120,7 @@ auto ddge::scheduler::TaskHubBuilder::emplace_embedded_task(
 template <typename Result_T>
 auto ddge::scheduler::TaskHubBuilder::emplace_indirect_task_factory(
     IndirectTaskFactory<Result_T>&& indirect_task_factory
-) -> TypedTaskIndex<Result_T>
+) -> TypedTaskFactoryHandle<Result_T>
 {
     PRECOND(m_indirect_task_factories.size() < TaskHub::task_index_value_mask);
 
@@ -126,8 +128,13 @@ auto ddge::scheduler::TaskHubBuilder::emplace_indirect_task_factory(
         ErasedTaskFactory{ std::move(indirect_task_factory) }
     );
 
-    return TypedTaskIndex<Result_T>{
-        (m_indirect_task_factories.size() - 1) | TaskHub::IndexTagMasks::indirect   //
+    return TypedTaskFactoryHandle<Result_T>{
+        TaskFactoryProxy<Result_T>{
+            util::any_cast<TaskFactory<Result_T>>(m_indirect_task_factories.back())   //
+        },
+        TypedTaskIndex<Result_T>{
+            (m_indirect_task_factories.size() - 1) | TaskHub::IndexTagMasks::indirect   //
+        }
     };
 }
 
@@ -147,7 +154,7 @@ template <typename Self_T>
 auto ddge::scheduler::TaskHubBuilder::select_task_factories(
     this Self_T&&   self,
     const TaskIndex task_index
-) -> util::meta::forward_like_t<std::vector<ErasedTaskFactory>, Self_T>
+) -> util::meta::forward_like_t<std::deque<ErasedTaskFactory>, Self_T>
 {
     if ((task_index.underlying() & TaskHub::task_index_tag_mask)
         == TaskHub::IndexTagMasks::generic)
@@ -182,10 +189,10 @@ template <typename Result_T>
 auto ddge::scheduler::TaskHubBuilder::emplace(
     EmbeddedTaskFactory<Result_T>&& embedded_task_factory,
     const ExecPolicy                execution_policy
-) -> TypedTaskIndex<Result_T>
+) -> TypedTaskFactoryHandle<Result_T>
 {
-    std::vector<ErasedTaskFactory>& task_factories{
-        [this, execution_policy] -> std::vector<ErasedTaskFactory>& {
+    std::deque<ErasedTaskFactory>& task_factories{
+        [this, execution_policy] -> std::deque<ErasedTaskFactory>& {
             switch (execution_policy) {
                 case ExecPolicy::eDefault:     return m_generic_task_factories;
                 case ExecPolicy::eForceOnMain: return m_main_only_task_factories;
@@ -200,5 +207,10 @@ auto ddge::scheduler::TaskHubBuilder::emplace(
 
     task_factories.push_back(ErasedTaskFactory{ std::move(embedded_task_factory) });
 
-    return TypedTaskIndex<Result_T>{ (task_factories.size() - 1) | index_mask };
+    return TypedTaskFactoryHandle{
+        TaskFactoryProxy<Result_T>{
+            util::any_cast<TaskFactory<Result_T>>(task_factories.back())       //
+        },
+        TypedTaskIndex<Result_T>{ (task_factories.size() - 1) | index_mask }   //
+    };
 }

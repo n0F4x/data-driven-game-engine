@@ -1,7 +1,5 @@
 module;
 
-#include <memory>
-#include <optional>
 #include <utility>
 
 export module ddge.modules.scheduler.primitives.loop_until;
@@ -14,7 +12,9 @@ import ddge.modules.scheduler.TaskContinuation;
 import ddge.modules.scheduler.TaskContinuationFactory;
 import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TaskHubProxy;
-import ddge.modules.scheduler.TypedTaskIndex;
+import ddge.modules.scheduler.TypedTaskFactoryHandle;
+
+import ddge.utility.no_op;
 
 namespace ddge::scheduler {
 
@@ -33,49 +33,21 @@ auto ddge::scheduler::loop_until(
         [x_body_builder      = std::move(body_builder),
          x_predicate_builder = std::move(predicate_builder)](
             TaskHubBuilder& task_hub_builder
-        ) mutable -> TypedTaskIndex<void>   //
+        ) mutable -> TypedTaskFactoryHandle<void>   //
         {
-            const TypedTaskIndex<void> body_task_index =
+            const TypedTaskFactoryHandle<void> body_task_handle =
                 std::move(x_body_builder).build(task_hub_builder);
 
-            const TypedTaskIndex<bool> predicate_task_index =
+            const TypedTaskFactoryHandle<bool> predicate_task_handle =
                 std::move(x_predicate_builder).build(task_hub_builder);
 
-            std::shared_ptr<std::optional<TaskContinuation<void>>> shared_continuation{
-                std::make_shared<std::optional<TaskContinuation<void>>>()
-            };
-
-            task_hub_builder.set_task_continuation_factory(
-                predicate_task_index,
-                TaskContinuationFactory<bool>{
-                    [body_task_index, shared_continuation](
-                        const TaskHubProxy task_hub_proxy
-                    ) mutable -> TaskContinuation<bool> {
-                        return TaskContinuation<bool>{
-                            [body_task_index,
-                             shared_continuation,
-                             task_hub_proxy](const bool predicate) mutable -> void {
-                                if (predicate) {
-                                    task_hub_proxy.schedule(body_task_index);
-                                }
-                                else {
-                                    if (shared_continuation->has_value()) {
-                                        (**shared_continuation)();
-                                    }
-                                }
-                            }   //
-                        };
-                    }   //
-                }
-            );
-
-            task_hub_builder.set_task_continuation_factory(
-                body_task_index,
+            body_task_handle->set_continuation_factory(
                 TaskContinuationFactory<void>{
-                    [predicate_task_index](const TaskHubProxy task_hub_proxy)
+                    [predicate_task_handle](const TaskHubProxy task_hub_proxy)
                         -> TaskContinuation<void> {
                         return TaskContinuation<void>{
-                            [predicate_task_index, task_hub_proxy] -> void {
+                            [predicate_task_index = predicate_task_handle.index(),
+                             task_hub_proxy] -> void {
                                 task_hub_proxy.schedule(predicate_task_index);
                             }   //
                         };
@@ -83,21 +55,50 @@ auto ddge::scheduler::loop_until(
                 }
             );
 
+            auto set_continuation = [body_task_index = body_task_handle.index(),
+                                     predicate_task_handle](
+                                        TaskContinuation<void>&& continuation
+                                    ) -> void   //
+            {
+                predicate_task_handle->set_continuation_factory(
+                    TaskContinuationFactory<bool>{
+                        [body_task_index,
+                         x_continuation = std::move(continuation)](
+                            const TaskHubProxy task_hub_proxy
+                        ) mutable -> TaskContinuation<bool>   //
+                        {
+                            return TaskContinuation<bool>{
+                                [body_task_index,
+                                 task_hub_proxy,
+                                 y_continuation = std::move(x_continuation)](
+                                    const bool predicate
+                                ) mutable -> void {
+                                    if (predicate) {
+                                        task_hub_proxy.schedule(body_task_index);
+                                    }
+                                    else {
+                                        y_continuation();
+                                    }
+                                }   //
+                            };
+                        }   //
+                    }
+                );
+            };
+
+            set_continuation(TaskContinuation<void>{ util::no_op });
+
             LockGroup locks;
-            locks.expand(task_hub_builder.locks_of(body_task_index));
-            locks.expand(task_hub_builder.locks_of(predicate_task_index));
+            locks.expand(body_task_handle->locks());
+            locks.expand(predicate_task_handle->locks());
 
             return task_hub_builder.emplace_indirect_task_factory(
                 IndirectTaskFactory<void>{
-                    predicate_task_index,
+                    predicate_task_handle.index(),
                     IndirectTaskContinuationSetter<void>{
-                        [shared_continuation](
-                            TaskContinuation<void>&& continuation
-                        ) mutable -> void {
-                            *shared_continuation = std::move(continuation);
-                        }   //
+                        std::move(set_continuation)   //
                     },
-                    std::move(locks)   //
+                    std::move(locks)                  //
                 }
             );
         }   //
