@@ -18,7 +18,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         not_fn.ixx
         Overloaded.ixx
         ScopeGuard.ixx
-        Size.ixx
         TypeList.ixx
         ValueSequence.ixx
         wrap_ref.ixx

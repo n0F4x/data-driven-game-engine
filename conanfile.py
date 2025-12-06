@@ -69,19 +69,11 @@ class DataDrivenGameEngineRecipe(ConanFile):
 
     def requirements(self):
         self.requires("magic_enum/0.9.7", transitive_headers=True)
-        self.requires("gsl-lite/1.0.1", transitive_headers=True)
         self.requires("tl-function-ref/1.0.0", transitive_headers=True)
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
         self.requires("fmt/12.0.0", transitive_headers=True)
         self.requires("spdlog/1.16.0")
-        self.requires("glfw/3.4", transitive_headers=True)
         self.requires("vulkan-headers/1.3.296.0")
-        self.requires("vulkan-memory-allocator/3.3.0", transitive_headers=True)
-        self.requires("vk-bootstrap/1.3.296", transitive_headers=True)
-        self.requires("glm/1.0.1", transitive_headers=True)
-        self.requires("ktx/4.3.2", transitive_headers=True, options={"tools": False})
-        self.requires("stb/cci.20240531", transitive_headers=True)
-        self.requires("fastgltf/0.9.0", transitive_headers=True)
         self.requires("entt/3.15.0", transitive_headers=True)
 
         if self._enable_tests:
