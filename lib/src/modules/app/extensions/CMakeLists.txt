@@ -6,5 +6,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         extensions.cppm
         AddonsPlugin.ixx
         FunctionalPlugin.ixx
+        MetaInfo.ixx
+        MetaInfoAddon.ixx
+        MetaInfoPlugin.ixx
         RunnablePlugin.ixx
 )

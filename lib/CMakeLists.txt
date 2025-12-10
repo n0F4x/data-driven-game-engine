@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(engine)
+project(engine VERSION 0.0.1)
 
 set(${project_prefix}LOG_LEVEL ${project_prefix}LOG_LEVEL_INFO CACHE STRING "Set log level")
 set_property(CACHE ${project_prefix}LOG_LEVEL PROPERTY STRINGS
@@ -24,6 +24,9 @@ include(cmake/set_log_level.cmake)
 set_log_level(${PROJECT_NAME} ${project_prefix}LOG_LEVEL)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
+        ${project_prefix}VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+        ${project_prefix}VERSION_MINOR=${PROJECT_VERSION_MINOR}
+        ${project_prefix}VERSION_PATCH=${PROJECT_VERSION_PATCH}
         CHECK_LIFETIME_BOUND
 )
 

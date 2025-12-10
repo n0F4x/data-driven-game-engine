@@ -2,7 +2,7 @@
     "version": "0.5",
     "requires": [
         "zlib/1.3.1#b8bc2603263cf7eccbd6e17e66b0ed76%1733936244.862",
-        "vulkan-headers/1.3.296.0#d3016741798609ba9dfa100c7a80ad5b%1730049313.734",
+        "vulkan-headers/1.4.313.0#83efc4aabdbe58d53aeae9494a720f7e%1747979764.107",
         "tsl-ordered-map/1.1.0#8ddec55fa369456ef4319f42bcb9af49%1694770345.954",
         "tl-function-ref/1.0.0#8efcfa342c5169b3c260a290257d7eee%1685725656.215",
         "stb/cci.20240531#ede183dce303916dab0c1b835df3926a%1720366012.336",

@@ -1,4 +1,5 @@
 add_subdirectory(dependency_injection)
 add_subdirectory(parallelism)
+add_subdirectory(render_a_triangle)
 add_subdirectory(simple)
 add_subdirectory(snake)

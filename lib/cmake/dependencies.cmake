@@ -25,14 +25,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:
 # Vulkan
 find_package(VulkanHeaders CONFIG REQUIRED)
 get_target_property(VulkanHeaders_INCLUDE_DIRS Vulkan::Headers INTERFACE_INCLUDE_DIRECTORIES)
-add_library(VulkanHppModule)
-target_sources(VulkanHppModule PUBLIC
+add_library(VulkanCppModule)
+target_compile_features(VulkanCppModule PUBLIC cxx_std_20)
+target_sources(VulkanCppModule PUBLIC
         FILE_SET public_cxx_modules
         TYPE CXX_MODULES
         BASE_DIRS ${VulkanHeaders_INCLUDE_DIRS}
         FILES ${VulkanHeaders_INCLUDE_DIRS}/vulkan/vulkan.cppm
 )
-target_compile_definitions(VulkanHppModule PUBLIC
+target_compile_definitions(VulkanCppModule PUBLIC
         VK_NO_PROTOTYPES
         VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
         VULKAN_HPP_NO_EXCEPTIONS
@@ -40,8 +41,8 @@ target_compile_definitions(VulkanHppModule PUBLIC
         VULKAN_HPP_NO_SPACESHIP_OPERATOR
         VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 )
-target_link_libraries(VulkanHppModule PUBLIC Vulkan::Headers)
-target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_LOCAL_INTERFACE:VulkanHppModule>)
+target_link_libraries(VulkanCppModule PUBLIC Vulkan::Headers)
+target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_LOCAL_INTERFACE:VulkanCppModule>)
 
 # EnTT
 find_package(EnTT CONFIG REQUIRED)
