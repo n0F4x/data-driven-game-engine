@@ -31,10 +31,14 @@ public:
         -> util::meta::forward_like_t<vulkan::InstanceBuilder, Self_T>;
 
     [[nodiscard]]
+    auto request_default_debug_messenger() -> bool;
+
+    [[nodiscard]]
     auto build() && -> RenderContext;
 
 private:
     vulkan::InstanceBuilder m_instance_builder;
+    bool                    m_request_default_debug_messenger{};
 };
 
 }   // namespace ddge::renderer

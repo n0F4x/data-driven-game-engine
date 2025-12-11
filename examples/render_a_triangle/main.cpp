@@ -30,7 +30,8 @@ auto main() -> int
                     const bool success =
                         render_context_builder.instance_builder().enable_vulkan_layer(
                             "VK_LAYER_KHRONOS_validation"
-                        );
+                        )
+                        && render_context_builder.request_default_debug_messenger();
                     assert(success);
                 }
             )

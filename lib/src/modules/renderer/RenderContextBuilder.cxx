@@ -8,6 +8,7 @@ import vulkan_hpp;
 
 import ddge.modules.config.engine_name;
 import ddge.modules.config.engine_version;
+import ddge.modules.vulkan.default_debug_messenger_callback;
 import ddge.modules.vulkan.result.check_result;
 
 namespace ddge::renderer {
@@ -37,12 +38,47 @@ RenderContextBuilder::RenderContextBuilder(
     : m_instance_builder{ make_instance_create_info(create_info), context }
 {}
 
+auto RenderContextBuilder::request_default_debug_messenger() -> bool
+{
+    if (m_request_default_debug_messenger) {
+        return true;
+    }
+
+    if (!m_instance_builder.enable_extension(vk::EXTDebugUtilsExtensionName)) {
+        return false;
+    }
+
+    m_request_default_debug_messenger = true;
+
+    return true;
+}
+
 auto ddge::renderer::RenderContextBuilder::build() && -> RenderContext
 {
     vk::raii::Instance instance{ std::move(m_instance_builder).build() };
 
+    constexpr static vk::DebugUtilsMessengerCreateInfoEXT
+        default_debug_messenger_create_info{
+            .messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
+                             | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError,
+            .messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding
+                         | vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
+                         | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
+                         | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation,
+            .pfnUserCallback = vulkan::default_debug_messenger_callback,
+        };
+
+    vk::raii::DebugUtilsMessengerEXT default_debug_messenger{
+        m_request_default_debug_messenger
+            ? vulkan::check_result(instance.createDebugUtilsMessengerEXT(
+                  default_debug_messenger_create_info
+              ))
+            : vk::raii::DebugUtilsMessengerEXT{ nullptr }
+    };
+
     return RenderContext{
-        .instance = std::move(instance),
+        .instance                = std::move(instance),
+        .default_debug_messenger = std::move(default_debug_messenger),
     };
 }
 

@@ -30,8 +30,7 @@ TEST_CASE("ddge::vulkan::check_result")
             );
 
             REQUIRE_THROWS_AS(
-                vulkan::check_result(vk::Result::eErrorDeviceLost),
-                vulkan::VulkanError
+                vulkan::check_result(vk::Result::eErrorDeviceLost), vulkan::VulkanError
             );
 
             vulkan::check_result(vk::Result::eSuccess);
@@ -54,17 +53,13 @@ TEST_CASE("ddge::vulkan::check_result")
             );
 
             REQUIRE_THROWS_AS(
-                vulkan::check_result<vk::Result::eIncomplete>(
-                    vk::Result::eErrorDeviceLost
-                ),
+                vulkan::check_result<vk::Result::eIncomplete>(vk::Result::eErrorDeviceLost),
                 vulkan::VulkanError
             );
 
             REQUIRE(
                 std::holds_alternative<vulkan::TypedResultCode<vk::Result::eSuccess>>(
-                    vulkan::check_result<vk::Result::eErrorDeviceLost>(
-                        vk::Result::eSuccess
-                    )
+                    vulkan::check_result<vk::Result::eErrorDeviceLost>(vk::Result::eSuccess)
                 )
             );
 
@@ -214,8 +209,7 @@ TEST_CASE("ddge::vulkan::check_result")
                     )),
                     std::expected<
                         vk::Instance,
-                        std::variant<
-                            vulkan::TypedResultCode<vk::Result::eErrorDeviceLost>>>>
+                        std::variant<vulkan::TypedResultCode<vk::Result::eErrorDeviceLost>>>>
             );
 
             REQUIRE_THROWS_AS(

@@ -1,7 +1,3 @@
-module;
-
-#include <cstdint>
-
 export module ddge.modules.vulkan.context;
 
 import vulkan_hpp;

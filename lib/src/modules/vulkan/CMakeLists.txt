@@ -2,6 +2,7 @@ add_subdirectory(format)
 add_subdirectory(result)
 
 target_sources(${PROJECT_NAME} PRIVATE
+        default_debug_messenger_callback.cxx
         global_definitions.cpp
         InstanceBuilder.cxx
 )
@@ -14,5 +15,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         vulkan.cppm
         context.ixx
         InstanceBuilder.ixx
+        default_debug_messenger_callback.ixx
         minimum_vulkan_api_version.ixx
 )

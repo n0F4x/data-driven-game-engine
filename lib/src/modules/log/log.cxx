@@ -1,5 +1,6 @@
 module;
 
+#include <format>
 #include <source_location>
 #include <string_view>
 #include <utility>
@@ -7,46 +8,50 @@ module;
 #include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-#include "log_level_definitions.hpp"
-
 module ddge.modules.log.log;
 
+import ddge.modules.config.engine_name;
 import ddge.modules.log.Level;
+import ddge.modules.log.log_level;
 
-auto logger{ [] {
-    auto result{ spdlog::stdout_color_mt("engine_internal") };
-    result->set_level(spdlog::level::trace);
-    return result;
-}() };
+namespace ddge::log {
 
 [[nodiscard]]
-constexpr auto convert(const ddge::log::Level level) -> spdlog::level::level_enum
+constexpr auto convert(const Level level) -> spdlog::level::level_enum
 {
     switch (level) {
-        case ddge::log::Level::eOff:      return spdlog::level::off;
-        case ddge::log::Level::eCritical: return spdlog::level::critical;
-        case ddge::log::Level::eError:    return spdlog::level::err;
-        case ddge::log::Level::eWarning:  return spdlog::level::warn;
-        case ddge::log::Level::eInfo:     return spdlog::level::info;
-        case ddge::log::Level::eDebug:    return spdlog::level::debug;
-        case ddge::log::Level::eTrace:    return spdlog::level::trace;
-        default:                          std::unreachable();
+        case Level::eOff:      return spdlog::level::off;
+        case Level::eCritical: return spdlog::level::critical;
+        case Level::eError:    return spdlog::level::err;
+        case Level::eWarning:  return spdlog::level::warn;
+        case Level::eInfo:     return spdlog::level::info;
+        case Level::eDebug:    return spdlog::level::debug;
+        case Level::eTrace:    return spdlog::level::trace;
+        default:               std::unreachable();
     }
 }
 
-auto ddge::log::log(
+auto logger{ [] {
+    auto result{
+        spdlog::stdout_color_mt(std::format("{} Internal", config::engine_name()))
+    };
+    result->set_level(convert(log_level()));
+    return result;
+}() };
+
+auto log(
     const std::source_location location,
     const Level                level,
     const std::string_view     message
 ) -> void
 {
-    if (std::to_underlying(level) <= ENGINE_LOG_LEVEL) {
-        logger->log(
-            spdlog::source_loc{ location.file_name(),
-                                static_cast<int>(location.line()),
-                                location.function_name() },
-            spdlog::level::level_enum{ convert(level) },
-            message
-        );
-    }
+    logger->log(
+        spdlog::source_loc{ location.file_name(),
+                            static_cast<int>(location.line()),
+                            location.function_name() },
+        spdlog::level::level_enum{ convert(level) },
+        message
+    );
 }
+
+}   // namespace ddge::log

@@ -60,7 +60,7 @@ auto InstanceBuilder::enable_vulkan_layer(const char* layer_name) -> bool
         return false;
     }
 
-    if (!std::ranges::none_of(
+    if (std::ranges::none_of(
             m_layer_names,
             [layer_name](const char* const enabled_layer_name) -> bool {
                 return std::strcmp(layer_name, enabled_layer_name) == 0;
@@ -95,14 +95,14 @@ auto InstanceBuilder::enable_extension(const char* extension_name) -> bool
         return false;
     }
 
-    if (!std::ranges::none_of(
+    if (std::ranges::none_of(
             m_extension_names,
             [extension_name](const char* const enabled_extension) -> bool {
                 return std::strcmp(extension_name, enabled_extension) == 0;
             }
         ))
     {
-        m_layer_names.push_back(extension_name);
+        m_extension_names.push_back(extension_name);
     }
 
     return true;
