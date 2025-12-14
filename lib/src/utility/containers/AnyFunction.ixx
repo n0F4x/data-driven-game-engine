@@ -44,19 +44,6 @@ using AnyFunction = BasicAnyFunctionBase<
     Signature_T,
     meta::arguments_of_t<Signature_T>>;
 
-export template <
-    meta::function_c                      Signature_T,
-    std::size_t                           size_T      = 3 * sizeof(void*),
-    std::size_t                           alignment_T = sizeof(void*),
-    ddge::util::meta::generic_allocator_c Allocator_T = DefaultAllocator>
-using AnyCopyableFunction = BasicAnyFunctionBase<
-    {},
-    size_T,
-    alignment_T,
-    Allocator_T,
-    Signature_T,
-    meta::arguments_of_t<Signature_T>>;
-
 }   // namespace ddge::util
 
 template <typename Signature_T, typename... FArgs_T>

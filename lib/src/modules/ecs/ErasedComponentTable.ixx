@@ -4,7 +4,7 @@ module;
 
 export module ddge.modules.ecs:ErasedComponentTable;
 
-import ddge.utility.containers.Any;
+import ddge.utility.containers.AnyCopyable;
 
 import :ArchetypeID;
 import :component_c;

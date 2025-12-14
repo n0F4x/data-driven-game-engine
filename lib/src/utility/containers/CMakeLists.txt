@@ -7,6 +7,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         containers.cppm
         Any.ixx
+        AnyCopyable.ixx
+        AnyCopyableFunction.ixx
         AnyFunction.ixx
         AnyMoveOnly.ixx
         AnyMoveOnlyFunction.ixx
