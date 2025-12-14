@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 import ddge.utility.containers.Any;
+import ddge.utility.containers.AnyCopyable;
 
 TEST_CASE("util::Any")
 {

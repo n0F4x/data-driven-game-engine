@@ -1,8 +1,12 @@
 #include <cassert>
 #include <cstdint>
+#include <print>
+
+import vulkan_hpp;
 
 import ddge.modules.app;
 import ddge.modules.renderer;
+import ddge.modules.vulkan;
 
 constexpr static const char* application_name{ "render_a_triangle" };
 constexpr static uint32_t    application_version{ 0 };
@@ -19,6 +23,27 @@ constexpr auto meta_info() -> ddge::app::extensions::MetaInfo
 auto main() -> int
 {
     using namespace ddge;
+
+    auto instance =
+        vulkan::InstanceBuilder{
+            vulkan::InstanceBuilder::CreateInfo{},
+            vulkan::context(),
+        }
+            .build();
+
+    vulkan::PhysicalDeviceSelector physical_device_selector;
+    physical_device_selector.require_features(
+        vk::PhysicalDeviceAccelerationStructureFeaturesKHR{
+            .accelerationStructureCaptureReplay = true,
+        }
+    );
+    auto fitting_devices{ physical_device_selector.select_devices(instance) };
+    std::println(
+        "{}",
+        static_cast<const char*>(
+            fitting_devices.front().getProperties2().properties.deviceName
+        )
+    );
 
     auto application =
         app::create()

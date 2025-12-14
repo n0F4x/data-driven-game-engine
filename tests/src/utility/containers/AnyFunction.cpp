@@ -3,6 +3,7 @@
 #include <utility>
 
 import ddge.utility.containers.AnyFunction;
+import ddge.utility.containers.AnyCopyableFunction;
 import ddge.utility.meta.type_traits.mimic;
 
 namespace {

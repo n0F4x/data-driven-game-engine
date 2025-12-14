@@ -16,7 +16,7 @@ import ddge.modules.log;
 import ddge.modules.renderer.Addon;
 import ddge.modules.renderer.RenderContextBuilder;
 import ddge.modules.vulkan.context;
-import ddge.utility.containers.AnyFunction;
+import ddge.utility.containers.AnyCopyableFunction;
 import ddge.utility.meta.concepts.naked;
 
 namespace ddge::renderer {

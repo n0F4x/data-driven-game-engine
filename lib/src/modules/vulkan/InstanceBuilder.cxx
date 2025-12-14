@@ -49,10 +49,7 @@ auto InstanceBuilder::enable_vulkan_layer(const char* layer_name) -> bool
     if (std::ranges::none_of(
             layer_properties,
             [layer_name](const char* const present_layer_name) -> bool {
-                return std::strncmp(
-                           layer_name, present_layer_name, std::strlen(present_layer_name)
-                       )
-                    == 0;
+                return std::strcmp(layer_name, present_layer_name) == 0;
             },
             &vk::LayerProperties::layerName
         ))
@@ -82,12 +79,7 @@ auto InstanceBuilder::enable_extension(const char* extension_name) -> bool
     if (std::ranges::none_of(
             extension_properties,
             [extension_name](const char* const supported_extension) -> bool {
-                return std::strncmp(
-                           extension_name,
-                           supported_extension,
-                           std::strlen(supported_extension)
-                       )
-                    == 0;
+                return std::strcmp(extension_name, supported_extension) == 0;
             },
             &vk::ExtensionProperties::extensionName
         ))

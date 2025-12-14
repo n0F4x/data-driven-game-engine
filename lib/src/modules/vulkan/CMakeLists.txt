@@ -1,5 +1,6 @@
 add_subdirectory(format)
 add_subdirectory(result)
+add_subdirectory(structure_chains)
 
 target_sources(${PROJECT_NAME} PRIVATE
         default_debug_messenger_callback.cxx
@@ -17,4 +18,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         InstanceBuilder.ixx
         default_debug_messenger_callback.ixx
         minimum_vulkan_api_version.ixx
+        PhysicalDeviceSelector.ixx
 )
