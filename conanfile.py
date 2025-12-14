@@ -85,7 +85,7 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("entt/3.15.0", transitive_headers=True)
 
         if self._enable_tests:
-            self.test_requires("catch2/3.10.0")
+            self.test_requires("catch2/3.11.0")
         if self._enable_examples:
             self.requires("sfml/3.0.2", options={"audio": False, "network": False})
 
