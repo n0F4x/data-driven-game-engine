@@ -32,7 +32,12 @@ auto main() -> int
             .build();
 
     vulkan::PhysicalDeviceSelector physical_device_selector;
-    physical_device_selector.require_queue_flag(vk::QueueFlagBits::eVideoEncodeKHR);
+    physical_device_selector.add_custom_requirement(
+        [](const vk::raii::PhysicalDevice& physical_device) static -> bool {
+            return physical_device.getProperties().deviceType
+                == vk::PhysicalDeviceType::eDiscreteGpu;
+        }
+    );
     const auto fitting_devices{ physical_device_selector.select_devices(instance) };
     std::println(
         "{}",

@@ -16,12 +16,16 @@ import ddge.modules.vulkan.structure_chains.match_physical_device_features;
 import ddge.modules.vulkan.structure_chains.merge_physical_device_features;
 import ddge.modules.vulkan.structure_chains.promoted_feature_struct_c;
 import ddge.modules.vulkan.structure_chains.StructureChain;
+import ddge.utility.containers.AnyCopyableFunction;
 import ddge.utility.meta.concepts.naked;
 
 namespace ddge::vulkan {
 
 export class PhysicalDeviceSelector {
 public:
+    using CustomRequirement =
+        util::AnyCopyableFunction<bool(const vk::raii::PhysicalDevice&) const>;
+
     template <typename Self_T>
     auto require_extension(this Self_T&&, const char* extension_name) -> Self_T;
 
@@ -36,6 +40,10 @@ public:
     template <typename Self_T>
     auto require_queue_flag(this Self_T&&, vk::QueueFlagBits type) -> Self_T;
 
+    template <typename Self_T, typename... Args_T>
+    auto add_custom_requirement(this Self_T&&, Args_T&&... args) -> Self_T
+        requires std::constructible_from<CustomRequirement, Args_T&&...>;
+
     [[nodiscard]]
     auto is_adequate(const vk::raii::PhysicalDevice& physical_device) const -> bool;
 
@@ -47,6 +55,7 @@ private:
     std::vector<const char*>                    m_required_extension_names;
     StructureChain<vk::PhysicalDeviceFeatures2> m_features_chain;
     vk::QueueFlags                              m_queue_flags;
+    std::vector<CustomRequirement>              m_custom_requirements;
 
     [[nodiscard]]
     auto supports_extensions(const vk::raii::PhysicalDevice& physical_device) const
@@ -54,7 +63,12 @@ private:
     [[nodiscard]]
     auto supports_features(const vk::raii::PhysicalDevice& physical_device) const -> bool;
     [[nodiscard]]
-    auto supports_queues_flags(const vk::raii::PhysicalDevice& physical_device) const -> bool;
+    auto supports_queues_flags(const vk::raii::PhysicalDevice& physical_device) const
+        -> bool;
+    [[nodiscard]]
+    auto supports_custom_requirements(
+        const vk::raii::PhysicalDevice& physical_device
+    ) const -> bool;
 };
 
 }   // namespace ddge::vulkan
@@ -113,13 +127,23 @@ auto PhysicalDeviceSelector::require_queue_flag(
     return std::forward<Self_T>(self);
 }
 
+template <typename Self_T, typename... Args_T>
+auto PhysicalDeviceSelector::add_custom_requirement(this Self_T&& self, Args_T&&... args)
+    -> Self_T
+    requires std::constructible_from<CustomRequirement, Args_T&&...>
+{
+    self.m_custom_requirements.emplace_back(std::forward<Args_T>(args)...);
+    return std::forward<Self_T>(self);
+}
+
 auto PhysicalDeviceSelector::is_adequate(
     const vk::raii::PhysicalDevice& physical_device
 ) const -> bool
 {
     return supports_extensions(physical_device)   //
         && supports_features(physical_device)     //
-        && supports_queues_flags(physical_device);
+        && supports_queues_flags(physical_device)
+        && supports_custom_requirements(physical_device);
 }
 
 auto PhysicalDeviceSelector::select_devices(const vk::raii::Instance& instance) const
@@ -197,6 +221,18 @@ auto PhysicalDeviceSelector::supports_queues_flags(
     }
 
     return false;
+}
+
+auto PhysicalDeviceSelector::supports_custom_requirements(
+    const vk::raii::PhysicalDevice& physical_device
+) const -> bool
+{
+    return std::ranges::all_of(
+        m_custom_requirements,
+        [&physical_device](const CustomRequirement& requirement) -> bool {
+            return requirement(physical_device);
+        }
+    );
 }
 
 }   // namespace ddge::vulkan
