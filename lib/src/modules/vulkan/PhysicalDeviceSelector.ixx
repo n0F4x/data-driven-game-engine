@@ -33,6 +33,9 @@ public:
     auto require_features(this Self_T&&, const FeaturesStruct_T& feature_struct)
         -> Self_T;
 
+    template <typename Self_T>
+    auto require_queue_flag(this Self_T&&, vk::QueueFlagBits type) -> Self_T;
+
     [[nodiscard]]
     auto is_adequate(const vk::raii::PhysicalDevice& physical_device) const -> bool;
 
@@ -43,13 +46,15 @@ public:
 private:
     std::vector<const char*>                    m_required_extension_names;
     StructureChain<vk::PhysicalDeviceFeatures2> m_features_chain;
+    vk::QueueFlags                              m_queue_flags;
 
     [[nodiscard]]
     auto supports_extensions(const vk::raii::PhysicalDevice& physical_device) const
         -> bool;
-
     [[nodiscard]]
     auto supports_features(const vk::raii::PhysicalDevice& physical_device) const -> bool;
+    [[nodiscard]]
+    auto supports_queues_flags(const vk::raii::PhysicalDevice& physical_device) const -> bool;
 };
 
 }   // namespace ddge::vulkan
@@ -98,11 +103,23 @@ auto PhysicalDeviceSelector::require_features(
     return std::forward<Self_T>(self);
 }
 
+template <typename Self_T>
+auto PhysicalDeviceSelector::require_queue_flag(
+    this Self_T&&           self,
+    const vk::QueueFlagBits type
+) -> Self_T
+{
+    self.m_queue_flags |= type;
+    return std::forward<Self_T>(self);
+}
+
 auto PhysicalDeviceSelector::is_adequate(
     const vk::raii::PhysicalDevice& physical_device
 ) const -> bool
 {
-    return supports_extensions(physical_device) && supports_features(physical_device);
+    return supports_extensions(physical_device)   //
+        && supports_features(physical_device)     //
+        && supports_queues_flags(physical_device);
 }
 
 auto PhysicalDeviceSelector::select_devices(const vk::raii::Instance& instance) const
@@ -156,6 +173,30 @@ auto PhysicalDeviceSelector::supports_features(
     );
 
     return m_features_chain.matches(supported_features.root_struct());
+}
+
+auto PhysicalDeviceSelector::supports_queues_flags(
+    const vk::raii::PhysicalDevice& physical_device
+) const -> bool
+{
+    const std::vector<vk::QueueFamilyProperties2> queue_family_properties{
+        physical_device.getQueueFamilyProperties2()
+    };
+
+    vk::QueueFlags remaining_flags{ m_queue_flags };
+
+    for (const vk::QueueFamilyProperties& queue_family :
+         queue_family_properties
+             | std::views::transform(&vk::QueueFamilyProperties2::queueFamilyProperties))
+    {
+        remaining_flags &= ~(remaining_flags & queue_family.queueFlags);
+
+        if (!remaining_flags) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 }   // namespace ddge::vulkan

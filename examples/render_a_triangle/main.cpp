@@ -24,7 +24,7 @@ auto main() -> int
 {
     using namespace ddge;
 
-    auto instance =
+    const auto instance =
         vulkan::InstanceBuilder{
             vulkan::InstanceBuilder::CreateInfo{},
             vulkan::context(),
@@ -32,12 +32,8 @@ auto main() -> int
             .build();
 
     vulkan::PhysicalDeviceSelector physical_device_selector;
-    physical_device_selector.require_features(
-        vk::PhysicalDeviceAccelerationStructureFeaturesKHR{
-            .accelerationStructureCaptureReplay = true,
-        }
-    );
-    auto fitting_devices{ physical_device_selector.select_devices(instance) };
+    physical_device_selector.require_queue_flag(vk::QueueFlagBits::eVideoEncodeKHR);
+    const auto fitting_devices{ physical_device_selector.select_devices(instance) };
     std::println(
         "{}",
         static_cast<const char*>(
