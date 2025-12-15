@@ -3,6 +3,8 @@ module;
 #include <cstdint>
 #include <vector>
 
+#include "utility/lifetime_bound.hpp"
+
 export module ddge.modules.vulkan.InstanceBuilder;
 
 import vulkan_hpp;
@@ -24,7 +26,11 @@ public:
         uint32_t    engine_version{};
     };
 
-    InstanceBuilder(const CreateInfo& create_info, const vk::raii::Context& context);
+    InstanceBuilder(
+        const CreateInfo& create_info,
+        [[lifetime_bound]]
+        const vk::raii::Context& context
+    );
 
     auto request_vulkan_api_version(uint32_t vulkan_api_version) -> void;
     [[nodiscard]]

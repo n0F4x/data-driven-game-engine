@@ -1,6 +1,5 @@
 #pragma once
 
-
 #ifdef CHECK_LIFETIME_BOUND
   #ifndef __has_cpp_attribute
     #define lifetime_bound

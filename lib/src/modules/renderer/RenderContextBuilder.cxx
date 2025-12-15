@@ -76,9 +76,13 @@ auto ddge::renderer::RenderContextBuilder::build() && -> RenderContext
             : vk::raii::DebugUtilsMessengerEXT{ nullptr }
     };
 
+    auto [physical_device, device]{ std::move(m_device_builder).build(instance).value() };
+
     return RenderContext{
         .instance                = std::move(instance),
         .default_debug_messenger = std::move(default_debug_messenger),
+        .physical_device         = std::move(physical_device),
+        .device                  = std::move(device),
     };
 }
 

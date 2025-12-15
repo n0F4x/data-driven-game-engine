@@ -17,6 +17,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         context.ixx
         InstanceBuilder.ixx
         default_debug_messenger_callback.ixx
+        DeviceBuilder.ixx
         minimum_vulkan_api_version.ixx
         PhysicalDeviceSelector.ixx
 )

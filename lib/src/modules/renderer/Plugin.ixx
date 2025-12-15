@@ -1,6 +1,7 @@
 module;
 
 #include <concepts>
+#include <format>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -88,9 +89,20 @@ auto ddge::renderer::Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
 
     ENGINE_LOG_INFO("Initializing renderer...");
 
-    return std::forward<App_T>(app).add_on(
+    auto result = std::forward<App_T>(app).add_on(
         Addon{ .render_context = std::move(render_context_builder).build() }
     );
+
+    ENGINE_LOG_INFO(
+        std::format(
+            "Created renderer for GPU: {}",
+            static_cast<const char*>(
+                result.render_context.physical_device.getProperties2().properties.deviceName
+            )
+        )
+    );
+
+    return result;
 }
 
 }   // namespace ddge::renderer

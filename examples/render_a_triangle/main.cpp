@@ -31,20 +31,21 @@ auto main() -> int
         }
             .build();
 
-    vulkan::PhysicalDeviceSelector physical_device_selector;
-    physical_device_selector.add_custom_requirement(
-        [](const vk::raii::PhysicalDevice& physical_device) static -> bool {
-            return physical_device.getProperties().deviceType
-                == vk::PhysicalDeviceType::eDiscreteGpu;
-        }
-    );
-    const auto fitting_devices{ physical_device_selector.select_devices(instance) };
-    std::println(
-        "{}",
-        static_cast<const char*>(
-            fitting_devices.front().getProperties2().properties.deviceName
-        )
-    );
+    vulkan::DeviceBuilder device_builder;
+
+    device_builder.require_queue_flag(vk::QueueFlagBits::eVideoEncodeKHR);
+
+    if (const std::optional<std::pair<vk::raii::PhysicalDevice, vk::raii::Device>>
+            device_pair{ device_builder.build(instance) };
+        device_pair.has_value())
+    {
+        std::println(
+            "{}",
+            static_cast<const char*>(
+                device_pair->first.getProperties2().properties.deviceName
+            )
+        );
+    }
 
     auto application =
         app::create()

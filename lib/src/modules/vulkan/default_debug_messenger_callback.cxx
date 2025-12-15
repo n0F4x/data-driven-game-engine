@@ -18,25 +18,20 @@ auto logger{ [] {
         spdlog::stdout_color_mt(std::format("{} Vulkan", config::engine_name()))
     };
     result->set_level(spdlog::level::level_enum::debug);
+    result->set_pattern("%^[%n](%r) %l message:%$\n- %v");
     return result;
 }() };
 
 auto default_debug_messenger_callback(
     const vk::DebugUtilsMessageSeverityFlagBitsEXT severity,
-    const vk::DebugUtilsMessageTypeFlagsEXT        type,
-    const vk::DebugUtilsMessengerCallbackDataEXT*  pCallbackData,
+    const vk::DebugUtilsMessageTypeFlagsEXT,
+    const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* const
 ) -> vk::Bool32
 {
     std::ostringstream message;
 
-    message << std::format(
-        "Vulkan message [] - '{} ({}):'\n" "- {}\n",
-        vk::to_string(type),
-        pCallbackData->pMessageIdName,
-        pCallbackData->messageIdNumber,
-        pCallbackData->pMessage
-    );
+    message << std::format("{}\n", pCallbackData->pMessage);
 
     if (pCallbackData->queueLabelCount > 0) {
         message << "- Queue labels:\n";
