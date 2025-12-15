@@ -152,7 +152,7 @@ template <
     typename U,
     typename... Ts>
 template <typename... Stacked_T, typename Factory_T, typename... Factories_T>
-constexpr ::Impl<IntegerSequence_T<unsigned long long, I, J, Is...>, T, U, Ts...>::Impl(
+constexpr ::Impl<IntegerSequence_T<std::size_t, I, J, Is...>, T, U, Ts...>::Impl(
     std::tuple<Stacked_T&...> stack,
     Factory_T&&               factory,
     Factories_T&&... factories

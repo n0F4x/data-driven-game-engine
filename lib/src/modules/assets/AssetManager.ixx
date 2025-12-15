@@ -8,7 +8,6 @@ import ddge.modules.assets.Cached;
 import ddge.modules.assets.loader_c;
 import ddge.utility.containers.store.Store;
 
-import ddge.utility.containers.StackedTuple;
 import ddge.utility.meta.concepts.all_different;
 import ddge.utility.meta.type_traits.forward_like;
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
