@@ -42,6 +42,7 @@ target_compile_definitions(VulkanCppModule PUBLIC
         VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 )
 target_link_libraries(VulkanCppModule PUBLIC Vulkan::Headers)
+target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
 target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_LOCAL_INTERFACE:VulkanCppModule>)
 
 # EnTT

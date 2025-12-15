@@ -1,10 +1,9 @@
 module;
 
 #include <cassert>
+#include <expected>
 #include <utility>
 #include <variant>
-
-#include <vulkan/vulkan.hpp>
 
 #include "utility/contract_macros.hpp"
 

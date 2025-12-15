@@ -2,7 +2,7 @@ module;
 
 #include <magic_enum/magic_enum.hpp>
 
-#include "log_level_definitions.hpp"
+#include "modules/log/log_level_definitions.hpp"
 
 export module ddge.modules.log.log_level;
 
