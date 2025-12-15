@@ -95,7 +95,7 @@ auto ddge::renderer::Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
 
     ENGINE_LOG_INFO(
         std::format(
-            "Created renderer for GPU: {}",
+            "Created renderer for GPU - {}",
             static_cast<const char*>(
                 result.render_context.physical_device.getProperties2().properties.deviceName
             )
