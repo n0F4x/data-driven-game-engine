@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         app_c.ixx
         Builder.ixx
         builder_c.ixx
+        BuildFailedError.ixx
         create.ixx
         decays_to_addon_c.ixx
         decays_to_app_c.ixx

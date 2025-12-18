@@ -1,6 +1,7 @@
 module;
 
 #include <cstdint>
+#include <expected>
 #include <utility>
 
 #include "utility/lifetime_bound.hpp"
@@ -23,6 +24,10 @@ public:
         uint32_t    application_version{};
     };
 
+    enum struct BuildFailure {
+        eNoSupportedDeviceFound,
+    };
+
     explicit RenderContextBuilder(
         const CreateInfo&                           create_info,
         [[lifetime_bound]] const vk::raii::Context& context
@@ -42,7 +47,7 @@ public:
     auto request_default_debug_messenger() -> bool;
 
     [[nodiscard]]
-    auto build() && -> RenderContext;
+    auto build() && -> std::expected<RenderContext, BuildFailure>;
 
 private:
     vulkan::InstanceBuilder m_instance_builder;

@@ -1,14 +1,9 @@
 module;
 
 #include <algorithm>
-#include <functional>
 #include <ranges>
 #include <utility>
 #include <vector>
-
-#include <vulkan/vulkan_raii.hpp>
-
-#include "utility/lifetime_bound.hpp"
 
 export module ddge.modules.vulkan.PhysicalDeviceSelector;
 
@@ -22,6 +17,7 @@ import ddge.modules.vulkan.structure_chains.promoted_feature_struct_c;
 import ddge.modules.vulkan.structure_chains.StructureChain;
 import ddge.utility.containers.AnyCopyableFunction;
 import ddge.utility.meta.concepts.naked;
+import ddge.utility.meta.type_traits.forward_like;
 
 namespace ddge::vulkan {
 
@@ -43,11 +39,6 @@ public:
 
     template <typename Self_T>
     auto require_queue_flag(this Self_T&&, vk::QueueFlagBits flag) -> Self_T;
-    template <typename Self_T>
-    auto require_present_queue_for(
-        this Self_T&&,
-        [[lifetime_bound]] const vk::raii::SurfaceKHR& surface
-    ) -> Self_T;
 
     template <typename Self_T, typename... Args_T>
     auto add_custom_requirement(this Self_T&&, Args_T&&... args) -> Self_T
@@ -60,10 +51,14 @@ public:
     auto select_devices(const vk::raii::Instance& instance) const
         -> std::vector<vk::raii::PhysicalDevice>;
 
+    template <typename Self_T>
     [[nodiscard]]
-    auto required_extensions() const -> std::span<const char* const>;
+    auto required_extensions(this Self_T&&)
+        -> util::meta::forward_like_t<std::vector<const char*>, Self_T>;
+    template <typename Self_T>
     [[nodiscard]]
-    auto required_features() const -> const StructureChain<vk::PhysicalDeviceFeatures2>&;
+    auto required_features(this Self_T&&)
+        -> util::meta::forward_like_t<StructureChain<vk::PhysicalDeviceFeatures2>, Self_T>;
     [[nodiscard]]
     auto required_queue_flags() const -> vk::QueueFlags;
 
@@ -71,8 +66,7 @@ private:
     std::vector<const char*>                    m_required_extension_names;
     StructureChain<vk::PhysicalDeviceFeatures2> m_features_chain;
     vk::QueueFlags                              m_queue_flags;
-    std::vector<std::reference_wrapper<const vk::raii::SurfaceKHR>> m_surfaces;
-    std::vector<CustomRequirement>                                  m_custom_requirements;
+    std::vector<CustomRequirement>              m_custom_requirements;
 
     [[nodiscard]]
     auto supports_extensions(const vk::raii::PhysicalDevice& physical_device) const
@@ -82,8 +76,6 @@ private:
     [[nodiscard]]
     auto supports_queues_flags(const vk::raii::PhysicalDevice& physical_device) const
         -> bool;
-    [[nodiscard]]
-    auto supports_surfaces(const vk::raii::PhysicalDevice& physical_device) const -> bool;
     [[nodiscard]]
     auto supports_custom_requirements(
         const vk::raii::PhysicalDevice& physical_device
@@ -146,16 +138,6 @@ auto PhysicalDeviceSelector::require_queue_flag(
     return std::forward<Self_T>(self);
 }
 
-template <typename Self_T>
-auto PhysicalDeviceSelector::require_present_queue_for(
-    this Self_T&&               self,
-    const vk::raii::SurfaceKHR& surface
-) -> Self_T
-{
-    self.m_surfaces.push_back(surface);
-    return std::forward<Self_T>(self);
-}
-
 template <typename Self_T, typename... Args_T>
 auto PhysicalDeviceSelector::add_custom_requirement(this Self_T&& self, Args_T&&... args)
     -> Self_T
@@ -172,7 +154,6 @@ auto PhysicalDeviceSelector::is_adequate(
     return supports_extensions(physical_device)     //
         && supports_features(physical_device)       //
         && supports_queues_flags(physical_device)   //
-        && supports_surfaces(physical_device)
         && supports_custom_requirements(physical_device);
 }
 
@@ -193,15 +174,18 @@ auto PhysicalDeviceSelector::select_devices(const vk::raii::Instance& instance) 
     return result;
 }
 
-auto PhysicalDeviceSelector::required_extensions() const -> std::span<const char* const>
+template <typename Self_T>
+auto PhysicalDeviceSelector::required_extensions(this Self_T&& self)
+    -> util::meta::forward_like_t<std::vector<const char*>, Self_T>
 {
-    return m_required_extension_names;
+    return std::forward_like<Self_T>(self.m_required_extension_names);
 }
 
-auto PhysicalDeviceSelector::required_features() const
-    -> const StructureChain<vk::PhysicalDeviceFeatures2>&
+template <typename Self_T>
+auto PhysicalDeviceSelector::required_features(this Self_T&& self)
+    -> util::meta::forward_like_t<StructureChain<vk::PhysicalDeviceFeatures2>, Self_T>
 {
-    return m_features_chain;
+    return std::forward_like<Self_T>(self.m_features_chain);
 }
 
 auto PhysicalDeviceSelector::required_queue_flags() const -> vk::QueueFlags
@@ -267,25 +251,6 @@ auto PhysicalDeviceSelector::supports_queues_flags(
     }
 
     return false;
-}
-
-auto PhysicalDeviceSelector::supports_surfaces(
-    const vk::raii::PhysicalDevice& physical_device
-) const -> bool
-{
-    return std::ranges::all_of(
-        m_surfaces, [&physical_device](const vk::raii::SurfaceKHR& surface) -> bool {
-            return std::ranges::any_of(
-                std::views::iota(0uz, physical_device.getQueueFamilyProperties2().size()),
-                [&physical_device,
-                 &surface](const std::size_t queue_family_index) -> bool {
-                    return physical_device.getSurfaceSupportKHR(
-                        static_cast<uint32_t>(queue_family_index), surface
-                    );
-                }
-            );
-        }
-    );
 }
 
 auto PhysicalDeviceSelector::supports_custom_requirements(

@@ -2,11 +2,11 @@ export module ddge.modules.vulkan.structure_chains.merge_physical_device_feature
 
 import vulkan_hpp;
 
-import ddge.modules.vulkan.structure_chains.extends_struct_c;
+import ddge.modules.vulkan.structure_chains.feature_struct_c;
 
 namespace ddge::vulkan {
 
-export template <extends_struct_c<vk::PhysicalDeviceFeatures2> FeatureStruct_T>
+export template <feature_struct_c FeatureStruct_T>
 constexpr auto
     merge_physical_device_features(FeatureStruct_T& inout, const FeatureStruct_T& in)
         -> void;
@@ -26,7 +26,7 @@ constexpr auto merge_feature_struct_member(vk::Bool32& inout, const vk::Bool32 i
     inout |= in;
 }
 
-template <extends_struct_c<vk::PhysicalDeviceFeatures2> FeatureStruct_T>
+template <feature_struct_c FeatureStruct_T>
 constexpr auto
     merge_physical_device_features(FeatureStruct_T& inout, const FeatureStruct_T& in)
         -> void

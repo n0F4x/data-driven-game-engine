@@ -12,7 +12,10 @@ export module ddge.modules.vulkan.structure_chains.StructureChain;
 import vulkan_hpp;
 
 import ddge.modules.vulkan.structure_chains.extends_struct_c;
+import ddge.modules.vulkan.structure_chains.filter_physical_device_features;
 import ddge.modules.vulkan.structure_chains.match_physical_device_features;
+import ddge.modules.vulkan.structure_chains.merge_physical_device_features;
+import ddge.modules.vulkan.structure_chains.remove_physical_device_features;
 import ddge.utility.any_cast;
 import ddge.utility.containers.AnyCopyable;
 import ddge.utility.containers.OptionalRef;
@@ -63,6 +66,18 @@ public:
     ) const -> bool
         requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>;
 
+    constexpr auto merge(const vk::PhysicalDeviceFeatures2& physical_device_features)
+        -> void
+        requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>;
+
+    constexpr auto remove_unsupported_features(
+        const vk::PhysicalDeviceFeatures2& supported_features
+    ) -> void
+        requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>;
+
+    constexpr auto remove_features(const vk::PhysicalDeviceFeatures2& features) -> void
+        requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>;
+
 private:
     RootStruct_T                                   m_root_struct{};
     std::flat_map<vk::StructureType, ErasedStruct> m_chain;
@@ -78,12 +93,18 @@ struct ErasedStructOperations {
     using NextPointerFunc      = auto(ErasedStruct&) -> void*&;
     using ConstNextPointerFunc = auto(const ErasedStruct&) -> const void* const&;
     using MatchesFunc = auto(const ErasedStruct&, const vk::BaseOutStructure&) -> bool;
+    using MergeFunc   = auto(ErasedStruct&, const vk::PhysicalDeviceFeatures2&) -> void;
+    using FilterFunc  = auto(ErasedStruct&, const vk::PhysicalDeviceFeatures2&) -> void;
+    using RemoveFunc  = auto(ErasedStruct&, const vk::PhysicalDeviceFeatures2&) -> void;
 
     std::reference_wrapper<AddressFunc>          address_of;
     std::reference_wrapper<TypeFunc>             type_of;
     std::reference_wrapper<NextPointerFunc>      next_pointer_of;
     std::reference_wrapper<ConstNextPointerFunc> const_next_pointer_of;
     std::add_pointer_t<MatchesFunc>              matches{};
+    std::add_pointer_t<MergeFunc>                merge{};
+    std::add_pointer_t<FilterFunc>               filter{};
+    std::add_pointer_t<FilterFunc>               remove{};
 };
 
 template <typename Struct_T>
@@ -128,6 +149,69 @@ struct ErasedStructTraits {
         );
     }
 
+    constexpr static auto merge(
+        ErasedStruct&                      that,
+        const vk::PhysicalDeviceFeatures2& physical_device_features
+    ) -> void
+        requires extends_struct_c<Struct_T, vk::PhysicalDeviceFeatures2>
+    {
+        for (const vk::BaseOutStructure* incoming_feature_struct{
+                 static_cast<const vk::BaseOutStructure*>(physical_device_features.pNext) };
+             incoming_feature_struct != nullptr;
+             incoming_feature_struct = incoming_feature_struct->pNext)
+        {
+            if (incoming_feature_struct->sType == type_of(that)) {
+                merge_physical_device_features(
+                    util::any_cast<Struct_T>(that),
+                    reinterpret_cast<const Struct_T&>(*incoming_feature_struct)
+                );
+                return;
+            }
+        }
+    }
+
+    constexpr static auto filter(
+        ErasedStruct&                      that,
+        const vk::PhysicalDeviceFeatures2& physical_device_features
+    ) -> void
+        requires extends_struct_c<Struct_T, vk::PhysicalDeviceFeatures2>
+    {
+        for (const vk::BaseOutStructure* incoming_feature_struct{
+                 static_cast<const vk::BaseOutStructure*>(physical_device_features.pNext) };
+             incoming_feature_struct != nullptr;
+             incoming_feature_struct = incoming_feature_struct->pNext)
+        {
+            if (incoming_feature_struct->sType == type_of(that)) {
+                filter_physical_device_features(
+                    util::any_cast<Struct_T>(that),
+                    reinterpret_cast<const Struct_T&>(*incoming_feature_struct)
+                );
+                return;
+            }
+        }
+    }
+
+    constexpr static auto remove(
+        ErasedStruct&                      that,
+        const vk::PhysicalDeviceFeatures2& physical_device_features
+    ) -> void
+        requires extends_struct_c<Struct_T, vk::PhysicalDeviceFeatures2>
+    {
+        for (const vk::BaseOutStructure* incoming_feature_struct{
+                 static_cast<const vk::BaseOutStructure*>(physical_device_features.pNext) };
+             incoming_feature_struct != nullptr;
+             incoming_feature_struct = incoming_feature_struct->pNext)
+        {
+            if (incoming_feature_struct->sType == type_of(that)) {
+                remove_physical_device_features(
+                    util::any_cast<Struct_T>(that),
+                    reinterpret_cast<const Struct_T&>(*incoming_feature_struct)
+                );
+                return;
+            }
+        }
+    }
+
     constexpr static ErasedStructOperations operations{
         .address_of      = address_of,
         .type_of         = type_of,
@@ -141,6 +225,9 @@ struct ErasedStructTraits {
         ),
         .matches = extends_struct_c<Struct_T, vk::PhysicalDeviceFeatures2> ? matches
                                                                            : nullptr,
+        .merge = extends_struct_c<Struct_T, vk::PhysicalDeviceFeatures2> ? merge : nullptr,
+        .filter = extends_struct_c<Struct_T, vk::PhysicalDeviceFeatures2> ? filter
+                                                                          : nullptr,
     };
 };
 
@@ -187,6 +274,27 @@ public:
     {
         PRECOND(m_operations.get().matches != nullptr);
         return m_operations.get().matches(*this, feature_struct);
+    }
+
+    constexpr auto merge(const vk::PhysicalDeviceFeatures2& physical_device_features)
+        -> void
+    {
+        PRECOND(m_operations.get().merge != nullptr);
+        m_operations.get().merge(*this, physical_device_features);
+    }
+
+    constexpr auto filter(const vk::PhysicalDeviceFeatures2& physical_device_features)
+        -> void
+    {
+        PRECOND(m_operations.get().filter != nullptr);
+        m_operations.get().filter(*this, physical_device_features);
+    }
+
+    constexpr auto remove(const vk::PhysicalDeviceFeatures2& physical_device_features)
+        -> void
+    {
+        PRECOND(m_operations.get().remove != nullptr);
+        m_operations.get().remove(*this, physical_device_features);
     }
 
 private:
@@ -342,6 +450,47 @@ constexpr auto StructureChain<RootStruct_T>::matches(
     }
 
     return true;
+}
+
+template <util::meta::naked_c RootStruct_T>
+constexpr auto StructureChain<RootStruct_T>::merge(
+    const vk::PhysicalDeviceFeatures2& physical_device_features
+) -> void
+    requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>
+{
+    merge_physical_device_features(
+        m_root_struct.features, physical_device_features.features
+    );
+
+    for (ErasedStruct& erased_struct : m_chain | std::views::values) {
+        erased_struct.merge(physical_device_features);
+    }
+}
+
+template <util::meta::naked_c RootStruct_T>
+constexpr auto StructureChain<RootStruct_T>::remove_unsupported_features(
+    const vk::PhysicalDeviceFeatures2& supported_features
+) -> void
+    requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>
+{
+    filter_physical_device_features(m_root_struct.features, supported_features.features);
+
+    for (ErasedStruct& erased_struct : m_chain | std::views::values) {
+        erased_struct.filter(supported_features);
+    }
+}
+
+template <util::meta::naked_c RootStruct_T>
+constexpr auto StructureChain<RootStruct_T>::remove_features(
+    const vk::PhysicalDeviceFeatures2& features
+) -> void
+    requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>
+{
+    remove_physical_device_features(m_root_struct.features, features.features);
+
+    for (ErasedStruct& erased_struct : m_chain | std::views::values) {
+        erased_struct.remove(features);
+    }
 }
 
 }   // namespace ddge::vulkan

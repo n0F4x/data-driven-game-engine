@@ -15,10 +15,12 @@ import vulkan_hpp;
 import ddge.modules.app;
 import ddge.modules.log;
 import ddge.modules.renderer.Addon;
+import ddge.modules.renderer.PluginBuildFailedError;
 import ddge.modules.renderer.RenderContextBuilder;
 import ddge.modules.vulkan.context;
 import ddge.utility.containers.AnyCopyableFunction;
 import ddge.utility.meta.concepts.naked;
+import ddge.utility.Void;
 
 namespace ddge::renderer {
 
@@ -60,16 +62,27 @@ constexpr Plugin::Plugin(SupplyVulkanContext supply_vulkan_context)
 {}
 
 template <typename Self_T, decays_to_render_context_builder_modifier Modifier_T>
-constexpr auto
-    ddge::renderer::Plugin::add_render_context(this Self_T&& self, Modifier_T&& modifier)
-        -> Self_T
+constexpr auto Plugin::add_render_context(this Self_T&& self, Modifier_T&& modifier)
+    -> Self_T
 {
     self.Plugin::m_modifiers.emplace_back(std::forward<Modifier_T>(modifier));
     return std::forward<Self_T>(self);
 }
 
+[[noreturn]]
+auto throw_build_failed_error(const RenderContextBuilder::BuildFailure failure)
+    -> util::Void
+{
+    switch (failure) {
+        case RenderContextBuilder::BuildFailure::eNoSupportedDeviceFound:
+            throw PluginBuildFailedError{
+                "No suitable GPU found. Try upgrading your driver."
+            };
+    }
+}
+
 template <ddge::app::decays_to_app_c App_T>
-auto ddge::renderer::Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
+auto Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
 {
     static_assert(app::has_addons_c<App_T, app::extensions::MetaInfoAddon>);
 
@@ -90,7 +103,11 @@ auto ddge::renderer::Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
     ENGINE_LOG_INFO("Initializing renderer...");
 
     auto result = std::forward<App_T>(app).add_on(
-        Addon{ .render_context = std::move(render_context_builder).build() }
+        Addon{
+            .render_context = *std::move(render_context_builder)
+                                   .build()
+                                   .transform_error(throw_build_failed_error),
+        }
     );
 
     ENGINE_LOG_INFO(

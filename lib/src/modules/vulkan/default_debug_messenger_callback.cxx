@@ -15,7 +15,7 @@ namespace ddge::vulkan {
 
 auto logger{ [] {
     auto result{
-        spdlog::stdout_color_mt(std::format("{} Vulkan", config::engine_name()))
+        spdlog::stdout_color_mt(std::format("{}:Vulkan", config::engine_name()))
     };
     result->set_level(spdlog::level::level_enum::debug);
     result->set_pattern("%^[%n](%r) %l message:%$\n- %v");

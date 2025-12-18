@@ -1,5 +1,7 @@
 module;
 
+#include <expected>
+#include <optional>
 #include <utility>
 
 module ddge.modules.renderer.RenderContextBuilder;
@@ -53,7 +55,8 @@ auto RenderContextBuilder::request_default_debug_messenger() -> bool
     return true;
 }
 
-auto ddge::renderer::RenderContextBuilder::build() && -> RenderContext
+auto ddge::renderer::RenderContextBuilder::build() && -> std::
+    expected<RenderContext, BuildFailure>
 {
     vk::raii::Instance instance{ std::move(m_instance_builder).build() };
 
@@ -76,13 +79,22 @@ auto ddge::renderer::RenderContextBuilder::build() && -> RenderContext
             : vk::raii::DebugUtilsMessengerEXT{ nullptr }
     };
 
-    auto [physical_device, device]{ std::move(m_device_builder).build(instance).value() };
+    std::optional optional_device_build_result{
+        std::move(m_device_builder).build(instance)
+    };
+    if (!optional_device_build_result.has_value()) {
+        return std::unexpected<BuildFailure>{ BuildFailure::eNoSupportedDeviceFound };
+    }
+    auto [physical_device, device, queue_group]{
+        std::move(optional_device_build_result).value()
+    };
 
     return RenderContext{
         .instance                = std::move(instance),
         .default_debug_messenger = std::move(default_debug_messenger),
         .physical_device         = std::move(physical_device),
         .device                  = std::move(device),
+        .queue_group             = std::move(queue_group),
     };
 }
 

@@ -8,6 +8,7 @@ export import ddge.modules.app.App;
 export import ddge.modules.app.app_c;
 export import ddge.modules.app.Builder;
 export import ddge.modules.app.builder_c;
+export import ddge.modules.app.BuildFailedError;
 export import ddge.modules.app.create;
 export import ddge.modules.app.decays_to_addon_c;
 export import ddge.modules.app.decays_to_app_c;

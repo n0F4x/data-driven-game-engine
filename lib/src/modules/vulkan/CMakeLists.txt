@@ -20,4 +20,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         DeviceBuilder.ixx
         minimum_vulkan_api_version.ixx
         PhysicalDeviceSelector.ixx
+        queue_properties.ixx
+        QueueGroup.ixx
+        QueuePack.ixx
 )

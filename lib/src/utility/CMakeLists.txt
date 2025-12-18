@@ -20,6 +20,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ScopeGuard.ixx
         TypeList.ixx
         ValueSequence.ixx
+        Void.ixx
         wrap_ref.ixx
 )
 

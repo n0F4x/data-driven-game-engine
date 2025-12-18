@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         renderer.cppm
         Addon.ixx
         Plugin.ixx
+        PluginBuildFailedError.ixx
         RenderContext.ixx
         RenderContextBuilder.ixx
 )

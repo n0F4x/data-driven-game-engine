@@ -6,7 +6,6 @@ import vulkan_hpp;
 
 import ddge.modules.app;
 import ddge.modules.renderer;
-import ddge.modules.vulkan;
 
 constexpr static const char* application_name{ "render_a_triangle" };
 constexpr static uint32_t    application_version{ 0 };
@@ -21,31 +20,8 @@ constexpr auto meta_info() -> ddge::app::extensions::MetaInfo
 }
 
 auto main() -> int
-{
+try {
     using namespace ddge;
-
-    const auto instance =
-        vulkan::InstanceBuilder{
-            vulkan::InstanceBuilder::CreateInfo{},
-            vulkan::context(),
-        }
-            .build();
-
-    vulkan::DeviceBuilder device_builder;
-
-    device_builder.require_queue_flag(vk::QueueFlagBits::eVideoEncodeKHR);
-
-    if (const std::optional<std::pair<vk::raii::PhysicalDevice, vk::raii::Device>>
-            device_pair{ device_builder.build(instance) };
-        device_pair.has_value())
-    {
-        std::println(
-            "{}",
-            static_cast<const char*>(
-                device_pair->first.getProperties2().properties.deviceName
-            )
-        );
-    }
 
     auto application =
         app::create()
@@ -55,12 +31,22 @@ auto main() -> int
                 [](renderer::RenderContextBuilder& render_context_builder) -> void {
                     [[maybe_unused]]
                     const bool success =
-                        render_context_builder.instance_builder().enable_vulkan_layer(
-                            "VK_LAYER_KHRONOS_validation"
-                        )
-                        && render_context_builder.request_default_debug_messenger();
+                        render_context_builder.request_default_debug_messenger();
                     assert(success);
+
+                    render_context_builder.device_builder().enable_features(
+                        vk::PhysicalDeviceAccelerationStructureFeaturesKHR{
+                            .accelerationStructureCaptureReplay = true,
+                        }
+                    );
+                    render_context_builder.device_builder().enable_features_if_available(
+                        vk::PhysicalDeviceAccelerationStructureFeaturesKHR{
+                            .accelerationStructureCaptureReplay = true,
+                        }
+                    );
                 }
             )
             .build();
+} catch (const ddge::app::BuildFailedError& error) {
+    std::println("{}", error.what());
 }

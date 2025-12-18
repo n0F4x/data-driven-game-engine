@@ -6,8 +6,10 @@ target_sources(${PROJECT_NAME} PUBLIC
         structure_chains.cppm
         extends_struct_c.ixx
         feature_struct_c.ixx
+        filter_physical_device_features.ixx
         match_physical_device_features.ixx
         merge_physical_device_features.ixx
         promoted_feature_struct_c.ixx
+        remove_physical_device_features.ixx
         StructureChain.ixx
 )
