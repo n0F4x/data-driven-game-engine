@@ -6,9 +6,10 @@ import vulkan_hpp;
 
 import ddge.modules.app;
 import ddge.modules.renderer;
+import ddge.utility.containers.StringLiteral;
 
-constexpr static const char* application_name{ "render_a_triangle" };
-constexpr static uint32_t    application_version{ 0 };
+constexpr static ddge::util::StringLiteral application_name{ "render_a_triangle" };
+constexpr static uint32_t                  application_version{ 0 };
 
 [[nodiscard]]
 constexpr auto meta_info() -> ddge::app::extensions::MetaInfo

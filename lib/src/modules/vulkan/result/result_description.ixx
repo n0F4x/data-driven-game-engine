@@ -2,18 +2,18 @@ export module ddge.modules.vulkan.result.result_description;
 
 import vulkan_hpp;
 
-import ddge.utility.contracts;
+import ddge.utility.containers.StringLiteral;
 
 namespace ddge::vulkan {
 
 export [[nodiscard]]
-constexpr auto result_description(vk::Result result) noexcept -> const char*;
+constexpr auto result_description(vk::Result result) noexcept -> util::StringLiteral;
 
 }   // namespace ddge::vulkan
 
 namespace ddge::vulkan {
 
-constexpr auto result_description(const vk::Result result) noexcept -> const char*
+constexpr auto result_description(const vk::Result result) noexcept -> util::StringLiteral
 {
     // source:
     // https://docs.vulkan.org/refpages/latest/refpages/source/VkResult.html#_description

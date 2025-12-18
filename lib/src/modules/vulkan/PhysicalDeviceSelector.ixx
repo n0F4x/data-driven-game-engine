@@ -16,6 +16,7 @@ import ddge.modules.vulkan.structure_chains.merge_physical_device_features;
 import ddge.modules.vulkan.structure_chains.promoted_feature_struct_c;
 import ddge.modules.vulkan.structure_chains.StructureChain;
 import ddge.utility.containers.AnyCopyableFunction;
+import ddge.utility.containers.StringLiteral;
 import ddge.utility.meta.concepts.naked;
 import ddge.utility.meta.type_traits.forward_like;
 
@@ -27,7 +28,7 @@ public:
         util::AnyCopyableFunction<bool(const vk::raii::PhysicalDevice&) const>;
 
     template <typename Self_T>
-    auto require_extension(this Self_T&&, const char* extension_name) -> Self_T;
+    auto require_extension(this Self_T&&, util::StringLiteral extension_name) -> Self_T;
 
     template <typename Self_T>
     auto require_features(this Self_T&&, const vk::PhysicalDeviceFeatures& features)
@@ -54,7 +55,7 @@ public:
     template <typename Self_T>
     [[nodiscard]]
     auto required_extensions(this Self_T&&)
-        -> util::meta::forward_like_t<std::vector<const char*>, Self_T>;
+        -> util::meta::forward_like_t<std::vector<util::StringLiteral>, Self_T>;
     template <typename Self_T>
     [[nodiscard]]
     auto required_features(this Self_T&&)
@@ -63,7 +64,7 @@ public:
     auto required_queue_flags() const -> vk::QueueFlags;
 
 private:
-    std::vector<const char*>                    m_required_extension_names;
+    std::vector<util::StringLiteral>            m_required_extension_names;
     StructureChain<vk::PhysicalDeviceFeatures2> m_features_chain;
     vk::QueueFlags                              m_queue_flags;
     std::vector<CustomRequirement>              m_custom_requirements;
@@ -88,13 +89,13 @@ namespace ddge::vulkan {
 
 template <typename Self_T>
 auto PhysicalDeviceSelector::require_extension(
-    this Self_T&& self,
-    const char*   extension_name
+    this Self_T&&       self,
+    util::StringLiteral extension_name
 ) -> Self_T
 {
     if (std::ranges::none_of(
             self.m_required_extension_names,
-            [extension_name](const char* const enabled_extension) -> bool {
+            [extension_name](const util::StringLiteral enabled_extension) -> bool {
                 return std::strcmp(extension_name, enabled_extension) == 0;
             }
         ))
@@ -176,7 +177,7 @@ auto PhysicalDeviceSelector::select_devices(const vk::raii::Instance& instance) 
 
 template <typename Self_T>
 auto PhysicalDeviceSelector::required_extensions(this Self_T&& self)
-    -> util::meta::forward_like_t<std::vector<const char*>, Self_T>
+    -> util::meta::forward_like_t<std::vector<util::StringLiteral>, Self_T>
 {
     return std::forward_like<Self_T>(self.m_required_extension_names);
 }
@@ -206,7 +207,7 @@ auto PhysicalDeviceSelector::supports_extensions(
         [supported_extensions = supported_extension_properties
                               | std::views::transform(
                                     &vk::ExtensionProperties::extensionName
-                              )](const char* const required_extension) -> bool {
+                              )](const util::StringLiteral required_extension) -> bool {
             return std::ranges::any_of(
                 supported_extensions,
                 [required_extension](const char* const supported_extension) -> bool {

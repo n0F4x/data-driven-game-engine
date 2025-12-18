@@ -14,4 +14,5 @@ export import ddge.utility.containers.Ref;
 export import ddge.utility.containers.SlotMap;
 export import ddge.utility.containers.SparseSet;
 export import ddge.utility.containers.StackedTuple;
+export import ddge.utility.containers.StringLiteral;
 export import ddge.utility.containers.Strong;

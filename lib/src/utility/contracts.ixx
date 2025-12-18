@@ -10,17 +10,19 @@ module;
 
 export module ddge.utility.contracts;
 
+import ddge.utility.containers.StringLiteral;
+
 namespace ddge::util {
 
 export constexpr auto assert_precondition(
     bool                 condition,
-    const char*          condition_as_string,
+    StringLiteral        condition_as_string,
     std::source_location location
 ) -> void;
 
 export constexpr auto assert_precondition(
     bool                 condition,
-    const char*          condition_as_string,
+    StringLiteral        condition_as_string,
     std::source_location location,
     std::string_view     message
 ) -> void;
@@ -100,9 +102,9 @@ constexpr auto ddge::util::PreconditionViolation::format_what(
 }
 
 constexpr auto ddge::util::assert_precondition(
-    const bool                                  condition,
-    [[maybe_unused]] const char*                condition_as_string,
-    [[maybe_unused]] const std::source_location location
+    const bool                 condition,
+    const StringLiteral        condition_as_string,
+    const std::source_location location
 ) -> void
 {
     using namespace fmt::literals;
@@ -125,10 +127,10 @@ constexpr auto ddge::util::assert_precondition(
 }
 
 constexpr auto ddge::util::assert_precondition(
-    const bool                                  condition,
-    [[maybe_unused]] const char*                condition_as_string,
-    [[maybe_unused]] const std::source_location location,
-    [[maybe_unused]] const std::string_view     message
+    const bool                 condition,
+    const StringLiteral        condition_as_string,
+    const std::source_location location,
+    const std::string_view     message
 ) -> void
 {
     using namespace fmt::literals;

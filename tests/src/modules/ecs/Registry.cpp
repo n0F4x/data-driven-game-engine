@@ -2,6 +2,7 @@
 
 import ddge.modules.ecs;
 import ddge.utility.containers.OptionalRef;
+import ddge.utility.containers.StringLiteral;
 import ddge.utility.contracts;
 import ddge.utility.meta.algorithms.apply;
 import ddge.utility.meta.algorithms.enumerate;
@@ -44,7 +45,7 @@ using EmptyComponents =
 using ComponentGroups = ddge::util::TypeList<RegularComponents, EmptyComponents>;
 
 constexpr static std::
-    array<const char*, ddge::util::meta::type_list_size_v<ComponentGroups>>
+    array<ddge::util::StringLiteral, ddge::util::meta::type_list_size_v<ComponentGroups>>
         component_group_names{ "regular components", "empty components" };
 
 using namespace std::literals;

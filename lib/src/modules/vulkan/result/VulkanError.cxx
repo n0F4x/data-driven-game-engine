@@ -38,7 +38,7 @@ VulkanError::VulkanError(const vk::Result runtime_error_code)
           std::format(
               "`{}` - {}",
               vulkan::to_string(runtime_error_code),
-              result_description(runtime_error_code)
+              result_description(runtime_error_code).get()
           )   //
       }
 {}

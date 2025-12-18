@@ -2,6 +2,7 @@ module;
 
 #include <cstdint>
 #include <expected>
+#include <optional>
 #include <utility>
 
 #include "utility/lifetime_bound.hpp"
@@ -13,6 +14,7 @@ import vulkan_hpp;
 import ddge.modules.renderer.RenderContext;
 import ddge.modules.vulkan.DeviceBuilder;
 import ddge.modules.vulkan.InstanceBuilder;
+import ddge.utility.containers.StringLiteral;
 import ddge.utility.meta.type_traits.forward_like;
 
 namespace ddge::renderer {
@@ -20,8 +22,8 @@ namespace ddge::renderer {
 export class RenderContextBuilder {
 public:
     struct CreateInfo {
-        const char* application_name{};
-        uint32_t    application_version{};
+        std::optional<util::StringLiteral> application_name;
+        std::optional<uint32_t>            application_version{};
     };
 
     enum struct ConstructorFailure {

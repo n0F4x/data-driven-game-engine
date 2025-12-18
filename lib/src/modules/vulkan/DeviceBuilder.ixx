@@ -25,6 +25,7 @@ import ddge.modules.vulkan.PhysicalDeviceSelector;
 import ddge.modules.vulkan.queue_properties;
 import ddge.modules.vulkan.QueueGroup;
 import ddge.modules.vulkan.QueuePack;
+import ddge.utility.containers.StringLiteral;
 
 namespace ddge::vulkan {
 
@@ -33,9 +34,9 @@ public:
     explicit DeviceBuilder(PhysicalDeviceSelector&& physical_device_selector = {});
 
     template <typename Self_T>
-    auto enable_extension(this Self_T&&, const char* extension_name) -> Self_T;
+    auto enable_extension(this Self_T&&, util::StringLiteral extension_name) -> Self_T;
     template <typename Self_T>
-    auto enable_extension_if_available(this Self_T&&, const char* extension_name)
+    auto enable_extension_if_available(this Self_T&&, util::StringLiteral extension_name)
         -> Self_T;
 
     template <typename Self_T>
@@ -81,7 +82,7 @@ private:
     ) -> QueueGroup;
 
     PhysicalDeviceSelector                      m_physical_device_selector;
-    std::vector<const char*>                    m_optional_extension_names;
+    std::vector<util::StringLiteral>            m_optional_extension_names;
     StructureChain<vk::PhysicalDeviceFeatures2> m_optional_features;
     bool                                        m_request_graphics_queue{};
     bool                                        m_request_compute_queue{};
@@ -107,12 +108,14 @@ DeviceBuilder::DeviceBuilder(PhysicalDeviceSelector&& physical_device_selector)
 {}
 
 template <typename Self_T>
-auto DeviceBuilder::enable_extension(this Self_T&& self, const char* const extension_name)
-    -> Self_T
+auto DeviceBuilder::enable_extension(
+    this Self_T&&             self,
+    const util::StringLiteral extension_name
+) -> Self_T
 {
     if (const auto iter = std::ranges::find_if(
             self.m_optional_extension_names,
-            [extension_name](const char* const required_extension) -> bool {
+            [extension_name](const util::StringLiteral required_extension) -> bool {
                 return std::strcmp(extension_name, required_extension) == 0;
             }
         );
@@ -128,13 +131,13 @@ auto DeviceBuilder::enable_extension(this Self_T&& self, const char* const exten
 
 template <typename Self_T>
 auto DeviceBuilder::enable_extension_if_available(
-    this Self_T&& self,
-    const char*   extension_name
+    this Self_T&&       self,
+    util::StringLiteral extension_name
 ) -> Self_T
 {
     if (std::ranges::none_of(
             self.m_physical_device_selector.required_extensions(),
-            [extension_name](const char* const required_extension) -> bool {
+            [extension_name](const util::StringLiteral required_extension) -> bool {
                 return std::strcmp(extension_name, required_extension) == 0;
             }
         ))
@@ -262,16 +265,16 @@ auto DeviceBuilder::build(this Self_T&& self, const vk::raii::Instance& instance
         *self.most_suitable(std::move(supported_devices))
     };
 
-    std::vector<const char*> extension_names{
+    std::vector<util::StringLiteral> extension_names{
         std::forward_like<Self_T>(self.m_physical_device_selector).required_extensions()
     };
     for (auto extension_properties{ physical_device.enumerateDeviceExtensionProperties() };
-         const char* optional_extension : self.m_optional_extension_names)
+         util::StringLiteral optional_extension : self.m_optional_extension_names)
     {
         assert(
             std::ranges::none_of(
                 extension_names,
-                [optional_extension](const char* const required_extension) -> bool {
+                [optional_extension](const util::StringLiteral required_extension) -> bool {
                     return std::strcmp(optional_extension, required_extension) == 0;
                 }
             )
@@ -307,7 +310,7 @@ auto DeviceBuilder::build(this Self_T&& self, const vk::raii::Instance& instance
         .queueCreateInfoCount    = static_cast<uint32_t>(queue_create_infos.size()),
         .pQueueCreateInfos       = queue_create_infos.data(),
         .enabledExtensionCount   = static_cast<uint32_t>(extension_names.size()),
-        .ppEnabledExtensionNames = extension_names.data(),
+        .ppEnabledExtensionNames = extension_names.front().address(),
     };
 
     vk::raii::Device device{

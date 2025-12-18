@@ -11,6 +11,7 @@ module ddge.modules.vulkan.InstanceBuilder;
 import vulkan_hpp;
 
 import ddge.modules.vulkan.result.check_result;
+import ddge.utility.containers.StringLiteral;
 import ddge.utility.contracts;
 
 namespace ddge::vulkan {
@@ -69,7 +70,7 @@ auto InstanceBuilder::require_minimum_vulkan_api_version(const uint32_t vulkan_a
     return true;
 }
 
-auto InstanceBuilder::enable_vulkan_layer(const char* layer_name) -> bool
+auto InstanceBuilder::enable_vulkan_layer(util::StringLiteral layer_name) -> bool
 {
     const std::vector<vk::LayerProperties> layer_properties{
         m_context.get().enumerateInstanceLayerProperties()
@@ -88,7 +89,7 @@ auto InstanceBuilder::enable_vulkan_layer(const char* layer_name) -> bool
 
     if (std::ranges::none_of(
             m_layer_names,
-            [layer_name](const char* const enabled_layer_name) -> bool {
+            [layer_name](const util::StringLiteral enabled_layer_name) -> bool {
                 return std::strcmp(layer_name, enabled_layer_name) == 0;
             }
         ))
@@ -99,7 +100,7 @@ auto InstanceBuilder::enable_vulkan_layer(const char* layer_name) -> bool
     return true;
 }
 
-auto InstanceBuilder::enable_extension(const char* extension_name) -> bool
+auto InstanceBuilder::enable_extension(util::StringLiteral extension_name) -> bool
 {
     const std::vector<vk::ExtensionProperties> extension_properties{
         m_context.get().enumerateInstanceExtensionProperties()
@@ -118,7 +119,7 @@ auto InstanceBuilder::enable_extension(const char* extension_name) -> bool
 
     if (std::ranges::none_of(
             m_extension_names,
-            [extension_name](const char* const enabled_extension) -> bool {
+            [extension_name](const util::StringLiteral enabled_extension) -> bool {
                 return std::strcmp(extension_name, enabled_extension) == 0;
             }
         ))
@@ -129,22 +130,22 @@ auto InstanceBuilder::enable_extension(const char* extension_name) -> bool
     return true;
 }
 
-auto InstanceBuilder::build() && -> vk::raii::Instance
+auto InstanceBuilder::build() const -> vk::raii::Instance
 {
     const vk::ApplicationInfo application_info{
-        .pApplicationName   = m_application_name,
-        .applicationVersion = m_application_version,
-        .pEngineName        = m_engine_name,
-        .engineVersion      = m_engine_version,
+        .pApplicationName   = m_application_name.value_or(nullptr),
+        .applicationVersion = m_application_version.value_or(0u),
+        .pEngineName        = m_engine_name.value_or(nullptr),
+        .engineVersion      = m_engine_version.value_or(0u),
         .apiVersion         = m_vulkan_api_version,
     };
 
     const vk::InstanceCreateInfo instance_create_info{
         .pApplicationInfo        = &application_info,
         .enabledLayerCount       = static_cast<uint32_t>(m_layer_names.size()),
-        .ppEnabledLayerNames     = m_layer_names.data(),
+        .ppEnabledLayerNames     = m_layer_names.front().address(),
         .enabledExtensionCount   = static_cast<uint32_t>(m_extension_names.size()),
-        .ppEnabledExtensionNames = m_extension_names.data(),
+        .ppEnabledExtensionNames = m_extension_names.front().address(),
     };
 
     return vulkan::check_result(m_context.get().createInstance(instance_create_info));
