@@ -1,6 +1,7 @@
 module;
 
 #include <cstdint>
+#include <type_traits>
 #include <vector>
 
 #include "utility/lifetime_bound.hpp"
@@ -14,6 +15,12 @@ import ddge.modules.vulkan.minimum_vulkan_api_version;
 namespace ddge::vulkan {
 
 struct InstanceBuilderPrecondition {
+    constexpr static std::integral_constant<uint32_t, minimum_vulkan_api_version()>
+        minimum_vulkan_api_version;
+
+    [[nodiscard]]
+    static auto check_vulkan_version_support(const vk::raii::Context& context) -> bool;
+
     explicit InstanceBuilderPrecondition(const vk::raii::Context& context);
 };
 
@@ -25,6 +32,14 @@ public:
         const char* engine_name{};
         uint32_t    engine_version{};
     };
+
+    constexpr static std::integral_constant<
+        uint32_t,
+        InstanceBuilderPrecondition::minimum_vulkan_api_version()>
+        minimum_vulkan_api_version;
+
+    [[nodiscard]]
+    static auto check_vulkan_version_support(const vk::raii::Context& context) -> bool;
 
     InstanceBuilder(
         const CreateInfo& create_info,

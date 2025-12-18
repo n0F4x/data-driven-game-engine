@@ -33,6 +33,15 @@ constexpr auto make_instance_create_info(
     };
 }
 
+auto ensure_instance_builder_precondition(const vk::raii::Context& context)
+    -> const vk::raii::Context&
+{
+    if (!vulkan::InstanceBuilder::check_vulkan_version_support(context)) {
+        throw RenderContextBuilder::ConstructorFailure::eVulkanVersionNotSupported;
+    }
+    return context;
+}
+
 RenderContextBuilder::RenderContextBuilder(
     const CreateInfo&        create_info,
     const vk::raii::Context& context

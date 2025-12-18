@@ -24,6 +24,10 @@ public:
         uint32_t    application_version{};
     };
 
+    enum struct ConstructorFailure {
+        eVulkanVersionNotSupported,
+    };
+
     enum struct BuildFailure {
         eNoSupportedDeviceFound,
     };

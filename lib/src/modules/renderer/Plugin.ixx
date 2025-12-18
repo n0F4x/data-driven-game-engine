@@ -18,6 +18,7 @@ import ddge.modules.renderer.Addon;
 import ddge.modules.renderer.PluginBuildFailedError;
 import ddge.modules.renderer.RenderContextBuilder;
 import ddge.modules.vulkan.context;
+import ddge.modules.vulkan.minimum_vulkan_api_version;
 import ddge.utility.containers.AnyCopyableFunction;
 import ddge.utility.meta.concepts.naked;
 import ddge.utility.Void;
@@ -83,7 +84,7 @@ auto throw_build_failed_error(const RenderContextBuilder::BuildFailure failure)
 
 template <ddge::app::decays_to_app_c App_T>
 auto Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
-{
+try {
     static_assert(app::has_addons_c<App_T, app::extensions::MetaInfoAddon>);
 
     const RenderContextBuilder::CreateInfo render_context_builder_create_info{
@@ -120,6 +121,18 @@ auto Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
     );
 
     return result;
+} catch (RenderContextBuilder::ConstructorFailure constructor_failure) {
+    switch (constructor_failure) {
+        case RenderContextBuilder::ConstructorFailure::eVulkanVersionNotSupported:
+            throw PluginBuildFailedError{
+                std::format(
+                    "Required Vulkan version ({}.{}) is not supported. "   //
+                    "Try upgrading your driver.",
+                    vk::apiVersionMajor(vulkan::minimum_vulkan_api_version()),
+                    vk::apiVersionMinor(vulkan::minimum_vulkan_api_version())
+                )   //
+            };
+    }
 }
 
 }   // namespace ddge::renderer

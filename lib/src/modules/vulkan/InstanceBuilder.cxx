@@ -15,9 +15,20 @@ import ddge.utility.contracts;
 
 namespace ddge::vulkan {
 
+auto InstanceBuilderPrecondition::check_vulkan_version_support(const vk::raii::Context& context) -> bool
+{
+    return context.getDispatcher()->vkEnumerateInstanceVersion != nullptr
+        && context.enumerateInstanceVersion() >= minimum_vulkan_api_version();
+}
+
 InstanceBuilderPrecondition::InstanceBuilderPrecondition(const vk::raii::Context& context)
 {
-    PRECOND(context.enumerateInstanceVersion() >= vk::makeApiVersion(0, 1, 1, 0));
+    PRECOND(check_vulkan_version_support(context));
+}
+
+auto InstanceBuilder::check_vulkan_version_support(const vk::raii::Context& context) -> bool
+{
+    return InstanceBuilderPrecondition::check_vulkan_version_support(context);
 }
 
 InstanceBuilder::InstanceBuilder(
