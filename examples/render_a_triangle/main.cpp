@@ -35,16 +35,7 @@ try {
                         render_context_builder.request_default_debug_messenger();
                     assert(success);
 
-                    render_context_builder.device_builder().enable_features(
-                        vk::PhysicalDeviceAccelerationStructureFeaturesKHR{
-                            .accelerationStructureCaptureReplay = true,
-                        }
-                    );
-                    render_context_builder.device_builder().enable_features_if_available(
-                        vk::PhysicalDeviceAccelerationStructureFeaturesKHR{
-                            .accelerationStructureCaptureReplay = true,
-                        }
-                    );
+                    render_context_builder.device_builder().request_compute_queue();
                 }
             )
             .build();

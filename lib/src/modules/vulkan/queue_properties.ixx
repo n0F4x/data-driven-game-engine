@@ -12,55 +12,55 @@ import vulkan_hpp;
 namespace ddge::vulkan {
 
 export [[nodiscard]]
-auto has_dedicated_compute_queue_family(const vk::PhysicalDevice& physical_device)
+auto has_dedicated_compute_queue_family(const vk::raii::PhysicalDevice& physical_device)
     -> bool;
 
 export [[nodiscard]]
-auto has_dedicated_transfer_queue_family(const vk::PhysicalDevice& physical_device)
+auto has_dedicated_transfer_queue_family(const vk::raii::PhysicalDevice& physical_device)
     -> bool;
 
 export [[nodiscard]]
-auto has_dedicated_sparse_binding_queue_family(const vk::PhysicalDevice& physical_device)
+auto has_dedicated_sparse_binding_queue_family(const vk::raii::PhysicalDevice& physical_device)
     -> bool;
 
 export [[nodiscard]]
-auto graphics_queue_family_index(const vk::PhysicalDevice& physical_device)
+auto graphics_queue_family_index(const vk::raii::PhysicalDevice& physical_device)
     -> std::optional<uint32_t>;
 
 export [[nodiscard]]
-auto dedicated_compute_queue_family_index(const vk::PhysicalDevice& physical_device)
+auto dedicated_compute_queue_family_index(const vk::raii::PhysicalDevice& physical_device)
     -> std::optional<uint32_t>;
 
 export [[nodiscard]]
-auto dedicated_transfer_queue_family_index(const vk::PhysicalDevice& physical_device)
+auto dedicated_transfer_queue_family_index(const vk::raii::PhysicalDevice& physical_device)
     -> std::optional<uint32_t>;
 
 export [[nodiscard]]
-auto dedicated_sparse_binding_queue_family_index(const vk::PhysicalDevice& physical_device)
+auto dedicated_sparse_binding_queue_family_index(const vk::raii::PhysicalDevice& physical_device)
     -> std::optional<uint32_t>;
 
 }   // namespace ddge::vulkan
 
 namespace ddge::vulkan {
 
-auto has_dedicated_compute_queue_family(const vk::PhysicalDevice& physical_device) -> bool
+auto has_dedicated_compute_queue_family(const vk::raii::PhysicalDevice& physical_device) -> bool
 {
     return dedicated_compute_queue_family_index(physical_device).has_value();
 }
 
-auto has_dedicated_transfer_queue_family(const vk::PhysicalDevice& physical_device)
+auto has_dedicated_transfer_queue_family(const vk::raii::PhysicalDevice& physical_device)
     -> bool
 {
     return dedicated_transfer_queue_family_index(physical_device).has_value();
 }
 
-auto has_dedicated_sparse_binding_queue_family(const vk::PhysicalDevice& physical_device)
+auto has_dedicated_sparse_binding_queue_family(const vk::raii::PhysicalDevice& physical_device)
     -> bool
 {
     return dedicated_sparse_binding_queue_family_index(physical_device).has_value();
 }
 
-auto graphics_queue_family_index(const vk::PhysicalDevice& physical_device)
+auto graphics_queue_family_index(const vk::raii::PhysicalDevice& physical_device)
     -> std::optional<uint32_t>
 {
     std::vector<vk::QueueFamilyProperties2> queue_family_properties{
@@ -81,7 +81,7 @@ auto graphics_queue_family_index(const vk::PhysicalDevice& physical_device)
     return std::nullopt;
 }
 
-auto dedicated_compute_queue_family_index(const vk::PhysicalDevice& physical_device)
+auto dedicated_compute_queue_family_index(const vk::raii::PhysicalDevice& physical_device)
     -> std::optional<uint32_t>
 {
     std::vector<vk::QueueFamilyProperties2> queue_family_properties{
@@ -104,7 +104,7 @@ auto dedicated_compute_queue_family_index(const vk::PhysicalDevice& physical_dev
     return std::nullopt;
 }
 
-auto dedicated_transfer_queue_family_index(const vk::PhysicalDevice& physical_device)
+auto dedicated_transfer_queue_family_index(const vk::raii::PhysicalDevice& physical_device)
     -> std::optional<uint32_t>
 {
     std::vector<vk::QueueFamilyProperties2> queue_family_properties{
@@ -128,7 +128,7 @@ auto dedicated_transfer_queue_family_index(const vk::PhysicalDevice& physical_de
     return std::nullopt;
 }
 
-auto dedicated_sparse_binding_queue_family_index(const vk::PhysicalDevice& physical_device)
+auto dedicated_sparse_binding_queue_family_index(const vk::raii::PhysicalDevice& physical_device)
     -> std::optional<uint32_t>
 {
     std::vector<vk::QueueFamilyProperties2> queue_family_properties{
