@@ -15,7 +15,9 @@ import ddge.utility.contracts;
 
 namespace ddge::vulkan {
 
-auto InstanceBuilderPrecondition::check_vulkan_version_support(const vk::raii::Context& context) -> bool
+auto InstanceBuilderPrecondition::check_vulkan_version_support(
+    const vk::raii::Context& context
+) -> bool
 {
     return context.getDispatcher()->vkEnumerateInstanceVersion != nullptr
         && context.enumerateInstanceVersion() >= minimum_vulkan_api_version();
@@ -26,7 +28,8 @@ InstanceBuilderPrecondition::InstanceBuilderPrecondition(const vk::raii::Context
     PRECOND(check_vulkan_version_support(context));
 }
 
-auto InstanceBuilder::check_vulkan_version_support(const vk::raii::Context& context) -> bool
+auto InstanceBuilder::check_vulkan_version_support(const vk::raii::Context& context)
+    -> bool
 {
     return InstanceBuilderPrecondition::check_vulkan_version_support(context);
 }
@@ -49,6 +52,21 @@ auto InstanceBuilder::request_vulkan_api_version(const uint32_t vulkan_api_versi
     if (vulkan_api_version > m_vulkan_api_version) {
         m_vulkan_api_version = vulkan_api_version;
     }
+}
+
+auto InstanceBuilder::require_minimum_vulkan_api_version(const uint32_t vulkan_api_version)
+    -> bool
+{
+    if (m_vulkan_api_version >= vulkan_api_version) {
+        return true;
+    }
+
+    if (vulkan_api_version > m_context.get().enumerateInstanceVersion()) {
+        return false;
+    }
+
+    m_vulkan_api_version = vulkan_api_version;
+    return true;
 }
 
 auto InstanceBuilder::enable_vulkan_layer(const char* layer_name) -> bool

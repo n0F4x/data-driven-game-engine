@@ -49,6 +49,8 @@ public:
 
     auto request_vulkan_api_version(uint32_t vulkan_api_version) -> void;
     [[nodiscard]]
+    auto require_minimum_vulkan_api_version(uint32_t vulkan_api_version) -> bool;
+    [[nodiscard]]
     auto enable_vulkan_layer(const char* layer_name) -> bool;
     [[nodiscard]]
     auto enable_extension(const char* extension_name) -> bool;
