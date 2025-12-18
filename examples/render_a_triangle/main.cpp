@@ -35,7 +35,7 @@ try {
                         render_context_builder.request_default_debug_messenger();
                     assert(success);
 
-                    render_context_builder.device_builder().request_compute_queue();
+                    render_context_builder.device_builder().request_graphics_queue();
                 }
             )
             .build();

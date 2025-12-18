@@ -6,6 +6,7 @@ module;
 #include <flat_map>
 #include <optional>
 #include <ranges>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -96,7 +97,10 @@ private:
 
     [[nodiscard]]
     auto device_queue_create_infos(const vk::raii::PhysicalDevice& physical_device) const
-        -> std::pair<std::vector<vk::DeviceQueueCreateInfo>, QueueGroup::CreateInfo>;
+        -> std::tuple<
+            std::vector<std::vector<float>>,
+            std::vector<vk::DeviceQueueCreateInfo>,
+            QueueGroup::CreateInfo>;
 };
 
 }   // namespace ddge::vulkan
@@ -227,7 +231,7 @@ template <typename Self_T>
 auto DeviceBuilder::request_host_to_device_transfer_queue(this Self_T&& self) -> Self_T
 {
     self.m_physical_device_selector.require_queue_flag(vk::QueueFlagBits::eTransfer);
-    self.request_host_to_device_transfer_queue = true;
+    self.m_request_host_to_device_transfer_queue = true;
     return std::forward<Self_T>(self);
 }
 
@@ -305,9 +309,14 @@ auto DeviceBuilder::build(this Self_T&& self, const vk::raii::Instance& instance
     );
     features.remove_unsupported_features(supported_features.root_struct());
 
-    auto [queue_create_infos, queue_group_create_info]{
+    auto [per_family_queue_priorities, queue_create_infos, queue_group_create_info]{
         self.device_queue_create_infos(physical_device)
     };
+    for (auto&& [priorities, queue_create_info] :
+         std::views::zip(std::as_const(per_family_queue_priorities), queue_create_infos))
+    {
+        queue_create_info.pQueuePriorities = priorities.data();
+    }
 
     const vk::DeviceCreateInfo device_create_info{
         .pNext                   = &features.root_struct(),
@@ -398,12 +407,27 @@ auto DeviceBuilder::most_suitable(
 
 auto DeviceBuilder::device_queue_create_infos(
     const vk::raii::PhysicalDevice& physical_device
-) const -> std::pair<std::vector<vk::DeviceQueueCreateInfo>, QueueGroup::CreateInfo>
+) const
+    -> std::tuple<
+        std::vector<std::vector<float>>,
+        std::vector<vk::DeviceQueueCreateInfo>,
+        QueueGroup::CreateInfo>
 {
-    std::pair<std::vector<vk::DeviceQueueCreateInfo>, QueueGroup::CreateInfo> result{};
-    std::vector<vk::DeviceQueueCreateInfo>& device_queue_create_infos{ result.first };
-    QueueGroup::CreateInfo&                 queue_group_create_info{ result.second };
-    uint32_t                                queue_count{};
+    std::tuple<
+        std::vector<std::vector<float>>,
+        std::vector<vk::DeviceQueueCreateInfo>,
+        QueueGroup::CreateInfo>
+                                     result{};
+    std::vector<std::vector<float>>& per_family_queue_priorities{
+        std::get<std::vector<std::vector<float>>>(result)
+    };
+    std::vector<vk::DeviceQueueCreateInfo>& device_queue_create_infos{
+        std::get<std::vector<vk::DeviceQueueCreateInfo>>(result)
+    };
+    QueueGroup::CreateInfo& queue_group_create_info{
+        std::get<QueueGroup::CreateInfo>(result)
+    };
+    uint32_t queue_count{};
 
     const auto set_queue_pack_indices =   //
         [](std::optional<QueuePack>& queue_pack,
@@ -427,9 +451,11 @@ auto DeviceBuilder::device_queue_create_infos(
         physical_device.getQueueFamilyProperties2()
     };
 
-    const auto device_queue_create_info =                             //
-        [&device_queue_create_infos]                                  //
-        (const uint32_t family_index) -> vk::DeviceQueueCreateInfo&   //
+    const auto device_queue_create_info =                            //
+        [&per_family_queue_priorities, &device_queue_create_infos]   //
+        (
+            const uint32_t family_index
+        ) -> std::pair<vk::DeviceQueueCreateInfo&, std::vector<float>&>   //
     {
         const auto iter = std::ranges::find_if(
             device_queue_create_infos,   //
@@ -438,11 +464,19 @@ auto DeviceBuilder::device_queue_create_infos(
             }
         );
         if (iter != device_queue_create_infos.cend()) {
-            return *iter;
+            return std::pair<vk::DeviceQueueCreateInfo&, std::vector<float>&>{
+                *iter,
+                per_family_queue_priorities[static_cast<uint32_t>(
+                    std::distance(device_queue_create_infos.begin(), iter)
+                )]
+            };
         }
 
-        vk::DeviceQueueCreateInfo& x_result = device_queue_create_infos.emplace_back();
-        x_result.queueFamilyIndex           = family_index;
+        std::pair<vk::DeviceQueueCreateInfo&, std::vector<float>&> x_result{
+            device_queue_create_infos.emplace_back(),
+            per_family_queue_priorities.emplace_back()
+        };
+        x_result.first.queueFamilyIndex = family_index;
         return x_result;
     };
 
@@ -451,21 +485,23 @@ auto DeviceBuilder::device_queue_create_infos(
         [[nodiscard]]
         (const uint32_t family_index) -> bool                   //
     {
-        return device_queue_create_info(family_index).queueCount
+        return device_queue_create_info(family_index).first.queueCount
              < queue_family_properties[family_index].queueFamilyProperties.queueCount;
     };
 
     const auto try_increment_queue_count =                                    //
         [&queue_count, &device_queue_create_info, &queue_family_properties]   //
-        (const uint32_t family_index) -> std::optional<uint32_t>              //
+        (const uint32_t family_index, const float priority) -> std::optional<uint32_t>   //
     {
-        if (vk::DeviceQueueCreateInfo& element{ device_queue_create_info(family_index) };
-            element.queueCount
+        if (const std::pair<vk::DeviceQueueCreateInfo&, std::vector<float>&> element{
+                device_queue_create_info(family_index) };
+            element.first.queueCount
             < queue_family_properties[family_index].queueFamilyProperties.queueCount)
         {
-            ++element.queueCount;
+            ++element.first.queueCount;
+            element.second.push_back(priority);
             ++queue_count;
-            return element.queueCount - 1;
+            return element.first.queueCount - 1;
         }
         return std::nullopt;
     };
@@ -474,6 +510,21 @@ auto DeviceBuilder::device_queue_create_infos(
         m_request_graphics_queue ? graphics_queue_family_index(physical_device)
                                  : std::optional<uint32_t>{}
     };
+
+    if (graphics_queue_family.has_value()) {
+        if (const std::optional<uint32_t> queue_index =
+                try_increment_queue_count(*graphics_queue_family, 0.5f);
+            queue_index.has_value())
+        {
+            queue_group_create_info.graphics_queue_index = queue_count - 1;
+            set_queue_pack_indices(
+                queue_group_create_info
+                    .queue_packs[*queue_group_create_info.graphics_queue_index],
+                *graphics_queue_family,
+                *queue_index
+            );
+        }
+    }
 
     const std::optional<uint32_t> compute_queue_family{
         m_request_compute_queue
@@ -501,24 +552,9 @@ auto DeviceBuilder::device_queue_create_infos(
             : std::optional<uint32_t>{}
     };
 
-    if (graphics_queue_family.has_value()) {
-        if (const std::optional<uint32_t> queue_index =
-                try_increment_queue_count(*graphics_queue_family);
-            queue_index.has_value())
-        {
-            queue_group_create_info.graphics_queue_index = queue_count - 1;
-            set_queue_pack_indices(
-                queue_group_create_info
-                    .queue_packs[*queue_group_create_info.graphics_queue_index],
-                *graphics_queue_family,
-                *queue_index
-            );
-        }
-    }
-
     if (compute_queue_family.has_value()) {
         if (const std::optional<uint32_t> queue_index =
-                try_increment_queue_count(*compute_queue_family);
+                try_increment_queue_count(*compute_queue_family, 0.5f);
             queue_index.has_value())
         {
             queue_group_create_info.compute_queue_index = queue_count - 1;
@@ -530,10 +566,8 @@ auto DeviceBuilder::device_queue_create_infos(
             );
         }
         else if (graphics_queue_family.has_value()) {
-            if (device_queue_create_info(*graphics_queue_family)) {
-                queue_group_create_info.compute_queue_index =
-                    queue_group_create_info.graphics_queue_index;
-            }
+            queue_group_create_info.compute_queue_index =
+                queue_group_create_info.graphics_queue_index;
         }
     }
 
@@ -592,7 +626,7 @@ auto DeviceBuilder::device_queue_create_infos(
             host_to_device_transfer_family.has_value())
         {
             if (const std::optional<uint32_t> queue_index =
-                    try_increment_queue_count(*host_to_device_transfer_family);
+                    try_increment_queue_count(*host_to_device_transfer_family, 0.2f);
                 queue_index.has_value())
             {
                 queue_group_create_info.host_to_device_transfer_queue_index = queue_count
@@ -605,16 +639,12 @@ auto DeviceBuilder::device_queue_create_infos(
                 );
             }
             else if (graphics_queue_family.has_value()) {
-                if (device_queue_create_info(*graphics_queue_family)) {
-                    queue_group_create_info.host_to_device_transfer_queue_index =
-                        queue_group_create_info.graphics_queue_index;
-                }
+                queue_group_create_info.host_to_device_transfer_queue_index =
+                    queue_group_create_info.graphics_queue_index;
             }
             else if (compute_queue_family.has_value()) {
-                if (device_queue_create_info(*compute_queue_family)) {
-                    queue_group_create_info.host_to_device_transfer_queue_index =
-                        queue_group_create_info.compute_queue_index;
-                }
+                queue_group_create_info.host_to_device_transfer_queue_index =
+                    queue_group_create_info.compute_queue_index;
             }
         }
     }
@@ -624,7 +654,7 @@ auto DeviceBuilder::device_queue_create_infos(
             device_to_host_transfer_family.has_value())
         {
             if (const std::optional<uint32_t> queue_index =
-                    try_increment_queue_count(*device_to_host_transfer_family);
+                    try_increment_queue_count(*device_to_host_transfer_family, 0.2f);
                 queue_index.has_value())
             {
                 queue_group_create_info.device_to_host_transfer_queue_index = queue_count
@@ -637,16 +667,12 @@ auto DeviceBuilder::device_queue_create_infos(
                 );
             }
             else if (graphics_queue_family.has_value()) {
-                if (device_queue_create_info(*graphics_queue_family)) {
-                    queue_group_create_info.device_to_host_transfer_queue_index =
-                        queue_group_create_info.graphics_queue_index;
-                }
+                queue_group_create_info.device_to_host_transfer_queue_index =
+                    queue_group_create_info.graphics_queue_index;
             }
             else if (compute_queue_family.has_value()) {
-                if (device_queue_create_info(*compute_queue_family)) {
-                    queue_group_create_info.device_to_host_transfer_queue_index =
-                        queue_group_create_info.compute_queue_index;
-                }
+                queue_group_create_info.device_to_host_transfer_queue_index =
+                    queue_group_create_info.compute_queue_index;
             }
         }
     }
@@ -658,7 +684,7 @@ auto DeviceBuilder::device_queue_create_infos(
 
         if (dedicated_sparse_binding_family.has_value()) {
             const std::optional<uint32_t> queue_index =
-                try_increment_queue_count(*dedicated_sparse_binding_family);
+                try_increment_queue_count(*dedicated_sparse_binding_family, 0.7f);
             assert(queue_index.has_value());
             queue_group_create_info.dedicated_sparse_binding_queue_index =   //
                 queue_count - 1;
