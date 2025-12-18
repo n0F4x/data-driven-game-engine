@@ -427,9 +427,9 @@ auto DeviceBuilder::device_queue_create_infos(
         physical_device.getQueueFamilyProperties2()
     };
 
-    const auto device_queue_create_info = [&device_queue_create_infos](
-                                              const uint32_t family_index
-                                          ) -> vk::DeviceQueueCreateInfo&   //
+    const auto device_queue_create_info =                             //
+        [&device_queue_create_infos]                                  //
+        (const uint32_t family_index) -> vk::DeviceQueueCreateInfo&   //
     {
         const auto iter = std::ranges::find_if(
             device_queue_create_infos,   //
@@ -437,9 +437,13 @@ auto DeviceBuilder::device_queue_create_infos(
                 return create_info.queueFamilyIndex == family_index;
             }
         );
-        return iter == device_queue_create_infos.cend()
-                 ? device_queue_create_infos.emplace_back()
-                 : *iter;
+        if (iter != device_queue_create_infos.cend()) {
+            return *iter;
+        }
+
+        vk::DeviceQueueCreateInfo& x_result = device_queue_create_infos.emplace_back();
+        x_result.queueFamilyIndex           = family_index;
+        return x_result;
     };
 
     const auto queue_count_can_be_incremented =
