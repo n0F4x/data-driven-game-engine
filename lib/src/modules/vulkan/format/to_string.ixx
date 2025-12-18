@@ -7,6 +7,8 @@ export module ddge.modules.vulkan.format.to_string;
 
 import vulkan_hpp;
 
+import ddge.utility.containers.Lazy;
+
 namespace ddge::vulkan {
 
 export [[nodiscard]]
@@ -172,7 +174,11 @@ constexpr auto to_string(const vk::Result result) -> const char*
         default: {
             static std::unordered_map<vk::Result, std::string> result_string_map;
 
-            return result_string_map.try_emplace(result, vk::to_string(result))
+            return result_string_map
+                .try_emplace(
+                    result,   //
+                    util::Lazy{ [result] { return vk::to_string(result); } }
+                )
                 .first->second.c_str();
         }
     }

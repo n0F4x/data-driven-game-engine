@@ -13,6 +13,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         AnyMoveOnly.ixx
         AnyMoveOnlyFunction.ixx
         FunctionWrapper.ixx
+        Lazy.ixx
         SlotMultiMap.ixx
         OptionalRef.ixx
         Ref.ixx

@@ -1,6 +1,7 @@
 module;
 
 #include <functional>
+#include <type_traits>
 
 export module ddge.utility.containers.Ref;
 
