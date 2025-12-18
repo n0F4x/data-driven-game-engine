@@ -210,6 +210,7 @@ auto DeviceBuilder::enable_features_if_available(
 template <typename Self_T>
 auto DeviceBuilder::request_graphics_queue(this Self_T&& self) -> Self_T
 {
+    self.m_physical_device_selector.require_queue_flag(vk::QueueFlagBits::eGraphics);
     self.m_request_graphics_queue = true;
     return std::forward<Self_T>(self);
 }
@@ -217,6 +218,7 @@ auto DeviceBuilder::request_graphics_queue(this Self_T&& self) -> Self_T
 template <typename Self_T>
 auto DeviceBuilder::request_compute_queue(this Self_T&& self) -> Self_T
 {
+    self.m_physical_device_selector.require_queue_flag(vk::QueueFlagBits::eCompute);
     self.m_request_compute_queue = true;
     return std::forward<Self_T>(self);
 }
@@ -224,6 +226,7 @@ auto DeviceBuilder::request_compute_queue(this Self_T&& self) -> Self_T
 template <typename Self_T>
 auto DeviceBuilder::request_host_to_device_transfer_queue(this Self_T&& self) -> Self_T
 {
+    self.m_physical_device_selector.require_queue_flag(vk::QueueFlagBits::eTransfer);
     self.request_host_to_device_transfer_queue = true;
     return std::forward<Self_T>(self);
 }
@@ -231,6 +234,7 @@ auto DeviceBuilder::request_host_to_device_transfer_queue(this Self_T&& self) ->
 template <typename Self_T>
 auto DeviceBuilder::request_device_to_host_transfer_queue(this Self_T&& self) -> Self_T
 {
+    self.m_physical_device_selector.require_queue_flag(vk::QueueFlagBits::eTransfer);
     self.m_request_device_to_host_transfer_queue = true;
     return std::forward<Self_T>(self);
 }
@@ -473,6 +477,23 @@ auto DeviceBuilder::device_queue_create_infos(
                   .or_else([&graphics_queue_family] -> std::optional<uint32_t> {
                       return graphics_queue_family;
                   })
+                  .or_else(
+                      [&queue_family_properties,
+                       &queue_count_can_be_incremented] -> std::optional<uint32_t> {
+                          for (const uint32_t family_index :
+                               std::views::iota(0u, queue_family_properties.size()))
+                          {
+                              if (queue_family_properties[family_index]
+                                          .queueFamilyProperties.queueFlags
+                                      & vk::QueueFlagBits::eCompute
+                                  && queue_count_can_be_incremented(family_index))
+                              {
+                                  return family_index;
+                              }
+                          }
+                          return std::nullopt;
+                      }
+                  )
             : std::optional<uint32_t>{}
     };
 
