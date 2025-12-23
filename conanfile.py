@@ -73,6 +73,7 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
         self.requires("fmt/12.0.0", transitive_headers=True)
         self.requires("spdlog/1.16.0")
+        self.requires("glfw/3.4")
         self.requires("vulkan-headers/1.4.313.0", transitive_headers=True)
         self.requires("entt/3.15.0", transitive_headers=True)
 

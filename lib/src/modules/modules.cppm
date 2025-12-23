@@ -13,3 +13,4 @@ export import ddge.modules.scheduler;
 export import ddge.modules.states;
 export import ddge.modules.time;
 export import ddge.modules.vulkan;
+export import ddge.modules.wsi;

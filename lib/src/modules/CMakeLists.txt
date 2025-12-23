@@ -11,6 +11,7 @@ add_subdirectory(scheduler)
 add_subdirectory(states)
 add_subdirectory(time)
 add_subdirectory(vulkan)
+add_subdirectory(wsi)
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET public_cxx_modules

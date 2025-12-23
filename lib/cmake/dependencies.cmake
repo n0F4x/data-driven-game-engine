@@ -22,6 +22,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 
+# GLFW
+find_package(glfw3 CONFIG REQUIRED)
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+        GLFW_INCLUDE_VULKAN
+)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
+
 # Vulkan
 find_package(VulkanHeaders CONFIG REQUIRED)
 get_target_property(VulkanHeaders_INCLUDE_DIRS Vulkan::Headers INTERFACE_INCLUDE_DIRECTORIES)
