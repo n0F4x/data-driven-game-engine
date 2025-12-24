@@ -264,8 +264,14 @@ auto DeviceBuilder::ensure_present_queue_for(
     const vk::SurfaceKHR surface
 ) -> Self_T
 {
-    // TODO: ensure present queues for physical device
     self.m_surfaces.push_back(surface);
+
+    self.add_custom_requirement(
+        [surface](const vk::raii::PhysicalDevice& physical_device) -> bool {
+            return first_present_queue_family_index(physical_device, surface).has_value();
+        }
+    );
+
     return std::forward<Self_T>(self);
 }
 
@@ -420,7 +426,6 @@ auto DeviceBuilder::create_device_queue_create_infos(
         std::vector<vk::DeviceQueueCreateInfo>,
         QueueGroup::CreateInfo>
 {
-    // TODO: ensure present queues
     std::tuple<
         std::vector<std::vector<float>>,
         std::vector<vk::DeviceQueueCreateInfo>,
@@ -647,6 +652,27 @@ auto DeviceBuilder::create_device_queue_create_infos(
         if (dedicated_sparse_binding_family.has_value()) {
             queue_group_create_info.dedicated_sparse_binding_queue_pack_index =
                 try_setup_new_queue(*dedicated_sparse_binding_family, 0.7f);
+        }
+    }
+
+    for (const vk::SurfaceKHR surface : m_surfaces) {
+        if (std::ranges::none_of(
+                queue_group_create_info.queue_packs,
+                [surface, &physical_device](const uint32_t queue_family_index) -> bool {
+                    return physical_device.getSurfaceSupportKHR(
+                        queue_family_index, surface
+                    );
+                },
+                &QueuePack::family_index
+            ))
+        {
+            [[maybe_unused]]
+            const bool success =
+                try_setup_new_queue(
+                    *first_present_queue_family_index(physical_device, surface), 0.5f
+                )
+                    .has_value();
+            assert(success);
         }
     }
 
