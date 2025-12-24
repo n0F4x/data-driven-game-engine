@@ -66,8 +66,10 @@ public:
     [[nodiscard]]
     constexpr auto has_value() const noexcept -> bool;
 
+    template <typename U>
+        requires std::convertible_to<U&&, T&>
     [[nodiscard]]
-    constexpr auto value_or(T& other) const noexcept -> T&;
+    constexpr auto value_or(U&& other) const noexcept -> T&;
 
     template <and_then_func_c<T> F>
     constexpr auto and_then(F&& func) const -> std::invoke_result_t<F&&, T&>;
@@ -153,12 +155,14 @@ constexpr auto ddge::util::OptionalRef<T>::has_value() const noexcept -> bool
 
 template <typename T>
     requires(!std::is_reference_v<T>)
-constexpr auto ddge::util::OptionalRef<T>::value_or(T& other) const noexcept -> T&
+template <typename U>
+    requires std::convertible_to<U&&, T&>
+constexpr auto ddge::util::OptionalRef<T>::value_or(U&& other) const noexcept -> T&
 {
     if (has_value()) {
         return *m_handle;
     }
-    return other;
+    return static_cast<T&>(std::forward<U>(other));
 }
 
 template <typename T>
@@ -180,7 +184,7 @@ constexpr auto ddge::util::OptionalRef<T>::transform(F&& func) const
     -> transform_result_t<F&&, T&>
 {
     if (has_value()) {
-        return transform_result_t<F, T&>{
+        return transform_result_t<F&&, T&>{
             std::invoke(std::forward<F>(func), static_cast<T&>(*m_handle))
         };
     }
@@ -196,5 +200,5 @@ constexpr auto ddge::util::OptionalRef<T>::or_else(F&& func) const
     if (!has_value()) {
         return std::invoke(std::forward<F>(func));
     }
-    return { **this };
+    return std::invoke_result_t<F&&>{ **this };
 }

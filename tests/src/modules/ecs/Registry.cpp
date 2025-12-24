@@ -57,7 +57,7 @@ TEST_CASE("ddge::ecs::Registry")
     ddge::util::meta::enumerate<
         ComponentGroups>([&registry]<std::size_t index_T, typename ComponentGroup_T> {
         ddge::util::meta::apply<ComponentGroup_T>([&registry]<typename... Comps> {
-            SECTION(component_group_names[index_T])
+            SECTION(component_group_names[index_T].get())
             {
                 SECTION("create")
                 {
