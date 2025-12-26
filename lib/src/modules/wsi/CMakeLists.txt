@@ -6,8 +6,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         wsi.cppm
         Context.ixx
         Error.ixx
+        FullScreenWindowSettings.ixx
         monitors.ixx
-        Resolution.ixx
+        Size.ixx
         vulkan_instance_extensions.ixx
+        VulkanWindow.ixx
         Window.ixx
+        WindowedWindowSettings.ixx
+        WindowSettings.ixx
 )

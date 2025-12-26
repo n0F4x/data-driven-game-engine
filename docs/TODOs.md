@@ -1,7 +1,5 @@
-- deprecate and remove `cache` module and use assets instead
 - Don't expose fmt (requires constexpr `std::format`)
 - CMAKE_INTERPROCEDURAL_OPTIMIZATION
-- static job system
 - create a system for staging memory
 - use slang for shaders
 - use [Host image copy](https://docs.vulkan.org/samples/latest/samples/extensions/host_image_copy/README.html)
@@ -11,6 +9,7 @@
 - rework renderer::Program to support multiple shader types
 - build the vulkan validation layers
 - let compute queue present according to https://gpuopen.com/learn/rdna-performance-guide/#presenting
+- explore `VK_EXT_full_screen_exclusive`
 - separate project to multiple libs
 - support raytracing
 - use mesh shaders

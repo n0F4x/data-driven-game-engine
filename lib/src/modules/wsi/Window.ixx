@@ -13,51 +13,39 @@ export module ddge.modules.wsi.Window;
 
 import ddge.modules.wsi.Context;
 import ddge.modules.wsi.Error;
+import ddge.modules.wsi.FullScreenWindowSettings;
 import ddge.modules.wsi.monitors;
-import ddge.modules.wsi.Resolution;
+import ddge.modules.wsi.Size;
+import ddge.modules.wsi.WindowSettings;
+import ddge.modules.wsi.WindowedWindowSettings;
 import ddge.utility.contracts;
 import ddge.utility.Overloaded;
 
 namespace ddge::wsi {
 
-export struct WindowedScreenSettings {
-    struct Border {
-        bool resizable{ true };
-    };
-
-    enum struct Visibility {
-        eDefault,
-        eHidden,
-        eFocused,
-    };
-
-    Resolution            resolution;
-    std::optional<int>    position_x;
-    std::optional<int>    position_y;
-    std::optional<Border> border{ std::in_place };
-    Visibility            visibility{ Visibility::eDefault };
-    bool                  maximized{ false };
-    bool                  focus_on_show{ true };
-    bool                  scale_to_monitor{ false };
-};
-
-export struct FullScreenSettings {
-    Monitor            monitor;
-    bool               auto_iconify{ true };
-    bool               center_cursor{ true };
-    std::optional<int> refresh_rate;
-};
-
-export using ScreenSettings = std::variant<WindowedScreenSettings, FullScreenSettings>;
-
 export class Window {
 public:
     struct CreateInfo {
         const char*    title = "";
-        ScreenSettings screen_settings;
+        WindowSettings settings;
     };
 
-    explicit Window(Context&& context, const CreateInfo& create_info);
+    Window(Context&& context, const CreateInfo& create_info);
+    Window(Window&&) noexcept;
+
+    [[nodiscard]]
+    auto content_size() const noexcept -> Size2i;
+    [[nodiscard]]
+    auto resolution() const noexcept -> Size2i;
+
+protected:
+    [[nodiscard]]
+    auto context() const noexcept -> const Context&;
+
+    [[nodiscard]]
+    auto handle() noexcept -> GLFWwindow&;
+    [[nodiscard]]
+    auto handle() const noexcept -> const GLFWwindow&;
 
 private:
     [[no_unique_address]]
@@ -74,6 +62,10 @@ namespace ddge::wsi {
 
 auto destroy_window(GLFWwindow* const handle) -> void
 {
+    if (handle == nullptr) {
+        return;
+    }
+
     glfwDestroyWindow(handle);
 
     const int error_code = glfwGetError(nullptr);
@@ -92,13 +84,13 @@ auto destroy_window(GLFWwindow* const handle) -> void
 auto create_window(const Window::CreateInfo& create_info)
     -> std::unique_ptr<GLFWwindow, decltype(&destroy_window)>
 {
-    const Resolution video_mode{ create_info.screen_settings.visit(
+    const Size2i content_size{ create_info.settings.visit(
         util::Overloaded{
-            [](const WindowedScreenSettings& settings) static -> Resolution {
-                return settings.resolution;
+            [](const WindowedWindowSettings& settings) static -> Size2i {
+                return settings.content_size;
             },
-            [](const FullScreenSettings& settings) static -> Resolution {
-                return settings.monitor.resolution();
+            [](const FullScreenWindowSettings& settings) static -> Size2i {
+                return settings.monitor.size();
             },
         }
     ) };
@@ -106,65 +98,65 @@ auto create_window(const Window::CreateInfo& create_info)
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    if (const WindowedScreenSettings* screen_settings{
-            std::get_if<WindowedScreenSettings>(&create_info.screen_settings) };
-        screen_settings != nullptr)
+    if (const WindowedWindowSettings* settings{
+            std::get_if<WindowedWindowSettings>(&create_info.settings) };
+        settings != nullptr)
     {
         glfwWindowHint(
-            GLFW_POSITION_X, screen_settings->position_x.value_or(GLFW_ANY_POSITION)
+            GLFW_POSITION_X, settings->position_x.value_or(GLFW_ANY_POSITION)
         );
         glfwWindowHint(
-            GLFW_POSITION_Y, screen_settings->position_y.value_or(GLFW_ANY_POSITION)
+            GLFW_POSITION_Y, settings->position_y.value_or(GLFW_ANY_POSITION)
         );
 
-        const std::optional<WindowedScreenSettings::Border> border{
-            screen_settings->border   //
+        const std::optional<WindowedWindowSettings::Border> border{
+            settings->border   //
         };
         glfwWindowHint(GLFW_DECORATED, border.has_value());
         if (border.has_value()) {
             glfwWindowHint(GLFW_RESIZABLE, border->resizable);
         }
 
-        switch (screen_settings->visibility) {
-            case WindowedScreenSettings::Visibility::eDefault:
+        switch (settings->visibility) {
+            case WindowedWindowSettings::Visibility::eDefault:
                 glfwWindowHint(GLFW_FOCUSED, GLFW_FALSE);
                 glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
                 break;
-            case WindowedScreenSettings::Visibility::eHidden:
+            case WindowedWindowSettings::Visibility::eHidden:
                 glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
                 glfwWindowHint(GLFW_FOCUSED, GLFW_FALSE);
                 break;
-            case WindowedScreenSettings::Visibility::eFocused:
+            case WindowedWindowSettings::Visibility::eFocused:
                 glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
                 glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
                 break;
         }
 
-        glfwWindowHint(GLFW_MAXIMIZED, screen_settings->maximized);
-        glfwWindowHint(GLFW_FOCUS_ON_SHOW, screen_settings->focus_on_show);
-        glfwWindowHint(GLFW_SCALE_TO_MONITOR, screen_settings->scale_to_monitor);
+        glfwWindowHint(GLFW_MAXIMIZED, settings->maximized);
+        glfwWindowHint(GLFW_FOCUS_ON_SHOW, settings->focus_on_show);
+        glfwWindowHint(GLFW_SCALE_TO_MONITOR, settings->scale_to_monitor);
     }
-    if (const FullScreenSettings* screen_settings{
-            std::get_if<FullScreenSettings>(&create_info.screen_settings) };
-        screen_settings != nullptr)
+    if (const FullScreenWindowSettings* settings{
+            std::get_if<FullScreenWindowSettings>(&create_info.settings) };
+        settings != nullptr)
     {
-        glfwWindowHint(GLFW_AUTO_ICONIFY, screen_settings->auto_iconify);
-        glfwWindowHint(GLFW_CENTER_CURSOR, screen_settings->center_cursor);
+        glfwWindowHint(GLFW_AUTO_ICONIFY, settings->auto_iconify);
+        glfwWindowHint(GLFW_CENTER_CURSOR, settings->center_cursor);
         glfwWindowHint(
-            GLFW_REFRESH_RATE, screen_settings->refresh_rate.value_or(GLFW_DONT_CARE)
+            GLFW_REFRESH_RATE, settings->refresh_rate.value_or(GLFW_DONT_CARE)
         );
     }
 
     GLFWwindow* const window = glfwCreateWindow(
-        video_mode.width,
-        video_mode.height,
+        content_size.width,
+        content_size.height,
         create_info.title,
-        create_info.screen_settings.visit(
+        create_info.settings.visit(
             util::Overloaded{
-                [](const WindowedScreenSettings&) static -> GLFWmonitor* {
+                [](const WindowedWindowSettings&) static -> GLFWmonitor* {
                     return nullptr;
                 },
-                [](const FullScreenSettings& settings) static -> GLFWmonitor* {
+                [](const FullScreenWindowSettings& settings) static -> GLFWmonitor* {
                     return static_cast<GLFWmonitor*>(settings.monitor);
                 },
             }
@@ -198,5 +190,39 @@ Window::Window(Context&& context, const CreateInfo& create_info)
     : m_context{ std::move(context) },
       m_handle{ create_window(create_info) }
 {}
+
+Window::Window(Window&& other) noexcept
+    : m_context{ std::move(other.m_context) },
+      m_handle{ other.m_handle.release(), other.m_handle.get_deleter() }
+{}
+
+auto Window::content_size() const noexcept -> Size2i
+{
+    Size2i result{};
+    glfwGetWindowSize(m_handle.get(), &result.width, &result.height);
+    return result;
+}
+
+auto Window::resolution() const noexcept -> Size2i
+{
+    Size2i result{};
+    glfwGetFramebufferSize(m_handle.get(), &result.width, &result.height);
+    return result;
+}
+
+auto Window::context() const noexcept -> const Context&
+{
+    return m_context;
+}
+
+auto Window::handle() noexcept -> GLFWwindow&
+{
+    return *m_handle;
+}
+
+auto Window::handle() const noexcept -> const GLFWwindow&
+{
+    return *m_handle;
+}
 
 }   // namespace ddge::wsi

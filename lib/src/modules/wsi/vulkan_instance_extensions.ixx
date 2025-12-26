@@ -11,6 +11,7 @@ module;
 export module ddge.modules.wsi.vulkan_instance_extensions;
 
 import ddge.modules.wsi.Context;
+import ddge.utility.containers.StringLiteral;
 import ddge.utility.contracts;
 
 namespace ddge::wsi {
@@ -21,7 +22,7 @@ export enum struct VulkanError {
 
 export [[nodiscard]]
 auto vulkan_instance_extensions(const Context&)
-    -> std::expected<std::span<const char*>, VulkanError>
+    -> std::expected<std::span<const util::StringLiteral>, VulkanError>
 {
     uint32_t     count{};
     const char** extension_names{ glfwGetRequiredInstanceExtensions(&count) };
@@ -34,7 +35,10 @@ auto vulkan_instance_extensions(const Context&)
         return std::unexpected{ VulkanError::eSurfaceCreationNotSupported };
     }
 
-    return std::span{ extension_names, count };
+    return std::span{
+        reinterpret_cast<const util::StringLiteral*>(extension_names),
+        count,
+    };
 }
 
 }   // namespace ddge::wsi

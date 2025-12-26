@@ -1,5 +1,6 @@
 module;
 
+#include <concepts>
 #include <cstdint>
 #include <optional>
 #include <ranges>

@@ -13,7 +13,7 @@ export module ddge.modules.wsi.monitors;
 
 import ddge.modules.wsi.Context;
 import ddge.modules.wsi.Error;
-import ddge.modules.wsi.Resolution;
+import ddge.modules.wsi.Size;
 import ddge.utility.contracts;
 
 namespace ddge::wsi {
@@ -34,7 +34,7 @@ public:
     explicit operator GLFWmonitor*() const;
 
     [[nodiscard]]
-    auto resolution() const -> Resolution;
+    auto size() const -> Size2i;
 
 private:
     explicit Monitor(GLFWmonitor* handle);
@@ -71,9 +71,9 @@ Monitor::operator GLFWmonitor*() const
     return m_handle;
 }
 
-auto Monitor::resolution() const -> Resolution
+auto Monitor::size() const -> Size2i
 {
-    Resolution result;
+    Size2i result;
 
     const GLFWvidmode* video_mode = glfwGetVideoMode(m_handle);
     if (video_mode == nullptr) {

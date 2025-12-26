@@ -1,10 +1,10 @@
 module;
 
-export module ddge.modules.wsi.Resolution;
+export module ddge.modules.wsi.Size;
 
 namespace ddge::wsi {
 
-export struct Resolution {
+export struct Size2i {
     int width;
     int height;
 };

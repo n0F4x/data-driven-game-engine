@@ -27,20 +27,7 @@ auto main() -> int
 try {
     using namespace ddge;
 
-    const wsi::Context context;
-    [[maybe_unused]]
-    constexpr static wsi::Resolution resolution{
-        .width  = 640,
-        .height = 480,
-    };
-    constexpr wsi::WindowedScreenSettings screen_settings{ .resolution = resolution };
-    const wsi::Window::CreateInfo         window_info{
-                .title           = "Hello Window!",
-                .screen_settings = screen_settings,
-    };
-    wsi::Window window{ auto{ context }, window_info };
-
-    std::this_thread::sleep_for(std::chrono::seconds{ 2 });
+    static const wsi::Context context;
 
     auto application =
         app::create()
@@ -48,15 +35,49 @@ try {
             .plug_in(renderer::Plugin{})
             .add_render_context(
                 [](renderer::RenderContextBuilder& render_context_builder) -> void {
-                    [[maybe_unused]]
-                    const bool success =
-                        render_context_builder.request_default_debug_messenger();
-                    assert(success);
+                    {
+                        [[maybe_unused]]
+                        const bool success =
+                            render_context_builder.request_default_debug_messenger();
+                        assert(success);
+                    }
 
                     render_context_builder.device_builder().request_graphics_queue();
+
+                    for (const util::StringLiteral extension_name :
+                         wsi::vulkan_instance_extensions(context).value())
+                    {
+                        {
+                            [[maybe_unused]]
+                            const bool success = render_context_builder.instance_builder()
+                                                     .enable_extension(extension_name);
+                            assert(success);
+                        }
+                    }
+
+                    render_context_builder.device_builder().enable_extension(
+                        vk::KHRSwapchainExtensionName
+                    );
                 }
             )
             .build();
+
+    constexpr wsi::WindowedWindowSettings screen_settings{
+        .content_size{ .width = 640, .height = 480 }
+    };
+    const wsi::Window::CreateInfo window_info{
+        .title    = "Hello Window!",
+        .settings = screen_settings,
+    };
+
+    wsi::VulkanWindow window{
+        wsi::Window{ auto{ context }, window_info },
+        application.render_context.instance,
+        application.render_context.device
+    };
+
+    std::this_thread::sleep_for(std::chrono::seconds{ 2 });
+
 } catch (const ddge::app::BuildFailedError& error) {
     std::println("{}", error.what());
 }
