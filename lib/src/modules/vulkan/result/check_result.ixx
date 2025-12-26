@@ -5,6 +5,8 @@ module;
 #include <utility>
 #include <variant>
 
+#include <vulkan/vulkan_core.h>
+
 #include "utility/contract_macros.hpp"
 
 export module ddge.modules.vulkan.result.check_result;
@@ -63,6 +65,11 @@ struct CheckResult {
 
     template <typename Result_T>
     constexpr static auto operator()(Result_T&& result) -> result_type_t<Result_T>;
+
+    constexpr static auto operator()(const VkResult result) -> result_type_t<vk::Result>
+    {
+        return operator()(vk::Result{ result });
+    }
 
 private:
     [[nodiscard]]

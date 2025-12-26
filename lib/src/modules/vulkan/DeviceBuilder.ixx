@@ -11,12 +11,11 @@ module;
 #include <utility>
 #include <vector>
 
-#include <vulkan/vulkan_raii.hpp>
-
 export module ddge.modules.vulkan.DeviceBuilder;
 
 import vulkan_hpp;
 
+import ddge.modules.vulkan.Device;
 import ddge.modules.vulkan.result.check_result;
 import ddge.modules.vulkan.structure_chains.extends_struct_c;
 import ddge.modules.vulkan.structure_chains.merge_physical_device_features;
@@ -25,9 +24,11 @@ import ddge.modules.vulkan.structure_chains.remove_physical_device_features;
 import ddge.modules.vulkan.structure_chains.StructureChain;
 import ddge.modules.vulkan.PhysicalDeviceSelector;
 import ddge.modules.vulkan.queue_properties;
+import ddge.modules.vulkan.QueueFamilyIndex;
 import ddge.modules.vulkan.QueueGroup;
 import ddge.modules.vulkan.QueuePack;
 import ddge.utility.Bool;
+import ddge.utility.containers.AnyCopyableFunction;
 import ddge.utility.containers.Lazy;
 import ddge.utility.containers.StringLiteral;
 
@@ -35,6 +36,12 @@ namespace ddge::vulkan {
 
 export class DeviceBuilder {
 public:
+    using QueueRequirement = util::AnyCopyableFunction<bool(
+        const vk::raii::PhysicalDevice&,
+        QueueFamilyIndex,
+        const vk::QueueFamilyProperties2&
+    ) const>;
+
     explicit DeviceBuilder(PhysicalDeviceSelector&& physical_device_selector = {});
 
     template <typename Self_T>
@@ -69,16 +76,17 @@ public:
     auto request_device_to_host_transfer_queue(this Self_T&&) -> Self_T;
     template <typename Self_T>
     auto request_dedicated_sparse_binding_queue(this Self_T&&) -> Self_T;
-    template <typename Self_T>
-    auto ensure_present_queue_for(this Self_T&&, vk::SurfaceKHR surface) -> Self_T;
+    template <typename Self_T, typename... Args_T>
+    auto ensure_queue(this Self_T&&, Args_T&&... args) -> Self_T
+        requires std::constructible_from<QueueRequirement, Args_T&&...>;
 
     template <typename Self_T, typename... Args_T>
     auto add_custom_requirement(this Self_T&&, Args_T&&... args) -> Self_T;
 
     template <typename Self_T>
     [[nodiscard]]
-    auto build(this Self_T&& self, const vk::raii::Instance& instance) -> std::
-        optional<std::tuple<vk::raii::PhysicalDevice, vk::raii::Device, QueueGroup>>;
+    auto build(this Self_T&& self, const vk::raii::Instance& instance)
+        -> std::optional<Device>;
 
 private:
     [[nodiscard]]
@@ -94,7 +102,7 @@ private:
     util::Bool                                  m_request_compute_queue{};
     bool                                        m_request_host_to_device_transfer_queue{};
     bool                                        m_request_device_to_host_transfer_queue{};
-    std::vector<vk::SurfaceKHR>                 m_surfaces;
+    std::vector<QueueRequirement>               m_extra_queue_requirements;
     bool m_request_dedicated_sparse_binding_queue{};
 
     [[nodiscard]]
@@ -258,17 +266,18 @@ auto DeviceBuilder::request_dedicated_sparse_binding_queue(this Self_T&& self) -
     return std::forward<Self_T>(self);
 }
 
-template <typename Self_T>
-auto DeviceBuilder::ensure_present_queue_for(
-    this Self_T&&        self,
-    const vk::SurfaceKHR surface
-) -> Self_T
+template <typename Self_T, typename... Args_T>
+auto DeviceBuilder::ensure_queue(this Self_T&& self, Args_T&&... args) -> Self_T
+    requires std::constructible_from<QueueRequirement, Args_T&&...>
 {
-    self.m_surfaces.push_back(surface);
+    const QueueRequirement& queue_requirement =
+        self.m_extra_queue_requirements.emplace_back(std::forward<Args_T>(args)...);
 
     self.add_custom_requirement(
-        [surface](const vk::raii::PhysicalDevice& physical_device) -> bool {
-            return first_present_queue_family_index(physical_device, surface).has_value();
+        [queue_requirement](
+            const vk::raii::PhysicalDevice& physical_device
+        ) mutable -> bool {
+            return has_matching_queue_family_index(physical_device, queue_requirement);
         }
     );
 
@@ -284,7 +293,7 @@ auto DeviceBuilder::add_custom_requirement(this Self_T&& self, Args_T&&... args)
 
 template <typename Self_T>
 auto DeviceBuilder::build(this Self_T&& self, const vk::raii::Instance& instance)
-    -> std::optional<std::tuple<vk::raii::PhysicalDevice, vk::raii::Device, QueueGroup>>
+    -> std::optional<Device>
 {
     std::vector<vk::raii::PhysicalDevice> supported_devices{
         self.m_physical_device_selector.select_devices(instance)
@@ -357,9 +366,7 @@ auto DeviceBuilder::build(this Self_T&& self, const vk::raii::Instance& instance
 
     QueueGroup queue_group{ make_queue_group(device, std::move(queue_group_create_info)) };
 
-    return std::make_tuple(
-        std::move(physical_device), std::move(device), std::move(queue_group)
-    );
+    return Device{ std::move(physical_device), std::move(device), std::move(queue_group) };
 }
 
 auto DeviceBuilder::make_queue_group(
@@ -369,7 +376,7 @@ auto DeviceBuilder::make_queue_group(
 {
     for (QueuePack& queue_pack : create_info.queue_packs) {
         const vk::DeviceQueueInfo2 queue_info{
-            .queueFamilyIndex = queue_pack.family_index,
+            .queueFamilyIndex = queue_pack.family_index.underlying(),
             .queueIndex       = queue_pack.queue_index,
         };
         queue_pack.queue = check_result(device.getQueue2(queue_info));
@@ -448,13 +455,13 @@ auto DeviceBuilder::create_device_queue_create_infos(
     const auto device_queue_create_info =                            //
         [&per_family_queue_priorities, &device_queue_create_infos]   //
         (
-            const uint32_t family_index
+            const QueueFamilyIndex family_index
         ) -> std::pair<vk::DeviceQueueCreateInfo&, std::vector<float>&>   //
     {
         const auto iter = std::ranges::find_if(
             device_queue_create_infos,   //
             [family_index](const vk::DeviceQueueCreateInfo& create_info) -> bool {
-                return create_info.queueFamilyIndex == family_index;
+                return create_info.queueFamilyIndex == family_index.underlying();
             }
         );
         if (iter != device_queue_create_infos.cend()) {
@@ -470,31 +477,34 @@ auto DeviceBuilder::create_device_queue_create_infos(
             device_queue_create_infos.emplace_back(),
             per_family_queue_priorities.emplace_back()
         };
-        x_result.first.queueFamilyIndex = family_index;
+        x_result.first.queueFamilyIndex = family_index.underlying();
         return x_result;
     };
 
     const auto queue_count_can_be_incremented =
         [&device_queue_create_info, &queue_family_properties]   //
         [[nodiscard]]
-        (const uint32_t family_index) -> bool                   //
+        (const QueueFamilyIndex family_index) -> bool           //
     {
         return device_queue_create_info(family_index).first.queueCount
-             < queue_family_properties[family_index].queueFamilyProperties.queueCount;
+             < queue_family_properties[family_index.underlying()]
+                   .queueFamilyProperties.queueCount;
     };
 
     const auto try_setup_new_queue =   //
         [&device_queue_create_info,
          &queue_family_properties,
-         &queue_group_create_info]   //
-        (const uint32_t family_index, const float priority) -> std::optional<uint32_t>   //
+         &queue_group_create_info]                          //
+        (const QueueFamilyIndex family_index,
+         const float            priority) -> std::optional<uint32_t>   //
     {
         const auto& [queue_create_info, queue_priorities]{
             device_queue_create_info(family_index)
         };
 
         if (queue_create_info.queueCount
-            < queue_family_properties[family_index].queueFamilyProperties.queueCount)
+            < queue_family_properties[family_index.underlying()]
+                  .queueFamilyProperties.queueCount)
         {
             queue_priorities.push_back(priority);
             ++queue_create_info.queueCount;
@@ -516,23 +526,23 @@ auto DeviceBuilder::create_device_queue_create_infos(
     const auto next_incrementable_family_index =   //
         [&queue_family_properties, &queue_count_can_be_incremented](
             const vk::QueueFlagBits flag
-        ) -> std::optional<uint32_t>   //
+        ) -> std::optional<QueueFamilyIndex>   //
     {
         for (const uint32_t family_index :
              std::views::iota(0u, queue_family_properties.size()))
         {
             if (queue_family_properties[family_index].queueFamilyProperties.queueFlags
                     & flag
-                && queue_count_can_be_incremented(family_index))
+                && queue_count_can_be_incremented(QueueFamilyIndex{ family_index }))
             {
-                return family_index;
+                return QueueFamilyIndex{ family_index };
             }
         }
         return std::nullopt;
     };
 
-    const std::optional<uint32_t> graphics_queue_family{
-        m_request_graphics_queue.transform([&physical_device] -> uint32_t {
+    const std::optional<QueueFamilyIndex> graphics_queue_family{
+        m_request_graphics_queue.transform([&physical_device] -> QueueFamilyIndex {
             return *first_graphics_queue_family_index(physical_device);
         })
     };
@@ -542,11 +552,11 @@ auto DeviceBuilder::create_device_queue_create_infos(
             *try_setup_new_queue(*graphics_queue_family, 0.5f);
     }
 
-    const std::optional<uint32_t> compute_queue_family{
+    const std::optional<QueueFamilyIndex> compute_queue_family{
         m_request_compute_queue.transform(
             [&physical_device,
              &next_incrementable_family_index,
-             &graphics_queue_family] -> uint32_t   //
+             &graphics_queue_family] -> QueueFamilyIndex   //
             {
                 return first_dedicated_compute_queue_family_index(physical_device)
                     .or_else(
@@ -557,7 +567,7 @@ auto DeviceBuilder::create_device_queue_create_infos(
                     )
                     .value_or(
                         util::Lazy{
-                            [&graphics_queue_family] -> uint32_t {
+                            [&graphics_queue_family] -> QueueFamilyIndex {
                                 return *graphics_queue_family;
                             }   //
                         }
@@ -583,7 +593,7 @@ auto DeviceBuilder::create_device_queue_create_infos(
                                        &compute_queue_family,
                                        &next_incrementable_family_index](
                                           const vk::raii::PhysicalDevice& x_physical_device
-                                      ) -> uint32_t   //
+                                      ) -> QueueFamilyIndex   //
     {
         return first_dedicated_transfer_queue_family_index(x_physical_device)
             .or_else(
@@ -596,7 +606,7 @@ auto DeviceBuilder::create_device_queue_create_infos(
                 util::Lazy{
                     [&queue_count_can_be_incremented,
                      &graphics_queue_family,
-                     &compute_queue_family] -> uint32_t   //
+                     &compute_queue_family] -> QueueFamilyIndex   //
                     {
                         if (graphics_queue_family.has_value()
                             && queue_count_can_be_incremented(*graphics_queue_family))
@@ -616,7 +626,7 @@ auto DeviceBuilder::create_device_queue_create_infos(
 
     const auto setup_new_transfer_queue =                        //
         [&queue_group_create_info, &try_setup_new_queue, this]   //
-        (const uint32_t family_index) -> uint32_t                //
+        (const QueueFamilyIndex family_index) -> uint32_t        //
     {
         return try_setup_new_queue(family_index, 0.2f)
             .value_or(
@@ -645,7 +655,7 @@ auto DeviceBuilder::create_device_queue_create_infos(
     }
 
     if (m_request_dedicated_sparse_binding_queue) {
-        const std::optional<uint32_t> dedicated_sparse_binding_family{
+        const std::optional<QueueFamilyIndex> dedicated_sparse_binding_family{
             first_dedicated_transfer_queue_family_index(physical_device)
         };
 
@@ -655,12 +665,16 @@ auto DeviceBuilder::create_device_queue_create_infos(
         }
     }
 
-    for (const vk::SurfaceKHR surface : m_surfaces) {
+    for (const QueueRequirement& queue_requirement : m_extra_queue_requirements) {
         if (std::ranges::none_of(
                 queue_group_create_info.queue_packs,
-                [surface, &physical_device](const uint32_t queue_family_index) -> bool {
-                    return physical_device.getSurfaceSupportKHR(
-                        queue_family_index, surface
+                [&queue_requirement, &physical_device, &queue_family_properties](
+                    const QueueFamilyIndex queue_family_index
+                ) -> bool {
+                    return queue_requirement(
+                        physical_device,
+                        queue_family_index,
+                        queue_family_properties[queue_family_index.underlying()]
                     );
                 },
                 &QueuePack::family_index
@@ -669,7 +683,8 @@ auto DeviceBuilder::create_device_queue_create_infos(
             [[maybe_unused]]
             const bool success =
                 try_setup_new_queue(
-                    *first_present_queue_family_index(physical_device, surface), 0.5f
+                    *first_matching_queue_family_index(physical_device, queue_requirement),
+                    0.5f
                 )
                     .has_value();
             assert(success);

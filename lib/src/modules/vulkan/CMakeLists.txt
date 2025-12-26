@@ -17,10 +17,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         context.ixx
         InstanceBuilder.ixx
         default_debug_messenger_callback.ixx
+        Device.ixx
         DeviceBuilder.ixx
         minimum_vulkan_api_version.ixx
         PhysicalDeviceSelector.ixx
         queue_properties.ixx
+        QueueFamilyIndex.ixx
         QueueGroup.ixx
         QueuePack.ixx
 )

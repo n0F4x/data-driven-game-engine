@@ -114,9 +114,9 @@ try {
     ENGINE_LOG_INFO(
         std::format(
             "Created renderer for GPU - {}",
-            static_cast<const char*>(
-                result.render_context.physical_device.getProperties2().properties.deviceName
-            )
+            static_cast<const char*>(result.render_context.device.physical_device
+                                         .getProperties2()
+                                         .properties.deviceName)
         )
     );
 

@@ -11,5 +11,6 @@ export import ddge.modules.vulkan.InstanceBuilder;
 export import ddge.modules.vulkan.minimum_vulkan_api_version;
 export import ddge.modules.vulkan.PhysicalDeviceSelector;
 export import ddge.modules.vulkan.queue_properties;
+export import ddge.modules.vulkan.QueueFamilyIndex;
 export import ddge.modules.vulkan.QueueGroup;
 export import ddge.modules.vulkan.QueuePack;

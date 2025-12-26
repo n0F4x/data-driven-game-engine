@@ -11,6 +11,7 @@ export module ddge.modules.vulkan.QueueGroup;
 
 import vulkan_hpp;
 
+import ddge.modules.vulkan.QueueFamilyIndex;
 import ddge.modules.vulkan.QueuePack;
 import ddge.utility.containers.OptionalRef;
 import ddge.utility.contracts;
@@ -67,7 +68,13 @@ public:
     {}
 
     [[nodiscard]]
-    auto graphics_queue_family() const noexcept -> std::optional<uint32_t>
+    auto queue_packs() const noexcept -> std::span<const QueuePack>
+    {
+        return m_queue_packs;
+    }
+
+    [[nodiscard]]
+    auto graphics_queue_family() const noexcept -> std::optional<QueueFamilyIndex>
     {
         return family_at(m_graphics_queue_pack_index);
     }
@@ -81,7 +88,7 @@ public:
     }
 
     [[nodiscard]]
-    auto compute_queue_family() const noexcept -> std::optional<uint32_t>
+    auto compute_queue_family() const noexcept -> std::optional<QueueFamilyIndex>
     {
         return family_at(m_compute_queue_pack_index);
     }
@@ -95,7 +102,8 @@ public:
     }
 
     [[nodiscard]]
-    auto host_to_device_tranfer_queue_family() const noexcept -> std::optional<uint32_t>
+    auto host_to_device_tranfer_queue_family() const noexcept
+        -> std::optional<QueueFamilyIndex>
     {
         return family_at(m_host_to_device_transfer_queue_pack_index);
     }
@@ -109,7 +117,8 @@ public:
     }
 
     [[nodiscard]]
-    auto device_to_host_transfer_queue_family() const noexcept -> std::optional<uint32_t>
+    auto device_to_host_transfer_queue_family() const noexcept
+        -> std::optional<QueueFamilyIndex>
     {
         return family_at(m_device_to_host_transfer_queue_pack_index);
     }
@@ -123,7 +132,8 @@ public:
     }
 
     [[nodiscard]]
-    auto dedicated_sparse_binding_queue_family() const noexcept -> std::optional<uint32_t>
+    auto dedicated_sparse_binding_queue_family() const noexcept
+        -> std::optional<QueueFamilyIndex>
     {
         return family_at(m_dedicated_sparse_binding_queue_pack_index);
     }
@@ -146,11 +156,13 @@ private:
 
     [[nodiscard]]
     auto family_at(const std::optional<uint32_t>& opt_index) const noexcept
-        -> std::optional<uint32_t>
+        -> std::optional<QueueFamilyIndex>
     {
-        return opt_index.transform([this](const uint32_t index) noexcept -> uint32_t {
-            return m_queue_packs[index].family_index;
-        });
+        return opt_index.transform(
+            [this](const uint32_t index) noexcept -> QueueFamilyIndex {
+                return m_queue_packs[index].family_index;
+            }
+        );
     }
 
     template <typename Self_T>

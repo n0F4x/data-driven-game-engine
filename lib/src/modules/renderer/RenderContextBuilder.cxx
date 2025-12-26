@@ -88,22 +88,15 @@ auto ddge::renderer::RenderContextBuilder::build() && -> std::
             : vk::raii::DebugUtilsMessengerEXT{ nullptr }
     };
 
-    std::optional optional_device_build_result{
-        std::move(m_device_builder).build(instance)
-    };
-    if (!optional_device_build_result.has_value()) {
+    std::optional optional_device{ std::move(m_device_builder).build(instance) };
+    if (!optional_device.has_value()) {
         return std::unexpected<BuildFailure>{ BuildFailure::eNoSupportedDeviceFound };
     }
-    auto [physical_device, device, queue_group]{
-        std::move(optional_device_build_result).value()
-    };
 
     return RenderContext{
         .instance                = std::move(instance),
         .default_debug_messenger = std::move(default_debug_messenger),
-        .physical_device         = std::move(physical_device),
-        .device                  = std::move(device),
-        .queue_group             = std::move(queue_group),
+        .device                  = *std::move(optional_device),
     };
 }
 
