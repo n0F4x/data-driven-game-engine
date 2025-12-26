@@ -56,9 +56,9 @@ public:
     auto contains_resource() const -> bool;
 
 private:
-    using Caller = std::function<void(utility::store::Store&)>;
+    using Caller = std::function<void(util::store::Store&)>;
 
-    utility::store::Store                 m_injections;
+    util::store::Store                 m_injections;
     std::vector<Caller>          m_callers;
     std::vector<std::type_index> m_types;
 };
@@ -83,7 +83,7 @@ auto ddge::resources::Plugin::insert_resource(this Self_T&& self, Resource_T&& r
     Injection& injection = this_self.m_injections.emplace<Injection>(Injection{
         std::forward<Resource_T>(resource) });
 
-    this_self.m_callers.push_back([&injection](utility::store::Store& store) -> void {
+    this_self.m_callers.push_back([&injection](util::store::Store& store) -> void {
         store.emplace<Resource>(std::move(injection.resource));
     });
 
@@ -93,7 +93,7 @@ auto ddge::resources::Plugin::insert_resource(this Self_T&& self, Resource_T&& r
 }
 
 template <typename Injection_T>
-auto call_injection(Injection_T&& injection, ddge::utility::store::Store& parameter_store)
+auto call_injection(Injection_T&& injection, ddge::util::store::Store& parameter_store)
     -> ddge::util::meta::result_of_t<Injection_T>
 {
     using Parameters = ddge::util::meta::arguments_of_t<Injection_T>;
@@ -139,7 +139,7 @@ auto ddge::resources::Plugin::inject_resource(this Self_T&& self, Injection_T&& 
     Injection& stored_injection =
         this_self.m_injections.emplace<Injection>(std::forward<Injection_T>(injection));
 
-    this_self.m_callers.push_back([&stored_injection](utility::store::Store& store) -> void {
+    this_self.m_callers.push_back([&stored_injection](util::store::Store& store) -> void {
         store.emplace<Resource>(::call_injection(std::move(stored_injection), store));
     });
 
@@ -153,7 +153,7 @@ auto ddge::resources::Plugin::build(App_T&& app) && -> app::add_on_t<App_T, Addo
 {
     static_assert(!app::has_addons_c<App_T, Addon>);
 
-    utility::store::Store store;
+    util::store::Store store;
     for (const Caller& caller : m_callers) {
         caller(store);
     }

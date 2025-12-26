@@ -17,7 +17,7 @@ namespace ddge::assets {
 
 export class AssetManager {
 public:
-    explicit AssetManager(ddge::utility::store::Store&& cached_loaders);
+    explicit AssetManager(ddge::util::store::Store&& cached_loaders);
 
     template <ddge::assets::loader_c Loader_T, typename Self_T>
     [[nodiscard]]
@@ -28,12 +28,12 @@ public:
     auto contains() const noexcept -> bool;
 
 private:
-    ddge::utility::store::Store m_cached_loaders;
+    ddge::util::store::Store m_cached_loaders;
 };
 
 }   // namespace ddge::assets
 
-ddge::assets::AssetManager::AssetManager(ddge::utility::store::Store&& cached_loaders)
+ddge::assets::AssetManager::AssetManager(ddge::util::store::Store&& cached_loaders)
     : m_cached_loaders{ std::move(cached_loaders) }
 {}
 

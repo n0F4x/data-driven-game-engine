@@ -16,7 +16,7 @@ namespace ddge::resources {
 export class ResourceManager {
 public:
     ResourceManager() = default;
-    explicit ResourceManager(utility::store::Store&& store);
+    explicit ResourceManager(util::store::Store&& store);
 
     template <resource_c Resource_T, typename Self_T>
     [[nodiscard]]
@@ -32,12 +32,12 @@ public:
     auto contains() const noexcept -> bool;
 
 private:
-    ddge::utility::store::Store m_store;
+    ddge::util::store::Store m_store;
 };
 
 }   // namespace ddge::resources
 
-ddge::resources::ResourceManager::ResourceManager(utility::store::Store&& store)
+ddge::resources::ResourceManager::ResourceManager(util::store::Store&& store)
     : m_store{ std::move(store) }
 {}
 

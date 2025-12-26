@@ -46,7 +46,7 @@ private:
     ///*************///
     ///  Variables  ///
     ///*************///
-    ddge::utility::store::Store m_store;
+    ddge::util::store::Store m_store;
 };
 
 export using Cache = BasicCache<std::size_t, std::unordered_map>;

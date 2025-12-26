@@ -31,7 +31,7 @@ public:
     auto provide() -> Accessor_T;
 
 private:
-    utility::store::Store m_providers;
+    util::store::Store m_providers;
 };
 
 }   // namespace ddge::scheduler

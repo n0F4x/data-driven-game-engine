@@ -21,7 +21,7 @@ import ddge.utility.meta.reflection.name_of;
 import ddge.utility.meta.type_traits.const_like;
 import ddge.utility.meta.type_traits.forward_like;
 
-namespace ddge::utility::store {
+namespace ddge::util::store {
 
 export class Store {
 public:
@@ -53,10 +53,10 @@ private:
     tsl::ordered_map<std::type_index, util::BasicAnyMoveOnly<0>> m_map;
 };
 
-}   // namespace ddge::utility::store
+}   // namespace ddge::util::store
 
-template <ddge::utility::store::item_c Item_T, typename... Args_T>
-auto ddge::utility::store::Store::emplace(Args_T&&... args) -> Item_T&
+template <ddge::util::store::item_c Item_T, typename... Args_T>
+auto ddge::util::store::Store::emplace(Args_T&&... args) -> Item_T&
 {
     return util::any_cast<Item_T>(
         m_map
@@ -68,8 +68,8 @@ auto ddge::utility::store::Store::emplace(Args_T&&... args) -> Item_T&
     );
 }
 
-template <ddge::utility::store::item_c Item_T, typename Self_T>
-auto ddge::utility::store::Store::find(this Self_T& self) noexcept
+template <ddge::util::store::item_c Item_T, typename Self_T>
+auto ddge::util::store::Store::find(this Self_T& self) noexcept
     -> util::OptionalRef<util::meta::const_like_t<Item_T, Self_T>>
 {
     const auto iter{ self.m_map.find(typeid(Item_T)) };
@@ -80,8 +80,8 @@ auto ddge::utility::store::Store::find(this Self_T& self) noexcept
     return util::any_cast<Item_T>(*iter);
 }
 
-template <ddge::utility::store::item_c Item_T, typename Self_T>
-auto ddge::utility::store::Store::at(this Self_T&& self)
+template <ddge::util::store::item_c Item_T, typename Self_T>
+auto ddge::util::store::Store::at(this Self_T&& self)
     -> util::meta::forward_like_t<Item_T, Self_T>
 {
     PRECOND(
@@ -94,15 +94,15 @@ auto ddge::utility::store::Store::at(this Self_T&& self)
     );
 }
 
-template <ddge::utility::store::item_c Item_T>
-auto ddge::utility::store::Store::contains() const noexcept -> bool
+template <ddge::util::store::item_c Item_T>
+auto ddge::util::store::Store::contains() const noexcept -> bool
 {
     return m_map.contains(typeid(Item_T));
 }
 
 module :private;
 
-ddge::utility::store::Store::~Store()
+ddge::util::store::Store::~Store()
 {
     while (!m_map.empty()) {
         m_map.pop_back();

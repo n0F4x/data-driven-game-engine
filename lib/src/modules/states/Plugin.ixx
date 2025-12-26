@@ -30,7 +30,7 @@ public:
     auto contains_state() const noexcept -> bool;
 
 private:
-    utility::store::Store m_states;
+    util::store::Store m_states;
 };
 
 }   // namespace ddge::states
