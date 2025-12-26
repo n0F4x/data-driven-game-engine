@@ -15,7 +15,7 @@ export class Context {
 public:
     Context();
     Context(const Context&);
-    Context(Context&&) noexcept = default;
+    Context(Context&&) noexcept;
     ~Context();
 
     auto operator=(const Context&) -> Context&     = default;
@@ -50,6 +50,11 @@ Context::Context()
 }
 
 Context::Context(const Context&)
+{
+    ++active_context_count;
+}
+
+Context::Context(Context&&) noexcept
 {
     ++active_context_count;
 }
