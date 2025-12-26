@@ -73,7 +73,8 @@ try {
     wsi::VulkanWindow window{
         wsi::Window{ auto{ context }, window_info },
         application.render_context.instance,
-        application.render_context.device
+        application.render_context.device,
+        1
     };
 
     std::this_thread::sleep_for(std::chrono::seconds{ 2 });

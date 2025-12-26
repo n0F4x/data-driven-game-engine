@@ -39,7 +39,8 @@ public:
     VulkanWindow(
         Window&&                  window,
         const vk::raii::Instance& vulkan_instance,
-        const vulkan::Device&     vulkan_device
+        const vulkan::Device&     vulkan_device,
+        uint32_t                  number_of_frames
     );
 
     template <present_mode_picker_c PickPresentMode_T>
@@ -47,6 +48,7 @@ public:
         Window&&                  window,
         const vk::raii::Instance& vulkan_instance,
         const vulkan::Device&     vulkan_device,
+        uint32_t                  number_of_frames,
         PickPresentMode_T&&       pick_present_mode
     );
 
@@ -139,6 +141,7 @@ auto create_swapchain(
     const Window&               window,
     const vk::raii::SurfaceKHR& surface,
     const vulkan::Device&       device,
+    const uint32_t              number_of_frames,
     PickPresentMode_T&&         pick_present_mode
 ) -> vk::raii::SwapchainKHR
 {
@@ -161,9 +164,9 @@ auto create_swapchain(
     };
     const uint32_t image_count{
         surface_capabilities.maxImageCount == 0
-            ? surface_capabilities.minImageCount + 1
+            ? std::max(number_of_frames, surface_capabilities.minImageCount)
             : std::min(
-                  surface_capabilities.minImageCount + 1,
+                  std::max(number_of_frames, surface_capabilities.minImageCount),
                   surface_capabilities.maxImageCount
               )   //
     };
@@ -189,9 +192,14 @@ auto create_swapchain(
 VulkanWindow::VulkanWindow(
     Window&&                  window,
     const vk::raii::Instance& vulkan_instance,
-    const vulkan::Device&     vulkan_device
+    const vulkan::Device&     vulkan_device,
+    const uint32_t            number_of_frames
 )
-    : VulkanWindow{ std::move(window), vulkan_instance, vulkan_device, pick_present_mode }
+    : VulkanWindow{ std::move(window),
+                    vulkan_instance,
+                    vulkan_device,
+                    number_of_frames,
+                    pick_present_mode }
 {}
 
 template <present_mode_picker_c PickPresentMode_T>
@@ -199,6 +207,7 @@ VulkanWindow::VulkanWindow(
     Window&&                  window,
     const vk::raii::Instance& vulkan_instance,
     const vulkan::Device&     vulkan_device,
+    const uint32_t            number_of_frames,
     PickPresentMode_T&&       pick_present_mode
 )
     : Window{ std::move(window) },
@@ -207,6 +216,7 @@ VulkanWindow::VulkanWindow(
           *this,
           m_surface,
           vulkan_device,
+          number_of_frames,
           std::forward<PickPresentMode_T>(pick_present_mode)
       ) },
       m_swapchain_images{ m_swapchain.getImages() }
