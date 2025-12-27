@@ -6,7 +6,7 @@ module;
 
 #include "utility/contract_macros.hpp"
 
-export module ddge.modules.wsi.vulkan_supports_presenting;
+export module ddge.modules.wsi.vulkan_queue_family_supports_presenting;
 
 import vulkan_hpp;
 
@@ -18,7 +18,7 @@ import ddge.utility.contracts;
 namespace ddge::wsi {
 
 export [[nodiscard]]
-auto vulkan_supports_presenting(
+auto vulkan_queue_family_supports_presenting(
     const Context&,
     const vk::raii::Instance&       instance,
     const vk::raii::PhysicalDevice& physical_device,

@@ -1,4 +1,3 @@
-#include <cassert>
 #include <chrono>
 #include <cstdint>
 #include <print>
@@ -36,38 +35,14 @@ try {
             .plug_in(resources::Plugin{})
             .plug_in(renderer::Plugin{})
             .add_render_context(
-                [](renderer::RenderContextBuilder& render_context_builder) -> void {
-                    {
-                        [[maybe_unused]]
-                        const bool success =
-                            render_context_builder.request_default_debug_messenger();
-                        assert(success);
-                    }
-
-                    render_context_builder.device_builder().request_graphics_queue();
-
-                    for (const util::StringLiteral extension_name :
-                         wsi::vulkan_instance_extensions(context).value())
-                    {
-                        {
-                            [[maybe_unused]]
-                            const bool success = render_context_builder.instance_builder()
-                                                     .enable_extension(extension_name);
-                            assert(success);
-                        }
-                    }
-
-                    render_context_builder.device_builder().enable_extension(
-                        vk::KHRSwapchainExtensionName
-                    );
-                }
+                &renderer::RenderContextBuilder::request_default_debug_messenger
             )
             .build();
 
     constexpr wsi::WindowedWindowSettings screen_settings{
         .content_size{ .width = 640, .height = 480 }
     };
-    const wsi::Window::CreateInfo window_info{
+    constexpr wsi::Window::CreateInfo window_info{
         .title    = "Hello Window!",
         .settings = screen_settings,
     };

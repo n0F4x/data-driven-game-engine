@@ -83,10 +83,8 @@ public:
     template <typename Self_T, typename... Args_T>
     auto add_custom_requirement(this Self_T&&, Args_T&&... args) -> Self_T;
 
-    template <typename Self_T>
     [[nodiscard]]
-    auto build(this Self_T&& self, const vk::raii::Instance& instance)
-        -> std::optional<Device>;
+    auto build(const vk::raii::Instance& instance) const -> std::optional<Device>;
 
 private:
     [[nodiscard]]
@@ -274,9 +272,7 @@ auto DeviceBuilder::ensure_queue(this Self_T&& self, Args_T&&... args) -> Self_T
         self.m_extra_queue_requirements.emplace_back(std::forward<Args_T>(args)...);
 
     self.add_custom_requirement(
-        [queue_requirement](
-            const vk::raii::PhysicalDevice& physical_device
-        ) mutable -> bool {
+        [queue_requirement](const vk::raii::PhysicalDevice& physical_device) -> bool {
             return has_matching_queue_family_index(physical_device, queue_requirement);
         }
     );
@@ -291,12 +287,11 @@ auto DeviceBuilder::add_custom_requirement(this Self_T&& self, Args_T&&... args)
     return std::forward<Self_T>(self);
 }
 
-template <typename Self_T>
-auto DeviceBuilder::build(this Self_T&& self, const vk::raii::Instance& instance)
+auto DeviceBuilder::build(const vk::raii::Instance& instance) const
     -> std::optional<Device>
 {
     std::vector<vk::raii::PhysicalDevice> supported_devices{
-        self.m_physical_device_selector.select_devices(instance)
+        m_physical_device_selector.select_devices(instance)
     };
 
     if (supported_devices.empty()) {
@@ -304,14 +299,14 @@ auto DeviceBuilder::build(this Self_T&& self, const vk::raii::Instance& instance
     }
 
     vk::raii::PhysicalDevice physical_device{
-        *self.most_suitable(std::move(supported_devices))
+        *most_suitable(std::move(supported_devices))
     };
 
     std::vector<util::StringLiteral> extension_names{
-        std::forward_like<Self_T>(self.m_physical_device_selector).required_extensions()
+        m_physical_device_selector.required_extensions()
     };
     for (auto extension_properties{ physical_device.enumerateDeviceExtensionProperties() };
-         util::StringLiteral optional_extension : self.m_optional_extension_names)
+         util::StringLiteral optional_extension : m_optional_extension_names)
     {
         assert(
             std::ranges::none_of(
@@ -334,9 +329,9 @@ auto DeviceBuilder::build(this Self_T&& self, const vk::raii::Instance& instance
     }
 
     StructureChain<vk::PhysicalDeviceFeatures2> features{
-        std::forward_like<Self_T>(self.m_physical_device_selector).required_features()
+        m_physical_device_selector.required_features()
     };
-    features.merge(self.m_optional_features.root_struct());
+    features.merge(m_optional_features.root_struct());
     StructureChain<vk::PhysicalDeviceFeatures2> supported_features{ features };
     physical_device.getDispatcher()->vkGetPhysicalDeviceFeatures2(
         *physical_device, supported_features.root_struct()
@@ -344,7 +339,7 @@ auto DeviceBuilder::build(this Self_T&& self, const vk::raii::Instance& instance
     features.remove_unsupported_features(supported_features.root_struct());
 
     auto [per_family_queue_priorities, queue_create_infos, queue_group_create_info]{
-        self.create_device_queue_create_infos(physical_device)
+        create_device_queue_create_infos(physical_device)
     };
     for (auto&& [priorities, queue_create_info] :
          std::views::zip(std::as_const(per_family_queue_priorities), queue_create_infos))

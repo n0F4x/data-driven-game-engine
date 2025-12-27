@@ -46,6 +46,10 @@ public:
         requires resource_c<std::remove_cvref_t<Resource_T>>
     auto insert_resource(this Self_T&&, Resource_T&& resource) -> Self_T;
 
+    template <resource_c Resource_T, typename Self_T, typename... Args_T>
+        requires std::constructible_from<Resource_T, Args_T&&...>
+    auto try_emplace_resource(this Self_T&&, Args_T&&... args) -> Self_T;
+
     template <typename Self_T, decays_to_resource_injection_c Injection_T>
     auto inject_resource(
         this Self_T&&,
@@ -106,6 +110,17 @@ auto Plugin::insert_resource(this Self_T&& self, Resource_T&& resource) -> Self_
     this_self.m_types.push_back(typeid(Resource));
 
     return std::forward<Self_T>(self);
+}
+
+template <resource_c Resource_T, typename Self_T, typename... Args_T>
+    requires std::constructible_from<Resource_T, Args_T&&...>
+auto Plugin::try_emplace_resource(this Self_T&& self, Args_T&&... args) -> Self_T
+{
+    return !self.Plugin::template contains_resource<Resource_T>()
+             ? std::forward<Self_T>(self).insert_resource(
+                   Resource_T(std::forward<Args_T>(args)...)
+               )
+             : std::forward<Self_T>(self);
 }
 
 template <typename Injection_T>

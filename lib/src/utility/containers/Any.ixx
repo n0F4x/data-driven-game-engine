@@ -70,7 +70,7 @@ export struct AnyProperties {
     [[nodiscard]]
     constexpr auto satisfied() const noexcept -> bool
     {
-        return copyable ? std::copyable<T> : true;
+        return copyable ? std::copy_constructible<T> : true;
     }
 };
 

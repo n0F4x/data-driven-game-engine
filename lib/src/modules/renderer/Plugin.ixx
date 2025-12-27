@@ -1,7 +1,10 @@
 module;
 
+#include <cassert>
 #include <concepts>
+#include <expected>
 #include <format>
+#include <functional>
 #include <utility>
 
 #include "modules/log/log_macros.hpp"
@@ -20,9 +23,15 @@ import ddge.modules.renderer.RenderContextBuilder;
 import ddge.modules.resources.Addon;
 import ddge.modules.resources.Plugin;
 import ddge.modules.vulkan.context;
+import ddge.modules.vulkan.DeviceBuilder;
 import ddge.modules.vulkan.InstanceInjection;
 import ddge.modules.vulkan.InstanceBuilder;
+import ddge.modules.vulkan.QueueFamilyIndex;
+import ddge.modules.wsi.Context;
+import ddge.modules.wsi.vulkan_instance_extensions;
+import ddge.modules.wsi.vulkan_queue_family_supports_presenting;
 import ddge.utility.containers.Lazy;
+import ddge.utility.containers.StringLiteral;
 import ddge.utility.Void;
 
 namespace ddge::renderer {
@@ -34,7 +43,13 @@ concept render_context_builder_modifier = std::invocable<T&&, RenderContextBuild
 
 export class Plugin {
 public:
-    constexpr explicit Plugin(SupplyVulkanContext supply_vulkan_context = vulkan::context);
+    struct CreateInfo {
+        SupplyVulkanContext supply_vulkan_context{ vulkan::context };
+        bool                headless{};
+    };
+
+    constexpr Plugin();
+    constexpr explicit Plugin(const CreateInfo& create_info);
 
     template <app::builder_c AppBuilder_T>
     auto setup(AppBuilder_T& app_builder) -> void;
@@ -48,6 +63,7 @@ public:
 
 private:
     SupplyVulkanContext                 m_supply_vulkan_context;
+    bool                                m_headless;
     std::optional<RenderContextBuilder> m_render_context_builder;
 };
 
@@ -55,8 +71,11 @@ private:
 
 namespace ddge::renderer {
 
-constexpr Plugin::Plugin(SupplyVulkanContext supply_vulkan_context)
-    : m_supply_vulkan_context{ supply_vulkan_context }
+constexpr Plugin::Plugin() : Plugin{ CreateInfo{} } {}
+
+constexpr Plugin::Plugin(const CreateInfo& create_info)
+    : m_supply_vulkan_context{ create_info.supply_vulkan_context },
+      m_headless{ create_info.headless }
 {}
 
 auto ensure_instance_builder_precondition(const vk::raii::Context& context)
@@ -125,6 +144,36 @@ auto Plugin::setup(AppBuilder_T& app_builder) -> void
     ) };
 
     m_render_context_builder = RenderContextBuilder{ *instance_injection };
+
+    if (!m_headless) {
+        wsi::Context wsi_context;
+
+        if (const std::expected<
+                std::span<const util::StringLiteral>,
+                wsi::VulkanSurfaceCreationNotSupportedError> expected_surface_extensions{
+                wsi::vulkan_instance_extensions(wsi_context) };
+            expected_surface_extensions.has_value())
+        {
+            for (const util::StringLiteral extension_name : *expected_surface_extensions)
+            {
+                {
+                    [[maybe_unused]]
+                    const bool success = m_render_context_builder->instance_builder()
+                                             .enable_extension(extension_name);
+                    assert(success);
+                }
+            }
+
+            m_render_context_builder->device_builder().enable_extension(
+                vk::KHRSwapchainExtensionName
+            );
+
+            resource_plugin.try_emplace_resource<wsi::Context>(wsi_context);
+        }
+        else {
+            m_headless = true;
+        }
+    }
 }
 
 template <typename Self_T, render_context_builder_modifier Modifier_T>
@@ -152,16 +201,40 @@ auto Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
 {
     static_assert(app::has_addons_c<App_T, app::extensions::MetaInfoAddon>);
     static_assert(app::has_addons_c<App_T, resources::Addon>);
-    const resources::Addon& resource_addon{ static_cast<const resources::Addon&>(app) };
+    const resources::Addon&   resource_addon{ static_cast<const resources::Addon&>(app) };
+    const vk::raii::Instance& instance{
+        resource_addon.resource_manager.at<vk::raii::Instance>()
+    };
+
+    if (!m_headless) {
+        const wsi::Context& wsi_context{
+            resource_addon.resource_manager.at<wsi::Context>()
+        };
+        add_render_context(
+            [&wsi_context,
+             &instance](RenderContextBuilder& render_context_builder) -> void {
+                render_context_builder.device_builder().ensure_queue(
+                    [&wsi_context, &instance](
+                        const vk::raii::PhysicalDevice& physical_device,
+                        const vulkan::QueueFamilyIndex  queue_family_index,
+                        const vk::QueueFamilyProperties2&
+                    ) -> bool {
+                        return wsi::vulkan_queue_family_supports_presenting(
+                            wsi_context, instance, physical_device, queue_family_index
+                        );
+                    }
+                );
+            }
+        );
+    }
 
     ENGINE_LOG_INFO("Initializing renderer...");
 
     auto result = std::forward<App_T>(app).add_on(
         Addon{
-            .render_context =
-                *std::move(m_render_context_builder)
-                     ->build(resource_addon.resource_manager.at<vk::raii::Instance>())
-                     .transform_error(throw_build_failed_error),
+            .render_context = *std::move(*m_render_context_builder)
+                                   .build(instance)
+                                   .transform_error(throw_build_failed_error),
         }
     );
 

@@ -1,6 +1,5 @@
 module;
 
-#include <cstdint>
 #include <expected>
 #include <functional>
 #include <optional>
@@ -15,7 +14,6 @@ import ddge.modules.vulkan.default_debug_messenger_callback;
 import ddge.modules.vulkan.DeviceBuilder;
 import ddge.modules.vulkan.InstanceBuilder;
 import ddge.modules.vulkan.result.check_result;
-import ddge.utility.containers.StringLiteral;
 import ddge.utility.meta.type_traits.forward_like;
 
 namespace ddge::renderer {
@@ -31,7 +29,6 @@ public:
     [[nodiscard]]
     auto instance_builder() const -> vulkan::InstanceBuilder&;
 
-    [[nodiscard]]
     auto request_default_debug_messenger() -> bool;
 
     template <typename Self_T>

@@ -16,13 +16,11 @@ import ddge.utility.contracts;
 
 namespace ddge::wsi {
 
-export enum struct VulkanError {
-    eSurfaceCreationNotSupported
-};
+export struct VulkanSurfaceCreationNotSupportedError {};
 
 export [[nodiscard]]
-auto vulkan_instance_extensions(const Context&)
-    -> std::expected<std::span<const util::StringLiteral>, VulkanError>
+auto vulkan_instance_extensions(const Context&) -> std::
+    expected<std::span<const util::StringLiteral>, VulkanSurfaceCreationNotSupportedError>
 {
     uint32_t     count{};
     const char** extension_names{ glfwGetRequiredInstanceExtensions(&count) };
@@ -32,7 +30,7 @@ auto vulkan_instance_extensions(const Context&)
         PRECOND(error_code != GLFW_API_UNAVAILABLE && "Vulkan support is not available");
         assert(error_code == GLFW_NO_ERROR && "Other error codes are unspecified");
 
-        return std::unexpected{ VulkanError::eSurfaceCreationNotSupported };
+        return std::unexpected{ VulkanSurfaceCreationNotSupportedError{} };
     }
 
     return std::span{

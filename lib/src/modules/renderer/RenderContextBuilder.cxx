@@ -1,19 +1,6 @@
-module;
-
-#include <expected>
-#include <optional>
-#include <utility>
-
 module ddge.modules.renderer.RenderContextBuilder;
 
 import vulkan_hpp;
-
-import ddge.modules.config.engine_name;
-import ddge.modules.config.engine_version;
-import ddge.modules.vulkan.default_debug_messenger_callback;
-import ddge.modules.vulkan.InstanceInjection;
-import ddge.modules.vulkan.result.check_result;
-import ddge.utility.containers.Lazy;
 
 namespace ddge::renderer {
 
