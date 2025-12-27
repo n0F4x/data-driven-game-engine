@@ -53,9 +53,11 @@ public:
     );
 
 private:
-    vk::raii::SurfaceKHR   m_surface;
-    vk::raii::SwapchainKHR m_swapchain;
-    std::vector<vk::Image> m_swapchain_images;
+    vk::raii::SurfaceKHR             m_surface;
+    vk::SurfaceFormatKHR             m_surface_format;
+    vk::raii::SwapchainKHR           m_swapchain;
+    std::vector<vk::Image>           m_swapchain_images;
+    std::vector<vk::raii::ImageView> m_swapchain_image_views;
 };
 
 }   // namespace ddge::wsi
@@ -142,6 +144,7 @@ auto create_swapchain(
     const vk::raii::SurfaceKHR& surface,
     const vulkan::Device&       device,
     const uint32_t              number_of_frames,
+    const vk::SurfaceFormatKHR& surface_format,
     PickPresentMode_T&&         pick_present_mode
 ) -> vk::raii::SwapchainKHR
 {
@@ -152,9 +155,6 @@ auto create_swapchain(
 
     const vk::SurfaceCapabilitiesKHR surface_capabilities{
         device.physical_device.getSurfaceCapabilitiesKHR(surface)
-    };
-    const vk::SurfaceFormatKHR surface_format{
-        pick_surface_format(device.physical_device.getSurfaceFormatsKHR(surface))
     };
     const vk::PresentModeKHR present_mode{
         std::invoke(
@@ -189,6 +189,37 @@ auto create_swapchain(
     return vulkan::check_result(device.logical_device.createSwapchainKHR(create_info));
 }
 
+[[nodiscard]]
+auto create_swapchain_image_views(
+    const vk::raii::Device&          device,
+    const vk::Format                 swapchain_image_format,
+    const std::span<const vk::Image> swapchain_images
+) -> std::vector<vk::raii::ImageView>
+{
+    std::vector<vk::raii::ImageView> result;
+    result.reserve(swapchain_images.size());
+
+    constexpr static vk::ImageSubresourceRange subresource_range{
+        .aspectMask     = vk::ImageAspectFlagBits::eColor,
+        .baseMipLevel   = 0,
+        .levelCount     = 1,
+        .baseArrayLayer = 0,
+        .layerCount     = 1,
+    };
+    vk::ImageViewCreateInfo create_info{
+        .viewType         = vk::ImageViewType::e2D,
+        .format           = swapchain_image_format,
+        .subresourceRange = subresource_range,
+    };
+
+    for (const vk::Image swapchain_image : swapchain_images) {
+        create_info.image = swapchain_image;
+        result.push_back(vulkan::check_result(device.createImageView(create_info)));
+    }
+
+    return result;
+}
+
 VulkanWindow::VulkanWindow(
     Window&&                  window,
     const vk::raii::Instance& vulkan_instance,
@@ -212,14 +243,23 @@ VulkanWindow::VulkanWindow(
 )
     : Window{ std::move(window) },
       m_surface{ create_surface(context(), handle(), vulkan_instance) },
+      m_surface_format{ pick_surface_format(
+          vulkan_device.physical_device.getSurfaceFormatsKHR(m_surface)
+      ) },
       m_swapchain{ create_swapchain(
           *this,
           m_surface,
           vulkan_device,
           number_of_frames,
+          m_surface_format,
           std::forward<PickPresentMode_T>(pick_present_mode)
       ) },
-      m_swapchain_images{ m_swapchain.getImages() }
+      m_swapchain_images{ m_swapchain.getImages() },
+      m_swapchain_image_views{ create_swapchain_image_views(
+          vulkan_device.logical_device,
+          m_surface_format.format,
+          m_swapchain_images
+      ) }
 {}
 
 }   // namespace ddge::wsi
