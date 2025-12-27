@@ -1,6 +1,7 @@
 module;
 
 #include <algorithm>
+#include <concepts>
 #include <functional>
 #include <type_traits>
 #include <typeindex>
@@ -21,6 +22,7 @@ import ddge.utility.contracts;
 import ddge.utility.meta.concepts.type_list.type_list_all_of;
 import ddge.utility.meta.type_traits.functional.arguments_of;
 import ddge.utility.meta.type_traits.functional.result_of;
+import ddge.utility.meta.type_traits.type_list.type_list_single;
 import ddge.utility.TypeList;
 
 namespace ddge::resources {
@@ -42,33 +44,46 @@ export class Plugin {
 public:
     template <typename Self_T, typename Resource_T>
         requires resource_c<std::remove_cvref_t<Resource_T>>
-    auto insert_resource(this Self_T&& self, Resource_T&& resource) -> Self_T;
+    auto insert_resource(this Self_T&&, Resource_T&& resource) -> Self_T;
 
     template <typename Self_T, decays_to_resource_injection_c Injection_T>
-    auto inject_resource(this Self_T&& self, Injection_T&& injection) -> Self_T;
+    auto inject_resource(
+        this Self_T&&,
+        Injection_T&&               injection,
+        std::decay_t<Injection_T>** out = nullptr
+    ) -> Self_T;
+
+    template <resource_injection_c Injection_T, typename Self_T, typename UInjection_T>
+        requires std::convertible_to<UInjection_T&&, Injection_T>
+    auto try_inject_resource(
+        this Self_T&&,
+        UInjection_T&& injection,
+        Injection_T**  out = nullptr
+    ) -> Self_T;
 
     template <app::decays_to_app_c App_T>
     [[nodiscard]]
     auto build(App_T&& app) && -> app::add_on_t<App_T, Addon>;
 
-    template <resource_c Resource_T>
-    [[nodiscard]]
-    auto contains_resource() const -> bool;
-
 private:
     using Caller = std::function<void(util::store::Store&)>;
 
-    util::store::Store                 m_injections;
+    util::store::Store           m_injections;
     std::vector<Caller>          m_callers;
     std::vector<std::type_index> m_types;
+
+    template <resource_c Resource_T>
+    [[nodiscard]]
+    auto contains_resource() const -> bool;
 };
 
 }   // namespace ddge::resources
 
+namespace ddge::resources {
+
 template <typename Self_T, typename Resource_T>
-    requires ddge::resources::resource_c<std::remove_cvref_t<Resource_T>>
-auto ddge::resources::Plugin::insert_resource(this Self_T&& self, Resource_T&& resource)
-    -> Self_T
+    requires resource_c<std::remove_cvref_t<Resource_T>>
+auto Plugin::insert_resource(this Self_T&& self, Resource_T&& resource) -> Self_T
 {
     using Resource = std::remove_cvref_t<Resource_T>;
 
@@ -80,8 +95,9 @@ auto ddge::resources::Plugin::insert_resource(this Self_T&& self, Resource_T&& r
         Resource resource;
     };
 
-    Injection& injection = this_self.m_injections.emplace<Injection>(Injection{
-        std::forward<Resource_T>(resource) });
+    Injection& injection = this_self.m_injections.emplace<Injection>(
+        Injection{ .resource = std::forward<Resource_T>(resource) }   //
+    );
 
     this_self.m_callers.push_back([&injection](util::store::Store& store) -> void {
         store.emplace<Resource>(std::move(injection.resource));
@@ -93,7 +109,7 @@ auto ddge::resources::Plugin::insert_resource(this Self_T&& self, Resource_T&& r
 }
 
 template <typename Injection_T>
-auto call_injection(Injection_T&& injection, ddge::util::store::Store& parameter_store)
+auto apply_injections(Injection_T&& injection, ddge::util::store::Store& parameter_store)
     -> ddge::util::meta::result_of_t<Injection_T>
 {
     using Parameters = ddge::util::meta::arguments_of_t<Injection_T>;
@@ -104,6 +120,8 @@ auto call_injection(Injection_T&& injection, ddge::util::store::Store& parameter
     return [&injection, &parameter_store]<typename... Parameters_T>(
                ddge::util::TypeList<Parameters_T...>
            ) {
+        PRECOND((parameter_store.contains<Parameters_T>() && ...));
+
         return std::invoke(
             std::forward<Injection_T>(injection),
             parameter_store.at<std::remove_cvref_t<Parameters_T>>()...
@@ -111,9 +129,12 @@ auto call_injection(Injection_T&& injection, ddge::util::store::Store& parameter
     }(Parameters{});
 }
 
-template <typename Self_T, ddge::resources::decays_to_resource_injection_c Injection_T>
-auto ddge::resources::Plugin::inject_resource(this Self_T&& self, Injection_T&& injection)
-    -> Self_T
+template <typename Self_T, decays_to_resource_injection_c Injection_T>
+auto Plugin::inject_resource(
+    this Self_T&&               self,
+    Injection_T&&               injection,
+    std::decay_t<Injection_T>** out
+) -> Self_T
 {
     using Resource  = std::remove_cvref_t<util::meta::result_of_t<Injection_T>>;
     using Injection = std::decay_t<Injection_T>;
@@ -124,14 +145,14 @@ auto ddge::resources::Plugin::inject_resource(this Self_T&& self, Injection_T&& 
 
     if constexpr (requires { requires std::is_function_v<decltype(Injection_T::setup)>; })
     {
-        ::call_injection(Injection_T::setup, this_self.m_injections);
+        apply_injections(Injection_T::setup, this_self.m_injections);
     }
     else if constexpr (requires {
                            requires std::
                                is_member_function_pointer_v<decltype(&Injection_T::setup)>;
                        })
     {
-        ::call_injection(
+        apply_injections(
             std::bind_front(&Injection_T::setup, injection), this_self.m_injections
         );
     }
@@ -140,16 +161,36 @@ auto ddge::resources::Plugin::inject_resource(this Self_T&& self, Injection_T&& 
         this_self.m_injections.emplace<Injection>(std::forward<Injection_T>(injection));
 
     this_self.m_callers.push_back([&stored_injection](util::store::Store& store) -> void {
-        store.emplace<Resource>(::call_injection(std::move(stored_injection), store));
+        store.emplace<Resource>(apply_injections(std::move(stored_injection), store));
     });
 
     this_self.m_types.push_back(typeid(Resource));
 
+    if (out != nullptr) {
+        *out = std::addressof(stored_injection);
+    }
+
     return std::forward<Self_T>(self);
 }
 
+template <resource_injection_c Injection_T, typename Self_T, typename UInjection_T>
+    requires std::convertible_to<UInjection_T&&, Injection_T>
+auto Plugin::try_inject_resource(
+    this Self_T&&  self,
+    UInjection_T&& injection,
+    Injection_T**  out
+) -> Self_T
+{
+    using Resource = std::remove_cvref_t<util::meta::result_of_t<Injection_T>>;
+    return !self.Plugin::template contains_resource<Resource>()
+             ? std::forward<Self_T>(self).inject_resource(
+                   static_cast<Injection_T>(std::forward<UInjection_T>(injection)), out
+               )
+             : std::forward<Self_T>(self);
+}
+
 template <ddge::app::decays_to_app_c App_T>
-auto ddge::resources::Plugin::build(App_T&& app) && -> app::add_on_t<App_T, Addon>
+auto Plugin::build(App_T&& app) && -> app::add_on_t<App_T, Addon>
 {
     static_assert(!app::has_addons_c<App_T, Addon>);
 
@@ -165,8 +206,10 @@ auto ddge::resources::Plugin::build(App_T&& app) && -> app::add_on_t<App_T, Addo
     );
 }
 
-template <ddge::resources::resource_c Resource_T>
-auto ddge::resources::Plugin::contains_resource() const -> bool
+template <resource_c Resource_T>
+auto Plugin::contains_resource() const -> bool
 {
     return std::ranges::contains(m_types, typeid(Resource_T));
 }
+
+}   // namespace ddge::resources

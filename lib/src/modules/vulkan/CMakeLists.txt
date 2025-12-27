@@ -16,6 +16,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         vulkan.cppm
         context.ixx
         InstanceBuilder.ixx
+        InstanceInjection.ixx
         default_debug_messenger_callback.ixx
         Device.ixx
         DeviceBuilder.ixx

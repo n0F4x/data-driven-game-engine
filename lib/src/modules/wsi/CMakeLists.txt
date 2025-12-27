@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         monitors.ixx
         Size.ixx
         vulkan_instance_extensions.ixx
+        vulkan_supports_presenting.ixx
         VulkanWindow.ixx
         Window.ixx
         WindowedWindowSettings.ixx

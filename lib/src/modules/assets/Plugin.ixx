@@ -95,7 +95,7 @@ auto ddge::assets::Plugin::insert_loader(this Self_T&& self, Loader_T&& loader) 
 }
 
 template <typename Injection_T>
-auto call_injection(Injection_T&& injection, ddge::util::store::Store& parameter_store)
+auto apply_injections(Injection_T&& injection, ddge::util::store::Store& parameter_store)
     -> ddge::util::meta::result_of_t<Injection_T>
 {
     using Parameters = ddge::util::meta::arguments_of_t<Injection_T>;
@@ -128,7 +128,7 @@ auto ddge::assets::Plugin::inject_loader(this Self_T&& self, Injection_T&& injec
         this_self.m_injections.emplace<Injection>(std::forward<Injection_T>(injection));
 
     this_self.m_callers.push_back([&stored_injection](util::store::Store& store) -> void {
-        store.emplace<Loader>(::call_injection(std::move(stored_injection), store));
+        store.emplace<Loader>(::apply_injections(std::move(stored_injection), store));
     });
 
     this_self.m_types.push_back(typeid(Loader));

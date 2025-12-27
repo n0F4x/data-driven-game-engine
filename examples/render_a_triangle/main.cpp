@@ -8,6 +8,7 @@ import vulkan_hpp;
 
 import ddge.modules.app;
 import ddge.modules.renderer;
+import ddge.modules.resources;
 import ddge.modules.wsi;
 import ddge.utility.containers.StringLiteral;
 
@@ -32,6 +33,7 @@ try {
     auto application =
         app::create()
             .plug_in(app::extensions::MetaInfoPlugin{ meta_info() })
+            .plug_in(resources::Plugin{})
             .plug_in(renderer::Plugin{})
             .add_render_context(
                 [](renderer::RenderContextBuilder& render_context_builder) -> void {

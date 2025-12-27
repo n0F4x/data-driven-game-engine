@@ -32,6 +32,9 @@ public:
     [[nodiscard]]
     constexpr auto build(this Self_T&&);
 
+    template <typename UBuilder_T>
+    constexpr auto setup(UBuilder_T&&) = delete;
+
 private:
     template <plugin_c...>
     friend class Builder;
@@ -51,6 +54,10 @@ constexpr auto
     ddge::app::Builder<Plugins_T...>::plug_in(this Self_T&& self, Plugin_T&& plugin)
         -> Builder<Plugins_T..., std::remove_cvref_t<Plugin_T>>
 {
+    if constexpr (requires { plugin.setup(self); }) {
+        plugin.setup(self);
+    }
+
     return Builder<Plugins_T..., std::remove_cvref_t<Plugin_T>>{
         static_cast<util::meta::forward_like_t<Plugins_T, Self_T>>(self)...,
         std::forward<Plugin_T>(plugin)

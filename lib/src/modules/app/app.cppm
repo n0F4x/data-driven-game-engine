@@ -18,3 +18,4 @@ export import ddge.modules.app.has_addons_c;
 export import ddge.modules.app.has_plugins_c;
 export import ddge.modules.app.plug_in_t;
 export import ddge.modules.app.plugin_c;
+export import ddge.modules.app.PluginSetupFailedError;

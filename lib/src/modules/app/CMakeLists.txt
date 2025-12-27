@@ -22,4 +22,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         has_plugins_c.ixx
         plug_in_t.ixx
         plugin_c.ixx
+        PluginSetupFailedError.ixx
 )

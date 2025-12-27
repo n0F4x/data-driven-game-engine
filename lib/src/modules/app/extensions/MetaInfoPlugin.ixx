@@ -19,6 +19,12 @@ public:
         : m_meta_info{ std::move(meta_info) }
     {}
 
+    [[nodiscard]]
+    constexpr auto meta_info() const noexcept -> const MetaInfo&
+    {
+        return m_meta_info;
+    }
+
     template <ddge::app::decays_to_app_c App_T>
     [[nodiscard]]
     constexpr auto build(App_T&& app) -> app::add_on_t<App_T, MetaInfoAddon>
