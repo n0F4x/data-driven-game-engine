@@ -15,3 +15,4 @@ export import ddge.modules.vulkan.queue_properties;
 export import ddge.modules.vulkan.QueueFamilyIndex;
 export import ddge.modules.vulkan.QueueGroup;
 export import ddge.modules.vulkan.QueuePack;
+export import ddge.modules.vulkan.Swapchain;

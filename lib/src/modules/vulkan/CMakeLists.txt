@@ -26,4 +26,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         QueueFamilyIndex.ixx
         QueueGroup.ixx
         QueuePack.ixx
+        Swapchain.ixx
 )
