@@ -1,5 +1,7 @@
 export module ddge.modules.wsi;
 
+export import ddge.modules.wsi.events;
+
 export import ddge.modules.wsi.Context;
 export import ddge.modules.wsi.Error;
 export import ddge.modules.wsi.FullScreenWindowSettings;

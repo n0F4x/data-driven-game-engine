@@ -361,7 +361,12 @@ auto DeviceBuilder::build(const vk::raii::Instance& instance) const
 
     QueueGroup queue_group{ make_queue_group(device, std::move(queue_group_create_info)) };
 
-    return Device{ std::move(physical_device), std::move(device), std::move(queue_group) };
+    return Device{
+        .physical_device{ std::move(physical_device) },
+        .logical_device{ std::move(device) },
+        .queues{ std::move(queue_group) },
+        .enabled_extension_names{ std::move(extension_names) },
+    };
 }
 
 auto DeviceBuilder::make_queue_group(

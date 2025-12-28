@@ -54,8 +54,9 @@ try {
         1
     };
 
-    std::this_thread::sleep_for(std::chrono::seconds{ 2 });
-
+    while (!window.should_close()) {
+        wsi::poll_events(context);
+    }
 } catch (const ddge::app::BuildFailedError& error) {
     std::println("{}", error.what());
 }

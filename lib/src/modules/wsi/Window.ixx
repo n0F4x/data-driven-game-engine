@@ -31,12 +31,14 @@ public:
     };
 
     Window(Context&& context, const CreateInfo& create_info);
-    Window(Window&&) noexcept;
 
     [[nodiscard]]
     auto content_size() const noexcept -> Size2i;
     [[nodiscard]]
     auto resolution() const noexcept -> Size2i;
+
+    [[nodiscard]]
+    auto should_close() const noexcept -> bool;
 
 protected:
     [[nodiscard]]
@@ -102,12 +104,8 @@ auto create_window(const Window::CreateInfo& create_info)
             std::get_if<WindowedWindowSettings>(&create_info.settings) };
         settings != nullptr)
     {
-        glfwWindowHint(
-            GLFW_POSITION_X, settings->position_x.value_or(GLFW_ANY_POSITION)
-        );
-        glfwWindowHint(
-            GLFW_POSITION_Y, settings->position_y.value_or(GLFW_ANY_POSITION)
-        );
+        glfwWindowHint(GLFW_POSITION_X, settings->position_x.value_or(GLFW_ANY_POSITION));
+        glfwWindowHint(GLFW_POSITION_Y, settings->position_y.value_or(GLFW_ANY_POSITION));
 
         const std::optional<WindowedWindowSettings::Border> border{
             settings->border   //
@@ -142,9 +140,7 @@ auto create_window(const Window::CreateInfo& create_info)
     {
         glfwWindowHint(GLFW_AUTO_ICONIFY, settings->auto_iconify);
         glfwWindowHint(GLFW_CENTER_CURSOR, settings->center_cursor);
-        glfwWindowHint(
-            GLFW_REFRESH_RATE, settings->refresh_rate.value_or(GLFW_DONT_CARE)
-        );
+        glfwWindowHint(GLFW_REFRESH_RATE, settings->refresh_rate.value_or(GLFW_DONT_CARE));
     }
 
     GLFWwindow* const window = glfwCreateWindow(
@@ -191,11 +187,6 @@ Window::Window(Context&& context, const CreateInfo& create_info)
       m_handle{ create_window(create_info) }
 {}
 
-Window::Window(Window&& other) noexcept
-    : m_context{ std::move(other.m_context) },
-      m_handle{ other.m_handle.release(), other.m_handle.get_deleter() }
-{}
-
 auto Window::content_size() const noexcept -> Size2i
 {
     Size2i result{};
@@ -208,6 +199,11 @@ auto Window::resolution() const noexcept -> Size2i
     Size2i result{};
     glfwGetFramebufferSize(m_handle.get(), &result.width, &result.height);
     return result;
+}
+
+auto Window::should_close() const noexcept -> bool
+{
+    return glfwWindowShouldClose(m_handle.get()) == GLFW_TRUE;
 }
 
 auto Window::context() const noexcept -> const Context&
