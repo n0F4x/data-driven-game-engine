@@ -228,7 +228,7 @@ auto Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
         );
     }
 
-    ENGINE_LOG_INFO("Initializing renderer...");
+    ENGINE_LOG_TRACE("Building renderer plugin...");
 
     auto result = std::forward<App_T>(app).add_on(
         Addon{
