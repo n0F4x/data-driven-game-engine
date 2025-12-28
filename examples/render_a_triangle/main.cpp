@@ -56,6 +56,10 @@ try {
 
     while (!window.should_close()) {
         wsi::poll_events(context);
+
+        if (window.key_pressed(wsi::Key::eEscape)) {
+            window.request_close();
+        }
     }
 } catch (const ddge::app::BuildFailedError& error) {
     std::println("{}", error.what());

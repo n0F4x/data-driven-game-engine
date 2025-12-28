@@ -3,6 +3,7 @@ module;
 #include <cassert>
 #include <memory>
 #include <optional>
+#include <utility>
 #include <variant>
 
 #include <GLFW/glfw3.h>
@@ -12,6 +13,7 @@ module;
 export module ddge.modules.wsi.Window;
 
 import ddge.modules.wsi.Context;
+import ddge.modules.wsi.events.Key;
 import ddge.modules.wsi.Error;
 import ddge.modules.wsi.FullScreenWindowSettings;
 import ddge.modules.wsi.monitors;
@@ -39,6 +41,10 @@ public:
 
     [[nodiscard]]
     auto should_close() const noexcept -> bool;
+    [[nodiscard]]
+    auto key_pressed(Key key) const noexcept -> bool;
+
+    auto request_close() noexcept -> void;
 
 protected:
     [[nodiscard]]
@@ -204,6 +210,17 @@ auto Window::resolution() const noexcept -> Size2i
 auto Window::should_close() const noexcept -> bool
 {
     return glfwWindowShouldClose(m_handle.get()) == GLFW_TRUE;
+}
+
+auto Window::key_pressed(const Key key) const noexcept -> bool
+{
+    return glfwGetKey(m_handle.get(), std::to_underlying(key)) == GLFW_PRESS;
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+auto Window::request_close() noexcept -> void
+{
+    glfwSetWindowShouldClose(m_handle.get(), GLFW_TRUE);
 }
 
 auto Window::context() const noexcept -> const Context&
