@@ -1,3 +1,4 @@
+add_subdirectory(extension_inspection)
 add_subdirectory(format)
 add_subdirectory(result)
 add_subdirectory(structure_chains)
@@ -21,6 +22,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         Device.ixx
         DeviceBuilder.ixx
         minimum_vulkan_api_version.ixx
+        PhysicalDeviceCapabilities.ixx
         PhysicalDeviceSelector.ixx
         queue_properties.ixx
         QueueFamilyIndex.ixx

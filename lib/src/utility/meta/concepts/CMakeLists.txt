@@ -16,12 +16,15 @@ target_sources(${PROJECT_NAME} PUBLIC
         decays_to.ixx
         generic_allocator.ixx
         hashable.ixx
+        lvalue_reference.ixx
         naked.ixx
         nothrow_assignable_from.ixx
         nothrow_constructible_from.ixx
         nothrow_convertible_to.ixx
         nothrow_movable.ixx
         nothrow_move_constructible.ixx
+        pointer.ixx
+        preserves_const.ixx
         storable.ixx
         strips_to.ixx
         specialization_of.ixx

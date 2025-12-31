@@ -18,8 +18,10 @@ import ddge.utility.contracts;
 import ddge.utility.memory.DefaultAllocator;
 import ddge.utility.memory.Deallocator;
 import ddge.utility.meta.concepts.generic_allocator;
+import ddge.utility.meta.concepts.lvalue_reference;
 import ddge.utility.meta.concepts.storable;
 import ddge.utility.meta.concepts.nothrow_movable;
+import ddge.utility.meta.concepts.preserves_const;
 import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.reflection.hash;
 import ddge.utility.meta.reflection.name_of;
@@ -48,12 +50,14 @@ struct Operations {
     using DropFunc       = auto (&)(Allocator_T& allocator, Storage&&) -> void;
     using TypesMatchFunc = auto (&)(ddge::util::meta::TypeHash) -> bool;
     using TypeNameFunc   = auto (&)() -> std::string_view;
+    using VoidifyFunc    = auto (&)(Storage& storage) -> void*;
 
     CopyFunc       copy;
     MoveFunc       move;
     DropFunc       drop;
     TypesMatchFunc types_match;
     TypeNameFunc   type_name;
+    VoidifyFunc    voidify;
 };
 
 class AnyBase {};
@@ -77,13 +81,17 @@ export struct AnyProperties {
 export template <typename T, typename Any_T>
     requires std::derived_from<std::remove_cvref_t<Any_T>, ::AnyBase>
           && (std::remove_cvref_t<Any_T>::template is_storable<T>())
-constexpr auto any_cast(Any_T&& any) -> ddge::util::meta::forward_like_t<T, Any_T>;
+constexpr auto any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>;
 
 export template <typename T, typename Any_T>
     requires std::derived_from<std::remove_cvref_t<Any_T>, ::AnyBase>
           && (std::remove_cvref_t<Any_T>::template is_storable<T>())
-constexpr auto dynamic_any_cast(Any_T&& any)
-    -> ddge::util::meta::forward_like_t<T, Any_T>;
+constexpr auto dynamic_any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>;
+
+export template <meta::lvalue_reference_c T, typename Any_T>
+    requires std::derived_from<std::remove_const_t<Any_T>, ::AnyBase>
+          && meta::preserves_const_c<std::remove_reference_t<T>, Any_T>
+constexpr auto reinterpret_any_cast(Any_T& any) -> T;
 
 export template <
     AnyProperties properties_T                        = {},
@@ -153,6 +161,11 @@ public:
               && (std::remove_cvref_t<Any_T>::template is_storable<T>())
     constexpr friend auto dynamic_any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>;
 
+    template <meta::lvalue_reference_c T, typename Any_T>
+        requires std::derived_from<std::remove_const_t<Any_T>, ::AnyBase>
+              && meta::preserves_const_c<std::remove_reference_t<T>, Any_T>
+    constexpr friend auto reinterpret_any_cast(Any_T& any) -> T;
+
 private:
     using Storage = storage_t<size_T, alignment_T>;
 
@@ -207,6 +220,7 @@ template <
 struct Traits<T, properties_T, size_T, alignment_T, Allocator_T> {
     using Storage     = storage_t<size_T, alignment_T>;
     using SmallBuffer = SmallBuffer<size_T, alignment_T>;
+    using Operations  = Operations<size_T, alignment_T, Allocator_T>;
 
     template <typename... Args_T>
     constexpr static auto create(Storage& out, Allocator_T&, Args_T&&... args) -> void
@@ -276,12 +290,13 @@ struct Traits<T, properties_T, size_T, alignment_T, Allocator_T> {
         return static_cast<const void*>(buffer_ptr->data.data());
     }
 
-    constexpr static Operations<size_T, alignment_T, Allocator_T> s_operations{
+    constexpr static Operations s_operations{
         .copy = TraitsFunctionSelector<Traits, properties_T>::select_copy_function(),
         .move = move,
         .drop = drop,
         .types_match = types_match,
         .type_name   = type_name,
+        .voidify     = static_cast<Operations::VoidifyFunc>(voidify),
     };
 
 private:
@@ -304,7 +319,8 @@ template <
     ddge::util::meta::generic_allocator_c Allocator_T>
     requires large_c<T, size_T, alignment_T>
 struct Traits<T, properties_T, size_T, alignment_T, Allocator_T> {
-    using Storage = storage_t<size_T, alignment_T>;
+    using Storage    = storage_t<size_T, alignment_T>;
+    using Operations = Operations<size_T, alignment_T, Allocator_T>;
 
     template <typename... Args_T>
     constexpr static auto create(Storage& out, Allocator_T& allocator, Args_T&&... args)
@@ -376,12 +392,13 @@ struct Traits<T, properties_T, size_T, alignment_T, Allocator_T> {
         return *handle_ptr;
     }
 
-    constexpr static Operations<size_T, alignment_T, Allocator_T> s_operations{
+    constexpr static Operations s_operations{
         .copy = TraitsFunctionSelector<Traits, properties_T>::select_copy_function(),
         .move = move,
         .drop = drop,
         .types_match = types_match,
         .type_name   = type_name,
+        .voidify     = static_cast<Operations::VoidifyFunc>(voidify),
     };
 };
 
@@ -401,6 +418,7 @@ constexpr auto ddge::util::any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_
             util::meta::name_of<T>()
         )
     );
+
     return dynamic_any_cast<T>(std::forward<Any_T>(any));
 }
 
@@ -413,12 +431,25 @@ constexpr auto ddge::util::dynamic_any_cast(Any_T&& any) -> meta::forward_like_t
         any.BasicAny::m_operations != nullptr,
         "Don't use a 'moved-from' (or destroyed) Any!"
     );
+
     return Traits<
         T,
         std::remove_cvref_t<Any_T>::BasicAny::properties,
         std::remove_cvref_t<Any_T>::BasicAny::size,
         std::remove_cvref_t<Any_T>::BasicAny::alignment,
         DefaultAllocator>::any_cast(std::forward_like<Any_T>(any.BasicAny::m_storage));
+}
+
+template <ddge::util::meta::lvalue_reference_c T, typename Any_T>
+    requires std::derived_from<std::remove_const_t<Any_T>, AnyBase>
+          && ddge::util::meta::preserves_const_c<std::remove_reference_t<T>, Any_T>
+constexpr auto ddge::util::reinterpret_any_cast(Any_T& any) -> T
+{
+    return *reinterpret_cast<std::add_pointer_t<std::remove_reference_t<T>>>(
+        any.BasicAny::m_operations->voidify(
+            const_cast<Any::BasicAny::Storage&>(any.BasicAny::m_storage)
+        )
+    );
 }
 
 template <

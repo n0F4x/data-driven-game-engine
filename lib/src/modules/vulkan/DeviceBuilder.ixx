@@ -16,13 +16,11 @@ export module ddge.modules.vulkan.DeviceBuilder;
 import vulkan_hpp;
 
 import ddge.modules.vulkan.Device;
-import ddge.modules.vulkan.result.check_result;
-import ddge.modules.vulkan.structure_chains.extends_struct_c;
-import ddge.modules.vulkan.structure_chains.merge_physical_device_features;
-import ddge.modules.vulkan.structure_chains.promoted_feature_struct_c;
-import ddge.modules.vulkan.structure_chains.remove_physical_device_features;
-import ddge.modules.vulkan.structure_chains.StructureChain;
+import ddge.modules.vulkan.PhysicalDeviceCapabilities;
 import ddge.modules.vulkan.PhysicalDeviceSelector;
+import ddge.modules.vulkan.result.check_result;
+import ddge.modules.vulkan.structure_chains.feature_struct_c;
+import ddge.modules.vulkan.structure_chains.StructureChain;
 import ddge.modules.vulkan.queue_properties;
 import ddge.modules.vulkan.QueueFamilyIndex;
 import ddge.modules.vulkan.QueueGroup;
@@ -45,25 +43,18 @@ public:
     explicit DeviceBuilder(PhysicalDeviceSelector&& physical_device_selector = {});
 
     template <typename Self_T>
+    auto require_minimum_api_version(this Self_T&&, uint32_t api_version) -> Self_T;
+
+    template <typename Self_T>
     auto enable_extension(this Self_T&&, util::StringLiteral extension_name) -> Self_T;
     template <typename Self_T>
     auto enable_extension_if_available(this Self_T&&, util::StringLiteral extension_name)
         -> Self_T;
 
-    template <typename Self_T>
-    auto enable_features(this Self_T&&, const vk::PhysicalDeviceFeatures& features)
-        -> Self_T;
-    template <typename Self_T>
-    auto enable_features_if_available(
-        this Self_T&&,
-        const vk::PhysicalDeviceFeatures& features
-    ) -> Self_T;
-    template <typename Self_T, extends_struct_c<vk::PhysicalDeviceFeatures2> FeaturesStruct_T>
-        requires(!promoted_feature_struct_c<FeaturesStruct_T>)
-    auto enable_features(this Self_T&&, const FeaturesStruct_T& feature_struct) -> Self_T;
-    template <typename Self_T, extends_struct_c<vk::PhysicalDeviceFeatures2> FeaturesStruct_T>
-        requires(!promoted_feature_struct_c<FeaturesStruct_T>)
-    auto enable_features_if_available(this Self_T&&, const FeaturesStruct_T& feature_struct)
+    template <typename Self_T, feature_struct_c FeaturesStruct_T>
+    auto enable_features(this Self_T&&, const FeaturesStruct_T& features) -> Self_T;
+    template <typename Self_T, feature_struct_c FeaturesStruct_T>
+    auto enable_features_if_available(this Self_T&&, const FeaturesStruct_T& features)
         -> Self_T;
 
     template <typename Self_T>
@@ -93,15 +84,14 @@ private:
         QueueGroup::CreateInfo&& create_info
     ) -> QueueGroup;
 
-    PhysicalDeviceSelector                      m_physical_device_selector;
-    std::vector<util::StringLiteral>            m_optional_extension_names;
-    StructureChain<vk::PhysicalDeviceFeatures2> m_optional_features;
-    util::Bool                                  m_request_graphics_queue{};
-    util::Bool                                  m_request_compute_queue{};
-    bool                                        m_request_host_to_device_transfer_queue{};
-    bool                                        m_request_device_to_host_transfer_queue{};
-    std::vector<QueueRequirement>               m_extra_queue_requirements;
-    bool m_request_dedicated_sparse_binding_queue{};
+    PhysicalDeviceSelector        m_physical_device_selector;
+    PhysicalDeviceCapabilities    m_optional_capabilities;
+    util::Bool                    m_request_graphics_queue{};
+    util::Bool                    m_request_compute_queue{};
+    bool                          m_request_host_to_device_transfer_queue{};
+    bool                          m_request_device_to_host_transfer_queue{};
+    std::vector<QueueRequirement> m_extra_queue_requirements;
+    bool                          m_request_dedicated_sparse_binding_queue{};
 
     [[nodiscard]]
     auto most_suitable(std::vector<vk::raii::PhysicalDevice>&& physical_devices) const
@@ -126,24 +116,24 @@ DeviceBuilder::DeviceBuilder(PhysicalDeviceSelector&& physical_device_selector)
 {}
 
 template <typename Self_T>
+auto DeviceBuilder::require_minimum_api_version(
+    this Self_T&&  self,
+    const uint32_t api_version
+) -> Self_T
+{
+    self.m_physical_device_selector.require_minimum_api_version(api_version);
+    self.m_optional_capabilities.try_upgrade_api_version(api_version);
+    return std::forward<Self_T>(self);
+}
+
+template <typename Self_T>
 auto DeviceBuilder::enable_extension(
     this Self_T&&             self,
     const util::StringLiteral extension_name
 ) -> Self_T
 {
-    if (const auto iter = std::ranges::find_if(
-            self.m_optional_extension_names,
-            [extension_name](const util::StringLiteral required_extension) -> bool {
-                return std::strcmp(extension_name, required_extension) == 0;
-            }
-        );
-        iter != self.m_optional_extension_names.cend())
-    {
-        self.m_optional_extension_names.erase(iter);
-    }
-
+    self.m_optional_capabilities.try_remove_extension(extension_name);
     self.m_physical_device_selector.require_extension(extension_name);
-
     return std::forward<Self_T>(self);
 }
 
@@ -153,75 +143,36 @@ auto DeviceBuilder::enable_extension_if_available(
     util::StringLiteral extension_name
 ) -> Self_T
 {
-    if (std::ranges::none_of(
-            self.m_physical_device_selector.required_extensions(),
-            [extension_name](const util::StringLiteral required_extension) -> bool {
-                return std::strcmp(extension_name, required_extension) == 0;
-            }
+    if (!std::ranges::contains(
+            self.m_physical_device_selector.required_capabilities().extensions(), extension_name
         ))
     {
-        self.m_optional_extension_names.push_back(extension_name);
+        self.m_optional_capabilities.insert_extension(extension_name);
     }
 
     return std::forward<Self_T>(self);
 }
 
-template <typename Self_T>
-auto DeviceBuilder::enable_features(
-    this Self_T&&                     self,
-    const vk::PhysicalDeviceFeatures& features
-) -> Self_T
+template <typename Self_T, feature_struct_c FeaturesStruct_T>
+auto DeviceBuilder::enable_features(this Self_T&& self, const FeaturesStruct_T& features)
+    -> Self_T
 {
-    remove_physical_device_features(
-        self.m_optional_features.root_struct().features, features
-    );
+    self.m_optional_capabilities.try_remove_features(features);
     self.m_physical_device_selector.require_features(features);
     return std::forward<Self_T>(self);
 }
 
-template <typename Self_T>
-auto DeviceBuilder::enable_features_if_available(
-    this Self_T&&                     self,
-    const vk::PhysicalDeviceFeatures& features
-) -> Self_T
-{
-    vk::PhysicalDeviceFeatures copy{ features };
-    remove_physical_device_features(
-        copy, self.m_physical_device_selector.required_features().root_struct().features
-    );
-    merge_physical_device_features(self.m_optional_features.root_struct().features, copy);
-    return std::forward<Self_T>(self);
-}
-
-template <typename Self_T, extends_struct_c<vk::PhysicalDeviceFeatures2> FeaturesStruct_T>
-    requires(!promoted_feature_struct_c<FeaturesStruct_T>)
-auto DeviceBuilder::enable_features(
-    this Self_T&&           self,
-    const FeaturesStruct_T& feature_struct
-) -> Self_T
-{
-    FeaturesStruct_T            copy{ feature_struct };
-    vk::PhysicalDeviceFeatures2 features_chain{ .pNext = &copy };
-    self.m_optional_features.remove_features(features_chain);
-    self.m_physical_device_selector.require_features(feature_struct);
-    return std::forward<Self_T>(self);
-}
-
-template <typename Self_T, extends_struct_c<vk::PhysicalDeviceFeatures2> FeaturesStruct_T>
-    requires(!promoted_feature_struct_c<FeaturesStruct_T>)
+template <typename Self_T, feature_struct_c FeaturesStruct_T>
 auto DeviceBuilder::enable_features_if_available(
     this Self_T&&           self,
-    const FeaturesStruct_T& feature_struct
+    const FeaturesStruct_T& features
 ) -> Self_T
 {
-    FeaturesStruct_T copy{ feature_struct };
-    remove_physical_device_features(
-        copy,
-        self.m_physical_device_selector
-            .required_features()[std::in_place_type<FeaturesStruct_T>]
+    FeaturesStruct_T copy{ features };
+    self.m_physical_device_selector.required_capabilities().filter_uncontained_features(
+        copy
     );
-    vk::PhysicalDeviceFeatures2 root_struct{ .pNext = &copy };
-    self.m_optional_features.merge(root_struct);
+    self.m_optional_capabilities.insert_features(copy);
     return std::forward<Self_T>(self);
 }
 
@@ -302,41 +253,40 @@ auto DeviceBuilder::build(const vk::raii::Instance& instance) const
         *most_suitable(std::move(supported_devices))
     };
 
-    std::vector<util::StringLiteral> extension_names{
-        m_physical_device_selector.required_extensions()
+    PhysicalDeviceCapabilities capabilities{
+        m_physical_device_selector.required_capabilities()
     };
-    for (auto extension_properties{ physical_device.enumerateDeviceExtensionProperties() };
-         util::StringLiteral optional_extension : m_optional_extension_names)
+
+    for (const std::vector<vk::ExtensionProperties> extension_properties{
+             physical_device.enumerateDeviceExtensionProperties() };
+         util::StringLiteral optional_extension : m_optional_capabilities.extensions())
     {
-        assert(
-            std::ranges::none_of(
-                extension_names,
-                [optional_extension](const util::StringLiteral required_extension) -> bool {
-                    return std::strcmp(optional_extension, required_extension) == 0;
-                }
-            )
-        );
         if (std::ranges::any_of(
                 extension_properties,
                 [optional_extension](const char* const supported_extension) -> bool {
-                    return std::strcmp(optional_extension, supported_extension) == 0;
+                    return optional_extension
+                        == util::StringLiteral::unsafe_create(supported_extension);
                 },
                 &vk::ExtensionProperties::extensionName
             ))
         {
-            extension_names.push_back(optional_extension);
+            capabilities.insert_extension(optional_extension);
         }
     }
 
-    StructureChain<vk::PhysicalDeviceFeatures2> features{
-        m_physical_device_selector.required_features()
+    StructureChain<vk::PhysicalDeviceFeatures2> supported_optional_features{
+        m_optional_capabilities.features()
     };
-    features.merge(m_optional_features.root_struct());
-    StructureChain<vk::PhysicalDeviceFeatures2> supported_features{ features };
+    StructureChain<vk::PhysicalDeviceFeatures2> optional_feature_support{
+        m_optional_capabilities.features()
+    };
     physical_device.getDispatcher()->vkGetPhysicalDeviceFeatures2(
-        *physical_device, supported_features.root_struct()
+        *physical_device, optional_feature_support.root()
     );
-    features.remove_unsupported_features(supported_features.root_struct());
+    supported_optional_features.remove_unsupported_features(
+        optional_feature_support.root()
+    );
+    capabilities.insert_features(supported_optional_features);
 
     auto [per_family_queue_priorities, queue_create_infos, queue_group_create_info]{
         create_device_queue_create_infos(physical_device)
@@ -348,11 +298,11 @@ auto DeviceBuilder::build(const vk::raii::Instance& instance) const
     }
 
     const vk::DeviceCreateInfo device_create_info{
-        .pNext                   = &features.root_struct(),
-        .queueCreateInfoCount    = static_cast<uint32_t>(queue_create_infos.size()),
-        .pQueueCreateInfos       = queue_create_infos.data(),
-        .enabledExtensionCount   = static_cast<uint32_t>(extension_names.size()),
-        .ppEnabledExtensionNames = extension_names.front().address(),
+        .pNext                 = &capabilities.features().root(),
+        .queueCreateInfoCount  = static_cast<uint32_t>(queue_create_infos.size()),
+        .pQueueCreateInfos     = queue_create_infos.data(),
+        .enabledExtensionCount = static_cast<uint32_t>(capabilities.extensions().size()),
+        .ppEnabledExtensionNames = capabilities.extensions().front().address(),
     };
 
     vk::raii::Device device{
@@ -365,7 +315,7 @@ auto DeviceBuilder::build(const vk::raii::Instance& instance) const
         .physical_device{ std::move(physical_device) },
         .logical_device{ std::move(device) },
         .queues{ std::move(queue_group) },
-        .enabled_extension_names{ std::move(extension_names) },
+        .enabled_capabilities{ std::move(capabilities) },
     };
 }
 
