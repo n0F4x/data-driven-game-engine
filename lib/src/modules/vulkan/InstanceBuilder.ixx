@@ -19,8 +19,7 @@ import ddge.utility.containers.StringLiteral;
 namespace ddge::vulkan {
 
 struct InstanceBuilderPrecondition {
-    constexpr static std::integral_constant<uint32_t, minimum_api_version()>
-        minimum_api_version;
+    constexpr static std::integral_constant<uint32_t, vk::ApiVersion11> minimum_version;
 
     [[nodiscard]]
     static auto check_version_support(const vk::raii::Context& context) -> bool;
@@ -37,10 +36,9 @@ public:
         std::optional<uint32_t>            engine_version;
     };
 
-    constexpr static std::integral_constant<
-        uint32_t,
-        InstanceBuilderPrecondition::minimum_api_version()>
-        minimum_api_version;
+    constexpr static std::
+        integral_constant<uint32_t, InstanceBuilderPrecondition::minimum_version()>
+            minimum_version;
 
     [[nodiscard]]
     static auto check_version_support(const vk::raii::Context& context) -> bool;
@@ -53,7 +51,7 @@ public:
 
     auto request_api_version(uint32_t api_version) -> void;
     [[nodiscard]]
-    auto require_minimum_api_version(uint32_t api_version) -> bool;
+    auto require_minimum_version(uint32_t version) -> bool;
     [[nodiscard]]
     auto enable_vulkan_layer(util::StringLiteral layer_name) -> bool;
     [[nodiscard]]
@@ -68,7 +66,8 @@ private:
     std::optional<uint32_t>                         m_application_version;
     std::optional<util::StringLiteral>              m_engine_name;
     std::optional<uint32_t>                         m_engine_version;
-    uint32_t                         m_api_version{ minimum_api_version() };
+    uint32_t                         m_api_version{ vulkan::minimum_api_version() };
+    uint32_t                         m_minimum_version{ minimum_version() };
     std::vector<util::StringLiteral> m_layer_names;
     std::vector<util::StringLiteral> m_extension_names;
 };

@@ -27,7 +27,7 @@ namespace ddge::vulkan {
 export class PhysicalDeviceCapabilities {
 public:
     [[nodiscard]]
-    auto api_version() const noexcept -> uint32_t;
+    auto version() const noexcept -> uint32_t;
     [[nodiscard]]
     auto extensions() const noexcept -> std::span<const util::StringLiteral>;
     [[nodiscard]]
@@ -43,7 +43,7 @@ public:
     auto filter_uncontained_features(FeaturesStruct_T& features) const -> void;
 
 
-    auto try_upgrade_api_version(uint32_t new_api_version) -> void;
+    auto try_upgrade_version(uint32_t new_version) -> void;
 
     auto insert_extension(util::StringLiteral extension_name) -> void;
 
@@ -68,7 +68,7 @@ public:
     auto try_remove_features(const FeaturesStruct_T& features) -> void;
 
 private:
-    uint32_t                                    m_api_version{ vk::ApiVersion11 };
+    uint32_t                                    m_version{ vk::ApiVersion11 };
     std::vector<util::StringLiteral>            m_extension_names{};
     StructureChain<vk::PhysicalDeviceFeatures2> m_features;
 
@@ -82,9 +82,9 @@ private:
 
 namespace ddge::vulkan {
 
-auto PhysicalDeviceCapabilities::api_version() const noexcept -> uint32_t
+auto PhysicalDeviceCapabilities::version() const noexcept -> uint32_t
 {
-    return m_api_version;
+    return m_version;
 }
 
 auto PhysicalDeviceCapabilities::extensions() const noexcept
@@ -104,7 +104,7 @@ auto PhysicalDeviceCapabilities::supported_by(
 ) const -> bool
 {
     const vk::PhysicalDeviceProperties properties{ physical_device.getProperties() };
-    if (properties.apiVersion < m_api_version) {
+    if (properties.apiVersion < m_version) {
         return false;
     }
 
@@ -169,7 +169,7 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
 ) const -> void
 {
     if constexpr (core_feature_struct_from_vulkan11_c<FeaturesStruct_T>) {
-        if (m_api_version >= vk::ApiVersion11) {
+        if (m_version >= vk::ApiVersion11) {
             if (const util::OptionalRef<const vk::PhysicalDeviceVulkan11Features>
                     contained_features{
                         m_features.find<vk::PhysicalDeviceVulkan11Features>() };
@@ -181,7 +181,7 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
         }
     }
     else if constexpr (core_feature_struct_from_vulkan12_c<FeaturesStruct_T>) {
-        if (m_api_version >= vk::ApiVersion12) {
+        if (m_version >= vk::ApiVersion12) {
             if (const util::OptionalRef<const vk::PhysicalDeviceVulkan12Features>
                     contained_features{
                         m_features.find<vk::PhysicalDeviceVulkan12Features>() };
@@ -193,7 +193,7 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
         }
     }
     else if constexpr (core_feature_struct_from_vulkan13_c<FeaturesStruct_T>) {
-        if (m_api_version >= vk::ApiVersion13) {
+        if (m_version >= vk::ApiVersion13) {
             if (const util::OptionalRef<const vk::PhysicalDeviceVulkan13Features>
                     contained_features{
                         m_features.find<vk::PhysicalDeviceVulkan13Features>() };
@@ -205,7 +205,7 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
         }
     }
     else if constexpr (core_feature_struct_from_vulkan14_c<FeaturesStruct_T>) {
-        if (m_api_version >= vk::ApiVersion14) {
+        if (m_version >= vk::ApiVersion14) {
             if (const util::OptionalRef<const vk::PhysicalDeviceVulkan14Features>
                     contained_features{
                         m_features.find<vk::PhysicalDeviceVulkan14Features>() };
@@ -225,17 +225,17 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
     }
 }
 
-auto PhysicalDeviceCapabilities::try_upgrade_api_version(const uint32_t new_api_version)
+auto PhysicalDeviceCapabilities::try_upgrade_version(const uint32_t new_version)
     -> void
 {
     PRECOND(
-        new_api_version < vk::makeApiVersion(0, 1, 5, 0),
+        new_version < vk::makeApiVersion(0, 1, 5, 0),
         "Only Vulkan versions lower than 1.5 are supported"
     );
 
-    if (new_api_version > m_api_version) {
-        if (const uint32_t new_minor_version{ vk::apiVersionMinor(new_api_version) };
-            new_minor_version > vk::apiVersionMinor(m_api_version))
+    if (new_version > m_version) {
+        if (const uint32_t new_minor_version{ vk::apiVersionMinor(new_version) };
+            new_minor_version > vk::apiVersionMinor(m_version))
         {
             if (new_minor_version == 1) {
                 upgrade_to_Vulkan11();
@@ -251,14 +251,14 @@ auto PhysicalDeviceCapabilities::try_upgrade_api_version(const uint32_t new_api_
             }
         }
 
-        m_api_version = new_api_version;
+        m_version = new_version;
     }
 }
 
 auto PhysicalDeviceCapabilities::insert_extension(const util::StringLiteral extension_name)
     -> void
 {
-    if (m_api_version >= vk::ApiVersion11) {
+    if (m_version >= vk::ApiVersion11) {
         if (vk::PhysicalDeviceVulkan11Features vulkan11_features{};
             try_promote_extension_to_vulkan11(extension_name, vulkan11_features))
         {
@@ -268,7 +268,7 @@ auto PhysicalDeviceCapabilities::insert_extension(const util::StringLiteral exte
             return;
         }
     }
-    if (m_api_version >= vk::ApiVersion12) {
+    if (m_version >= vk::ApiVersion12) {
         if (vk::PhysicalDeviceVulkan12Features vulkan12_features{};
             try_promote_extension_to_vulkan12(extension_name, vulkan12_features))
         {
@@ -278,7 +278,7 @@ auto PhysicalDeviceCapabilities::insert_extension(const util::StringLiteral exte
             return;
         }
     }
-    if (m_api_version >= vk::ApiVersion13) {
+    if (m_version >= vk::ApiVersion13) {
         if (vk::PhysicalDeviceVulkan13Features vulkan13_features{};
             try_promote_extension_to_vulkan13(extension_name, vulkan13_features))
         {
@@ -288,7 +288,7 @@ auto PhysicalDeviceCapabilities::insert_extension(const util::StringLiteral exte
             return;
         }
     }
-    if (m_api_version >= vk::ApiVersion14) {
+    if (m_version >= vk::ApiVersion14) {
         if (vk::PhysicalDeviceVulkan14Features vulkan14_features{};
             try_promote_extension_to_vulkan14(extension_name, vulkan14_features))
         {
@@ -315,7 +315,7 @@ auto PhysicalDeviceCapabilities::insert_features(
     const vk::PhysicalDeviceVulkan11Features& features
 ) -> void
 {
-    try_upgrade_api_version(vk::ApiVersion11);
+    try_upgrade_version(vk::ApiVersion11);
 
     m_features.merge(features);
 }
@@ -324,7 +324,7 @@ auto PhysicalDeviceCapabilities::insert_features(
     const vk::PhysicalDeviceVulkan12Features& features
 ) -> void
 {
-    try_upgrade_api_version(vk::ApiVersion12);
+    try_upgrade_version(vk::ApiVersion12);
 
     m_features.merge(features);
 }
@@ -333,7 +333,7 @@ auto PhysicalDeviceCapabilities::insert_features(
     const vk::PhysicalDeviceVulkan13Features& features
 ) -> void
 {
-    try_upgrade_api_version(vk::ApiVersion13);
+    try_upgrade_version(vk::ApiVersion13);
 
     m_features.merge(features);
 }
@@ -342,7 +342,7 @@ auto PhysicalDeviceCapabilities::insert_features(
     const vk::PhysicalDeviceVulkan14Features& features
 ) -> void
 {
-    try_upgrade_api_version(vk::ApiVersion14);
+    try_upgrade_version(vk::ApiVersion14);
 
     m_features.merge(features);
 }
@@ -351,7 +351,7 @@ template <individual_feature_struct_c FeaturesStruct_T>
 auto PhysicalDeviceCapabilities::insert_features(const FeaturesStruct_T& features) -> void
 {
     if constexpr (core_feature_struct_from_vulkan11_c<FeaturesStruct_T>) {
-        if (m_api_version >= vk::ApiVersion11) {
+        if (m_version >= vk::ApiVersion11) {
             vk::PhysicalDeviceVulkan11Features comprehensive_features{};
             merge_physical_device_features(comprehensive_features, features);
             m_features.merge(comprehensive_features);
@@ -359,7 +359,7 @@ auto PhysicalDeviceCapabilities::insert_features(const FeaturesStruct_T& feature
         }
     }
     else if constexpr (core_feature_struct_from_vulkan12_c<FeaturesStruct_T>) {
-        if (m_api_version >= vk::ApiVersion12) {
+        if (m_version >= vk::ApiVersion12) {
             vk::PhysicalDeviceVulkan12Features comprehensive_features{};
             merge_physical_device_features(comprehensive_features, features);
             m_features.merge(comprehensive_features);
@@ -367,7 +367,7 @@ auto PhysicalDeviceCapabilities::insert_features(const FeaturesStruct_T& feature
         }
     }
     else if constexpr (core_feature_struct_from_vulkan13_c<FeaturesStruct_T>) {
-        if (m_api_version >= vk::ApiVersion13) {
+        if (m_version >= vk::ApiVersion13) {
             vk::PhysicalDeviceVulkan13Features comprehensive_features{};
             merge_physical_device_features(comprehensive_features, features);
             m_features.merge(comprehensive_features);
@@ -375,7 +375,7 @@ auto PhysicalDeviceCapabilities::insert_features(const FeaturesStruct_T& feature
         }
     }
     else if constexpr (core_feature_struct_from_vulkan14_c<FeaturesStruct_T>) {
-        if (m_api_version >= vk::ApiVersion14) {
+        if (m_version >= vk::ApiVersion14) {
             vk::PhysicalDeviceVulkan14Features comprehensive_features{};
             merge_physical_device_features(comprehensive_features, features);
             m_features.merge(comprehensive_features);
@@ -390,43 +390,43 @@ auto PhysicalDeviceCapabilities::insert_features(
     StructureChain<vk::PhysicalDeviceFeatures2> features
 ) -> void
 {
-    if (m_api_version < vk::ApiVersion11
+    if (m_version < vk::ApiVersion11
         && features.contains<vk::PhysicalDeviceVulkan11Features>())
     {
         upgrade_to_Vulkan11();
     }
-    if (m_api_version < vk::ApiVersion12
+    if (m_version < vk::ApiVersion12
         && features.contains<vk::PhysicalDeviceVulkan12Features>())
     {
         upgrade_to_Vulkan12();
     }
-    if (m_api_version < vk::ApiVersion13
+    if (m_version < vk::ApiVersion13
         && features.contains<vk::PhysicalDeviceVulkan13Features>())
     {
         upgrade_to_Vulkan13();
     }
-    if (m_api_version < vk::ApiVersion14
+    if (m_version < vk::ApiVersion14
         && features.contains<vk::PhysicalDeviceVulkan14Features>())
     {
         upgrade_to_Vulkan14();
     }
 
-    if (m_api_version >= vk::ApiVersion11) {
+    if (m_version >= vk::ApiVersion11) {
         vk::PhysicalDeviceVulkan11Features vulkan11_features{};
         features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan11_features);
         features.merge(vulkan11_features);
     }
-    if (m_api_version >= vk::ApiVersion12) {
+    if (m_version >= vk::ApiVersion12) {
         vk::PhysicalDeviceVulkan12Features vulkan12_features{};
         features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan12_features);
         features.merge(vulkan12_features);
     }
-    if (m_api_version >= vk::ApiVersion13) {
+    if (m_version >= vk::ApiVersion13) {
         vk::PhysicalDeviceVulkan13Features vulkan13_features{};
         features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan13_features);
         features.merge(vulkan13_features);
     }
-    if (m_api_version >= vk::ApiVersion14) {
+    if (m_version >= vk::ApiVersion14) {
         vk::PhysicalDeviceVulkan14Features vulkan14_features{};
         features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan14_features);
         features.merge(vulkan14_features);
@@ -439,7 +439,7 @@ auto PhysicalDeviceCapabilities::try_remove_extension(
     const util::StringLiteral extension_name
 ) -> void
 {
-    if (m_api_version >= vk::ApiVersion11) {
+    if (m_version >= vk::ApiVersion11) {
         if (vk::PhysicalDeviceVulkan11Features vulkan11_features{};
             try_promote_extension_to_vulkan11(extension_name, vulkan11_features))
         {
@@ -449,7 +449,7 @@ auto PhysicalDeviceCapabilities::try_remove_extension(
             return;
         }
     }
-    if (m_api_version >= vk::ApiVersion12) {
+    if (m_version >= vk::ApiVersion12) {
         if (vk::PhysicalDeviceVulkan12Features vulkan12_features{};
             try_promote_extension_to_vulkan12(extension_name, vulkan12_features))
         {
@@ -459,7 +459,7 @@ auto PhysicalDeviceCapabilities::try_remove_extension(
             return;
         }
     }
-    if (m_api_version >= vk::ApiVersion13) {
+    if (m_version >= vk::ApiVersion13) {
         if (vk::PhysicalDeviceVulkan13Features vulkan13_features{};
             try_promote_extension_to_vulkan13(extension_name, vulkan13_features))
         {
@@ -469,7 +469,7 @@ auto PhysicalDeviceCapabilities::try_remove_extension(
             return;
         }
     }
-    if (m_api_version >= vk::ApiVersion14) {
+    if (m_version >= vk::ApiVersion14) {
         if (vk::PhysicalDeviceVulkan14Features vulkan14_features{};
             try_promote_extension_to_vulkan14(extension_name, vulkan14_features))
         {
@@ -527,9 +527,9 @@ auto PhysicalDeviceCapabilities::try_remove_features(const FeaturesStruct_T& fea
 
 auto PhysicalDeviceCapabilities::upgrade_to_Vulkan11() -> void
 {
-    PRECOND(m_api_version < vk::ApiVersion11);
+    PRECOND(m_version < vk::ApiVersion11);
 
-    m_api_version = vk::ApiVersion11;
+    m_version = vk::ApiVersion11;
 
     vk::PhysicalDeviceVulkan11Features vulkan11_features{};
     std::erase_if(
@@ -544,13 +544,13 @@ auto PhysicalDeviceCapabilities::upgrade_to_Vulkan11() -> void
 
 auto PhysicalDeviceCapabilities::upgrade_to_Vulkan12() -> void
 {
-    PRECOND(m_api_version < vk::ApiVersion12);
+    PRECOND(m_version < vk::ApiVersion12);
 
-    if (m_api_version < vk::ApiVersion11) {
+    if (m_version < vk::ApiVersion11) {
         upgrade_to_Vulkan11();
     }
 
-    m_api_version = vk::ApiVersion12;
+    m_version = vk::ApiVersion12;
 
     vk::PhysicalDeviceVulkan12Features vulkan12_features{};
     std::erase_if(
@@ -565,13 +565,13 @@ auto PhysicalDeviceCapabilities::upgrade_to_Vulkan12() -> void
 
 auto PhysicalDeviceCapabilities::upgrade_to_Vulkan13() -> void
 {
-    PRECOND(m_api_version < vk::ApiVersion13);
+    PRECOND(m_version < vk::ApiVersion13);
 
-    if (m_api_version < vk::ApiVersion12) {
+    if (m_version < vk::ApiVersion12) {
         upgrade_to_Vulkan12();
     }
 
-    m_api_version = vk::ApiVersion13;
+    m_version = vk::ApiVersion13;
 
     vk::PhysicalDeviceVulkan13Features vulkan13_features{};
     std::erase_if(
@@ -586,13 +586,13 @@ auto PhysicalDeviceCapabilities::upgrade_to_Vulkan13() -> void
 
 auto PhysicalDeviceCapabilities::upgrade_to_Vulkan14() -> void
 {
-    PRECOND(m_api_version < vk::ApiVersion14);
+    PRECOND(m_version < vk::ApiVersion14);
 
-    if (m_api_version < vk::ApiVersion13) {
+    if (m_version < vk::ApiVersion13) {
         upgrade_to_Vulkan13();
     }
 
-    m_api_version = vk::ApiVersion14;
+    m_version = vk::ApiVersion14;
 
     vk::PhysicalDeviceVulkan14Features vulkan14_features{};
     std::erase_if(

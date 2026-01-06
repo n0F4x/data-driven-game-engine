@@ -16,12 +16,11 @@ import ddge.utility.contracts;
 
 namespace ddge::vulkan {
 
-auto InstanceBuilderPrecondition::check_version_support(
-    const vk::raii::Context& context
-) -> bool
+auto InstanceBuilderPrecondition::check_version_support(const vk::raii::Context& context)
+    -> bool
 {
     return context.getDispatcher()->vkEnumerateInstanceVersion != nullptr
-        && context.enumerateInstanceVersion() >= minimum_api_version();
+        && context.enumerateInstanceVersion() >= minimum_version();
 }
 
 InstanceBuilderPrecondition::InstanceBuilderPrecondition(const vk::raii::Context& context)
@@ -29,8 +28,7 @@ InstanceBuilderPrecondition::InstanceBuilderPrecondition(const vk::raii::Context
     PRECOND(check_version_support(context));
 }
 
-auto InstanceBuilder::check_version_support(const vk::raii::Context& context)
-    -> bool
+auto InstanceBuilder::check_version_support(const vk::raii::Context& context) -> bool
 {
     return InstanceBuilderPrecondition::check_version_support(context);
 }
@@ -47,26 +45,25 @@ InstanceBuilder::InstanceBuilder(
       m_engine_version{ create_info.engine_version }
 {}
 
-auto InstanceBuilder::request_api_version(const uint32_t api_version)
-    -> void
+auto InstanceBuilder::request_api_version(const uint32_t api_version) -> void
 {
     if (api_version > m_api_version) {
         m_api_version = api_version;
     }
 }
 
-auto InstanceBuilder::require_minimum_api_version(const uint32_t api_version)
-    -> bool
+auto InstanceBuilder::require_minimum_version(const uint32_t version) -> bool
 {
-    if (m_api_version >= api_version) {
+    if (m_minimum_version >= version) {
         return true;
     }
 
-    if (api_version > m_context.get().enumerateInstanceVersion()) {
+    if (version > m_context.get().enumerateInstanceVersion()) {
         return false;
     }
 
-    m_api_version = api_version;
+    m_minimum_version = version;
+
     return true;
 }
 

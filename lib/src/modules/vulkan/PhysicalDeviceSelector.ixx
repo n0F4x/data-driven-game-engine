@@ -25,7 +25,7 @@ public:
         util::AnyCopyableFunction<bool(const vk::raii::PhysicalDevice&) const>;
 
     template <typename Self_T>
-    auto require_minimum_api_version(this Self_T&&, uint32_t api_version) -> Self_T;
+    auto require_minimum_version(this Self_T&&, uint32_t version) -> Self_T;
 
     template <typename Self_T>
     auto require_extension(this Self_T&&, util::StringLiteral extension_name) -> Self_T;
@@ -71,12 +71,12 @@ private:
 namespace ddge::vulkan {
 
 template <typename Self_T>
-auto PhysicalDeviceSelector::require_minimum_api_version(
+auto PhysicalDeviceSelector::require_minimum_version(
     this Self_T&&  self,
-    const uint32_t api_version
+    const uint32_t version
 ) -> Self_T
 {
-    self.m_required_capabilities.try_upgrade_api_version(api_version);
+    self.m_required_capabilities.try_upgrade_version(version);
     return std::forward<Self_T>(self);
 }
 

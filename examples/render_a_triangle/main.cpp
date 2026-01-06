@@ -44,7 +44,7 @@ try {
                     render_context_builder.device_builder().enable_extension(
                         vk::KHRShaderDrawParametersExtensionName
                     );
-                    render_context_builder.device_builder().require_minimum_api_version(
+                    render_context_builder.device_builder().require_minimum_version(
                         vk::ApiVersion11
                     );
                 }

@@ -86,8 +86,8 @@ auto ensure_instance_builder_precondition(const vk::raii::Context& context)
             std::format(
                 "Required Vulkan version ({}.{}) is not supported. "   //
                 "Try upgrading your driver.",
-                vk::apiVersionMajor(vulkan::InstanceBuilder::minimum_api_version()),
-                vk::apiVersionMinor(vulkan::InstanceBuilder::minimum_api_version())
+                vk::apiVersionMajor(vulkan::InstanceBuilder::minimum_version()),
+                vk::apiVersionMinor(vulkan::InstanceBuilder::minimum_version())
             )   //
         };
     }
