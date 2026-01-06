@@ -16,23 +16,23 @@ import ddge.utility.contracts;
 
 namespace ddge::vulkan {
 
-auto InstanceBuilderPrecondition::check_vulkan_version_support(
+auto InstanceBuilderPrecondition::check_version_support(
     const vk::raii::Context& context
 ) -> bool
 {
     return context.getDispatcher()->vkEnumerateInstanceVersion != nullptr
-        && context.enumerateInstanceVersion() >= minimum_vulkan_api_version();
+        && context.enumerateInstanceVersion() >= minimum_api_version();
 }
 
 InstanceBuilderPrecondition::InstanceBuilderPrecondition(const vk::raii::Context& context)
 {
-    PRECOND(check_vulkan_version_support(context));
+    PRECOND(check_version_support(context));
 }
 
-auto InstanceBuilder::check_vulkan_version_support(const vk::raii::Context& context)
+auto InstanceBuilder::check_version_support(const vk::raii::Context& context)
     -> bool
 {
-    return InstanceBuilderPrecondition::check_vulkan_version_support(context);
+    return InstanceBuilderPrecondition::check_version_support(context);
 }
 
 InstanceBuilder::InstanceBuilder(
@@ -47,26 +47,26 @@ InstanceBuilder::InstanceBuilder(
       m_engine_version{ create_info.engine_version }
 {}
 
-auto InstanceBuilder::request_vulkan_api_version(const uint32_t vulkan_api_version)
+auto InstanceBuilder::request_api_version(const uint32_t api_version)
     -> void
 {
-    if (vulkan_api_version > m_vulkan_api_version) {
-        m_vulkan_api_version = vulkan_api_version;
+    if (api_version > m_api_version) {
+        m_api_version = api_version;
     }
 }
 
-auto InstanceBuilder::require_minimum_vulkan_api_version(const uint32_t vulkan_api_version)
+auto InstanceBuilder::require_minimum_api_version(const uint32_t api_version)
     -> bool
 {
-    if (m_vulkan_api_version >= vulkan_api_version) {
+    if (m_api_version >= api_version) {
         return true;
     }
 
-    if (vulkan_api_version > m_context.get().enumerateInstanceVersion()) {
+    if (api_version > m_context.get().enumerateInstanceVersion()) {
         return false;
     }
 
-    m_vulkan_api_version = vulkan_api_version;
+    m_api_version = api_version;
     return true;
 }
 
@@ -137,7 +137,7 @@ auto InstanceBuilder::build() const -> vk::raii::Instance
         .applicationVersion = m_application_version.value_or(0u),
         .pEngineName        = m_engine_name.value_or(nullptr),
         .engineVersion      = m_engine_version.value_or(0u),
-        .apiVersion         = m_vulkan_api_version,
+        .apiVersion         = m_api_version,
     };
 
     const vk::InstanceCreateInfo instance_create_info{

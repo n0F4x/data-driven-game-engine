@@ -81,13 +81,13 @@ constexpr Plugin::Plugin(const CreateInfo& create_info)
 auto ensure_instance_builder_precondition(const vk::raii::Context& context)
     -> const vk::raii::Context&
 {
-    if (!vulkan::InstanceBuilder::check_vulkan_version_support(context)) {
+    if (!vulkan::InstanceBuilder::check_version_support(context)) {
         throw app::PluginSetupFailedError{
             std::format(
                 "Required Vulkan version ({}.{}) is not supported. "   //
                 "Try upgrading your driver.",
-                vk::apiVersionMajor(vulkan::InstanceBuilder::minimum_vulkan_api_version()),
-                vk::apiVersionMinor(vulkan::InstanceBuilder::minimum_vulkan_api_version())
+                vk::apiVersionMajor(vulkan::InstanceBuilder::minimum_api_version()),
+                vk::apiVersionMinor(vulkan::InstanceBuilder::minimum_api_version())
             )   //
         };
     }
