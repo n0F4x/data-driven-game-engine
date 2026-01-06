@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         structure_chains.cppm
         comprehensive_feature_struct_c.ixx
         core_feature_struct_from_vulkan1x_c.ixx
+        erase_physical_device_features.ixx
         extends_struct_c.ixx
         feature_struct_c.ixx
         filter_physical_device_features.ixx
@@ -14,7 +15,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         match_physical_device_features.ixx
         merge_physical_device_features.ixx
         part_of_comprehensive_feature_struct_c.ixx
-        remove_physical_device_features.ixx
         StructureChain.ixx
         vulkan1x_feature_struct_c.ixx
 )

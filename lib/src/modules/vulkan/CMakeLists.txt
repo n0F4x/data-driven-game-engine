@@ -21,9 +21,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         default_debug_messenger_callback.ixx
         Device.ixx
         DeviceBuilder.ixx
-        minimum_api_version.ixx
         PhysicalDeviceCapabilities.ixx
         PhysicalDeviceSelector.ixx
+        Profile.ixx
         queue_properties.ixx
         QueueFamilyIndex.ixx
         QueueGroup.ixx

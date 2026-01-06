@@ -13,7 +13,6 @@ export module ddge.modules.vulkan.InstanceBuilder;
 
 import vulkan_hpp;
 
-import ddge.modules.vulkan.minimum_api_version;
 import ddge.utility.containers.StringLiteral;
 
 namespace ddge::vulkan {
@@ -66,7 +65,7 @@ private:
     std::optional<uint32_t>                         m_application_version;
     std::optional<util::StringLiteral>              m_engine_name;
     std::optional<uint32_t>                         m_engine_version;
-    uint32_t                         m_api_version{ vulkan::minimum_api_version() };
+    uint32_t                                        m_api_version{ minimum_version() };
     uint32_t                         m_minimum_version{ minimum_version() };
     std::vector<util::StringLiteral> m_layer_names;
     std::vector<util::StringLiteral> m_extension_names;

@@ -20,6 +20,7 @@ import ddge.modules.log;
 import ddge.modules.renderer.Addon;
 import ddge.modules.renderer.PluginBuildFailedError;
 import ddge.modules.renderer.RenderContextBuilder;
+import ddge.modules.renderer.vulkan_profile;
 import ddge.modules.resources.Addon;
 import ddge.modules.resources.Plugin;
 import ddge.modules.vulkan.context;
@@ -144,6 +145,10 @@ auto Plugin::setup(AppBuilder_T& app_builder) -> void
     ) };
 
     m_render_context_builder = RenderContextBuilder{ *instance_injection };
+
+    m_render_context_builder->device_builder().require_and_enable_capabilities(
+        vulkan_profile().physical_device_capabilities
+    );
 
     if (!m_headless) {
         wsi::Context wsi_context;

@@ -36,6 +36,10 @@ public:
     template <typename Self_T>
     auto require_queue_flag(this Self_T&&, vk::QueueFlagBits flag) -> Self_T;
 
+    template <typename Self_T>
+    auto require_capabilities(this Self_T&&, const PhysicalDeviceCapabilities& capabilities)
+        -> Self_T;
+
     template <typename Self_T, typename... Args_T>
     auto add_custom_requirement(this Self_T&&, Args_T&&... args) -> Self_T
         requires std::constructible_from<CustomRequirement, Args_T&&...>;
@@ -76,7 +80,7 @@ auto PhysicalDeviceSelector::require_minimum_version(
     const uint32_t version
 ) -> Self_T
 {
-    self.m_required_capabilities.try_upgrade_version(version);
+    self.m_required_capabilities.upgrade_version(version);
     return std::forward<Self_T>(self);
 }
 
@@ -107,6 +111,16 @@ auto PhysicalDeviceSelector::require_queue_flag(
 ) -> Self_T
 {
     self.m_queue_flags |= flag;
+    return std::forward<Self_T>(self);
+}
+
+template <typename Self_T>
+auto PhysicalDeviceSelector::require_capabilities(
+    this Self_T&&                     self,
+    const PhysicalDeviceCapabilities& capabilities
+) -> Self_T
+{
+    self.m_required_capabilities.insert(capabilities);
     return std::forward<Self_T>(self);
 }
 

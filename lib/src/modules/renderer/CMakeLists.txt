@@ -13,4 +13,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         PluginBuildFailedError.ixx
         RenderContext.ixx
         RenderContextBuilder.ixx
+        vulkan_profile.ixx
 )

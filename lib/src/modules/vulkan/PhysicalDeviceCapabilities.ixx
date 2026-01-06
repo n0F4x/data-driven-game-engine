@@ -15,7 +15,7 @@ import ddge.modules.vulkan.extension_inspection.try_promote_extension_to_vulkan1
 import ddge.modules.vulkan.structure_chains.core_feature_struct_from_vulkan1x_c;
 import ddge.modules.vulkan.structure_chains.individual_feature_struct_c;
 import ddge.modules.vulkan.structure_chains.merge_physical_device_features;
-import ddge.modules.vulkan.structure_chains.remove_physical_device_features;
+import ddge.modules.vulkan.structure_chains.erase_physical_device_features;
 import ddge.modules.vulkan.structure_chains.StructureChain;
 import ddge.modules.vulkan.structure_chains.vulkan1x_feature_struct_c;
 import ddge.utility.containers.OptionalRef;
@@ -43,7 +43,7 @@ public:
     auto filter_uncontained_features(FeaturesStruct_T& features) const -> void;
 
 
-    auto try_upgrade_version(uint32_t new_version) -> void;
+    auto upgrade_version(uint32_t new_version) -> void;
 
     auto insert_extension(util::StringLiteral extension_name) -> void;
 
@@ -56,16 +56,20 @@ public:
     auto insert_features(const FeaturesStruct_T& features) -> void;
     auto insert_features(StructureChain<vk::PhysicalDeviceFeatures2> features) -> void;
 
+    auto insert(const PhysicalDeviceCapabilities& other) -> void;
 
-    auto try_remove_extension(util::StringLiteral extension_name) -> void;
 
-    auto try_remove_features(const vk::PhysicalDeviceFeatures& features) -> void;
-    auto try_remove_features(const vk::PhysicalDeviceVulkan11Features& features) -> void;
-    auto try_remove_features(const vk::PhysicalDeviceVulkan12Features& features) -> void;
-    auto try_remove_features(const vk::PhysicalDeviceVulkan13Features& features) -> void;
-    auto try_remove_features(const vk::PhysicalDeviceVulkan14Features& features) -> void;
+    auto erase_extension(util::StringLiteral extension_name) -> void;
+
+    auto erase_features(const vk::PhysicalDeviceFeatures& features) -> void;
+    auto erase_features(const vk::PhysicalDeviceVulkan11Features& features) -> void;
+    auto erase_features(const vk::PhysicalDeviceVulkan12Features& features) -> void;
+    auto erase_features(const vk::PhysicalDeviceVulkan13Features& features) -> void;
+    auto erase_features(const vk::PhysicalDeviceVulkan14Features& features) -> void;
     template <individual_feature_struct_c FeaturesStruct_T>
-    auto try_remove_features(const FeaturesStruct_T& features) -> void;
+    auto erase_features(const FeaturesStruct_T& features) -> void;
+
+    auto erase(const PhysicalDeviceCapabilities& other) -> void;
 
 private:
     uint32_t                                    m_version{ vk::ApiVersion11 };
@@ -147,7 +151,7 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
     vk::PhysicalDeviceFeatures& features
 ) const -> void
 {
-    remove_physical_device_features(features, m_features.root().features);
+    erase_physical_device_features(features, m_features.root().features);
 }
 
 template <vulkan1x_feature_struct_c Vulkan1XFeatureStruct_T>
@@ -159,7 +163,7 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
             m_features.find<Vulkan1XFeatureStruct_T>() };
         contained_features.has_value())
     {
-        remove_physical_device_features(features, *contained_features);
+        erase_physical_device_features(features, *contained_features);
     }
 }
 
@@ -175,7 +179,7 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
                         m_features.find<vk::PhysicalDeviceVulkan11Features>() };
                 contained_features.has_value())
             {
-                remove_physical_device_features(features, *contained_features);
+                erase_physical_device_features(features, *contained_features);
             }
             return;
         }
@@ -187,7 +191,7 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
                         m_features.find<vk::PhysicalDeviceVulkan12Features>() };
                 contained_features.has_value())
             {
-                remove_physical_device_features(features, *contained_features);
+                erase_physical_device_features(features, *contained_features);
             }
             return;
         }
@@ -199,7 +203,7 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
                         m_features.find<vk::PhysicalDeviceVulkan13Features>() };
                 contained_features.has_value())
             {
-                remove_physical_device_features(features, *contained_features);
+                erase_physical_device_features(features, *contained_features);
             }
             return;
         }
@@ -211,7 +215,7 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
                         m_features.find<vk::PhysicalDeviceVulkan14Features>() };
                 contained_features.has_value())
             {
-                remove_physical_device_features(features, *contained_features);
+                erase_physical_device_features(features, *contained_features);
             }
             return;
         }
@@ -221,12 +225,11 @@ auto PhysicalDeviceCapabilities::filter_uncontained_features(
             m_features.find<FeaturesStruct_T>() };
         contained_features.has_value())
     {
-        remove_physical_device_features(features, *contained_features);
+        erase_physical_device_features(features, *contained_features);
     }
 }
 
-auto PhysicalDeviceCapabilities::try_upgrade_version(const uint32_t new_version)
-    -> void
+auto PhysicalDeviceCapabilities::upgrade_version(const uint32_t new_version) -> void
 {
     PRECOND(
         new_version < vk::makeApiVersion(0, 1, 5, 0),
@@ -315,7 +318,7 @@ auto PhysicalDeviceCapabilities::insert_features(
     const vk::PhysicalDeviceVulkan11Features& features
 ) -> void
 {
-    try_upgrade_version(vk::ApiVersion11);
+    upgrade_version(vk::ApiVersion11);
 
     m_features.merge(features);
 }
@@ -324,7 +327,7 @@ auto PhysicalDeviceCapabilities::insert_features(
     const vk::PhysicalDeviceVulkan12Features& features
 ) -> void
 {
-    try_upgrade_version(vk::ApiVersion12);
+    upgrade_version(vk::ApiVersion12);
 
     m_features.merge(features);
 }
@@ -333,7 +336,7 @@ auto PhysicalDeviceCapabilities::insert_features(
     const vk::PhysicalDeviceVulkan13Features& features
 ) -> void
 {
-    try_upgrade_version(vk::ApiVersion13);
+    upgrade_version(vk::ApiVersion13);
 
     m_features.merge(features);
 }
@@ -342,7 +345,7 @@ auto PhysicalDeviceCapabilities::insert_features(
     const vk::PhysicalDeviceVulkan14Features& features
 ) -> void
 {
-    try_upgrade_version(vk::ApiVersion14);
+    upgrade_version(vk::ApiVersion14);
 
     m_features.merge(features);
 }
@@ -413,38 +416,46 @@ auto PhysicalDeviceCapabilities::insert_features(
 
     if (m_version >= vk::ApiVersion11) {
         vk::PhysicalDeviceVulkan11Features vulkan11_features{};
-        features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan11_features);
+        features.erase_and_merge_features_to_vulkan1x_feature_struct(vulkan11_features);
         features.merge(vulkan11_features);
     }
     if (m_version >= vk::ApiVersion12) {
         vk::PhysicalDeviceVulkan12Features vulkan12_features{};
-        features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan12_features);
+        features.erase_and_merge_features_to_vulkan1x_feature_struct(vulkan12_features);
         features.merge(vulkan12_features);
     }
     if (m_version >= vk::ApiVersion13) {
         vk::PhysicalDeviceVulkan13Features vulkan13_features{};
-        features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan13_features);
+        features.erase_and_merge_features_to_vulkan1x_feature_struct(vulkan13_features);
         features.merge(vulkan13_features);
     }
     if (m_version >= vk::ApiVersion14) {
         vk::PhysicalDeviceVulkan14Features vulkan14_features{};
-        features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan14_features);
+        features.erase_and_merge_features_to_vulkan1x_feature_struct(vulkan14_features);
         features.merge(vulkan14_features);
     }
 
     m_features.merge(features);
 }
 
-auto PhysicalDeviceCapabilities::try_remove_extension(
-    const util::StringLiteral extension_name
-) -> void
+auto PhysicalDeviceCapabilities::insert(const PhysicalDeviceCapabilities& other) -> void
+{
+    upgrade_version(other.version());
+    for (const util::StringLiteral extension : other.extensions()) {
+        insert_extension(extension);
+    }
+    insert_features(other.features());
+}
+
+auto PhysicalDeviceCapabilities::erase_extension(const util::StringLiteral extension_name)
+    -> void
 {
     if (m_version >= vk::ApiVersion11) {
         if (vk::PhysicalDeviceVulkan11Features vulkan11_features{};
             try_promote_extension_to_vulkan11(extension_name, vulkan11_features))
         {
             if (vulkan11_features != vk::PhysicalDeviceVulkan11Features{}) {
-                try_remove_features(vulkan11_features);
+                erase_features(vulkan11_features);
             }
             return;
         }
@@ -454,7 +465,7 @@ auto PhysicalDeviceCapabilities::try_remove_extension(
             try_promote_extension_to_vulkan12(extension_name, vulkan12_features))
         {
             if (vulkan12_features != vk::PhysicalDeviceVulkan12Features{}) {
-                try_remove_features(vulkan12_features);
+                erase_features(vulkan12_features);
             }
             return;
         }
@@ -464,7 +475,7 @@ auto PhysicalDeviceCapabilities::try_remove_extension(
             try_promote_extension_to_vulkan13(extension_name, vulkan13_features))
         {
             if (vulkan13_features != vk::PhysicalDeviceVulkan13Features{}) {
-                try_remove_features(vulkan13_features);
+                erase_features(vulkan13_features);
             }
             return;
         }
@@ -474,7 +485,7 @@ auto PhysicalDeviceCapabilities::try_remove_extension(
             try_promote_extension_to_vulkan14(extension_name, vulkan14_features))
         {
             if (vulkan14_features != vk::PhysicalDeviceVulkan14Features{}) {
-                try_remove_features(vulkan14_features);
+                erase_features(vulkan14_features);
             }
             return;
         }
@@ -483,46 +494,53 @@ auto PhysicalDeviceCapabilities::try_remove_extension(
     std::erase(m_extension_names, extension_name);
 }
 
-auto PhysicalDeviceCapabilities::try_remove_features(
-    const vk::PhysicalDeviceFeatures& features
-) -> void
+auto PhysicalDeviceCapabilities::erase_features(const vk::PhysicalDeviceFeatures& features)
+    -> void
 {
-    m_features.try_remove_features(features);
+    m_features.erase_features(features);
 }
 
-auto PhysicalDeviceCapabilities::try_remove_features(
+auto PhysicalDeviceCapabilities::erase_features(
     const vk::PhysicalDeviceVulkan11Features& features
 ) -> void
 {
-    m_features.try_remove_features(features);
+    m_features.erase_features(features);
 }
 
-auto PhysicalDeviceCapabilities::try_remove_features(
+auto PhysicalDeviceCapabilities::erase_features(
     const vk::PhysicalDeviceVulkan12Features& features
 ) -> void
 {
-    m_features.try_remove_features(features);
+    m_features.erase_features(features);
 }
 
-auto PhysicalDeviceCapabilities::try_remove_features(
+auto PhysicalDeviceCapabilities::erase_features(
     const vk::PhysicalDeviceVulkan13Features& features
 ) -> void
 {
-    m_features.try_remove_features(features);
+    m_features.erase_features(features);
 }
 
-auto PhysicalDeviceCapabilities::try_remove_features(
+auto PhysicalDeviceCapabilities::erase_features(
     const vk::PhysicalDeviceVulkan14Features& features
 ) -> void
 {
-    m_features.try_remove_features(features);
+    m_features.erase_features(features);
 }
 
 template <individual_feature_struct_c FeaturesStruct_T>
-auto PhysicalDeviceCapabilities::try_remove_features(const FeaturesStruct_T& features)
-    -> void
+auto PhysicalDeviceCapabilities::erase_features(const FeaturesStruct_T& features) -> void
 {
-    m_features.try_remove_features(features);
+    m_features.erase_features(features);
+}
+
+auto PhysicalDeviceCapabilities::erase(const PhysicalDeviceCapabilities& other) -> void
+{
+    PRECOND(version() >= other.version());
+    for (const util::StringLiteral extension : other.extensions()) {
+        erase_extension(extension);
+    }
+    m_features.erase_features(other.features().root());
 }
 
 auto PhysicalDeviceCapabilities::upgrade_to_Vulkan11() -> void
@@ -538,7 +556,7 @@ auto PhysicalDeviceCapabilities::upgrade_to_Vulkan11() -> void
             return try_promote_extension_to_vulkan11(extension_name, vulkan11_features);
         }
     );
-    m_features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan11_features);
+    m_features.erase_and_merge_features_to_vulkan1x_feature_struct(vulkan11_features);
     m_features.merge(vulkan11_features);
 }
 
@@ -559,7 +577,7 @@ auto PhysicalDeviceCapabilities::upgrade_to_Vulkan12() -> void
             return try_promote_extension_to_vulkan12(extension_name, vulkan12_features);
         }
     );
-    m_features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan12_features);
+    m_features.erase_and_merge_features_to_vulkan1x_feature_struct(vulkan12_features);
     m_features.merge(vulkan12_features);
 }
 
@@ -580,7 +598,7 @@ auto PhysicalDeviceCapabilities::upgrade_to_Vulkan13() -> void
             return try_promote_extension_to_vulkan13(extension_name, vulkan13_features);
         }
     );
-    m_features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan13_features);
+    m_features.erase_and_merge_features_to_vulkan1x_feature_struct(vulkan13_features);
     m_features.merge(vulkan13_features);
 }
 
@@ -601,7 +619,7 @@ auto PhysicalDeviceCapabilities::upgrade_to_Vulkan14() -> void
             return try_promote_extension_to_vulkan14(extension_name, vulkan14_features);
         }
     );
-    m_features.remove_and_merge_features_to_vulkan1x_feature_struct(vulkan14_features);
+    m_features.erase_and_merge_features_to_vulkan1x_feature_struct(vulkan14_features);
     m_features.merge(vulkan14_features);
 }
 

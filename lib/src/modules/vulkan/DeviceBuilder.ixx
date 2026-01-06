@@ -71,6 +71,12 @@ public:
     auto ensure_queue(this Self_T&&, Args_T&&... args) -> Self_T
         requires std::constructible_from<QueueRequirement, Args_T&&...>;
 
+    template <typename Self_T>
+    auto require_and_enable_capabilities(
+        this Self_T&&,
+        const PhysicalDeviceCapabilities& capabilities
+    ) -> Self_T;
+
     template <typename Self_T, typename... Args_T>
     auto add_custom_requirement(this Self_T&&, Args_T&&... args) -> Self_T;
 
@@ -116,13 +122,11 @@ DeviceBuilder::DeviceBuilder(PhysicalDeviceSelector&& physical_device_selector)
 {}
 
 template <typename Self_T>
-auto DeviceBuilder::require_minimum_version(
-    this Self_T&&  self,
-    const uint32_t version
-) -> Self_T
+auto DeviceBuilder::require_minimum_version(this Self_T&& self, const uint32_t version)
+    -> Self_T
 {
     self.m_physical_device_selector.require_minimum_version(version);
-    self.m_optional_capabilities.try_upgrade_version(version);
+    self.m_optional_capabilities.upgrade_version(version);
     return std::forward<Self_T>(self);
 }
 
@@ -132,7 +136,7 @@ auto DeviceBuilder::enable_extension(
     const util::StringLiteral extension_name
 ) -> Self_T
 {
-    self.m_optional_capabilities.try_remove_extension(extension_name);
+    self.m_optional_capabilities.erase_extension(extension_name);
     self.m_physical_device_selector.require_extension(extension_name);
     return std::forward<Self_T>(self);
 }
@@ -144,7 +148,8 @@ auto DeviceBuilder::enable_extension_if_available(
 ) -> Self_T
 {
     if (!std::ranges::contains(
-            self.m_physical_device_selector.required_capabilities().extensions(), extension_name
+            self.m_physical_device_selector.required_capabilities().extensions(),
+            extension_name
         ))
     {
         self.m_optional_capabilities.insert_extension(extension_name);
@@ -157,7 +162,7 @@ template <typename Self_T, feature_struct_c FeaturesStruct_T>
 auto DeviceBuilder::enable_features(this Self_T&& self, const FeaturesStruct_T& features)
     -> Self_T
 {
-    self.m_optional_capabilities.try_remove_features(features);
+    self.m_optional_capabilities.erase_features(features);
     self.m_physical_device_selector.require_features(features);
     return std::forward<Self_T>(self);
 }
@@ -231,6 +236,18 @@ auto DeviceBuilder::ensure_queue(this Self_T&& self, Args_T&&... args) -> Self_T
     return std::forward<Self_T>(self);
 }
 
+template <typename Self_T>
+auto DeviceBuilder::require_and_enable_capabilities(
+    this Self_T&&                     self,
+    const PhysicalDeviceCapabilities& capabilities
+) -> Self_T
+{
+    self.m_physical_device_selector.require_capabilities(capabilities);
+    self.m_optional_capabilities.upgrade_version(capabilities.version());
+    self.m_optional_capabilities.erase(capabilities);
+    return std::forward<Self_T>(self);
+}
+
 template <typename Self_T, typename... Args_T>
 auto DeviceBuilder::add_custom_requirement(this Self_T&& self, Args_T&&... args) -> Self_T
 {
@@ -283,7 +300,7 @@ auto DeviceBuilder::build(const vk::raii::Instance& instance) const
     physical_device.getDispatcher()->vkGetPhysicalDeviceFeatures2(
         *physical_device, optional_feature_support.root()
     );
-    supported_optional_features.remove_unsupported_features(
+    supported_optional_features.erase_unsupported_features(
         optional_feature_support.root()
     );
     capabilities.insert_features(supported_optional_features);

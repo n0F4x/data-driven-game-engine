@@ -12,12 +12,12 @@ export module ddge.modules.vulkan.structure_chains.StructureChain;
 import vulkan_hpp;
 
 import ddge.modules.vulkan.structure_chains.core_feature_struct_from_vulkan1x_c;
+import ddge.modules.vulkan.structure_chains.erase_physical_device_features;
 import ddge.modules.vulkan.structure_chains.extends_struct_c;
 import ddge.modules.vulkan.structure_chains.filter_physical_device_features;
 import ddge.modules.vulkan.structure_chains.is_empty_feature_sruct;
 import ddge.modules.vulkan.structure_chains.match_physical_device_features;
 import ddge.modules.vulkan.structure_chains.merge_physical_device_features;
-import ddge.modules.vulkan.structure_chains.remove_physical_device_features;
 import ddge.modules.vulkan.structure_chains.vulkan1x_feature_struct_c;
 import ddge.utility.any_cast;
 import ddge.utility.containers.AnyCopyable;
@@ -70,22 +70,22 @@ public:
         requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>;
 
     template <vulkan1x_feature_struct_c Vulkan1XFeatures_T>
-    constexpr auto remove_and_merge_features_to_vulkan1x_feature_struct(
+    constexpr auto erase_and_merge_features_to_vulkan1x_feature_struct(
         Vulkan1XFeatures_T& vulkan1X_features
     ) -> void
         requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>;
 
-    constexpr auto remove_unsupported_features(
+    constexpr auto erase_unsupported_features(
         const vk::PhysicalDeviceFeatures2& supported_features
     ) -> void
         requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>;
 
-    constexpr auto try_remove_features(const vk::PhysicalDeviceFeatures& features) -> void
+    constexpr auto erase_features(const vk::PhysicalDeviceFeatures& features) -> void
         requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>;
     template <extends_struct_c<vk::PhysicalDeviceFeatures2> Features_T>
-    constexpr auto try_remove_features(const Features_T& features) -> void
+    constexpr auto erase_features(const Features_T& features) -> void
         requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>;
-    constexpr auto try_remove_features(
+    constexpr auto erase_features(
         const vk::PhysicalDeviceFeatures2& physical_device_features
     ) -> void
         requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>;
@@ -132,7 +132,7 @@ struct ErasedStructOperations {
     std::add_pointer_t<MergeToVulkan13FeaturesFunc> merge_to_Vulkan13_features{};
     std::add_pointer_t<MergeToVulkan14FeaturesFunc> merge_to_Vulkan14_features{};
     std::add_pointer_t<FilterFunc>                  filter{};
-    std::add_pointer_t<RemoveFunc>                  remove{};
+    std::add_pointer_t<RemoveFunc>                  erase{};
 };
 
 template <typename Struct_T>
@@ -225,13 +225,13 @@ struct ErasedStructTraits {
         );
     }
 
-    constexpr static auto remove(ErasedStruct& that, const vk::BaseInStructure& other)
+    constexpr static auto erase(ErasedStruct& that, const vk::BaseInStructure& other)
         -> void
         requires extends_struct_c<Struct_T, vk::PhysicalDeviceFeatures2>
     {
         PRECOND(Struct_T::structureType == other.sType);
 
-        remove_physical_device_features(
+        erase_physical_device_features(
             util::any_cast<Struct_T>(that), reinterpret_cast<const Struct_T&>(other)
         );
     }
@@ -311,10 +311,10 @@ struct ErasedStructTraits {
                     return nullptr;
                 }
             }(),
-        .remove =
+        .erase =
             [] {
                 if constexpr (extends_struct_c<Struct_T, vk::PhysicalDeviceFeatures2>) {
-                    return remove;
+                    return erase;
                 }
                 else {
                     return nullptr;
@@ -419,10 +419,10 @@ public:
         m_operations.get().filter(*this, features);
     }
 
-    constexpr auto remove(const vk::BaseInStructure& features) -> void
+    constexpr auto erase(const vk::BaseInStructure& features) -> void
     {
-        PRECOND(m_operations.get().remove != nullptr);
-        m_operations.get().remove(*this, features);
+        PRECOND(m_operations.get().erase != nullptr);
+        m_operations.get().erase(*this, features);
     }
 
 private:
@@ -582,7 +582,7 @@ constexpr auto StructureChain<RootStruct_T>::merge(
 template <util::meta::naked_c RootStruct_T>
 template <vulkan1x_feature_struct_c Vulkan1XFeatures_T>
 constexpr auto
-    StructureChain<RootStruct_T>::remove_and_merge_features_to_vulkan1x_feature_struct(
+    StructureChain<RootStruct_T>::erase_and_merge_features_to_vulkan1x_feature_struct(
         Vulkan1XFeatures_T& vulkan1X_features
     ) -> void
     requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>
@@ -635,7 +635,7 @@ constexpr auto
 }
 
 template <util::meta::naked_c RootStruct_T>
-constexpr auto StructureChain<RootStruct_T>::remove_unsupported_features(
+constexpr auto StructureChain<RootStruct_T>::erase_unsupported_features(
     const vk::PhysicalDeviceFeatures2& supported_features
 ) -> void
     requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>
@@ -666,24 +666,24 @@ constexpr auto StructureChain<RootStruct_T>::remove_unsupported_features(
 }
 
 template <util::meta::naked_c RootStruct_T>
-constexpr auto StructureChain<RootStruct_T>::try_remove_features(
+constexpr auto StructureChain<RootStruct_T>::erase_features(
     const vk::PhysicalDeviceFeatures& features
 ) -> void
     requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>
 {
-    remove_physical_device_features(m_root_struct.features, features);
+    erase_physical_device_features(m_root_struct.features, features);
 }
 
 template <util::meta::naked_c RootStruct_T>
 template <extends_struct_c<vk::PhysicalDeviceFeatures2> Features_T>
-constexpr auto StructureChain<RootStruct_T>::try_remove_features(
+constexpr auto StructureChain<RootStruct_T>::erase_features(
     const Features_T& features
 ) -> void
     requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>
 {
     if (const auto iter = m_chain.find(Features_T::structureType); iter != m_chain.cend())
     {
-        iter->second.remove(reinterpret_cast<const vk::BaseInStructure&>(features));
+        iter->second.erase(reinterpret_cast<const vk::BaseInStructure&>(features));
         if (iter->second.empty()) {
             m_chain.erase(iter);
             connect();
@@ -692,12 +692,12 @@ constexpr auto StructureChain<RootStruct_T>::try_remove_features(
 }
 
 template <util::meta::naked_c RootStruct_T>
-constexpr auto StructureChain<RootStruct_T>::try_remove_features(
+constexpr auto StructureChain<RootStruct_T>::erase_features(
     const vk::PhysicalDeviceFeatures2& physical_device_features
 ) -> void
     requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>
 {
-    remove_physical_device_features(
+    erase_physical_device_features(
         m_root_struct.features, physical_device_features.features
     );
 
@@ -711,7 +711,7 @@ constexpr auto StructureChain<RootStruct_T>::try_remove_features(
         if (const auto iter = m_chain.find(incoming_feature_struct->sType);
             iter != m_chain.cend())
         {
-            iter->second.remove(*incoming_feature_struct);
+            iter->second.erase(*incoming_feature_struct);
             if (iter->second.empty()) {
                 m_chain.erase(iter);
                 needs_reconnect |= true;
