@@ -77,7 +77,14 @@ auto ddge::util::store::Store::find(this Self_T& self) noexcept
         return std::nullopt;
     }
 
-    return util::any_cast<Item_T>(*iter);
+    return util::OptionalRef<util::meta::const_like_t<Item_T, Self_T>>{
+        util::any_cast<Item_T>(
+            // Something is really weird here, this const_cast should be redundant
+            const_cast<util::meta::const_like_t<util::BasicAnyMoveOnly<0>, Self_T>&>(
+                iter->second
+            )
+        )
+    };
 }
 
 template <ddge::util::store::item_c Item_T, typename Self_T>

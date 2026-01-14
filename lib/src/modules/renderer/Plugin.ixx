@@ -7,8 +7,6 @@ module;
 #include <functional>
 #include <utility>
 
-#include "modules/log/log_macros.hpp"
-
 export module ddge.modules.renderer.Plugin;
 
 import vulkan_hpp;
@@ -16,31 +14,25 @@ import vulkan_hpp;
 import ddge.modules.app;
 import ddge.modules.config.engine_name;
 import ddge.modules.config.engine_version;
-import ddge.modules.log;
-import ddge.modules.renderer.Addon;
-import ddge.modules.renderer.PluginBuildFailedError;
-import ddge.modules.renderer.RenderContextBuilder;
+import ddge.modules.renderer.ContextInjection;
 import ddge.modules.renderer.vulkan_profile;
-import ddge.modules.resources.Addon;
 import ddge.modules.resources.Plugin;
 import ddge.modules.vulkan.context;
 import ddge.modules.vulkan.DeviceBuilder;
 import ddge.modules.vulkan.InstanceInjection;
 import ddge.modules.vulkan.InstanceBuilder;
-import ddge.modules.vulkan.QueueFamilyIndex;
 import ddge.modules.wsi.Context;
 import ddge.modules.wsi.vulkan_instance_extensions;
-import ddge.modules.wsi.vulkan_queue_family_supports_presenting;
 import ddge.utility.containers.Lazy;
+import ddge.utility.containers.OptionalRef;
 import ddge.utility.containers.StringLiteral;
-import ddge.utility.Void;
 
 namespace ddge::renderer {
 
 using SupplyVulkanContext = auto (&)() -> const vk::raii::Context&;
 
 template <typename T>
-concept render_context_builder_modifier = std::invocable<T&&, RenderContextBuilder&>;
+concept render_context_builder_modifier = std::invocable<T&&, ContextInjection&>;
 
 export class Plugin {
 public:
@@ -58,14 +50,10 @@ public:
     template <typename Self_T, render_context_builder_modifier Modifier_T>
     auto add_render_context(this Self_T&& self, Modifier_T&& modifier) -> Self_T;
 
-    template <ddge::app::decays_to_app_c App_T>
-    [[nodiscard]]
-    auto build(App_T&& app) -> app::add_on_t<App_T, Addon>;
-
 private:
     SupplyVulkanContext                 m_supply_vulkan_context;
     bool                                m_headless;
-    std::optional<RenderContextBuilder> m_render_context_builder;
+    util::OptionalRef<ContextInjection> m_render_context_injection_ref;
 };
 
 }   // namespace ddge::renderer
@@ -144,12 +132,6 @@ auto Plugin::setup(AppBuilder_T& app_builder) -> void
         resource_plugin, m_supply_vulkan_context(), instance_create_info
     ) };
 
-    m_render_context_builder = RenderContextBuilder{ *instance_injection };
-
-    m_render_context_builder->device_builder().require_and_enable_capabilities(
-        vulkan_profile().physical_device_capabilities
-    );
-
     if (!m_headless) {
         wsi::Context wsi_context;
 
@@ -159,100 +141,43 @@ auto Plugin::setup(AppBuilder_T& app_builder) -> void
                 wsi::vulkan_instance_extensions(wsi_context) };
             expected_surface_extensions.has_value())
         {
+            resource_plugin.try_emplace_resource<wsi::Context>(wsi_context);
+
             for (const util::StringLiteral extension_name : *expected_surface_extensions)
             {
                 {
                     [[maybe_unused]]
-                    const bool success = m_render_context_builder->instance_builder()
-                                             .enable_extension(extension_name);
+                    const bool success =
+                        instance_injection->enable_extension(extension_name);
                     assert(success);
                 }
             }
-
-            m_render_context_builder->device_builder().enable_extension(
-                vk::KHRSwapchainExtensionName
-            );
-
-            resource_plugin.try_emplace_resource<wsi::Context>(wsi_context);
         }
         else {
             m_headless = true;
         }
+    }
+
+    ContextInjection* context_injection{};
+    resource_plugin.inject_resource(
+        ContextInjection{ *instance_injection }, &context_injection
+    );
+    m_render_context_injection_ref = *context_injection;
+
+    m_render_context_injection_ref->device_builder().require_and_enable_capabilities(
+        vulkan_profile().physical_device_capabilities
+    );
+
+    if (!m_headless) {
+        m_render_context_injection_ref->request_wsi_support();
     }
 }
 
 template <typename Self_T, render_context_builder_modifier Modifier_T>
 auto Plugin::add_render_context(this Self_T&& self, Modifier_T&& modifier) -> Self_T
 {
-    std::invoke(std::forward<Modifier_T>(modifier), *self.m_render_context_builder);
+    std::invoke(std::forward<Modifier_T>(modifier), *self.m_render_context_injection_ref);
     return std::forward<Self_T>(self);
-}
-
-// ReSharper disable once CppNotAllPathsReturnValue
-[[noreturn]]
-auto throw_build_failed_error(const RenderContextBuilder::BuildFailure failure)
-    -> util::Void
-{
-    switch (failure) {
-        case RenderContextBuilder::BuildFailure::eNoSupportedDeviceFound:
-            throw PluginBuildFailedError{
-                "No suitable GPU found. Try upgrading your driver."
-            };
-    }
-}
-
-template <ddge::app::decays_to_app_c App_T>
-auto Plugin::build(App_T&& app) -> app::add_on_t<App_T, Addon>
-{
-    static_assert(app::has_addons_c<App_T, app::extensions::MetaInfoAddon>);
-    static_assert(app::has_addons_c<App_T, resources::Addon>);
-    const resources::Addon&   resource_addon{ static_cast<const resources::Addon&>(app) };
-    const vk::raii::Instance& instance{
-        resource_addon.resource_manager.at<vk::raii::Instance>()
-    };
-
-    if (!m_headless) {
-        const wsi::Context& wsi_context{
-            resource_addon.resource_manager.at<wsi::Context>()
-        };
-        add_render_context(
-            [&wsi_context,
-             &instance](RenderContextBuilder& render_context_builder) -> void {
-                render_context_builder.device_builder().ensure_queue(
-                    [&wsi_context, &instance](
-                        const vk::raii::PhysicalDevice& physical_device,
-                        const vulkan::QueueFamilyIndex  queue_family_index,
-                        const vk::QueueFamilyProperties2&
-                    ) -> bool {
-                        return wsi::vulkan_queue_family_supports_presenting(
-                            wsi_context, instance, physical_device, queue_family_index
-                        );
-                    }
-                );
-            }
-        );
-    }
-
-    ENGINE_LOG_TRACE("Building renderer plugin...");
-
-    auto result = std::forward<App_T>(app).add_on(
-        Addon{
-            .render_context = *std::move(*m_render_context_builder)
-                                   .build(instance)
-                                   .transform_error(throw_build_failed_error),
-        }
-    );
-
-    ENGINE_LOG_INFO(
-        std::format(
-            "Created renderer for GPU - {}",
-            static_cast<const char*>(result.render_context.device.physical_device
-                                         .getProperties2()
-                                         .properties.deviceName)
-        )
-    );
-
-    return result;
 }
 
 }   // namespace ddge::renderer

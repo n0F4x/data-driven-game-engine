@@ -6,70 +6,71 @@ import vulkan_hpp;
 import ddge.modules.app;
 import ddge.modules.renderer;
 import ddge.modules.resources;
-import ddge.modules.vulkan;
 import ddge.modules.wsi;
-import ddge.utility.containers.OptionalRef;
 import ddge.utility.containers.StringLiteral;
-import ddge.utility.meta.reflection.name_of;
 
-constexpr static ddge::util::StringLiteral application_name{ "render_a_triangle" };
-constexpr static uint32_t                  application_version{ 0 };
+using namespace ddge;
+
+constexpr static util::StringLiteral application_name{ "render_a_triangle" };
+constexpr static uint32_t            application_version{ 0 };
 
 [[nodiscard]]
-constexpr auto meta_info() -> ddge::app::extensions::MetaInfo
+constexpr auto meta_info() -> app::extensions::MetaInfo
 {
-    return ddge::app::extensions::MetaInfo{
+    return app::extensions::MetaInfo{
         application_name,
         application_version,
     };
 }
 
+using App = app::App<app::MetaInfoAddon, resources::Addon>;
+
+auto run(const App& app) -> void;
+
 auto main() -> int
 try {
-    using namespace ddge;
+    const App app = app::create()
+                        .plug_in(app::extensions::MetaInfoPlugin{ meta_info() })
+                        .plug_in(resources::Plugin{})
+                        .plug_in(renderer::Plugin{})
+                        .add_render_context(
+                            &renderer::ContextInjection::request_default_debug_messenger
+                        )
+                        .build();
 
-    static const wsi::Context context;
+    run(app);
 
-    const auto application =
-        app::create()
-            .plug_in(app::extensions::MetaInfoPlugin{ meta_info() })
-            .plug_in(resources::Plugin{})
-            .plug_in(renderer::Plugin{})
-            .add_render_context(
-                &renderer::RenderContextBuilder::request_default_debug_messenger
-            )
-            .add_render_context(
-                [](renderer::RenderContextBuilder& render_context_builder) -> void   //
-                {
-                    render_context_builder.device_builder().enable_extension(
-                        vk::KHRShaderDrawParametersExtensionName
-                    );
-                    render_context_builder.device_builder().require_minimum_version(
-                        vk::ApiVersion11
-                    );
-                }
-            )
-            .build();
-
-    for (const auto extension :
-         application.render_context.device.enabled_capabilities.extensions())
-    {
-        std::println("{}", extension);
-    }
-
-    if (const util::OptionalRef<const vk::PhysicalDeviceVulkan11Features> vulkan11_features =
-            application.render_context.device.enabled_capabilities.features()
-                .find<vk::PhysicalDeviceVulkan11Features>();
-        vulkan11_features.has_value())
-    {
-        std::println(
-            "{}: {}",
-            util::meta::
-                name_of<&vk::PhysicalDeviceVulkan11Features::shaderDrawParameters>(),
-            vulkan11_features->shaderDrawParameters ? "VK_TRUE" : "VK_FALSE"
-        );
-    }
-
-} catch (const ddge::app::BuildFailedError& error) {
+} catch (const app::BuildFailedError& error) {
     std::println("{}", error.what());
+}
+
+auto run(const App& app) -> void
+{
+    const wsi::Context&      wsi_context{ app.resource_manager.at<wsi::Context>() };
+    const renderer::Context& render_context{
+        app.resource_manager.at<renderer::Context>()
+    };
+
+    constexpr wsi::WindowedWindowSettings screen_settings{
+        .content_size{ .width = 640, .height = 480 }
+    };
+    constexpr wsi::Window::CreateInfo window_info{
+        .title    = "Hello Window!",
+        .settings = screen_settings,
+    };
+
+    wsi::VulkanWindow window{
+        wsi::Window{ auto{ wsi_context }, window_info },
+        render_context.instance,
+        render_context.device,
+        1
+    };
+
+    while (!window.should_close()) {
+        wsi::poll_events(wsi_context);
+
+        if (window.key_pressed(wsi::Key::eEscape)) {
+            window.request_close();
+        }
+    }
 }

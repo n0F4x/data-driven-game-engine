@@ -18,8 +18,10 @@ import ddge.modules.resources.Addon;
 import ddge.modules.resources.resource_c;
 import ddge.utility.containers.store.Store;
 
+import ddge.utility.containers.OptionalRef;
 import ddge.utility.contracts;
 import ddge.utility.meta.concepts.type_list.type_list_all_of;
+import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.type_traits.functional.arguments_of;
 import ddge.utility.meta.type_traits.functional.result_of;
 import ddge.utility.meta.type_traits.type_list.type_list_single;
@@ -123,23 +125,47 @@ auto Plugin::try_emplace_resource(this Self_T&& self, Args_T&&... args) -> Self_
              : std::forward<Self_T>(self);
 }
 
+template <typename T>
+struct IsInjectionParameter {
+    constexpr static bool value{
+        util::meta::specialization_of_c<T, util::OptionalRef>
+        || (std::is_lvalue_reference_v<T>
+            && !util::meta::
+                   specialization_of_c<std::remove_reference_t<T>, util::OptionalRef>)
+    };
+};
+
 template <typename Injection_T>
 auto apply_injections(Injection_T&& injection, ddge::util::store::Store& parameter_store)
     -> ddge::util::meta::result_of_t<Injection_T>
 {
     using Parameters = ddge::util::meta::arguments_of_t<Injection_T>;
-    static_assert(
-        ddge::util::meta::type_list_all_of_c<Parameters, std::is_lvalue_reference>
-    );
+    static_assert(ddge::util::meta::type_list_all_of_c<Parameters, IsInjectionParameter>);
 
     return [&injection, &parameter_store]<typename... Parameters_T>(
                ddge::util::TypeList<Parameters_T...>
            ) {
-        PRECOND((parameter_store.contains<Parameters_T>() && ...));
+        PRECOND(
+            ((util::meta::specialization_of_c<Parameters_T, util::OptionalRef>
+              || parameter_store.contains<Parameters_T>())
+             && ...)
+        );
 
         return std::invoke(
-            std::forward<Injection_T>(injection),
-            parameter_store.at<std::remove_cvref_t<Parameters_T>>()...
+            std::forward<Injection_T>(injection),   //
+            [&parameter_store]<typename Parameter_T> -> decltype(auto) {
+                if constexpr (util::meta::
+                                  specialization_of_c<Parameter_T, util::OptionalRef>)
+                {
+                    return Parameter_T{
+                        parameter_store
+                            .find<std::remove_const_t<typename Parameter_T::ValueType>>()
+                    };
+                }
+                else {
+                    return parameter_store.at<std::remove_cvref_t<Parameter_T>>();
+                }
+            }.template operator()<Parameters_T>()...
         );
     }(Parameters{});
 }

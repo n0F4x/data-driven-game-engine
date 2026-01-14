@@ -1,5 +1,5 @@
 target_sources(${PROJECT_NAME} PRIVATE
-        RenderContextBuilder.cxx
+        ContextInjection.cxx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC
@@ -8,10 +8,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         renderer.cppm
-        Addon.ixx
         Plugin.ixx
-        PluginBuildFailedError.ixx
-        RenderContext.ixx
-        RenderContextBuilder.ixx
+        Context.ixx
+        ContextInjection.ixx
         vulkan_profile.ixx
 )
