@@ -18,8 +18,6 @@ https://packages.msys2.org/groups/mingw-w64-clang-x86_64-toolchain[Link] to pack
 External libraries used to be fetched with CMake's https://cmake.org/cmake/help/latest/module/FetchContent.html[FetchContent].
 This got too slow as the project grew, hence the move to a package manager.
 
-FetchContent is still used for libraries that don't have the proper versions in a remote.
-
 == Conan
 
 https://docs.conan.io/2/[Conan 2] is used as the project's primary dependency manager.
