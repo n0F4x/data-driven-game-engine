@@ -46,6 +46,9 @@ public:
         PickPresentMode_T&&         pick_present_mode
     );
 
+    [[nodiscard]]
+    auto surface_format() const noexcept -> vk::SurfaceFormatKHR;
+
 private:
     vk::SurfaceFormatKHR             m_surface_format;
     vk::raii::SwapchainKHR           m_swapchain;
@@ -229,5 +232,10 @@ Swapchain::Swapchain(
           m_swapchain_images
       ) }
 {}
+
+auto Swapchain::surface_format() const noexcept -> vk::SurfaceFormatKHR
+{
+    return m_surface_format;
+}
 
 }   // namespace ddge::vulkan

@@ -2,11 +2,13 @@ export module ddge.modules.vulkan;
 
 export import ddge.modules.vulkan.extension_inspection;
 export import ddge.modules.vulkan.format;
+export import ddge.modules.vulkan.pipeline;
 export import ddge.modules.vulkan.result;
 export import ddge.modules.vulkan.structure_chains;
 
 export import ddge.modules.vulkan.context;
 export import ddge.modules.vulkan.default_debug_messenger_callback;
+export import ddge.modules.vulkan.Device;
 export import ddge.modules.vulkan.DeviceBuilder;
 export import ddge.modules.vulkan.InstanceBuilder;
 export import ddge.modules.vulkan.InstanceInjection;

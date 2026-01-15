@@ -131,6 +131,7 @@ auto Plugin::setup(AppBuilder_T& app_builder) -> void
     vulkan::InstanceInjection& instance_injection{ try_emplace_instance_injection(
         resource_plugin, m_supply_vulkan_context(), instance_create_info
     ) };
+    instance_injection->request_api_version(vulkan_profile().api_version);
 
     if (!m_headless) {
         wsi::Context wsi_context;

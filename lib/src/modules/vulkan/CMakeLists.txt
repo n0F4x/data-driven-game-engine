@@ -1,5 +1,6 @@
 add_subdirectory(extension_inspection)
 add_subdirectory(format)
+add_subdirectory(pipeline)
 add_subdirectory(result)
 add_subdirectory(structure_chains)
 

@@ -36,6 +36,9 @@ public:
         PickPresentMode_T&&       pick_present_mode
     );
 
+    [[nodiscard]]
+    auto surface_format() const noexcept -> vk::SurfaceFormatKHR;
+
 private:
     vk::raii::SurfaceKHR m_surface;
     vulkan::Swapchain    m_swapchain;
@@ -102,5 +105,10 @@ VulkanWindow::VulkanWindow(
           pick_present_mode,
       }
 {}
+
+auto VulkanWindow::surface_format() const noexcept -> vk::SurfaceFormatKHR
+{
+    return m_swapchain.surface_format();
+}
 
 }   // namespace ddge::wsi

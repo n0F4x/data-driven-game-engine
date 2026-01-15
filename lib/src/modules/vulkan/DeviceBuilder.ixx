@@ -292,10 +292,10 @@ auto DeviceBuilder::build(const vk::raii::Instance& instance) const
     }
 
     StructureChain<vk::PhysicalDeviceFeatures2> supported_optional_features{
-        m_optional_capabilities.features()
+        m_optional_capabilities.features_chain()
     };
     StructureChain<vk::PhysicalDeviceFeatures2> optional_feature_support{
-        m_optional_capabilities.features()
+        m_optional_capabilities.features_chain()
     };
     physical_device.getDispatcher()->vkGetPhysicalDeviceFeatures2(
         *physical_device, optional_feature_support.root()
@@ -315,7 +315,7 @@ auto DeviceBuilder::build(const vk::raii::Instance& instance) const
     }
 
     const vk::DeviceCreateInfo device_create_info{
-        .pNext                 = &capabilities.features().root(),
+        .pNext                 = &capabilities.features_chain().root(),
         .queueCreateInfoCount  = static_cast<uint32_t>(queue_create_infos.size()),
         .pQueueCreateInfos     = queue_create_infos.data(),
         .enabledExtensionCount = static_cast<uint32_t>(capabilities.extensions().size()),
