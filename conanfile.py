@@ -75,7 +75,6 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("spdlog/1.16.0")
         self.requires("glfw/3.4")
         self.requires("vulkan-headers/1.4.313.0", transitive_headers=True)
-        self.requires("entt/3.15.0", transitive_headers=True)
 
         if self._enable_tests:
             self.test_requires("catch2/3.11.0")

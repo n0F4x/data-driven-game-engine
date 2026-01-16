@@ -51,7 +51,3 @@ target_compile_definitions(VulkanCppModule PUBLIC
 target_link_libraries(VulkanCppModule PUBLIC Vulkan::Headers)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Headers)
 target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_LOCAL_INTERFACE:VulkanCppModule>)
-
-# EnTT
-find_package(EnTT CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC EnTT::EnTT)
