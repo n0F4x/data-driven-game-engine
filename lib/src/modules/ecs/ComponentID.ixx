@@ -9,7 +9,7 @@ import ddge.utility.containers.Strong;
 
 import :component_c;
 
-struct ComponentID : ddge::util::Strong<uint_least32_t, ComponentID> {
+struct ComponentID : ddge::util::Strong<ddge::util::meta::TypeHash, ComponentID> {
     using Strong::Strong;
 };
 
