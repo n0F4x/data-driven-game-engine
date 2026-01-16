@@ -7,6 +7,14 @@ import ddge.modules.scheduler;
 
 using namespace ddge::scheduler;
 
+[[nodiscard]]
+auto print_main_thread_id() -> TaskBuilder<void>
+{
+    return ddge::scheduler::force_on_main([] static -> void {
+        std::println("-- Main thread id is {}", std::this_thread::get_id());
+    });
+}
+
 auto say_hello_from_thread() -> void
 {
     std::println("Hello from thread #{}", std::this_thread::get_id());
@@ -54,19 +62,22 @@ auto main() -> int
         .insert_resource(ContendedResource{})
         .plug_in(scheduler::Plugin{ 4 })
         .run(
-            scheduler::repeat(
-                scheduler::start_as(
-                    scheduler::group(
-                        scheduler::as_task(say_hello_from_thread),
-                        scheduler::as_task(contend_for_resource_first),
-                        scheduler::as_task(say_hello_from_thread),
-                        scheduler::as_task(say_hello_from_thread),
-                        scheduler::as_task(contend_for_resource_second),
-                        scheduler::as_task(say_hello_from_thread)
+            scheduler::start_as(print_main_thread_id())
+                .then(
+                    scheduler::repeat(
+                        scheduler::start_as(
+                            scheduler::group(
+                                scheduler::as_task(say_hello_from_thread),
+                                scheduler::as_task(contend_for_resource_first),
+                                scheduler::as_task(say_hello_from_thread),
+                                scheduler::as_task(say_hello_from_thread),
+                                scheduler::as_task(contend_for_resource_second),
+                                scheduler::as_task(say_hello_from_thread)
+                            )
+                        )
+                            .then(scheduler::as_task(print_join_message)),
+                        scheduler::as_task(always_4)
                     )
                 )
-                    .then(scheduler::as_task(print_join_message)),
-                scheduler::as_task(always_4)
-            )
         );
 }
