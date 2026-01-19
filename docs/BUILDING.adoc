@@ -90,7 +90,9 @@ Libraries like _libcxx_ and _asan_ will be found this way.
 .How to test the library as a package?
 [%collapsible]
 ====
-Run the following command: `+conan export-pkg .+` +
+Run the following command: `+conan export-pkg .+` to export the library to the local conan cache.
+Test the exported library using `+conan test data-driven_game_engine/version --profile:host=customtestprofile --profile:build=customtestprofile+`.
+Make sure that `+user.data-driven_game_engine:dev+` is not declared as `+True+` in the conan profile used for testing.
 Read more https://docs.conan.io/2/tutorial/developing_packages/local_package_development_flow.html#conan-export-pkg[here].
 ====
 

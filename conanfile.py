@@ -27,6 +27,9 @@ class DataDrivenGameEngineRecipe(ConanFile):
         "log_level": "info",
     }
     implements = ["auto_shared_fpic"]
+    exports_sources = (
+        "lib/*",
+    )
 
     @property
     def _dev(self):
@@ -73,7 +76,7 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
         self.requires("fmt/12.0.0", transitive_headers=True)
         self.requires("spdlog/1.16.0")
-        self.requires("glfw/3.4")
+        self.requires("glfw/3.4", transitive_headers=True)
         self.requires("vulkan-headers/1.4.313.0", transitive_headers=True)
 
         if self._enable_tests:
@@ -95,8 +98,9 @@ class DataDrivenGameEngineRecipe(ConanFile):
         project_prefix = "ENGINE_"
         tc.cache_variables[project_prefix + "LOG_LEVEL"] \
             = project_prefix + "LOG_LEVEL_" + self.options.log_level.value.upper()
-        tc.cache_variables[project_prefix + "ENABLE_TESTS"] = self._enable_tests
-        tc.cache_variables[project_prefix + "ENABLE_EXAMPLES"] = self._enable_examples
+        if self._dev:
+            tc.cache_variables[project_prefix + "ENABLE_TESTS"] = self._enable_tests
+            tc.cache_variables[project_prefix + "ENABLE_EXAMPLES"] = self._enable_examples
 
         tc.generate()
 

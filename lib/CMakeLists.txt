@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.30)
 
 project(engine VERSION 0.0.1)
 
+set(project_prefix ENGINE_)
+
 set(${project_prefix}LOG_LEVEL ${project_prefix}LOG_LEVEL_INFO CACHE STRING "Set log level")
 set_property(CACHE ${project_prefix}LOG_LEVEL PROPERTY STRINGS
         ${project_prefix}LOG_LEVEL_OFF
@@ -18,7 +20,7 @@ add_library(${PROJECT_NAME})
 add_library(engine::engine ALIAS ${PROJECT_NAME})
 
 
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_26)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_26)
 
 include(cmake/set_log_level.cmake)
 set_log_level(${PROJECT_NAME} ${project_prefix}LOG_LEVEL)
