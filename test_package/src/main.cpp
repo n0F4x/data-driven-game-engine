@@ -1,4 +1,4 @@
-import ddge.prelude;
+import ddge;
 
 auto main() -> int
 {
