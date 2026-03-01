@@ -3,7 +3,6 @@ module;
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
-#include <flat_map>
 #include <functional>
 #include <optional>
 #include <ranges>
@@ -360,13 +359,12 @@ auto DeviceBuilder::most_suitable(
         return std::nullopt;
     }
 
-    std::flat_multimap<uint32_t, vk::raii::PhysicalDevice, std::greater<uint32_t>>
-        sorted_physical_devices;
+    std::size_t highest_scoring_index{};
+    uint32_t    highest_score{};
 
     // TODO: use std::views::enumerate
-    for (auto&& [index, physical_device] : std::views::zip(
-             std::views::iota(0uz), std::views::as_rvalue(std::move(physical_devices))
-         ))
+    for (auto&& [index, physical_device] :
+         std::views::zip(std::views::iota(0uz), physical_devices))
     {
         uint32_t score{};
 
@@ -386,10 +384,13 @@ auto DeviceBuilder::most_suitable(
             score += 1 << 2;
         }
 
-        sorted_physical_devices.emplace(score, std::move(physical_device));
+        if (score > highest_score) {
+            highest_scoring_index = index;
+            highest_score         = score;
+        }
     }
 
-    return std::move(sorted_physical_devices.begin()->second);
+    return std::move(physical_devices[highest_scoring_index]);
 }
 
 auto DeviceBuilder::create_device_queue_create_infos(

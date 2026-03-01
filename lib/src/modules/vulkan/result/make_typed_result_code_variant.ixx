@@ -10,7 +10,6 @@ import vulkan_hpp;
 
 import ddge.modules.vulkan.result.TypedResultCode;
 import ddge.utility.contracts;
-import ddge.utility.meta.algorithms.for_each;
 
 namespace ddge::vulkan {
 

@@ -4,6 +4,7 @@ module;
 #include <flat_map>
 #include <ranges>
 #include <utility>
+#include <vector>
 
 #include "utility/contract_macros.hpp"
 
@@ -676,9 +677,8 @@ constexpr auto StructureChain<RootStruct_T>::erase_features(
 
 template <util::meta::naked_c RootStruct_T>
 template <extends_struct_c<vk::PhysicalDeviceFeatures2> Features_T>
-constexpr auto StructureChain<RootStruct_T>::erase_features(
-    const Features_T& features
-) -> void
+constexpr auto StructureChain<RootStruct_T>::erase_features(const Features_T& features)
+    -> void
     requires std::same_as<RootStruct_T, vk::PhysicalDeviceFeatures2>
 {
     if (const auto iter = m_chain.find(Features_T::structureType); iter != m_chain.cend())
