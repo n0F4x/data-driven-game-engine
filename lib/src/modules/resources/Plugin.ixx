@@ -145,12 +145,6 @@ auto apply_injections(Injection_T&& injection, ddge::util::store::Store& paramet
     return [&injection, &parameter_store]<typename... Parameters_T>(
                ddge::util::TypeList<Parameters_T...>
            ) {
-        PRECOND(
-            ((util::meta::specialization_of_c<Parameters_T, util::OptionalRef>
-              || parameter_store.contains<Parameters_T>())
-             && ...)
-        );
-
         return std::invoke(
             std::forward<Injection_T>(injection),   //
             [&parameter_store]<typename Parameter_T> -> decltype(auto) {
