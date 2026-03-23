@@ -2,12 +2,12 @@
 
 import ddge.modules.ecs;
 
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.meta.type_traits.type_list.type_list_filter;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
-import ddge.utility.meta.type_traits.underlying;
-import ddge.utility.TypeList;
+import ddge.util.containers.OptionalRef;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.meta.type_traits.type_list.type_list_filter;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
+import ddge.util.meta.type_traits.underlying;
+import ddge.util.TypeList;
 
 namespace {
 

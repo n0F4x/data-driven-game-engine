@@ -7,13 +7,13 @@ module;
 
 #include <vulkan/vulkan_raii.hpp>
 
-#include "utility/lifetime_bound.hpp"
+#include "util/lifetime_bound.hpp"
 
 export module ddge.modules.vulkan.InstanceBuilder;
 
 import vulkan_hpp;
 
-import ddge.utility.containers.StringLiteral;
+import ddge.util.containers.StringLiteral;
 
 namespace ddge::vulkan {
 

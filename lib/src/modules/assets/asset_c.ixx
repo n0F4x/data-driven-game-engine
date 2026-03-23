@@ -1,6 +1,6 @@
 export module ddge.modules.assets.asset_c;
 
-import ddge.utility.meta.concepts.nothrow_movable;
+import ddge.util.meta.concepts.nothrow_movable;
 
 namespace ddge::assets {
 

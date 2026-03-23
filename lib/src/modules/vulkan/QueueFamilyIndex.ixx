@@ -4,7 +4,7 @@ module;
 
 export module ddge.modules.vulkan.QueueFamilyIndex;
 
-import ddge.utility.containers.Strong;
+import ddge.util.containers.Strong;
 
 namespace ddge::vulkan {
 

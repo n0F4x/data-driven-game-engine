@@ -1,7 +1,7 @@
 export module ddge.modules.scheduler.TaskIndex;
 
 import ddge.modules.scheduler.data_structures.WorkIndex;
-import ddge.utility.containers.Strong;
+import ddge.util.containers.Strong;
 
 namespace ddge::scheduler {
 

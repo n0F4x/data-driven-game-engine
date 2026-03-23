@@ -4,7 +4,7 @@ module;
 
 export module ddge.modules.app.extensions.MetaInfo;
 
-import ddge.utility.containers.StringLiteral;
+import ddge.util.containers.StringLiteral;
 
 namespace ddge::app {
 

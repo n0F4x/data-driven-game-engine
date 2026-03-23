@@ -3,7 +3,7 @@ export module ddge.modules.vulkan.extension_inspection.try_promote_extension_to_
 import vulkan_hpp;
 
 import ddge.modules.vulkan.extension_inspection.extension_is_promoted_to_vulkan1x;
-import ddge.utility.containers.StringLiteral;
+import ddge.util.containers.StringLiteral;
 
 namespace ddge::vulkan {
 

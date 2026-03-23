@@ -11,9 +11,9 @@ export module ddge.modules.events.BufferedEventQueue;
 import ddge.modules.events.decays_to_event_c;
 import ddge.modules.events.event_c;
 
-import ddge.utility.meta.type_traits.const_like;
-import ddge.utility.meta.type_traits.type_list.type_list_contains;
-import ddge.utility.TypeList;
+import ddge.util.meta.type_traits.const_like;
+import ddge.util.meta.type_traits.type_list.type_list_contains;
+import ddge.util.TypeList;
 
 namespace ddge::events {
 

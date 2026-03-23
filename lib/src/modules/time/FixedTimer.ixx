@@ -7,7 +7,7 @@ module;
 
 export module ddge.modules.time.FixedTimer;
 
-import ddge.utility.meta.concepts.specialization_of;
+import ddge.util.meta.concepts.specialization_of;
 
 namespace ddge::time {
 

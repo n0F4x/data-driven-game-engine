@@ -2,7 +2,7 @@ export module ddge.modules.scheduler.IndirectTaskContinuationSetter;
 
 import ddge.modules.scheduler.TaskContinuation;
 
-import ddge.utility.containers.AnyMoveOnlyFunction;
+import ddge.util.containers.AnyMoveOnlyFunction;
 
 namespace ddge::scheduler {
 

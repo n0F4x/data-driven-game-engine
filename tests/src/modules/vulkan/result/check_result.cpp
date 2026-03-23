@@ -8,7 +8,7 @@ import ddge.modules.vulkan.result.check_result;
 import ddge.modules.vulkan.result.Result;
 import ddge.modules.vulkan.result.TypedResultCode;
 import ddge.modules.vulkan.result.VulkanError;
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 import vulkan_hpp;
 

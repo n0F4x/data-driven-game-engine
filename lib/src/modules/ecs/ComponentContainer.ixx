@@ -5,13 +5,13 @@ module;
 #include <utility>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.ecs:ComponentContainer;
 
-import ddge.utility.contracts;
-import ddge.utility.meta.concepts.decays_to;
-import ddge.utility.meta.type_traits.maybe_const;
+import ddge.util.contracts;
+import ddge.util.meta.concepts.decays_to;
+import ddge.util.meta.type_traits.maybe_const;
 
 import :component_c;
 import :RecordIndex;

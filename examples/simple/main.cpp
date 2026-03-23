@@ -4,7 +4,7 @@
 import ddge.prelude;
 import ddge.modules.ecs;
 import ddge.modules.scheduler;
-import ddge.utility.containers.OptionalRef;
+import ddge.util.containers.OptionalRef;
 
 import demo.Window;
 

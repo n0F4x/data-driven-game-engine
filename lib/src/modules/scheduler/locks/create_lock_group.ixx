@@ -3,8 +3,8 @@ export module ddge.modules.scheduler.locks.create_lock_group;
 import ddge.modules.scheduler.locks.has_lock_group_c;
 import ddge.modules.scheduler.locks.LockGroup;
 
-import ddge.utility.meta.concepts.type_list.type_list_all_of;
-import ddge.utility.meta.algorithms.for_each;
+import ddge.util.meta.concepts.type_list.type_list_all_of;
+import ddge.util.meta.algorithms.for_each;
 
 namespace ddge::scheduler {
 

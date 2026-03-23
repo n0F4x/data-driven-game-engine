@@ -6,7 +6,7 @@ export module ddge.modules.scheduler.locks.CriticalSectionType;
 
 import ddge.modules.scheduler.locks.CriticalSection;
 
-import ddge.utility.meta.type_traits.type_list.type_list_size;
+import ddge.util.meta.type_traits.type_list.type_list_size;
 
 namespace ddge::scheduler {
 

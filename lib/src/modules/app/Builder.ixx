@@ -6,9 +6,9 @@ module;
 
 export module ddge.modules.app.Builder;
 
-import ddge.utility.meta.type_traits.forward_like;
-import ddge.utility.meta.type_traits.type_list.type_list_contains;
-import ddge.utility.TypeList;
+import ddge.util.meta.type_traits.forward_like;
+import ddge.util.meta.type_traits.type_list.type_list_contains;
+import ddge.util.TypeList;
 
 import ddge.modules.app.App;
 import ddge.modules.app.app_c;

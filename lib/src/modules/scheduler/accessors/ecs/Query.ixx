@@ -13,13 +13,13 @@ import ddge.modules.scheduler.locks.CriticalSectionType;
 import ddge.modules.scheduler.locks.Lock;
 import ddge.modules.scheduler.locks.LockGroup;
 
-import ddge.utility.meta.algorithms.for_each;
-import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.meta.type_traits.type_list.type_list_filter;
-import ddge.utility.meta.type_traits.type_list.type_list_push_front;
-import ddge.utility.meta.type_traits.type_list.type_list_to;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
-import ddge.utility.TypeList;
+import ddge.util.meta.algorithms.for_each;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.meta.type_traits.type_list.type_list_filter;
+import ddge.util.meta.type_traits.type_list.type_list_push_front;
+import ddge.util.meta.type_traits.type_list.type_list_to;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
+import ddge.util.TypeList;
 
 namespace ddge::scheduler::accessors {
 

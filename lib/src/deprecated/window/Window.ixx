@@ -13,7 +13,7 @@ module;
 
 export module ddge.deprecated.window.Window;
 
-import ddge.utility.Size;
+import ddge.util.Size;
 
 import ddge.deprecated.window.CursorMode;
 import ddge.deprecated.window.Key;

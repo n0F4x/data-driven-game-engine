@@ -2,8 +2,8 @@ export module ddge.modules.scheduler.accessor_c;
 
 import ddge.modules.scheduler.locks.has_lock_group_c;
 
-import ddge.utility.meta.concepts.naked;
-import ddge.utility.meta.concepts.storable;
+import ddge.util.meta.concepts.naked;
+import ddge.util.meta.concepts.storable;
 
 namespace ddge::scheduler {
 

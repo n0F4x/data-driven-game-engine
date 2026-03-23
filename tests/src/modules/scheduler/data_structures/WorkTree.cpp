@@ -12,7 +12,7 @@ import ddge.modules.scheduler.data_structures.WorkIndex;
 import ddge.modules.scheduler.data_structures.WorkContinuation;
 import ddge.modules.scheduler.data_structures.WorkTree;
 
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 TEST_CASE("ddge::scheduler::WorkTree")
 {

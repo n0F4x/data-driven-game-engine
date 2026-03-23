@@ -2,14 +2,14 @@ module;
 
 #include <variant>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.vulkan.result.make_typed_result_code_variant;
 
 import vulkan_hpp;
 
 import ddge.modules.vulkan.result.TypedResultCode;
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::vulkan {
 

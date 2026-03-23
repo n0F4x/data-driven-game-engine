@@ -5,11 +5,11 @@ module;
 export module ddge.modules.resources.ResourceManager;
 
 import ddge.modules.resources.resource_c;
-import ddge.utility.containers.store.Store;
+import ddge.util.containers.store.Store;
 
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.meta.type_traits.const_like;
-import ddge.utility.meta.type_traits.forward_like;
+import ddge.util.containers.OptionalRef;
+import ddge.util.meta.type_traits.const_like;
+import ddge.util.meta.type_traits.forward_like;
 
 namespace ddge::resources {
 

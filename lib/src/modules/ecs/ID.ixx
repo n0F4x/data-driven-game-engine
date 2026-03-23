@@ -4,8 +4,8 @@ module;
 
 export module ddge.modules.ecs:ID;
 
-import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.containers.Strong;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.containers.Strong;
 
 namespace ddge::ecs {
 

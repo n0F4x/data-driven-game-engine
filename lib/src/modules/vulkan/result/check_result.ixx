@@ -7,7 +7,7 @@ module;
 
 #include <vulkan/vulkan_core.h>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.vulkan.result.check_result;
 
@@ -19,8 +19,8 @@ import ddge.modules.vulkan.result.result_category;
 import ddge.modules.vulkan.result.ResultCategory;
 import ddge.modules.vulkan.result.TypedResultCode;
 import ddge.modules.vulkan.result.VulkanError;
-import ddge.utility.contracts;
-import ddge.utility.meta.concepts.naked;
+import ddge.util.contracts;
+import ddge.util.meta.concepts.naked;
 
 namespace ddge::vulkan {
 

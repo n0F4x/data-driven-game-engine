@@ -4,7 +4,7 @@ module;
 
 #include <GLFW/glfw3.h>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.wsi.vulkan_queue_family_supports_presenting;
 
@@ -13,7 +13,7 @@ import vulkan_hpp;
 import ddge.modules.vulkan.QueueFamilyIndex;
 import ddge.modules.wsi.Context;
 import ddge.modules.wsi.Error;
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::wsi {
 

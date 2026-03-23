@@ -5,7 +5,7 @@ module;
 #include <utility>
 
 #include "modules/log/log_macros.hpp"
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 module ddge.modules.renderer.ContextInjection;
 
@@ -15,7 +15,7 @@ import ddge.modules.log;
 import ddge.modules.vulkan.QueueFamilyIndex;
 import ddge.modules.vulkan.result.check_result;
 import ddge.modules.wsi.vulkan_queue_family_supports_presenting;
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::renderer {
 

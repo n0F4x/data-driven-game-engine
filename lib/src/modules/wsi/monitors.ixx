@@ -7,14 +7,14 @@ module;
 
 #include <GLFW/glfw3.h>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.wsi.monitors;
 
 import ddge.modules.wsi.Context;
 import ddge.modules.wsi.Error;
 import ddge.modules.wsi.Size;
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::wsi {
 

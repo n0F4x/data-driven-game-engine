@@ -13,7 +13,7 @@ import ddge.modules.scheduler.accessors.ecs.Registry;
 import ddge.modules.scheduler.ProviderFor;
 import ddge.modules.scheduler.ProviderOf;
 
-import ddge.utility.meta.concepts.specialization_of;
+import ddge.util.meta.concepts.specialization_of;
 
 namespace ddge::scheduler::accessors {
 

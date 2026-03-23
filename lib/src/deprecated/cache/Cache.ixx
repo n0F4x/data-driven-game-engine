@@ -5,7 +5,7 @@ module;
 
 export module ddge.deprecated.cache.Cache;
 
-import ddge.utility.containers.store.Store;
+import ddge.util.containers.store.Store;
 
 import ddge.deprecated.cache.Handle;
 

@@ -15,7 +15,7 @@ module examples.base.DemoBase;
 import ddge.deprecated.gfx.Camera;
 import ddge.deprecated.renderer.base.device.Device;
 import ddge.deprecated.renderer.base.swapchain.SwapchainHolder;
-import ddge.utility.Size;
+import ddge.util.Size;
 import ddge.deprecated.window.CursorMode;
 import ddge.deprecated.window.events;
 import ddge.deprecated.window.Key;

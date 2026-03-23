@@ -6,13 +6,13 @@ module;
 
 #include <GLFW/glfw3.h>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.wsi.vulkan_instance_extensions;
 
 import ddge.modules.wsi.Context;
-import ddge.utility.containers.StringLiteral;
-import ddge.utility.contracts;
+import ddge.util.containers.StringLiteral;
+import ddge.util.contracts;
 
 namespace ddge::wsi {
 

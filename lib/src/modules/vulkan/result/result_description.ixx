@@ -2,7 +2,7 @@ export module ddge.modules.vulkan.result.result_description;
 
 import vulkan_hpp;
 
-import ddge.utility.containers.StringLiteral;
+import ddge.util.containers.StringLiteral;
 
 namespace ddge::vulkan {
 

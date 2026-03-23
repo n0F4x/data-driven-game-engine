@@ -9,8 +9,8 @@ import ddge.modules.scheduler.locks.CriticalSectionType;
 import ddge.modules.scheduler.locks.Lock;
 import ddge.modules.scheduler.locks.LockGroup;
 
-import ddge.utility.containers.Ref;
-import ddge.utility.meta.type_traits.const_like;
+import ddge.util.containers.Ref;
+import ddge.util.meta.type_traits.const_like;
 
 namespace ddge::scheduler::accessors {
 

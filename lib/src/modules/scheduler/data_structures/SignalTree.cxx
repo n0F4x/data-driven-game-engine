@@ -7,11 +7,11 @@ module;
 
 #include <tl/function_ref.hpp>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 module ddge.modules.scheduler.data_structures.SignalTree;
 
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 [[nodiscard]]
 constexpr auto parent_index_of(const uint32_t node_index) noexcept -> uint32_t

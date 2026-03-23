@@ -3,7 +3,7 @@ module;
 #include <functional>
 #include <type_traits>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.scheduler.accessors.assets:Provider;
 
@@ -15,9 +15,9 @@ import ddge.modules.scheduler.ProviderOf;
 import ddge.modules.app;
 import ddge.modules.assets;
 
-import ddge.utility.contracts;
-import ddge.utility.meta.algorithms.for_each;
-import ddge.utility.meta.concepts.specialization_of;
+import ddge.util.contracts;
+import ddge.util.meta.algorithms.for_each;
+import ddge.util.meta.concepts.specialization_of;
 
 namespace ddge::scheduler::accessors {
 

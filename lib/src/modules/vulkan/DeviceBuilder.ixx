@@ -24,10 +24,10 @@ import ddge.modules.vulkan.queue_properties;
 import ddge.modules.vulkan.QueueFamilyIndex;
 import ddge.modules.vulkan.QueueGroup;
 import ddge.modules.vulkan.QueuePack;
-import ddge.utility.Bool;
-import ddge.utility.containers.AnyCopyableFunction;
-import ddge.utility.containers.Lazy;
-import ddge.utility.containers.StringLiteral;
+import ddge.util.Bool;
+import ddge.util.containers.AnyCopyableFunction;
+import ddge.util.containers.Lazy;
+import ddge.util.containers.StringLiteral;
 
 namespace ddge::vulkan {
 

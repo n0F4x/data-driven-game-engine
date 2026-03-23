@@ -2,7 +2,7 @@ export module ddge.modules.scheduler.data_structures.Work;
 
 import ddge.modules.scheduler.data_structures.WorkContinuation;
 
-import ddge.utility.containers.AnyMoveOnlyFunction;
+import ddge.util.containers.AnyMoveOnlyFunction;
 
 namespace ddge::scheduler {
 

@@ -2,4 +2,4 @@ export module ddge;
 
 export import ddge.modules;
 export import ddge.prelude;
-export import ddge.utility;
+export import ddge.util;

@@ -9,7 +9,7 @@ module;
 #include <ranges>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 module ddge.modules.scheduler.data_structures.WorkTree;
 
@@ -17,7 +17,7 @@ import ddge.modules.scheduler.data_structures.SignalTree;
 import ddge.modules.scheduler.data_structures.Work;
 import ddge.modules.scheduler.data_structures.WorkContinuation;
 
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 auto ddge::scheduler::WorkContract::assign(
     Work&&                               work,

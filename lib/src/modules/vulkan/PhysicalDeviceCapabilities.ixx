@@ -5,7 +5,7 @@ module;
 #include <ranges>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.vulkan.PhysicalDeviceCapabilities;
 
@@ -20,9 +20,9 @@ import ddge.modules.vulkan.structure_chains.merge_physical_device_features;
 import ddge.modules.vulkan.structure_chains.erase_physical_device_features;
 import ddge.modules.vulkan.structure_chains.StructureChain;
 import ddge.modules.vulkan.structure_chains.vulkan1x_feature_struct_c;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.containers.StringLiteral;
-import ddge.utility.contracts;
+import ddge.util.containers.OptionalRef;
+import ddge.util.containers.StringLiteral;
+import ddge.util.contracts;
 
 namespace ddge::vulkan {
 

@@ -4,7 +4,7 @@ module;
 
 export module ddge.modules.states.state_c;
 
-import ddge.utility.containers.store.item_c;
+import ddge.util.containers.store.item_c;
 
 namespace ddge::states {
 

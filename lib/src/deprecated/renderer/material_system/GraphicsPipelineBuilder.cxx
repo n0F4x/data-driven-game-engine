@@ -6,7 +6,7 @@ module;
 
 module ddge.deprecated.renderer.material_system.GraphicsPipelineBuilder;
 
-import ddge.utility.hashing;
+import ddge.util.hashing;
 
 ddge::renderer::GraphicsPipelineBuilder::GraphicsPipelineBuilder(Program program) noexcept
     : m_program{ std::move(program) }

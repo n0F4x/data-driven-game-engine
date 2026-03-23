@@ -1,6 +1,6 @@
 export module ddge.modules.resources.resource_c;
 
-import ddge.utility.containers.store.item_c;
+import ddge.util.containers.store.item_c;
 
 namespace ddge::resources {
 

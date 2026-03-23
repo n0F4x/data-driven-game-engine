@@ -6,12 +6,12 @@ export module ddge.modules.assets.AssetManager;
 
 import ddge.modules.assets.Cached;
 import ddge.modules.assets.loader_c;
-import ddge.utility.containers.store.Store;
+import ddge.util.containers.store.Store;
 
-import ddge.utility.meta.concepts.all_different;
-import ddge.utility.meta.type_traits.forward_like;
-import ddge.utility.meta.type_traits.type_list.type_list_contains;
-import ddge.utility.TypeList;
+import ddge.util.meta.concepts.all_different;
+import ddge.util.meta.type_traits.forward_like;
+import ddge.util.meta.type_traits.type_list.type_list_contains;
+import ddge.util.TypeList;
 
 namespace ddge::assets {
 

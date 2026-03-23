@@ -1,0 +1,11 @@
+export module ddge.util.meta.concepts.functional;
+
+export import ddge.util.meta.concepts.functional.function;
+export import ddge.util.meta.concepts.functional.function_pointer;
+export import ddge.util.meta.concepts.functional.function_reference;
+export import ddge.util.meta.concepts.functional.member_function_pointer;
+export import ddge.util.meta.concepts.functional.unambiguous_functor;
+export import ddge.util.meta.concepts.functional.unambiguous_implicit_functor;
+export import ddge.util.meta.concepts.functional.unambiguous_explicit_functor;
+export import ddge.util.meta.concepts.functional.unambiguous_static_functor;
+export import ddge.util.meta.concepts.functional.unambiguously_invocable;

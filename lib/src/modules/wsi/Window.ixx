@@ -8,7 +8,7 @@ module;
 
 #include <GLFW/glfw3.h>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.wsi.Window;
 
@@ -20,8 +20,8 @@ import ddge.modules.wsi.monitors;
 import ddge.modules.wsi.Size;
 import ddge.modules.wsi.WindowSettings;
 import ddge.modules.wsi.WindowedWindowSettings;
-import ddge.utility.contracts;
-import ddge.utility.Overloaded;
+import ddge.util.contracts;
+import ddge.util.Overloaded;
 
 namespace ddge::wsi {
 

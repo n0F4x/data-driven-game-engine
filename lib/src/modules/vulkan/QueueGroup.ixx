@@ -5,7 +5,7 @@ module;
 #include <utility>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.vulkan.QueueGroup;
 
@@ -13,9 +13,9 @@ import vulkan_hpp;
 
 import ddge.modules.vulkan.QueueFamilyIndex;
 import ddge.modules.vulkan.QueuePack;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.contracts;
-import ddge.utility.meta.type_traits.const_like;
+import ddge.util.containers.OptionalRef;
+import ddge.util.contracts;
+import ddge.util.meta.type_traits.const_like;
 
 namespace ddge::vulkan {
 

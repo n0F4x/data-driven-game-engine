@@ -7,7 +7,7 @@ module;
 #include <utility>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.assets.Plugin;
 
@@ -15,14 +15,14 @@ import ddge.modules.app;
 import ddge.modules.assets.Addon;
 import ddge.modules.assets.Cached;
 import ddge.modules.assets.loader_c;
-import ddge.utility.containers.store.Store;
+import ddge.util.containers.store.Store;
 
-import ddge.utility.contracts;
-import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.meta.concepts.type_list.type_list_all_of;
-import ddge.utility.meta.type_traits.functional.arguments_of;
-import ddge.utility.meta.type_traits.functional.result_of;
-import ddge.utility.TypeList;
+import ddge.util.contracts;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.meta.concepts.type_list.type_list_all_of;
+import ddge.util.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.type_traits.functional.result_of;
+import ddge.util.TypeList;
 
 namespace ddge::assets {
 

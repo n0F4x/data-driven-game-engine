@@ -9,7 +9,7 @@ export module ddge.deprecated.renderer.scene.Scene;
 
 import vulkan_hpp;
 
-import ddge.utility.containers.OptionalRef;
+import ddge.util.containers.OptionalRef;
 
 import ddge.deprecated.cache.Cache;
 import ddge.deprecated.cache.Handle;

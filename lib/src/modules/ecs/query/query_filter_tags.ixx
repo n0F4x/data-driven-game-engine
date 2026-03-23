@@ -5,7 +5,7 @@ module;
 
 export module ddge.modules.ecs:query.query_filter_tags;
 
-import ddge.utility.containers.OptionalRef;
+import ddge.util.containers.OptionalRef;
 
 import :component_c;
 import :query.queryable_component_c;

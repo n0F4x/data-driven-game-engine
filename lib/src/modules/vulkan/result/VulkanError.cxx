@@ -5,7 +5,7 @@ module;
 
 #include <fmt/compile.h>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 module ddge.modules.vulkan.result.VulkanError;
 
@@ -15,7 +15,7 @@ import ddge.modules.vulkan.format.to_string;
 import ddge.modules.vulkan.result.result_category;
 import ddge.modules.vulkan.result.result_description;
 import ddge.modules.vulkan.result.ResultCategory;
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::vulkan {
 

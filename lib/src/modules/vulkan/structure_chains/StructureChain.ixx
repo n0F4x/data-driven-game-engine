@@ -6,7 +6,7 @@ module;
 #include <utility>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.vulkan.structure_chains.StructureChain;
 
@@ -20,13 +20,13 @@ import ddge.modules.vulkan.structure_chains.is_empty_feature_sruct;
 import ddge.modules.vulkan.structure_chains.match_physical_device_features;
 import ddge.modules.vulkan.structure_chains.merge_physical_device_features;
 import ddge.modules.vulkan.structure_chains.vulkan1x_feature_struct_c;
-import ddge.utility.any_cast;
-import ddge.utility.containers.AnyCopyable;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.contracts;
-import ddge.utility.meta.concepts.naked;
-import ddge.utility.meta.type_traits.const_like;
-import ddge.utility.meta.type_traits.forward_like;
+import ddge.util.any_cast;
+import ddge.util.containers.AnyCopyable;
+import ddge.util.containers.OptionalRef;
+import ddge.util.contracts;
+import ddge.util.meta.concepts.naked;
+import ddge.util.meta.type_traits.const_like;
+import ddge.util.meta.type_traits.forward_like;
 
 namespace ddge::vulkan {
 

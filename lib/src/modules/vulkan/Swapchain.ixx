@@ -4,7 +4,7 @@ module;
 #include <cstdint>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.vulkan.Swapchain;
 
@@ -12,7 +12,7 @@ import vulkan_hpp;
 
 import ddge.modules.vulkan.Device;
 import ddge.modules.vulkan.result.check_result;
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::vulkan {
 

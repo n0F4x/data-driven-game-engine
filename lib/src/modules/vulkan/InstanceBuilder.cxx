@@ -4,15 +4,15 @@ module;
 #include <cstring>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 module ddge.modules.vulkan.InstanceBuilder;
 
 import vulkan_hpp;
 
 import ddge.modules.vulkan.result.check_result;
-import ddge.utility.containers.StringLiteral;
-import ddge.utility.contracts;
+import ddge.util.containers.StringLiteral;
+import ddge.util.contracts;
 
 namespace ddge::vulkan {
 

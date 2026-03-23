@@ -4,7 +4,7 @@ module;
 #include <typeindex>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.messages.Plugin;
 
@@ -13,7 +13,7 @@ import ddge.modules.messages.Addon;
 import ddge.modules.messages.ErasedMessageBuffer;
 import ddge.modules.messages.message_c;
 
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::messages {
 

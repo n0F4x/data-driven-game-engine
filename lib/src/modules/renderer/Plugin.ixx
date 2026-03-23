@@ -23,9 +23,9 @@ import ddge.modules.vulkan.InstanceInjection;
 import ddge.modules.vulkan.InstanceBuilder;
 import ddge.modules.wsi.Context;
 import ddge.modules.wsi.vulkan_instance_extensions;
-import ddge.utility.containers.Lazy;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.containers.StringLiteral;
+import ddge.util.containers.Lazy;
+import ddge.util.containers.OptionalRef;
+import ddge.util.containers.StringLiteral;
 
 namespace ddge::renderer {
 

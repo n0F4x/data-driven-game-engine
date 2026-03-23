@@ -12,8 +12,8 @@ import ddge.modules.vulkan.default_debug_messenger_callback;
 import ddge.modules.vulkan.DeviceBuilder;
 import ddge.modules.vulkan.InstanceBuilder;
 import ddge.modules.wsi.Context;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.meta.type_traits.forward_like;
+import ddge.util.containers.OptionalRef;
+import ddge.util.meta.type_traits.forward_like;
 
 namespace ddge::renderer {
 

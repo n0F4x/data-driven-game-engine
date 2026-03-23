@@ -1,22 +1,22 @@
 #include <catch2/catch_test_macros.hpp>
 
 import ddge.modules.ecs;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.containers.StringLiteral;
-import ddge.utility.contracts;
-import ddge.utility.meta.algorithms.apply;
-import ddge.utility.meta.algorithms.enumerate;
-import ddge.utility.meta.algorithms.for_each;
-import ddge.utility.meta.reflection.name_of;
-import ddge.utility.meta.type_traits.type_list.type_list_index_of;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
-import ddge.utility.meta.type_traits.type_list.type_list_size;
-import ddge.utility.meta.type_traits.const_like;
-import ddge.utility.meta.type_traits.forward_like;
-import ddge.utility.meta.type_traits.underlying;
-import ddge.utility.tuple.tuple_all_of;
-import ddge.utility.tuple.tuple_any_of;
-import ddge.utility.TypeList;
+import ddge.util.containers.OptionalRef;
+import ddge.util.containers.StringLiteral;
+import ddge.util.contracts;
+import ddge.util.meta.algorithms.apply;
+import ddge.util.meta.algorithms.enumerate;
+import ddge.util.meta.algorithms.for_each;
+import ddge.util.meta.reflection.name_of;
+import ddge.util.meta.type_traits.type_list.type_list_index_of;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
+import ddge.util.meta.type_traits.type_list.type_list_size;
+import ddge.util.meta.type_traits.const_like;
+import ddge.util.meta.type_traits.forward_like;
+import ddge.util.meta.type_traits.underlying;
+import ddge.util.tuple.tuple_all_of;
+import ddge.util.tuple.tuple_any_of;
+import ddge.util.TypeList;
 
 using RegistryValueCategories = ddge::util::TypeList<
     ddge::ecs::Registry&,

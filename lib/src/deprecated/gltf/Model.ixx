@@ -12,7 +12,7 @@ module;
 
 export module ddge.deprecated.gltf.Model;
 
-import ddge.utility.containers.OptionalRef;
+import ddge.util.containers.OptionalRef;
 
 import ddge.deprecated.gltf.Image;
 import ddge.deprecated.gltf.Material;

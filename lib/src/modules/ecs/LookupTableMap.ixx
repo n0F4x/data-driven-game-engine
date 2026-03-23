@@ -2,11 +2,11 @@ module;
 
 #include <unordered_map>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.ecs:LookupTableMap;
 
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 import :ArchetypeID;
 import :ID;

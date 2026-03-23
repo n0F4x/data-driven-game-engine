@@ -14,8 +14,8 @@ import ddge.modules.vulkan.PhysicalDeviceCapabilities;
 import ddge.modules.vulkan.result.check_result;
 import ddge.modules.vulkan.structure_chains.feature_struct_c;
 import ddge.modules.vulkan.structure_chains.StructureChain;
-import ddge.utility.containers.AnyCopyableFunction;
-import ddge.utility.containers.StringLiteral;
+import ddge.util.containers.AnyCopyableFunction;
+import ddge.util.containers.StringLiteral;
 
 namespace ddge::vulkan {
 

@@ -9,7 +9,7 @@ module;
 #include <utility>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.scheduler.Plugin;
 
@@ -29,10 +29,10 @@ import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TaskHubProxy;
 import ddge.modules.scheduler.TypedTaskFactoryHandle;
 
-import ddge.utility.contracts;
-import ddge.utility.meta.type_traits.type_list.type_list_filter;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
-import ddge.utility.TypeList;
+import ddge.util.contracts;
+import ddge.util.meta.type_traits.type_list.type_list_filter;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
+import ddge.util.TypeList;
 
 namespace ddge::scheduler {
 

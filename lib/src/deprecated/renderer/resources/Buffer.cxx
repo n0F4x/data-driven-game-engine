@@ -7,7 +7,7 @@ module;
 
 module ddge.deprecated.renderer.resources.Buffer;
 
-import ddge.utility.tuple.tuple_drop_back;
+import ddge.util.tuple.tuple_drop_back;
 
 import ddge.deprecated.renderer.base.allocator.Allocator;
 

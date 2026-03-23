@@ -11,9 +11,9 @@ import ddge.modules.scheduler.locks.LockedResourceID;
 import ddge.modules.scheduler.locks.LockOwnerIndex;
 import ddge.modules.scheduler.locks.TopOfLockStack;
 
-import ddge.utility.meta.concepts.naked;
-import ddge.utility.meta.reflection.hash;
-import ddge.utility.TypeList;
+import ddge.util.meta.concepts.naked;
+import ddge.util.meta.reflection.hash;
+import ddge.util.TypeList;
 
 namespace ddge::scheduler {
 

@@ -12,11 +12,11 @@ import ddge.modules.assets.Handle;
 import ddge.modules.assets.loader_c;
 import ddge.modules.assets.WeakHandle;
 
-import ddge.utility.containers.FunctionWrapper;
-import ddge.utility.hashing;
-import ddge.utility.meta.type_traits.const_like;
-import ddge.utility.meta.type_traits.functional.arguments_of;
-import ddge.utility.meta.type_traits.functional.result_of;
+import ddge.util.containers.FunctionWrapper;
+import ddge.util.hashing;
+import ddge.util.meta.type_traits.const_like;
+import ddge.util.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.type_traits.functional.result_of;
 
 namespace ddge::assets {
 

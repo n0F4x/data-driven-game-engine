@@ -10,7 +10,7 @@ import ddge.modules.renderer;
 import ddge.modules.resources;
 import ddge.modules.vulkan;
 import ddge.modules.wsi;
-import ddge.utility.containers.StringLiteral;
+import ddge.util.containers.StringLiteral;
 
 using namespace ddge;
 

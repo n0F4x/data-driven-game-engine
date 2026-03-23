@@ -4,8 +4,8 @@ module;
 #include <utility>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
-#include "utility/lifetime_bound.hpp"
+#include "util/contract_macros.hpp"
+#include "util/lifetime_bound.hpp"
 
 export module ddge.modules.vulkan.pipeline.GraphicsPipelineBuilder;
 
@@ -14,7 +14,7 @@ import vulkan_hpp;
 import ddge.modules.vulkan.pipeline.ShaderModule;
 import ddge.modules.vulkan.result.check_result;
 import ddge.modules.vulkan.Device;
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::vulkan {
 

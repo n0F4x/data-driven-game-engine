@@ -8,7 +8,7 @@ import ddge.modules.app.Builder;
 import ddge.modules.app.decays_to_builder_c;
 import ddge.modules.app.plugin_c;
 
-import ddge.utility.meta.type_traits.type_list.type_list_concat;
+import ddge.util.meta.type_traits.type_list.type_list_concat;
 
 namespace ddge::app {
 

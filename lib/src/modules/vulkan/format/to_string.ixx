@@ -7,7 +7,7 @@ export module ddge.modules.vulkan.format.to_string;
 
 import vulkan_hpp;
 
-import ddge.utility.containers.Lazy;
+import ddge.util.containers.Lazy;
 
 namespace ddge::vulkan {
 

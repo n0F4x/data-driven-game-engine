@@ -5,7 +5,7 @@ module;
 #include <utility>
 #include <variant>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.vulkan.result.Result;
 
@@ -15,9 +15,9 @@ import ddge.modules.vulkan.result.make_typed_result_code_variant;
 import ddge.modules.vulkan.result.result_category;
 import ddge.modules.vulkan.result.ResultCategory;
 import ddge.modules.vulkan.result.TypedResultCode;
-import ddge.utility.contracts;
-import ddge.utility.meta.concepts.naked;
-import ddge.utility.meta.type_traits.forward_like;
+import ddge.util.contracts;
+import ddge.util.meta.concepts.naked;
+import ddge.util.meta.type_traits.forward_like;
 
 namespace ddge::vulkan {
 

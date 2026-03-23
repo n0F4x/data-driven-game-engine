@@ -8,7 +8,7 @@ export module ddge.modules.vulkan.extension_inspection.extensions_promoted_to_vu
 
 import vulkan_hpp;
 
-import ddge.utility.containers.StringLiteral;
+import ddge.util.containers.StringLiteral;
 
 namespace ddge::vulkan {
 

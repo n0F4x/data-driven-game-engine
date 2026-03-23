@@ -17,7 +17,7 @@ module ddge.deprecated.window.Window;
 import ddge.deprecated.config.vulkan;
 import ddge.modules.log;
 
-import ddge.utility.Size;
+import ddge.util.Size;
 
 static auto init_glfw() -> void
 {

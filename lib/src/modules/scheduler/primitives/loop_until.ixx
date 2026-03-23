@@ -14,7 +14,7 @@ import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TaskHubProxy;
 import ddge.modules.scheduler.TypedTaskFactoryHandle;
 
-import ddge.utility.no_op;
+import ddge.util.no_op;
 
 namespace ddge::scheduler {
 
