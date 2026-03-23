@@ -65,22 +65,19 @@ class DataDrivenGameEngineRecipe(ConanFile):
             )
 
     def build_requirements(self):
-        if self._dev:
-            self.tool_requires("cmake/[~3.30]")
-        else:
-            self.tool_requires("cmake/[>=3.30]")
+        self.tool_requires("cmake/[>=4.3]")
 
     def requirements(self):
         self.requires("magic_enum/0.9.7", transitive_headers=True)
         self.requires("tl-function-ref/1.0.0", transitive_headers=True)
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
-        self.requires("fmt/12.0.0", transitive_headers=True)
-        self.requires("spdlog/1.16.0")
+        self.requires("fmt/12.1.0", transitive_headers=True)
+        self.requires("spdlog/1.17.0")
         self.requires("glfw/3.4", transitive_headers=True)
         self.requires("vulkan-headers/1.4.313.0", transitive_headers=True)
 
         if self._enable_tests:
-            self.test_requires("catch2/3.11.0")
+            self.test_requires("catch2/3.12.0")
         if self._enable_examples:
             self.requires("sfml/3.0.2", options={"audio": False, "network": False})
 

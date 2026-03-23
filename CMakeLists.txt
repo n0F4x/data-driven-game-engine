@@ -22,7 +22,7 @@ add_compile_options(
         -Wcast-qual
         -Wnrvo
 
-        # TODO: remove this when there is no '-c' unused warning while testing package
+        # TODO: remove this when there is no '-c' unused warning while building
         -Wno-unused-command-line-argument
 )
 
