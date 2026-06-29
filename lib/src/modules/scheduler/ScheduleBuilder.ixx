@@ -61,7 +61,7 @@ ddge::scheduler::ScheduleBuilder::operator TaskBuilder<void>() &&
         {
             std::vector<TypedTaskFactoryHandle<void>> task_handles{
                 std::from_range,
-                std::move(task_builders) | std::views::as_rvalue
+                std::views::as_rvalue(task_builders)
                     | std::views::transform(
                         [&task_hub_builder](TaskBuilder<void>&& builder)
                             -> TypedTaskFactoryHandle<void>   //

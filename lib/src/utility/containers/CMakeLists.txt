@@ -8,16 +8,25 @@ target_sources(${PROJECT_NAME} PUBLIC
         containers.cppm
         Any.ixx
         AnyCopyable.ixx
-        AnyCopyableFunction.ixx
-        AnyFunction.ixx
         AnyMoveOnly.ixx
-        AnyMoveOnlyFunction.ixx
+        CopyableFunction.ixx
+        Function.ixx
         FunctionWrapper.ixx
+        MoveOnlyFunction.ixx
         SlotMultiMap.ixx
         OptionalRef.ixx
         Ref.ixx
         SlotMap.ixx
+        SmallBuffer.ixx
         SparseSet.ixx
         StackedTuple.ixx
         Strong.ixx
+)
+
+target_sources(${PROJECT_NAME} PUBLIC
+        FILE_SET public_headers
+        TYPE HEADERS
+        BASE_DIRS ${PROJECT_SOURCE_DIR}/src
+        FILES
+        Function.impl.hpp
 )

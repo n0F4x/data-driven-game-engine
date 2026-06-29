@@ -2,12 +2,12 @@ module;
 
 #include <atomic>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <optional>
 #include <utility>
 
 #include "utility/contract_macros.hpp"
+#include "utility/no_unique_address.hpp"
 
 export module ddge.modules.scheduler.gatherers.AllOf;
 
@@ -34,7 +34,7 @@ public:
     auto receive(bool value) -> void;
 
 private:
-    [[no_unique_address]]
+    [[engine_no_unique_address]]
     Precondition m_precondition;
 
     uint32_t                              m_capacity;

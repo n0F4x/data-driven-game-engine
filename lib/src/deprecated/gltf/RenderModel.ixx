@@ -2,6 +2,7 @@ module;
 
 #include <functional>
 #include <future>
+#include <span>
 #include <variant>
 
 export module ddge.deprecated.gltf.RenderModel;

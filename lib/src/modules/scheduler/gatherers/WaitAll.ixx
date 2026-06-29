@@ -7,6 +7,7 @@ module;
 #include <utility>
 
 #include "utility/contract_macros.hpp"
+#include "utility/no_unique_address.hpp"
 
 export module ddge.modules.scheduler.gatherers.WaitAll;
 
@@ -33,7 +34,7 @@ public:
     auto receive() -> void;
 
 private:
-    [[no_unique_address]]
+    [[engine_no_unique_address]]
     Precondition m_precondition;
 
     uint32_t                              m_capacity;

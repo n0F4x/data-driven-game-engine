@@ -78,8 +78,8 @@ void main() {
 
 
     vec4 worldPosition = transform * vec4(position, 1.0);
-    out_worldPosition = worldPosition.xyz / worldPosition.w;
-    gl_Position = camera.projection * camera.view * vec4(out_worldPosition, 1);
+    out_worldPosition = worldPosition.xyz;
+    gl_Position = camera.projection * camera.view * worldPosition;
     gl_PointSize = 1.0f;
 
     out_normal = normalize(transpose(inverse(mat3(transform))) * normal);

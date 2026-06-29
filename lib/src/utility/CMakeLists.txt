@@ -29,6 +29,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         TYPE HEADERS
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
-        lifetime_bound.hpp
         contract_macros.hpp
+        lifetimebound.hpp
+        no_unique_address.hpp
 )

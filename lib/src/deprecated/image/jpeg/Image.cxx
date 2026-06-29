@@ -1,5 +1,6 @@
 module;
 
+#include <cassert>
 #include <cmath>
 #include <filesystem>
 #include <format>
@@ -11,6 +12,8 @@ module;
 #include <stb_image_resize2.h>
 
 module ddge.deprecated.image.jpeg.Image;
+
+import vulkan_hpp;
 
 [[nodiscard]]
 static auto count_mip_levels(const uint32_t base_width, const uint32_t base_height)
@@ -81,7 +84,7 @@ static auto generate_mip_maps(
     uint32_t    width{ base_width };
     uint32_t    height{ base_height };
     std::size_t offset{};
-    for (const auto _ : std::views::iota(0u, mip_level_count)) {
+    for (const auto _ : std::views::iota(0u, mip_level_count - 1)) {
         const uint32_t    next_width{ std::max(width / 2u, 1u) };
         const uint32_t    next_height{ std::max(height / 2u, 1u) };
         const std::size_t next_offset{

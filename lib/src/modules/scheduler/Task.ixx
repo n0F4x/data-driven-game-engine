@@ -1,9 +1,9 @@
 export module ddge.modules.scheduler.Task;
 
-import ddge.utility.containers.AnyMoveOnlyFunction;
+import ddge.utility.containers.MoveOnlyFunction;
 
 namespace ddge::scheduler {
 
-export using Task = util::AnyMoveOnlyFunction<void()>;
+export using Task = util::MoveOnlyFunction<void()>;
 
 }   // namespace ddge::scheduler

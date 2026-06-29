@@ -1,16 +1,17 @@
 module;
 
+#include <cassert>
 #include <cmath>
 #include <filesystem>
 #include <format>
 #include <ranges>
 
-#include <vulkan/vulkan_format_traits.hpp>
-
 #include <stb_image.h>
 #include <stb_image_resize2.h>
 
 module ddge.deprecated.image.png.Image;
+
+import vulkan_hpp;
 
 [[nodiscard]]
 static auto count_mip_levels(const uint32_t base_width, const uint32_t base_height)

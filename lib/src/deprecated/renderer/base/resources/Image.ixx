@@ -2,7 +2,7 @@ module;
 
 #include <cstdint>
 
-#include "utility/lifetime_bound.hpp"
+#include "utility/lifetimebound.hpp"
 
 export module ddge.deprecated.renderer.base.resources.Image;
 
@@ -22,7 +22,7 @@ public:
     Image(vk::UniqueImage&& image, const vk::ImageCreateInfo& create_info);
 
     [[nodiscard]]
-    auto get() const noexcept [[lifetime_bound]] -> vk::Image;
+    auto get() const noexcept [[engine_lifetimebound]] -> vk::Image;
 
     [[nodiscard]]
     auto device() const noexcept -> vk::Device;

@@ -4,7 +4,7 @@ module;
 
 #include <vk_mem_alloc.h>
 
-#include "utility/lifetime_bound.hpp"
+#include "utility/lifetimebound.hpp"
 
 export module ddge.deprecated.renderer.base.resources.Allocation;
 
@@ -46,7 +46,7 @@ public:
     auto memory_type_index() const noexcept -> MemoryTypeIndex;
 
     [[nodiscard]]
-    auto memory_view() const noexcept [[lifetime_bound]] -> MemoryView;
+    auto memory_view() const noexcept [[engine_lifetimebound]] -> MemoryView;
 
     [[nodiscard]]
     auto memory_properties() const noexcept -> vk::MemoryPropertyFlags;

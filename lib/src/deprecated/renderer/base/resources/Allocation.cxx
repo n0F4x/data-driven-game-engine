@@ -10,6 +10,8 @@ module;
 
 module ddge.deprecated.renderer.base.resources.Allocation;
 
+import vulkan_hpp;
+
 import ddge.deprecated.renderer.base.resources.MemoryTypeIndex;
 
 namespace ddge::renderer::base {

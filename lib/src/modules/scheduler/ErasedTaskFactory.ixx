@@ -57,10 +57,11 @@ struct ErasedTaskFactoryTraits<SpecificTaskFactory_T<Result_T>> {
     static auto locks(const ddge::scheduler::ErasedTaskFactory& that)
         -> const ddge::scheduler::LockGroup&
     {
-        return ddge::util::any_cast<ddge::scheduler::TaskFactory<Result_T>>(that).visit(
+        return std::visit(
             [](const auto& task_factory) -> const ddge::scheduler::LockGroup& {
                 return task_factory.locks();
-            }
+            },
+            ddge::util::any_cast<ddge::scheduler::TaskFactory<Result_T>>(that)
         );
     }
 

@@ -6,4 +6,5 @@ target_sources(${PROJECT_NAME} PUBLIC
         memory.cppm
         Deallocator.ixx
         DefaultAllocator.ixx
+        LifeCycleEraseMechanism.ixx
 )

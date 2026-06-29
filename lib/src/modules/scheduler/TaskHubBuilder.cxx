@@ -4,6 +4,8 @@ module;
 #include <cassert>
 #include <deque>
 #include <expected>
+#include <functional>
+#include <memory>
 #include <ranges>
 #include <utility>
 #include <vector>
@@ -40,7 +42,7 @@ auto ddge::scheduler::TaskHubBuilder::build(
     // factories
     std::vector<Task> indirect_tasks{
         std::from_range,
-        std::views::as_rvalue(std::move(m_indirect_task_factories))   //
+        std::views::as_rvalue(m_indirect_task_factories)   //
             | std::views::reverse
             | std::views::transform(
                 std::bind_back(&ErasedTaskFactory::build, TaskHubProxy{ *result })
@@ -51,7 +53,7 @@ auto ddge::scheduler::TaskHubBuilder::build(
 
     for (auto&& [i, task_factory] : std::views::zip(
              std::views::iota(0u, m_generic_task_factories.size()),
-             std::views::as_rvalue(std::move(m_generic_task_factories))
+             std::views::as_rvalue(m_generic_task_factories)
          ))
     {
         const std::expected expected = result->try_emplace_generic_at(
@@ -63,7 +65,7 @@ auto ddge::scheduler::TaskHubBuilder::build(
 
     for (auto&& [i, task_factory] : std::views::zip(
              std::views::iota(0u, m_main_only_task_factories.size()),
-             std::views::as_rvalue(std::move(m_main_only_task_factories))
+             std::views::as_rvalue(m_main_only_task_factories)
          ))
     {
         const std::expected expected = result->try_emplace_main_only_at(

@@ -1,10 +1,10 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 #include <glm/ext/vector_float3.hpp>
 
 export module demos.virtual_texture.VirtualTexture;
+
+import vulkan_hpp;
 
 import ddge.deprecated.gfx.resources.VirtualImage;
 import ddge.deprecated.renderer.base.allocator.Allocator;

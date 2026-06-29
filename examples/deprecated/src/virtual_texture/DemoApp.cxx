@@ -1,14 +1,15 @@
 module;
 
 #include <ranges>
-
-#include <vulkan/vulkan.hpp>
+#include <span>
 
 #include <VkBootstrap.h>
 
 #include <glm/ext/matrix_float4x4.hpp>
 
 module demos.virtual_texture.DemoApp;
+
+import vulkan_hpp;
 
 import ddge.deprecated.gfx.Camera;
 import ddge.deprecated.gfx.resources.image_helpers;
@@ -245,7 +246,7 @@ auto demo::DemoApp::render(
 
     ::transition_image_layout(
         graphics_command_buffer,
-        m_swapchain_holder_ref.get().get().value().images().at(image_index),
+        m_swapchain_holder_ref.get().get().value().images()[image_index],
         vk::PipelineStageFlagBits::eColorAttachmentOutput,
         vk::PipelineStageFlagBits::eColorAttachmentOutput,
         {},
@@ -267,14 +268,13 @@ auto demo::DemoApp::render(
     );
 
     constexpr static std::array clear_values{
-        vk::ClearValue{
-            .color = vk::ClearColorValue{ std::array{ 0.01f, 0.01f, 0.01f, 0.01f } } },
-        vk::ClearValue{ .depthStencil = vk::ClearDepthStencilValue{ .depth = 1.f } }
+        vk::ClearValue{ vk::ClearColorValue{ std::array{ 0.01f, 0.01f, 0.01f, 0.01f } } },
+        vk::ClearValue{ vk::ClearDepthStencilValue{ .depth = 1.f } }
     };
 
     const vk::RenderingAttachmentInfoKHR color_attachment_info{
         .imageView =
-            m_swapchain_holder_ref.get().get().value().image_views().at(image_index).get(),
+            m_swapchain_holder_ref.get().get().value().image_views()[image_index].get(),
         .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
         .resolveMode = vk::ResolveModeFlagBits::eNone,
         .loadOp      = vk::AttachmentLoadOp::eClear,
@@ -311,7 +311,7 @@ auto demo::DemoApp::render(
 
     ::transition_image_layout(
         graphics_command_buffer,
-        m_swapchain_holder_ref.get().get().value().images().at(image_index),
+        m_swapchain_holder_ref.get().get().value().images()[image_index],
         vk::PipelineStageFlagBits::eColorAttachmentOutput,
         vk::PipelineStageFlagBits::eBottomOfPipe,
         vk::AccessFlagBits::eColorAttachmentWrite,

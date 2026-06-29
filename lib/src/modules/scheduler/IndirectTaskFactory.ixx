@@ -13,7 +13,7 @@ import ddge.modules.scheduler.TaskContinuationFactory;
 import ddge.modules.scheduler.TaskHubProxy;
 import ddge.modules.scheduler.TaskIndex;
 
-import ddge.utility.containers.AnyMoveOnlyFunction;
+import ddge.utility.containers.MoveOnlyFunction;
 
 namespace ddge::scheduler {
 

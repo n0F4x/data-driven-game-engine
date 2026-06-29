@@ -4,8 +4,9 @@ module;
 
 #include <vulkan/utility/vk_format_utils.h>
 
-
 module ddge.deprecated.renderer.base.resources.Image;
+
+import vulkan_hpp;
 
 ddge::renderer::base::Image::Image(
     vk::UniqueImage&&          image,

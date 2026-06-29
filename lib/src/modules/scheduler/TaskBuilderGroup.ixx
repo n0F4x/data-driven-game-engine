@@ -143,7 +143,7 @@ auto ddge::scheduler::TaskBuilderGroup<Result_T>::sync(
 
             std::vector<TypedTaskFactoryHandle<Result_T>> task_handles{
                 std::from_range,
-                std::move(builders) | std::views::as_rvalue
+                std::views::as_rvalue(builders)
                     | std::views::transform(
                         [&task_hub_builder]   //
                         (TaskBuilder<Result_T>&& builder)

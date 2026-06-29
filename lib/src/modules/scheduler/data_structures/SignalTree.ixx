@@ -7,6 +7,8 @@ module;
 
 #include <tl/function_ref.hpp>
 
+#include "utility/no_unique_address.hpp"
+
 export module ddge.modules.scheduler.data_structures.SignalTree;
 
 namespace ddge::scheduler {
@@ -61,7 +63,7 @@ private:
         explicit Precondition(uint32_t number_of_levels);
     };
 
-    [[no_unique_address]]
+    [[engine_no_unique_address]]
     Precondition      m_precondition;
     std::vector<Node> m_nodes;
 

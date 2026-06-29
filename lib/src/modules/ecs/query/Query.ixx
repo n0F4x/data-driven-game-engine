@@ -7,7 +7,7 @@ module;
 #include <tuple>
 #include <type_traits>
 
-#include "utility/lifetime_bound.hpp"
+#include "utility/lifetimebound.hpp"
 
 export module ddge.modules.ecs:query.QueryClosure;
 
@@ -170,7 +170,7 @@ public:
     [[nodiscard]]
     constexpr static auto matches_archetype(const Archetype& archetype) -> bool;
 
-    explicit Query(ddge::ecs::Registry& registry [[lifetime_bound]]);
+    explicit Query(ddge::ecs::Registry& registry [[engine_lifetimebound]]);
 
     template <::invocable_with_c<FunctionParameters> F>
     auto operator()(F&& func) -> F;

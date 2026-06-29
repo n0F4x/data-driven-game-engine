@@ -1,6 +1,7 @@
 module;
 
 #include <functional>
+#include <variant>
 
 export module ddge.modules.scheduler.TaskFactoryProxy;
 
@@ -21,18 +22,22 @@ public:
     auto set_continuation_factory(TaskContinuationFactory<Result_T>&& continuation_factory)
         -> void
     {
-        m_task_factory_ref.get().visit([&continuation_factory](auto& task_factory) -> void {
-            task_factory.set_continuation_factory(std::move(continuation_factory));
-        });
+        std::visit(
+            [&continuation_factory](auto& task_factory) -> void {
+                task_factory.set_continuation_factory(std::move(continuation_factory));
+            },
+            m_task_factory_ref.get()
+        );
     }
 
     [[nodiscard]]
     auto locks() const -> const LockGroup&
     {
-        return m_task_factory_ref.get().visit(
+        return std::visit(
             [](const auto& task_factory) -> const LockGroup& {
                 return task_factory.locks();
-            }
+            },
+            m_task_factory_ref.get()
         );
     }
 

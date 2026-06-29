@@ -1,6 +1,7 @@
 module;
 
 #include <array>
+#include <vector>
 
 module ddge.deprecated.renderer.model.ModelLayout;
 

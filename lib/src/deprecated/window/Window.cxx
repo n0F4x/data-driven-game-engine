@@ -3,6 +3,7 @@ module;
 #include <expected>
 #include <format>
 #include <stdexcept>
+#include <string>
 
 #include <gsl-lite/gsl-lite.hpp>
 
@@ -84,10 +85,12 @@ static auto create_window(const util::Size2i& size, const gsl_lite::czstring tit
         glfwCreateWindow(size.width, size.height, title, nullptr, nullptr)
     };
     if (window == nullptr) {
-        throw std::runtime_error{ std::format(
-            "glfwCreateWindowSurface failed with error code {}",
-            std::to_string(glfwGetError(nullptr))
-        ) };
+        throw std::runtime_error{
+            std::format(
+                "glfwCreateWindowSurface failed with error code {}",
+                std::to_string(glfwGetError(nullptr))
+            ),
+        };
     }
     return gsl_lite::make_not_null(window);
 }

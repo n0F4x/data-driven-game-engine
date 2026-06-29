@@ -2,8 +2,7 @@ module;
 
 #include <cstddef>
 #include <ranges>
-
-#include <vulkan/vulkan_format_traits.hpp>
+#include <vector>
 
 #include <vk_mem_alloc.h>
 
@@ -11,8 +10,9 @@ module;
 
 module ddge.deprecated.gfx.resources.virtual_image_helpers;
 
-import ddge.deprecated.image.Image;
+import vulkan_hpp;
 
+import ddge.deprecated.image.Image;
 import ddge.deprecated.renderer.base.allocator.Allocator;
 import ddge.deprecated.renderer.base.resources.Allocation;
 import ddge.deprecated.renderer.base.resources.image_extensions;

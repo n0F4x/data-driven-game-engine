@@ -1,16 +1,17 @@
 module;
 
 #include <atomic>
+#include <chrono>
 #include <functional>
 #include <future>
 #include <mutex>
 #include <thread>
 
-#include <vulkan/vulkan.hpp>
-
 #include <glm/ext/vector_double2.hpp>
 
 module examples.base.DemoBase;
+
+import vulkan_hpp;
 
 import ddge.deprecated.gfx.Camera;
 import ddge.deprecated.renderer.base.device.Device;

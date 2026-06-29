@@ -89,24 +89,22 @@ auto initialize_snake(
 {
     std::random_device            random_device;
     std::mt19937                  random_engine{ random_device() };
-    std::uniform_int_distribution row_distribution{
-        uint8_t{}, static_cast<uint8_t>(settings->cells_per_row - 1)
-    };
-    std::uniform_int_distribution column_distribution{
-        uint8_t{}, static_cast<uint8_t>(settings->cells_per_column - 1)
-    };
+    std::uniform_int_distribution row_distribution{ 0, settings->cells_per_row - 1 };
+    std::uniform_int_distribution column_distribution{ 0, settings->cells_per_column - 1 };
 
     const game::Position snake_position{
-        .row    = row_distribution(random_engine),
-        .column = column_distribution(random_engine),
+        .row    = static_cast<uint8_t>(row_distribution(random_engine)),
+        .column = static_cast<uint8_t>(column_distribution(random_engine)),
     };
 
-    const game::Direction snake_direction{ [snake_position, &settings] {
-        if (snake_position.row < settings->cells_per_row / 2) {
-            return game::Direction::eRight;
-        }
-        return game::Direction::eLeft;
-    }() };
+    const game::Direction snake_direction{
+        [snake_position, &settings] {
+            if (snake_position.row < settings->cells_per_row / 2) {
+                return game::Direction::eRight;
+            }
+            return game::Direction::eLeft;
+        }(),
+    };
 
     std::optional<ddge::ecs::ID> snake_head_id;
     ddge::ecs::query(

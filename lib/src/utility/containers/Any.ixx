@@ -11,6 +11,7 @@ module;
 #include <fmt/compile.h>
 
 #include "utility/contract_macros.hpp"
+#include "utility/no_unique_address.hpp"
 
 export module ddge.utility.containers.Any;
 
@@ -156,7 +157,7 @@ public:
 private:
     using Storage = storage_t<size_T, alignment_T>;
 
-    [[no_unique_address]]
+    [[engine_no_unique_address]]
     Allocator                                         m_allocator;
     const Operations<size_T, alignment_T, Allocator>* m_operations;
     Storage m_storage{ std::in_place_type<void*> };

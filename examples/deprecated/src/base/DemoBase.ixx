@@ -2,9 +2,9 @@ module;
 
 #include <functional>
 
-#include <vulkan/vulkan.hpp>
-
 export module examples.base.DemoBase;
+
+import vulkan_hpp;
 
 import ddge.deprecated.gfx.Camera;
 import ddge.deprecated.renderer.base.device.Device;

@@ -2,9 +2,9 @@ module;
 
 #include <vector>
 
-#include <vulkan/vulkan.hpp>
-
 export module examples.base.init;
+
+import vulkan_hpp;
 
 import ddge.deprecated.renderer.resources.Image;
 

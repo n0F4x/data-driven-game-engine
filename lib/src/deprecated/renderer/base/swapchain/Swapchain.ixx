@@ -1,6 +1,7 @@
 module;
 
 #include <optional>
+#include <span>
 #include <vector>
 
 #include <VkBootstrap.h>

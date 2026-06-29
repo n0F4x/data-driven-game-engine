@@ -1,6 +1,7 @@
 export module ddge.utility.any_cast;
 
 import ddge.utility.containers.Any;
+import ddge.utility.containers.Function;
 
 namespace ddge::util {
 

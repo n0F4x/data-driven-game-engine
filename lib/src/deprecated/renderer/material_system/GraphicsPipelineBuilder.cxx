@@ -1,10 +1,11 @@
 module;
 
 #include <ranges>
-
-#include <vulkan/vulkan_hash.hpp>
+#include <vector>
 
 module ddge.deprecated.renderer.material_system.GraphicsPipelineBuilder;
+
+import vulkan_hpp;
 
 import ddge.utility.hashing;
 

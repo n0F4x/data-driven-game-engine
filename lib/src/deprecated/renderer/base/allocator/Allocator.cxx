@@ -8,16 +8,14 @@ module;
 
 #include <VkBootstrap.h>
 
-#include "modules/log/log_macros.hpp"
-
 module ddge.deprecated.renderer.base.allocator.Allocator;
+
+import vulkan_hpp;
 
 import ddge.deprecated.renderer.base.resources.Allocation;
 import ddge.deprecated.renderer.base.resources.Buffer;
 import ddge.deprecated.renderer.base.resources.Image;
-
 import ddge.deprecated.config.vulkan;
-
 import ddge.deprecated.renderer.base.instance.Instance;
 import ddge.deprecated.renderer.base.device.Device;
 

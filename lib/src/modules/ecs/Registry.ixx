@@ -3,9 +3,9 @@ module;
 #include <algorithm>
 #include <cassert>
 #include <functional>
-#include <map>
 #include <optional>
 #include <ranges>
+#include <span>
 #include <utility>
 
 #include "utility/contract_macros.hpp"
@@ -445,12 +445,14 @@ auto ddge::ecs::Registry::erase(const ddge::ecs::ID id)
                     const auto [archetype_id, record_id]{ entity };
 
                     const std::ranges::view auto new_component_ids{
-                        archetype_id->sorted_component_ids()
-                        | std::views::filter([](const ComponentID component_id) {
-                              return !std::ranges::binary_search(
-                                  component_id_set_from<Components_T...>(), component_id
-                              );
-                          })
+                        std::views::filter(
+                            archetype_id->sorted_component_ids(),
+                            [](const ComponentID component_id) {
+                                return !std::ranges::binary_search(
+                                    component_id_set_from<Components_T...>(), component_id
+                                );
+                            }
+                        ),
                     };
 
                     const ArchetypeID new_archetype_id{
@@ -665,12 +667,14 @@ auto ddge::ecs::Registry::remove(const ddge::ecs::ID id, Entity& entity)
     PRECOND(archetype_id->contains_all_of_components<Components_T...>());
 
     std::ranges::view auto new_component_id_set{
-        archetype_id->sorted_component_ids()
-        | std::views::filter([](const ComponentID component_id) {
-              return !std::ranges::binary_search(
-                  component_id_set_from<Components_T...>(), component_id
-              );
-          })
+        std::views::filter(
+            archetype_id->sorted_component_ids(),
+            [](const ComponentID component_id) -> bool {
+                return !std::ranges::binary_search(
+                    component_id_set_from<Components_T...>(), component_id
+                );
+            }
+        ),
     };
 
     const ArchetypeID new_archetype_id{ archetype_from(new_component_id_set) };

@@ -1,8 +1,12 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <memory>
+#include <span>
+#include <string_view>
 
 export module demos.virtual_texture.init;
+
+import vulkan_hpp;
 
 import ddge.deprecated.image.Image;
 import ddge.deprecated.gfx.resources.VirtualImage;

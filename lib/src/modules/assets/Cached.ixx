@@ -2,6 +2,7 @@ module;
 
 #include <concepts>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <type_traits>
 #include <unordered_map>
@@ -100,9 +101,11 @@ auto ddge::assets::CachedImpl<Loader_T, Asset_T, Arguments_T...>::load(
         return *found_handle;
     }
 
-    Handle handle{ std::make_shared<Asset_T>(
-        std::invoke(m_loader, std::forward<Arguments_T>(arguments)...)
-    ) };
+    Handle handle{
+        std::make_shared<Asset_T>(
+            std::invoke(m_loader, std::forward<Arguments_T>(arguments)...)
+        ),
+    };
 
     m_asset_map.try_emplace(key, handle);
 

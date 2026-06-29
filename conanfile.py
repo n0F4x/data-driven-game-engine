@@ -44,9 +44,9 @@ class DataDrivenGameEngineRecipe(ConanFile):
         check_min_cppstd(self, "26")
 
         if (self.settings.compiler != "clang"
-                or self.settings.compiler.version != 21
-                or self.settings.compiler.libcxx != "libc++"):
-            raise ConanInvalidConfiguration("Only Clang 21 with libc++ is supported")
+                or self.settings.compiler.version != 22
+                or self.settings.compiler.libcxx != None):
+            raise ConanInvalidConfiguration("Only Clang 22 with MSSTL is supported")
 
         if self.conf.get("tools.cmake.cmaketoolchain:generator") != "Ninja":
             raise ConanInvalidConfiguration("Ninja is required for CXX modules")
@@ -72,8 +72,8 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("gsl-lite/1.0.1", transitive_headers=True)
         self.requires("tl-function-ref/1.0.0", transitive_headers=True)
         self.requires("tsl-ordered-map/1.1.0", transitive_headers=True)
-        self.requires("fmt/12.0.0", transitive_headers=True)
-        self.requires("spdlog/1.16.0")
+        self.requires("fmt/12.1.0", transitive_headers=True)
+        self.requires("spdlog/1.17.0")
         self.requires("glfw/3.4", transitive_headers=True)
         self.requires("vulkan-headers/1.3.296.0")
         self.requires("vulkan-memory-allocator/3.3.0", transitive_headers=True)
@@ -85,7 +85,7 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("entt/3.15.0", transitive_headers=True)
 
         if self._enable_tests:
-            self.test_requires("catch2/3.11.0")
+            self.test_requires("catch2/3.15.0")
         if self._enable_examples:
             self.requires("sfml/3.0.2", options={"audio": False, "network": False})
 

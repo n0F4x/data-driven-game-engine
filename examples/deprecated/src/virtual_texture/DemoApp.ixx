@@ -1,8 +1,11 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <cstdint>
+#include <functional>
 
 export module demos.virtual_texture.DemoApp;
+
+import vulkan_hpp;
 
 import ddge.deprecated.gfx.Camera;
 import ddge.deprecated.gfx.resources.VirtualImage;

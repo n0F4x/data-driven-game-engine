@@ -1,6 +1,6 @@
 module;
 
-#include "utility/lifetime_bound.hpp"
+#include "utility/lifetimebound.hpp"
 
 export module ddge.deprecated.renderer.base.resources.Buffer;
 
@@ -14,7 +14,7 @@ public:
     Buffer(vk::UniqueBuffer&& buffer, vk::DeviceSize buffer_size) noexcept;
 
     [[nodiscard]]
-    auto get() const [[lifetime_bound]] -> vk::Buffer;
+    auto get() const [[engine_lifetimebound]] -> vk::Buffer;
 
     [[nodiscard]]
     auto size() const -> vk::DeviceSize;

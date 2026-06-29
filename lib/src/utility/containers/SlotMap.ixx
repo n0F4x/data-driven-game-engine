@@ -7,7 +7,7 @@ module;
 #include <utility>
 #include <vector>
 
-#include "utility/lifetime_bound.hpp"
+#include "utility/lifetimebound.hpp"
 
 export module ddge.utility.containers.SlotMap;
 
@@ -57,7 +57,7 @@ public:
     [[nodiscard]]
     constexpr auto empty() const noexcept -> bool;
     [[nodiscard]]
-    constexpr auto values() const noexcept [[lifetime_bound]] -> std::span<const Value>;
+    constexpr auto values() const noexcept [[engine_lifetimebound]] -> std::span<const Value>;
 
     [[nodiscard]]
     constexpr auto get_index(Key key) const -> Index;

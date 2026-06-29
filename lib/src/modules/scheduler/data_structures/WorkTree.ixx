@@ -13,7 +13,7 @@ import ddge.modules.scheduler.data_structures.Work;
 import ddge.modules.scheduler.data_structures.WorkContinuation;
 import ddge.modules.scheduler.data_structures.WorkIndex;
 
-import ddge.utility.containers.AnyMoveOnlyFunction;
+import ddge.utility.containers.MoveOnlyFunction;
 
 namespace ddge::scheduler {
 
@@ -27,7 +27,7 @@ struct WorkFlags {
     constexpr static type eAll               = static_cast<type>(~eNone);
 };
 
-export using ReleaseWorkContract = util::AnyMoveOnlyFunction<void()>;
+export using ReleaseWorkContract = util::MoveOnlyFunction<void()>;
 
 class WorkContract {
 public:

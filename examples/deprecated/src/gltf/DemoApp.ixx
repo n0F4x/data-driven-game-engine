@@ -2,14 +2,12 @@ module;
 
 #include <filesystem>
 
-#include <vulkan/vulkan.hpp>
-
 export module demos.gltf.DemoApp;
 
+import vulkan_hpp;
+
 import ddge.deprecated.cache.Cache;
-
 import ddge.deprecated.gfx.Camera;
-
 import ddge.deprecated.renderer.base.device.Device;
 import ddge.deprecated.renderer.base.allocator.Allocator;
 import ddge.deprecated.renderer.base.swapchain.SwapchainHolder;

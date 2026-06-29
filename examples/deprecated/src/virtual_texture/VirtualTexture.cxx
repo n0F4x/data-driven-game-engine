@@ -2,14 +2,15 @@ module;
 
 #include <filesystem>
 #include <source_location>
-
-#include <vulkan/vulkan.hpp>
+#include <span>
 
 #include <VkBootstrap.h>
 
 #include <glm/ext/vector_float3.hpp>
 
 module demos.virtual_texture.VirtualTexture;
+
+import vulkan_hpp;
 
 import ddge.deprecated.gfx.resources.VirtualImage;
 

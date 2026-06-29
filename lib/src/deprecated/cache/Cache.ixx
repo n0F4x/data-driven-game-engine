@@ -1,6 +1,7 @@
 module;
 
 #include <memory>
+#include <optional>
 #include <unordered_map>
 
 export module ddge.deprecated.cache.Cache;

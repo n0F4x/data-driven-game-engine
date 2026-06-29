@@ -56,7 +56,7 @@ auto ddge::scheduler::repeat(
                 }
                 auto schedule_next_iteration(const TaskHubProxy& task_hub_proxy) -> void
                 {
-                    if (m_repetition > 0) {
+                    if (m_repetition.has_value() && *m_repetition > 0) {
                         --*m_repetition;
                         task_hub_proxy.schedule(*m_looped_task_index);
                     }

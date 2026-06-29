@@ -46,7 +46,7 @@ static auto load_image(
     const fastgltf::Image&       image
 ) -> std::optional<ddge::gltf::Image>
 {
-    return image.data.visit(
+    return std::visit(
         fastgltf::visitor{
             [](std::monostate) -> std::optional<ddge::gltf::Image> {
                 assert(false &&
@@ -67,7 +67,7 @@ static auto load_image(
                 };
                 const auto& [_, data, _]{ asset.buffers[buffer_index] };
 
-                return data.visit(
+                return std::visit(
                     fastgltf::visitor{
                         [](const auto&) -> std::optional<ddge::gltf::Image> {
                             throw std::runtime_error(
@@ -86,7 +86,9 @@ static auto load_image(
                                 std::span{ vector.bytes }.subspan(byte_offset),
                                 buffer_view.mimeType
                             );
-                        } }
+                        },
+                    },
+                    data
                 );
             },
             [&](const fastgltf::sources::URI& uri) {
@@ -109,7 +111,8 @@ static auto load_image(
                     std::span{ vector.bytes }, vector.mimeType
                 );
             },
-        }
+        },
+        image.data
     );
 }
 
@@ -422,17 +425,20 @@ auto Loader::load_node(
     fastgltf::math::fvec3 scale{ 1.f, 1.f, 1.f };
     fastgltf::math::fquat rotation{ 0.f, 0.f, 0.f, 1.f };
     fastgltf::math::fvec3 translation{};
-    source_node.transform.visit(
-        fastgltf::visitor{ [&](const fastgltf::TRS& transform) {
-                              scale       = transform.scale;
-                              rotation    = transform.rotation;
-                              translation = transform.translation;
-                          },
-                           [&](const fastgltf::math::fmat4x4& matrix) {
-                               fastgltf::math::decomposeTransformMatrix(
-                                   matrix, scale, rotation, translation
-                               );
-                           } }
+    std::visit(
+        fastgltf::visitor{
+            [&](const fastgltf::TRS& transform) {
+                scale       = transform.scale;
+                rotation    = transform.rotation;
+                translation = transform.translation;
+            },
+            [&](const fastgltf::math::fmat4x4& matrix) {
+                fastgltf::math::decomposeTransformMatrix(
+                    matrix, scale, rotation, translation
+                );
+            },
+        },
+        source_node.transform
     );
     node.scale()       = glm::make_vec3(scale.data());
     node.rotation()    = glm::make_quat(rotation.data());

@@ -1,10 +1,10 @@
 module;
 
-#include <vulkan/vulkan.hpp>
-
 #include <VkBootstrap.h>
 
 module examples.base.Renderer;
+
+import vulkan_hpp;
 
 import ddge.deprecated.renderer.base.swapchain.SwapchainHolder;
 import ddge.deprecated.renderer.scene.Scene;

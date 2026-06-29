@@ -1,7 +1,7 @@
 module;
 
 #include <ranges>
-
+#include <stdexcept>
 
 module ddge.deprecated.renderer.base.resources.mipmap_generation;
 

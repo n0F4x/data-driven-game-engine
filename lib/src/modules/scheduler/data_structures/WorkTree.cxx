@@ -31,10 +31,12 @@ auto ddge::scheduler::WorkContract::assign(
     return *this;
 }
 
+// ReSharper disable once CppNotAllPathsReturnValue
 auto ddge::scheduler::WorkContract::execute() -> WorkContinuation
 {
-    if (const bool should_be_released{ (m_flags.load() & WorkFlags::eShouldBeReleased)
-                                       != 0 };
+    if (const bool should_be_released{
+            (m_flags.load() & WorkFlags::eShouldBeReleased) != 0,
+        };
         should_be_released)
     {
         release();
@@ -44,10 +46,11 @@ auto ddge::scheduler::WorkContract::execute() -> WorkContinuation
     m_flags.fetch_and(WorkFlags::eAll - WorkFlags::eShouldBeScheduled);
 
     assert(m_work.has_value());
+    // ReSharper disable once CppTooWideScope
     const WorkContinuation continuation = m_work->operator()();
 
     switch (continuation) {
-        case WorkContinuation::eDontCare:   //
+        case WorkContinuation::eDontCare:
             if ((m_flags.fetch_and(WorkFlags::eAll - WorkFlags::eActive)
                  & WorkFlags::eShouldBeScheduled)
                 != 0)
@@ -327,9 +330,9 @@ auto ddge::scheduler::WorkTree::try_emplace_at(
 {
     const auto sub_tree_index{ work_index.underlying() % m_free_signals.size() };
 
-    const bool success{ m_free_signals[sub_tree_index].try_unset_one_at(
+    const bool success = m_free_signals[sub_tree_index].try_unset_one_at(
         static_cast<SignalTree::LeafIndex>(work_index.underlying() / m_free_signals.size())
-    ) };
+    );
 
     if (!success) {
         return std::expected<void, std::pair<Work, std::optional<ReleaseWorkContract>>>{

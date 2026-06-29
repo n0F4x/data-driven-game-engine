@@ -1,10 +1,11 @@
 module;
 
+#include <span>
 #include <vector>
 
-#include <vulkan/vulkan.hpp>
-
 export module demos.gltf.init;
+
+import vulkan_hpp;
 
 import ddge.deprecated.renderer.base.device.Device;
 import ddge.deprecated.renderer.base.allocator.Allocator;

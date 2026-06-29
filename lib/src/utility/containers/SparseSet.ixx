@@ -3,6 +3,7 @@ module;
 #include <bitset>
 #include <concepts>
 #include <limits>
+#include <optional>
 #include <ranges>
 #include <type_traits>
 #include <vector>

@@ -3,11 +3,11 @@ module;
 #include <filesystem>
 #include <functional>
 
-#include <vulkan/vulkan.hpp>
-
 #include <VkBootstrap.h>
 
 module demos.gltf.DemoApp;
+
+import vulkan_hpp;
 
 import ddge.deprecated.cache.Handle;
 import ddge.deprecated.gltf.Model;
@@ -159,9 +159,8 @@ auto demo::DemoApp::record_command_buffer(
 ) -> void
 {
     constexpr static std::array clear_values{
-        vk::ClearValue{
-            .color = vk::ClearColorValue{ std::array{ 0.01f, 0.01f, 0.01f, 0.01f } } },
-        vk::ClearValue{ .depthStencil = vk::ClearDepthStencilValue{ .depth = 1.f } }
+        vk::ClearValue{ vk::ClearColorValue{ std::array{ 0.01f, 0.01f, 0.01f, 0.01f } } },
+        vk::ClearValue{ vk::ClearDepthStencilValue{ .depth = 1.f } }
     };
     const vk::RenderPassBeginInfo render_pass_begin_info{
         .renderPass      = m_render_pass.get(),

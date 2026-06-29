@@ -7,7 +7,7 @@ module;
 
 #include <vk_mem_alloc.h>
 
-#include "utility/lifetime_bound.hpp"
+#include "utility/lifetimebound.hpp"
 
 export module ddge.deprecated.renderer.resources.SeqWriteBuffer;
 
@@ -30,7 +30,7 @@ public:
     );
 
     [[nodiscard]]
-    auto get() const noexcept [[lifetime_bound]] -> vk::Buffer;
+    auto get() const noexcept [[engine_lifetimebound]] -> vk::Buffer;
 
     template <std::size_t E>
     auto set(std::span<const T, E> data, std::size_t offset = 0) const -> void;

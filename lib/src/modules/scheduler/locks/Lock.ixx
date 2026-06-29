@@ -44,6 +44,7 @@ private:
 
 constexpr ddge::scheduler::Lock::Lock(const CriticalSectionType type) : m_type{ type } {}
 
+// ReSharper disable once CppNotAllPathsReturnValue
 constexpr auto ddge::scheduler::Lock::overwrite(Lock&& other) const -> Lock
 {
     switch (m_type) {
@@ -71,7 +72,7 @@ auto ddge::scheduler::Lock::dependencies(
         const CriticalSection& preceeding_section{ iter->second };
         switch (m_type) {
             case CriticalSectionType::eExclusive:
-                return preceeding_section.visit(
+                return std::visit(
                     util::Overloaded{
                         ::exclusive_owner_to_vector,
                         [](const SharedCriticalSection& critical_section) {
@@ -80,10 +81,11 @@ auto ddge::scheduler::Lock::dependencies(
                                 critical_section.owners()   //
                             };
                         },
-                    }
+                    },
+                    preceeding_section
                 );
             case CriticalSectionType::eShared:
-                return preceeding_section.visit(
+                return std::visit(
                     util::Overloaded{
                         ::exclusive_owner_to_vector,
                         [](const SharedCriticalSection& critical_section) {
@@ -91,7 +93,8 @@ auto ddge::scheduler::Lock::dependencies(
                                 .transform(::exclusive_owner_to_vector)
                                 .value_or(std::vector<LockOwnerIndex>{});
                         },
-                    }
+                    },
+                    preceeding_section
                 );
         }
         std::unreachable();

@@ -1,7 +1,8 @@
 module;
 
+#include <algorithm>
 #include <format>
-#include <numeric>
+#include <functional>
 #include <ranges>
 
 #include <vulkan/utility/vk_format_utils.h>
@@ -18,17 +19,16 @@ module;
 
 module ddge.deprecated.gfx.resources.VirtualImage;
 
-import ddge.deprecated.image.Image;
+import vulkan_hpp;
 
+import ddge.deprecated.image.Image;
 import ddge.deprecated.gfx.resources.image_helpers;
 import ddge.deprecated.gfx.resources.virtual_image_helpers;
-
-import ddge.modules.log;
-
 import ddge.deprecated.renderer.base.resources.Allocation;
 import ddge.deprecated.renderer.base.resources.image_extensions;
 import ddge.deprecated.renderer.base.resources.MemoryView;
 import ddge.deprecated.renderer.resources.SeqWriteBuffer;
+import ddge.modules.log;
 
 [[nodiscard]]
 static auto image_usage_flags() -> vk::ImageUsageFlags
@@ -222,15 +222,17 @@ auto ddge::gfx::resources::VirtualImage::Loader::operator()(
 
     transition_image_layout(transfer_command_buffer, m_image, new_state);
 
-    VirtualImage result{ std::move(m_image),
-                         std::move(m_view),
-                         m_memory_requirements,
-                         m_sparse_requirements,
-                         std::move(m_blocks),
-                         std::move(m_mip_tail_region),
-                         std::move(m_debug_image_loader)(
-                             physical_device, transfer_command_buffer, new_state
-                         ) };
+    VirtualImage result{
+        std::move(m_image),
+        std::move(m_view),
+        m_memory_requirements,
+        m_sparse_requirements,
+        std::move(m_blocks),
+        std::move(m_mip_tail_region),
+        std::move(m_debug_image_loader)(
+            physical_device, transfer_command_buffer, new_state
+        ),
+    };
 
     return result;
 }

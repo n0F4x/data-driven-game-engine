@@ -1,10 +1,15 @@
 module;
 
-#include <vulkan/vulkan.hpp>
+#include <array>
+#include <span>
+#include <stdexcept>
+#include <vector>
 
 #include <vk_mem_alloc.h>
 
 module demos.gltf.init;
+
+import vulkan_hpp;
 
 import ddge.deprecated.renderer.base.device.Device;
 import ddge.deprecated.renderer.resources.Image;

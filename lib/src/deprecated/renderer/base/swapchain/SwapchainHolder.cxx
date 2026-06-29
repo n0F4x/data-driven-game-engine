@@ -3,6 +3,7 @@ module;
 #include <array>
 #include <format>
 #include <limits>
+#include <optional>
 #include <ranges>
 
 #include <vulkan/vulkan.hpp>
@@ -13,6 +14,8 @@ module;
 #include "modules/log/log_macros.hpp"
 
 module ddge.deprecated.renderer.base.swapchain.SwapchainHolder;
+
+import vulkan_hpp;
 
 import ddge.modules.log;
 
@@ -82,7 +85,8 @@ auto SwapchainHolder::acquire_next_image(
                         default: {
                             ENGINE_LOG_ERROR(
                                 std::format(
-                                    "vk::Device::acquireNextImage succeeded " "with " "un" "e" "x" "pe" "ct" "ed" " " "result: " "{}",
+                                    "vk::Device::acquireNextImage succeeded with"   //
+                                    " unexpected result: {}",
                                     vk::to_string(result)
                                 )
                             );

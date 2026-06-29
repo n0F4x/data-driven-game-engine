@@ -30,7 +30,6 @@ auto ddge::renderer::SurfaceInjection::operator()(
         throw std::runtime_error{ "Vulkan surface creation failed" };
     }
 
-    std::bind_front(&SurfaceInjection::setup, *this);
     return vk::UniqueSurfaceKHR{ expected_surface.value(), instance.get() };
 }
 

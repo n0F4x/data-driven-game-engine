@@ -1,5 +1,6 @@
 module;
 
+#include <bit>
 #include <optional>
 #include <type_traits>
 #include <utility>

@@ -1,5 +1,6 @@
 module;
 
+#include <format>
 #include <functional>
 #include <ranges>
 #include <sstream>

@@ -10,6 +10,7 @@ module;
 #include <vector>
 
 #include "utility/contract_macros.hpp"
+#include "utility/no_unique_address.hpp"
 
 export module ddge.modules.scheduler.Plugin;
 
@@ -44,7 +45,7 @@ public:
     auto run(this Self_T&&, TaskBuilder<void>&& task_builder) -> void;
 
 private:
-    [[no_unique_address]] struct Precondition {
+    [[engine_no_unique_address]] struct Precondition {
         explicit Precondition(uint32_t number_of_threads);
     } m_precondition;
 
@@ -120,11 +121,13 @@ auto ddge::scheduler::Plugin::run(this Self_T&& self, TaskBuilder<void>&& task_b
         //       (or when it comes with no linker errors)
         std::vector<std::thread> worker_threads(number_of_threads - 1);
         for (auto index : std::views::iota(0u, worker_threads.size())) {
-            worker_threads[index] = std::thread{ [&should_stop, &task_hub, index] {
-                while (!should_stop.load()) {
-                    task_hub->try_execute_a_generic_task(index + 1);
-                }
-            } };
+            worker_threads[index] = std::thread{
+                [&should_stop, &task_hub, index] {
+                    while (!should_stop.load()) {
+                        task_hub->try_execute_a_generic_task(index + 1);
+                    }
+                },
+            };
         }
 
         while (!should_stop.load()) {

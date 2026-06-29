@@ -2,8 +2,7 @@ module;
 
 #include <filesystem>
 #include <source_location>
-
-#include <vulkan/vulkan.hpp>
+#include <span>
 
 #include <vk_mem_alloc.h>
 
@@ -13,12 +12,11 @@ module;
 
 module demos.virtual_texture.init;
 
+import vulkan_hpp;
+
 import ddge.deprecated.cache.Handle;
-
 import ddge.deprecated.image.Image;
-
 import ddge.deprecated.gfx.resources.VirtualImage;
-
 import ddge.deprecated.renderer.base.device.Device;
 import ddge.deprecated.renderer.material_system.GraphicsPipelineBuilder;
 import ddge.deprecated.renderer.material_system.Program;

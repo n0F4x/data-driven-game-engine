@@ -6,6 +6,7 @@ module;
 #include <future>
 #include <ranges>
 #include <source_location>
+#include <variant>
 
 #include <VkBootstrap.h>
 
@@ -775,9 +776,12 @@ auto ddge::gltf::RenderModel::create_loader(
         device.get(),
         descriptor_set_layouts[1],
         descriptor_pool,
-        image_loaders | std::views::transform([](const ImageVariantLoader& variant_loader) {
-            return variant_loader.visit([](const auto& loader) { return loader.view(); });
-        })
+        image_loaders
+            | std::views::transform([](const ImageVariantLoader& variant_loader) {
+                  return std::visit(
+                      [](const auto& loader) { return loader.view(); }, variant_loader
+                  );
+              })
     ) };
 
     std::vector<vk::UniqueSampler> samplers{
@@ -840,11 +844,12 @@ auto ddge::gltf::RenderModel::create_loader(
                 if (material.pbrMetallicRoughness.baseColorTexture.index
                     != std::numeric_limits<uint32_t>::max())
                 {
-                    if (ImageVariant& image_variant{ images.at(
-                            textures
-                                .at(material.pbrMetallicRoughness.baseColorTexture.index)
-                                .image_index
-                        ) };
+                    if (ImageVariant& image_variant{
+                            images[textures
+                                       .at(material.pbrMetallicRoughness.baseColorTexture
+                                               .index)
+                                       .image_index],
+                        };
                         std::holds_alternative<gfx::resources::VirtualImage>(image_variant))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
@@ -858,10 +863,11 @@ auto ddge::gltf::RenderModel::create_loader(
                     != std::numeric_limits<uint32_t>::max())
                 {
                     if (ImageVariant& image_variant{
-                            images.at(textures
-                                          .at(material.pbrMetallicRoughness
-                                                  .metallicRoughnessTexture.index)
-                                          .image_index) };
+                            images[textures
+                                       .at(material.pbrMetallicRoughness
+                                               .metallicRoughnessTexture.index)
+                                       .image_index],
+                        };
                         std::holds_alternative<gfx::resources::VirtualImage>(image_variant))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
@@ -872,9 +878,9 @@ auto ddge::gltf::RenderModel::create_loader(
                 }
 
                 if (material.normalTexture.index != std::numeric_limits<uint32_t>::max()) {
-                    if (ImageVariant& image_variant{ images.at(
-                            textures.at(material.normalTexture.index).image_index
-                        ) };
+                    if (ImageVariant& image_variant{
+                            images[textures.at(material.normalTexture.index).image_index],
+                        };
                         std::holds_alternative<gfx::resources::VirtualImage>(image_variant))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
@@ -886,9 +892,9 @@ auto ddge::gltf::RenderModel::create_loader(
 
                 if (material.occlusionTexture.index
                     != std::numeric_limits<uint32_t>::max()) {
-                    if (ImageVariant& image_variant{ images.at(
-                            textures.at(material.occlusionTexture.index).image_index
-                        ) };
+                    if (ImageVariant& image_variant{
+                            images[textures.at(material.occlusionTexture.index).image_index],
+                        };
                         std::holds_alternative<gfx::resources::VirtualImage>(image_variant))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)
@@ -900,9 +906,9 @@ auto ddge::gltf::RenderModel::create_loader(
 
                 if (material.emissiveTexture.index
                     != std::numeric_limits<uint32_t>::max()) {
-                    if (ImageVariant& image_variant{ images.at(
-                            textures.at(material.emissiveTexture.index).image_index
-                        ) };
+                    if (ImageVariant& image_variant{
+                            images[textures.at(material.emissiveTexture.index).image_index],
+                        };
                         std::holds_alternative<gfx::resources::VirtualImage>(image_variant))
                     {
                         std::get<gfx::resources::VirtualImage>(image_variant)

@@ -10,10 +10,14 @@
 
 import ddge.modules.scheduler.data_structures.SignalTree;
 
+namespace {
+
 auto default_strategy(uint32_t) -> ddge::scheduler::TravelsalBias
 {
     return ddge::scheduler::TravelsalBias::eLeft;
 }
+
+}   // namespace
 
 TEST_CASE("ddge::scheduler::SignalTree")
 {

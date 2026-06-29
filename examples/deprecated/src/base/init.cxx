@@ -1,10 +1,11 @@
 module;
 
 #include <ranges>
-
-#include <vulkan/vulkan.hpp>
+#include <vector>
 
 module examples.base.init;
+
+import vulkan_hpp;
 
 import ddge.deprecated.renderer.base.device.Device;
 
