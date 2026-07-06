@@ -1,5 +1,7 @@
 add_subdirectory(dependency_injection)
 add_subdirectory(deprecated)
+add_subdirectory(hello_app)
+add_subdirectory(hello_engine)
 add_subdirectory(parallelism)
 add_subdirectory(simple)
 add_subdirectory(snake)

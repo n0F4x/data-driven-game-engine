@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.30)
 
-project(engine)
+project(engine VERSION 0.0.0)
+
+set(project_prefix ENGINE_)
+
+option(${project_prefix}DEBUG "Activate debug functionalities" OFF)
 
 set(${project_prefix}LOG_LEVEL ${project_prefix}LOG_LEVEL_INFO CACHE STRING "Set log level")
 set_property(CACHE ${project_prefix}LOG_LEVEL PROPERTY STRINGS
@@ -19,6 +23,18 @@ add_library(engine::engine ALIAS ${PROJECT_NAME})
 
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_26)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+        ${project_prefix}VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+        ${project_prefix}VERSION_MINOR=${PROJECT_VERSION_MINOR}
+        ${project_prefix}VERSION_PATCH=${PROJECT_VERSION_PATCH}
+)
+
+if (${project_prefix}DEBUG)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC
+            ${project_prefix}DEBUG
+    )
+endif ()
 
 include(cmake/set_log_level.cmake)
 set_log_level(${PROJECT_NAME} ${project_prefix}LOG_LEVEL)

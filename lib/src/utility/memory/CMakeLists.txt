@@ -4,7 +4,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
         memory.cppm
-        Deallocator.ixx
+        Deleter.ixx
         DefaultAllocator.ixx
         LifeCycleEraseMechanism.ixx
 )

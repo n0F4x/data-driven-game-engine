@@ -86,7 +86,9 @@ auto ddge::scheduler::SignalTree::number_of_nodes() const noexcept -> uint32_t
     return static_cast<uint32_t>(m_nodes.size());
 }
 
-ddge::scheduler::SignalTree::Precondition::Precondition(const uint32_t number_of_levels)
+ddge::scheduler::SignalTree::Precondition::Precondition(
+    [[maybe_unused]] const uint32_t number_of_levels
+)
 {
     PRECOND(number_of_levels >= minimum_number_of_levels());
 }

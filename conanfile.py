@@ -1,4 +1,4 @@
-from conan import ConanFile
+from conan import ConanFile, Version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
@@ -18,19 +18,28 @@ class DataDrivenGameEngineRecipe(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         # TODO: "visibility": ["default", "hidden", "internal", "protected"],  # controls -fvisibility
+        "debug": [True, False],
         "log_level": ["off", "critical", "error", "warning", "info", "debug", "trace"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         # TODO: "visibility": "hidden",
+        "debug": False,
         "log_level": "info",
     }
     implements = ["auto_shared_fpic"]
 
+    project_prefix = "ENGINE_"
+
     @property
     def _dev(self):
         return bool(self.conf.get(f"user.{self.name}:dev", default=False))
+
+    @property
+    def _debug(self):
+        return self.options.debug or (
+                self._dev and bool(self.conf.get(f"user.{self.name}:debug", default=True)))
 
     @property
     def _enable_tests(self):
@@ -100,11 +109,13 @@ class DataDrivenGameEngineRecipe(ConanFile):
         # CMakeToolChain
         tc = CMakeToolchain(self)
 
-        project_prefix = "ENGINE_"
-        tc.cache_variables[project_prefix + "LOG_LEVEL"] \
-            = project_prefix + "LOG_LEVEL_" + self.options.log_level.value.upper()
-        tc.cache_variables[project_prefix + "ENABLE_TESTS"] = self._enable_tests
-        tc.cache_variables[project_prefix + "ENABLE_EXAMPLES"] = self._enable_examples
+        tc.cache_variables[self.project_prefix + "DEBUG"] = self._debug
+        if self._dev:
+            tc.cache_variables[self.project_prefix + "ENABLE_TESTS"] = self._enable_tests
+            tc.cache_variables[self.project_prefix + "ENABLE_EXAMPLES"] = self._enable_examples
+
+        tc.cache_variables[self.project_prefix + "LOG_LEVEL"] \
+            = self.project_prefix + "LOG_LEVEL_" + self.options.log_level.value.upper()
 
         tc.generate()
 
@@ -123,6 +134,14 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "engine")
         self.cpp_info.libs = ["engine"]
         self.cpp_info.set_property("cmake_target_name", "engine::engine")
+
+        version = Version(self.version)
+        self.cpp_info.defines.append(f"{self.project_prefix}VERSION_MAJOR={version.major}")
+        self.cpp_info.defines.append(f"{self.project_prefix}VERSION_MINOR={version.minor}")
+        self.cpp_info.defines.append(f"{self.project_prefix}VERSION_PATCH={version.patch}")
+
+        if self.options.debug:
+            self.cpp_info.defines.append(f"{self.project_prefix}DEBUG")
 
         # TODO: remove these once Conan learns cxx modules
         self.cpp_info.set_property("cmake_find_mode", "none")

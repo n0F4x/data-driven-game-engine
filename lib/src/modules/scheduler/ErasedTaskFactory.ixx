@@ -14,13 +14,13 @@ import ddge.modules.scheduler.TaskFactory;
 import ddge.modules.scheduler.TaskHubProxy;
 
 import ddge.utility.any_cast;
-import ddge.utility.containers.AnyMoveOnly;
+import ddge.utility.containers.MoveOnlyAny;
 
 namespace ddge::scheduler {
 
-export class ErasedTaskFactory : public util::BasicAnyMoveOnly<0>   //
+export class ErasedTaskFactory : public util::BasicMoveOnlyAny<0>   //
 {
-    using Base = util::BasicAnyMoveOnly<0>;
+    using Base = util::BasicMoveOnlyAny<0>;
 
 public:
     template <typename Result_T>

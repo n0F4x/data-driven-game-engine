@@ -9,7 +9,7 @@ export module ddge.modules.events.ErasedBufferedEventQueue;
 import ddge.modules.events.BufferedEventQueue;
 import ddge.modules.events.event_c;
 
-import ddge.utility.containers.AnyMoveOnly;
+import ddge.utility.containers.MoveOnlyAny;
 
 namespace ddge::events {
 
@@ -32,10 +32,10 @@ struct ErasedBufferedEventQueueTraits {
 
 struct DummyEvent {};
 
-export class ErasedBufferedEventQueue : public util::BasicAnyMoveOnly<
+export class ErasedBufferedEventQueue : public util::BasicMoveOnlyAny<
                                             sizeof(BufferedEventQueue<DummyEvent>),
                                             alignof(BufferedEventQueue<DummyEvent>)> {
-    using Base = util::BasicAnyMoveOnly<
+    using Base = util::BasicMoveOnlyAny<
         sizeof(BufferedEventQueue<DummyEvent>),
         alignof(BufferedEventQueue<DummyEvent>)>;
 

@@ -9,7 +9,7 @@ export module ddge.modules.messages.ErasedMessageBuffer;
 import ddge.modules.messages.MessageBuffer;
 import ddge.modules.messages.message_c;
 
-import ddge.utility.containers.AnyMoveOnly;
+import ddge.utility.containers.MoveOnlyAny;
 
 namespace ddge::messages {
 
@@ -32,10 +32,10 @@ struct ErasedMessageBufferTraits {
 
 struct DummyMessage {};
 
-export class ErasedMessageBuffer : public util::BasicAnyMoveOnly<
+export class ErasedMessageBuffer : public util::BasicMoveOnlyAny<
                                        sizeof(MessageBuffer<DummyMessage>),
                                        alignof(MessageBuffer<DummyMessage>)> {
-    using Base = util::BasicAnyMoveOnly<
+    using Base = util::BasicMoveOnlyAny<
         sizeof(MessageBuffer<DummyMessage>),
         alignof(MessageBuffer<DummyMessage>)>;
 

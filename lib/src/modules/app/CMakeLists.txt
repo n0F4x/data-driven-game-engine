@@ -1,4 +1,5 @@
 add_subdirectory(extensions)
+add_subdirectory(v2)
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET public_cxx_modules

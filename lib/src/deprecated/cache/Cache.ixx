@@ -6,7 +6,7 @@ module;
 
 export module ddge.deprecated.cache.Cache;
 
-import ddge.utility.containers.store.Store;
+import ddge.utility.containers.GenericStack;
 
 import ddge.deprecated.cache.Handle;
 
@@ -17,14 +17,12 @@ class BasicCache {
 public:
     using ID = IdType;
 
-    ///-----------///
-    ///  Methods  ///
-    ///-----------///
+
     template <typename Resource, typename... Args>
-    auto emplace(ID id, Args&&... args) -> Handle<Resource>;
+    auto try_emplace(ID id, Args&&... args) -> Handle<Resource>;
 
     template <typename Resource, std::invocable Creator>
-    auto lazy_emplace(ID id, Creator&& create) -> Handle<Resource>;
+    auto lazy_try_emplace(ID id, Creator&& create) -> Handle<Resource>;
 
     template <typename Resource>
     [[nodiscard]]
@@ -35,19 +33,14 @@ public:
     auto at(ID id) const -> Handle<Resource>;
 
 private:
-    ///****************///
-    ///  Type aliases  ///
-    ///****************///
     template <typename Resource>
     using WeakHandle = std::weak_ptr<Resource>;
 
     template <typename Resource>
     using ContainerType = ContainerTemplate<IdType, WeakHandle<Resource>>;
 
-    ///*************///
-    ///  Variables  ///
-    ///*************///
-    ddge::utility::store::Store m_store;
+
+    ddge::util::GenericStack m_containers;
 };
 
 export using Cache = BasicCache<std::size_t, std::unordered_map>;
@@ -56,22 +49,22 @@ export using Cache = BasicCache<std::size_t, std::unordered_map>;
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource, typename... Args>
-auto ddge::cache::BasicCache<IdType, ContainerTemplate>::emplace(ID id, Args&&... args)
+auto ddge::cache::BasicCache<IdType, ContainerTemplate>::try_emplace(ID id, Args&&... args)
     -> Handle<Resource>
 {
-    return lazy_emplace<Resource>(id, [&] {
+    return lazy_try_emplace<Resource>(id, [&] {
         return std::forward_as_tuple(std::forward<Args>(args)...);
     });
 }
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource, std::invocable Creator>
-auto ddge::cache::BasicCache<IdType, ContainerTemplate>::lazy_emplace(
+auto ddge::cache::BasicCache<IdType, ContainerTemplate>::lazy_try_emplace(
     ID        id,
     Creator&& create
 ) -> Handle<Resource>
 {
-    auto& container{ m_store.emplace<ContainerType<Resource>>() };
+    auto& container{ m_containers.try_emplace<ContainerType<Resource>>().first };
 
     if (const auto iter{ container.find(id) }; iter != container.end()) {
         WeakHandle<Resource>& weak_handle{ iter->second };
@@ -90,7 +83,7 @@ auto ddge::cache::BasicCache<IdType, ContainerTemplate>::lazy_emplace(
     Handle<Resource> result{
         make_handle<Resource>(std::invoke(std::forward<Creator>(create)))
     };
-    container.try_emplace(id, result);
+    container.emplace(id, result);
     return result;
 }
 
@@ -99,7 +92,7 @@ template <typename Resource>
 auto ddge::cache::BasicCache<IdType, ContainerTemplate>::find(ID id) const noexcept
     -> std::optional<Handle<Resource>>
 {
-    return m_store.find<ContainerType<Resource>>().and_then(
+    return m_containers.find<ContainerType<Resource>>().and_then(
         [id](const ContainerType<Resource>& container) -> std::optional<Handle<Resource>> {
             const auto iter{ container.find(id) };
             if (iter == container.cend()) {
@@ -116,5 +109,5 @@ template <typename Resource>
 auto ddge::cache::BasicCache<IdType, ContainerTemplate>::at(ID id) const
     -> Handle<Resource>
 {
-    return m_store.at<ContainerType<Resource>>().at(id).lock();
+    return m_containers.at<ContainerType<Resource>>().at(id).lock();
 }

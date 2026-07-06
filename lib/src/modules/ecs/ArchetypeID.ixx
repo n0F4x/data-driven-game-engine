@@ -12,33 +12,43 @@ import :ComponentID;
 class ArchetypeID {
 public:
     constexpr explicit ArchetypeID(const Archetype& archetype) noexcept
-        : m_archetype{ &archetype }
+        : m_archetype_ref{ archetype }
     {}
 
     [[nodiscard]]
     constexpr auto operator*() const -> const Archetype&
     {
-        return *m_archetype;
+        return m_archetype_ref;
     }
 
+    [[nodiscard]]
     constexpr auto operator->() const -> const Archetype*
     {
-        return m_archetype;
+        return &m_archetype_ref.get();
     }
 
-    auto operator==(const ArchetypeID&) const -> bool = default;
-    auto operator<=>(const ArchetypeID&) const        = default;
+    [[nodiscard]]
+    auto operator==(const ArchetypeID& other) const -> bool
+    {
+        return m_archetype_ref.get() == other.m_archetype_ref.get();
+    }
+
+    [[nodiscard]]
+    auto operator<=>(const ArchetypeID& other) const
+    {
+        return m_archetype_ref.get() == other.m_archetype_ref.get();
+    }
 
     [[nodiscard]]
     constexpr auto get() const noexcept -> const Archetype&
     {
-        return *m_archetype;
+        return m_archetype_ref.get();
     }
 
 private:
     friend struct ArchetypeIDHashClosure;
 
-    const Archetype* m_archetype;
+    std::reference_wrapper<const Archetype> m_archetype_ref;
 };
 
 template <>

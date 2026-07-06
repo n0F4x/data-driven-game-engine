@@ -24,7 +24,7 @@ static auto require_vulkan_version(const uint32_t major, const uint32_t minor)
 }
 
 auto main() -> int
-try {
+{
     const std::filesystem::path model_filepath{
         std::filesystem::path{ std::source_location::current().file_name() }
                 .parent_path()
@@ -61,14 +61,4 @@ try {
             }
         )
         .run(demo::run);
-
-} catch (const std::exception& error) {
-    try {
-        std::println("{}", error.what());
-        return -1;
-    } catch (...) {
-        return -3;
-    }
-} catch (...) {
-    return -2;
 }

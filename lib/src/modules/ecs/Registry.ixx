@@ -26,7 +26,7 @@ import ddge.utility.meta.type_traits.type_list.type_list_to;
 import ddge.utility.meta.type_traits.const_like;
 import ddge.utility.all_same;
 import ddge.utility.hashing;
-import ddge.utility.ScopeGuard;
+import ddge.utility.ScopeFail;
 import ddge.utility.TypeList;
 
 import :Archetype;

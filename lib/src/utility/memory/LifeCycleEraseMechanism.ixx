@@ -14,7 +14,7 @@ import ddge.utility.contracts;
 import ddge.utility.meta.concepts.nothrow_movable;
 import ddge.utility.meta.reflection.hash;
 import ddge.utility.meta.reflection.name_of;
-import ddge.utility.ScopeGuard;
+import ddge.utility.ScopeFail;
 
 namespace ddge::util {
 
@@ -378,7 +378,7 @@ struct Operations {
                                     : destination_allocator.new_object<T>(
                                           **source_storage.template launder<T*>()
                                       );
-            const ScopeGuard new_object_guard{
+            const ScopeFail new_object_guard{
                 [&] noexcept -> void {
                     if (new_object != nullptr) {
                         destination_allocator.delete_object(new_object);
@@ -476,7 +476,7 @@ struct Operations {
                     lhs_allocator, tmp, rhs_allocator, std::move(rhs_storage)
                 );
                 rhs_erase_mechanism.drop(rhs_allocator, rhs_storage);
-                const ScopeGuard tmp_guard{ [&] noexcept -> void {
+                const ScopeFail tmp_guard{ [&] noexcept -> void {
                     rhs_erase_mechanism.drop(lhs_allocator, tmp);
                 } };
 

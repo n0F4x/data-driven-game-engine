@@ -1,5 +1,3 @@
-add_subdirectory(store)
-
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET public_cxx_modules
         TYPE CXX_MODULES
@@ -7,11 +5,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILES
         containers.cppm
         Any.ixx
-        AnyCopyable.ixx
-        AnyMoveOnly.ixx
+        CopyableAny.ixx
         CopyableFunction.ixx
         Function.ixx
         FunctionWrapper.ixx
+        GenericStack.ixx
+        MoveOnlyAny.ixx
         MoveOnlyFunction.ixx
         SlotMultiMap.ixx
         OptionalRef.ixx

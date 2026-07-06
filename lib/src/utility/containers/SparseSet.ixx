@@ -15,7 +15,7 @@ export module ddge.utility.containers.SparseSet;
 import ddge.utility.contracts;
 import ddge.utility.meta.uint_at_least;
 import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.ScopeGuard;
+import ddge.utility.ScopeFail;
 import ddge.utility.containers.Strong;
 
 template <typename T>
@@ -348,7 +348,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id
         m_pointers.push_back(make_pointer(id, version));
 
         return std::make_tuple(
-            index, version, ddge::util::ScopeGuard{ PointersPopBackFunctor{ this } }
+            index, version, ddge::util::ScopeFail{ PointersPopBackFunctor{ this } }
         );
     }
 
@@ -364,7 +364,7 @@ constexpr auto SparseSet<Key_T, version_bit_size_T>::emplace_pointer(const ID id
     m_pointers[index] = make_pointer(id, version);
 
     return std::make_tuple(
-        index, version, ddge::util::ScopeGuard{ PointersPopBackFunctor{} }
+        index, version, ddge::util::ScopeFail{ PointersPopBackFunctor{} }
     );
 }
 

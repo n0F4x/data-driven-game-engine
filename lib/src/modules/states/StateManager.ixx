@@ -6,7 +6,7 @@ module;
 export module ddge.modules.states.StateManager;
 
 import ddge.modules.states.state_c;
-import ddge.utility.containers.store.Store;
+import ddge.utility.containers.GenericStack;
 
 import ddge.utility.containers.OptionalRef;
 import ddge.utility.meta.type_traits.const_like;
@@ -16,7 +16,7 @@ namespace ddge::states {
 
 export class StateManager {
 public:
-    explicit StateManager(utility::store::Store&& states);
+    explicit StateManager(util::GenericStack&& states);
 
     template <state_c State_T, typename Self_T>
     [[nodiscard]]
@@ -32,7 +32,7 @@ public:
     auto contains() const noexcept -> bool;
 
 private:
-    utility::store::Store m_states;
+    util::GenericStack m_states;
 };
 
 }   // namespace ddge::states
@@ -59,6 +59,6 @@ auto ddge::states::StateManager::contains() const noexcept -> bool
 
 module :private;
 
-ddge::states::StateManager::StateManager(utility::store::Store&& states)
+ddge::states::StateManager::StateManager(util::GenericStack&& states)
     : m_states{ std::move(states) }
 {}

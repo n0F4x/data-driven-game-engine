@@ -3,6 +3,10 @@ add_subdirectory(memory)
 add_subdirectory(meta)
 add_subdirectory(tuple)
 
+target_sources(${PROJECT_NAME} PRIVATE
+        contract.cxx
+)
+
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET public_cxx_modules
         TYPE CXX_MODULES
@@ -17,8 +21,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         no_op.ixx
         not_fn.ixx
         Overloaded.ixx
-        ScopeGuard.ixx
+        ScopeFail.ixx
         Size.ixx
+        StringLiteral.ixx
         TypeList.ixx
         ValueSequence.ixx
         wrap_ref.ixx

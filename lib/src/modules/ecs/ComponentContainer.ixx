@@ -249,8 +249,9 @@ constexpr auto ComponentContainer<Component_T>::insert(UComponent_T&& component)
 
 template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
-constexpr auto ComponentContainer<Component_T>::remove(const RecordIndex record_index)
-    -> Component_T
+constexpr auto ComponentContainer<Component_T>::remove(
+    [[maybe_unused]] const RecordIndex record_index
+) -> Component_T
 {
     PRECOND(record_index.underlying() < m_size);
 
@@ -275,8 +276,9 @@ constexpr auto ComponentContainer<Component_T>::erase(const RecordIndex record_i
 
 template <ddge::ecs::component_c Component_T>
     requires(std::is_empty_v<Component_T>)
-constexpr auto ComponentContainer<Component_T>::get(const RecordIndex record_index)
-    -> Component_T&
+constexpr auto ComponentContainer<Component_T>::get(
+    [[maybe_unused]] const RecordIndex record_index
+) -> Component_T&
 {
     PRECOND(record_index.underlying() < m_size);
 

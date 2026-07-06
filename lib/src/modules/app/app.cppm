@@ -1,6 +1,7 @@
 export module ddge.modules.app;
 
 export import ddge.modules.app.extensions;
+export import ddge.modules.app.v2;
 
 export import ddge.modules.app.addon_c;
 export import ddge.modules.app.add_on_t;

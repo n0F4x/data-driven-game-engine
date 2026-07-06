@@ -573,13 +573,13 @@ static auto create_program(const vk::Device device, ddge::cache::Cache& cache)
                                                              / "pbr.frag.spv" };
 
     return ddge::renderer::Program{
-        ddge::renderer::Shader{ cache.lazy_emplace<const ddge::renderer::ShaderModule>(
+        ddge::renderer::Shader{ cache.lazy_try_emplace<const ddge::renderer::ShaderModule>(
             ddge::renderer::ShaderModule::hash(vertex_shader_path),
             [device]() {
                 return ddge::renderer::ShaderModule::load(device, vertex_shader_path);
             }
         ) },
-        ddge::renderer::Shader{ cache.lazy_emplace<const ddge::renderer::ShaderModule>(
+        ddge::renderer::Shader{ cache.lazy_try_emplace<const ddge::renderer::ShaderModule>(
             ddge::renderer::ShaderModule::hash(fragment_shader_path),
             [device]() {
                 return ddge::renderer::ShaderModule::load(device, fragment_shader_path);
@@ -611,7 +611,7 @@ static auto create_pipeline(
 
     const std::size_t hash{ hash_value(builder) };
 
-    return cache.lazy_emplace<vk::UniquePipeline>(
+    return cache.lazy_try_emplace<vk::UniquePipeline>(
         hash,
         std::bind_front(
             &ddge::renderer::GraphicsPipelineBuilder::build, builder, device, nullptr

@@ -15,8 +15,7 @@ import ddge.modules.app;
 
 import ddge.modules.resources.Addon;
 import ddge.modules.resources.resource_c;
-import ddge.utility.containers.store.Store;
-
+import ddge.utility.containers.GenericStack;
 import ddge.utility.contracts;
 import ddge.utility.meta.concepts.type_list.type_list_all_of;
 import ddge.utility.meta.type_traits.functional.arguments_of;
@@ -56,14 +55,19 @@ public:
     auto contains_resource() const -> bool;
 
 private:
-    using Caller = std::function<void(utility::store::Store&)>;
+    using Caller = std::function<void(util::GenericStack&)>;
 
-    utility::store::Store                 m_injections;
+    util::GenericStack           m_injections;
     std::vector<Caller>          m_callers;
     std::vector<std::type_index> m_types;
 };
 
 }   // namespace ddge::resources
+
+template <typename Resource_T>
+struct Injection {
+    Resource_T resource;
+};
 
 template <typename Self_T, typename Resource_T>
     requires ddge::resources::resource_c<std::remove_cvref_t<Resource_T>>
@@ -76,14 +80,11 @@ auto ddge::resources::Plugin::insert_resource(this Self_T&& self, Resource_T&& r
 
     PRECOND((!this_self.contains_resource<Resource>()));
 
-    struct Injection {
-        Resource resource;
-    };
+    Injection<Resource>& injection = this_self.m_injections.emplace<Injection<Resource>>(
+        Injection{ std::forward<Resource_T>(resource) }
+    );
 
-    Injection& injection = this_self.m_injections.emplace<Injection>(Injection{
-        std::forward<Resource_T>(resource) });
-
-    this_self.m_callers.push_back([&injection](utility::store::Store& store) -> void {
+    this_self.m_callers.push_back([&injection](util::GenericStack& store) -> void {
         store.emplace<Resource>(std::move(injection.resource));
     });
 
@@ -93,7 +94,7 @@ auto ddge::resources::Plugin::insert_resource(this Self_T&& self, Resource_T&& r
 }
 
 template <typename Injection_T>
-auto call_injection(Injection_T&& injection, ddge::utility::store::Store& parameter_store)
+auto call_injection(Injection_T&& injection, ddge::util::GenericStack& parameter_store)
     -> ddge::util::meta::result_of_t<Injection_T>
 {
     using Parameters = ddge::util::meta::arguments_of_t<Injection_T>;
@@ -139,7 +140,7 @@ auto ddge::resources::Plugin::inject_resource(this Self_T&& self, Injection_T&& 
     Injection& stored_injection =
         this_self.m_injections.emplace<Injection>(std::forward<Injection_T>(injection));
 
-    this_self.m_callers.push_back([&stored_injection](utility::store::Store& store) -> void {
+    this_self.m_callers.push_back([&stored_injection](util::GenericStack& store) -> void {
         store.emplace<Resource>(::call_injection(std::move(stored_injection), store));
     });
 
@@ -153,7 +154,7 @@ auto ddge::resources::Plugin::build(App_T&& app) && -> app::add_on_t<App_T, Addo
 {
     static_assert(!app::has_addons_c<App_T, Addon>);
 
-    utility::store::Store store;
+    util::GenericStack store;
     for (const Caller& caller : m_callers) {
         caller(store);
     }

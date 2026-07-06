@@ -2,9 +2,17 @@
 
 ## From simple to more complicated
 
+### [hello_engine](hello_engine)
+
+Prints the name of the engine.
+
 ### [dependency_injection](dependency_injection)
 
 Displays a glimpse of the app builder's power in constant evaluated context.
+
+### [hello_app](hello_app)
+
+Demonstrates how to build an app instance.
 
 ### [simple](simple)
 

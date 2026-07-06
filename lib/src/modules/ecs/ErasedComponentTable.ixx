@@ -4,7 +4,7 @@ module;
 
 export module ddge.modules.ecs:ErasedComponentTable;
 
-import ddge.utility.containers.AnyCopyable;
+import ddge.utility.containers.CopyableAny;
 
 import :ArchetypeID;
 import :component_c;
@@ -48,9 +48,9 @@ struct ErasedComponentTableTraits {
 
 class ErasedComponentTable
     : public ddge::util::
-          BasicAnyCopyable<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)> {
+          BasicCopyableAny<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)> {
     using Base = ddge::util::
-        BasicAnyCopyable<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)>;
+        BasicCopyableAny<sizeof(ComponentTable<void*>), alignof(ComponentTable<void*>)>;
 
 public:
     template <ddge::ecs::component_c Component_T>

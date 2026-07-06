@@ -17,7 +17,7 @@ import ddge.utility.meta.concepts.nothrow_movable;
 import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.type_traits.forward_like;
 import ddge.utility.containers.OptionalRef;
-import ddge.utility.ScopeGuard;
+import ddge.utility.ScopeFail;
 import ddge.utility.containers.Strong;
 
 template <typename T>
@@ -84,7 +84,7 @@ constexpr auto ddge::util::SlotMap<Key_T, T, version_bit_size_T>::emplace(Args_T
     -> std::pair<Key, Index>
 {
     m_values.emplace_back(std::forward<Args_T>(args)...);
-    ScopeGuard _{ [this] noexcept { m_values.pop_back(); } };
+    ScopeFail _{ [this] noexcept { m_values.pop_back(); } };
 
     return m_sparse_set.emplace();
 }

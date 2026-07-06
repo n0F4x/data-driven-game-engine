@@ -16,8 +16,6 @@ import ddge.modules.scheduler.accessors.events.Reader;
 import ddge.modules.scheduler.accessors.events.Recorder;
 import ddge.modules.scheduler.ProviderFor;
 import ddge.modules.scheduler.ProviderOf;
-import ddge.utility.containers.store.Store;
-
 import ddge.utility.contracts;
 import ddge.utility.meta.algorithms.apply;
 import ddge.utility.meta.algorithms.for_each;

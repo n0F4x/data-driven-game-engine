@@ -1,7 +1,6 @@
 module;
 
 #include <format>
-#include <functional>
 #include <type_traits>
 
 #include "utility/contract_macros.hpp"
@@ -10,9 +9,7 @@ export module ddge.modules.scheduler.Nexus;
 
 import ddge.modules.scheduler.accessor_c;
 import ddge.modules.scheduler.ProviderFor;
-
-import ddge.utility.containers.store;
-
+import ddge.utility.containers.GenericStack;
 import ddge.utility.contracts;
 import ddge.utility.meta.algorithms.for_each;
 import ddge.utility.meta.reflection.name_of;
@@ -31,7 +28,7 @@ public:
     auto provide() -> Accessor_T;
 
 private:
-    utility::store::Store m_providers;
+    util::GenericStack m_providers;
 };
 
 }   // namespace ddge::scheduler

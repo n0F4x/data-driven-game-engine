@@ -11,7 +11,7 @@ import ddge.utility.containers.Any;
 import ddge.utility.containers.SlotMap;
 import ddge.utility.meta.concepts.ranges.input_range_of;
 import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.ScopeGuard;
+import ddge.utility.ScopeFail;
 import ddge.utility.TypeList;
 import ddge.utility.ValueSequence;
 

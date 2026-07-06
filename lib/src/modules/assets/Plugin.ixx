@@ -15,8 +15,7 @@ import ddge.modules.app;
 import ddge.modules.assets.Addon;
 import ddge.modules.assets.Cached;
 import ddge.modules.assets.loader_c;
-import ddge.utility.containers.store.Store;
-
+import ddge.utility.containers.GenericStack;
 import ddge.utility.contracts;
 import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.concepts.type_list.type_list_all_of;
@@ -59,9 +58,9 @@ public:
     auto contains_loader() const -> bool;
 
 private:
-    using Caller = std::function<void(utility::store::Store&)>;
+    using Caller = std::function<void(util::GenericStack&)>;
 
-    utility::store::Store                 m_injections;
+    util::GenericStack           m_injections;
     std::vector<Caller>          m_callers;
     std::vector<std::type_index> m_types;
 };
@@ -85,7 +84,7 @@ auto ddge::assets::Plugin::insert_loader(this Self_T&& self, Loader_T&& loader) 
     Injection& injection = this_self.m_injections.emplace<Injection>(Injection{
         std::forward<Loader_T>(loader) });
 
-    this_self.m_callers.push_back([&injection](utility::store::Store& store) -> void {
+    this_self.m_callers.push_back([&injection](util::GenericStack& store) -> void {
         store.emplace<Cached<Loader>>(std::move(injection.loader));
     });
 
@@ -95,7 +94,7 @@ auto ddge::assets::Plugin::insert_loader(this Self_T&& self, Loader_T&& loader) 
 }
 
 template <typename Injection_T>
-auto call_injection(Injection_T&& injection, ddge::utility::store::Store& parameter_store)
+auto call_injection(Injection_T&& injection, ddge::util::GenericStack& parameter_store)
     -> ddge::util::meta::result_of_t<Injection_T>
 {
     using Parameters = ddge::util::meta::arguments_of_t<Injection_T>;
@@ -127,7 +126,7 @@ auto ddge::assets::Plugin::inject_loader(this Self_T&& self, Injection_T&& injec
     Injection& stored_injection =
         this_self.m_injections.emplace<Injection>(std::forward<Injection_T>(injection));
 
-    this_self.m_callers.push_back([&stored_injection](utility::store::Store& store) -> void {
+    this_self.m_callers.push_back([&stored_injection](util::GenericStack& store) -> void {
         store.emplace<Loader>(::call_injection(std::move(stored_injection), store));
     });
 
@@ -141,7 +140,7 @@ auto ddge::assets::Plugin::build(App_T&& app) && -> app::add_on_t<App_T, Addon>
 {
     static_assert(!app::has_addons_c<App_T, Addon>);
 
-    utility::store::Store store;
+    util::GenericStack store;
     for (const Caller& caller : m_callers) {
         caller(store);
     }

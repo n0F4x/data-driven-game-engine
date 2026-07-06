@@ -1,12 +1,11 @@
 export module ddge.utility.containers;
 
-export import ddge.utility.containers.store;
-
 export import ddge.utility.containers.Any;
-export import ddge.utility.containers.AnyCopyable;
-export import ddge.utility.containers.AnyMoveOnly;
+export import ddge.utility.containers.CopyableAny;
 export import ddge.utility.containers.CopyableFunction;
 export import ddge.utility.containers.Function;
+export import ddge.utility.containers.GenericStack;
+export import ddge.utility.containers.MoveOnlyAny;
 export import ddge.utility.containers.MoveOnlyFunction;
 export import ddge.utility.containers.OptionalRef;
 export import ddge.utility.containers.Ref;

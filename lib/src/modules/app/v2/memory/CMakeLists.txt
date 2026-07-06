@@ -3,7 +3,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         TYPE CXX_MODULES
         BASE_DIRS ${PROJECT_SOURCE_DIR}/src
         FILES
-        store.cppm
-        item_c.ixx
-        Store.ixx
+        memory.cppm
+        MemoryArena.ixx
 )

@@ -4,6 +4,7 @@ project(engine-master)
 
 set(project_prefix ENGINE_)
 
+option(${project_prefix}DEBUG "Activate debug functionalities" OFF)
 option(${project_prefix}ENABLE_TESTS "Enables building tests" OFF)
 option(${project_prefix}ENABLE_EXAMPLES "Enables building examples" OFF)
 

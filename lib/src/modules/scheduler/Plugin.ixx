@@ -69,7 +69,9 @@ struct AddonTraits {
     };
 };
 
-ddge::scheduler::Plugin::Precondition::Precondition(const uint32_t number_of_threads)
+ddge::scheduler::Plugin::Precondition::Precondition(
+    [[maybe_unused]] const uint32_t number_of_threads
+)
 {
     PRECOND(number_of_threads > 0, "Number of threads must be greater than zero!");
 }

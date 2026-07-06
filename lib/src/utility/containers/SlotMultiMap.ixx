@@ -12,7 +12,7 @@ import ddge.utility.containers.SparseSet;
 import ddge.utility.meta.concepts.nothrow_movable;
 import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.type_traits.forward_like;
-import ddge.utility.ScopeGuard;
+import ddge.utility.ScopeFail;
 import ddge.utility.containers.Strong;
 
 template <typename T>
@@ -68,8 +68,8 @@ template <typename... Us>
 constexpr auto ddge::util::SlotMultiMap<Key_T, TypeList_T<Ts...>, version_bit_size_T>::
     emplace(Us&&... values) -> Key
 {
-    ScopeGuards _ = [this, &values...]<std::size_t... Is>(std::index_sequence<Is...>) {
-        return std::make_tuple(ScopeGuard{ [this, &values...]<std::size_t I> {
+    ScopeFails _ = [this, &values...]<std::size_t... Is>(std::index_sequence<Is...>) {
+        return std::make_tuple(ScopeFail{ [this, &values...]<std::size_t I> {
             std::get<I>(m_value_containers).push_back(std::forward<Us...[I]>(values...[I]));
             return [this] noexcept { std::get<I>(m_value_containers).pop_back(); };
         }.template operator()<Is>() }...);

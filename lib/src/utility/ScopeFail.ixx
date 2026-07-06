@@ -4,7 +4,7 @@ module;
 #include <exception>
 #include <type_traits>
 
-export module ddge.utility.ScopeGuard;
+export module ddge.utility.ScopeFail;
 
 import ddge.utility.meta.concepts.storable;
 
@@ -13,15 +13,15 @@ namespace ddge::util {
 export template <meta::storable_c Rollback_T>
     requires(std::is_nothrow_invocable_v<Rollback_T>)
 class [[nodiscard]]
-ScopeGuard {
+ScopeFail {
 public:
-    constexpr explicit(false) ScopeGuard(const Rollback_T& rollback) noexcept
+    constexpr explicit(false) ScopeFail(const Rollback_T& rollback) noexcept
         requires(std::is_nothrow_constructible_v<Rollback_T, const Rollback_T&>);
-    constexpr explicit(false) ScopeGuard(Rollback_T&& rollback) noexcept
+    constexpr explicit(false) ScopeFail(Rollback_T&& rollback) noexcept
         requires(std::is_nothrow_constructible_v<Rollback_T, Rollback_T &&>);
-    ScopeGuard(const ScopeGuard&) = delete;
-    ScopeGuard(ScopeGuard&&)      = default;
-    constexpr ~ScopeGuard() noexcept;
+    ScopeFail(const ScopeFail&) = delete;
+    ScopeFail(ScopeFail&&)      = default;
+    constexpr ~ScopeFail() noexcept;
 
 private:
     Rollback_T m_rollback;
@@ -34,13 +34,13 @@ private:
 };
 
 export template <meta::storable_c... Rollbacks_T>
-using ScopeGuards = std::tuple<ScopeGuard<Rollbacks_T>...>;
+using ScopeFails = std::tuple<ScopeFail<Rollbacks_T>...>;
 
 }   // namespace ddge::util
 
 template <ddge::util::meta::storable_c Rollback_T>
     requires(std::is_nothrow_invocable_v<Rollback_T>)
-constexpr ddge::util::ScopeGuard<Rollback_T>::~ScopeGuard<Rollback_T>() noexcept
+constexpr ddge::util::ScopeFail<Rollback_T>::~ScopeFail<Rollback_T>() noexcept
 {
 #ifdef __cpp_constexpr_exceptions
     static_assert(false, "FIXME: Exceptions are now constexpr");
@@ -54,7 +54,7 @@ constexpr ddge::util::ScopeGuard<Rollback_T>::~ScopeGuard<Rollback_T>() noexcept
 
 template <ddge::util::meta::storable_c Rollback_T>
     requires(std::is_nothrow_invocable_v<Rollback_T>)
-constexpr ddge::util::ScopeGuard<Rollback_T>::ScopeGuard(
+constexpr ddge::util::ScopeFail<Rollback_T>::ScopeFail(
     const Rollback_T& rollback
 ) noexcept
     requires(std::is_nothrow_constructible_v<Rollback_T, const Rollback_T&>)
@@ -63,7 +63,7 @@ constexpr ddge::util::ScopeGuard<Rollback_T>::ScopeGuard(
 
 template <ddge::util::meta::storable_c Rollback_T>
     requires(std::is_nothrow_invocable_v<Rollback_T>)
-constexpr ddge::util::ScopeGuard<Rollback_T>::ScopeGuard(Rollback_T&& rollback) noexcept
+constexpr ddge::util::ScopeFail<Rollback_T>::ScopeFail(Rollback_T&& rollback) noexcept
     requires(std::is_nothrow_constructible_v<Rollback_T, Rollback_T &&>)
     : m_rollback{ std::move(rollback) }
 {}

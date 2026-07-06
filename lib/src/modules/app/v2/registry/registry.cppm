@@ -1,0 +1,25 @@
+export module ddge.modules.app.v2.registry;
+
+export import ddge.modules.app.v2.registry.BuildableEntry;
+export import ddge.modules.app.v2.registry.BuildableEntryBase;
+export import ddge.modules.app.v2.registry.BuildableEntryBuilder;
+export import ddge.modules.app.v2.registry.BuildableEntryBuilderBase;
+export import ddge.modules.app.v2.registry.BuildDirector;
+export import ddge.modules.app.v2.registry.configuration_entry_c;
+export import ddge.modules.app.v2.registry.ConfigurationEntry;
+export import ddge.modules.app.v2.registry.CyclicDependencyDetected;
+export import ddge.modules.app.v2.registry.DependencyChainNode;
+export import ddge.modules.app.v2.registry.entry_builder_c;
+export import ddge.modules.app.v2.registry.entry_c;
+export import ddge.modules.app.v2.registry.EntryBase;
+export import ddge.modules.app.v2.registry.EntryBuilderBase;
+export import ddge.modules.app.v2.registry.EntryBuilderContainer;
+export import ddge.modules.app.v2.registry.EntryBuilderFailedError;
+export import ddge.modules.app.v2.registry.EntryInjectionContainer;
+export import ddge.modules.app.v2.registry.ErasedEntry;
+export import ddge.modules.app.v2.registry.Registry;
+export import ddge.modules.app.v2.registry.RegistryBuilder;
+export import ddge.modules.app.v2.registry.represents_entry_builder_dependency_c;
+export import ddge.modules.app.v2.registry.represents_entry_dependency_c;
+export import ddge.modules.app.v2.registry.ReverseDependencyChainNode;
+export import ddge.modules.app.v2.registry.strip_dependency_t;

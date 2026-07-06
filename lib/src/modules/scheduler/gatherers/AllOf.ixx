@@ -62,7 +62,9 @@ static_assert(gatherer_builder_of_c<AllOfBuilder, bool>);
 
 }   // namespace ddge::scheduler
 
-ddge::scheduler::AllOf::Precondition::Precondition(const uint32_t capacity)
+ddge::scheduler::AllOf::Precondition::Precondition(
+    [[maybe_unused]] const uint32_t capacity
+)
 {
     PRECOND(capacity > 0);
 }

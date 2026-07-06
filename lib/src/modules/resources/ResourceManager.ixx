@@ -5,7 +5,7 @@ module;
 export module ddge.modules.resources.ResourceManager;
 
 import ddge.modules.resources.resource_c;
-import ddge.utility.containers.store.Store;
+import ddge.utility.containers.GenericStack;
 
 import ddge.utility.containers.OptionalRef;
 import ddge.utility.meta.type_traits.const_like;
@@ -16,7 +16,7 @@ namespace ddge::resources {
 export class ResourceManager {
 public:
     ResourceManager() = default;
-    explicit ResourceManager(utility::store::Store&& store);
+    explicit ResourceManager(util::GenericStack&& resources);
 
     template <resource_c Resource_T, typename Self_T>
     [[nodiscard]]
@@ -32,31 +32,31 @@ public:
     auto contains() const noexcept -> bool;
 
 private:
-    ddge::utility::store::Store m_store;
+    util::GenericStack m_resources;
 };
 
 }   // namespace ddge::resources
 
-ddge::resources::ResourceManager::ResourceManager(utility::store::Store&& store)
-    : m_store{ std::move(store) }
+ddge::resources::ResourceManager::ResourceManager(util::GenericStack&& resources)
+    : m_resources{ std::move(resources) }
 {}
 
 template <ddge::resources::resource_c Resource_T, typename Self_T>
 auto ddge::resources::ResourceManager::find(this Self_T& self) noexcept
     -> util::OptionalRef<util::meta::const_like_t<Resource_T, Self_T>>
 {
-    return self.m_store.template find<Resource_T>();
+    return self.m_resources.template find<Resource_T>();
 }
 
 template <ddge::resources::resource_c Resource_T, typename Self_T>
 auto ddge::resources::ResourceManager::at(this Self_T&& self)
     -> util::meta::forward_like_t<Resource_T, Self_T>
 {
-    return std::forward_like<Self_T>(self.m_store).template at<Resource_T>();
+    return std::forward_like<Self_T>(self.m_resources).template at<Resource_T>();
 }
 
 template <ddge::resources::resource_c Resource_T>
 auto ddge::resources::ResourceManager::contains() const noexcept -> bool
 {
-    return m_store.contains<Resource_T>();
+    return m_resources.contains<Resource_T>();
 }

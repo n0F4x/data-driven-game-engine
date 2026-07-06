@@ -61,7 +61,9 @@ static_assert(gatherer_builder_of_c<WaitAllBuilder, void>);
 
 }   // namespace ddge::scheduler
 
-ddge::scheduler::WaitAll::Precondition::Precondition(const uint32_t capacity)
+ddge::scheduler::WaitAll::Precondition::Precondition(
+    [[maybe_unused]] const uint32_t capacity
+)
 {
     PRECOND(capacity > 0);
 }
