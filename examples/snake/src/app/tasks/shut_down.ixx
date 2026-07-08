@@ -1,6 +1,6 @@
 export module snake.app.tasks.shut_down;
 
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.TaskBuilder;
 
 namespace app::tasks {
 

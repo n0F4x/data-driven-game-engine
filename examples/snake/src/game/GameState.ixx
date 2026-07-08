@@ -7,9 +7,9 @@ module;
 
 export module snake.game.GameState;
 
-import ddge.modules.assets.Handle;
-import ddge.modules.states.state_c;
-import ddge.modules.time.VariableTimer;
+import ddge.assets.Handle;
+import ddge.states.state_c;
+import ddge.time.VariableTimer;
 
 namespace game {
 

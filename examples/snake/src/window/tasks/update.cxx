@@ -6,11 +6,11 @@ module;
 
 module snake.window.tasks.update;
 
-import ddge.modules.time.FixedTimer;
+import ddge.time.FixedTimer;
 
-import ddge.modules.scheduler.accessors.events;
-import ddge.modules.scheduler.accessors.resources;
-import ddge.modules.scheduler.primitives.force_on_main;
+import ddge.scheduler.accessors.events;
+import ddge.scheduler.accessors.resources;
+import ddge.scheduler.primitives.force_on_main;
 
 import snake.window.DisplayInfo;
 import snake.window.DisplayTimer;

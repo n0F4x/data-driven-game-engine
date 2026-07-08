@@ -4,9 +4,9 @@ module;
 
 module snake.game.tasks.update;
 
-import ddge.modules.time.FixedTimer;
+import ddge.time.FixedTimer;
 
-import ddge.modules.scheduler;
+import ddge.scheduler;
 
 import snake.game.tasks.adjust_snake_speed;
 import snake.game.AppleSpawnTimer;

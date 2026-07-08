@@ -1,7 +1,7 @@
 module snake.app.tasks.initialize;
 
-import ddge.modules.scheduler.primitives.group;
-import ddge.modules.scheduler.TaskBuilderGroup;
+import ddge.scheduler.primitives.group;
+import ddge.scheduler.TaskBuilderGroup;
 
 import snake.game.tasks.initialize;
 import snake.profiler.tasks.initialize;

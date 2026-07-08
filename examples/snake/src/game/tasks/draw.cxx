@@ -4,11 +4,11 @@ module;
 
 module snake.game.tasks.draw;
 
-import ddge.modules.ecs;
+import ddge.ecs;
 
-import ddge.modules.scheduler.accessors.ecs;
-import ddge.modules.scheduler.accessors.resources;
-import ddge.modules.scheduler.primitives.force_on_main;
+import ddge.scheduler.accessors.ecs;
+import ddge.scheduler.accessors.resources;
+import ddge.scheduler.primitives.force_on_main;
 
 import snake.game.Cell;
 import snake.window.Window;

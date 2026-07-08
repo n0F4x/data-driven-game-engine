@@ -4,8 +4,8 @@ module;
 
 module snake.window.tasks.window_should_close;
 
-import ddge.modules.scheduler.accessors.events;
-import ddge.modules.scheduler.primitives.as_task;
+import ddge.scheduler.accessors.events;
+import ddge.scheduler.primitives.as_task;
 
 using namespace ddge::scheduler::accessors;
 

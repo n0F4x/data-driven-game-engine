@@ -4,9 +4,9 @@ module;
 
 export module snake.assets.inject_loaders;
 
-import ddge.modules.app.decays_to_builder_c;
-import ddge.modules.app.has_plugins_c;
-import ddge.modules.assets.Plugin;
+import ddge.app.decays_to_builder_c;
+import ddge.app.has_plugins_c;
+import ddge.assets.Plugin;
 
 import snake.assets.TextureLoader;
 

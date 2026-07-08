@@ -4,9 +4,9 @@ module;
 
 module snake.game.tasks.eat_apple;
 
-import ddge.modules.ecs;
+import ddge.ecs;
 
-import ddge.modules.scheduler;
+import ddge.scheduler;
 
 import snake.game.Apple;
 import snake.game.AppleDigested;

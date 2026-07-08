@@ -4,13 +4,13 @@ module;
 
 export module snake.game.setup;
 
-import ddge.modules.app.decays_to_builder_c;
-import ddge.modules.app.extensions.FunctionalPlugin;
-import ddge.modules.app.has_plugins_c;
-import ddge.modules.events.Plugin;
-import ddge.modules.messages.Plugin;
-import ddge.modules.states.Plugin;
-import ddge.modules.time.FixedTimer;
+import ddge.app.decays_to_builder_c;
+import ddge.app.extensions.FunctionalPlugin;
+import ddge.app.has_plugins_c;
+import ddge.events.Plugin;
+import ddge.messages.Plugin;
+import ddge.states.Plugin;
+import ddge.time.FixedTimer;
 
 import snake.assets.inject_loaders;
 import snake.game.AppleDigested;

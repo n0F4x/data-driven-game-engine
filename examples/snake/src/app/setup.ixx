@@ -4,9 +4,9 @@ module;
 
 export module snake.app.setup;
 
-import ddge.modules.app.decays_to_builder_c;
-import ddge.modules.app.has_plugins_c;
-import ddge.modules.app.extensions.FunctionalPlugin;
+import ddge.app.decays_to_builder_c;
+import ddge.app.has_plugins_c;
+import ddge.app.extensions.FunctionalPlugin;
 
 import snake.game.setup;
 import snake.profiler.setup;

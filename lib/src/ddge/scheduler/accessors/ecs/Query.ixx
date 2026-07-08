@@ -1,0 +1,128 @@
+module;
+
+#include <cstddef>
+#include <type_traits>
+#include <utility>
+
+export module ddge.scheduler.accessors.ecs.Query;
+
+import ddge.ecs;
+import ddge.scheduler.accessors.ecs.Component;
+import ddge.scheduler.accessors.ecs.Registry;
+import ddge.scheduler.locks.CriticalSectionType;
+import ddge.scheduler.locks.Lock;
+import ddge.scheduler.locks.LockGroup;
+
+import ddge.util.meta.algorithms.for_each;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.meta.type_traits.type_list.type_list_filter;
+import ddge.util.meta.type_traits.type_list.type_list_push_front;
+import ddge.util.meta.type_traits.type_list.type_list_to;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
+import ddge.util.TypeList;
+
+namespace ddge::scheduler::accessors {
+
+inline namespace ecs {
+
+export template <ddge::ecs::query_filter_c... Filters_T>
+    requires(sizeof...(Filters_T) != 0)
+class Query {
+public:
+    constexpr static auto lock_group() -> const LockGroup&;
+
+    explicit Query(ddge::ecs::Registry& registry);
+    Query(const Query&) = delete ("Queries should be taken by reference");
+    Query(Query&&)      = default;
+
+    template <typename F>
+    auto for_each(F&& func) -> F;
+
+    [[nodiscard]]
+    auto count() -> std::size_t;
+
+private:
+    ddge::ecs::Query<Filters_T...> m_query;
+};
+
+}   // namespace ecs
+
+}   // namespace ddge::scheduler::accessors
+
+namespace {
+
+template <typename Filter_T>
+struct IsQueryableComponentOrOptional {
+    constexpr static bool value =
+        ddge::ecs::queryable_component_c<std::remove_const_t<Filter_T>>
+        || (ddge::util::meta::specialization_of_c<Filter_T, ddge::ecs::Optional>
+            && requires {
+                   requires ddge::ecs::queryable_component_c<
+                       std::remove_const_t<typename Filter_T::ValueType>>;
+               });
+};
+
+template <typename ComponentOrOptional>
+struct ToComponent {
+    // ReSharper disable once CppFunctionIsNotImplemented
+    template <typename Component_T>
+        requires ddge::ecs::queryable_component_c<std::remove_const_t<Component_T>>
+    static auto to_component_t() -> Component_T;
+
+    // ReSharper disable once CppFunctionIsNotImplemented
+    template <ddge::util::meta::specialization_of_c<ddge::ecs::Optional> Optional_T>
+    static auto to_component_t() -> typename Optional_T::ValueType;
+
+    using type = decltype(to_component_t<ComponentOrOptional>());
+};
+
+}   // namespace
+
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires(sizeof...(Filters_T) != 0)
+constexpr auto ddge::scheduler::accessors::ecs::Query<Filters_T...>::lock_group()
+    -> const LockGroup&
+{
+    using Components = util::meta::type_list_transform_t<
+        util::meta::
+            type_list_filter_t<util::TypeList<Filters_T...>, IsQueryableComponentOrOptional>,
+        ToComponent>;
+
+    static const LockGroup lock_group{ [] -> LockGroup {
+        LockGroup          result;
+        util::meta::for_each<Components>([&result]<typename Component_T> -> void {
+            if constexpr (std::is_const_v<Component_T>) {
+                result.expand<std::remove_const_t<Component_T>>(Lock{
+                    CriticalSectionType::eShared });
+            }
+            else {
+                result.expand<Component_T>(Lock{ CriticalSectionType::eExclusive });
+            }
+        });
+        result.expand<Registry>(Lock{ CriticalSectionType::eShared });
+        return result;
+    }() };
+
+    return lock_group;
+}
+
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires(sizeof...(Filters_T) != 0)
+ddge::scheduler::accessors::ecs::Query<Filters_T...>::Query(ddge::ecs::Registry& registry)
+    : m_query{ registry }
+{}
+
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires(sizeof...(Filters_T) != 0)
+template <typename F>
+auto ddge::scheduler::accessors::ecs::Query<Filters_T...>::for_each(F&& func) -> F
+{
+    return m_query(std::forward<F>(func));
+}
+
+template <ddge::ecs::query_filter_c... Filters_T>
+    requires(sizeof...(Filters_T) != 0)
+auto ddge::scheduler::accessors::Query<Filters_T...>::count() -> std::size_t
+{
+    return m_query.count();
+}

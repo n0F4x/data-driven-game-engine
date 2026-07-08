@@ -1,6 +1,6 @@
 export module snake.app.tasks.initialize;
 
-import ddge.modules.scheduler.TaskBuilderGroup;
+import ddge.scheduler.TaskBuilderGroup;
 
 namespace app::tasks {
 

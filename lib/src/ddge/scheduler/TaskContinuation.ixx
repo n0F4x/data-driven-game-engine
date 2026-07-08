@@ -1,0 +1,21 @@
+export module ddge.scheduler.TaskContinuation;
+
+import ddge.util.containers.MoveOnlyFunction;
+import ddge.util.meta.concepts.decayed;
+
+namespace ddge::scheduler {
+
+template <typename Result_T>
+struct TaskContinuationImpl {
+    using type = util::MoveOnlyFunction<void(Result_T&&)>;
+};
+
+template <>
+struct TaskContinuationImpl<void> {
+    using type = util::MoveOnlyFunction<void()>;
+};
+
+export template <util::meta::decayed_c Result_T>
+using TaskContinuation = TaskContinuationImpl<Result_T>::type;
+
+}   // namespace ddge::scheduler

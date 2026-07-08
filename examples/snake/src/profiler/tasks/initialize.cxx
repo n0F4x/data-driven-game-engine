@@ -1,7 +1,7 @@
 module snake.profiler.tasks.initialize;
 
-import ddge.modules.scheduler.accessors.resources;
-import ddge.modules.scheduler.primitives.as_task;
+import ddge.scheduler.accessors.resources;
+import ddge.scheduler.primitives.as_task;
 
 import snake.profiler.SecondTimer;
 

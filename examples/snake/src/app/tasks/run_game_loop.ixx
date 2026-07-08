@@ -1,6 +1,6 @@
 export module snake.app.tasks.run_game_loop;
 
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.TaskBuilder;
 
 namespace app::tasks {
 

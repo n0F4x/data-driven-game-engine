@@ -4,12 +4,12 @@ module;
 
 module snake.game.tasks.adjust_snake_speed;
 
-import ddge.modules.ecs;
+import ddge.ecs;
 
-import ddge.modules.scheduler.accessors.ecs;
-import ddge.modules.scheduler.accessors.resources;
-import ddge.modules.scheduler.accessors.states;
-import ddge.modules.scheduler.primitives.as_task;
+import ddge.scheduler.accessors.ecs;
+import ddge.scheduler.accessors.resources;
+import ddge.scheduler.accessors.states;
+import ddge.scheduler.primitives.as_task;
 
 import snake.game.GameState;
 import snake.game.Settings;

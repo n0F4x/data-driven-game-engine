@@ -4,9 +4,9 @@ module;
 
 export module snake.profiler.setup;
 
-import ddge.modules.app.decays_to_builder_c;
-import ddge.modules.app.has_plugins_c;
-import ddge.modules.resources.Plugin;
+import ddge.app.decays_to_builder_c;
+import ddge.app.has_plugins_c;
+import ddge.resources.Plugin;
 
 import snake.profiler.SecondTimer;
 

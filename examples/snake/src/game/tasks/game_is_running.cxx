@@ -1,7 +1,7 @@
 module snake.game.tasks.game_is_running;
 
-import ddge.modules.scheduler.accessors.events;
-import ddge.modules.scheduler.primitives.as_task;
+import ddge.scheduler.accessors.events;
+import ddge.scheduler.primitives.as_task;
 
 import snake.game.GameOver;
 

@@ -1,6 +1,6 @@
 export module snake.window.tasks.display;
 
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.TaskBuilder;
 
 namespace window::tasks {
 

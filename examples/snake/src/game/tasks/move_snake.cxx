@@ -8,12 +8,12 @@ module;
 
 module snake.game.tasks.move_snake;
 
-import ddge.modules.ecs;
+import ddge.ecs;
 
-import ddge.modules.scheduler.accessors.ecs;
-import ddge.modules.scheduler.accessors.events;
-import ddge.modules.scheduler.accessors.resources;
-import ddge.modules.scheduler.primitives.as_task;
+import ddge.scheduler.accessors.ecs;
+import ddge.scheduler.accessors.events;
+import ddge.scheduler.accessors.resources;
+import ddge.scheduler.primitives.as_task;
 import ddge.util.containers.Tuple;
 
 import snake.game.Cell;

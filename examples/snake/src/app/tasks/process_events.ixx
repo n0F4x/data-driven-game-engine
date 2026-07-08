@@ -1,8 +1,8 @@
 export module snake.app.tasks.process_events;
 
-import ddge.modules.scheduler.accessors.events;
-import ddge.modules.scheduler.primitives.as_task;
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.accessors.events;
+import ddge.scheduler.primitives.as_task;
+import ddge.scheduler.TaskBuilder;
 
 using namespace ddge::scheduler::accessors;
 

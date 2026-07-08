@@ -1,15 +1,15 @@
 export module snake.app.create;
 
-import ddge.modules.app.create;
-import ddge.modules.app.extensions.FunctionalPlugin;
+import ddge.app.create;
+import ddge.app.extensions.FunctionalPlugin;
 
-import ddge.modules.assets.Plugin;
-import ddge.modules.ecs;
-import ddge.modules.events.Plugin;
-import ddge.modules.scheduler.Plugin;
-import ddge.modules.messages.Plugin;
-import ddge.modules.resources.Plugin;
-import ddge.modules.states.Plugin;
+import ddge.assets.Plugin;
+import ddge.ecs;
+import ddge.events.Plugin;
+import ddge.scheduler.Plugin;
+import ddge.messages.Plugin;
+import ddge.resources.Plugin;
+import ddge.states.Plugin;
 
 import snake.app.setup;
 

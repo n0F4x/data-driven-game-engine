@@ -1,11 +1,11 @@
 module snake.app.tasks.run_game_loop;
 
-import ddge.modules.scheduler.primitives.all_of;
-import ddge.modules.scheduler.primitives.group;
-import ddge.modules.scheduler.primitives.loop_until;
-import ddge.modules.scheduler.primitives.not_fn;
-import ddge.modules.scheduler.primitives.start_as;
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.primitives.all_of;
+import ddge.scheduler.primitives.group;
+import ddge.scheduler.primitives.loop_until;
+import ddge.scheduler.primitives.not_fn;
+import ddge.scheduler.primitives.start_as;
+import ddge.scheduler.TaskBuilder;
 
 import snake.app.tasks.clear_messages;
 import snake.app.tasks.process_events;

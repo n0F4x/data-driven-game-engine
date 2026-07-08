@@ -1,0 +1,23 @@
+module;
+
+#include <utility>
+
+export module ddge.scheduler.primitives.force_on_main;
+
+import ddge.scheduler.raw_task_c;
+import ddge.scheduler.ExecPolicy;
+import ddge.scheduler.primitives.as_task;
+import ddge.scheduler.TaskBuilder;
+
+import ddge.util.meta.type_traits.functional.result_of;
+
+namespace ddge::scheduler {
+
+export template <raw_task_c F>
+[[nodiscard]]
+auto force_on_main(F&& func) -> TaskBuilder<util::meta::result_of_t<F>>
+{
+    return as_task<ExecPolicy::eForceOnMain>(std::forward<F>(func));
+}
+
+}   // namespace ddge::scheduler

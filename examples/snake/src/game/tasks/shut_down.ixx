@@ -1,6 +1,6 @@
 export module snake.game.tasks.shut_down;
 
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.TaskBuilder;
 
 namespace game::tasks {
 

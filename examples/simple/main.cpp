@@ -2,8 +2,8 @@
 #include <string>
 
 import ddge.prelude;
-import ddge.modules.ecs;
-import ddge.modules.scheduler;
+import ddge.ecs;
+import ddge.scheduler;
 import ddge.util.containers.OptionalRef;
 
 import demo.Window;

@@ -1,6 +1,6 @@
 export module snake.app.schedule;
 
-import ddge.modules.scheduler.ScheduleBuilder;
+import ddge.scheduler.ScheduleBuilder;
 
 namespace app {
 

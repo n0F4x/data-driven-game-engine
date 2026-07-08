@@ -1,6 +1,6 @@
 export module snake.game.tasks.adjust_snake_speed;
 
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.TaskBuilder;
 
 namespace game::tasks {
 

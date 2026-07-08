@@ -5,7 +5,7 @@ module;
 
 export module snake.window.SecondTimer;
 
-import ddge.modules.time.FixedTimer;
+import ddge.time.FixedTimer;
 
 using namespace std::chrono_literals;
 

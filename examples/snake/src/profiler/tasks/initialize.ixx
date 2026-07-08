@@ -1,6 +1,6 @@
 export module snake.profiler.tasks.initialize;
 
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.TaskBuilder;
 
 namespace profiler::tasks {
 

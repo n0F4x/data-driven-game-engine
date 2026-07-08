@@ -7,11 +7,11 @@ module;
 
 export module snake.window.setup;
 
-import ddge.modules.app.decays_to_builder_c;
-import ddge.modules.app.has_plugins_c;
-import ddge.modules.events.Plugin;
-import ddge.modules.resources.Plugin;
-import ddge.modules.time.FixedTimer;
+import ddge.app.decays_to_builder_c;
+import ddge.app.has_plugins_c;
+import ddge.events.Plugin;
+import ddge.resources.Plugin;
+import ddge.time.FixedTimer;
 
 import snake.window.DisplayInfo;
 import snake.window.DisplayTimer;

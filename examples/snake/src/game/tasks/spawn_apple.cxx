@@ -6,13 +6,13 @@ module;
 
 module snake.game.tasks.spawn_apple;
 
-import ddge.modules.assets.Handle;
-import ddge.modules.ecs;
-import ddge.modules.time.FixedTimer;
+import ddge.assets.Handle;
+import ddge.ecs;
+import ddge.time.FixedTimer;
 
-import ddge.modules.scheduler.accessors.assets;
-import ddge.modules.scheduler.accessors.ecs;
-import ddge.modules.scheduler.primitives.as_task;
+import ddge.scheduler.accessors.assets;
+import ddge.scheduler.accessors.ecs;
+import ddge.scheduler.primitives.as_task;
 
 import snake.assets.TextureLoader;
 import snake.game.Apple;

@@ -1,9 +1,9 @@
 module snake.window.tasks.initialize;
 
-import ddge.modules.time.FixedTimer;
+import ddge.time.FixedTimer;
 
-import ddge.modules.scheduler.accessors.resources;
-import ddge.modules.scheduler.primitives.as_task;
+import ddge.scheduler.accessors.resources;
+import ddge.scheduler.primitives.as_task;
 
 import snake.window.DisplayTimer;
 import snake.window.SecondTimer;

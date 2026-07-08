@@ -9,10 +9,10 @@ module;
 
 module snake.game.tasks.initialize;
 
-import ddge.modules.ecs;
-import ddge.modules.time.FixedTimer;
+import ddge.ecs;
+import ddge.time.FixedTimer;
 
-import ddge.modules.scheduler;
+import ddge.scheduler;
 
 import snake.assets.TextureLoader;
 import snake.game.AppleSpawnTimer;

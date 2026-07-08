@@ -3,7 +3,7 @@
 #include <thread>
 
 import ddge.prelude;
-import ddge.modules.scheduler;
+import ddge.scheduler;
 
 using namespace ddge::scheduler;
 

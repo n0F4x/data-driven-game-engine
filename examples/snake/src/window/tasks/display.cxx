@@ -4,8 +4,8 @@ module;
 
 module snake.window.tasks.display;
 
-import ddge.modules.scheduler.accessors.resources;
-import ddge.modules.scheduler.primitives.force_on_main;
+import ddge.scheduler.accessors.resources;
+import ddge.scheduler.primitives.force_on_main;
 
 import snake.window.SecondTimer;
 import snake.window.DisplayInfo;

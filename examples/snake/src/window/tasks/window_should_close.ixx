@@ -1,6 +1,6 @@
 export module snake.window.tasks.window_should_close;
 
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.TaskBuilder;
 
 namespace window::tasks {
 

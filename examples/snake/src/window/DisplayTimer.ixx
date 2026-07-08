@@ -4,7 +4,7 @@ module;
 
 export module snake.window.DisplayTimer;
 
-import ddge.modules.time.FixedTimer;
+import ddge.time.FixedTimer;
 
 import snake.window.display_refresh_duration;
 

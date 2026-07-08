@@ -1,7 +1,7 @@
 module snake.app.schedule;
 
-import ddge.modules.scheduler.ScheduleBuilder;
-import ddge.modules.scheduler.primitives.start_as;
+import ddge.scheduler.ScheduleBuilder;
+import ddge.scheduler.primitives.start_as;
 
 import snake.app.tasks.initialize;
 import snake.app.tasks.run_game_loop;

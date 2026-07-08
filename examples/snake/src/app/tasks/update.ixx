@@ -1,7 +1,7 @@
 export module snake.app.tasks.update;
 
-import ddge.modules.scheduler.primitives.group;
-import ddge.modules.scheduler.TaskBuilderGroup;
+import ddge.scheduler.primitives.group;
+import ddge.scheduler.TaskBuilderGroup;
 
 import snake.game.tasks.update;
 import snake.window.tasks.update;

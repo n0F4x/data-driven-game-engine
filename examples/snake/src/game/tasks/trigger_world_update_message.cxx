@@ -1,7 +1,7 @@
 module snake.game.tasks.trigger_world_update_message;
 
-import ddge.modules.scheduler.accessors.messages;
-import ddge.modules.scheduler.primitives.as_task;
+import ddge.scheduler.accessors.messages;
+import ddge.scheduler.primitives.as_task;
 
 import snake.game.WorldUpdate;
 

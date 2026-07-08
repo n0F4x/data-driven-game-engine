@@ -4,7 +4,7 @@ module;
 
 export module snake.game.AppleSpawnTimer;
 
-import ddge.modules.time.FixedTimer;
+import ddge.time.FixedTimer;
 
 import snake.game.apple_spawn_duration;
 

@@ -4,10 +4,10 @@ module;
 
 module snake.game.tasks.color_cells;
 
-import ddge.modules.ecs;
+import ddge.ecs;
 
-import ddge.modules.scheduler.accessors.ecs;
-import ddge.modules.scheduler.primitives.query;
+import ddge.scheduler.accessors.ecs;
+import ddge.scheduler.primitives.query;
 
 import ddge.util.containers.OptionalRef;
 

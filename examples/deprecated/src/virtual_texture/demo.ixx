@@ -6,9 +6,9 @@ export module demos.virtual_texture;
 
 import vulkan_hpp;
 
-import ddge.modules.app.has_addons_c;
+import ddge.app.has_addons_c;
 import ddge.deprecated.gfx.Camera;
-import ddge.modules.resources.Addon;
+import ddge.resources.Addon;
 
 import examples.base.DemoBase;
 import examples.base.Renderer;

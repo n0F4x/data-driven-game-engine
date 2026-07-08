@@ -1,8 +1,8 @@
 export module snake.app.tasks.render;
 
-import ddge.modules.scheduler.primitives.at_fixed_rate;
-import ddge.modules.scheduler.primitives.start_as;
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.primitives.at_fixed_rate;
+import ddge.scheduler.primitives.start_as;
+import ddge.scheduler.TaskBuilder;
 
 import snake.game.tasks.draw;
 import snake.window.DisplayTimer;

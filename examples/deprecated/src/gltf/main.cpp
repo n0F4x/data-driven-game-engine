@@ -6,7 +6,7 @@
 
 import ddge.prelude;
 import ddge.deprecated;
-import ddge.modules;
+import ddge;
 import ddge.util.Size;
 
 import examples.base.DemoBase;

@@ -1,8 +1,8 @@
 export module snake.app.tasks.clear_messages;
 
-import ddge.modules.scheduler.accessors.messages;
-import ddge.modules.scheduler.primitives.as_task;
-import ddge.modules.scheduler.TaskBuilder;
+import ddge.scheduler.accessors.messages;
+import ddge.scheduler.primitives.as_task;
+import ddge.scheduler.TaskBuilder;
 
 using namespace ddge::scheduler::accessors;
 

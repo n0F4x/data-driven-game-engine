@@ -4,8 +4,8 @@ module;
 
 module snake.profiler.tasks.update;
 
-import ddge.modules.scheduler.accessors.resources;
-import ddge.modules.scheduler.primitives.as_task;
+import ddge.scheduler.accessors.resources;
+import ddge.scheduler.primitives.as_task;
 
 import snake.profiler.SecondTimer;
 import snake.window.DisplayInfo;
