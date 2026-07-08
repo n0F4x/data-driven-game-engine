@@ -2,6 +2,10 @@ project(snake)
 
 add_executable(${PROJECT_NAME})
 
+target_compile_options(${PROJECT_NAME} PRIVATE
+        -ftime-trace
+)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE engine::engine)
 
 find_package(SFML CONFIG REQUIRED COMPONENTS Graphics)
@@ -23,8 +27,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 target_sources(${PROJECT_NAME} PRIVATE
         main.cpp
-)
-
-target_compile_options(${PROJECT_NAME} PRIVATE
-        -ftime-trace=file.json
 )

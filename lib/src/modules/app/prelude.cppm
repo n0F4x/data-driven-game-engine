@@ -1,4 +1,4 @@
-export module ddge.prelude.app;
+export module ddge.modules.app.prelude;
 
 export import ddge.modules.app.create;
 export import ddge.modules.app.decays_to_builder_c;
