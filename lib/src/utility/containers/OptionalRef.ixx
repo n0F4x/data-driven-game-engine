@@ -21,7 +21,7 @@ class OptionalRef;
 template <typename F, typename T>
 concept and_then_func_c =
     !std::is_reference_v<T>
-    && std::constructible_from<std::invoke_result_t<F&&, T&>, std::nullopt_t>;
+    && std::is_convertible_v<std::nullopt_t, std::invoke_result_t<F&&, T&>>;
 
 template <typename F, typename T>
     requires(std::is_reference_v<T>)
@@ -141,6 +141,7 @@ template <typename T>
 constexpr auto ddge::util::OptionalRef<T>::operator*() const -> T&
 {
     PRECOND(m_handle != nullptr);
+    // ReSharper disable once CppDFANullDereference
     return *m_handle;
 }
 

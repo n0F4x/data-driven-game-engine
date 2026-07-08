@@ -15,6 +15,7 @@ import ddge.utility.meta.algorithms.apply;
 import ddge.utility.meta.algorithms.fold_left_first;
 import ddge.utility.meta.algorithms.for_each;
 import ddge.utility.containers.OptionalRef;
+import ddge.utility.containers.Tuple;
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
 import ddge.utility.meta.type_traits.type_list.type_list_filter;
 import ddge.utility.meta.type_traits.type_list.type_list_transform;
@@ -164,7 +165,7 @@ class Query {
 
     using IncludedOptionalComponentTableRefs = util::meta::type_list_to_t<
         util::meta::type_list_transform_t<IncludedComponents, ToOptionalComponentTableRef>,
-        std::tuple>;
+        util::Tuple>;
 
 public:
     [[nodiscard]]
@@ -312,7 +313,7 @@ auto ddge::ecs::Query<Filters_T...>::smallest_group_of_required_archetype_ids_fr
 {
     return util::meta::fold_left_first<RequiredComponents>(
         [&included_optional_component_table_refs]<typename Component_T> {
-            return std::get<OptionalComponentTableRef<Component_T>>(
+            return util::get<OptionalComponentTableRef<Component_T>>(
                        included_optional_component_table_refs
             )
                 ->archetype_ids();
@@ -404,11 +405,10 @@ auto ddge::ecs::Query<Filters_T...>::queried_type_view_from(
     const ArchetypeID                   archetype_id
 ) -> OptionalView<typename ToComponent<QueriedParameter_T>::type>
 {
-    const auto component_table_ptr{
-        std::get<OptionalComponentTableRef<typename ToComponent<QueriedParameter_T>::type>>(
-            included_optional_component_table_refs
-        )
-    };
+    const auto component_table_ptr{ util::get<
+        OptionalComponentTableRef<typename ToComponent<QueriedParameter_T>::type>>(
+        included_optional_component_table_refs
+    ) };
     if (!component_table_ptr.has_value()) {
         return OptionalView<typename ToComponent<QueriedParameter_T>::type>{};
     }
@@ -440,7 +440,7 @@ auto ddge::ecs::Query<Filters_T...>::queried_type_view_from(
     static typename ToComponentContainer<typename ToComponent<QueriedParameter_T>::type>::
         type empty_container;
 
-    return std::
+    return util::
         get<OptionalComponentTableRef<typename ToComponent<QueriedParameter_T>::type>>(
                included_optional_component_table_refs
         )
@@ -464,7 +464,7 @@ auto ddge::ecs::Query<Filters_T...>::cache_component_tables() -> void
 
     util::meta::for_each<IncludedComponents>([this]<typename Component_T> {
         OptionalComponentTableRef<Component_T>& optional_component_table_ref{
-            std::get<OptionalComponentTableRef<Component_T>>(
+            util::get<OptionalComponentTableRef<Component_T>>(
                 m_included_optional_component_table_refs
             )
         };

@@ -3,50 +3,52 @@
 import ddge.modules.ecs;
 
 import ddge.utility.containers.OptionalRef;
+import ddge.utility.containers.Tuple;
 import ddge.utility.meta.concepts.specialization_of;
 import ddge.utility.meta.type_traits.type_list.type_list_filter;
 import ddge.utility.meta.type_traits.type_list.type_list_transform;
 import ddge.utility.meta.type_traits.underlying;
 import ddge.utility.TypeList;
 
+namespace ddge::ecs {
+
 namespace {
 
-template <ddge::ecs::query_filter_c T>
+template <query_filter_c T>
 struct IsQueried {
-    constexpr static bool value =
-        ddge::ecs::queryable_component_c<std::remove_const_t<T>>
-        || std::same_as<T, ddge::ecs::ID>
-        || ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>;
+    constexpr static bool value = queryable_component_c<std::remove_const_t<T>>
+                               || std::same_as<T, ID>
+                               || ddge::util::meta::specialization_of_c<T, Optional>;
 };
 
-template <ddge::ecs::query_filter_c T>
+template <query_filter_c T>
 struct ToFunctionParameter;
 
-template <ddge::ecs::query_filter_c T>
-    requires ddge::ecs::queryable_component_c<std::remove_const_t<T>>
+template <query_filter_c T>
+    requires queryable_component_c<std::remove_const_t<T>>
 struct ToFunctionParameter<T> : std::type_identity<std::add_lvalue_reference_t<T>> {};
 
-template <ddge::ecs::query_filter_c T>
-    requires std::same_as<T, ddge::ecs::ID>
+template <query_filter_c T>
+    requires std::same_as<T, ID>
 struct ToFunctionParameter<T> : std::type_identity<T> {};
 
-template <ddge::ecs::query_filter_c T>
-    requires ddge::util::meta::specialization_of_c<T, ddge::ecs::Optional>
+template <query_filter_c T>
+    requires ddge::util::meta::specialization_of_c<T, Optional>
 struct ToFunctionParameter<T>
     : std::type_identity<ddge::util::OptionalRef<ddge::util::meta::underlying_t<T>>> {};
 
 }   // namespace
 
-TEST_CASE("ddge::ecs::query")
+TEST_CASE("query")
 {
-    ddge::ecs::Registry registry;
+    Registry registry;
 
     SECTION("empty component")
     {
         constexpr static auto check = []<typename EmptyComponent_T>(
                                           std::type_identity<EmptyComponent_T>
                                       ) static -> bool {
-            return not requires { ddge::ecs::Query<int, EmptyComponent_T>{ registry }; };
+            return not requires { Query<int, EmptyComponent_T>{ registry }; };
         };
 
         struct Empty {};
@@ -58,7 +60,7 @@ TEST_CASE("ddge::ecs::query")
     {
         SECTION("empty registry")
         {
-            ddge::ecs::query<int>(registry, [](int&) {});
+            query<int>(registry, [](int&) {});
         }
 
         registry.create(int{}, float{});
@@ -68,10 +70,8 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<int, float>(registry, [&](int&, float&) {
-                    ++visit_count;
-                });
-                ddge::ecs::query<int, float>(registry, [&](int&, float&) {});
+                query<int, float>(registry, [&](int&, float&) { ++visit_count; });
+                query<int, float>(registry, [&](int&, float&) {});
 
                 REQUIRE(visit_count == 1);
             }
@@ -79,8 +79,8 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<int>(registry, [&](int&) { ++visit_count; });
-                ddge::ecs::query<int>(registry, +[](int&) {});
+                query<int>(registry, [&](int&) { ++visit_count; });
+                query<int>(registry, +[](int&) {});
 
                 REQUIRE(visit_count == 1);
             }
@@ -90,9 +90,7 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<int, float>(registry, [&](int&, float&) {
-                    ++visit_count;
-                });
+                query<int, float>(registry, [&](int&, float&) { ++visit_count; });
 
                 REQUIRE(visit_count == 2);
             }
@@ -105,9 +103,7 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<int, float>(registry, [&](int&, float&) {
-                    ++visit_count;
-                });
+                query<int, float>(registry, [&](int&, float&) { ++visit_count; });
 
                 REQUIRE(visit_count == 2);
             }
@@ -115,7 +111,7 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<int, float, long>(registry, [&](int&, float&, long&) {
+                query<int, float, long>(registry, [&](int&, float&, long&) {
                     ++visit_count;
                 });
 
@@ -127,7 +123,7 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<int, float, long>(registry, [&](int&, float&, long&) {
+                query<int, float, long>(registry, [&](int&, float&, long&) {
                     ++visit_count;
                 });
 
@@ -140,22 +136,19 @@ TEST_CASE("ddge::ecs::query")
     {
         SECTION("empty registry")
         {
-            ddge::ecs::query<ddge::ecs::ID, int>(
-                registry, [&](const ddge::ecs::ID, int&) {}
-            );
+            query<ID, int>(registry, [&](const ID, int&) {});
         }
 
         registry.create(int{}, float{});
 
-        const auto make_visitor = [&registry]<ddge::ecs::component_c... Components_T>(
+        const auto make_visitor = [&registry]<component_c... Components_T>(
                                       std::size_t& visit_count
                                   ) {
-            return [&registry,
-                    &visit_count](const ddge::ecs::ID id, Components_T&... components) {
+            return [&registry, &visit_count](const ID id, Components_T&... components) {
                 ++visit_count;
                 const auto found_components = registry.find_all<Components_T...>(id);
                 REQUIRE(found_components.has_value());
-                REQUIRE(found_components == std::make_tuple(components...));
+                REQUIRE(found_components == util::Tuple{ components... });
             };
         };
 
@@ -164,12 +157,10 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<ddge::ecs::ID, int, float>(
+                query<ID, int, float>(
                     registry, make_visitor.operator()<int, float>(visit_count)
                 );
-                ddge::ecs::query<ddge::ecs::ID, int, float>(
-                    registry, +[](ddge::ecs::ID, int&, float&) {}
-                );
+                query<ID, int, float>(registry, +[](ID, int&, float&) {});
 
                 REQUIRE(visit_count == 1);
             }
@@ -177,12 +168,8 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<ddge::ecs::ID, int>(
-                    registry, make_visitor.operator()<int>(visit_count)
-                );
-                ddge::ecs::query<ddge::ecs::ID, int>(
-                    registry, +[](ddge::ecs::ID, int&) {}
-                );
+                query<ID, int>(registry, make_visitor.operator()<int>(visit_count));
+                query<ID, int>(registry, +[](ID, int&) {});
 
                 REQUIRE(visit_count == 1);
             }
@@ -192,7 +179,7 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<ddge::ecs::ID, int, float>(
+                query<ID, int, float>(
                     registry, make_visitor.operator()<int, float>(visit_count)
                 );
 
@@ -207,7 +194,7 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<ddge::ecs::ID, int, float>(
+                query<ID, int, float>(
                     registry, make_visitor.operator()<int, float>(visit_count)
                 );
 
@@ -217,7 +204,7 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<ddge::ecs::ID, int, float, long>(
+                query<ID, int, float, long>(
                     registry, make_visitor.operator()<int, float, long>(visit_count)
                 );
 
@@ -229,7 +216,7 @@ TEST_CASE("ddge::ecs::query")
             {
                 std::size_t visit_count{};
 
-                ddge::ecs::query<ddge::ecs::ID, int, float, long>(
+                query<ID, int, float, long>(
                     registry, make_visitor.operator()<int, float, long>(visit_count)
                 );
 
@@ -240,11 +227,11 @@ TEST_CASE("ddge::ecs::query")
 
     SECTION("query parameter tags")
     {
-        using namespace ddge::ecs::query_filter_tags;
+        using namespace query_filter_tags;
 
         // Test that it compiles
-        ddge::ecs::query<
-            ddge::ecs::ID,
+        query<
+            ID,
             float,
             const double,
             Without<int8_t>,
@@ -253,7 +240,7 @@ TEST_CASE("ddge::ecs::query")
             Optional<uint8_t>,
             Optional<const uint16_t>>(
             registry,
-            [](ddge::ecs::ID,
+            [](ID,
                float&,
                const double&,
                ddge::util::OptionalRef<uint8_t>,
@@ -270,15 +257,13 @@ TEST_CASE("ddge::ecs::query")
                     ToFunctionParameter>;
 
                 [&registry, &func]<typename... Us>(ddge::util::TypeList<Us...>) {
-                    ddge::ecs::query<Ts...>(registry, [&func](Us...) {
-                        std::invoke(func);
-                    });
+                    query<Ts...>(registry, [&func](Us...) { std::invoke(func); });
                 }(QueryFunctionParameters{});
             };
 
         SECTION("empty registry")
         {
-            test_query_parameters(ddge::util::TypeList<float, ddge::ecs::ID>{});
+            test_query_parameters(ddge::util::TypeList<float, ID>{});
 
             test_query_parameters(ddge::util::TypeList<float, Without<double>>{});
 
@@ -290,7 +275,7 @@ TEST_CASE("ddge::ecs::query")
 
             test_query_parameters(
                 ddge::util::TypeList<
-                    ddge::ecs::ID,
+                    ID,
                     int8_t,
                     const int16_t,
                     Without<uint8_t>,
@@ -311,7 +296,7 @@ TEST_CASE("ddge::ecs::query")
 
             test_query_parameters(
                 ddge::util::TypeList<
-                    ddge::ecs::ID,
+                    ID,
                     float,
                     const double,
                     Without<int8_t>,
@@ -337,24 +322,21 @@ TEST_CASE("ddge::ecs::query")
             std::size_t visit_count{};
 
             test_query_parameters(
-                ddge::util::
-                    TypeList<ddge::ecs::ID, Without<int8_t>, With<int16_t>, With<int32_t>>{},
+                ddge::util::TypeList<ID, Without<int8_t>, With<int16_t>, With<int32_t>>{},
                 [&visit_count] { ++visit_count; }
             );
 
             REQUIRE(visit_count == 2);
 
             static_assert(requires {
-                !requires {
-                    ddge::ecs::query<ddge::ecs::ID, Without<int8_t>>(registry, [] {});
-                };
+                !requires { query<ID, Without<int8_t>>(registry, [] {}); };
             });
         }
 
         SECTION("no actually queried component nor id")
         {
             static_assert(requires {
-                !requires { ddge::ecs::query<Without<int8_t>>(registry, [] {}); };
+                !requires { query<Without<int8_t>>(registry, [] {}); };
             });
         }
 
@@ -367,10 +349,10 @@ TEST_CASE("ddge::ecs::query")
 
             std::size_t visit_count{};
 
-            ddge::ecs::query(
+            query(
                 registry,
                 [&visit_count](
-                    ddge::ecs::ID,       //
+                    ID,                  //
                     float&,              //
                     const double&,       //
                     Without<int8_t>,     //
@@ -390,25 +372,27 @@ TEST_CASE("ddge::ecs::query")
         registry.create(int{});
 
         size_t count{};
-        count = ddge::ecs::Query<ddge::ecs::With<int>>{ registry }.count();
+        count = Query<With<int>>{ registry }.count();
         REQUIRE(count == 1);
 
         count = 0;
-        ddge::ecs::Query<ddge::ecs::With<int>>{ registry }([&count] -> void { count++; });
+        Query<With<int>>{ registry }([&count] -> void { count++; });
         REQUIRE(count == 1);
 
         count = 0;
-        ddge::ecs::query(registry, [&count](ddge::ecs::With<int>) -> void { count++; });
+        query(registry, [&count](With<int>) -> void { count++; });
         REQUIRE(count == 1);
     }
 }
 
-TEST_CASE("ddge::ecs::count")
+TEST_CASE("count")
 {
-    ddge::ecs::Registry registry;
+    Registry registry;
 
     registry.create(int{});
     registry.create(int{}, float{});
 
-    REQUIRE((ddge::ecs::count<int>(registry) == 2));
+    REQUIRE((count<int>(registry) == 2));
 }
+
+}   // namespace ddge::ecs

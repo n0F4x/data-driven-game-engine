@@ -6,13 +6,18 @@ module;
 
 export module ddge.utility.meta.concepts.tuple_like;
 
+import ddge.utility.containers.Tuple;
+
 namespace ddge::util::meta {
 
 template <class T>
 inline constexpr bool is_tuple_like_v = false;
 
-template <class... Elems>
-inline constexpr bool is_tuple_like_v<std::tuple<Elems...>> = true;
+template <class... Ts>
+inline constexpr bool is_tuple_like_v<std::tuple<Ts...>> = true;
+
+template <class... Ts>
+inline constexpr bool is_tuple_like_v<Tuple<Ts...>> = true;
 
 template <class T1, class T2>
 inline constexpr bool is_tuple_like_v<std::pair<T1, T2>> = true;

@@ -1,6 +1,5 @@
 module;
 
-#include <algorithm>
 #include <optional>
 #include <span>
 #include <vector>
@@ -72,8 +71,10 @@ constexpr auto LookupTable::erase(const RecordID record_id)
 {
     return m_ids.erase(record_id.underlying())
         .transform([](const auto id_and_record_index) static {
-            return std::tuple{ std::get<0>(id_and_record_index),
-                               RecordIndex{ std::get<1>(id_and_record_index) } };
+            return std::pair{
+                id_and_record_index.first,
+                RecordIndex{ id_and_record_index.second },
+            };
         });
 }
 

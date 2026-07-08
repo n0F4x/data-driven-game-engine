@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         all_different.ixx
         all_same.ixx
         allocator.ixx
+        contained_exactly_once_c.ixx
         decayed.ixx
         decays_to.ixx
         generic_allocator.ixx

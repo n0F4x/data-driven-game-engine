@@ -13,7 +13,7 @@ import ddge.modules.scheduler.accessors.events.EventManager;
 import ddge.modules.scheduler.locks.CriticalSectionType;
 import ddge.modules.scheduler.locks.Lock;
 import ddge.modules.scheduler.locks.LockGroup;
-
+import ddge.utility.containers.Tuple;
 import ddge.utility.meta.algorithms.for_each;
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
 import ddge.utility.meta.type_traits.type_list.type_list_index_of;
@@ -46,7 +46,7 @@ public:
     constexpr auto record(Args_T&&... args) const -> void;
 
 private:
-    std::tuple<std::reference_wrapper<ddge::events::BufferedEventQueue<Events_T>>...>
+    util::Tuple<std::reference_wrapper<ddge::events::BufferedEventQueue<Events_T>>...>
         m_buffered_event_queue_refs;
 };
 
@@ -88,7 +88,7 @@ constexpr auto ddge::scheduler::accessors::events::Recorder<Events_T...>::record
     Args_T&&... args
 ) const -> void
 {
-    std::get<0>(m_buffered_event_queue_refs)
+    util::get<0>(m_buffered_event_queue_refs)
         .get()
         .emplace_back(std::forward<Args_T>(args)...);
 }
@@ -103,7 +103,7 @@ constexpr auto ddge::scheduler::accessors::events::Recorder<Events_T...>::record
     Args_T&&... args
 ) const -> void
 {
-    std::get<util::meta::type_list_index_of_v<util::TypeList<Events_T...>, Event_T>>(
+    util::get<util::meta::type_list_index_of_v<util::TypeList<Events_T...>, Event_T>>(
         m_buffered_event_queue_refs
     )
         .get()

@@ -6,6 +6,7 @@ module;
 
 export module ddge.utility.ScopeFail;
 
+import ddge.utility.containers.Tuple;
 import ddge.utility.meta.concepts.storable;
 
 namespace ddge::util {
@@ -34,7 +35,7 @@ private:
 };
 
 export template <meta::storable_c... Rollbacks_T>
-using ScopeFails = std::tuple<ScopeFail<Rollbacks_T>...>;
+using ScopeFails = Tuple<ScopeFail<Rollbacks_T>...>;
 
 }   // namespace ddge::util
 

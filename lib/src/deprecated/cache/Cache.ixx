@@ -18,9 +18,6 @@ public:
     using ID = IdType;
 
 
-    template <typename Resource, typename... Args>
-    auto try_emplace(ID id, Args&&... args) -> Handle<Resource>;
-
     template <typename Resource, std::invocable Creator>
     auto lazy_try_emplace(ID id, Creator&& create) -> Handle<Resource>;
 
@@ -46,16 +43,6 @@ private:
 export using Cache = BasicCache<std::size_t, std::unordered_map>;
 
 }   // namespace ddge::cache
-
-template <typename IdType, template <typename...> typename ContainerTemplate>
-template <typename Resource, typename... Args>
-auto ddge::cache::BasicCache<IdType, ContainerTemplate>::try_emplace(ID id, Args&&... args)
-    -> Handle<Resource>
-{
-    return lazy_try_emplace<Resource>(id, [&] {
-        return std::forward_as_tuple(std::forward<Args>(args)...);
-    });
-}
 
 template <typename IdType, template <typename...> typename ContainerTemplate>
 template <typename Resource, std::invocable Creator>

@@ -20,6 +20,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         SparseSet.ixx
         StackedTuple.ixx
         Strong.ixx
+        Tuple.ixx
 )
 
 target_sources(${PROJECT_NAME} PUBLIC

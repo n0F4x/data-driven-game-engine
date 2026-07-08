@@ -2,7 +2,6 @@ module;
 
 #include <concepts>
 #include <functional>
-#include <vector>
 
 export module ddge.modules.scheduler.accessors.messages.Sender;
 
@@ -12,7 +11,7 @@ import ddge.modules.scheduler.locks.CriticalSectionType;
 import ddge.modules.scheduler.locks.Lock;
 import ddge.modules.scheduler.locks.LockGroup;
 import ddge.modules.messages;
-
+import ddge.utility.containers.Tuple;
 import ddge.utility.meta.algorithms.for_each;
 import ddge.utility.meta.type_traits.type_list.type_list_contains;
 import ddge.utility.meta.type_traits.type_list.type_list_index_of;
@@ -45,7 +44,7 @@ public:
     constexpr auto send(Args_T&&... args) const -> void;
 
 private:
-    std::tuple<std::reference_wrapper<ddge::messages::MessageBuffer<Messages_T>>...>
+    util::Tuple<std::reference_wrapper<ddge::messages::MessageBuffer<Messages_T>>...>
         m_message_buffer_refs;
 };
 
@@ -87,7 +86,7 @@ constexpr auto ddge::scheduler::accessors::messages::Sender<Messages_T...>::send
     Args_T&&... args
 ) const -> void
 {
-    std::get<0>(m_message_buffer_refs).get().emplace_back(std::forward<Args_T>(args)...);
+    util::get<0>(m_message_buffer_refs).get().emplace_back(std::forward<Args_T>(args)...);
 }
 
 template <ddge::messages::message_c... Messages_T>
@@ -100,7 +99,7 @@ constexpr auto ddge::scheduler::accessors::messages::Sender<Messages_T...>::send
     Args_T&&... args
 ) const -> void
 {
-    std::get<util::meta::type_list_index_of_v<util::TypeList<Messages_T...>, Message_T>>(
+    util::get<util::meta::type_list_index_of_v<util::TypeList<Messages_T...>, Message_T>>(
         m_message_buffer_refs
     )
         .get()

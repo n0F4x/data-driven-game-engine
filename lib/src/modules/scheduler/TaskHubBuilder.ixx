@@ -31,8 +31,8 @@ import ddge.modules.scheduler.TaskHubProxy;
 import ddge.modules.scheduler.TaskIndex;
 import ddge.modules.scheduler.TypedTaskFactoryHandle;
 import ddge.modules.scheduler.TypedTaskIndex;
-
 import ddge.utility.any_cast;
+import ddge.utility.containers.Tuple;
 import ddge.utility.contracts;
 import ddge.utility.meta.type_traits.forward_like;
 import ddge.utility.meta.type_traits.functional.arguments_of;
@@ -106,7 +106,7 @@ auto ddge::scheduler::TaskHubBuilder::emplace_embedded_task(
             EmbeddedTaskBody<Result>{
                 [body            = std::move(task),
                  accessors_tuple = provide_accessors_for<F>(m_nexus)] mutable -> Result {
-                    return std::apply(body, accessors_tuple);
+                    return util::apply(body, accessors_tuple);
                 }   //
             },
             create_lock_group<util::meta::type_list_transform_t<
@@ -197,6 +197,7 @@ auto ddge::scheduler::TaskHubBuilder::emplace(
                 case ExecPolicy::eDefault:     return m_generic_task_factories;
                 case ExecPolicy::eForceOnMain: return m_main_only_task_factories;
             }
+            // ReSharper disable once CppNotAllPathsReturnValue
         }()   //
     };
     const TaskIndex::Underlying index_mask{

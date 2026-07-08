@@ -14,6 +14,7 @@ import ddge.modules.scheduler.accessors.ecs;
 import ddge.modules.scheduler.accessors.events;
 import ddge.modules.scheduler.accessors.resources;
 import ddge.modules.scheduler.primitives.as_task;
+import ddge.utility.containers.Tuple;
 
 import snake.game.Cell;
 import snake.game.Direction;
@@ -128,7 +129,9 @@ auto move_snake_head(
     assert(snake_head_id.has_value());
 
     const auto snake_head{ registry.remove_single<game::SnakeHead>(*snake_head_id) };
-    const auto [cell, snake_body]{ registry.get<game::Cell, game::Snake>(*snake_head_id) };
+    const auto [cell, snake_body]{
+        registry.get<const game::Cell, const game::Snake>(*snake_head_id)
+    };
     assert((!registry.contains_all<game::SnakeHead>(*snake_head_id)));
 
     const std::optional<game::Position> next_pos{

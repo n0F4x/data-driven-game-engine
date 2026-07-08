@@ -1,13 +1,13 @@
 module;
 
 #include <cassert>
-#include <tuple>
 #include <type_traits>
 #include <utility>
 
 export module ddge.modules.ecs:ComponentTableMap.extensions;
 
 import ddge.utility.containers.Any;
+import ddge.utility.containers.Tuple;
 import ddge.utility.meta.algorithms.enumerate;
 import ddge.utility.meta.concepts.all_different;
 import ddge.utility.meta.concepts.decays_to;
@@ -42,7 +42,7 @@ auto remove_components(
     ComponentTableMap& it,
     ArchetypeID        archetype_id,
     RecordIndex        record_index
-) -> std::tuple<Components_T...>;
+) -> ddge::util::Tuple<Components_T...>;
 
 template <decays_to_component_c... Components_T>
     requires(sizeof...(Components_T) > 0)
@@ -148,11 +148,11 @@ auto remove_components(
     ComponentTableMap& it,
     const ArchetypeID  archetype_id,
     const RecordIndex  record_index
-) -> std::tuple<Components_T...>
+) -> ddge::util::Tuple<Components_T...>
 {
-    return std::make_tuple(
+    return ddge::util::Tuple<Components_T...>{
         it.remove_component<Components_T>(archetype_id, record_index)...
-    );
+    };
 }
 
 template <decays_to_component_c... Components_T>
