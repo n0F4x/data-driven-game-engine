@@ -5,7 +5,7 @@ module;
 #include <typeindex>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.messages.MessageManager;
 
@@ -13,9 +13,9 @@ import ddge.modules.messages.message_c;
 import ddge.modules.messages.MessageBuffer;
 import ddge.modules.messages.ErasedMessageBuffer;
 
-import ddge.utility.containers.Any;
-import ddge.utility.contracts;
-import ddge.utility.meta.type_traits.const_like;
+import ddge.util.containers.Any;
+import ddge.util.contracts;
+import ddge.util.meta.type_traits.const_like;
 
 namespace ddge::messages {
 

@@ -4,11 +4,11 @@ module;
 
 export module ddge.modules.ecs:query.query_filter_components_are_all_different_c;
 
-import ddge.utility.meta.concepts.type_list.type_list_all_different;
-import ddge.utility.meta.type_traits.type_list.type_list_filter;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
-import ddge.utility.meta.type_traits.underlying;
-import ddge.utility.TypeList;
+import ddge.util.meta.concepts.type_list.type_list_all_different;
+import ddge.util.meta.type_traits.type_list.type_list_filter;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
+import ddge.util.meta.type_traits.underlying;
+import ddge.util.TypeList;
 
 import :query.component_query_filter_c;
 import :query.query_filter_tag_c;

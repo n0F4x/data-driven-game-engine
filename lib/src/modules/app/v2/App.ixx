@@ -6,7 +6,7 @@ export module ddge.modules.app.v2.App;
 
 import ddge.modules.app.v2.memory.MemoryArena;
 import ddge.modules.app.v2.registry.Registry;
-import ddge.utility.meta.type_traits.forward_like;
+import ddge.util.meta.type_traits.forward_like;
 
 namespace ddge::app::v2 {
 

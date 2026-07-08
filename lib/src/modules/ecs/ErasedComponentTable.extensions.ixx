@@ -4,8 +4,8 @@ module;
 
 export module ddge.modules.ecs:ErasedComponentTable.extensions;
 
-import ddge.utility.containers.Any;
-import ddge.utility.containers.OptionalRef;
+import ddge.util.containers.Any;
+import ddge.util.containers.OptionalRef;
 
 import :ArchetypeID;
 import :component_c;

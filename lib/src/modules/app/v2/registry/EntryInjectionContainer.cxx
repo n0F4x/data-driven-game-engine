@@ -6,12 +6,12 @@ module;
 #include <ranges>
 #include <span>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 module ddge.modules.app.v2.registry.EntryInjectionContainer;
 
 import ddge.modules.app.v2.registry.CyclicDependencyDetected;
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::app::v2 {
 

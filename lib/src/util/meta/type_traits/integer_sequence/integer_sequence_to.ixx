@@ -1,0 +1,22 @@
+export module ddge.util.meta.type_traits.integer_sequence.integer_sequence_to;
+
+import ddge.util.meta.concepts.integer_sequence.integer_sequence;
+
+namespace ddge::util::meta {
+
+export template <integer_sequence_c From_T, template <typename T, T...> typename To_T>
+struct integer_sequence_to;
+
+template <
+    template <typename T_, T_...> typename From_T,
+    typename Integer_T,
+    Integer_T... integers_T,
+    template <typename T_, T_...> typename To_T>
+struct integer_sequence_to<From_T<Integer_T, integers_T...>, To_T> {
+    using type = To_T<Integer_T, integers_T...>;
+};
+
+export template <integer_sequence_c From_T, template <typename T, T...> typename To_T>
+using integer_sequence_to_t = typename integer_sequence_to<From_T, To_T>::type;
+
+}   // namespace ddge::util::meta

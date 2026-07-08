@@ -9,7 +9,7 @@ export module ddge.modules.messages.ErasedMessageBuffer;
 import ddge.modules.messages.MessageBuffer;
 import ddge.modules.messages.message_c;
 
-import ddge.utility.containers.MoveOnlyAny;
+import ddge.util.containers.MoveOnlyAny;
 
 namespace ddge::messages {
 

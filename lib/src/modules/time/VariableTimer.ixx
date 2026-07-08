@@ -6,7 +6,7 @@ module;
 
 export module ddge.modules.time.VariableTimer;
 
-import ddge.utility.meta.concepts.specialization_of;
+import ddge.util.meta.concepts.specialization_of;
 
 namespace ddge::time {
 

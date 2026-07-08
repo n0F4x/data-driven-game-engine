@@ -1,7 +1,7 @@
 #include <cstdio>
 
 import ddge.modules.app.v2;
-import ddge.utility.containers.OptionalRef;
+import ddge.util.containers.OptionalRef;
 
 struct GraphicsSystemIntegration : ddge::app::v2::EntryBase {};
 

@@ -4,7 +4,7 @@ module;
 
 #include <vk_mem_alloc.h>
 
-#include "utility/lifetimebound.hpp"
+#include "util/lifetimebound.hpp"
 
 export module ddge.deprecated.renderer.base.resources.Allocation;
 

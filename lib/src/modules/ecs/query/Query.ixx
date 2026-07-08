@@ -7,22 +7,22 @@ module;
 #include <tuple>
 #include <type_traits>
 
-#include "utility/lifetimebound.hpp"
+#include "util/lifetimebound.hpp"
 
 export module ddge.modules.ecs:query.QueryClosure;
 
-import ddge.utility.meta.algorithms.apply;
-import ddge.utility.meta.algorithms.fold_left_first;
-import ddge.utility.meta.algorithms.for_each;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.containers.Tuple;
-import ddge.utility.meta.type_traits.type_list.type_list_contains;
-import ddge.utility.meta.type_traits.type_list.type_list_filter;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
-import ddge.utility.meta.type_traits.type_list.type_list_size;
-import ddge.utility.meta.type_traits.const_like;
-import ddge.utility.meta.type_traits.underlying;
-import ddge.utility.TypeList;
+import ddge.util.meta.algorithms.apply;
+import ddge.util.meta.algorithms.fold_left_first;
+import ddge.util.meta.algorithms.for_each;
+import ddge.util.containers.OptionalRef;
+import ddge.util.containers.Tuple;
+import ddge.util.meta.type_traits.type_list.type_list_contains;
+import ddge.util.meta.type_traits.type_list.type_list_filter;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
+import ddge.util.meta.type_traits.type_list.type_list_size;
+import ddge.util.meta.type_traits.const_like;
+import ddge.util.meta.type_traits.underlying;
+import ddge.util.TypeList;
 
 import :ComponentTable;
 import :ComponentTableMap.extensions;

@@ -4,8 +4,8 @@ module;
 
 export module ddge.modules.ecs:query.ToComponent;
 
-import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.meta.type_traits.underlying;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.meta.type_traits.underlying;
 
 import :query.component_query_filter_c;
 import :query.queryable_component_c;

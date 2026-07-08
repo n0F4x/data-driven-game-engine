@@ -11,7 +11,7 @@ import ddge.modules.app.v2.registry.entry_c;
 import ddge.modules.app.v2.registry.EntryBase;
 import ddge.modules.app.v2.registry.EntryBuilderBase;
 import ddge.modules.app.v2.registry.represents_entry_dependency_c;
-import ddge.utility.meta.concepts.storable;
+import ddge.util.meta.concepts.storable;
 
 namespace ddge::app::v2 {
 

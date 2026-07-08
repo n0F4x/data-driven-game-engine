@@ -4,7 +4,7 @@ module;
 
 export module ddge.modules.states.state_c;
 
-import ddge.utility.containers.GenericStack;
+import ddge.util.containers.GenericStack;
 
 namespace ddge::states {
 

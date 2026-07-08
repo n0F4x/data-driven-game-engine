@@ -7,7 +7,7 @@ export module ddge.modules.scheduler.gatherers.gatherer_builder_of_c;
 
 import ddge.modules.scheduler.gatherers.gatherer_of_c;
 
-import ddge.utility.meta.concepts.specialization_of;
+import ddge.util.meta.concepts.specialization_of;
 
 namespace ddge::scheduler {
 

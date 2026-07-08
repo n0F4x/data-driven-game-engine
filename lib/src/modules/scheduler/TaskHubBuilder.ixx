@@ -7,7 +7,7 @@ module;
 #include <type_traits>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.scheduler.TaskHubBuilder;
 
@@ -31,13 +31,13 @@ import ddge.modules.scheduler.TaskHubProxy;
 import ddge.modules.scheduler.TaskIndex;
 import ddge.modules.scheduler.TypedTaskFactoryHandle;
 import ddge.modules.scheduler.TypedTaskIndex;
-import ddge.utility.any_cast;
-import ddge.utility.containers.Tuple;
-import ddge.utility.contracts;
-import ddge.utility.meta.type_traits.forward_like;
-import ddge.utility.meta.type_traits.functional.arguments_of;
-import ddge.utility.meta.type_traits.functional.result_of;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
+import ddge.util.any_cast;
+import ddge.util.containers.Tuple;
+import ddge.util.contracts;
+import ddge.util.meta.type_traits.forward_like;
+import ddge.util.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.type_traits.functional.result_of;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
 
 namespace ddge::scheduler {
 

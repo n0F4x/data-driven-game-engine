@@ -5,9 +5,9 @@ module;
 
 export module ddge.modules.ecs:component_c;
 
-import ddge.utility.meta.concepts.naked;
-import ddge.utility.meta.concepts.nothrow_movable;
-import ddge.utility.meta.concepts.storable;
+import ddge.util.meta.concepts.naked;
+import ddge.util.meta.concepts.nothrow_movable;
+import ddge.util.meta.concepts.storable;
 
 import :ID;
 import :query.query_filter_tag_c;

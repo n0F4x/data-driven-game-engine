@@ -1,6 +1,6 @@
 export module ddge.modules.config.engine_name;
 
-import ddge.utility.StringLiteral;
+import ddge.util.StringLiteral;
 
 namespace ddge::config {
 

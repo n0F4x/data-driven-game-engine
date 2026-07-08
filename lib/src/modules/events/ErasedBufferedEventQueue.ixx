@@ -9,7 +9,7 @@ export module ddge.modules.events.ErasedBufferedEventQueue;
 import ddge.modules.events.BufferedEventQueue;
 import ddge.modules.events.event_c;
 
-import ddge.utility.containers.MoveOnlyAny;
+import ddge.util.containers.MoveOnlyAny;
 
 namespace ddge::events {
 

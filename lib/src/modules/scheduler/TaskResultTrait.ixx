@@ -1,6 +1,6 @@
 export module ddge.modules.scheduler.TaskResultTrait;
 
-import ddge.utility.meta.concepts.naked;
+import ddge.util.meta.concepts.naked;
 
 namespace ddge::scheduler {
 

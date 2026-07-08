@@ -8,7 +8,7 @@ export module ddge.modules.scheduler.primitives.group;
 import ddge.modules.scheduler.TaskBuilderGroup;
 import ddge.modules.scheduler.TaskResultTrait;
 
-import ddge.utility.meta.concepts.all_same;
+import ddge.util.meta.concepts.all_same;
 
 namespace ddge::scheduler {
 

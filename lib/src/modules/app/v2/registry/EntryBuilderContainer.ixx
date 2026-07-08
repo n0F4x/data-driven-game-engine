@@ -9,7 +9,7 @@ module;
 #include <utility>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.app.v2.registry.EntryBuilderContainer;
 
@@ -19,17 +19,17 @@ import ddge.modules.app.v2.registry.EntryBuilderBase;
 import ddge.modules.app.v2.registry.strip_dependency_t;
 import ddge.modules.app.v2.registry.Registry;
 import ddge.modules.app.v2.registry.ReverseDependencyChainNode;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.containers.MoveOnlyFunction;
-import ddge.utility.contracts;
-import ddge.utility.meta.algorithms.for_each;
-import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.meta.reflection;
-import ddge.utility.meta.type_traits.const_like;
-import ddge.utility.meta.type_traits.forward_like;
-import ddge.utility.meta.type_traits.functional.arguments_of;
-import ddge.utility.meta.type_traits.functional.result_of;
-import ddge.utility.TypeList;
+import ddge.util.containers.OptionalRef;
+import ddge.util.containers.MoveOnlyFunction;
+import ddge.util.contracts;
+import ddge.util.meta.algorithms.for_each;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.meta.reflection;
+import ddge.util.meta.type_traits.const_like;
+import ddge.util.meta.type_traits.forward_like;
+import ddge.util.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.type_traits.functional.result_of;
+import ddge.util.TypeList;
 
 namespace ddge::app::v2 {
 

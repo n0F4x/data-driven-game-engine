@@ -4,7 +4,7 @@ module;
 
 export module snake.game.Snake;
 
-import ddge.utility.containers.Strong;
+import ddge.util.containers.Strong;
 
 namespace game {
 

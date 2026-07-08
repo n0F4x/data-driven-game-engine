@@ -8,7 +8,7 @@ import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TaskResultTrait;
 import ddge.modules.scheduler.TypedTaskFactoryHandle;
 
-import ddge.utility.containers.MoveOnlyFunction;
+import ddge.util.containers.MoveOnlyFunction;
 
 namespace ddge::scheduler {
 

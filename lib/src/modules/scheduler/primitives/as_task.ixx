@@ -10,7 +10,7 @@ import ddge.modules.scheduler.TaskBuilder;
 import ddge.modules.scheduler.TaskHubBuilder;
 import ddge.modules.scheduler.TypedTaskFactoryHandle;
 
-import ddge.utility.meta.type_traits.functional.result_of;
+import ddge.util.meta.type_traits.functional.result_of;
 
 namespace ddge::scheduler {
 

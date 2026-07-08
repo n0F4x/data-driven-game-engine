@@ -2,7 +2,7 @@ module;
 
 #include <cstdint>
 
-#include "utility/lifetimebound.hpp"
+#include "util/lifetimebound.hpp"
 
 export module ddge.deprecated.renderer.base.resources.Image;
 

@@ -7,7 +7,7 @@ module;
 
 #include <tl/function_ref.hpp>
 
-#include "utility/no_unique_address.hpp"
+#include "util/no_unique_address.hpp"
 
 export module ddge.modules.scheduler.data_structures.SignalTree;
 

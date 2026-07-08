@@ -26,7 +26,7 @@ import ddge.modules.scheduler.TaskResultTrait;
 import ddge.modules.scheduler.TypedTaskFactoryHandle;
 import ddge.modules.scheduler.TypedTaskIndex;
 
-import ddge.utility.meta.concepts.strips_to;
+import ddge.util.meta.concepts.strips_to;
 
 namespace ddge::scheduler {
 

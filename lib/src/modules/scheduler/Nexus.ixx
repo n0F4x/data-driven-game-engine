@@ -3,17 +3,17 @@ module;
 #include <format>
 #include <type_traits>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.scheduler.Nexus;
 
 import ddge.modules.scheduler.accessor_c;
 import ddge.modules.scheduler.ProviderFor;
-import ddge.utility.containers.GenericStack;
-import ddge.utility.contracts;
-import ddge.utility.meta.algorithms.for_each;
-import ddge.utility.meta.reflection.name_of;
-import ddge.utility.meta.concepts.all_different;
+import ddge.util.containers.GenericStack;
+import ddge.util.contracts;
+import ddge.util.meta.algorithms.for_each;
+import ddge.util.meta.reflection.name_of;
+import ddge.util.meta.concepts.all_different;
 
 namespace ddge::scheduler {
 

@@ -6,13 +6,13 @@ export module ddge.modules.assets.AssetManager;
 
 import ddge.modules.assets.Cached;
 import ddge.modules.assets.loader_c;
-import ddge.utility.containers.GenericStack;
+import ddge.util.containers.GenericStack;
 
-import ddge.utility.containers.StackedTuple;
-import ddge.utility.meta.concepts.all_different;
-import ddge.utility.meta.type_traits.forward_like;
-import ddge.utility.meta.type_traits.type_list.type_list_contains;
-import ddge.utility.TypeList;
+import ddge.util.containers.StackedTuple;
+import ddge.util.meta.concepts.all_different;
+import ddge.util.meta.type_traits.forward_like;
+import ddge.util.meta.type_traits.type_list.type_list_contains;
+import ddge.util.TypeList;
 
 namespace ddge::assets {
 

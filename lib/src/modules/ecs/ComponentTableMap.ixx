@@ -5,12 +5,12 @@ module;
 #include <type_traits>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.ecs:ComponentTableMap;
 
-import ddge.utility.containers.Any;
-import ddge.utility.containers.OptionalRef;
+import ddge.util.containers.Any;
+import ddge.util.containers.OptionalRef;
 
 import :ArchetypeID;
 import :component_c;

@@ -8,13 +8,13 @@ module;
 
 export module ddge.modules.ecs:Archetype;
 
-import ddge.utility.meta.algorithms.none_of;
-import ddge.utility.meta.concepts.ranges.input_range_of;
-import ddge.utility.meta.reflection.hash;
-import ddge.utility.meta.type_traits.integer_sequence.integer_sequence_sort;
-import ddge.utility.hashing;
-import ddge.utility.TypeList;
-import ddge.utility.ValueSequence;
+import ddge.util.meta.algorithms.none_of;
+import ddge.util.meta.concepts.ranges.input_range_of;
+import ddge.util.meta.reflection.hash;
+import ddge.util.meta.type_traits.integer_sequence.integer_sequence_sort;
+import ddge.util.hashing;
+import ddge.util.TypeList;
+import ddge.util.ValueSequence;
 
 import :component_c;
 import :ComponentID;

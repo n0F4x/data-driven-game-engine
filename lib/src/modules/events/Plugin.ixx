@@ -4,7 +4,7 @@ module;
 #include <typeindex>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.events.Plugin;
 
@@ -13,7 +13,7 @@ import ddge.modules.events.Addon;
 import ddge.modules.events.event_c;
 import ddge.modules.events.ErasedBufferedEventQueue;
 
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::events {
 

@@ -5,7 +5,7 @@ import ddge.modules.scheduler.locks.CriticalSectionType;
 import ddge.modules.scheduler.locks.Lock;
 import ddge.modules.scheduler.locks.LockGroup;
 
-import ddge.utility.containers.Ref;
+import ddge.util.containers.Ref;
 
 namespace ddge::scheduler::accessors {
 

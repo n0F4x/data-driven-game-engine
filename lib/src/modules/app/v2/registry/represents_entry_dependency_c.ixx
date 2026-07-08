@@ -7,8 +7,8 @@ export module ddge.modules.app.v2.registry.represents_entry_dependency_c;
 
 import ddge.modules.app.v2.registry.entry_c;
 import ddge.modules.app.v2.registry.EntryBuilderBase;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.meta.concepts.specialization_of;
+import ddge.util.containers.OptionalRef;
+import ddge.util.meta.concepts.specialization_of;
 
 namespace ddge::app::v2 {
 

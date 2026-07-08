@@ -13,13 +13,13 @@ import ddge.modules.scheduler.ExecPolicy;
 import ddge.modules.scheduler.primitives.as_task;
 import ddge.modules.scheduler.TaskBuilder;
 
-import ddge.utility.meta.type_traits.functional.arguments_of;
-import ddge.utility.meta.type_traits.type_list.type_list_contains;
-import ddge.utility.meta.type_traits.type_list.type_list_index_of;
-import ddge.utility.meta.type_traits.type_list.type_list_to;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
-import ddge.utility.meta.algorithms.apply;
-import ddge.utility.TypeList;
+import ddge.util.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.type_traits.type_list.type_list_contains;
+import ddge.util.meta.type_traits.type_list.type_list_index_of;
+import ddge.util.meta.type_traits.type_list.type_list_to;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
+import ddge.util.meta.algorithms.apply;
+import ddge.util.TypeList;
 
 namespace ddge::scheduler {
 

@@ -1,6 +1,6 @@
 export module ddge.modules.app.v2.registry.CyclicDependencyDetected;
 
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::app::v2 {
 

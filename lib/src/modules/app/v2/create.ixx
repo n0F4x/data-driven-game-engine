@@ -7,7 +7,7 @@ export module ddge.modules.app.v2.create;
 import ddge.modules.app.v2.Builder;
 import ddge.modules.app.v2.config.Config;
 import ddge.modules.config.Version;
-import ddge.utility.StringLiteral;
+import ddge.util.StringLiteral;
 
 namespace ddge::app::v2 {
 

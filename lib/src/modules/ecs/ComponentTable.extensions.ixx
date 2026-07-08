@@ -1,6 +1,6 @@
 export module ddge.modules.ecs:ComponentTable.extensions;
 
-import ddge.utility.containers.OptionalRef;
+import ddge.util.containers.OptionalRef;
 
 import :ArchetypeID;
 import :component_c;

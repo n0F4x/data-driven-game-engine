@@ -1,7 +1,7 @@
 export module ddge.modules.scheduler.TaskContinuation;
 
-import ddge.utility.containers.MoveOnlyFunction;
-import ddge.utility.meta.concepts.decayed;
+import ddge.util.containers.MoveOnlyFunction;
+import ddge.util.meta.concepts.decayed;
 
 namespace ddge::scheduler {
 

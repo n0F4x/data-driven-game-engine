@@ -1,6 +1,6 @@
 export module ddge.modules.resources.resource_c;
 
-import ddge.utility.containers.GenericStack;
+import ddge.util.containers.GenericStack;
 
 namespace ddge::resources {
 

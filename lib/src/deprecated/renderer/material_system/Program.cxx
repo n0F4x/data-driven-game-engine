@@ -5,7 +5,7 @@ module;
 
 module ddge.deprecated.renderer.material_system.Program;
 
-import ddge.utility.hashing;
+import ddge.util.hashing;
 
 using namespace ddge::renderer;
 

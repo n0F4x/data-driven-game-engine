@@ -4,7 +4,7 @@ module;
 #include <optional>
 #include <type_traits>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.scheduler.accessors.states:State;
 
@@ -13,8 +13,8 @@ import ddge.modules.scheduler.locks.CriticalSectionType;
 import ddge.modules.scheduler.locks.Lock;
 import ddge.modules.scheduler.locks.LockGroup;
 
-import ddge.utility.meta.type_traits.const_like;
-import ddge.utility.contracts;
+import ddge.util.meta.type_traits.const_like;
+import ddge.util.contracts;
 
 namespace ddge::scheduler::accessors {
 

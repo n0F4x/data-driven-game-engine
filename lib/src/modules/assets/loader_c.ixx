@@ -7,14 +7,14 @@ export module ddge.modules.assets.loader_c;
 
 import ddge.modules.assets.asset_c;
 
-import ddge.utility.meta.concepts.functional.unambiguously_invocable;
-import ddge.utility.meta.concepts.hashable;
-import ddge.utility.meta.concepts.naked;
-import ddge.utility.meta.concepts.storable;
-import ddge.utility.meta.concepts.type_list.type_list_all_of;
-import ddge.utility.meta.type_traits.functional.arguments_of;
-import ddge.utility.meta.type_traits.functional.result_of;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
+import ddge.util.meta.concepts.functional.unambiguously_invocable;
+import ddge.util.meta.concepts.hashable;
+import ddge.util.meta.concepts.naked;
+import ddge.util.meta.concepts.storable;
+import ddge.util.meta.concepts.type_list.type_list_all_of;
+import ddge.util.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.type_traits.functional.result_of;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
 
 template <typename T>
 struct Hashable : std::bool_constant<ddge::util::meta::hashable_c<T>> {};

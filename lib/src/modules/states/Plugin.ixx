@@ -3,16 +3,16 @@ module;
 #include <optional>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.states.Plugin;
 
 import ddge.modules.app;
 import ddge.modules.states.Addon;
 import ddge.modules.states.state_c;
-import ddge.utility.containers.GenericStack;
+import ddge.util.containers.GenericStack;
 
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::states {
 

@@ -5,7 +5,7 @@ module;
 
 module ddge.deprecated.gltf.Model;
 
-import ddge.utility.hashing;
+import ddge.util.hashing;
 
 import ddge.deprecated.gltf.Texture;
 

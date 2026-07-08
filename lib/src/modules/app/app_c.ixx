@@ -1,6 +1,6 @@
 export module ddge.modules.app.app_c;
 
-import ddge.utility.meta.concepts.specialization_of;
+import ddge.util.meta.concepts.specialization_of;
 
 import ddge.modules.app.App;
 

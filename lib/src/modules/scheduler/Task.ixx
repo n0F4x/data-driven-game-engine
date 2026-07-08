@@ -1,6 +1,6 @@
 export module ddge.modules.scheduler.Task;
 
-import ddge.utility.containers.MoveOnlyFunction;
+import ddge.util.containers.MoveOnlyFunction;
 
 namespace ddge::scheduler {
 

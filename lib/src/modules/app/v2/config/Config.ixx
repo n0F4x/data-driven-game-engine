@@ -9,7 +9,7 @@ import ddge.modules.app.v2.registry.ConfigurationEntry;
 import ddge.modules.config.engine_name;
 import ddge.modules.config.engine_version;
 import ddge.modules.config.Version;
-import ddge.utility.StringLiteral;
+import ddge.util.StringLiteral;
 
 namespace ddge::app::v2 {
 

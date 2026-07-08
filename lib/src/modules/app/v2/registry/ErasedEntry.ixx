@@ -1,7 +1,7 @@
 export module ddge.modules.app.v2.registry.ErasedEntry;
 
 import ddge.modules.app.v2.registry.entry_c;
-import ddge.utility.containers.MoveOnlyAny;
+import ddge.util.containers.MoveOnlyAny;
 
 namespace ddge::app::v2 {
 

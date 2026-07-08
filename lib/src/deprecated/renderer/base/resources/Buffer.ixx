@@ -1,6 +1,6 @@
 module;
 
-#include "utility/lifetimebound.hpp"
+#include "util/lifetimebound.hpp"
 
 export module ddge.deprecated.renderer.base.resources.Buffer;
 

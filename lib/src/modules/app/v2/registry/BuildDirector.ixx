@@ -6,7 +6,7 @@ module;
 #include <type_traits>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.app.v2.registry.BuildDirector;
 
@@ -22,15 +22,15 @@ import ddge.modules.app.v2.registry.EntryInjectionContainer;
 import ddge.modules.app.v2.registry.Registry;
 import ddge.modules.app.v2.registry.represents_entry_builder_dependency_c;
 import ddge.modules.app.v2.registry.represents_entry_dependency_c;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.contracts;
-import ddge.utility.meta.concepts.functional.function_pointer;
-import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.meta.reflection.hash;
-import ddge.utility.meta.reflection.name_of;
-import ddge.utility.meta.type_traits.functional.arguments_of;
-import ddge.utility.meta.type_traits.functional.result_of;
-import ddge.utility.TypeList;
+import ddge.util.containers.OptionalRef;
+import ddge.util.contracts;
+import ddge.util.meta.concepts.functional.function_pointer;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.meta.reflection.hash;
+import ddge.util.meta.reflection.name_of;
+import ddge.util.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.type_traits.functional.result_of;
+import ddge.util.TypeList;
 
 namespace ddge::app::v2 {
 

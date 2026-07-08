@@ -4,8 +4,8 @@ module;
 
 export module ddge.modules.app.v2.registry.strip_dependency_t;
 
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.meta.concepts.specialization_of;
+import ddge.util.containers.OptionalRef;
+import ddge.util.meta.concepts.specialization_of;
 
 namespace ddge::app::v2 {
 

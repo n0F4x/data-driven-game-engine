@@ -5,9 +5,9 @@ module;
 
 export module ddge.modules.scheduler.raw_task_c;
 
-import ddge.utility.meta.concepts.functional.unambiguously_invocable;
-import ddge.utility.meta.concepts.type_list.type_list_all_of;
-import ddge.utility.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.concepts.functional.unambiguously_invocable;
+import ddge.util.meta.concepts.type_list.type_list_all_of;
+import ddge.util.meta.type_traits.functional.arguments_of;
 
 template <typename T>
 struct IsConstructibleFromReference

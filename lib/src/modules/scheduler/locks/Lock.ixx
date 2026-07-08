@@ -13,7 +13,7 @@ import ddge.modules.scheduler.locks.LockOwnerIndex;
 import ddge.modules.scheduler.locks.SharedCriticalSection;
 import ddge.modules.scheduler.locks.TopOfLockStack;
 
-import ddge.utility.Overloaded;
+import ddge.util.Overloaded;
 
 namespace ddge::scheduler {
 

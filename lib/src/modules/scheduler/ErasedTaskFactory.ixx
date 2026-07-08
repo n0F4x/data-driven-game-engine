@@ -13,8 +13,8 @@ import ddge.modules.scheduler.Task;
 import ddge.modules.scheduler.TaskFactory;
 import ddge.modules.scheduler.TaskHubProxy;
 
-import ddge.utility.any_cast;
-import ddge.utility.containers.MoveOnlyAny;
+import ddge.util.any_cast;
+import ddge.util.containers.MoveOnlyAny;
 
 namespace ddge::scheduler {
 

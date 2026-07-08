@@ -20,8 +20,8 @@ import ddge.deprecated.gltf.Texture;
 
 import ddge.modules.log;
 
-import ddge.utility.meta.type_traits.functional.arguments_of;
-import ddge.utility.meta.type_traits.type_list.type_list_front;
+import ddge.util.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.type_traits.type_list.type_list_front;
 
 [[nodiscard]]
 static auto load_asset(const std::filesystem::path& filepath)

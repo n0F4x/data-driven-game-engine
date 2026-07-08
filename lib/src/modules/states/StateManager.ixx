@@ -6,11 +6,11 @@ module;
 export module ddge.modules.states.StateManager;
 
 import ddge.modules.states.state_c;
-import ddge.utility.containers.GenericStack;
+import ddge.util.containers.GenericStack;
 
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.meta.type_traits.const_like;
-import ddge.utility.TypeList;
+import ddge.util.containers.OptionalRef;
+import ddge.util.meta.type_traits.const_like;
+import ddge.util.TypeList;
 
 namespace ddge::states {
 

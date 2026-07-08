@@ -5,7 +5,7 @@ module;
 #include <functional>
 #include <type_traits>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.scheduler.accessors.events.Provider;
 
@@ -16,11 +16,11 @@ import ddge.modules.scheduler.accessors.events.Reader;
 import ddge.modules.scheduler.accessors.events.Recorder;
 import ddge.modules.scheduler.ProviderFor;
 import ddge.modules.scheduler.ProviderOf;
-import ddge.utility.contracts;
-import ddge.utility.meta.algorithms.apply;
-import ddge.utility.meta.algorithms.for_each;
-import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.meta.reflection.name_of;
+import ddge.util.contracts;
+import ddge.util.meta.algorithms.apply;
+import ddge.util.meta.algorithms.for_each;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.meta.reflection.name_of;
 
 namespace ddge::scheduler::accessors {
 

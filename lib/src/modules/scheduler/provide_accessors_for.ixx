@@ -6,12 +6,12 @@ export module ddge.modules.scheduler.provide_accessors_for;
 
 import ddge.modules.scheduler.accessor_c;
 import ddge.modules.scheduler.Nexus;
-import ddge.utility.containers.Tuple;
-import ddge.utility.meta.concepts.functional.unambiguously_invocable;
-import ddge.utility.meta.type_traits.functional.arguments_of;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
-import ddge.utility.meta.type_traits.type_list.type_list_to;
-import ddge.utility.TypeList;
+import ddge.util.containers.Tuple;
+import ddge.util.meta.concepts.functional.unambiguously_invocable;
+import ddge.util.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
+import ddge.util.meta.type_traits.type_list.type_list_to;
+import ddge.util.TypeList;
 
 namespace ddge::scheduler {
 

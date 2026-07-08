@@ -8,28 +8,28 @@ module;
 #include <span>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.ecs:Registry;
 
-import ddge.utility.containers.Any;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.containers.SlotMultiMap;
-import ddge.utility.containers.SlotMap;
-import ddge.utility.containers.Tuple;
-import ddge.utility.meta.algorithms.enumerate;
-import ddge.utility.meta.concepts.all_different;
-import ddge.utility.meta.concepts.nothrow_movable;
-import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.meta.type_traits.const_like;
-import ddge.utility.meta.type_traits.maybe_const;
-import ddge.utility.meta.type_traits.type_list.type_list_is_sorted;
-import ddge.utility.meta.type_traits.type_list.type_list_sort;
-import ddge.utility.meta.type_traits.type_list.type_list_to;
-import ddge.utility.all_same;
-import ddge.utility.hashing;
-import ddge.utility.ScopeFail;
-import ddge.utility.TypeList;
+import ddge.util.containers.Any;
+import ddge.util.containers.OptionalRef;
+import ddge.util.containers.SlotMultiMap;
+import ddge.util.containers.SlotMap;
+import ddge.util.containers.Tuple;
+import ddge.util.meta.algorithms.enumerate;
+import ddge.util.meta.concepts.all_different;
+import ddge.util.meta.concepts.nothrow_movable;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.meta.type_traits.const_like;
+import ddge.util.meta.type_traits.maybe_const;
+import ddge.util.meta.type_traits.type_list.type_list_is_sorted;
+import ddge.util.meta.type_traits.type_list.type_list_sort;
+import ddge.util.meta.type_traits.type_list.type_list_to;
+import ddge.util.all_same;
+import ddge.util.hashing;
+import ddge.util.ScopeFail;
+import ddge.util.TypeList;
 
 import :Archetype;
 import :ArchetypeID;

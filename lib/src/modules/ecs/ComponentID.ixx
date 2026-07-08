@@ -4,8 +4,8 @@ module;
 
 export module ddge.modules.ecs:ComponentID;
 
-import ddge.utility.meta.reflection.hash;
-import ddge.utility.containers.Strong;
+import ddge.util.meta.reflection.hash;
+import ddge.util.containers.Strong;
 
 import :component_c;
 

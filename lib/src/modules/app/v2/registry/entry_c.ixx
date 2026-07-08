@@ -8,7 +8,7 @@ export module ddge.modules.app.v2.registry.entry_c;
 import ddge.modules.app.v2.registry.BuildableEntryBase;
 import ddge.modules.app.v2.registry.EntryBase;
 import ddge.modules.app.v2.registry.EntryBuilderBase;
-import ddge.utility.containers.MoveOnlyAny;
+import ddge.util.containers.MoveOnlyAny;
 
 namespace ddge::app::v2 {
 

@@ -6,8 +6,8 @@ module;
 #include <optional>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
-#include "utility/no_unique_address.hpp"
+#include "util/contract_macros.hpp"
+#include "util/no_unique_address.hpp"
 
 export module ddge.modules.scheduler.gatherers.AllOf;
 
@@ -16,7 +16,7 @@ import ddge.modules.scheduler.gatherers.gatherer_builder_of_c;
 import ddge.modules.scheduler.TaskContinuation;
 import ddge.modules.scheduler.TaskHubProxy;
 
-import ddge.utility.contracts;
+import ddge.util.contracts;
 
 namespace ddge::scheduler {
 

@@ -2,7 +2,7 @@ export module ddge.modules.scheduler.TaskContinuationFactory;
 
 import ddge.modules.scheduler.TaskContinuation;
 import ddge.modules.scheduler.TaskHubProxy;
-import ddge.utility.containers.MoveOnlyFunction;
+import ddge.util.containers.MoveOnlyFunction;
 
 namespace ddge::scheduler {
 

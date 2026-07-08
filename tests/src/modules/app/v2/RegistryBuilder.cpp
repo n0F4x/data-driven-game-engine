@@ -13,8 +13,8 @@ import ddge.modules.app.v2.registry.EntryBase;
 import ddge.modules.app.v2.registry.EntryBuilderBase;
 import ddge.modules.app.v2.registry.Registry;
 import ddge.modules.app.v2.registry.RegistryBuilder;
-import ddge.utility.containers.OptionalRef;
-import ddge.utility.meta.reflection.name_of;
+import ddge.util.containers.OptionalRef;
+import ddge.util.meta.reflection.name_of;
 
 namespace ddge::app::v2 {
 

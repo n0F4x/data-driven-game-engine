@@ -7,8 +7,8 @@ export module ddge.modules.assets.WeakHandle;
 
 import ddge.modules.assets.asset_c;
 
-import ddge.utility.containers.Any;
-import ddge.utility.contracts;
+import ddge.util.containers.Any;
+import ddge.util.contracts;
 
 namespace ddge::assets {
 

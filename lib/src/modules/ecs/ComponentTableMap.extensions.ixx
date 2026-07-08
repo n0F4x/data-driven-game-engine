@@ -6,13 +6,13 @@ module;
 
 export module ddge.modules.ecs:ComponentTableMap.extensions;
 
-import ddge.utility.containers.Any;
-import ddge.utility.containers.Tuple;
-import ddge.utility.meta.algorithms.enumerate;
-import ddge.utility.meta.concepts.all_different;
-import ddge.utility.meta.concepts.decays_to;
-import ddge.utility.meta.concepts.ranges.input_range_of;
-import ddge.utility.all_same;
+import ddge.util.containers.Any;
+import ddge.util.containers.Tuple;
+import ddge.util.meta.algorithms.enumerate;
+import ddge.util.meta.concepts.all_different;
+import ddge.util.meta.concepts.decays_to;
+import ddge.util.meta.concepts.ranges.input_range_of;
+import ddge.util.all_same;
 
 import :ArchetypeID;
 import :component_c;

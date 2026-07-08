@@ -4,7 +4,7 @@ module;
 #include <format>
 #include <utility>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 module ddge.modules.scheduler.TaskHub;
 
@@ -12,8 +12,8 @@ import ddge.modules.scheduler.data_structures.Work;
 import ddge.modules.scheduler.data_structures.WorkContinuation;
 import ddge.modules.scheduler.data_structures.WorkIndex;
 
-import ddge.utility.any_cast;
-import ddge.utility.contracts;
+import ddge.util.any_cast;
+import ddge.util.contracts;
 
 ddge::scheduler::TaskHub::TaskHub(
     const uint64_t generic_task_capacity,

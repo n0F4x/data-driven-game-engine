@@ -4,12 +4,12 @@ module;
 #include <ranges>
 #include <type_traits>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.ecs:query.OptionalView;
 
-import ddge.utility.contracts;
-import ddge.utility.meta.type_traits.const_like;
+import ddge.util.contracts;
+import ddge.util.meta.type_traits.const_like;
 
 import :component_c;
 import :ComponentContainer;

@@ -6,14 +6,14 @@ module;
 
 export module ddge.modules.ecs:query.query;
 
-import ddge.utility.meta.concepts.functional.unambiguously_invocable;
-import ddge.utility.meta.concepts.type_list.type_list_none_of;
-import ddge.utility.meta.type_traits.functional.arguments_of;
-import ddge.utility.meta.type_traits.type_list.type_list_contains;
-import ddge.utility.meta.type_traits.type_list.type_list_index_of;
-import ddge.utility.meta.type_traits.type_list.type_list_to;
-import ddge.utility.meta.type_traits.type_list.type_list_transform;
-import ddge.utility.TypeList;
+import ddge.util.meta.concepts.functional.unambiguously_invocable;
+import ddge.util.meta.concepts.type_list.type_list_none_of;
+import ddge.util.meta.type_traits.functional.arguments_of;
+import ddge.util.meta.type_traits.type_list.type_list_contains;
+import ddge.util.meta.type_traits.type_list.type_list_index_of;
+import ddge.util.meta.type_traits.type_list.type_list_to;
+import ddge.util.meta.type_traits.type_list.type_list_transform;
+import ddge.util.TypeList;
 
 import :query.QueryClosure;
 import :Registry;

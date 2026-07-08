@@ -14,7 +14,7 @@ import ddge.modules.scheduler.accessors.ecs;
 import ddge.modules.scheduler.accessors.events;
 import ddge.modules.scheduler.accessors.resources;
 import ddge.modules.scheduler.primitives.as_task;
-import ddge.utility.containers.Tuple;
+import ddge.util.containers.Tuple;
 
 import snake.game.Cell;
 import snake.game.Direction;

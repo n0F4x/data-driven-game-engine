@@ -6,11 +6,11 @@ module;
 #include <utility>
 #include <vector>
 
-#include "utility/contract_macros.hpp"
+#include "util/contract_macros.hpp"
 
 export module ddge.modules.ecs:ComponentTable;
 
-import ddge.utility.containers.OptionalRef;
+import ddge.util.containers.OptionalRef;
 
 import :ArchetypeID;
 import :component_c;

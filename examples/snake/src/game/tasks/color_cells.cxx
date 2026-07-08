@@ -9,7 +9,7 @@ import ddge.modules.ecs;
 import ddge.modules.scheduler.accessors.ecs;
 import ddge.modules.scheduler.primitives.query;
 
-import ddge.utility.containers.OptionalRef;
+import ddge.util.containers.OptionalRef;
 
 import snake.game.Apple;
 import snake.game.Cell;

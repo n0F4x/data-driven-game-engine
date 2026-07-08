@@ -9,7 +9,7 @@ import ddge.modules.scheduler.ExecPolicy;
 import ddge.modules.scheduler.primitives.as_task;
 import ddge.modules.scheduler.TaskBuilder;
 
-import ddge.utility.meta.type_traits.functional.result_of;
+import ddge.util.meta.type_traits.functional.result_of;
 
 namespace ddge::scheduler {
 

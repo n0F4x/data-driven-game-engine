@@ -6,13 +6,13 @@ module;
 
 export module ddge.modules.ecs:LookupTable;
 
-import ddge.utility.containers.Any;
-import ddge.utility.containers.SlotMap;
-import ddge.utility.meta.concepts.ranges.input_range_of;
-import ddge.utility.meta.concepts.specialization_of;
-import ddge.utility.ScopeFail;
-import ddge.utility.TypeList;
-import ddge.utility.ValueSequence;
+import ddge.util.containers.Any;
+import ddge.util.containers.SlotMap;
+import ddge.util.meta.concepts.ranges.input_range_of;
+import ddge.util.meta.concepts.specialization_of;
+import ddge.util.ScopeFail;
+import ddge.util.TypeList;
+import ddge.util.ValueSequence;
 
 import :ComponentID;
 import :ID;

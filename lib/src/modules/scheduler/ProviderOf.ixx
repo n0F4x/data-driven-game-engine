@@ -6,7 +6,7 @@ export module ddge.modules.scheduler.ProviderFor;
 
 import ddge.modules.scheduler.accessor_c;
 
-import ddge.utility.meta.reflection.name_of;
+import ddge.util.meta.reflection.name_of;
 
 using namespace std::string_literals;
 
