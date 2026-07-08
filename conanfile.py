@@ -91,7 +91,6 @@ class DataDrivenGameEngineRecipe(ConanFile):
         self.requires("ktx/4.3.2", transitive_headers=True, options={"tools": False})
         self.requires("stb/cci.20240531", transitive_headers=True)
         self.requires("fastgltf/0.9.0", transitive_headers=True)
-        self.requires("entt/3.15.0", transitive_headers=True)
 
         if self._enable_tests:
             self.test_requires("catch2/3.15.0")

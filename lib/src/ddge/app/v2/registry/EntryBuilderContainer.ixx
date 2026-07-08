@@ -212,7 +212,7 @@ auto EntryBuilderContainer::contains() const noexcept -> bool
 {
     return std::ranges::contains(
         m_entry_hashes,
-        util::meta::hash<util::meta::result_of_t<decltype(&Builder_T::build)>>()
+        util::meta::hash_u64<util::meta::result_of_t<decltype(&Builder_T::build)>>()
     );
 }
 
@@ -222,7 +222,7 @@ auto EntryBuilderContainer::find(this Self_T& self) noexcept
 {
     const std::optional<std::size_t> builder_index{
         self.try_index_of_builder(
-            util::meta::hash<util::meta::result_of_t<decltype(&Builder_T::build)>>()
+            util::meta::hash_u64<util::meta::result_of_t<decltype(&Builder_T::build)>>()
         ),
     };
     if (!builder_index.has_value()) {
@@ -264,7 +264,7 @@ auto EntryBuilderContainer::try_emplace(Args_T&&... args) -> bool
         std::forward<Args_T>(args)...
     );
     m_entry_hashes.push_back(
-        util::meta::hash<util::meta::result_of_t<decltype(&Builder_T::build)>>()
+        util::meta::hash_u64<util::meta::result_of_t<decltype(&Builder_T::build)>>()
     );
 
     std::pmr::vector<uint64_t>& builder_dependency_hashes =
@@ -285,12 +285,12 @@ auto EntryBuilderContainer::try_emplace(Args_T&&... args) -> bool
             using StrippedDependency = strip_dependency_t<Dependency_T>;
             if constexpr (std::derived_from<StrippedDependency, EntryBuilderBase>) {
                 builder_dependency_hashes.push_back(
-                    util::meta::hash<
+                    util::meta::hash_u64<
                         util::meta::result_of_t<decltype(&StrippedDependency::build)>>()
                 );
             }
             else if constexpr (std::derived_from<StrippedDependency, EntryBase>) {
-                entry_dependency_hashes.push_back(util::meta::hash<StrippedDependency>());
+                entry_dependency_hashes.push_back(util::meta::hash_u64<StrippedDependency>());
             }
             else {
                 static_assert(false, "invalid build dependency");

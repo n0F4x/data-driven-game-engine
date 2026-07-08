@@ -13,10 +13,11 @@ struct helper<Wrapper_T<T>> : std::type_identity<T> {};
 namespace ddge::util::meta {
 
 export template <typename T>
-struct underlying
-    : std::type_identity<typename ::helper<std::remove_reference_t<T>>::type> {};
+struct underlying {
+    using type = typename ::helper<std::remove_reference_t<T>>::type;
+};
 
 export template <typename T>
-using underlying_t = typename underlying<T>::type;
+using underlying_t = typename ::helper<std::remove_reference_t<T>>::type;
 
 }   // namespace ddge::util::meta

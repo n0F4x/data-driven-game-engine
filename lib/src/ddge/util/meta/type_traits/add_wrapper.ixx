@@ -10,6 +10,6 @@ struct add_wrapper {
 };
 
 export template <typename T, template <typename> typename Wrapper_T>
-using add_wrapper_t = typename add_wrapper<T, Wrapper_T>::type;
+using add_wrapper_t = Wrapper_T<T>;
 
 }   // namespace ddge::util::meta

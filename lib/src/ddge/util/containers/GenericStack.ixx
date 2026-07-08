@@ -149,7 +149,7 @@ template <move_only_any_c Any_T>
 template <basic_generic_stack_item_c<Any_T> Item_T>
 auto BasicGenericStack<Any_T>::contains() const noexcept -> bool
 {
-    return std::ranges::contains(m_type_hashes, meta::hash<Item_T>());
+    return std::ranges::contains(m_type_hashes, meta::hash_u64<Item_T>());
 }
 
 template <move_only_any_c Any_T>
@@ -159,7 +159,7 @@ auto BasicGenericStack<Any_T>::find(this Self_T& self) noexcept
     -> OptionalRef<meta::const_like_t<Item_T, Self_T>>
 {
     const auto hash_iter =
-        std::ranges::find(self.BasicGenericStack::m_type_hashes, meta::hash<Item_T>());
+        std::ranges::find(self.BasicGenericStack::m_type_hashes, meta::hash_u64<Item_T>());
     if (hash_iter == self.BasicGenericStack::m_type_hashes.cend()) {
         return std::nullopt;
     }
@@ -227,7 +227,7 @@ auto BasicGenericStack<Any_T>::try_emplace(Args_T&&... args) -> std::pair<Item_T
         return std::pair<Item_T&, bool>{ *found, false };
     }
 
-    m_type_hashes.push_back(meta::hash<Item_T>());
+    m_type_hashes.push_back(meta::hash_u64<Item_T>());
     const ScopeFail destroy_type_hash_guard{
         [this] noexcept -> void { m_type_hashes.pop_back(); },
     };

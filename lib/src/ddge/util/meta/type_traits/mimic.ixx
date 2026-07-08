@@ -1,7 +1,6 @@
 module;
 
 #include <type_traits>
-#include <utility>
 
 export module ddge.util.meta.type_traits.mimic;
 

@@ -418,7 +418,7 @@ struct Operations {
     [[nodiscard]]
     constexpr static auto type_hash() noexcept -> uint64_t
     {
-        return meta::hash<T>();
+        return meta::hash_u64<T>();
     }
 
     [[nodiscard]]

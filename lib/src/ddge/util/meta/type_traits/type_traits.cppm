@@ -14,6 +14,5 @@ export import ddge.util.meta.type_traits.maybe_const;
 export import ddge.util.meta.type_traits.mimic;
 export import ddge.util.meta.type_traits.reference_like;
 export import ddge.util.meta.type_traits.remove_wrapper_if;
-export import ddge.util.meta.type_traits.tuple_or_pair;
 export import ddge.util.meta.type_traits.underlying;
 export import ddge.util.meta.type_traits.volatile_like;

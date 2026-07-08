@@ -45,7 +45,7 @@ private:
 template <ddge::util::meta::naked_c T>
 constexpr auto ddge::scheduler::LockGroup::expand(Lock&& lock) -> void
 {
-    expand(util::meta::hash<T>(), std::move(lock));
+    expand(util::meta::hash_u64<T>(), std::move(lock));
 }
 
 constexpr auto ddge::scheduler::LockGroup::expand(const LockGroup& lock_group) -> void

@@ -186,7 +186,7 @@ template <meta::decayed_c T, typename Any_T>
 constexpr auto any_cast(Any_T&& any) -> meta::forward_like_t<T, Any_T>
 {
     PRECOND(
-        any.BasicAny::m_erase_mechanism.type_hash() == util::meta::hash<T>(),
+        any.BasicAny::m_erase_mechanism.type_hash() == util::meta::hash_u64<T>(),
         std::format(
             "`Any` has type {}, but requested type is {}",
             any.BasicAny::m_erase_mechanism.type_name(),

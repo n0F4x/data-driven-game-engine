@@ -20,6 +20,7 @@ template <
     typename Integer_T,
     Integer_T... integers_T>
 struct integer_sequence_unique<IntegerSequence<Integer_T, integers_T...>> {
+    [[nodiscard]]
     constexpr static auto make_unique_integers_and_count()
     {
         std::array<Integer_T, sizeof...(integers_T)> integers_array{ integers_T... };
@@ -33,18 +34,15 @@ struct integer_sequence_unique<IntegerSequence<Integer_T, integers_T...>> {
 
     constexpr static auto helper()
     {
-        // TODO: constexpr structured binding with p2686r5
-        constexpr static std::pair unique_integers_and_count =
-            make_unique_integers_and_count();
+        constexpr static auto [unique_integers, unique_integer_count]{
+            make_unique_integers_and_count()
+        };
 
-        return util::meta::
-            apply<std::make_index_sequence<unique_integers_and_count.second>>(
-                [&]<std::size_t... indices_T>() {
-                    return std::integer_sequence<
-                        Integer_T,
-                        unique_integers_and_count.first[indices_T]...>{};
-                }
-            );
+        return apply<std::make_index_sequence<unique_integer_count>>(
+            [&]<std::size_t... indices_T>() {
+                return std::integer_sequence<Integer_T, unique_integers[indices_T]...>{};
+            }
+        );
     }
 
     using type = decltype(helper());

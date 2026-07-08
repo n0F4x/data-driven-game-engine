@@ -44,13 +44,8 @@ struct type_list_index_of_impl<TypeList_T<Ts...>, T> {
 
 namespace ddge::util::meta {
 
-template <typename TypeList_T, typename T>
-struct type_list_index_of {
-    constexpr static std::size_t value = ::type_list_index_of_impl<TypeList_T, T>::value;
-};
-
 export template <typename TypeList_T, typename T>
 inline constexpr std::size_t type_list_index_of_v =
-    type_list_index_of<TypeList_T, T>::value;
+    ::type_list_index_of_impl<TypeList_T, T>::value;
 
 }   // namespace ddge::util::meta

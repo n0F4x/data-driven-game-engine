@@ -96,7 +96,3 @@ target_link_libraries(${PROJECT_NAME} PUBLIC stb::stb)
 # fastgltf
 find_package(fastgltf)
 target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)
-
-# EnTT
-find_package(EnTT CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC EnTT::EnTT)

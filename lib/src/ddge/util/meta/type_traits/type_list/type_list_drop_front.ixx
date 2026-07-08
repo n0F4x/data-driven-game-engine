@@ -1,7 +1,5 @@
 export module ddge.util.meta.type_traits.type_list.type_list_drop_front;
 
-import ddge.util.meta.type_traits.type_list.type_list_take;
-
 namespace ddge::util::meta {
 
 export template <typename TypeList_T>

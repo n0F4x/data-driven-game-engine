@@ -15,8 +15,9 @@ template <
     template <typename...> typename TypeList_T,
     typename... Ts,
     template <typename> typename Predicate_T>
-struct type_list_none_of<TypeList_T<Ts...>, Predicate_T>
-    : std::conjunction<std::negation<Predicate_T<Ts>>...> {};
+struct type_list_none_of<TypeList_T<Ts...>, Predicate_T> {
+    constexpr static bool value{ (!(Predicate_T<Ts>::value) && ...) };
+};
 
 export template <typename TypeList_T, template <typename> typename Predicate_T>
 concept type_list_none_of_c = type_list_c<TypeList_T>

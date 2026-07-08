@@ -170,7 +170,7 @@ template <meta::decayed_c T, typename Function_T>
 constexpr auto any_cast(Function_T&& function) -> meta::forward_like_t<T, Function_T>
 {
     PRECOND(
-        function.Function::m_erase_mechanism.type_hash() == meta::hash<T>(),
+        function.Function::m_erase_mechanism.type_hash() == meta::hash_u64<T>(),
         std::format(
             "`Function` has type {}, but requested type is {}",
             function.Function::m_erase_mechanism.type_name(),

@@ -12,7 +12,9 @@ export template <typename TypeList_T>
 struct type_list_all_same;
 
 template <template <typename> typename TypeList_T, typename... Ts>
-struct type_list_all_same<TypeList_T<Ts...>> : std::bool_constant<all_same_v<Ts...>> {};
+struct type_list_all_same<TypeList_T<Ts...>> {
+    constexpr static bool value{ all_same_v<Ts...> };
+};
 
 export template <typename TypeList_T>
 inline constexpr bool type_list_all_same_v = type_list_all_same<TypeList_T>::value;

@@ -19,7 +19,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         mimic.ixx
         reference_like_t.ixx
         remove_wrapper_if.ixx
-        tuple_or_pair.ixx
         underlying.ixx
         volatile_like.ixx
 )

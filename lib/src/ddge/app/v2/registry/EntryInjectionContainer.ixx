@@ -151,7 +151,7 @@ template <util::meta::function_c Injection_T>
 auto EntryInjectionContainer::contains() const noexcept -> bool
 {
     return std::ranges::contains(
-        m_builder_hashes, util::meta::hash<util::meta::result_of_t<Injection_T>>()
+        m_builder_hashes, util::meta::hash_u64<util::meta::result_of_t<Injection_T>>()
     );
 }
 
@@ -165,12 +165,12 @@ auto EntryInjectionContainer::try_insert() -> bool
     }
 
     m_injections.emplace_back(ErasedEntryInjectionLambda<injection_T>{});
-    m_builder_hashes.push_back(util::meta::hash<Builder>());
+    m_builder_hashes.push_back(util::meta::hash_u64<Builder>());
     [this]<typename... Dependencies_T>(util::TypeList<Dependencies_T...>) -> void {
         std::pmr::vector<uint64_t>& dependencies = m_dependency_hashes.emplace_back();
         dependencies.append_range(
             std::initializer_list{
-                util::meta::hash<strip_dependency_t<Dependencies_T>>()...,
+                util::meta::hash_u64<strip_dependency_t<Dependencies_T>>()...,
             }
         );
     }(util::meta::arguments_of_t<decltype(injection_T)>{});

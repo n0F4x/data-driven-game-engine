@@ -13,7 +13,9 @@ template <>
 struct all_same<> : std::bool_constant<true> {};
 
 template <typename T, typename... Ts>
-struct all_same<T, Ts...> : std::conjunction<std::is_same<T, Ts>...> {};
+struct all_same<T, Ts...> {
+    constexpr static bool value{ (std::is_same_v<T, Ts> && ...) };
+};
 
 export template <typename... Ts>
 inline constexpr bool all_same_v = all_same<Ts...>::value;
