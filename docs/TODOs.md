@@ -1,4 +1,3 @@
-- deprecate and remove `cache` module and use assets instead
 - Don't expose fmt (requires constexpr `std::format`)
 - CMAKE_INTERPROCEDURAL_OPTIMIZATION
 - create a system for staging memory

@@ -5,11 +5,11 @@ module;
 
 export module ddge.app.v2.memory.MemoryArena;
 
-import ddge.app.v2.registry.ConfigurationEntry;
+import ddge.registry.ConfigurationEntry;
 
 namespace ddge::app::v2 {
 
-export class MemoryArena : public ConfigurationEntry {
+export class MemoryArena : public registry::ConfigurationEntry {
 public:
     class Builder;
 

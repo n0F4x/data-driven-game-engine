@@ -1,5 +1,4 @@
 add_subdirectory(config)
-add_subdirectory(registry)
 add_subdirectory(memory)
 
 target_sources(${PROJECT_NAME} PUBLIC

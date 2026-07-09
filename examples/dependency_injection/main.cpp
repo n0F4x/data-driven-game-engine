@@ -1,22 +1,23 @@
 #include <functional>
 
 import ddge.app.v2;
+import ddge.registry;
 
-struct First : ddge::app::v2::EntryBase {
+struct First : ddge::registry::EntryBase {
     int value{ 42 };
 };
 
 struct Second;
 
-auto describe_second_build(ddge::app::v2::BuildDirector<Second>&) -> void;
+auto describe_second_build(ddge::registry::BuildDirector<Second>&) -> void;
 
-struct Second : ddge::app::v2::BuildableEntry<Second, describe_second_build> {
+struct Second : ddge::registry::BuildableEntry<Second, describe_second_build> {
     explicit Second(First& first) : ref{ first.value } {}
 
     std::reference_wrapper<int> ref;
 };
 
-auto describe_second_build(ddge::app::v2::BuildDirector<Second>& build_director) -> void
+auto describe_second_build(ddge::registry::BuildDirector<Second>& build_director) -> void
 {
     build_director.use_dependencies<First&>();
 }

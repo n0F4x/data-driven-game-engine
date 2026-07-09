@@ -9,9 +9,9 @@ export module ddge.app.v2.Builder;
 import ddge.app.v2.App;
 import ddge.app.v2.config.Config;
 import ddge.app.v2.memory.MemoryArena;
-import ddge.app.v2.registry.entry_c;
-import ddge.app.v2.registry.Registry;
-import ddge.app.v2.registry.RegistryBuilder;
+import ddge.registry.entry_c;
+import ddge.registry.Registry;
+import ddge.registry.RegistryBuilder;
 
 namespace ddge::app::v2 {
 
@@ -20,7 +20,7 @@ public:
     explicit Builder(const Config& config = Config{});
 
 
-    template <entry_c Entry_T, typename Self_T>
+    template <registry::entry_c Entry_T, typename Self_T>
     auto register_entry(this Self_T&&) -> Self_T&&;
 
     template <typename Self_T, typename Bundle_T>
@@ -33,7 +33,7 @@ public:
 
 private:
     MemoryArena     m_arena;
-    RegistryBuilder m_registry_builder;
+    registry::RegistryBuilder m_registry_builder;
 };
 
 }   // namespace ddge::app::v2
@@ -50,7 +50,7 @@ Builder::Builder(const Config& config)
 {
 }
 
-template <entry_c Entry_T, typename Self_T>
+template <registry::entry_c Entry_T, typename Self_T>
 auto Builder::register_entry(this Self_T&& self) -> Self_T&&
 {
     self.Builder::m_registry_builder.template register_entry<Entry_T>();
@@ -71,7 +71,7 @@ auto Builder::build() && -> App
         m_arena.make_transient_resource()
     };
 
-    Registry registry{ std::move(m_registry_builder).build(transient_memory_resource) };
+    registry::Registry registry{ std::move(m_registry_builder).build(transient_memory_resource) };
 
     return App{ std::move(m_arena), std::move(registry) };
 }

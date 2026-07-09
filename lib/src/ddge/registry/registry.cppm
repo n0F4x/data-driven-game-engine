@@ -1,0 +1,25 @@
+export module ddge.registry;
+
+export import ddge.registry.BuildableEntry;
+export import ddge.registry.BuildableEntryBase;
+export import ddge.registry.BuildableEntryBuilder;
+export import ddge.registry.BuildableEntryBuilderBase;
+export import ddge.registry.BuildDirector;
+export import ddge.registry.configuration_entry_c;
+export import ddge.registry.ConfigurationEntry;
+export import ddge.registry.CyclicDependencyDetected;
+export import ddge.registry.DependencyChainNode;
+export import ddge.registry.entry_builder_c;
+export import ddge.registry.entry_c;
+export import ddge.registry.EntryBase;
+export import ddge.registry.EntryBuilderBase;
+export import ddge.registry.EntryBuilderContainer;
+export import ddge.registry.EntryBuilderFailedError;
+export import ddge.registry.EntryInjectionContainer;
+export import ddge.registry.ErasedEntry;
+export import ddge.registry.Registry;
+export import ddge.registry.RegistryBuilder;
+export import ddge.registry.represents_entry_builder_dependency_c;
+export import ddge.registry.represents_entry_dependency_c;
+export import ddge.registry.ReverseDependencyChainNode;
+export import ddge.registry.strip_dependency_t;

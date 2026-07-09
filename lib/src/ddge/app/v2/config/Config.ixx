@@ -5,7 +5,7 @@ module;
 
 export module ddge.app.v2.config.Config;
 
-import ddge.app.v2.registry.ConfigurationEntry;
+import ddge.registry.ConfigurationEntry;
 import ddge.config.engine_name;
 import ddge.config.engine_version;
 import ddge.config.Version;
@@ -13,7 +13,7 @@ import ddge.util.StringLiteral;
 
 namespace ddge::app::v2 {
 
-export class Config : public ConfigurationEntry {
+export class Config : public registry::ConfigurationEntry {
 public:
     constexpr explicit Config(
         const std::string_view app_name    = "",

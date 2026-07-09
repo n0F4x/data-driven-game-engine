@@ -1,14 +1,16 @@
 #include <cstdio>
 
 import ddge.app.v2;
+import ddge.registry;
 import ddge.util.containers.OptionalRef;
 
-struct GraphicsSystemIntegration : ddge::app::v2::EntryBase {};
+struct GraphicsSystemIntegration : ddge::registry::EntryBase {};
 
 template <typename Entry_T>
 struct BuildDescriber {
-    constexpr static auto operator()(ddge::app::v2::BuildDirector<Entry_T>& build_director)
-        -> void
+    constexpr static auto operator()(
+        ddge::registry::BuildDirector<Entry_T>& build_director
+    ) -> void
     {
         build_director.template use_builder<typename Entry_T::Builder>();
     }
@@ -17,7 +19,7 @@ struct BuildDescriber {
 template <typename EntryBuilder_T>
 struct BuilderBuildDescriber {
     constexpr static auto operator()(
-        ddge::app::v2::BuildDirector<EntryBuilder_T>& build_director
+        ddge::registry::BuildDirector<EntryBuilder_T>& build_director
     ) -> void
     {
         build_director.template use_function<EntryBuilder_T::create>();
@@ -25,21 +27,20 @@ struct BuilderBuildDescriber {
 };
 
 struct WindowSystem
-    : ddge::app::v2::BuildableEntry<WindowSystem, BuildDescriber<WindowSystem>{}> {
+    : ddge::registry::BuildableEntry<WindowSystem, BuildDescriber<WindowSystem>{}> {
     struct Builder;
 
     GraphicsSystemIntegration* graphics_system{};
 };
 
-struct WindowSystem::Builder : ddge::app::v2::EntryBuilderBase {
+struct WindowSystem::Builder : ddge::registry::EntryBuilderBase {
     bool graphics_support_requested = false;
 
     auto build(
         const ddge::util::OptionalRef<GraphicsSystemIntegration> graphics_system_integration
     ) const -> WindowSystem
     {
-        if (graphics_support_requested && graphics_system_integration.has_value())
-        {
+        if (graphics_support_requested && graphics_system_integration.has_value()) {
             return WindowSystem{ .graphics_system = &*graphics_system_integration };
         }
         return WindowSystem{};
@@ -47,7 +48,7 @@ struct WindowSystem::Builder : ddge::app::v2::EntryBuilderBase {
 };
 
 struct RenderSystem
-    : ddge::app::v2::BuildableEntry<RenderSystem, BuildDescriber<RenderSystem>{}>   //
+    : ddge::registry::BuildableEntry<RenderSystem, BuildDescriber<RenderSystem>{}>   //
 {
     struct Builder;
 
@@ -56,14 +57,12 @@ struct RenderSystem
 };
 
 struct RenderSystem::Builder
-    : ddge::app::v2::BuildableEntryBuilder<Builder, BuilderBuildDescriber<Builder>{}>   //
+    : ddge::registry::BuildableEntryBuilder<Builder, BuilderBuildDescriber<Builder>{}>   //
 {
-    static auto create(
-        const ddge::util::OptionalRef<WindowSystem::Builder> window_builder
-    ) -> Builder
+    static auto create(const ddge::util::OptionalRef<WindowSystem::Builder> window_builder)
+        -> Builder
     {
-        if (window_builder.has_value())
-        {
+        if (window_builder.has_value()) {
             window_builder->graphics_support_requested = true;
         }
 
@@ -91,9 +90,9 @@ auto main() -> int
      *  as RenderSystem (conditionally) depends on it.
      */
     ddge::app::v2::App app = ddge::app::v2::create()
-                             .register_entry<RenderSystem>()
-                             .register_entry<WindowSystem>()
-                             .build();
+                                 .register_entry<RenderSystem>()
+                                 .register_entry<WindowSystem>()
+                                 .build();
 
     /*
      * RenderSystem is never headless when the WindowSystem is present

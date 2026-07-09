@@ -8,6 +8,7 @@ export import ddge.events;
 export import ddge.log;
 export import ddge.messages;
 export import ddge.prelude;
+export import ddge.registry;
 export import ddge.resources;
 export import ddge.scheduler;
 export import ddge.states;
