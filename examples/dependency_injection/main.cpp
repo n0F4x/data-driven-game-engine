@@ -1,27 +1,34 @@
 #include <functional>
 
-import ddge.prelude;
+import ddge.app.v2;
 
-struct First {
+struct First : ddge::app::v2::EntryBase {
     int value{ 42 };
 };
 
-struct Second {
+struct Second;
+
+auto describe_second_build(ddge::app::v2::BuildDirector<Second>&) -> void;
+
+struct Second : ddge::app::v2::BuildableEntry<Second, describe_second_build> {
     std::reference_wrapper<const int> ref;
 };
 
+auto build_second(const First& first) -> Second
+{
+    return Second{ .ref = first.value };
+}
+
+auto describe_second_build(ddge::app::v2::BuildDirector<Second>& build_director) -> void
+{
+    build_director.use_function<build_second>();
+}
+
 auto main() -> int
 {
-    const int result = ddge::app::create()
-                     .plug_in(ddge::resources::Plugin{})
-                     .insert_resource(First{})
-                     .inject_resource([](const First& first) -> Second {
-                         return Second{ .ref = first.value };
-                     })
-                     .plug_in(ddge::app::RunnablePlugin{})
-                     .run([](auto app) -> int {
-                         return app.resource_manager.template at<Second>().ref.get();
-                     });
+    const ddge::app::v2::App app = ddge::app::v2::create()   //
+                                       .register_entry<Second>()
+                                       .build();
 
-    return result;
+    return app.registry().at<Second>().ref.get();
 }
