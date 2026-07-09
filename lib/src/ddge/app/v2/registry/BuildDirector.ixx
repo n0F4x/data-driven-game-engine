@@ -101,6 +101,11 @@ public:
         requires(func_T != nullptr)
     auto use_function() -> void;
 
+    template <typename... Dependencies_T>
+        requires(represents_entry_builder_dependency_c<Dependencies_T> && ...)
+             && std::constructible_from<EntryBuilder_T, Dependencies_T...>
+    auto use_dependencies() -> void;
+
 private:
     template <typename... Dependencies_T>
     auto resolve_dependencies(auto (*)(Dependencies_T...)->EntryBuilder_T) const -> void;
@@ -142,6 +147,11 @@ public:
     template <entry_maker_function_pointer_c<Entry_T> auto func_T>
         requires(func_T != nullptr)
     auto use_function() -> void;
+
+    template <typename... Dependencies_T>
+        requires(represents_entry_dependency_c<Dependencies_T> && ...)
+             && std::constructible_from<Entry_T, Dependencies_T...>
+    auto use_dependencies() -> void;
 };
 
 }   // namespace ddge::app::v2
@@ -214,9 +224,11 @@ auto BuildDirectorBase::build_entry() const -> void
 
     if constexpr (std::derived_from<Entry_T, internal::BuildableEntryBase>) {
         BuildDirector<Entry_T> build_director{
+            // ReSharper disable CppDFANullDereference
             *m_injection_container,
             *m_builder_container,
             *m_registry,
+            // ReSharper restore CppDFANullDereference
         };
 
         describe_build(build_director);
@@ -285,6 +297,21 @@ auto BuildDirector<EntryBuilder_T>::use_function() -> void
 
 template <entry_builder_c EntryBuilder_T>
 template <typename... Dependencies_T>
+    requires(represents_entry_builder_dependency_c<Dependencies_T> && ...)
+         && std::constructible_from<EntryBuilder_T, Dependencies_T...>
+auto BuildDirector<EntryBuilder_T>::use_dependencies() -> void
+{
+    constexpr static auto function{
+        +[] [[nodiscard]] (Dependencies_T... dependencies) -> EntryBuilder_T {
+            return EntryBuilder_T(std::forward<Dependencies_T>(dependencies)...);   //
+        }
+    };
+
+    use_function<function>();
+}
+
+template <entry_builder_c EntryBuilder_T>
+template <typename... Dependencies_T>
 auto BuildDirector<EntryBuilder_T>::resolve_dependencies(
     auto (*)(Dependencies_T...)->EntryBuilder_T
 ) const -> void
@@ -346,6 +373,22 @@ template <entry_maker_function_pointer_c<Entry_T> auto func_T>
 auto BuildDirector<Entry_T>::use_function() -> void
 {
     use_builder<DummyBuilder<func_T>>();
+}
+
+template <entry_c Entry_T>
+template <typename... Dependencies_T>
+    requires(represents_entry_dependency_c<Dependencies_T> && ...)
+         && std::constructible_from<Entry_T, Dependencies_T...>
+auto BuildDirector<Entry_T>::use_dependencies() -> void
+{
+    constexpr static auto function{
+        +[] [[nodiscard]] (Dependencies_T... dependencies) -> Entry_T
+        {
+            return Entry_T(std::forward<Dependencies_T>(dependencies)...);   //
+        }
+    };
+
+    use_function<function>();
 }
 
 }   // namespace ddge::app::v2

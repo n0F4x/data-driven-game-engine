@@ -11,17 +11,14 @@ struct Second;
 auto describe_second_build(ddge::app::v2::BuildDirector<Second>&) -> void;
 
 struct Second : ddge::app::v2::BuildableEntry<Second, describe_second_build> {
-    std::reference_wrapper<const int> ref;
-};
+    explicit Second(First& first) : ref{ first.value } {}
 
-auto build_second(const First& first) -> Second
-{
-    return Second{ .ref = first.value };
-}
+    std::reference_wrapper<int> ref;
+};
 
 auto describe_second_build(ddge::app::v2::BuildDirector<Second>& build_director) -> void
 {
-    build_director.use_function<build_second>();
+    build_director.use_dependencies<First&>();
 }
 
 auto main() -> int
