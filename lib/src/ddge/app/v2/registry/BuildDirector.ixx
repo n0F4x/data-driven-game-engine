@@ -85,8 +85,8 @@ struct IsEntryBuilderMakerFunctionPointer<
 };
 
 template <typename T, typename EntryBuilder_T>
-concept entry_builder_maker_function_pointer_c
-    = IsEntryBuilderMakerFunctionPointer<EntryBuilder_T, T>::value;
+concept entry_builder_maker_function_pointer_c =
+    IsEntryBuilderMakerFunctionPointer<EntryBuilder_T, T>::value;
 
 template <entry_builder_c EntryBuilder_T>
 class BuildDirector<EntryBuilder_T> : public BuildDirectorBase {
@@ -107,8 +107,9 @@ private:
 };
 
 template <typename T, typename Entry_T>
-concept builds_entry_c
-    = entry_builder_c<T> && std::same_as<util::meta::result_of_t<decltype(&T::build)>, Entry_T>;
+concept builds_entry_c =
+    entry_builder_c<T>
+    && std::same_as<util::meta::result_of_t<decltype(&T::build)>, Entry_T>;
 
 template <typename Entry_T, typename FuncPtr_T>
 struct IsEntryMakerFunctionPointer {
@@ -155,13 +156,11 @@ BuildDirectorBase::BuildDirectorBase(
     : m_injection_container{ &injection_container },
       m_builder_container{ &builder_container },
       m_registry{ &registry }
-{
-}
+{}
 
 auto BuildDirectorBase::empty() const noexcept -> bool
 {
-    return m_injection_container == nullptr
-        || m_builder_container == nullptr
+    return m_injection_container == nullptr || m_builder_container == nullptr
         || m_registry == nullptr;
 }
 
@@ -173,8 +172,8 @@ auto BuildDirectorBase::reset() noexcept -> void
 }
 
 template <typename T>
-concept represents_optional_dependency_c
-    = util::meta::specialization_of_c<T, util::OptionalRef>;
+concept represents_optional_dependency_c =
+    util::meta::specialization_of_c<T, util::OptionalRef>;
 
 template <auto injection_T>
 auto BuildDirectorBase::try_insert_injection() const -> bool
@@ -201,8 +200,7 @@ auto BuildDirectorBase::build_builder() const -> void
 
         describe_build(build_director);
     }
-    else
-    {
+    else {
         m_builder_container->try_emplace<EntryBuilder_T>();
     }
 }
@@ -214,8 +212,7 @@ auto BuildDirectorBase::build_entry() const -> void
     PRECOND(m_builder_container != nullptr);
     PRECOND(m_registry != nullptr);
 
-    if constexpr (std::derived_from<Entry_T, internal::BuildableEntryBase>)
-    {
+    if constexpr (std::derived_from<Entry_T, internal::BuildableEntryBase>) {
         BuildDirector<Entry_T> build_director{
             *m_injection_container,
             *m_builder_container,
@@ -224,8 +221,7 @@ auto BuildDirectorBase::build_entry() const -> void
 
         describe_build(build_director);
     }
-    else
-    {
+    else {
         m_registry->try_emplace<Entry_T>();
     }
 }
@@ -233,8 +229,7 @@ auto BuildDirectorBase::build_entry() const -> void
 template <typename Builder_T>
 auto BuildDirectorBase::resolve_build_dependencies() const -> void
 {
-    [&]<typename... Dependencies_T>(util::TypeList<Dependencies_T...>) -> void
-    {
+    [&]<typename... Dependencies_T>(util::TypeList<Dependencies_T...>) -> void {
         (resolve_dependency<Dependencies_T>(), ...);
     }(util::meta::arguments_of_t<decltype(&Builder_T::build)>{});
 }
@@ -242,20 +237,16 @@ auto BuildDirectorBase::resolve_build_dependencies() const -> void
 template <typename Dependency_T>
 auto BuildDirectorBase::resolve_dependency() const -> void
 {
-    if constexpr (!represents_optional_dependency_c<Dependency_T>)
-    {
+    if constexpr (!represents_optional_dependency_c<Dependency_T>) {
         using StrippedDependency = std::remove_cvref_t<Dependency_T>;
 
-        if constexpr (std::derived_from<StrippedDependency, EntryBuilderBase>)
-        {
+        if constexpr (std::derived_from<StrippedDependency, EntryBuilderBase>) {
             build_builder<StrippedDependency>();
         }
-        else if constexpr (std::derived_from<StrippedDependency, EntryBase>)
-        {
+        else if constexpr (std::derived_from<StrippedDependency, EntryBase>) {
             build_entry<StrippedDependency>();
         }
-        else
-        {
+        else {
             static_assert(false, "invalid dependency");
         }
     }
@@ -266,8 +257,7 @@ template <typename T>
     requires(!std::is_same_v<T, EntryBuilder_T>)
 BuildDirector<EntryBuilder_T>::BuildDirector(const BuildDirector<T>& other)
     : BuildDirectorBase{ other }
-{
-}
+{}
 
 template <entry_builder_c EntryBuilder_T>
 template <entry_builder_maker_function_pointer_c<EntryBuilder_T> auto func_T>
@@ -279,8 +269,7 @@ auto BuildDirector<EntryBuilder_T>::use_function() -> void
         std::format("{} can only be used once", util::meta::name_of<BuildDirector>())
     );
 
-    if (const bool success = try_insert_injection<func_T>(); !success)
-    {
+    if (const bool success = try_insert_injection<func_T>(); !success) {
         return;
     }
 
@@ -308,8 +297,7 @@ template <typename T>
     requires(!std::is_same_v<T, Entry_T>)
 BuildDirector<Entry_T>::BuildDirector(const BuildDirector<T>& other)
     : BuildDirectorBase{ other }
-{
-}
+{}
 
 template <entry_c Entry_T>
 template <builds_entry_c<Entry_T> Builder_T>
@@ -320,16 +308,13 @@ auto BuildDirector<Entry_T>::use_builder() -> void
         std::format("{} can only be used once", util::meta::name_of<BuildDirector>())
     );
 
-    if constexpr (std::derived_from<Builder_T, internal::BuildableEntryBuilderBase>)
-    {
+    if constexpr (std::derived_from<Builder_T, internal::BuildableEntryBuilderBase>) {
         BuildDirector<Builder_T> build_director{ *this };
 
         describe_build(build_director);
     }
-    else
-    {
-        if (const bool success = try_emplace_builder<Builder_T>(); !success)
-        {
+    else {
+        if (const bool success = try_emplace_builder<Builder_T>(); !success) {
             return;
         }
 
@@ -346,11 +331,8 @@ auto BuildDirector<Entry_T>::use_builder() -> void
 template <auto func_T>
 struct DummyBuilder;
 
-template <
-    typename Entry_T,
-    typename... Dependencies_T,
-    auto (&func_T)(Dependencies_T...)->Entry_T>
-struct DummyBuilder<func_T> {
+template <typename Entry_T, typename... Dependencies_T, auto (*func_T)(Dependencies_T...)->Entry_T>
+struct DummyBuilder<func_T> : EntryBuilderBase {
     [[nodiscard]]
     static auto build(Dependencies_T... dependencies) -> Entry_T
     {
